@@ -1,0 +1,209 @@
+import { flattenDeep, groupBy, orderBy, get } from 'lodash'
+import { socket } from '@/utils/socket/operation'
+import { klineHistory } from 'api/kline/index'
+import * as types from  '@/types/chart/index'
+import tvChartStore from '@/store/modules/tvChart'
+
+const tvStore = tvChartStore();
+
+const config = {
+  "supports_search": true,
+  "supports_group_request": false,
+  "supports_marks": false,
+  "supports_timescale_marks": false,
+  "supports_time": true,
+  "exchanges": [],
+  "symbols_types": [],
+  "supported_resolutions": ["D", "W", "M", "60", "240", "1", "5", "15", "30"],
+}
+
+const formatToSeesion = (time: number) => {
+  const hours = Math.floor(time / 60);
+  const second = time % 60;
+  return `${hours < 9 ? '0' : ''}${hours}${second < 9 ? '0' : ''}${second}`;
+}
+
+let subscribed: any = {};
+let new_one: types.LineData;
+
+export const datafeed = () => {
+  return {
+    onReady: (callback: Function) => {
+      setTimeout(() => {
+        callback(config);
+        socketOpera();
+      }, 0);
+    },
+
+    //商品配置
+    resolveSymbol: (symbolName: string, onSymbolResolvedCallback: Function, onResolveErrorCallback: Function) => {
+      // 获取session
+      const symbolInfo = tvStore.symbols.find(e => e.symbol === symbolName);
+      const ttimes = symbolInfo ? symbolInfo.ttimes : [];
+      const times = flattenDeep(Object.values(ttimes)).filter((obj) => symbolName === obj.symbol);
+      const grouptObj = groupBy(times, 'week_day');
+      const timeArr = [];
+      for (const weekDay in grouptObj) {
+        const tItem = grouptObj[weekDay];
+        const fTime = tItem.reduce((pre: types.TimeUnit, next: types.TimeUnit) => {
+          const preSession = `${formatToSeesion(pre.btime)}-${formatToSeesion(pre.etime)}`;
+          const endSession = `${formatToSeesion(next.btime)}-${formatToSeesion(next.etime)}`;
+          return {
+            btime: pre.btime,
+            etime: next.etime,
+            symbol: symbolName,
+            week_day: Number(weekDay),
+            session: `${preSession},${endSession}:${Number(weekDay) + 1}`
+          }
+        });
+        const resultTs = fTime.session || `${formatToSeesion(fTime.btime)}-${formatToSeesion(fTime.etime)}:${Number(weekDay) + 1}`;
+        timeArr.push(resultTs);
+      }
+      const session = timeArr.join('|');
+      const symbol_stub = {
+        name: symbolName,
+        description: "",
+        visible_plots_set: false,
+        minmov: 1,
+        minmov2: 0,
+        pricescale: true,
+        session,
+        ticker: symbolName,
+        timezone: "Asia/Hong_Kong",
+        type: "cfd",
+        has_intraday: true, // 分钟数据
+        // has_daily: true, // 日k线数据
+        has_weekly_and_monthly: true, // 月，周数据
+        supported_resolutions: ["D", "W", "M", "60", "240", "1", "5", "15", "30"],
+      }
+
+      setTimeout(function () {
+        onSymbolResolvedCallback(symbol_stub);
+      }, 0);
+    },
+
+    //渲染历史数据
+    getBars: (symbolInfo: types.TVSymbolInfo, resolution: types.Resolution, periodParams: types.PeriodParams, onHistoryCallback: Function, onErrorCallback: Function) => {
+      // socket
+      tvStore.turnSocket(symbolInfo.name, resolution);
+
+      const bar: types.LineData[] = [];
+      const updata = {
+        "server": "upway-live",
+        "period_type": types.Periods[resolution] ? types.Periods[resolution] : resolution,
+        "symbol": symbolInfo.name,
+        "count": periodParams.countBack,
+        "limit_ctm": periodParams.to
+      };
+      klineHistory(updata).then(res => {
+        if (res.data.length === 0) {
+          return
+        }
+        const preSymbol = get(subscribed, 'symbolInfo.name') || '';
+        const reverse_data = orderBy(res.data, 'ctm');
+        const data_cache = reverse_data.map(item => {
+          const { ctm, open, high, low, close, volume } = item;
+          const tone = { time: ctm, open, high, low, close, volume };
+          if (!new_one || ctm > new_one.time || (symbolInfo.name !== preSymbol && preSymbol)) {
+            new_one = JSON.parse(JSON.stringify(tone));
+          }
+          return tone
+        });
+        // 请求k线数据
+        data_cache.forEach(item => {
+          const barValue = {
+            ...item,
+            // 时间戳
+            time: item.time * 1000,
+          };
+          bar.push(barValue);
+        })
+        setTimeout(() => {
+          onHistoryCallback(bar);
+        }, 0);
+      }).catch(() => { })
+    },
+
+    //实时更新
+    subscribeBars: (symbolInfo: any, resolution: types.Resolution, onRealtimeCallback: Function, subscriberUID: number, onResetCacheNeededCallback: Function) => {
+      subscribed.symbolInfo = symbolInfo;
+      subscribed.resolution = resolution;
+      subscribed.onRealtimeCallback = onRealtimeCallback;
+      subscribed.onResetCacheNeededCallback = onResetCacheNeededCallback;
+    },
+    //取消订阅,撤销掉某条线的实时更新
+    unsubscribeBars: (subscriberUID: string) => {
+    },
+
+    searchSymbols: (userInput: string, exchange: string, symbolType: string, onResultReadyCallback: Function) => {
+      // 模糊匹配
+      const filterList = tvStore.symbols.filter((item: types.SessionSymbolInfo) => {
+        const pattern = new RegExp(`.*${userInput}.*`, 'i');
+        return pattern.test(item.symbol);
+      });
+      const targetList = filterList.map((item: types.SessionSymbolInfo) => {
+        return {
+          symbol: item.symbol,
+          full_name: item.symbol,
+          description: item.path,
+          exchange: '',
+          ticker: item.symbol,
+          force_session_rebuild: true
+        }
+      });
+      onResultReadyCallback(targetList)
+    }
+  }
+}
+
+function socketOpera() {
+  // 监听报价
+  socket.on('quote', function (d) {
+    if (!subscribed.symbolInfo) {//图表没初始化
+      return false;
+    }
+    //报价更新 最新一条柱子 实时 上下 跳动
+    if (d.symbol === subscribed.symbolInfo.name) { //报价为图表当前品种的报价
+      if (new_one.high < d.bid) {
+        new_one.high = d.bid;
+      }
+      if (new_one.low > d.bid) {
+        new_one.low = d.bid;
+      }
+      const newlastbar = {
+        time: new_one.time * 1000,
+        close: d.bid,
+        high: new_one.high,
+        low: new_one.low,
+        open: new_one.open,
+        volume: new_one.volume + 1
+      }
+      subscribed.onRealtimeCallback(newlastbar) //更新K线
+    }
+  });
+  // 监听k线
+  socket.on('kline_new', function (d) {
+    if (!subscribed.symbolInfo) {//图表没初始化
+      return false;
+    }
+    //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1},{"ctm":1715408400,"date_time":"2024-05-11 14:20:00","open":60940,"high":60956,"low":60940,"close":60956,"volume":6}]}
+    if (d.symbol == subscribed.symbolInfo.name && subscribed.resolution == d.period_type) {
+      d.klines = d.klines.reverse();
+      for (let i in d.klines) {
+        let newlastbar = {
+          time: d.klines[i].ctm,
+          close: d.klines[i].close,
+          high: d.klines[i].high,
+          low: d.klines[i].low,
+          open: d.klines[i].open,
+          volume: d.klines[i].volume
+        }
+        if (newlastbar.time > new_one.time) {
+          new_one = JSON.parse(JSON.stringify(newlastbar));
+        }
+        newlastbar.time = newlastbar.time * 1000;
+        subscribed.onRealtimeCallback(newlastbar) //更新K线
+      }
+    }
+  });
+}
