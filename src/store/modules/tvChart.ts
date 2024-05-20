@@ -1,57 +1,41 @@
 import { defineStore } from 'pinia'
 import { IChartingLibraryWidget } from '../../../public/charting_library/charting_library';
 import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation'
-import { SessionSymbolInfo } from  '@/types/chart/index'
-
-interface KlineItem {
-  close: number
-  ctm: number
-  date_time: string
-  high: number
-  low: number
-  open: number
-  volume: number
-}
-
-interface quoteItem {
-  ask: number
-  bid: number
-  ctm: number
-  ctm_ms: number
-  server: string
-  symbol: string
-}
-
-interface KlineList {
-  [value: string]: Array<KlineItem>
-}
+import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index'
 
 interface State {
   chartWidget: IChartingLibraryWidget | null
-  currentSymbol: string,
-  currentResolution: number | string
   symbols: SessionSymbolInfo[]
+  barsCache: Map<string, any>
+}
+
+interface TurnSocket {
+  subscriberUID: string
+  symbolInfo: TVSymbolInfo
+  resolution: number
 }
 
 const tvChartStore = defineStore('tvChartStore', {
   state(): State {
     return {
       chartWidget: null,
-      currentSymbol: '',
-      currentResolution: 1,
-      symbols: []
+      symbols: [],
+      barsCache: new Map()
     }
   },
   actions: {
-    turnSocket(symbol: string, resolution: number) {
-      if (symbol !== this.currentSymbol || resolution !== this.currentResolution) {
-        subscribeSocket({ resolution, symbol });
-        if (this.currentSymbol !== '') {
-          unsubscribeSocket({ resolution: this.currentResolution, symbol: this.currentSymbol });
-        }
-      }
-      this.currentResolution = resolution;
-      this.currentSymbol = symbol;
+    subscribe(args: TurnSocket) {
+      const { subscriberUID, symbolInfo, resolution } = args;
+      this.barsCache.set(subscriberUID, {
+        ...symbolInfo,
+        resolution
+      });
+      subscribeSocket({ resolution, symbol: symbolInfo.name });
+    },
+    unsubscribe(subscriberUID: string) {
+      const { resolution, name } = this.barsCache.get(subscriberUID);
+      unsubscribeSocket({ resolution, symbol: name });
+      this.barsCache.delete(subscriberUID);
     }
   }
 })

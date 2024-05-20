@@ -4,7 +4,7 @@ export const socket = SingletonSocket.getInstance(import.meta.env.VITE_WEB_SOCKE
 
 interface Props {
   resolution: string | number
-  symbol?: string
+  symbol: string
 }
 
 // 订阅

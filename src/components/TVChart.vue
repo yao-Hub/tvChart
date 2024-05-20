@@ -87,7 +87,7 @@ const props = defineProps({
     type: String,
   },
   theme: {
-    default: 'Light',
+    default: 'dark',
     type: String,
   },
   additionalSymbolInfoFields: {

@@ -66,7 +66,7 @@ export const datafeed = () => {
         visible_plots_set: false,
         minmov: 1,
         minmov2: 0,
-        pricescale: true,
+        pricescale: 100,
         session,
         ticker: symbolName,
         timezone: "Asia/Hong_Kong",
@@ -84,9 +84,6 @@ export const datafeed = () => {
 
     //渲染历史数据
     getBars: (symbolInfo: types.TVSymbolInfo, resolution: types.Resolution, periodParams: types.PeriodParams, onHistoryCallback: Function, onErrorCallback: Function) => {
-      // socket
-      tvStore.turnSocket(symbolInfo.name, resolution);
-
       const bar: types.LineData[] = [];
       const updata = {
         "server": "upway-live",
@@ -125,14 +122,20 @@ export const datafeed = () => {
     },
 
     //实时更新
-    subscribeBars: (symbolInfo: any, resolution: types.Resolution, onRealtimeCallback: Function, subscriberUID: number, onResetCacheNeededCallback: Function) => {
+    subscribeBars: (symbolInfo: any, resolution: types.Resolution, onRealtimeCallback: Function, subscriberUID: string, onResetCacheNeededCallback: Function) => {
       subscribed.symbolInfo = symbolInfo;
       subscribed.resolution = resolution;
       subscribed.onRealtimeCallback = onRealtimeCallback;
       subscribed.onResetCacheNeededCallback = onResetCacheNeededCallback;
+      tvStore.subscribe({
+        subscriberUID,
+        symbolInfo,
+        resolution
+      });
     },
     //取消订阅,撤销掉某条线的实时更新
     unsubscribeBars: (subscriberUID: string) => {
+      tvStore.unsubscribe(subscriberUID);
     },
 
     searchSymbols: (userInput: string, exchange: string, symbolType: string, onResultReadyCallback: Function) => {
