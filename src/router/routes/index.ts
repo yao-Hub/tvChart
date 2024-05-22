@@ -31,7 +31,7 @@ const notFoundPage: RouteRecordRaw = {
   // 官方文档：https://next.router.vuejs.org/zh/guide/migration/index.html#%E5%88%A0%E9%99%A4%E4%BA%86-%EF%BC%88%E6%98%9F%E6%A0%87%E6%88%96%E9%80%9A%E9%85%8D%E7%AC%A6%EF%BC%89%E8%B7%AF%E7%94%B1
   path: '/:pathMatch(.*)*',
   name: 'not-found',
-  component: () => import('@/views/common/404Page.vue')
+  component: () => import('@/views/404Page.vue')
 }
 
 export default [rootRoute, ...routes, notFoundPage]

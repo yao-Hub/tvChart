@@ -1,7 +1,6 @@
 <template>
   <div>
     <TVChart
-      v-if="states.isReady"
       :datafeed="datafeed()"
       :symbol="states.symbol"
       :compareSymbols="states.compareSymbols"
@@ -21,13 +20,11 @@ import tvChartStore from '@/store/modules/tvChart'
 const tvStore = tvChartStore()
 
 const states = reactive({
-  symbol: '',
-  isReady: false,
+  symbol: 'XAG',
   compareSymbols: []
 });
 
 const getSymbols = async () => {
-  states.isReady = false;
   const res:any = await allSymbols({ server: 'upway-live' })
   tvStore.symbols = res.data;
   states.symbol = res.data[0].symbol;
@@ -37,7 +34,6 @@ const getSymbols = async () => {
   //     title: item.symbol
   //   }
   // });
-  states.isReady = true;
 }
 getSymbols();
 </script>

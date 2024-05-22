@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import tvChartStore from '@/store/modules/tvChart'
-import { widget } from '../../public/charting_library';
+import { widget } from 'public/charting_library';
 
 const chartContainer = ref();
 const tvStore = tvChartStore()
@@ -128,7 +128,7 @@ onMounted(async () => {
     client_id: props.clientId,
     theme: props.theme,
     // additional_symbol_info_fields: props.additionalSymbolInfoFields,
-    compare_symbols: props.compareSymbols,
+    // compare_symbols: props.compareSymbols,
     // timeframe: props.timeframe,
   };
   tvStore.chartWidget = new widget(widgetOptions);

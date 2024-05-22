@@ -6,7 +6,11 @@ import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 
 export default defineConfig((mode: ConfigEnv) => {
   const env = loadEnv(mode.mode, process.cwd());
+  const root = process.cwd();
+
   return {
+    base: '/',
+    // root,
     plugins: [
       vue(),
       Components({

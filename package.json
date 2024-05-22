@@ -31,6 +31,7 @@
     "@types/node": "^20.12.8",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/cli-plugin-eslint": "^5.0.8",
+    "dotenv": "^16.4.5",
     "eslint": "^9.2.0",
     "eslint-plugin-vue": "^9.25.0",
     "globals": "^15.1.0",

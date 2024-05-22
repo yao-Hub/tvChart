@@ -75,6 +75,7 @@ export const datafeed = () => {
         // has_daily: true, // 日k线数据
         has_weekly_and_monthly: true, // 月，周数据
         supported_resolutions: ["D", "W", "M", "60", "240", "1", "5", "15", "30"],
+        exchange: ''
       }
 
       setTimeout(function () {
