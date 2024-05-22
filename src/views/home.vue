@@ -24,6 +24,6 @@ const getSymbols = () => {
   <LocaleChange></LocaleChange>
   <Button @click="getSymbols">{{ $t('Send request') }}</Button>
   <a-date-picker />
-  <Button @click="router.push({ name: 'login' })">{{ $t('login') }}</Button>
+  <!-- <Button @click="router.push({ name: 'login' })">{{ $t('login') }}</Button> -->
   <Button @click="router.push({ name: 'chart' })">charts</Button>
 </template>

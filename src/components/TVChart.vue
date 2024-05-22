@@ -71,7 +71,11 @@ const props = defineProps({
     type: String,
   },
   disabledFeatures: {
-    default: ["use_localstorage_for_settings"],
+    default: ['use_localstorage_for_settings'],
+    type: Array,
+  },
+  enabledFeatures: {
+    default: [],
     type: Array,
   },
   chartsStorageUrl: {
@@ -118,15 +122,16 @@ onMounted(async () => {
     height: props.height,
     fullscreen: props.fullscreen,
     autosize: props.autosize,
-    // symbol_search_request_delay: props.symbolSearchRequestDelay,
-    // toolbar_bg: props.toolbarBg,
-    // study_count_limit: props.studyCountLimit,
     locale: props.locale,
-    disabled_features: props.disabledFeatures,
     charts_storage_url: props.chartsStorageUrl,
     charts_storage_api_version: props.chartsStorageApiVersion,
     client_id: props.clientId,
     theme: props.theme,
+    enabled_features: props.enabledFeatures,
+    disabled_features: props.disabledFeatures
+    // symbol_search_request_delay: props.symbolSearchRequestDelay,
+    // toolbar_bg: props.toolbarBg,
+    // study_count_limit: props.studyCountLimit,
     // additional_symbol_info_fields: props.additionalSymbolInfoFields,
     // compare_symbols: props.compareSymbols,
     // timeframe: props.timeframe,

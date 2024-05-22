@@ -31,6 +31,8 @@ export default defineConfig((mode: ConfigEnv) => {
       }
     },
     server: {
+      host: 'localhost',
+      port: 8080,
       proxy: {
         [env.VITE_HTTP_BASE_URL]: {
           target: env.VITE_HTTP_URL,
