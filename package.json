@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite --open",
     "build": "vue-tsc && vite build",
+    "build:dev": "vue-tsc && vite build --mode development",
+    "build:test": "vue-tsc && vite build --mode test",
     "preview": "vite preview",
     "lint": "eslint --ext .js,.vue,.ts src",
     "http-server": "npm run build && cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o"
@@ -32,7 +34,6 @@
     "@types/node": "^20.12.8",
     "@vitejs/plugin-vue": "^5.0.4",
     "@vue/cli-plugin-eslint": "^5.0.8",
-    "dotenv": "^16.4.5",
     "eslint": "^9.2.0",
     "eslint-plugin-vue": "^9.25.0",
     "globals": "^15.1.0",
@@ -40,6 +41,7 @@
     "less-loader": "^12.2.0",
     "lint-staged": "^15.2.2",
     "lodash": "^4.17.21",
+    "rollup-plugin-visualizer": "^5.12.0",
     "sass": "^1.76.0",
     "typescript": "^5.2.2",
     "typescript-eslint": "^7.8.0",

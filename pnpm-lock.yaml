@@ -66,9 +66,6 @@ importers:
       '@vue/cli-plugin-eslint':
         specifier: ^5.0.8
         version: 5.0.8(@vue/cli-service@5.0.8(@vue/compiler-sfc@3.4.27)(encoding@0.1.13)(less-loader@12.2.0(less@4.2.0)(webpack@5.91.0))(lodash@4.17.21)(vue-template-compiler@2.7.16)(vue@3.4.27(typescript@5.4.5))(webpack-sources@3.2.3))(encoding@0.1.13)(eslint@9.2.0)
-      dotenv:
-        specifier: ^16.4.5
-        version: 16.4.5
       eslint:
         specifier: ^9.2.0
         version: 9.2.0
@@ -90,6 +87,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      rollup-plugin-visualizer:
+        specifier: ^5.12.0
+        version: 5.12.0(rollup@4.17.2)
       sass:
         specifier: ^1.76.0
         version: 1.77.0
@@ -1739,10 +1739,6 @@ packages:
   dotenv@10.0.0:
     resolution: {integrity: sha512-rlBi9d8jpv9Sf1klPjNfFAuWDjKLwTIJJ/VxtoTwIR6hnZxcEOQCZg2oIL3MWBYw5GpUDKOEnND7LXTbIpQ03Q==}
     engines: {node: '>=10'}
-
-  dotenv@16.4.5:
-    resolution: {integrity: sha512-ZmdL2rui+eB2YwhsWzjInR8LldtZHGDoQ1ugH85ppHKwpUHL7j7rN0Ti9NCnGiQbhaZ11FpR+7ao1dNsmduNUg==}
-    engines: {node: '>=12'}
 
   duplexer@0.1.2:
     resolution: {integrity: sha512-jtD6YG370ZCIi/9GTaJKQxWTZD045+4R4hTk/x1UyoqadyJ9x9CgSi1RlVDQF8U2sxLLSnFkCaMihqljHIWgMg==}
@@ -3520,6 +3516,16 @@ packages:
   rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
     hasBin: true
+
+  rollup-plugin-visualizer@5.12.0:
+    resolution: {integrity: sha512-8/NU9jXcHRs7Nnj07PF2o4gjxmm9lXIrZ8r175bT9dK8qoLlvKTwRMArRCMgpMGlq8CTLugRvEmyMeMXIU2pNQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+    peerDependencies:
+      rollup: 2.x || 3.x || 4.x
+    peerDependenciesMeta:
+      rollup:
+        optional: true
 
   rollup@2.79.1:
     resolution: {integrity: sha512-uKxbd0IhMZOhjAiD5oAFp7BqvkA4Dv47qpOCtaNvng4HBwdbWtdOh8f5nZNuk2rp51PMGk3bzfWu5oayNEuYnw==}
@@ -6085,8 +6091,6 @@ snapshots:
 
   dotenv@10.0.0: {}
 
-  dotenv@16.4.5: {}
-
   duplexer@0.1.2: {}
 
   easy-stack@1.0.1: {}
@@ -7986,6 +7990,15 @@ snapshots:
   rimraf@3.0.2:
     dependencies:
       glob: 7.2.3
+
+  rollup-plugin-visualizer@5.12.0(rollup@4.17.2):
+    dependencies:
+      open: 8.4.2
+      picomatch: 2.3.1
+      source-map: 0.7.4
+      yargs: 17.7.2
+    optionalDependencies:
+      rollup: 4.17.2
 
   rollup@2.79.1:
     optionalDependencies:
