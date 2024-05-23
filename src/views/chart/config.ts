@@ -60,6 +60,7 @@ export const datafeed = () => {
         timeArr.push(resultTs);
       }
       const session = timeArr.join('|');
+      console.log('session', session)
       const symbol_stub = {
         name: symbolName,
         description: "",
@@ -95,6 +96,7 @@ export const datafeed = () => {
       };
       klineHistory(updata).then(res => {
         if (res.data.length === 0) {
+          onHistoryCallback(bar);
           return
         }
         const preSymbol = get(subscribed, 'symbolInfo.name') || '';
