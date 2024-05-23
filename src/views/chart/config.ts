@@ -1,7 +1,7 @@
-import { flattenDeep, groupBy, orderBy, get } from 'lodash'
+import { flattenDeep, groupBy, orderBy, get, reject, has } from 'lodash'
 import { socket } from '@/utils/socket/operation'
 import { klineHistory } from 'api/kline/index'
-import * as types from  '@/types/chart/index'
+import * as types from '@/types/chart/index'
 import tvChartStore from '@/store/modules/tvChart'
 
 const tvStore = tvChartStore();
@@ -26,6 +26,50 @@ const formatToSeesion = (time: number) => {
 let subscribed: any = {};
 let new_one: types.LineData;
 
+const barsCache: any = {};
+
+function hasEmptyArrayValue(map: Map<string, any>) {
+  for (const value of map.values()) {
+    if (Array.isArray(value) && value.length === 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function getBars(data: any) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const fkey = `${data.symbol}#${data['period_type']}`;
+      const skey = `${data['limit_ctm']}#${data['period_type']}`;
+      const ifCache = barsCache[fkey];
+      if (!ifCache) {
+        barsCache[fkey] = new Map();
+        const res = await klineHistory(data);
+        barsCache[fkey].set(skey, res.data);
+        resolve(res.data);
+        return;
+      }
+      const ifBars = barsCache[fkey].has(skey);
+      if (ifBars) {
+        const bar = barsCache[fkey].get(skey);
+        resolve(bar);
+        return;
+      }
+      const hasEmpty = hasEmptyArrayValue(barsCache[fkey]);
+      if (hasEmpty) {
+        resolve([]);
+        return;
+      }
+      const res = await klineHistory(data);
+      barsCache[fkey].set(skey, res.data);
+      resolve(res.data);
+    } catch (error) {
+      reject([]);
+    }
+  });
+};
+
 export const datafeed = () => {
   return {
     onReady: (callback: Function) => {
@@ -40,7 +84,8 @@ export const datafeed = () => {
       // 获取session
       const symbolInfo = tvStore.symbols.find(e => e.symbol === symbolName);
       const ttimes = symbolInfo ? symbolInfo.ttimes : [];
-      const times = flattenDeep(Object.values(ttimes)).filter((obj) => symbolName === obj.symbol);
+      // 当时间为0 到 0时为关闭日
+      const times = flattenDeep(Object.values(ttimes)).filter((obj) => symbolName === obj.symbol && obj.btime !== obj.etime);
       const grouptObj = groupBy(times, 'week_day');
       const timeArr = [];
       for (const weekDay in grouptObj) {
@@ -60,7 +105,6 @@ export const datafeed = () => {
         timeArr.push(resultTs);
       }
       const session = timeArr.join('|');
-      console.log('session', session)
       const symbol_stub = {
         name: symbolName,
         description: "",
@@ -94,13 +138,13 @@ export const datafeed = () => {
         "count": periodParams.countBack,
         "limit_ctm": periodParams.to
       };
-      klineHistory(updata).then(res => {
-        if (res.data.length === 0) {
-          onHistoryCallback(bar);
-          return
+      getBars(updata).then((res: any) => {
+        if (res.length === 0) {
+          onHistoryCallback([]);
+          return;
         }
         const preSymbol = get(subscribed, 'symbolInfo.name') || '';
-        const reverse_data = orderBy(res.data, 'ctm');
+        const reverse_data = orderBy(res, 'ctm');
         const data_cache = reverse_data.map(item => {
           const { ctm, open, high, low, close, volume } = item;
           const tone = { time: ctm, open, high, low, close, volume };
@@ -121,7 +165,9 @@ export const datafeed = () => {
         setTimeout(() => {
           onHistoryCallback(bar);
         }, 0);
-      }).catch(() => { })
+      }).catch(() => {
+        onErrorCallback(bar);
+      })
     },
 
     //实时更新
