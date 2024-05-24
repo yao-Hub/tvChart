@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { allSymbols } from 'api/symbols/index'
+import { login } from 'api/account/index'
 import { Button } from 'ant-design-vue';
 import LocaleChange from '@/components/LocaleChange.vue'
 import { useRouter } from "vue-router";
+import { reactive } from 'vue';
 
 const router = useRouter()
 // import useUserStore from '@/store/modules/user'
@@ -12,18 +13,38 @@ const router = useRouter()
 //   userId: 123
 // })
 
-const getSymbols = () => {
-  allSymbols({ server: 'upway-live' }).then(res => {
-    console.log('getAllSymbols', res)
+// const getSymbols = () => {
+//   allSymbols({ server: 'upway-live' }).then(res => {
+//     console.log('getAllSymbols', res)
+//   })
+// }
+
+const states = reactive({
+  login: 3241,
+  password: 'abc111'
+});
+
+const Login = () => {
+  login({
+    server: 'upway-live',
+    password: states.password,
+    login: states.login
   })
 }
 
 </script>
 
 <template>
-  <LocaleChange></LocaleChange>
-  <Button @click="getSymbols">{{ $t('Send request') }}</Button>
-  <a-date-picker />
-  <!-- <Button @click="router.push({ name: 'login' })">{{ $t('login') }}</Button> -->
-  <Button @click="router.push({ name: 'chart' })">charts</Button>
+  <a-space>
+    <LocaleChange></LocaleChange>
+    <a-date-picker />
+    <Button @click="router.push({ name: 'chart' })">charts</Button>
+  </a-space>
+  <div>
+    <a-space>
+      <a-input v-model:value="states.login" placeholder="login" />
+      <a-input v-model:value.lazy="states.password" autofocus placeholder="password" />
+    </a-space>
+    <Button @click="Login">{{ $t('login') }}</Button>
+  </div>
 </template>
