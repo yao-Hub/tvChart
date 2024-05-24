@@ -3,8 +3,9 @@ import type { CustomResponseType } from '#/axios'
 import { encrypt, decrypt } from 'utils/DES/index'
 import { notification } from 'ant-design-vue';
 const baseURL = import.meta.env.MODE === 'development' ? import.meta.env.VITE_HTTP_BASE_URL : import.meta.env.VITE_HTTP_URL;
+console.log(import.meta.env.MODE, baseURL)
 const service = axios.create({
-  baseURL,
+  baseURL: import.meta.env.VITE_HTTP_BASE_URL,
   timeout: 30 * 1000,
   // 请求是否携带cookie
   withCredentials: true,

@@ -13,8 +13,8 @@ const handleChange = (value: string) => {
 
 <template>
   <a-select ref="select" v-model:value="language" style="width: 120px" @change="handleChange">
-    <a-select-option value="zh-CN">中文</a-select-option>
-    <a-select-option value="en-US">English</a-select-option>
+    <a-select-option value="zh">中文</a-select-option>
+    <a-select-option value="en">English</a-select-option>
   </a-select>
 </template>
 
