@@ -10,7 +10,7 @@
     "build:test": "vue-tsc && vite build --mode test",
     "preview": "vite preview",
     "lint": "eslint --ext .js,.vue,.ts src",
-    "http-server": "npm run build && cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o"
+    "http-server": "npm run build:dev && cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
@@ -30,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.2.0",
+    "@rollup/plugin-strip": "^3.0.4",
     "@types/lodash": "^4.17.1",
     "@types/node": "^20.12.8",
     "@vitejs/plugin-vue": "^5.0.4",

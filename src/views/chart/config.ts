@@ -1,4 +1,4 @@
-import { flattenDeep, groupBy, orderBy, get, reject, has } from 'lodash'
+import { flattenDeep, groupBy, orderBy, get } from 'lodash'
 import { socket } from '@/utils/socket/operation'
 import { klineHistory } from 'api/kline/index'
 import * as types from '@/types/chart/index'
