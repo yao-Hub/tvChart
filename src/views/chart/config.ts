@@ -37,7 +37,7 @@ function hasEmptyArrayValue(map: Map<string, any>) {
   return false;
 }
 
-function getBars(data: any) {
+function getCacheBars(data: any) {
   return new Promise(async (resolve, reject) => {
     try {
       const fkey = `${data.symbol}#${data['period_type']}`;
@@ -138,7 +138,7 @@ export const datafeed = () => {
         "count": periodParams.countBack,
         "limit_ctm": periodParams.to
       };
-      getBars(updata).then((res: any) => {
+      getCacheBars(updata).then((res: any) => {
         if (res.length === 0) {
           onHistoryCallback([]);
           return;
@@ -188,12 +188,12 @@ export const datafeed = () => {
     },
 
     searchSymbols: (userInput: string, exchange: string, symbolType: string, onResultReadyCallback: Function) => {
-      // 模糊匹配
-      const filterList = tvStore.symbols.filter((item: types.SessionSymbolInfo) => {
-        const pattern = new RegExp(`.*${userInput}.*`, 'i');
-        return pattern.test(item.symbol);
-      });
-      const targetList = filterList.map((item: types.SessionSymbolInfo) => {
+      // // 模糊匹配
+      // const filterList = tvStore.symbols.filter((item: types.SessionSymbolInfo) => {
+      //   const pattern = new RegExp(`.*${userInput}.*`, 'i');
+      //   return pattern.test(item.symbol);
+      // });
+      const targetList = tvStore.symbols.map((item: types.SessionSymbolInfo) => {
         return {
           symbol: item.symbol,
           full_name: item.symbol,

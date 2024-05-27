@@ -1,19 +1,29 @@
 <template>
   <div>
-    <div class="TVChartContainer" ref="chartContainer"></div>
+    <a-spin class="spin" :indicator="indicator" v-show="props.loading" />
+    <div ref="chartContainer" v-show="!props.loading"></div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue';
-import tvChartStore from '@/store/modules/tvChart'
+import { ref, onUnmounted, watch } from 'vue';
 import { widget } from 'public/charting_library';
+import { LoadingOutlined } from '@ant-design/icons-vue';
+import { h } from 'vue';
 
-const chartContainer = ref();
-const tvStore = tvChartStore()
+const indicator = h(LoadingOutlined, {
+  style: {
+    fontSize: '50px',
+  },
+  spin: true,
+});
 
 // 字段含义见：https://zlq4863947.gitbook.io/tradingview/4-tu-biao-ding-zhi/widget-constructor
 const props = defineProps({
+  loading: {
+    default: false,
+    type: Boolean
+  },
   symbol: {
     default: 'AAPL',
     type: String,
@@ -109,66 +119,53 @@ const props = defineProps({
     type: String,
   },
 })
-onMounted(async () => {
-  const widgetOptions: any = {
-    symbol: props.symbol,
-    interval: props.interval,
-    container: chartContainer.value,
-    datafeed: props.datafeed,
-    timezone: props.timezone,
-    debug: props.debug,
-    library_path: props.libraryPath,
-    width: props.width,
-    height: props.height,
-    fullscreen: props.fullscreen,
-    autosize: props.autosize,
-    locale: props.locale,
-    charts_storage_url: props.chartsStorageUrl,
-    charts_storage_api_version: props.chartsStorageApiVersion,
-    client_id: props.clientId,
-    theme: props.theme,
-    enabled_features: props.enabledFeatures,
-    disabled_features: props.disabledFeatures
-    // symbol_search_request_delay: props.symbolSearchRequestDelay,
-    // toolbar_bg: props.toolbarBg,
-    // study_count_limit: props.studyCountLimit,
-    // additional_symbol_info_fields: props.additionalSymbolInfoFields,
-    // compare_symbols: props.compareSymbols,
-    // timeframe: props.timeframe,
-  };
-  tvStore.chartWidget = new widget(widgetOptions);
-  // tvStore.chartWidget.onChartReady(() => {
-    // 	chartWidget.value.headerReady().then(() => {
-    // 		const button = chartWidget.value.createButton();
 
-    // 		button.setAttribute('title', 'Click to show a notification popup');
-    // 		button.classList.add('apply-common-tooltip');
-
-    // 		button.addEventListener('click', () =>
-    // 			chartWidget.value.showNoticeDialog({
-    // 				title: 'Notification',
-    // 				body: 'TradingView Charting Library API works correctly',
-    // 				callback: () => {
-    // 					// eslint-disable-next-line no-console
-    // 					console.log('Noticed!');
-    // 				},
-    // 			})
-    // 		);
-    // 		button.innerHTML = 'Check API';
-    // 	});
-  // });
-});
+const chartContainer = ref();
+const chartWidget = ref();
+const emit = defineEmits(['createChart']);
+watch(
+  () => props.loading,
+  newVal => {
+    if (!newVal) {
+      const widgetOptions: any = {
+        symbol: props.symbol,
+        interval: props.interval,
+        container: chartContainer.value,
+        datafeed: props.datafeed,
+        timezone: props.timezone,
+        debug: props.debug,
+        library_path: props.libraryPath,
+        width: props.width,
+        height: props.height,
+        fullscreen: props.fullscreen,
+        autosize: props.autosize,
+        locale: props.locale,
+        charts_storage_url: props.chartsStorageUrl,
+        charts_storage_api_version: props.chartsStorageApiVersion,
+        client_id: props.clientId,
+        theme: props.theme,
+        enabled_features: props.enabledFeatures,
+        disabled_features: props.disabledFeatures,
+        compare_symbols: props.compareSymbols,
+      };
+      chartWidget.value = new widget(widgetOptions);
+      emit('createChart', chartWidget.value);
+    }
+  })
 
 onUnmounted(() => {
-  if (tvStore.chartWidget !== null) {
-    tvStore.chartWidget.remove();
-    tvStore.chartWidget = null;
+  if (chartWidget.value) {
+    chartWidget.value.remove();
+    chartWidget.value = null;
   }
 });
 </script>
 
 <style scoped>
-/* .TVChartContainer {
-  height: calc(100vh - 80px);
-} */
+.spin {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateY(-50%);
+}
 </style>

@@ -83,3 +83,14 @@ export interface TimeUnit {
   week_day: number
   session?: string
 }
+
+/* ​"stock" | "index" | "forex" | "futures" | "bitcoin" | "crypto" | "undefined" 
+| "expression" | "spread" | "cfd" | "economic" | "equity" | "dr" | "bond" 
+| "right" | "warrant" | "fund" | "structured" | "commodity" | "fundamental" | "spot" | "swap"
+*/
+export enum Type {
+  stock = '股票',
+  futures = '期货',
+  forex = '外汇',
+  index = '指数'
+}

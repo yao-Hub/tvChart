@@ -3,7 +3,9 @@
     <TVChart
       :datafeed="datafeed()"
       :symbol="states.symbol"
+      :loading="states.chartLoading"
       :compareSymbols="states.compareSymbols"
+      @createChart="createChart"
       >
     </TVChart>
   </div>
@@ -15,25 +17,35 @@ import { reactive } from 'vue';
 import { datafeed } from './config'
 import { allSymbols } from 'api/symbols/index'
 import tvChartStore from '@/store/modules/tvChart'
-// import * as types from  '@/types/chart/index'
+import * as types from  '@/types/chart/index'
 
 const tvStore = tvChartStore()
 
+const createChart = (chart: any) => {
+  tvStore.chartWidget = chart;
+};
+
 const states = reactive({
-  symbol: 'XAG',
-  compareSymbols: []
+  symbol: '',
+  compareSymbols: [],
+  chartLoading: true
 });
 
 const getSymbols = async () => {
-  const res:any = await allSymbols({ server: 'upway-live' })
-  tvStore.symbols = res.data;
-  states.symbol = res.data[0].symbol;
-  // states.compareSymbols = res.data.map((item: types.SessionSymbolInfo) => {
-  //   return {
-  //     symbol: item.symbol,
-  //     title: item.symbol
-  //   }
-  // });
+  states.chartLoading = true;
+  allSymbols({ server: 'upway-live' }).then((res: any) => {
+    tvStore.symbols = res.data;
+    states.symbol = res.data[0].symbol;
+    states.compareSymbols = res.data.map((item: types.SessionSymbolInfo) => {
+      return {
+        symbol: item.symbol,
+        title: item.symbol
+      }
+    });
+    states.chartLoading = false;
+  }).catch(() => {
+    states.chartLoading = false;
+  });
 }
 getSymbols();
 </script>
