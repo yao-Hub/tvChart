@@ -5,14 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vite --open",
+    "pro": "vite --mode production --open",
     "build": "vue-tsc && vite build",
     "build:dev": "vue-tsc && vite build --mode development",
-    "build:test": "vue-tsc && vite build --mode test",
     "preview": "vite preview",
+    "preview:dev": "vite preview --mode development",
     "lint": "eslint --ext .js,.vue,.ts src",
-    "http-server:dev": "npm run build:dev && cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o",
-    "http-server:test": "npm run build:test && cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o",
-    "http-server": "npm run build && cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o"
+    "http-server": "cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o"
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",

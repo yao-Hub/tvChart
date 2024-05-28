@@ -6,11 +6,19 @@ import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 import { visualizer } from "rollup-plugin-visualizer";
 
 export default defineConfig((mode: ConfigEnv) => {
+  console.log('mode', mode)
   const env = loadEnv(mode.mode, process.cwd());
+  const isProduction = mode.mode === 'production';
   return {
     base: '/',
     build: {
       minify: 'terser',
+      terserOptions:{
+        compress:{
+          drop_console: isProduction,
+          drop_debugger: isProduction
+        }
+      }
     },
     plugins: [
       vue(),
