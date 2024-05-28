@@ -188,12 +188,20 @@ export const datafeed = () => {
     },
 
     searchSymbols: (userInput: string, exchange: string, symbolType: string, onResultReadyCallback: Function) => {
-      // // 模糊匹配
-      // const filterList = tvStore.symbols.filter((item: types.SessionSymbolInfo) => {
-      //   const pattern = new RegExp(`.*${userInput}.*`, 'i');
-      //   return pattern.test(item.symbol);
-      // });
-      const targetList = tvStore.symbols.map((item: types.SessionSymbolInfo) => {
+      const regex = new RegExp(userInput.split('').join('.*'), 'i');;
+
+      const matches = tvStore.symbols.map((item, index) => {
+          const exchangeMatch = regex.test(item.path);
+          const symbolMatch = regex.test(item.symbol);
+          return { index, count: (exchangeMatch ? 1 : 0) + (symbolMatch ? 1 : 0) };
+      });
+  
+      matches.sort((a, b) => b.count - a.count);
+  
+      const sortedIndices = matches.map(match => match.index);
+      const sortedArr = sortedIndices.map(index => tvStore.symbols[index]);
+  
+      const targetList = sortedArr.map((item: types.SessionSymbolInfo) => {
         return {
           symbol: item.symbol,
           full_name: item.symbol,

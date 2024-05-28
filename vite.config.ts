@@ -4,23 +4,13 @@ import { resolve } from "path"
 import Components from 'unplugin-vue-components/vite';
 import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers';
 import { visualizer } from "rollup-plugin-visualizer";
-import strip from '@rollup/plugin-strip';
 
 export default defineConfig((mode: ConfigEnv) => {
   const env = loadEnv(mode.mode, process.cwd());
-  // const root = process.cwd();
   return {
     base: '/',
-    // root,
     build: {
       minify: 'terser',
-      rollupOptions: {
-        plugins: [
-          strip({
-            functions: ['console.*'] // 移除 console
-          })
-        ]
-      }
     },
     plugins: [
       vue(),
