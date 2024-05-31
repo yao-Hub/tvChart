@@ -7,10 +7,12 @@
 
 <script setup lang="ts">
 import { ref, onUnmounted, watch } from 'vue';
-import { widget } from 'public/charting_library';
+import  * as library from 'public/charting_library';
 import { LoadingOutlined } from '@ant-design/icons-vue';
 import { h } from 'vue';
+import { useI18n } from 'vue-i18n';
 
+const { t, locale } = useI18n();
 const indicator = h(LoadingOutlined, {
   style: {
     fontSize: '50px',
@@ -77,7 +79,7 @@ const props = defineProps({
     type: Number,
   },
   locale: {
-    default: 'zh',
+    default: '',
     type: String,
   },
   disabledFeatures: {
@@ -85,7 +87,7 @@ const props = defineProps({
     type: Array,
   },
   enabledFeatures: {
-    default: [],
+    default: ['move_logo_to_main_pane'],
     type: Array,
   },
   chartsStorageUrl: {
@@ -127,31 +129,10 @@ watch(
   () => props.loading,
   newVal => {
     if (!newVal) {
-      const widgetOptions: any = {
-        symbol: props.symbol,
-        interval: props.interval,
-        container: chartContainer.value,
-        datafeed: props.datafeed,
-        timezone: props.timezone,
-        debug: props.debug,
-        library_path: props.libraryPath,
-        width: props.width,
-        height: props.height,
-        fullscreen: props.fullscreen,
-        autosize: props.autosize,
-        locale: props.locale,
-        charts_storage_url: props.chartsStorageUrl,
-        charts_storage_api_version: props.chartsStorageApiVersion,
-        client_id: props.clientId,
-        theme: props.theme,
-        enabled_features: props.enabledFeatures,
-        disabled_features: props.disabledFeatures,
-        compare_symbols: props.compareSymbols,
-      };
-      chartWidget.value = new widget(widgetOptions);
-      emit('createChart', chartWidget.value);
+      initonReady();
     }
-  })
+  }
+);
 
 onUnmounted(() => {
   if (chartWidget.value) {
@@ -159,6 +140,59 @@ onUnmounted(() => {
     chartWidget.value = null;
   }
 });
+
+const changeTheme = (theme: string) => {
+  if (chartWidget.value) {
+    chartWidget.value.changeTheme(theme);
+  }
+};
+
+const initonReady = () => {
+  const widgetOptions: library.ChartingLibraryWidgetOptions = {
+    symbol: props.symbol,
+    interval: props.interval as library.ResolutionString,
+    container: chartContainer.value,
+    datafeed: props.datafeed as library.IBasicDataFeed ,
+    timezone: props.timezone as library.Timezone,
+    debug: props.debug,
+    library_path: props.libraryPath,
+    width: props.width,
+    height: props.height,
+    fullscreen: props.fullscreen,
+    autosize: props.autosize,
+    locale: (props.locale || locale.value) as library.LanguageCode,
+    charts_storage_url: props.chartsStorageUrl,
+    charts_storage_api_version: props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
+    client_id: props.clientId,
+    theme: props.theme as library.ThemeName,
+    enabled_features: props.enabledFeatures as library.ChartingLibraryFeatureset[],
+    disabled_features: props.disabledFeatures as library.ChartingLibraryFeatureset[],
+    compare_symbols: props.compareSymbols as library.CompareSymbol[],
+    context_menu: {
+      items_processor: function(items, actionsFactory) {
+        const darkTheme = actionsFactory.createAction({
+          actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
+          label: t('chart.darkTheme'),
+          onExecute: () => changeTheme('dark')
+        });
+        const lightTheme = actionsFactory.createAction({
+          actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
+          label: t('chart.lightTheme'),
+          onExecute: () => changeTheme('light')
+        });
+        const themes = actionsFactory.createAction({
+          actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
+          label: t('chart.ThemeColor'),
+          subItems: [darkTheme, lightTheme]
+        });
+        const result = items.length > 10 ? [themes, ...items] : items;
+        return Promise.resolve(result);
+      },
+    }
+  };
+  chartWidget.value = new library.widget(widgetOptions);
+  emit('createChart', chartWidget.value);
+};
 </script>
 
 <style scoped>

@@ -38,13 +38,13 @@ const Login = () => {
   <a-space>
     <LocaleChange></LocaleChange>
     <a-date-picker />
-    <Button @click="router.push({ name: 'chart' })">charts</Button>
+    <Button @click="router.push({ name: 'chart' })">{{ $t('chart.name') }}</Button>
   </a-space>
   <div>
     <a-space>
       <a-input v-model:value="states.login" placeholder="login" />
       <a-input v-model:value.lazy="states.password" autofocus placeholder="password" />
     </a-space>
-    <Button @click="Login">{{ $t('login') }}</Button>
+    <Button @click="Login">{{ $t('account.login') }}</Button>
   </div>
 </template>

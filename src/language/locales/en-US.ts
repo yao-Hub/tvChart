@@ -5,15 +5,19 @@ export default {
     name: "name",
   },
 
-  menuList: [
-    {
-      title: "Home",
-    },
-    {
-      title: "User Management",
-    },
-    {
-      title: "Commodity management",
-    },
-  ],
+  account: {
+    login: 'Login',
+    logout: 'Logout'
+  },
+
+  axios: {
+    'Send request': 'Send request'
+  },
+
+  chart: {
+    name: 'Chart',
+    darkTheme: 'Dark',
+    lightTheme: 'Light',
+    ThemeColor: 'Theme'
+  },
 };

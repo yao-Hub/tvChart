@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { IChartingLibraryWidget } from '../../../public/charting_library/charting_library';
+import { IChartingLibraryWidget } from 'public/charting_library/charting_library';
 import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation'
 import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index'
 

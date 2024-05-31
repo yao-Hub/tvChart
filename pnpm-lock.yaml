@@ -104,7 +104,7 @@ importers:
         version: 7.8.0(eslint@9.2.0)(typescript@5.4.5)
       unplugin-vue-components:
         specifier: ^0.27.0
-        version: 0.27.0(@babel/parser@7.24.5)(rollup@4.17.2)(vue@3.4.27(typescript@5.4.5))
+        version: 0.27.0(@babel/parser@7.24.6)(rollup@4.17.2)(vue@3.4.27(typescript@5.4.5))
       vite:
         specifier: ^5.2.0
         version: 5.2.11(@types/node@20.12.11)(less@4.2.0)(sass@1.77.0)(terser@5.31.0)
@@ -139,24 +139,24 @@ packages:
     resolution: {integrity: sha512-y5+tLQyV8pg3fsiln67BVLD1P13Eg4lh5RW9mF0zUuvLrv9uIQ4MCL+CRT+FTsBlBjcIan6PGsLcBN0m3ClUyQ==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/compat-data@7.24.4':
-    resolution: {integrity: sha512-vg8Gih2MLK+kOkHJp4gBEIkyaIi00jgWot2D9QOmmfLC8jINSOzmCLta6Bvz/JSBCqnegV0L80jhxkol5GWNfQ==}
+  '@babel/compat-data@7.24.6':
+    resolution: {integrity: sha512-aC2DGhBq5eEdyXWqrDInSqQjO0k8xtPRf5YylULqx8MCd6jBtzqfta/3ETMRpuKIc5hyswfO80ObyA1MvkCcUQ==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/helper-compilation-targets@7.23.6':
-    resolution: {integrity: sha512-9JB548GZoQVmzrFgp8o7KxdgkTGm6xs9DW0o/Pim72UDjzr5ObUQ6ZzYPqA+g9OTS2bBQoctLJrky0RDCAWRgQ==}
+  '@babel/helper-compilation-targets@7.24.6':
+    resolution: {integrity: sha512-VZQ57UsDGlX/5fFA7GkVPplZhHsVc+vuErWgdOiysI9Ksnw0Pbbd6pnPiR/mmJyKHgyIW0c7KT32gmhiF+cirg==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/helper-string-parser@7.24.1':
-    resolution: {integrity: sha512-2ofRCjnnA9y+wk8b9IAREroeUP02KHp431N2mhKniy2yKIDKpbrHv9eXwm8cBeWQYcJmzv5qKCu65P47eCF7CQ==}
+  '@babel/helper-string-parser@7.24.6':
+    resolution: {integrity: sha512-WdJjwMEkmBicq5T9fm/cHND3+UlFa2Yj8ALLgmoSQAJZysYbBjw+azChSGPN4DSPLXOcooGRvDwZWMcF/mLO2Q==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/helper-validator-identifier@7.24.5':
-    resolution: {integrity: sha512-3q93SSKX2TWCG30M2G2kwaKeTYgEUp5Snjuj8qm729SObL6nbtUldAi37qbxkD5gg3xnBio+f9nqpSepGZMvxA==}
+  '@babel/helper-validator-identifier@7.24.6':
+    resolution: {integrity: sha512-4yA7s865JHaqUdRbnaxarZREuPTHrjpDT+pXoAZ1yhyo6uFnIEpS8VMu16siFOHDpZNKYv5BObhsB//ycbICyw==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/helper-validator-option@7.23.5':
-    resolution: {integrity: sha512-85ttAOMLsr53VgXkTbkx8oA6YTfT4q7/HzXSLEYmjcSTJPMPQtvq1BD79Byep5xMUYbGRzEpDsjUf3dyp54IKw==}
+  '@babel/helper-validator-option@7.24.6':
+    resolution: {integrity: sha512-Jktc8KkF3zIkePb48QO+IapbXlSapOW9S+ogZZkcO6bABgYAxtZcjZ/O005111YLf+j4M84uEgwYoidDkXbCkQ==}
     engines: {node: '>=6.9.0'}
 
   '@babel/highlight@7.24.5':
@@ -168,12 +168,17 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
+  '@babel/parser@7.24.6':
+    resolution: {integrity: sha512-eNZXdfU35nJC2h24RznROuOpO94h6x8sg9ju0tT9biNtLZ2vuP8SduLqqV+/8+cebSLV9SJEAN5Z3zQbJG/M+Q==}
+    engines: {node: '>=6.0.0'}
+    hasBin: true
+
   '@babel/runtime@7.24.5':
     resolution: {integrity: sha512-Nms86NXrsaeU9vbBJKni6gXiEXZ4CVpYVzEjDH9Sb8vmZ3UljyA1GSOJl/6LGPO8EHLuSF9H+IxNXHPX8QHJ4g==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/types@7.24.5':
-    resolution: {integrity: sha512-6mQNsaLeXTw0nxYUYu+NSa4Hx4BlF1x1x8/PMFbiR+GBSr+2DkECc69b8hgy2frEodNcvPffeH8YfWd3LI6jhQ==}
+  '@babel/types@7.24.6':
+    resolution: {integrity: sha512-WaMsgi6Q8zMgMth93GvWPXkhAIEobfsIkLTacoVZoK1J0CevIPGYY2Vo5YvJGqyHqXM6P4ppOYGsIRU8MM9pFQ==}
     engines: {node: '>=6.9.0'}
 
   '@ctrl/tinycolor@3.6.1':
@@ -4429,41 +4434,46 @@ snapshots:
       '@babel/highlight': 7.24.5
       picocolors: 1.0.0
 
-  '@babel/compat-data@7.24.4': {}
+  '@babel/compat-data@7.24.6': {}
 
-  '@babel/helper-compilation-targets@7.23.6':
+  '@babel/helper-compilation-targets@7.24.6':
     dependencies:
-      '@babel/compat-data': 7.24.4
-      '@babel/helper-validator-option': 7.23.5
+      '@babel/compat-data': 7.24.6
+      '@babel/helper-validator-option': 7.24.6
       browserslist: 4.23.0
       lru-cache: 5.1.1
       semver: 6.3.1
 
-  '@babel/helper-string-parser@7.24.1': {}
+  '@babel/helper-string-parser@7.24.6': {}
 
-  '@babel/helper-validator-identifier@7.24.5': {}
+  '@babel/helper-validator-identifier@7.24.6': {}
 
-  '@babel/helper-validator-option@7.23.5': {}
+  '@babel/helper-validator-option@7.24.6': {}
 
   '@babel/highlight@7.24.5':
     dependencies:
-      '@babel/helper-validator-identifier': 7.24.5
+      '@babel/helper-validator-identifier': 7.24.6
       chalk: 2.4.2
       js-tokens: 4.0.0
       picocolors: 1.0.0
 
   '@babel/parser@7.24.5':
     dependencies:
-      '@babel/types': 7.24.5
+      '@babel/types': 7.24.6
+
+  '@babel/parser@7.24.6':
+    dependencies:
+      '@babel/types': 7.24.6
+    optional: true
 
   '@babel/runtime@7.24.5':
     dependencies:
       regenerator-runtime: 0.14.1
 
-  '@babel/types@7.24.5':
+  '@babel/types@7.24.6':
     dependencies:
-      '@babel/helper-string-parser': 7.24.1
-      '@babel/helper-validator-identifier': 7.24.5
+      '@babel/helper-string-parser': 7.24.6
+      '@babel/helper-validator-identifier': 7.24.6
       to-fast-properties: 2.0.0
 
   '@ctrl/tinycolor@3.6.1': {}
@@ -5006,7 +5016,7 @@ snapshots:
 
   '@vue/cli-service@5.0.8(@vue/compiler-sfc@3.4.27)(encoding@0.1.13)(less-loader@12.2.0(less@4.2.0)(webpack@5.91.0))(lodash@4.17.21)(vue-template-compiler@2.7.16)(vue@3.4.27(typescript@5.4.5))(webpack-sources@3.2.3)':
     dependencies:
-      '@babel/helper-compilation-targets': 7.23.6
+      '@babel/helper-compilation-targets': 7.24.6
       '@soda/friendly-errors-webpack-plugin': 1.8.1(webpack@5.91.0)
       '@soda/get-current-script': 1.0.2
       '@types/minimist': 1.2.5
@@ -8557,7 +8567,7 @@ snapshots:
 
   unpipe@1.0.0: {}
 
-  unplugin-vue-components@0.27.0(@babel/parser@7.24.5)(rollup@4.17.2)(vue@3.4.27(typescript@5.4.5)):
+  unplugin-vue-components@0.27.0(@babel/parser@7.24.6)(rollup@4.17.2)(vue@3.4.27(typescript@5.4.5)):
     dependencies:
       '@antfu/utils': 0.7.8
       '@rollup/pluginutils': 5.1.0(rollup@4.17.2)
@@ -8571,7 +8581,7 @@ snapshots:
       unplugin: 1.10.1
       vue: 3.4.27(typescript@5.4.5)
     optionalDependencies:
-      '@babel/parser': 7.24.5
+      '@babel/parser': 7.24.6
     transitivePeerDependencies:
       - rollup
       - supports-color

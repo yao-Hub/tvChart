@@ -33,27 +33,23 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
-    const { status, data } = response
-    if (status < 200 || status >= 300) {
-      // 统一处理http错误，或者处理后抛到业务代码 TODO
-    }
+    const { data } = response
     if (data.err === 0) {
       data.data = JSON.parse(decrypt(data.data));
       console.log('response Data', data.data)
-    } else {
-      notification['error']({
-        message: 'error',
-        description: data.errmsg || `data.err: ${data.err || ''}`,
-      });
-      console.log('response err', data.errmsg)
+      return response;
     }
-    return response
+    notification['error']({
+      message: 'error',
+      description: data.errmsg || data.err || 'response error',
+    });
+    return Promise.reject(data)
   },
   (err) => {
     const { status } = err.response
     notification['error']({
-      message: 'error',
-      description: `statusCode: ${status}`,
+      message: err.name || 'request error',
+      description: err.message || `statusCode: ${status}`,
     });
     // 根据返回的http状态码做不同的处理，比如错误提示等 TODO
     switch (status) {
@@ -70,7 +66,6 @@ service.interceptors.response.use(
       default:
         break
     }
-
     return Promise.reject(err)
   }
 )
