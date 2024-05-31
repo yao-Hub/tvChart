@@ -6,13 +6,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, watch } from 'vue';
+import { ref, onUnmounted, watch, h } from 'vue';
 import  * as library from 'public/charting_library';
 import { LoadingOutlined } from '@ant-design/icons-vue';
-import { h } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { okLight, okDark } from '@/assets/icons/index';
 
 const { t, locale } = useI18n();
+
 const indicator = h(LoadingOutlined, {
   style: {
     fontSize: '50px',
@@ -141,12 +142,6 @@ onUnmounted(() => {
   }
 });
 
-const changeTheme = (theme: string) => {
-  if (chartWidget.value) {
-    chartWidget.value.changeTheme(theme);
-  }
-};
-
 const initonReady = () => {
   const widgetOptions: library.ChartingLibraryWidgetOptions = {
     symbol: props.symbol,
@@ -164,35 +159,52 @@ const initonReady = () => {
     charts_storage_url: props.chartsStorageUrl,
     charts_storage_api_version: props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
     client_id: props.clientId,
-    theme: props.theme as library.ThemeName,
+    theme: (window.localStorage.getItem('Theme') || props.theme) as library.ThemeName,
     enabled_features: props.enabledFeatures as library.ChartingLibraryFeatureset[],
     disabled_features: props.disabledFeatures as library.ChartingLibraryFeatureset[],
     compare_symbols: props.compareSymbols as library.CompareSymbol[],
     context_menu: {
-      items_processor: function(items, actionsFactory) {
-        const darkTheme = actionsFactory.createAction({
-          actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
-          label: t('chart.darkTheme'),
-          onExecute: () => changeTheme('dark')
-        });
-        const lightTheme = actionsFactory.createAction({
-          actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
-          label: t('chart.lightTheme'),
-          onExecute: () => changeTheme('light')
-        });
-        const themes = actionsFactory.createAction({
-          actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
-          label: t('chart.ThemeColor'),
-          subItems: [darkTheme, lightTheme]
-        });
-        const result = items.length > 10 ? [themes, ...items] : items;
-        return Promise.resolve(result);
-      },
+      items_processor: (items, actionsFactory) => setProcessor(items, actionsFactory)
     }
   };
   chartWidget.value = new library.widget(widgetOptions);
   emit('createChart', chartWidget.value);
 };
+
+const changeTheme = (theme: string) => {
+  if (chartWidget.value) {
+    chartWidget.value.changeTheme(theme);
+    window.localStorage.setItem('Theme', theme);
+  }
+};
+
+const setProcessor: library.ContextMenuItemsProcessor = (items: readonly library.IActionVariant[], actionsFactory: library.ActionsFactory) => {
+  const themeType = chartWidget.value.getTheme().toLowerCase();
+  const themeIcon = themeType === 'dark' ? okDark : okLight;
+  const darkTheme = actionsFactory.createAction({
+    actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
+    label: t('chart.darkTheme'),
+    iconChecked: themeIcon,
+    checkable: true,
+    checked:  themeType === 'dark',
+    onExecute: () => changeTheme('dark')
+  });
+  const lightTheme = actionsFactory.createAction({
+    actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
+    label: t('chart.lightTheme'),
+    iconChecked: themeIcon,
+    checkable: true,
+    checked: themeType === 'light',
+    onExecute: () => changeTheme('light')
+  });
+  const themes = actionsFactory.createAction({
+    actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
+    label: t('chart.ThemeColor'),
+    subItems: [darkTheme, lightTheme]
+  });
+  const result = items.length > 10 ? [themes, ...items] : items;
+  return Promise.resolve(result);
+} 
 </script>
 
 <style scoped>

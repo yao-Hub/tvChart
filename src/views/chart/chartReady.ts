@@ -1,11 +1,14 @@
-import  * as library from 'public/charting_library';
+import * as library from 'public/charting_library';
 import { LOCALE_SINGLE_LIST } from '@/constants/common';
+
 const lacaleList = LOCALE_SINGLE_LIST;
 
 export class chartReady {
-  private readonly widget;
-  constructor(widget: library.IChartingLibraryWidget) {
-    this.widget = widget
+  widget;
+  t;
+  constructor(widget: library.IChartingLibraryWidget, t?: any) {
+    this.widget = widget;
+    this.t = t;
   }
 
   // 增加顶部下拉菜单
@@ -57,6 +60,8 @@ export class chartReady {
         align: 'right',
         useTradingViewStyle: false
       });
+      Button.setAttribute('title', this.t('switchLanguage'));
+      Button.classList.add('apply-common-tooltip');
       Button.innerHTML = lacaleList[currentLanguage === "en" ? "zh" : "en"];
       Button.addEventListener('click', () => {
         currentLanguage = currentLanguage === "en" ? "zh" : "en";
@@ -76,11 +81,13 @@ export class chartReady {
         .onMove(function () {
           orderLine.setText("onMove called");
         })
-        .onModify("onModify called", () => {
+        .onModify("onModify called", (a) => {
+          console.log(a)
           orderLine.setText("onModify");
         })
         .onCancel("onCancel called", () => {
           orderLine.setText("onCancel");
+          // orderLine.remove()
         })
         .setText("STOP: 73.5 (5,64%)")
         .setQuantity("5");

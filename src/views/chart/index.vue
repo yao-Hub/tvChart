@@ -22,7 +22,7 @@ import TVChart from '@/components/TVChart.vue';
 import { datafeed } from './chartConfig'
 import { chartReady } from './chartReady';
 
-const { locale } = useI18n();
+const { t, locale } = useI18n();
 
 const tvStore = tvChartStore()
 
@@ -36,8 +36,10 @@ const states = reactive({
 const createChart = (widget: IChartingLibraryWidget) => {
   tvStore.chartWidget = widget;
 
+  const chartInstance = new chartReady(widget, t);
+
   // 语言切换
-  new chartReady(widget).createLocaleBtn(locale.value, (value) => {
+  chartInstance.createLocaleBtn(locale.value, (value) => {
     states.chartLoading = true;
     locale.value = value;
     localStorage.setItem('language', value);
@@ -45,6 +47,8 @@ const createChart = (widget: IChartingLibraryWidget) => {
       states.chartLoading = false;
     });
   });
+
+  chartInstance.createOrderLine();
 };
 
 // 获取所有商品(品种)

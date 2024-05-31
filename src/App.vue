@@ -5,7 +5,7 @@ import { computed } from "vue";
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 
-// 国际化
+// ant-design 国际化
 const I18n = useI18n();
 let { locale } = I18n;
 const usedLocale = computed(() => {
