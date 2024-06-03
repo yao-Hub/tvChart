@@ -12,7 +12,7 @@ interface State {
 interface TurnSocket {
   subscriberUID: string
   symbolInfo: TVSymbolInfo
-  resolution: number
+  resolution: string
 }
 
 const tvChartStore = defineStore('tvChartStore', {

@@ -29,21 +29,25 @@ let new_one: types.LineData;
 const barsCache: any = {};
 
 function hasEmptyArrayValue(map: Map<string, any>) {
-  for (const value of map.values()) {
+  for (const [key, value] of map) {
     if (Array.isArray(value) && value.length === 0) {
-      return true;
+      return key;
     }
   }
   return false;
 }
 
+let temSymbol: string = '';
+let temResolution: string = '';
+let nowResolution: string = '';
+let nowSymbol: string = '';
 function getCacheBars(data: any) {
   return new Promise(async (resolve, reject) => {
     try {
       const fkey = `${data.symbol}#${data['period_type']}`;
       const skey = `${data['limit_ctm']}#${data['period_type']}`;
-      const ifCache = barsCache[fkey];
-      if (!ifCache) {
+      const cache = barsCache[fkey];
+      if ([undefined, null].includes(cache)) {
         barsCache[fkey] = new Map();
         const res = await klineHistory(data);
         barsCache[fkey].set(skey, res.data);
@@ -56,10 +60,15 @@ function getCacheBars(data: any) {
         resolve(bar);
         return;
       }
-      const hasEmpty = hasEmptyArrayValue(barsCache[fkey]);
-      if (hasEmpty) {
-        resolve([]);
-        return;
+      const emptyKey = hasEmptyArrayValue(barsCache[fkey]);
+      if (emptyKey) {
+        if (!temSymbol || (temSymbol === nowSymbol && temResolution === nowResolution)) {
+          resolve([]);
+          return;
+        }
+        barsCache[fkey].delete(emptyKey);
+        nowResolution = data.period_type;
+        nowSymbol = data.symbol;
       }
       const res = await klineHistory(data);
       barsCache[fkey].set(skey, res.data);
@@ -129,11 +138,13 @@ export const datafeed = () => {
     },
 
     //渲染历史数据
-    getBars: (symbolInfo: types.TVSymbolInfo, resolution: types.Resolution, periodParams: types.PeriodParams, onHistoryCallback: Function, onErrorCallback: Function) => {
+    getBars: (symbolInfo: types.TVSymbolInfo, resolution: string, periodParams: types.PeriodParams, onHistoryCallback: Function, onErrorCallback: Function) => {
+      temResolution = resolution;
+      temSymbol = symbolInfo.name;
       const bar: types.LineData[] = [];
       const updata = {
         "server": "upway-live",
-        "period_type": types.Periods[resolution] ? types.Periods[resolution] : resolution,
+        "period_type": types.Periods[resolution as keyof typeof types.Periods] || resolution,
         "symbol": symbolInfo.name,
         "count": periodParams.countBack,
         "limit_ctm": periodParams.to
@@ -166,12 +177,12 @@ export const datafeed = () => {
           onHistoryCallback(bar);
         }, 0);
       }).catch(() => {
-        onErrorCallback(bar);
+        onHistoryCallback(bar);
       })
     },
 
     //实时更新
-    subscribeBars: (symbolInfo: any, resolution: types.Resolution, onRealtimeCallback: Function, subscriberUID: string, onResetCacheNeededCallback: Function) => {
+    subscribeBars: (symbolInfo: any, resolution: string, onRealtimeCallback: Function, subscriberUID: string, onResetCacheNeededCallback: Function) => {
       subscribed.symbolInfo = symbolInfo;
       subscribed.resolution = resolution;
       subscribed.onRealtimeCallback = onRealtimeCallback;
