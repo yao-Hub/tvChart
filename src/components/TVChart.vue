@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-spin class="spin" :indicator="indicator" v-show="props.loading" />
-    <div ref="chartContainer" v-show="!props.loading"></div>
+    <div ref="chartContainer" v-show="!props.loading" style="height: 100vh;"></div>
   </div>
 </template>
 
@@ -60,7 +60,7 @@ const props = defineProps({
     type: Number,
   },
   fullscreen: {
-    default: true,
+    default: false,
     type: Boolean,
   },
   autosize: {
@@ -88,7 +88,7 @@ const props = defineProps({
     type: Array,
   },
   enabledFeatures: {
-    default: ['move_logo_to_main_pane'],
+    default: ['move_logo_to_main_pane', 'chart_crosshair_menu'],
     type: Array,
   },
   chartsStorageUrl: {

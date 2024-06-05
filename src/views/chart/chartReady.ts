@@ -1,7 +1,9 @@
 import * as library from 'public/charting_library';
 import { LOCALE_SINGLE_LIST } from '@/constants/common';
+import chartDialogStore from '@/store/modules/chartDialog'
 
 const lacaleList = LOCALE_SINGLE_LIST;
+const dialogStore = chartDialogStore();
 
 export class chartReady {
   widget;
@@ -75,22 +77,15 @@ export class chartReady {
   createOrderLine = () => {
     this.widget.onChartReady(() => {
       const orderLine = this.widget.activeChart().createOrderLine();
-      orderLine.setTooltip("Additional order information")
-        .setModifyTooltip("Modify order")
-        .setCancelTooltip("Cancel order")
-        .onMove(function () {
-          orderLine.setText("onMove called");
-        })
+      const price = orderLine.getPrice().toString();
+      orderLine.setText(price)
         .onModify("onModify called", (a) => {
-          console.log(a)
-          orderLine.setText("onModify");
+          dialogStore.showOrderDialog();
         })
         .onCancel("onCancel called", () => {
-          orderLine.setText("onCancel");
-          // orderLine.remove()
+          orderLine.remove();
         })
-        .setText("STOP: 73.5 (5,64%)")
-        .setQuantity("5");
+        .setQuantity("1");
     });
   }
 

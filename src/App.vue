@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
+import { theme } from 'ant-design-vue';
 import { LANGUAGE_LIST } from '@/constants/common';
 import { computed } from "vue";
 import dayjs from 'dayjs';
@@ -12,7 +13,7 @@ const usedLocale = computed(() => {
   return LANGUAGE_LIST[locale.value as keyof typeof LANGUAGE_LIST];
 })
 dayjs.locale(locale.value);
-const getPopupContainer = ({}, dialogContext: any) => {
+const getPopupContainer = (el: Element, dialogContext: any) => {
   if (dialogContext) {
     return dialogContext.getDialogWrap();
   } else {
@@ -22,7 +23,9 @@ const getPopupContainer = ({}, dialogContext: any) => {
 </script>
 
 <template>
-  <a-config-provider :getPopupContainer="getPopupContainer" :locale="usedLocale">
+  <a-config-provider :getPopupContainer="getPopupContainer" :locale="usedLocale" :theme="{
+    algorithm: theme.darkAlgorithm,
+  }">
     <router-view></router-view>
   </a-config-provider>
 </template>

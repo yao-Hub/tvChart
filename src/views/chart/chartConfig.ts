@@ -2,9 +2,9 @@ import { flattenDeep, groupBy, orderBy, get } from 'lodash'
 import { socket } from '@/utils/socket/operation'
 import { klineHistory } from 'api/kline/index'
 import * as types from '@/types/chart/index'
-import tvChartStore from '@/store/modules/tvChart'
+import chartSubStore from '@/store/modules/chartSub'
 
-const tvStore = tvChartStore();
+const chartSub = chartSubStore();
 
 const config = {
   "supports_search": true,
@@ -23,7 +23,7 @@ const formatToSeesion = (time: number) => {
   return `${hours < 9 ? '0' : ''}${hours}${second < 9 ? '0' : ''}${second}`;
 }
 
-let subscribed: any = {};
+const subscribed: any = {};
 let new_one: types.LineData;
 
 const barsCache: any = {};
@@ -41,6 +41,8 @@ let temSymbol: string = '';
 let temResolution: string = '';
 let nowResolution: string = '';
 let nowSymbol: string = '';
+
+// 优化当前k线图加载
 function getCacheBars(data: any) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -62,11 +64,13 @@ function getCacheBars(data: any) {
       }
       const emptyKey = hasEmptyArrayValue(barsCache[fkey]);
       if (emptyKey) {
-        if (!temSymbol || (temSymbol === nowSymbol && temResolution === nowResolution)) {
+        if (!nowSymbol || (temSymbol === nowSymbol && temResolution === nowResolution)) {
           resolve([]);
           return;
         }
-        barsCache[fkey].delete(emptyKey);
+        if (temSymbol !== nowSymbol || temResolution !== nowResolution) {
+          barsCache[fkey].delete(emptyKey);
+        }
         nowResolution = data.period_type;
         nowSymbol = data.symbol;
       }
@@ -91,7 +95,7 @@ export const datafeed = () => {
     //商品配置
     resolveSymbol: (symbolName: string, onSymbolResolvedCallback: Function, onResolveErrorCallback: Function) => {
       // 获取session
-      const symbolInfo = tvStore.symbols.find(e => e.symbol === symbolName);
+      const symbolInfo = chartSub.symbols.find(e => e.symbol === symbolName);
       const ttimes = symbolInfo ? symbolInfo.ttimes : [];
       // 当时间为0 到 0时为关闭日
       const times = flattenDeep(Object.values(ttimes)).filter((obj) => symbolName === obj.symbol && obj.btime !== obj.etime);
@@ -164,7 +168,7 @@ export const datafeed = () => {
           }
           return tone
         });
-        // 请求k线数据
+        // 生成k线数据
         data_cache.forEach(item => {
           const barValue = {
             ...item,
@@ -177,7 +181,7 @@ export const datafeed = () => {
           onHistoryCallback(bar);
         }, 0);
       }).catch(() => {
-        onHistoryCallback(bar);
+        onErrorCallback(bar);
       })
     },
 
@@ -187,30 +191,33 @@ export const datafeed = () => {
       subscribed.resolution = resolution;
       subscribed.onRealtimeCallback = onRealtimeCallback;
       subscribed.onResetCacheNeededCallback = onResetCacheNeededCallback;
-      tvStore.subscribe({
+      chartSub.subscribeKline({
         subscriberUID,
         symbolInfo,
         resolution
       });
     },
+
     //取消订阅,撤销掉某条线的实时更新
     unsubscribeBars: (subscriberUID: string) => {
-      tvStore.unsubscribe(subscriberUID);
+      chartSub.unsubscribeKline(subscriberUID);
     },
 
+    // 查找品种（商品）
     searchSymbols: (userInput: string, exchange: string, symbolType: string, onResultReadyCallback: Function) => {
+      // 模糊匹配
       const regex = new RegExp(userInput.split('').join('.*'), 'i');;
-
-      const matches = tvStore.symbols.map((item, index) => {
-          const exchangeMatch = regex.test(item.path);
-          const symbolMatch = regex.test(item.symbol);
-          return { index, count: (exchangeMatch ? 1 : 0) + (symbolMatch ? 1 : 0) };
+      const matches = chartSub.symbols.map((item, index) => {
+        const exchangeMatch = regex.test(item.path);
+        const symbolMatch = regex.test(item.symbol);
+        return { index, count: (exchangeMatch ? 1 : 0) + (symbolMatch ? 1 : 0) };
       });
   
+      // 匹配度排列
       matches.sort((a, b) => b.count - a.count);
   
       const sortedIndices = matches.map(match => match.index);
-      const sortedArr = sortedIndices.map(index => tvStore.symbols[index]);
+      const sortedArr = sortedIndices.map(index => chartSub.symbols[index]);
   
       const targetList = sortedArr.map((item: types.SessionSymbolInfo) => {
         return {
@@ -227,6 +234,7 @@ export const datafeed = () => {
   }
 }
 
+// 报价和k线图的socket监听
 function socketOpera() {
   // 监听报价
   socket.on('quote', function (d) {

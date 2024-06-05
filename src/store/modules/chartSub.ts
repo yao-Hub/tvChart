@@ -1,7 +1,11 @@
 import { defineStore } from 'pinia'
+import { assign } from 'lodash';
 import { IChartingLibraryWidget } from 'public/charting_library/charting_library';
 import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation'
 import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index'
+import chartDialogStore from '@/store/modules/chartDialog';
+
+const chartDialog = chartDialogStore();
 
 interface State {
   chartWidget: IChartingLibraryWidget | null
@@ -15,7 +19,7 @@ interface TurnSocket {
   resolution: string
 }
 
-const tvChartStore = defineStore('tvChartStore', {
+const chartSubStore = defineStore('chartSubStore', {
   state(): State {
     return {
       chartWidget: null,
@@ -24,7 +28,13 @@ const tvChartStore = defineStore('tvChartStore', {
     }
   },
   actions: {
-    subscribe(args: TurnSocket) {
+    getChartWidget() {
+      if (!this.chartWidget) {
+        throw new Error('chartWidget is null')
+      }
+      return this.chartWidget;
+    },
+    subscribeKline(args: TurnSocket) {
       const { subscriberUID, symbolInfo, resolution } = args;
       this.barsCache.set(subscriberUID, {
         ...symbolInfo,
@@ -32,12 +42,25 @@ const tvChartStore = defineStore('tvChartStore', {
       });
       subscribeSocket({ resolution, symbol: symbolInfo.name });
     },
-    unsubscribe(subscriberUID: string) {
+    unsubscribeKline(subscriberUID: string) {
       const { resolution, name } = this.barsCache.get(subscriberUID);
       unsubscribeSocket({ resolution, symbol: name });
       this.barsCache.delete(subscriberUID);
+    },
+    subscribePlusBtn() {
+      this.chartWidget?.subscribe('onPlusClick', (e) => {
+        assign(chartDialog.floatMenuParams, { ...e, visible: true });
+      })
+    },
+    subscribeMouseDown() {
+      this.chartWidget?.subscribe('mouse_down', (e) => {
+        const { visible } = chartDialog.floatMenuParams;
+        if (visible) {
+          assign(chartDialog.floatMenuParams, { ...e, visible: false });
+        }
+      })
     }
   }
 })
 
-export default tvChartStore
+export default chartSubStore
