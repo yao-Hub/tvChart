@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { theme } from 'ant-design-vue';
 import { LANGUAGE_LIST } from '@/constants/common';
 import { computed } from "vue";
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
+import themeStore from '@/store/modules/theme';
+
+const Theme = themeStore();
 
 // ant-design 国际化
 const I18n = useI18n();
@@ -24,7 +26,7 @@ const getPopupContainer = (el: Element, dialogContext: any) => {
 
 <template>
   <a-config-provider :getPopupContainer="getPopupContainer" :locale="usedLocale" :theme="{
-    algorithm: theme.darkAlgorithm,
+    algorithm: Theme.antDTheme,
   }">
     <router-view></router-view>
   </a-config-provider>

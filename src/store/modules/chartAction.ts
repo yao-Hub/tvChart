@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
 import i18n from "@/language/index"
 import { LOCALE_SINGLE_LIST as lacaleList } from '@/constants/common';
-import chartSubStore from './chartSub';
+import chartInitStore from './chartInit';
 import chartDialogStore from './chartDialog';
 
 const dialogStore = chartDialogStore();
-const chartSub = chartSubStore();
+const chartInit = chartInitStore();
 
 interface State {
 }
@@ -16,10 +16,9 @@ const chartActionStore = defineStore('chartActionStore', {
     }
   },
   getters: {
-    widget: () => chartSub.getChartWidget()
+    widget: () => chartInit.getChartWidget()
   },
   actions: {
-
     // 增加左上角头像
     createAvatar() {
       this.widget.headerReady().then(() => {
@@ -45,6 +44,7 @@ const chartActionStore = defineStore('chartActionStore', {
         Button.style.color = '#fff';
         Button.style.margin = '0';
         Button.style.padding = '0';
+
         Button.innerText = 'Y';
       })
     },
@@ -58,7 +58,6 @@ const chartActionStore = defineStore('chartActionStore', {
           useTradingViewStyle: false
         });
         Button.setAttribute('title', i18n.global.t('switchLanguage'));
-        // Button.classList.add('apply-common-tooltip');
         Button.innerHTML = lacaleList[currentlocale === "en" ? "zh" : "en"];
         Button.addEventListener('click', () => {
           currentlocale = currentlocale === "en" ? "zh" : "en";
@@ -89,7 +88,7 @@ const chartActionStore = defineStore('chartActionStore', {
           .setTooltip("Additional order information")
           .setModifyTooltip("Modify order")
           .setCancelTooltip("Cancel order")
-        //   .setQuantity("5");
+          .setQuantity("1");
       });
     }
   }

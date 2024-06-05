@@ -7,10 +7,10 @@ const baseURL = import.meta.env.MODE === 'development' ? import.meta.env.VITE_HT
 console.log(import.meta.env.MODE, baseURL)
 
 const service = axios.create({
-  baseURL: import.meta.env.VITE_HTTP_BASE_URL,
+  baseURL,
   timeout: 30 * 1000,
   // 请求是否携带cookie
-  withCredentials: true,
+  withCredentials: false,
   headers: {
     "Content-Type": 'application/json',
   }

@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia'
 import { assign } from 'lodash';
-import { IChartingLibraryWidget } from 'public/charting_library/charting_library';
 import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation'
 import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index'
-import chartDialogStore from '@/store/modules/chartDialog';
+import chartInitStore from './chartInit';
+import chartDialogStore from './chartDialog';
 
 const chartDialog = chartDialogStore();
+const chartInit = chartInitStore();
 
 interface State {
-  chartWidget: IChartingLibraryWidget | null
   symbols: SessionSymbolInfo[]
   barsCache: Map<string, any>
 }
@@ -22,18 +22,14 @@ interface TurnSocket {
 const chartSubStore = defineStore('chartSubStore', {
   state(): State {
     return {
-      chartWidget: null,
       symbols: [],
       barsCache: new Map()
     }
   },
+  getters: {
+    chartWidget: () => chartInit.getChartWidget()
+  },
   actions: {
-    getChartWidget() {
-      if (!this.chartWidget) {
-        throw new Error('chartWidget is null')
-      }
-      return this.chartWidget;
-    },
     subscribeKline(args: TurnSocket) {
       const { subscriberUID, symbolInfo, resolution } = args;
       this.barsCache.set(subscriberUID, {
