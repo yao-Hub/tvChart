@@ -8,8 +8,8 @@
     "pro": "vite --mode production --open",
     "build": "vue-tsc && vite build",
     "build:dev": "vue-tsc && vite build --mode development",
-    "preview": "vite preview",
-    "preview:dev": "vite preview --mode development",
+    "preview": "vite preview --open",
+    "preview:dev": "vite preview --mode development --open",
     "lint": "eslint --ext .js,.vue,.ts src",
     "http-server": "cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o"
   },

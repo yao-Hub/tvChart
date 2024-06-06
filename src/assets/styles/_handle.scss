@@ -1,0 +1,38 @@
+@import './themes';
+
+@mixin themeify {
+  @each $theme-name, $theme-map in $themes {
+    // 局部变量强升为全局变量
+    $theme-map: $theme-map !global;
+
+    // @content: 混合器插槽
+    [data-theme="#{$theme-name}"] & {
+      @content;
+    }
+  }
+}
+
+@function themed($key) {
+  @return map-get($theme-map, $key);
+}
+
+// 字体颜色
+@mixin font_color($color) {
+  @include themeify {
+    color: themed($color)!important;
+  }
+}
+
+// 边框颜色
+@mixin border_color($color) {
+  @include themeify {
+    border-color: themed($color)!important;
+  }
+}
+
+// 背景颜色
+@mixin background_color($color) {
+  @include themeify {
+    background-color: themed($color)!important;
+  }
+}

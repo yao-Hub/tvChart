@@ -32,7 +32,7 @@ const handleClick = ({ key }: {key: string}) => {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .FloatMenu {
   position: fixed;
   z-index: 1000;

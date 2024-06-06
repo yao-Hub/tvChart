@@ -1,17 +1,22 @@
 <template>
-  <div>
-    <TVChart
-      :datafeed="datafeed()"
-      :symbol="states.symbol"
-      :loading="states.chartLoading"
-      :compareSymbols="states.compareSymbols"
-      :contextMenu="states.contextMenu"
-      @createChart="createChart"
-      >
-    </TVChart>
-    <FloatMenu></FloatMenu>
-    <OrderDialog></OrderDialog>
+  <div class="chart">
+    <a-layout-header>
+      <TVChart
+        :datafeed="datafeed()"
+        :symbol="states.symbol"
+        :loading="states.chartLoading"
+        :compareSymbols="states.compareSymbols"
+        :contextMenu="states.contextMenu"
+        @createChart="createChart"
+        >
+      </TVChart>
+    </a-layout-header>
+    <a-layout-footer class="footer">
+      <OrderArea></OrderArea>
+    </a-layout-footer>
   </div>
+  <FloatMenu></FloatMenu>
+  <OrderDialog></OrderDialog>
 </template>
 
 <script setup lang="ts">
@@ -33,6 +38,7 @@ import { okLight, okDark } from '@/assets/icons/index';
 import TVChart from '@/components/TVChart.vue';
 import OrderDialog from './components/OrderDialog.vue';
 import FloatMenu from './components/FloatMenu.vue';
+import OrderArea from './orderArea/index.vue'
 
 const { t } = useI18n();
 
@@ -98,9 +104,11 @@ const createChart = (widget: library.IChartingLibraryWidget) => {
   chartAction.createLocaleBtn();
   // chartAction.createOrderLine();
   chartAction.createAvatar();
-
+  chartAction.createAddOrderBtn();
+  
   chartSub.subscribePlusBtn();
   chartSub.subscribeMouseDown();
+  chartSub.subscribeKeydown();
 };
 
 // 获取所有商品(品种)
@@ -125,5 +133,9 @@ const getSymbols = async () => {
 getSymbols();
 </script>
 
-<style>
+<style scoped lang="scss">
+.chart {
+  display: flex;
+  flex-direction: column;
+}
 </style>

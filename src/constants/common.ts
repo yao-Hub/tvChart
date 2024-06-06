@@ -11,3 +11,9 @@ export const LOCALE_SINGLE_LIST = {
   "zh": '中',
   "en": 'En',
 } as const
+
+export const TOOLBAR_BTN_ORDER = {
+  Avatar: '-3',
+  AddOrder: '-2',
+  AddOrderSeparator: '-1',
+}

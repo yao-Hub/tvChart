@@ -22,4 +22,9 @@ export default {
   user: {
     name: "名字",
   },
+
+  order: {
+    new: '{type}新订单',
+    create: '创建'
+  }
 };

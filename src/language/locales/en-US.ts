@@ -22,4 +22,9 @@ export default {
     lightTheme: 'Light',
     ThemeColor: 'Theme'
   },
+
+  order: {
+    new: '{type} new order',
+    create: 'create'
+  }
 };

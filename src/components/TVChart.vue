@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-spin class="spin" :indicator="indicator" v-show="props.loading" />
-    <div ref="chartContainer" v-show="!props.loading" style="height: 100vh;"></div>
+    <div ref="chartContainer" v-show="!props.loading" style="height: calc(100vh - 200px);"></div>
   </div>
 </template>
 
@@ -173,7 +173,7 @@ const initonReady = () => {
 };
 </script>
 
-<style scoped>
+<style scoped lang="scss">
 .spin {
   position: absolute;
   top: 50%;

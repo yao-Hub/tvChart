@@ -1,20 +1,13 @@
 import { defineStore } from 'pinia';
 import i18n from "@/language/index"
-import { LOCALE_SINGLE_LIST as lacaleList } from '@/constants/common';
+import { LOCALE_SINGLE_LIST as lacaleList, TOOLBAR_BTN_ORDER as orders } from '@/constants/common';
 import chartInitStore from './chartInit';
 import chartDialogStore from './chartDialog';
 
 const dialogStore = chartDialogStore();
 const chartInit = chartInitStore();
 
-interface State {
-}
-
-const chartActionStore = defineStore('chartActionStore', {
-  state(): State {
-    return {
-    }
-  },
+export default defineStore('chartActionStore', {
   getters: {
     widget: () => chartInit.getChartWidget()
   },
@@ -24,9 +17,9 @@ const chartActionStore = defineStore('chartActionStore', {
       this.widget.headerReady().then(() => {
         const Button = this.widget.createButton();
         const grandpa = <HTMLElement>Button.parentNode?.parentNode;
-        grandpa.style.order = '-2';
+        grandpa.style.order = orders.Avatar;
 
-        const separator = <HTMLElement>grandpa.nextSibling;
+        const separator = <HTMLElement>grandpa.previousSibling;
         separator.remove();
 
         const parent = <HTMLElement>Button.parentNode;
@@ -90,8 +83,34 @@ const chartActionStore = defineStore('chartActionStore', {
           .setCancelTooltip("Cancel order")
           .setQuantity("1");
       });
+    },
+
+    // 增加新订单按钮
+    createAddOrderBtn() {
+      this.widget.headerReady().then(() => {
+        const Button = this.widget.createButton();
+        Button.style.border = '1px solid #fff';
+        Button.style.borderRadius = '4px';
+        Button.style.cursor = 'pointer';
+        Button.setAttribute('title', `${i18n.global.t('order.new', {type: i18n.global.t('order.create')})}: F9`);
+        Button.onmouseover = () => {
+          Button.style.background = 'rgb(89, 89, 89)';
+        }
+        Button.onmouseout = () => {
+          Button.style.background = 'unset';
+        }
+        Button.onmouseup = () => {
+          dialogStore.showOrderDialog();
+        }
+
+        const grandpa = <HTMLElement>Button.parentNode?.parentNode;
+        grandpa.style.order = orders.AddOrder;
+
+        const separator = <HTMLElement>grandpa.previousSibling;
+        separator.style.order = orders.AddOrderSeparator;
+
+        Button.innerText = i18n.global.t('order.new');
+      })
     }
   }
 })
-
-export default chartActionStore

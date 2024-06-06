@@ -11,6 +11,8 @@ declare module 'vue' {
     AConfigProvider: typeof import('ant-design-vue/es')['ConfigProvider']
     ADatePicker: typeof import('ant-design-vue/es')['DatePicker']
     AInput: typeof import('ant-design-vue/es')['Input']
+    ALayoutFooter: typeof import('ant-design-vue/es')['LayoutFooter']
+    ALayoutHeader: typeof import('ant-design-vue/es')['LayoutHeader']
     AMenu: typeof import('ant-design-vue/es')['Menu']
     AMenuDivider: typeof import('ant-design-vue/es')['MenuDivider']
     AMenuItem: typeof import('ant-design-vue/es')['MenuItem']

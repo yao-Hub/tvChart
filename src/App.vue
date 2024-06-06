@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
-import { LANGUAGE_LIST } from '@/constants/common';
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
+import { LANGUAGE_LIST } from '@/constants/common';
 import themeStore from '@/store/modules/theme';
 
 const Theme = themeStore();

@@ -15,6 +15,7 @@ export default defineStore("theme", {
   },
   getters: {
     antDTheme: (state) => {
+      window.document.documentElement.setAttribute('data-theme', state.currentTheme);
       if (state.currentTheme === 'dark') {
         return [darkAlgorithm, compactAlgorithm]
       }
