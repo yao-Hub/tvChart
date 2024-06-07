@@ -29,5 +29,12 @@ export default {
   order: {
     new: '{type} new order',
     create: 'create'
+  },
+
+  tip: {
+    usernameRequired: 'Please input your username',
+    passwordRequired: 'Please input your password',
+    needLogin: 'please Login',
+    succeed: '{type} succeed'
   }
 };

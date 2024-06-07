@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import { LANGUAGE_LIST } from '@/constants/common';
 import { useTheme } from '@/store/modules/theme';
+import { useUser } from '@/store/modules/user';
 
 const themeStore = useTheme();
 
@@ -22,6 +23,10 @@ const getPopupContainer = (el: Element, dialogContext: any) => {
     return document.body;
   }
 }
+
+const userStore = useUser();
+userStore.initUser();
+
 </script>
 
 <template>

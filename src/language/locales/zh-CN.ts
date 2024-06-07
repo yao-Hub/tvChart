@@ -29,5 +29,12 @@ export default {
   order: {
     new: '{type}新订单',
     create: '创建'
+  },
+
+  tip: {
+    usernameRequired: '请输入账号',
+    passwordRequired: '请输入密码',
+    needLogin: '请登录',
+    succeed: '{type}成功'
   }
 };

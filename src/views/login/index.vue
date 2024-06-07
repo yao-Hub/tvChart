@@ -12,11 +12,11 @@
       autocomplete="off"
       @finish="onFinish"
       @finishFailed="onFinishFailed">
-      <a-form-item :label="$t('user.username')" name="username" :rules="[{ required: true, message: 'Please input your username!' }]">
+      <a-form-item :label="$t('user.username')" name="username" :rules="[{ required: true, message: $t('tip.usernameRequired') }]">
         <a-input v-model:value="formState.username" />
       </a-form-item>
 
-      <a-form-item :label="$t('user.password')" name="password" :rules="[{ required: true, message: 'Please input your password!' }]">
+      <a-form-item :label="$t('user.password')" name="password" :rules="[{ required: true, message: $t('tip.passwordRequired') }]">
         <a-input-password v-model:value="formState.password" />
       </a-form-item>
 
@@ -33,13 +33,18 @@
 
 <script lang="ts" setup>
 import { computed, reactive } from 'vue';
+import { message } from 'ant-design-vue';
 import CryptoJS from 'utils/AES';
 import { useDialog } from '@/store/modules/dialog';
 import { login } from 'api/account/index';
 import { useRoot } from '@/store/store';
 import { useUser } from '@/store/modules/user';
+import { useChartAction } from '@/store/modules/chartAction';
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 
 const userStore = useUser();
+const chartActionStore = useChartAction();
 
 const open = computed(() => {
   return dialogStore.loginDialogVisible;
@@ -77,20 +82,27 @@ if (ifRemember) {
 const onFinish = async (values: any) => {
   const { username, remember, password } = values;
   const res = await login({ server: 'upway-live', password, login: username });
-  if (res.data.token) {
-    userStore.setToken(res.data.token);
-  }
-  if (remember) {
-    const enUsername = CryptoJS.encrypt(username);
-    const enpassword = CryptoJS.encrypt(password);
-    const storage = {
-      username: enUsername,
-      password: enpassword
-    };
-    window.localStorage.setItem('account', JSON.stringify(storage));
-    window.localStorage.setItem('remember', JSON.stringify(true));
-  }
+  message.success(t('tip.succeed', { type: t('account.login') }));
+
+  userStore.setToken(res.data.token);
+  userStore.ifLogin = true;
+  userStore.account.password = password;
+  userStore.account.username = username;
+  const enUsername = CryptoJS.encrypt(username);
+  const enpassword = CryptoJS.encrypt(password);
+  const storage = {
+    username: enUsername,
+    password: enpassword
+  };
+  window.localStorage.setItem('account', JSON.stringify(storage));
+  window.localStorage.setItem('remember', JSON.stringify(remember));
+  
+  // 头像
+  chartActionStore.createAvatar();
+  
   handleCancel();
+  
+  // 记忆动作
   const rootStore = useRoot();
   if (rootStore.cacheAction) {
     rootStore[rootStore.cacheAction]();

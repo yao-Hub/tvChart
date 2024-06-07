@@ -1,15 +1,20 @@
 import { defineStore } from 'pinia';
+import { nextTick } from 'vue';
 import i18n from "@/language/index"
 import { LOCALE_SINGLE_LIST as lacaleList, TOOLBAR_BTN_ORDER as orders } from '@/constants/common';
 import { useChartInit } from './chartInit';
 import { useDialog } from './dialog';
+import { useUser } from './user';
+import { avatar } from '@/assets/icons/index';
 
 const dialogStore = useDialog();
 const chartInitStore = useChartInit();
+const userStore = useUser();
 
 interface State {
   cacheAction: string
 }
+
 
 export const useChartAction = defineStore('chartAction', {
   state(): State {
@@ -30,8 +35,23 @@ export const useChartAction = defineStore('chartAction', {
     },
     // 增加左上角头像
     createAvatar() {
+      const ifLogin = userStore.ifLogin;
+      const username = ifLogin ? userStore.account.username : '';
       this.widget.headerReady().then(() => {
+        const iframe = document.querySelector('iframe');
+        if (iframe) {
+          const iframeDocument = iframe.contentDocument || iframe.contentWindow!.document;
+          const ifAvatar = iframeDocument.querySelector('.Avatar');
+          if (ifAvatar) {
+            ifAvatar.innerHTML = username.substring(0, 1);
+            ifAvatar.setAttribute('title', username || i18n.global.t('tip.needLogin'));
+            return;
+          }
+        }
+
         const Button = this.widget.createButton();
+        Button.setAttribute('title', username || i18n.global.t('tip.needLogin'));
+
         const grandpa = <HTMLElement>Button.parentNode?.parentNode;
         grandpa.style.order = orders.Avatar;
 
@@ -54,7 +74,13 @@ export const useChartAction = defineStore('chartAction', {
         Button.style.margin = '0';
         Button.style.padding = '0';
 
-        Button.innerText = 'Y';
+        Button.innerHTML = username ? username.substring(0, 1) : avatar;
+        Button.classList.add('Avatar');
+        Button.addEventListener('click', () => {
+          if (!ifLogin) {
+            dialogStore.showLoginDialog();
+          }
+        })
       })
     },
 

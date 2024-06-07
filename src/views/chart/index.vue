@@ -37,7 +37,7 @@ import { datafeed } from './chartConfig';
 import { okLight, okDark } from '@/assets/icons/index';
 
 import TVChart from '@/components/TVChart.vue';
-import OrderDialog from './components/OrderDialog.vue';
+import OrderDialog from '../order/index.vue';
 import FloatMenu from './components/FloatMenu.vue';
 import OrderArea from './orderArea/index.vue';
 import LoginDialog from '../login/index.vue';
