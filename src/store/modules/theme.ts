@@ -7,7 +7,7 @@ interface State {
   currentTheme: string
 }
 
-export default defineStore("theme", {
+export const useTheme = defineStore('theme', {
   state(): State {
     return {
       currentTheme: 'dark'

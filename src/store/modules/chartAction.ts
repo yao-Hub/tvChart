@@ -1,17 +1,33 @@
 import { defineStore } from 'pinia';
 import i18n from "@/language/index"
 import { LOCALE_SINGLE_LIST as lacaleList, TOOLBAR_BTN_ORDER as orders } from '@/constants/common';
-import chartInitStore from './chartInit';
-import chartDialogStore from './chartDialog';
+import { useChartInit } from './chartInit';
+import { useDialog } from './dialog';
 
-const dialogStore = chartDialogStore();
-const chartInit = chartInitStore();
+const dialogStore = useDialog();
+const chartInitStore = useChartInit();
 
-export default defineStore('chartActionStore', {
+interface State {
+  cacheAction: string
+}
+
+export const useChartAction = defineStore('chartAction', {
+  state(): State {
+    return {
+      // 即将执行的动作
+      cacheAction: ''
+    }
+  },
   getters: {
-    widget: () => chartInit.getChartWidget()
+    widget: () => chartInitStore.getChartWidget()
   },
   actions: {
+    setCacheAction(action: string) {
+      this.cacheAction = action;
+    },
+    clearCacheAction() {
+      this.cacheAction = '';
+    },
     // 增加左上角头像
     createAvatar() {
       this.widget.headerReady().then(() => {

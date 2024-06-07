@@ -4,12 +4,15 @@ export default {
   switchLanguage: "switch language",
 
   user: {
-    name: "name",
+    username: "user",
+    password: 'password',
   },
 
   account: {
+    rememberMe: 'Remember me',
     login: 'Login',
-    logout: 'Logout'
+    logout: 'Logout',
+    submit: 'Submit'
   },
 
   axios: {

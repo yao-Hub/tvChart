@@ -3,9 +3,16 @@ export default {
 
   switchLanguage: "切换语言",
 
+  user: {
+    username: "账户",
+    password: '密码',
+  },
+
   account: {
+    rememberMe: '记住我',
     login: '登录',
-    logout: '登出'
+    logout: '登出',
+    submit: '提交'
   },
 
   axios: {
@@ -17,10 +24,6 @@ export default {
     darkTheme: '暗色',
     lightTheme: '亮色',
     ThemeColor: '主题颜色'
-  },
-
-  user: {
-    name: "名字",
   },
 
   order: {

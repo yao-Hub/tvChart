@@ -3,11 +3,11 @@ import { assign } from 'lodash';
 import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation'
 import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index'
 import { keydownList } from 'utils/keydown';
-import chartInitStore from './chartInit';
-import chartDialogStore from './chartDialog';
+import { useChartInit } from './chartInit';
+import { useDialog } from './dialog';
 
-const chartDialog = chartDialogStore();
-const chartInit = chartInitStore();
+const dialogStore = useDialog();
+const chartInitStore = useChartInit();
 
 interface Keydown {
   key: string
@@ -27,7 +27,7 @@ interface TurnSocket {
   resolution: string
 }
 
-const chartSubStore = defineStore('chartSubStore', {
+export const useChartSub = defineStore('chartSub', {
   state(): State {
     return {
       symbols: [],
@@ -36,7 +36,7 @@ const chartSubStore = defineStore('chartSubStore', {
     }
   },
   getters: {
-    chartWidget: () => chartInit.getChartWidget()
+    chartWidget: () => chartInitStore.getChartWidget()
   },
   actions: {
     // 监听k线
@@ -56,30 +56,28 @@ const chartSubStore = defineStore('chartSubStore', {
     },
     // 监听点击报价加号按钮
     subscribePlusBtn() {
-      this.chartWidget?.subscribe('onPlusClick', (e) => {
-        assign(chartDialog.floatMenuParams, { ...e, visible: true });
+      this.chartWidget.subscribe('onPlusClick', (e) => {
+        assign(dialogStore.floatMenuParams, { ...e, visible: true });
       })
     },
     // 监听鼠标按下动作
     subscribeMouseDown() {
-      this.chartWidget?.subscribe('mouse_down', (e) => {
-        const { visible } = chartDialog.floatMenuParams;
+      this.chartWidget.subscribe('mouse_down', (e) => {
+        const { visible } = dialogStore.floatMenuParams;
         if (visible) {
-          assign(chartDialog.floatMenuParams, { ...e, visible: false });
+          assign(dialogStore.floatMenuParams, { ...e, visible: false });
         }
       })
     },
     // 监听键盘快捷键
     subscribeKeydown() {
       keydownList.forEach(item => {
-        this.chartWidget.onShortcut(item.keyCode, item.callback);
+        this.chartWidget!.onShortcut(item.keyCode, item.callback);
       })
       document.addEventListener("keydown", (event) => {
-        const found = keydownList.find(e => e.key.toUpperCase() === event.key.toUpperCase())
+        const found = keydownList.find(e => e.keyCode === event.keyCode);
         found?.callback();
       });
     }
   }
 })
-
-export default chartSubStore

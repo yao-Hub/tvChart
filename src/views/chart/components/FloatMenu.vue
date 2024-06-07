@@ -16,19 +16,19 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import chartDialogStore from '@/store/modules/chartDialog';
+import { useDialog } from '@/store/modules/dialog';
 import { message } from 'ant-design-vue';
 
 
-const chartDialog = chartDialogStore();
+const dialogStore = useDialog();
 
-const isMenuVisible = computed(() => chartDialog.floatMenuParams.visible);
-const menuTop = computed(() => chartDialog.floatMenuParams.clientY);
-const menuLeft = computed(() => chartDialog.floatMenuParams.clientX);
+const isMenuVisible = computed(() => dialogStore.floatMenuParams.visible);
+const menuTop = computed(() => dialogStore.floatMenuParams.clientY);
+const menuLeft = computed(() => dialogStore.floatMenuParams.clientX);
 
 const handleClick = ({ key }: {key: string}) => {
   message.success(key);
-  chartDialog.floatMenuParams.visible = false;
+  dialogStore.floatMenuParams.visible = false;
 }
 </script>
 

@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia'
-import { IChartingLibraryWidget } from 'public/charting_library/charting_library';
+import { widget, IChartingLibraryWidget } from 'public/charting_library/charting_library';
 
 interface State {
   chartWidget: IChartingLibraryWidget | null
 }
 
-const chartInitStore = defineStore('chartInitStore', {
+export const useChartInit = defineStore('chartInit', {
   state(): State {
     return {
       chartWidget: null,
@@ -20,4 +20,3 @@ const chartInitStore = defineStore('chartInitStore', {
     },
   }
 })
-export default chartInitStore

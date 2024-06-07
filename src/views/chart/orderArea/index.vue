@@ -14,6 +14,7 @@
   width: 100%;
   height: 200px;
   border-top: 1px solid;
+  box-sizing: border-box;
   @include border_color('border');
   @include background_color('primary');
 }

@@ -2,9 +2,9 @@ import { flattenDeep, groupBy, orderBy, get } from 'lodash'
 import { socket } from '@/utils/socket/operation'
 import { klineHistory } from 'api/kline/index'
 import * as types from '@/types/chart/index'
-import chartSubStore from '@/store/modules/chartSub'
+import { useChartSub } from '@/store/modules/chartSub'
 
-const chartSub = chartSubStore();
+const chartSubStore = useChartSub();
 
 const config = {
   "supports_search": true,
@@ -95,7 +95,7 @@ export const datafeed = () => {
     //商品配置
     resolveSymbol: (symbolName: string, onSymbolResolvedCallback: Function, onResolveErrorCallback: Function) => {
       // 获取session
-      const symbolInfo = chartSub.symbols.find(e => e.symbol === symbolName);
+      const symbolInfo = chartSubStore.symbols.find(e => e.symbol === symbolName);
       const ttimes = symbolInfo ? symbolInfo.ttimes : [];
       // 当时间为0 到 0时为关闭日
       const times = flattenDeep(Object.values(ttimes)).filter((obj) => symbolName === obj.symbol && obj.btime !== obj.etime);
@@ -191,7 +191,7 @@ export const datafeed = () => {
       subscribed.resolution = resolution;
       subscribed.onRealtimeCallback = onRealtimeCallback;
       subscribed.onResetCacheNeededCallback = onResetCacheNeededCallback;
-      chartSub.subscribeKline({
+      chartSubStore.subscribeKline({
         subscriberUID,
         symbolInfo,
         resolution
@@ -200,14 +200,14 @@ export const datafeed = () => {
 
     //取消订阅,撤销掉某条线的实时更新
     unsubscribeBars: (subscriberUID: string) => {
-      chartSub.unsubscribeKline(subscriberUID);
+      chartSubStore.unsubscribeKline(subscriberUID);
     },
 
     // 查找品种（商品）
     searchSymbols: (userInput: string, exchange: string, symbolType: string, onResultReadyCallback: Function) => {
       // 模糊匹配
       const regex = new RegExp(userInput.split('').join('.*'), 'i');;
-      const matches = chartSub.symbols.map((item, index) => {
+      const matches = chartSubStore.symbols.map((item, index) => {
         const exchangeMatch = regex.test(item.path);
         const symbolMatch = regex.test(item.symbol);
         return { index, count: (exchangeMatch ? 1 : 0) + (symbolMatch ? 1 : 0) };
@@ -217,7 +217,7 @@ export const datafeed = () => {
       matches.sort((a, b) => b.count - a.count);
   
       const sortedIndices = matches.map(match => match.index);
-      const sortedArr = sortedIndices.map(index => chartSub.symbols[index]);
+      const sortedArr = sortedIndices.map(index => chartSubStore.symbols[index]);
   
       const targetList = sortedArr.map((item: types.SessionSymbolInfo) => {
         return {

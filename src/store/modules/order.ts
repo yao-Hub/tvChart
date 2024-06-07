@@ -1,18 +1,27 @@
 import { defineStore } from 'pinia';
-import chartDialogStore from './chartDialog';
+import { useDialog } from './dialog';
+import { useChartAction } from './chartAction';
+import { useUser } from './user';
 
-const chartDialog = chartDialogStore();
+const dialogStore = useDialog();
+const chartActionStore = useChartAction();
+const userStore = useUser();
 
 interface State {}
 
-export default defineStore('orderStore', {
+export const useOrder = defineStore('order', {
   state(): State {
     return {}
   },
 
   actions: {
     createOrder() {
-      chartDialog.showOrderDialog();
+      if (!userStore.getToken()) {
+        dialogStore.showLoginDialog();
+        chartActionStore.setCacheAction('createOrder');
+        return;
+      }
+      dialogStore.showOrderDialog();
     }
   }
 })

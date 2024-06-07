@@ -1,9 +1,9 @@
 import * as library from 'public/charting_library';
 import { LOCALE_SINGLE_LIST } from '@/constants/common';
-import chartDialogStore from '@/store/modules/chartDialog'
+import { useDialog } from '@/store/modules/dialog'
 
 const lacaleList = LOCALE_SINGLE_LIST;
-const dialogStore = chartDialogStore();
+const dialogStore = useDialog();
 
 export class chartReady {
   widget;

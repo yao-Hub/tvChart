@@ -7,14 +7,16 @@ interface FloatMenuParams {
 }
 
 interface State {
-  orderDialogShow: Boolean
+  orderDialogVisible: Boolean
   floatMenuParams: FloatMenuParams
+  loginDialogVisible: Boolean
 }
 
-const chartDialogStore = defineStore('chartDialogStore', {
+export const useDialog = defineStore('dialog', {
   state(): State {
     return {
-      orderDialogShow: false,
+      loginDialogVisible: false,
+      orderDialogVisible: false,
       floatMenuParams: {
         visible: false,
         clientX: 0,
@@ -24,12 +26,16 @@ const chartDialogStore = defineStore('chartDialogStore', {
   },
   actions: {
     showOrderDialog() {
-      this.orderDialogShow = true;
+      this.orderDialogVisible = true;
     },
     closeOrderDialog() {
-      this.orderDialogShow = false;
+      this.orderDialogVisible = false;
+    },
+    showLoginDialog() {
+      this.loginDialogVisible = true;
+    },
+    closeLoginDialog() {
+      this.loginDialogVisible = false;
     }
   }
 })
-
-export default chartDialogStore

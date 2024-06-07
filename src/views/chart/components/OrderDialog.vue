@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-modal v-model:open="open" title="order" @ok="handleOk" @cancel="handleCancel">
+    <a-modal v-model:open="open" :title="$t('order.new')" @ok="handleOk" @cancel="handleCancel">
       <p>Some contents...</p>
       <p>Some contents...</p>
       <p>Some contents...</p>
@@ -10,16 +10,16 @@
 
 <script lang="ts" setup>
 import { computed } from 'vue';
-import chartDialogStore from '@/store/modules/chartDialog';
+import { useDialog } from '@/store/modules/dialog';
 
-const dialogStore = chartDialogStore();
+const dialogStore = useDialog();
 
 const open = computed(() => {
-  return dialogStore.orderDialogShow
-})
+  return dialogStore.orderDialogVisible;
+});
 
 const handleOk = () => {
-  dialogStore.closeOrderDialog();
+  dialogStore.closeLoginDialog();
 };
 const handleCancel = () => {
   dialogStore.closeOrderDialog();

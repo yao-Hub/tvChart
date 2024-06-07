@@ -17,6 +17,7 @@
   </div>
   <FloatMenu></FloatMenu>
   <OrderDialog></OrderDialog>
+  <LoginDialog></LoginDialog>
 </template>
 
 <script setup lang="ts">
@@ -26,10 +27,10 @@ import { useI18n } from 'vue-i18n';
 import  * as library from 'public/charting_library';
 import * as types from '@/types/chart/index';
 
-import chartInitStore from '@/store/modules/chartInit';
-import chartSubStore from '@/store/modules/chartSub';
-import chartActionStore from '@/store/modules/chartAction';
-import themeStore from '@/store/modules/theme';
+import { useChartInit } from '@/store/modules/chartInit';
+import { useChartSub } from '@/store/modules/chartSub';
+import { useChartAction } from '@/store/modules/chartAction';
+import { useTheme } from '@/store/modules/theme';
 
 import { allSymbols } from 'api/symbols/index';
 import { datafeed } from './chartConfig';
@@ -38,14 +39,15 @@ import { okLight, okDark } from '@/assets/icons/index';
 import TVChart from '@/components/TVChart.vue';
 import OrderDialog from './components/OrderDialog.vue';
 import FloatMenu from './components/FloatMenu.vue';
-import OrderArea from './orderArea/index.vue'
+import OrderArea from './orderArea/index.vue';
+import LoginDialog from '../login/index.vue';
 
 const { t } = useI18n();
 
-const chartInit = chartInitStore();
-const chartSub = chartSubStore();
-const chartAction = chartActionStore();
-const Theme = themeStore();
+const chartInitStore = useChartInit();
+const chartSubStore = useChartSub();
+const chartActionStore = useChartAction();
+const themeStore = useTheme();
 
 const states = reactive({
   symbol: 'XAU',
@@ -63,7 +65,7 @@ const changeTheme = (theme: string) => {
   if (chartWidget.value) {
     chartWidget.value.changeTheme(theme);
     window.localStorage.setItem('Theme', theme);
-    Theme.currentTheme = theme;
+    themeStore.currentTheme = theme;
   }
 };
 
@@ -98,17 +100,17 @@ const setProcessor: library.ContextMenuItemsProcessor = (items, actionsFactory) 
 
 // widget初始化回调
 const createChart = (widget: library.IChartingLibraryWidget) => {
-  chartInit.chartWidget = widget;
+  chartInitStore.chartWidget = widget;
   chartWidget.value = widget;
 
-  chartAction.createLocaleBtn();
+  chartActionStore.createLocaleBtn();
   // chartAction.createOrderLine();
-  chartAction.createAvatar();
-  chartAction.createAddOrderBtn();
+  chartActionStore.createAvatar();
+  chartActionStore.createAddOrderBtn();
   
-  chartSub.subscribePlusBtn();
-  chartSub.subscribeMouseDown();
-  chartSub.subscribeKeydown();
+  chartSubStore.subscribePlusBtn();
+  chartSubStore.subscribeMouseDown();
+  chartSubStore.subscribeKeydown();
 };
 
 // 获取所有商品(品种)
@@ -116,7 +118,7 @@ const getSymbols = async () => {
   states.chartLoading = true;
   try {
     const res: any = await allSymbols({ server: 'upway-live' });
-    chartSub.symbols = res.data;
+    chartSubStore.symbols = res.data;
     states.symbol = res.data[0].symbol;
     states.compareSymbols = res.data.map((item: types.SessionSymbolInfo) => {
       return {
