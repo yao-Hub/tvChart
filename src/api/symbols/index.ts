@@ -1,7 +1,8 @@
 import request from 'utils/http'
 
 enum Api {
-  allSymbols = 'symbol/all_symbols'
+  allSymbols = 'symbol/all_symbols',
+  allSymbolsQuotes = 'quote/all_symbol_quotes'
 }
 
 interface ReqSymbolsInfo {
@@ -33,12 +34,35 @@ export interface ResSymbolsInfo {
   symbol: string
 }
 
+export interface ResQuote {
+  ctm_ms:	number //	时间，毫秒级
+  ctm:	number //	时间
+  symbol:	string //	品种编码
+  ask:	number //	买价
+  bid:	number //	卖价
+  server:	string //	经济商交易线路编码
+}
+
+export interface ReqQuotes {
+  server: string
+}
+
+
 /**
  * 获取交易商线路的所有交易品种
  */
 export const allSymbols = (data: ReqSymbolsInfo) => {
   return request<ResSymbolsInfo>({
     url: Api.allSymbols,
+    method: 'post',
+    data
+  })
+}
+
+// 获取所有报价
+export const allSymbolQuotes = (data: ReqQuotes) => {
+  return request<ResQuote[]>({
+    url: Api.allSymbolsQuotes,
     method: 'post',
     data
   })

@@ -8,6 +8,7 @@ import { useTheme } from '@/store/modules/theme';
 import { useUser } from '@/store/modules/user';
 
 const themeStore = useTheme();
+themeStore.currentTheme = window.localStorage.getItem('Theme') || 'dark';
 
 // ant-design 国际化
 const I18n = useI18n();

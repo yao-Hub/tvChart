@@ -6,18 +6,6 @@ import { useRouter } from "vue-router";
 import { reactive } from 'vue';
 
 const router = useRouter()
-// import useUserStore from '@/store/modules/user'
-// const userStore = useUserStore()
-// userStore.changeUserName({
-//   userName: 'haha',
-//   userId: 123
-// })
-
-// const getSymbols = () => {
-//   allSymbols({ server: 'upway-live' }).then(res => {
-//     console.log('getAllSymbols', res)
-//   })
-// }
 
 const states = reactive({
   login: 3241,

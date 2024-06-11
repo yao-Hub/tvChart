@@ -11,8 +11,10 @@
 @import '@/assets/styles/_handle.scss';
 
 .orderArea {
+  position: fixed;
+  bottom: 0;
+  left: 0;
   width: 100%;
-  height: 200px;
   border-top: 1px solid;
   box-sizing: border-box;
   @include border_color('border');

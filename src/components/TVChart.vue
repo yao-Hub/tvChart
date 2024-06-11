@@ -1,24 +1,13 @@
 <template>
-  <div>
-    <a-spin class="spin" :indicator="indicator" v-show="props.loading" />
-    <div ref="chartContainer" v-show="!props.loading" style="height: calc(100vh - 200px);"></div>
-  </div>
+  <div v-show="!props.loading" ref="chartContainer"></div>
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, watch, h } from 'vue';
+import { ref, onUnmounted, onMounted } from 'vue';
 import  * as library from 'public/charting_library';
-import { LoadingOutlined } from '@ant-design/icons-vue';
 import { useI18n } from 'vue-i18n';
 
 const { locale } = useI18n();
-
-const indicator = h(LoadingOutlined, {
-  style: {
-    fontSize: '50px',
-  },
-  spin: true,
-});
 
 // 字段含义见：https://zlq4863947.gitbook.io/tradingview/4-tu-biao-ding-zhi/widget-constructor
 const props = defineProps({
@@ -129,14 +118,10 @@ const props = defineProps({
 const chartContainer = ref();
 const chartWidget = ref();
 const emit = defineEmits(['createChart']);
-watch(
-  () => props.loading,
-  newVal => {
-    if (!newVal) {
-      initonReady();
-    }
-  }
-);
+
+onMounted(() => {
+  initonReady();
+});
 
 onUnmounted(() => {
   if (chartWidget.value) {
@@ -174,10 +159,4 @@ const initonReady = () => {
 </script>
 
 <style scoped lang="scss">
-.spin {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateY(-50%);
-}
 </style>

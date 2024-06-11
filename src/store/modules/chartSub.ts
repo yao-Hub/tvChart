@@ -39,7 +39,7 @@ export const useChartSub = defineStore('chartSub', {
     chartWidget: () => chartInitStore.getChartWidget()
   },
   actions: {
-    // 监听k线
+    // 监听k线和报价
     subscribeKline(args: TurnSocket) {
       const { subscriberUID, symbolInfo, resolution } = args;
       this.barsCache.set(subscriberUID, {
@@ -48,7 +48,7 @@ export const useChartSub = defineStore('chartSub', {
       });
       subscribeSocket({ resolution, symbol: symbolInfo.name });
     },
-    // 取消监听k线
+    // 取消监听k线和报价
     unsubscribeKline(subscriberUID: string) {
       const { resolution, name } = this.barsCache.get(subscriberUID);
       unsubscribeSocket({ resolution, symbol: name });

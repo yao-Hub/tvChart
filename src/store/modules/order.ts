@@ -7,11 +7,25 @@ const dialogStore = useDialog();
 const chartActionStore = useChartAction();
 const userStore = useUser();
 
-interface State {}
+interface Quote {
+  ask: number
+  bid: number
+  ctm: number
+  ctm_ms: number
+  server: string
+  symbol: string
+}
+interface State {
+  currentQuote: Quote | null
+  currentSymbol: string
+}
 
 export const useOrder = defineStore('order', {
   state(): State {
-    return {}
+    return {
+      currentQuote: null,
+      currentSymbol: ''
+    }
   },
 
   actions: {

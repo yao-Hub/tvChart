@@ -3,8 +3,10 @@ import { socket } from '@/utils/socket/operation'
 import { klineHistory } from 'api/kline/index'
 import * as types from '@/types/chart/index'
 import { useChartSub } from '@/store/modules/chartSub'
+import { useOrder } from '@/store/modules/order'
 
 const chartSubStore = useChartSub();
+const orderStore = useOrder();
 
 const config = {
   "supports_search": true,
@@ -186,7 +188,9 @@ export const datafeed = () => {
     },
 
     //实时更新
-    subscribeBars: (symbolInfo: any, resolution: string, onRealtimeCallback: Function, subscriberUID: string, onResetCacheNeededCallback: Function) => {
+    subscribeBars: (symbolInfo: types.TVSymbolInfo, resolution: string, onRealtimeCallback: Function, subscriberUID: string, onResetCacheNeededCallback: Function) => {
+      orderStore.currentSymbol = symbolInfo.name;
+
       subscribed.symbolInfo = symbolInfo;
       subscribed.resolution = resolution;
       subscribed.onRealtimeCallback = onRealtimeCallback;
@@ -241,6 +245,10 @@ function socketOpera() {
     if (!subscribed.symbolInfo) {//图表没初始化
       return false;
     }
+
+    // 提升订单报价
+    orderStore.currentQuote = d;
+
     //报价更新 最新一条柱子 实时 上下 跳动
     if (d.symbol === subscribed.symbolInfo.name) { //报价为图表当前品种的报价
       if (new_one.high < d.bid) {

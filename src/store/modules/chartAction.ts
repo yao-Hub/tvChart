@@ -1,10 +1,10 @@
 import { defineStore } from 'pinia';
-import { nextTick } from 'vue';
 import i18n from "@/language/index"
 import { LOCALE_SINGLE_LIST as lacaleList, TOOLBAR_BTN_ORDER as orders } from '@/constants/common';
 import { useChartInit } from './chartInit';
 import { useDialog } from './dialog';
 import { useUser } from './user';
+import { useOrder } from './order';
 import { avatar } from '@/assets/icons/index';
 
 const dialogStore = useDialog();
@@ -130,6 +130,8 @@ export const useChartAction = defineStore('chartAction', {
     // 增加新订单按钮
     createAddOrderBtn() {
       this.widget.headerReady().then(() => {
+        const orderStore = useOrder();
+        
         const Button = this.widget.createButton();
         Button.style.border = '1px solid #fff';
         Button.style.borderRadius = '4px';
@@ -142,7 +144,7 @@ export const useChartAction = defineStore('chartAction', {
           Button.style.background = 'unset';
         }
         Button.onmouseup = () => {
-          dialogStore.showOrderDialog();
+          orderStore.createOrder();
         }
 
         const grandpa = <HTMLElement>Button.parentNode?.parentNode;

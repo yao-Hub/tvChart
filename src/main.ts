@@ -3,7 +3,7 @@ import i18n from "@/language/index"
 import App from './App.vue'
 import { setupRouter } from './router'
 import { setupStore } from './store'
-import './assets/styles/common.css'
+import './assets/styles/common.scss'
 
 /**
  * 定义启动初始化函数
