@@ -246,11 +246,11 @@ function socketOpera() {
       return false;
     }
 
-    // 提升订单报价
-    orderStore.currentQuote = d;
-
     //报价更新 最新一条柱子 实时 上下 跳动
     if (d.symbol === subscribed.symbolInfo.name) { //报价为图表当前品种的报价
+       // 提升订单报价
+      orderStore.currentQuote = d;
+      
       if (new_one.high < d.bid) {
         new_one.high = d.bid;
       }
@@ -289,6 +289,8 @@ function socketOpera() {
           new_one = JSON.parse(JSON.stringify(newlastbar));
         }
         newlastbar.time = newlastbar.time * 1000;
+        // 提升k线数据
+        orderStore.currentKline = {...d.klines[i], ...newlastbar};
         subscribed.onRealtimeCallback(newlastbar) //更新K线
       }
     }

@@ -2,6 +2,7 @@ import { defineStore } from 'pinia';
 import { useDialog } from './dialog';
 import { useChartAction } from './chartAction';
 import { useUser } from './user';
+import { Line } from '#/chart/index';
 
 const dialogStore = useDialog();
 const chartActionStore = useChartAction();
@@ -18,13 +19,15 @@ interface Quote {
 interface State {
   currentQuote: Quote | null
   currentSymbol: string
+  currentKline: Line | null
 }
 
 export const useOrder = defineStore('order', {
   state(): State {
     return {
       currentQuote: null,
-      currentSymbol: ''
+      currentSymbol: '',
+      currentKline: null
     }
   },
 

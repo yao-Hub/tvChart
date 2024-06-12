@@ -28,7 +28,11 @@ export default {
 
   order: {
     new: '{type}新订单',
-    create: '创建'
+    create: '创建',
+    point: '点',
+    price: '价位',
+    balance: '余额',
+    profit: '盈利'
   },
 
   tip: {

@@ -7,6 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AAutoComplete: typeof import('ant-design-vue/es')['AutoComplete']
     AButton: typeof import('ant-design-vue/es')['Button']
     ACheckbox: typeof import('ant-design-vue/es')['Checkbox']
     AConfigProvider: typeof import('ant-design-vue/es')['ConfigProvider']
@@ -24,11 +25,14 @@ declare module 'vue' {
     AMenuDivider: typeof import('ant-design-vue/es')['MenuDivider']
     AMenuItem: typeof import('ant-design-vue/es')['MenuItem']
     AModal: typeof import('ant-design-vue/es')['Modal']
+    ARadioButton: typeof import('ant-design-vue/es')['RadioButton']
+    ARadioGroup: typeof import('ant-design-vue/es')['RadioGroup']
     AResult: typeof import('ant-design-vue/es')['Result']
     ASelect: typeof import('ant-design-vue/es')['Select']
     ASelectOption: typeof import('ant-design-vue/es')['SelectOption']
     ASpace: typeof import('ant-design-vue/es')['Space']
     ASpin: typeof import('ant-design-vue/es')['Spin']
+    ATextarea: typeof import('ant-design-vue/es')['Textarea']
     BaseButton: typeof import('./src/components/BaseButton.vue')['default']
     LocaleChange: typeof import('./src/components/LocaleChange.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']

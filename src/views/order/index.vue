@@ -3,7 +3,6 @@
     <a-modal
       v-model:open="open"
       :title="title"
-      @ok="handleOk"
       @cancel="handleCancel"
       :bodyStyle="state.bodyStyle"
       :footer="null">
@@ -12,29 +11,43 @@
           class="left"
           v-model:selectedKeys="state.selectedKeys"
           mode="inline"
-          :inline-collapsed="state.collapsed"
           :items="state.items"
         ></a-menu>
         <div class="right">
           <div class="title">新{{ title }}</div>
-          <a-divider style="margin: 5px 0 10px 0;"></a-divider>
-          <a-select v-model:value="orderStore.currentSymbol">
+          <a-divider class="divider"></a-divider>
+
+          <a-select v-model:value="state.symbol" class="symbolSelect">
             <a-select-option :value="item.symbol" v-for="item in subStore.symbols">{{ item.symbol }}</a-select-option>
           </a-select>
-          <div class="btnGroup">
-            <BaseButton type="error">
-              <div>
-                <p>买入</p>
-                <p>{{ quote?.bid }}</p>
-              </div>
-            </BaseButton>
-            <BaseButton type="success">
-              <div>
-                <p>卖出</p>
-                <p>{{ quote?.ask }}</p>
-              </div>
-            </BaseButton>
-          </div>
+          <a-radio-group v-model:value="state.type" class="radioGroup">
+            <a-radio-button value="buy" class="buyRadio">
+              <p>买入</p>
+              <p v-if="state.selectedKeys[0] === 'price'">{{ state.quote.ask }}</p>
+            </a-radio-button>
+            <a-radio-button value="sell" class="sellRadio">
+              <p>卖出</p>
+              <p v-if="state.selectedKeys[0] === 'price'">{{ state.quote.bid }}</p>
+            </a-radio-button>
+          </a-radio-group>
+          <span class="market" v-if="state.selectedKeys[0] === 'price'">
+            点差: {{ spread }}; 高: {{ state.newKlineData.high }}; 低: {{ state.newKlineData.low }}
+          </span>
+          <a-divider class="divider"></a-divider>
+
+          <component :is="getComponent()" @numEnter="numEnter" :type="state.type"></component>
+          <a-divider class="divider"></a-divider>
+
+          <LossProfit></LossProfit>
+          <a-divider class="divider"></a-divider>
+
+          <a-textarea
+            v-model:value="state.remark"
+            placeholder="备注"
+            :auto-size="{ minRows: 3, maxRows: 5 }"
+            show-count :maxlength="100"
+          />
+          <BaseButton class="placeOrder" type="success">下单</BaseButton>
         </div>
       </div>
     </a-modal>
@@ -42,34 +55,39 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, watch, ref } from 'vue';
+import { computed, reactive, watch, markRaw } from 'vue';
 import { useDialog } from '@/store/modules/dialog';
 import { useOrder } from '@/store/modules/order';
 import { useChartSub } from '@/store/modules/chartSub';
 
-import { allSymbolQuotes, ResQuote } from 'api/symbols/index';
+import { allSymbolQuotes } from 'api/symbols/index';
+import { klineHistory } from 'api/kline/index'
 
-import BaseButton from '@/components/BaseButton.vue'
+import Price from './components/Price.vue';
+import Limit from './components/Limit.vue';
+import Stop from './components/Stop.vue';
+import StopLimit from './components/StopLimit.vue';
+import LossProfit from './components/LossProfit/index.vue';
+import BaseButton from '@/components/BaseButton.vue';
 
 const dialogStore = useDialog();
 const orderStore = useOrder();
 const subStore = useChartSub();
 
+// 弹窗打开隐藏
 const open = computed(() => {
   return dialogStore.orderDialogVisible;
 });
 
-const handleOk = () => {
-  dialogStore.closeLoginDialog();
-};
+// 弹框关闭
 const handleCancel = () => {
   dialogStore.closeOrderDialog();
 }
 
+type OrderType = 'price' | 'limit' | 'stop' | 'stopLimit';
+
 const state = reactive({
-  collapsed: false,
-  selectedKeys: ['price'],
-  preOpenKeys: ['sub1'],
+  selectedKeys: ['price'] as OrderType[],
   bodyStyle: {
     backgroundColor: '#525252',
     borderRadius: '8px'
@@ -79,37 +97,121 @@ const state = reactive({
     { key: 'limit', label: '限价单' },
     { key: 'stop', label: '止损单' },
     { key: 'stopLimit', label: '止损限价单' },
-  ]
+  ],
+  itemsEnum: {
+    price: markRaw(Price),
+    limit: Limit,
+    stop: Stop,
+    stopLimit: StopLimit
+  },
+  // 买入 or 卖出
+  type: 'buy',
+  symbol: '',
+  // 报价
+  quote: {
+    ask: 0,
+    bid: 0,
+    ctm_ms: 0,
+    ctm: 0,
+    symbol: '',
+    server: 'upway-live',
+  },
+  // k线最新数据（最高最低价）
+  newKlineData: {
+    close: 0,
+    ctm: 0,
+    date_time: '',
+    high: 0,
+    low: 0,
+    open: 0,
+    volume: 0
+  },
+  remark: ''
 });
 
-const quote = ref<ResQuote>();
+const getComponent = () => {
+  return state.itemsEnum[state.selectedKeys[0]];
+};
 
+
+// 弹框标题
 const title = computed(() => {
   const item = state.items.find(e => e.key === state.selectedKeys[0]);
   return item?.label
 });
 
-const getQuotes = async () => {
-  const res = await allSymbolQuotes({ server: 'upway-live' });
-  const foundQuote = res.data.find(e => e.symbol === orderStore.currentSymbol);
-  foundQuote && (quote.value = foundQuote);
-  console.log('foundQuote', foundQuote);
-};
-watch(open, (newVal) => {
-  newVal && getQuotes();
+// 点差 点差是买价和卖价的差。
+const spread = computed(() => {
+  const ask = state.quote.ask;
+  const bid = state.quote.bid;
+  return Math.abs(ask - bid).toFixed(2);
 });
 
+// 获取初始化报价
+const getQuotes = async () => {
+  const res = await allSymbolQuotes({ server: 'upway-live' });
+  const foundQuote = res.data.find(e => e.symbol === state.symbol);
+  foundQuote && (state.quote = foundQuote);
+};
+
+// 给当前页面的报价赋值
 watch(() => orderStore.currentQuote, (newVal) => {
-  if (newVal && newVal.symbol === orderStore.currentSymbol) {
-    quote.value = newVal;
+  if (newVal) {
+    state.quote = newVal;
   }
 }, { immediate: true });
 
+// 初始化最高最低价
+const getklineHistory = async () => {
+  const { data } = await klineHistory({
+    server: 'upway-live',
+    period_type: '1',
+    symbol: orderStore.currentSymbol,
+    count: 1,
+    limit_ctm: Math.floor(Date.now() / 1000)
+  });
+  state.newKlineData = data[0];
+};
+
+// 给最高最低价赋值
+watch(() => orderStore.currentKline, (newVal) => {
+  if (newVal) {
+    state.newKlineData = newVal;
+  }
+}, { immediate: true });
+
+// 弹窗初始化
+watch(open, (newVal) => {
+  if (newVal) {
+    state.symbol = orderStore.currentSymbol;
+    getklineHistory();
+    getQuotes();
+  }
+});
+
+// interface Updata {
+//   server:	string // 经纪商交易线路编码
+//   login:	number // 账户
+//   token:	string // 登录成功得到的token
+//   orders:	[] // 订单列表
+//   symbol:	string // 品种
+//   type:	number // 操作方向。0=buy，1=sell
+//   volume:	number // 手数。1=0.01手
+//   sl?:	number // 止损价。1=0.01手
+//   tp?:	number // 止盈价。1=0.01手
+// }
+
+
+const numEnter = () => {
+  // updataState
+}
 </script>
 
 <style scoped lang="scss">
 @import '@/assets/styles/_handle.scss';
-
+.divider {
+  margin: 5px 0 10px 0;
+}
 .main {
   display: flex;
   width: 100%;
@@ -118,16 +220,35 @@ watch(() => orderStore.currentQuote, (newVal) => {
 .left {
   max-width: 129px !important;
   min-width: 129px !important;
-  // @include font_color('word');
 }
 .right {
   flex: 1;
+  padding: 10px;
   .title {
     font-size: 21px;
   }
-  .btnGroup {
+  .radioGroup {
     display: flex;
-    justify-content:space-evenly;
+    gap: 8px;
+    .buyRadio {
+      color: #dd6600;
+    }
+    .sellRadio {
+      color: #19b52d;
+    }
+  }
+  .symbolSelect {
+    width: 100%;
+    margin: 8px 0;
+  }
+  .market {
+    display: block;
+    text-align: center;
+    margin: 8px 0;
+  }
+  .placeOrder {
+    margin-top: 10px;
+    width: 100%;
   }
 }
 :deep(.ant-menu) {
@@ -141,7 +262,19 @@ watch(() => orderStore.currentQuote, (newVal) => {
 :deep(.ant-menu-item-selected) {
   background-color: #525252;
 }
-.right {
-  padding: 10px
+.ant-radio-button-wrapper {
+  height: auto;
+  flex: 1;
+  text-align: center;
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):first-child {
+  border-color: #dd6600;
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):last-child {
+  border-color: #19b52d;
+}
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before,
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+  background-color: #19b52d;
 }
 </style>

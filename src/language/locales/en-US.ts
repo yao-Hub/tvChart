@@ -28,7 +28,11 @@ export default {
 
   order: {
     new: '{type} new order',
-    create: 'create'
+    create: 'create',
+    point: 'point',
+    price: 'price',
+    balance: 'balance',
+    profit: 'profit'
   },
 
   tip: {
