@@ -1,30 +1,40 @@
 import { defineStore } from 'pinia';
+import { watch } from 'vue';
+import { eq } from 'lodash';
 import { UserInfo } from '#/store';
 import CryptoJS from 'utils/AES';
+import { loginInfo } from 'api/account/index';
+import { useOrder } from './order';
+import { useChartAction } from '@/store/modules/chartAction';
 
 interface State {
-  account: UserInfo
+  account: Pick<UserInfo, 'login' | 'password'>
   ifLogin: Boolean
+  loginInfo: UserInfo | null
 }
 
 export const useUser = defineStore('user', {
   state(): State {
     return {
       account: {
-        username: '',
+        login: '',
         password: ''
       },
-      ifLogin: false
+      ifLogin: false,
+      loginInfo: null
     }
   },
   actions: {
-    initUser() {
+    async initUser() {
       this.ifLogin = !!this.getToken();
       const account = window.localStorage.getItem('account');
       if (account) {
         const parseAccount = JSON.parse(account);
-        this.account.username = CryptoJS.decrypt(parseAccount.username);
+        this.account.login = CryptoJS.decrypt(parseAccount.login);
         this.account.password = CryptoJS.decrypt(parseAccount.password);
+      }
+      if (this.ifLogin) {
+        this.getLoginInfo();
       }
     },
     getToken() {
@@ -43,5 +53,22 @@ export const useUser = defineStore('user', {
     clearToken() {
       window.localStorage.removeItem('token');
     },
+    async getLoginInfo() {
+      const res = await loginInfo({
+        login: this.account.login,
+      });
+      this.loginInfo = res.data;
+      
+      const userStore = useOrder();
+      userStore.polling = res.data.openning_orders && res.data.openning_orders.length > 0;
+    }
   }
 })
+
+watch(() => useUser().loginInfo, (newVal, oldVal) => {
+  const chartActionStore = useChartAction();
+  const ifEq = eq(newVal, oldVal);
+  if (!ifEq) {
+    chartActionStore.createAvatar();
+  }
+});

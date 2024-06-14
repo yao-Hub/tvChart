@@ -4,7 +4,7 @@ export default {
   switchLanguage: "switch language",
 
   user: {
-    username: "user",
+    login: "user",
     password: 'password',
   },
 
@@ -32,7 +32,9 @@ export default {
     point: 'point',
     price: 'price',
     balance: 'balance',
-    profit: 'profit'
+    profit: 'profit',
+    buy: 'buy',
+    sell: 'sell'
   },
 
   tip: {

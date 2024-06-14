@@ -12,8 +12,8 @@
       autocomplete="off"
       @finish="onFinish"
       @finishFailed="onFinishFailed">
-      <a-form-item :label="$t('user.username')" name="username" :rules="[{ required: true, message: $t('tip.usernameRequired') }]">
-        <a-input v-model:value="formState.username" />
+      <a-form-item :label="$t('user.login')" name="login" :rules="[{ required: true, message: $t('tip.usernameRequired') }]">
+        <a-input v-model:value="formState.login" />
       </a-form-item>
 
       <a-form-item :label="$t('user.password')" name="password" :rules="[{ required: true, message: $t('tip.passwordRequired') }]">
@@ -36,7 +36,7 @@ import { computed, reactive } from 'vue';
 import { message } from 'ant-design-vue';
 import CryptoJS from 'utils/AES';
 import { useDialog } from '@/store/modules/dialog';
-import { login } from 'api/account/index';
+import { Login } from 'api/account/index';
 import { useRoot } from '@/store/store';
 import { useUser } from '@/store/modules/user';
 import { useChartAction } from '@/store/modules/chartAction';
@@ -56,13 +56,13 @@ const handleCancel = () => {
 }
 
 interface FormState {
-  username: string;
+  login: string;
   password: string;
   remember: boolean;
 }
 
 const formState = reactive<FormState>({
-  username: '',
+  login: '',
   password: '',
   remember: true
 });
@@ -73,33 +73,33 @@ if (ifRemember) {
   const account = window.localStorage.getItem('account');
   const parseAccount = account ? JSON.parse(account) : null;
   if (parseAccount) {
-    formState.username = CryptoJS.decrypt(parseAccount.username);
+    formState.login = CryptoJS.decrypt(parseAccount.login);
     formState.password = CryptoJS.decrypt(parseAccount.password);
   }
 }
 
 // 登录提交
 const onFinish = async (values: any) => {
-  const { username, remember, password } = values;
-  const res = await login({ server: 'upway-live', password, login: username });
+  const { login, remember, password } = values;
+  const res = await Login({ password, login: login });
   message.success(t('tip.succeed', { type: t('account.login') }));
 
   userStore.setToken(res.data.token);
   userStore.ifLogin = true;
   userStore.account.password = password;
-  userStore.account.username = username;
-  const enUsername = CryptoJS.encrypt(username);
+  userStore.account.login = login;
+  const enLogin = CryptoJS.encrypt(login);
   const enpassword = CryptoJS.encrypt(password);
   const storage = {
-    username: enUsername,
+    login: enLogin,
     password: enpassword
   };
   window.localStorage.setItem('account', JSON.stringify(storage));
   window.localStorage.setItem('remember', JSON.stringify(remember));
   
+  await userStore.getLoginInfo();
   // 头像
   chartActionStore.createAvatar();
-  
   handleCancel();
   
   // 记忆动作

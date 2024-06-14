@@ -12,8 +12,15 @@ export const LOCALE_SINGLE_LIST = {
   "en": 'En',
 } as const
 
+// 图标按钮权重
 export const TOOLBAR_BTN_ORDER = {
   Avatar: '-3',
   AddOrder: '-2',
   AddOrderSeparator: '-1',
+}
+
+// 股票交易方向
+export const STOCKS_DIRECTION = {
+  buy: 0,
+  sell: 1
 }

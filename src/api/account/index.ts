@@ -1,22 +1,91 @@
 import request from 'utils/http'
+import { UserInfo } from '#/store'
 
 enum Api {
-  Login = 'login'
+  Login = 'login',
+  LoginInfo = 'my/login_info',
 }
 
-interface Login {
-  server: string
+interface reqLogin {
   login: number
   password: string
 }
-
+interface reqLoginInfo {
+  login: string
+}
 /**
- * 获取交易商线路的所有交易品种
+ * 登录
  */
-export const login = (data:Login) => {
+export const Login = (data: reqLogin) => {
   return request<{token: string}>({
     url: Api.Login,
     method: 'post',
     data
+  })
+}
+
+/**
+ * 登录信息
+ */
+export const loginInfo = (data: reqLoginInfo) => {
+  return request<UserInfo>({
+    url: Api.LoginInfo,
+    method: 'post',
+    data,
+    needToken: true
+  })
+}
+
+// 出入金
+export const balanceOrdersAdd = (data: any) => {
+  return request<any>({
+    url: 'admin/balance_orders_add',
+    method: 'post',
+    data,
+  })
+}
+
+// 查询账户列表
+export const logins = (data: any) => {
+  return request<any>({
+    url: 'admin/logins',
+    method: 'post',
+    data,
+  })
+}
+
+// 增加更新组别
+export const groupAddUpdate = (data: any) => {
+  return request<any>({
+    url: 'admin/group_add_update',
+    method: 'post',
+    data,
+  })
+}
+
+// 查询组别
+export const groupGet = (data: any) => {
+  return request<any>({
+    url: 'admin/groups',
+    method: 'post',
+    data,
+  })
+}
+
+// 添加账户
+export const loginsAdd = (data: any) => {
+  return request<any>({
+    url: 'admin/logins_add',
+    method: 'post',
+    data,
+  })
+}
+
+// 重置用户密码
+export const passwordReset = (data: any) => {
+  return request<any>({
+    url: 'admin/password_reset',
+    method: 'post',
+    data,
   })
 }

@@ -5,10 +5,6 @@ enum Api {
   allSymbolsQuotes = 'quote/all_symbol_quotes'
 }
 
-interface ReqSymbolsInfo {
-  server: string
-}
-
 interface TimeInfo {
   symbol: string;
   week_day: number;
@@ -43,27 +39,20 @@ export interface ResQuote {
   server:	string //	经济商交易线路编码
 }
 
-export interface ReqQuotes {
-  server: string
-}
-
-
 /**
  * 获取交易商线路的所有交易品种
  */
-export const allSymbols = (data: ReqSymbolsInfo) => {
+export const allSymbols = () => {
   return request<ResSymbolsInfo>({
     url: Api.allSymbols,
     method: 'post',
-    data
   })
 }
 
 // 获取所有报价
-export const allSymbolQuotes = (data: ReqQuotes) => {
+export const allSymbolQuotes = () => {
   return request<ResQuote[]>({
     url: Api.allSymbolsQuotes,
     method: 'post',
-    data
   })
 }

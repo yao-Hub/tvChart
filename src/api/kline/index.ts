@@ -5,7 +5,6 @@ enum Api {
 }
 
 interface ReqLineInfo {
-  server: string
   period_type: number | string
   symbol: string
   count: number

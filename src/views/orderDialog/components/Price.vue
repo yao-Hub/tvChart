@@ -35,7 +35,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['numEnter']);
 
 const state = reactive({
-  num: 0,
+  num: 10,
   numDataSource: [
     { value: '0.01'},
     { value: '0.05'},
@@ -44,7 +44,7 @@ const state = reactive({
 
 watch(() => state.num, (newVal) => {
   emit('numEnter', newVal);
-});
+}, { immediate: true });
 
 const setNumDataSource = () => {
   state.numDataSource = [

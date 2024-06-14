@@ -12,6 +12,9 @@
     </TVChart>
     <div class="resizeLine" :style="{top: resizeLineTop + 'px'}" @mousedown="resizeLineMousedown"></div>
     <OrderArea :style="{height: orderAreaHeight + 'px'}"></OrderArea>
+
+    <FooterInfo></FooterInfo>
+    
   </div>
   <a-spin class="spin" :indicator="indicator" v-else />
 
@@ -31,16 +34,18 @@ import { useChartInit } from '@/store/modules/chartInit';
 import { useChartSub } from '@/store/modules/chartSub';
 import { useChartAction } from '@/store/modules/chartAction';
 import { useTheme } from '@/store/modules/theme';
+import { useUser } from '@/store/modules/user';
 
 import { allSymbols } from 'api/symbols/index';
 import { datafeed } from './chartConfig';
 import { okLight, okDark } from '@/assets/icons/index';
 
 import TVChart from '@/components/TVChart.vue';
-import OrderDialog from '../order/index.vue';
+import OrderDialog from '../orderDialog/index.vue';
 import FloatMenu from './components/FloatMenu.vue';
-import OrderArea from './orderArea/index.vue';
-import LoginDialog from '../login/index.vue';
+import OrderArea from '../orderArea/index.vue';
+import LoginDialog from '../loginDialog/index.vue';
+import FooterInfo from '../footerInfo/index.vue';
 
 import { LoadingOutlined } from '@ant-design/icons-vue';
 const indicator = h(LoadingOutlined, {
@@ -50,13 +55,13 @@ const indicator = h(LoadingOutlined, {
   spin: true,
 });
 
-
 const { t } = useI18n();
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const chartActionStore = useChartAction();
 const themeStore = useTheme();
+const userStore = useUser();
 
 const states = reactive({
   symbol: 'XAU',
@@ -71,7 +76,7 @@ const isResizing = ref(false);
 const chart = ref();
 const chartHeight = ref(window.innerHeight - 204);
 const resizeLineTop = ref(window.innerHeight - 202);
-const orderAreaHeight = ref(200);
+const orderAreaHeight = ref(170);
 const resizeLineMousedown = () => {
   isResizing.value = true;
   
@@ -81,7 +86,7 @@ const resizeLineMousedown = () => {
 
     chartHeight.value = mouseY;
     resizeLineTop.value = mouseY;
-    orderAreaHeight.value = containerRect.height - mouseY - 2;
+    orderAreaHeight.value = containerRect.height - mouseY - 32;
   }
   function stopResize() {
     isResizing.value = false;
@@ -148,13 +153,15 @@ const createChart = (widget: library.IChartingLibraryWidget) => {
   chartSubStore.subscribePlusBtn();
   chartSubStore.subscribeMouseDown();
   chartSubStore.subscribeKeydown();
+
+  userStore.initUser();
 };
 
 // 获取所有商品(品种)
 const getSymbols = async () => {
   chartInitStore.loading = true;
   try {
-    const res: any = await allSymbols({ server: 'upway-live' });
+    const res: any = await allSymbols();
     chartSubStore.symbols = res.data;
     states.symbol = res.data[0].symbol;
     states.compareSymbols = res.data.map((item: types.SessionSymbolInfo) => {

@@ -4,7 +4,7 @@ export default {
   switchLanguage: "切换语言",
 
   user: {
-    username: "账户",
+    login: "账户",
     password: '密码',
   },
 
@@ -32,7 +32,9 @@ export default {
     point: '点',
     price: '价位',
     balance: '余额',
-    profit: '盈利'
+    profit: '盈利',
+    buy: '买入',
+    sell: '卖出'
   },
 
   tip: {

@@ -1,8 +1,16 @@
-import axios, { AxiosRequestConfig, AxiosError } from 'axios'
+import axios, { AxiosRequestConfig, AxiosError, InternalAxiosRequestConfig } from 'axios'
 import type { CustomResponseType } from '#/axios'
 import { encrypt, decrypt } from 'utils/DES/index'
-import { notification } from 'ant-design-vue';
+import { notification, message } from 'ant-design-vue';
+import { useUser } from '@/store/modules/user';
+import { useDialog } from '@/store/modules/dialog';
 
+interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig<any> {
+  needToken?: boolean;
+}
+interface CustomAxiosRequestConfig extends AxiosRequestConfig<any> {
+  needToken?: boolean;
+}
 const baseURL = import.meta.env.MODE === 'development' ? import.meta.env.VITE_HTTP_BASE_URL : import.meta.env.VITE_HTTP_URL;
 console.log(import.meta.env.MODE, baseURL)
 
@@ -18,8 +26,16 @@ const service = axios.create({
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config) => {
-    console.log('request Data', config.data)
+  (config: CustomInternalAxiosRequestConfig) => {
+    const userStore = useUser();
+    config.data = {
+      ...config.data,
+      server: 'upway-live'
+    };
+    if (config.needToken) {
+      config.data.token = userStore.getToken();
+    }
+    console.log('request Data', { url: config.url, data: config.data })
     var p = {
       action: config.url,
       d: encrypt(JSON.stringify(config.data))
@@ -38,8 +54,19 @@ service.interceptors.response.use(
     const { data } = response
     if (data.err === 0) {
       data.data = JSON.parse(decrypt(data.data));
-      console.log('response Data', data.data)
+      console.log('response Data', { url: response.config.url, data })
       return response;
+    }
+    if (data.err === 1 && data.errmsg === 'invalid token') {
+      const userStore = useUser();
+      userStore.ifLogin = false;
+      userStore.clearToken();
+      userStore.loginInfo = null;
+      
+      const dialogStroe = useDialog();
+      dialogStroe.showLoginDialog();
+      message['error']('登录过期，请重新登录');
+      return Promise.reject(data)
     }
     notification['error']({
       message: 'error',
@@ -74,7 +101,7 @@ service.interceptors.response.use(
 
 // 封装一层以更好的统一定义接口返回的类型
 const request = <T>(
-  config: AxiosRequestConfig
+  config: CustomAxiosRequestConfig
 ): Promise<CustomResponseType<T>> => {
   return new Promise((resolve, reject) => {
     service

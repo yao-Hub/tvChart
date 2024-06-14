@@ -15,7 +15,6 @@ interface State {
   cacheAction: string
 }
 
-
 export const useChartAction = defineStore('chartAction', {
   state(): State {
     return {
@@ -35,8 +34,7 @@ export const useChartAction = defineStore('chartAction', {
     },
     // 增加左上角头像
     createAvatar() {
-      const ifLogin = userStore.ifLogin;
-      const username = ifLogin ? userStore.account.username : '';
+      const username =  userStore.loginInfo ? userStore.loginInfo.total_name || userStore.account.login : '';
       this.widget.headerReady().then(() => {
         const iframe = document.querySelector('iframe');
         if (iframe) {
@@ -69,7 +67,7 @@ export const useChartAction = defineStore('chartAction', {
         Button.style.display = 'flex';
         Button.style.justifyContent = 'center';
         Button.style.alignItems = 'center';
-        Button.style.fontSize = '20px';
+        Button.style.fontSize = '16px';
         Button.style.color = '#fff';
         Button.style.margin = '0';
         Button.style.padding = '0';
@@ -77,7 +75,7 @@ export const useChartAction = defineStore('chartAction', {
         Button.innerHTML = username ? username.substring(0, 1) : avatar;
         Button.classList.add('Avatar');
         Button.addEventListener('click', () => {
-          if (!ifLogin) {
+          if (!userStore.ifLogin) {
             dialogStore.showLoginDialog();
           }
         })

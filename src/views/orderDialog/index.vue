@@ -21,13 +21,13 @@
             <a-select-option :value="item.symbol" v-for="item in subStore.symbols">{{ item.symbol }}</a-select-option>
           </a-select>
           <a-radio-group v-model:value="state.type" class="radioGroup">
-            <a-radio-button value="buy" class="buyRadio">
-              <p>买入</p>
-              <p v-if="state.selectedKeys[0] === 'price'">{{ state.quote.ask }}</p>
-            </a-radio-button>
             <a-radio-button value="sell" class="sellRadio">
               <p>卖出</p>
               <p v-if="state.selectedKeys[0] === 'price'">{{ state.quote.bid }}</p>
+            </a-radio-button>
+            <a-radio-button value="buy" class="buyRadio">
+              <p>买入</p>
+              <p v-if="state.selectedKeys[0] === 'price'">{{ state.quote.ask }}</p>
             </a-radio-button>
           </a-radio-group>
           <span class="market" v-if="state.selectedKeys[0] === 'price'">
@@ -35,10 +35,19 @@
           </span>
           <a-divider class="divider"></a-divider>
 
-          <component :is="getComponent()" @numEnter="numEnter" :type="state.type"></component>
+          <component
+            :is="getComponent()"
+            :type="state.type"
+            @numEnter="(num: string) => state.marketOrders.volume = num">
+          </component>
+
           <a-divider class="divider"></a-divider>
 
-          <LossProfit></LossProfit>
+          <LossProfit
+            :transactionType="state.type"
+            :currentBuy="state.quote.ask"
+            :currentSell="state.quote.bid">
+          </LossProfit>
           <a-divider class="divider"></a-divider>
 
           <a-textarea
@@ -47,7 +56,7 @@
             :auto-size="{ minRows: 3, maxRows: 5 }"
             show-count :maxlength="100"
           />
-          <BaseButton class="placeOrder" type="success">下单</BaseButton>
+          <BaseButton class="placeOrder" type="success" @click="addOrders">下单</BaseButton>
         </div>
       </div>
     </a-modal>
@@ -56,12 +65,18 @@
 
 <script lang="ts" setup>
 import { computed, reactive, watch, markRaw } from 'vue';
+import { message } from 'ant-design-vue';
+
 import { useDialog } from '@/store/modules/dialog';
 import { useOrder } from '@/store/modules/order';
 import { useChartSub } from '@/store/modules/chartSub';
+import { useUser } from '@/store/modules/user';
+
+import { STOCKS_DIRECTION } from '@/constants/common';
 
 import { allSymbolQuotes } from 'api/symbols/index';
 import { klineHistory } from 'api/kline/index'
+import { marketOrdersAdd } from 'api/order/index';
 
 import Price from './components/Price.vue';
 import Limit from './components/Limit.vue';
@@ -73,6 +88,7 @@ import BaseButton from '@/components/BaseButton.vue';
 const dialogStore = useDialog();
 const orderStore = useOrder();
 const subStore = useChartSub();
+const userStore = useUser();
 
 // 弹窗打开隐藏
 const open = computed(() => {
@@ -94,9 +110,9 @@ const state = reactive({
   },
   items: [
     { key: 'price', label: '市价单' },
-    { key: 'limit', label: '限价单' },
-    { key: 'stop', label: '止损单' },
-    { key: 'stopLimit', label: '止损限价单' },
+    // { key: 'limit', label: '限价单' },
+    // { key: 'stop', label: '止损单' },
+    // { key: 'stopLimit', label: '止损限价单' },
   ],
   itemsEnum: {
     price: markRaw(Price),
@@ -105,7 +121,7 @@ const state = reactive({
     stopLimit: StopLimit
   },
   // 买入 or 卖出
-  type: 'buy',
+  type: 'buy' as 'buy' | 'sell',
   symbol: '',
   // 报价
   quote: {
@@ -126,7 +142,10 @@ const state = reactive({
     open: 0,
     volume: 0
   },
-  remark: ''
+  remark: '',
+  marketOrders: {
+    volume: '', // 手数
+  }
 });
 
 const getComponent = () => {
@@ -149,7 +168,7 @@ const spread = computed(() => {
 
 // 获取初始化报价
 const getQuotes = async () => {
-  const res = await allSymbolQuotes({ server: 'upway-live' });
+  const res = await allSymbolQuotes();
   const foundQuote = res.data.find(e => e.symbol === state.symbol);
   foundQuote && (state.quote = foundQuote);
 };
@@ -164,7 +183,6 @@ watch(() => orderStore.currentQuote, (newVal) => {
 // 初始化最高最低价
 const getklineHistory = async () => {
   const { data } = await klineHistory({
-    server: 'upway-live',
     period_type: '1',
     symbol: orderStore.currentSymbol,
     count: 1,
@@ -202,8 +220,32 @@ watch(open, (newVal) => {
 // }
 
 
-const numEnter = () => {
-  // updataState
+const addOrders = async () => {
+  const orderType = state.selectedKeys[0];
+  switch(orderType) {
+    case 'price':
+      const updata = {
+        login: userStore.account.login,
+        orders: [],
+        symbol: state.symbol,
+        type: STOCKS_DIRECTION[state.type],
+        volume: Number(state.marketOrders.volume) * 100,
+        comment: state.remark
+        // sl: '',
+        // tp: ''
+      };
+      const res = await marketOrdersAdd(updata);
+      if (res.data.action_success) {
+        message.success('下单成功');
+        orderStore.refreshOrderArea = true;
+        handleCancel();
+      } else {
+        message.error('下单失败');
+      }
+      break;
+    default:
+      break;
+  }
 }
 </script>
 
@@ -231,10 +273,10 @@ const numEnter = () => {
     display: flex;
     gap: 8px;
     .buyRadio {
-      color: #dd6600;
+      color: #19b52d;
     }
     .sellRadio {
-      color: #19b52d;
+      color: #dd6600;
     }
   }
   .symbolSelect {

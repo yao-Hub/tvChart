@@ -149,7 +149,6 @@ export const datafeed = () => {
       temSymbol = symbolInfo.name;
       const bar: types.LineData[] = [];
       const updata = {
-        "server": "upway-live",
         "period_type": types.Periods[resolution as keyof typeof types.Periods] || resolution,
         "symbol": symbolInfo.name,
         "count": periodParams.countBack,

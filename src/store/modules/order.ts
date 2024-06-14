@@ -20,6 +20,8 @@ interface State {
   currentQuote: Quote | null
   currentSymbol: string
   currentKline: Line | null
+  refreshOrderArea: boolean
+  polling: boolean // 是否轮询个人信息和持仓单
 }
 
 export const useOrder = defineStore('order', {
@@ -27,7 +29,9 @@ export const useOrder = defineStore('order', {
     return {
       currentQuote: null,
       currentSymbol: '',
-      currentKline: null
+      currentKline: null,
+      refreshOrderArea: false,
+      polling: false
     }
   },
 

@@ -5,10 +5,12 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/zh-cn';
 import { LANGUAGE_LIST } from '@/constants/common';
 import { useTheme } from '@/store/modules/theme';
-import { useUser } from '@/store/modules/user';
 
 const themeStore = useTheme();
 themeStore.currentTheme = window.localStorage.getItem('Theme') || 'dark';
+const theme = computed(() => {
+  return themeStore.antDTheme;
+});
 
 // ant-design 国际化
 const I18n = useI18n();
@@ -25,15 +27,10 @@ const getPopupContainer = (el: Element, dialogContext: any) => {
   }
 }
 
-const userStore = useUser();
-userStore.initUser();
-
 </script>
 
 <template>
-  <a-config-provider :getPopupContainer="getPopupContainer" :locale="usedLocale" :theme="{
-    algorithm: themeStore.antDTheme,
-  }">
+  <a-config-provider :getPopupContainer="getPopupContainer" :locale="usedLocale" :theme="theme">
     <router-view></router-view>
   </a-config-provider>
 </template>
