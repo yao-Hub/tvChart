@@ -4,6 +4,7 @@
     <div class="container">
       <a-table style="flex: 1" :dataSource="state.dataSource[state.menuActive]" :columns="state.columns[state.menuActive]" :pagination="false">
         <template #bodyCell="{ record, column }">
+          <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
           <template v-if="column.dataIndex === 'volume'">{{ record.volume / 100 }}手</template>
           <template v-if="column.dataIndex === 'type'">{{ $t(`order.${typeOption[record.type as 0 | 1]}`) }}</template>
           <template v-if="column.dataIndex === 'action'">
@@ -22,6 +23,7 @@ import { reactive, watchEffect, onUnmounted, nextTick, h, ref, watch } from 'vue
 import { invert } from 'lodash';
 import { CloseOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
+import moment from 'moment';
 import { openningOrders, marketOrdersAddClose, resOrders } from 'api/order/index';
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
@@ -56,6 +58,11 @@ const state = reactive({
     '交易历史': []
   } as any
 });
+
+const formatTime = (timestamp: string) => {
+  const result = moment(timestamp).format('YYYY-MM-DD HH:mm:ss');
+  return result;
+};
 
 const getInfo = () => {
   getOrders();
