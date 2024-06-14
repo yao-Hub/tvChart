@@ -125,6 +125,7 @@ watchEffect(() => {
       state.form.price = manipulateDecimal(currentBuy, Number(state.form.point));
       break;
     case 'sell':
+      state.form.price = manipulateDecimal(currentBuy, -Number(state.form.point));
       break;
     default:
       break;
