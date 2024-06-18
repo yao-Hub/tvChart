@@ -10,7 +10,11 @@
         :transactionType="props.transactionType"
         stopType="stopLoss"
         :currentBuy="props.currentBuy"
-        :currentSell="props.currentSell">
+        :currentSell="props.currentSell"
+        :selectedSymbol="props.selectedSymbol"
+        :tradeAllowSymbols="props.tradeAllowSymbols"
+        :volume="props.volume"
+        @priceChange="(e) => stopChange(e, 'stopLoss')">
       </linkage>
     </div>
 
@@ -23,7 +27,11 @@
         :transactionType="props.transactionType" 
         stopType="stopSurplus"
         :currentBuy="props.currentBuy"
-        :currentSell="props.currentSell">
+        :currentSell="props.currentSell"
+        :selectedSymbol="props.selectedSymbol"
+        :tradeAllowSymbols="props.tradeAllowSymbols"
+        :volume="props.volume"
+        @priceChange="(e) => stopChange(e, 'stopSurplus')">
       </linkage>
     </div>
   </div>
@@ -32,12 +40,19 @@
 <script setup lang="ts">
 import { reactive } from 'vue';
 import linkage from './Linkage.vue';
+import { SessionSymbolInfo } from '#/chart/index';
 
-const props = defineProps({
-  transactionType: String,
-  currentBuy: Number,
-  currentSell: Number 
-});
+type SymbolStrings = Props['tradeAllowSymbols'][number]['symbol'];
+interface Props {
+  transactionType: string,
+  currentBuy: number,
+  currentSell: number,
+  tradeAllowSymbols: SessionSymbolInfo[],
+  selectedSymbol: SymbolStrings
+  volume: number
+}
+
+const props = defineProps<Props>();
 
 const state = reactive({
   stopSurplus: false,
@@ -45,11 +60,18 @@ const state = reactive({
   currentBuy: 0,
   currentSell: 0,
 });
+
+
+const emit = defineEmits(['stopLoss', 'stopSurplus']);
+const stopChange = (value: string, type: 'stopLoss' | 'stopSurplus') => {
+  emit(type, value);
+}
 </script>
 
 <style lang="scss" scoped>
 .lossProfit {
   display: flex;
+  justify-content: center;
 }
 .chooseArea {
   height: 27px;

@@ -55,6 +55,9 @@ export interface SessionSymbolInfo {
   ttimes: Array<Array<TimeUnit>> // 交易时间段。休闭市设定
   holidays: []	// 假期。 休闭市设定
   session?: string
+  leverage: number
+  fee: number
+  storage: number
 }
 
 export interface LineData {

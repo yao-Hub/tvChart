@@ -1,6 +1,7 @@
 <template>
   <div>
     <a-modal
+      :width="700"
       v-model:open="open"
       :title="title"
       @cancel="handleCancel"
@@ -18,7 +19,7 @@
           <a-divider class="divider"></a-divider>
 
           <a-select v-model:value="state.symbol" class="symbolSelect">
-            <a-select-option :value="item.symbol" v-for="item in subStore.symbols">{{ item.symbol }}</a-select-option>
+            <a-select-option :value="item.symbol" v-for="item in tradeAllowSymbols">{{ item.symbol }}</a-select-option>
           </a-select>
           <a-radio-group v-model:value="state.type" class="radioGroup">
             <a-radio-button value="sell" class="sellRadio">
@@ -35,18 +36,30 @@
           </span>
           <a-divider class="divider"></a-divider>
 
-          <component
-            :is="getComponent()"
-            :type="state.type"
-            @numEnter="(num: string) => state.marketOrders.volume = num">
-          </component>
+          <div>
+            <component v-if="state.selectedKeys[0] !== 'price'" :is="getComponent()"></component>
+
+            <Quantity
+              :type="state.type"
+              @quantity="(num: string) => state.marketOrders.volume = num"
+              :selectedSymbol="state.symbol"
+              :tradeAllowSymbols="tradeAllowSymbols"
+              :openPrice="state.type === 'buy' ? state.quote.ask : state.quote.bid"
+            >
+            </Quantity>
+          </div>
 
           <a-divider class="divider"></a-divider>
 
           <LossProfit
             :transactionType="state.type"
             :currentBuy="state.quote.ask"
-            :currentSell="state.quote.bid">
+            :currentSell="state.quote.bid"
+            :selectedSymbol="state.symbol"
+            :tradeAllowSymbols="tradeAllowSymbols"
+            :volume="+state.marketOrders.volume"
+            @stopLoss="(e) => state.marketOrders.sl = e"
+            @stopSurplus="(e) => state.marketOrders.tp = e">
           </LossProfit>
           <a-divider class="divider"></a-divider>
 
@@ -78,7 +91,7 @@ import { allSymbolQuotes } from 'api/symbols/index';
 import { klineHistory } from 'api/kline/index'
 import { marketOrdersAdd } from 'api/order/index';
 
-import Price from './components/Price.vue';
+import Quantity from './components/Quantity.vue';
 import Limit from './components/Limit.vue';
 import Stop from './components/Stop.vue';
 import StopLimit from './components/StopLimit.vue';
@@ -115,10 +128,10 @@ const state = reactive({
     // { key: 'stopLimit', label: '止损限价单' },
   ],
   itemsEnum: {
-    price: markRaw(Price),
-    limit: Limit,
-    stop: Stop,
-    stopLimit: StopLimit
+    price: '',
+    limit: markRaw(Limit),
+    stop: markRaw(Stop),
+    stopLimit: markRaw(StopLimit)
   },
   // 买入 or 卖出
   type: 'buy' as 'buy' | 'sell',
@@ -145,13 +158,19 @@ const state = reactive({
   remark: '',
   marketOrders: {
     volume: '', // 手数
+    sl: '', // 止损价
+    tp: '', // 止盈价
   }
+});
+
+// 可交易品种
+const tradeAllowSymbols = computed(() => {
+  return subStore.symbols.filter(e => e.trade_allow === 1);
 });
 
 const getComponent = () => {
   return state.itemsEnum[state.selectedKeys[0]];
 };
-
 
 // 弹框标题
 const title = computed(() => {
