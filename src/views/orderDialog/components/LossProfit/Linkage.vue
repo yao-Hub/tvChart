@@ -30,7 +30,7 @@ import { reactive, watch, computed, watchEffect } from 'vue';
 import { CaretUpFilled, CaretDownFilled } from '@ant-design/icons-vue';
 import { SessionSymbolInfo } from '#/chart/index';
 import { useUser } from '@/store/modules/user';
-import { getDecimalPlaces } from 'utils/common/index';
+import { getDecimalPlaces, round } from 'utils/common/index';
 
 type SymbolStrings = Props['tradeAllowSymbols'][number]['symbol'];
 
@@ -136,25 +136,24 @@ watch(() => [state.form, props], () => {
   immediate: true, deep: true
 });
 
-// // 辅助函数：获取一个数的小数位数
-// function getDecimalPlaces(num: number) {
-//   let strNum = num.toString();
-//   let decimalIndex = strNum.indexOf('.');
-//   if (decimalIndex === -1) {
-//     return 0;
-//   }
-//   return strNum.length - decimalIndex - 1;
-// }
-
 // 计算“点”
 function manipulateDoubleDecimal(a: number, b: number) {
-  let decimalPlaces = getDecimalPlaces(a);
+  const isNegativeA = (+a < 0);
+  const isNegativeB = (+b < 0);
 
-  // 将小数a乘以10的小数位数次方，移动小数点到倒数第二位
-  let movedA = a * Math.pow(10, decimalPlaces - 1);
-  let movedB = b * Math.pow(10, decimalPlaces - 1);
-  let result = movedA + movedB;
-  result = Number(result.toFixed(decimalPlaces));
+  const stringA = String(a);
+  const stringB = String(b);
+
+  // 去除负号和小数点
+  const cleanedStrA = stringA.replace(/[-.]/g, '');
+  const cleanedStrB = stringB.replace(/[-.]/g, '');
+
+  const addStrA = (isNegativeA ? '-' : '') + cleanedStrA.padEnd(6, '0');
+  const addStrB = (isNegativeB ? '-' : '') + cleanedStrB.padEnd(6, '0') ;
+  const movedA = +addStrA / 10;
+  const movedB = +addStrB / 10;
+
+  const result = round(movedA + movedB, 1);
   return result;
 }
 function calculatePoint() {

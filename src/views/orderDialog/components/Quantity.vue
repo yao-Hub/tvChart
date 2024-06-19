@@ -1,5 +1,5 @@
 <template>
-  <div class="Price">
+  <div class="Quantity">
     <span>数量</span>
     <div class="container">
       <a-tooltip :title="state.errorMessage" v-model:open="state.ifError">
@@ -68,14 +68,16 @@ const maxVolume = computed(() => {
 
 // 保证金
 const Margin = computed(() => {
+  let result = 0;
   const symbol = currentSymbol.value;
   if (symbol) {
     const leverage = symbol.leverage;
     const margin = symbol.margin;
     if (leverage) {
-      return +props.openPrice * symbol.contract_size / leverage * +state.num;
+      result = +props.openPrice * symbol.contract_size / leverage * +state.num;
     }
-    return margin * +state.num;
+    result = margin * +state.num;
+    return result.toFixed(symbol.digits);
   }
 });
 
@@ -114,7 +116,7 @@ onMounted(() => {
   emit('quantity', state.num);
 });
 // state.num
-watch(() => state.num, () => {
+watch(() => [state.num, currentSymbol.value], () => {
   const num = state.num;
   if (+num < +minVolume.value) {
     state.num = minVolume.value;
@@ -139,9 +141,9 @@ watch(() => state.num, () => {
 </script>
 
 <style lang="scss" scoped>
-.Price {
+.Quantity {
   display: flex;
-  width: 60%;
+  width: 45%;
   flex-direction: column;
   .container {
     display: flex;
