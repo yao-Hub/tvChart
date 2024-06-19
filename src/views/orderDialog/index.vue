@@ -45,7 +45,7 @@
             </EntryPrice>
             <Quantity
               :type="state.type"
-              @quantity="(num: string) => state.ordersUodata.volume = num"
+              @quantity="(num: string) => state.ordersUpdata.volume = num"
               :selectedSymbol="state.symbol"
               :tradeAllowSymbols="tradeAllowSymbols"
               :openPrice="state.type === 'buy' ? state.quote.ask : state.quote.bid"
@@ -61,9 +61,9 @@
             :currentSell="state.quote.bid"
             :selectedSymbol="state.symbol"
             :tradeAllowSymbols="tradeAllowSymbols"
-            :volume="+state.ordersUodata.volume"
-            @stopLoss="(e) => state.ordersUodata.sl = e"
-            @stopSurplus="(e) => state.ordersUodata.tp = e">
+            :volume="+state.ordersUpdata.volume"
+            @stopLoss="(e) => state.ordersUpdata.sl = e"
+            @stopSurplus="(e) => state.ordersUpdata.tp = e">
           </LossProfit>
           <a-divider class="divider"></a-divider>
 
@@ -144,7 +144,7 @@ const state = reactive({
     volume: 0
   },
   remark: '',
-  ordersUodata: {
+  ordersUpdata: {
     volume: '', // 手数
     sl: '', // 止损价
     tp: '', // 止盈价
@@ -244,7 +244,7 @@ const addOrders = async () => {
   const orderType = state.selectedKeys[0];
   switch(orderType) {
     case 'price':
-      const { sl, tp, volume } = state.ordersUodata;
+      const { sl, tp, volume } = state.ordersUpdata;
       const updata: ReqOrderAdd = {
         login: userStore.account.login,
         symbol: state.symbol,
