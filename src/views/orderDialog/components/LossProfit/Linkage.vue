@@ -136,16 +136,6 @@ watch(() => [state.form, props], () => {
   immediate: true, deep: true
 });
 
-// // 辅助函数：获取一个数的小数位数
-// function getDecimalPlaces(num: number) {
-//   let strNum = num.toString();
-//   let decimalIndex = strNum.indexOf('.');
-//   if (decimalIndex === -1) {
-//     return 0;
-//   }
-//   return strNum.length - decimalIndex - 1;
-// }
-
 // 计算“点”
 function manipulateDoubleDecimal(a: number, b: number) {
   let decimalPlaces = getDecimalPlaces(a);

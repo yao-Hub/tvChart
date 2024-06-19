@@ -18,27 +18,26 @@
           <div class="title">新{{ title }}</div>
           <a-divider class="divider"></a-divider>
 
-          <a-select v-model:value="state.symbol" class="symbolSelect">
+          <a-select v-model:value="state.symbol" class="symbolSelect" @change="symbolChange">
             <a-select-option :value="item.symbol" v-for="item in tradeAllowSymbols">{{ item.symbol }}</a-select-option>
           </a-select>
           <a-radio-group v-model:value="state.type" class="radioGroup">
             <a-radio-button value="sell" class="sellRadio">
               <p>卖出</p>
-              <p v-if="state.selectedKeys[0] === 'price'">{{ state.quote.bid }}</p>
+              <p v-if="ifPrice">{{ state.quote.bid }}</p>
             </a-radio-button>
             <a-radio-button value="buy" class="buyRadio">
               <p>买入</p>
-              <p v-if="state.selectedKeys[0] === 'price'">{{ state.quote.ask }}</p>
+              <p v-if="ifPrice">{{ state.quote.ask }}</p>
             </a-radio-button>
           </a-radio-group>
-          <span class="market" v-if="state.selectedKeys[0] === 'price'">
+          <span class="market" v-if="ifPrice">
             点差: {{ spread }}; 高: {{ state.newKlineData.high }}; 低: {{ state.newKlineData.low }}
           </span>
           <a-divider class="divider"></a-divider>
 
-          <div>
-            <component v-if="state.selectedKeys[0] !== 'price'" :is="getComponent()"></component>
-
+          <div class="center">
+            <EntryPrice v-if="!ifPrice"></EntryPrice>
             <Quantity
               :type="state.type"
               @quantity="(num: string) => state.marketOrders.volume = num"
@@ -77,7 +76,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, watch, markRaw } from 'vue';
+import { computed, reactive, watch } from 'vue';
 import { message } from 'ant-design-vue';
 
 import { useDialog } from '@/store/modules/dialog';
@@ -85,16 +84,15 @@ import { useOrder } from '@/store/modules/order';
 import { useChartSub } from '@/store/modules/chartSub';
 import { useUser } from '@/store/modules/user';
 
+import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation';
 import { STOCKS_DIRECTION } from '@/constants/common';
 
 import { allSymbolQuotes } from 'api/symbols/index';
 import { klineHistory } from 'api/kline/index'
-import { marketOrdersAdd } from 'api/order/index';
+import { marketOrdersAdd, ReqOrderAdd } from 'api/order/index';
 
+import EntryPrice from './components/EntryPrice.vue';
 import Quantity from './components/Quantity.vue';
-import Limit from './components/Limit.vue';
-import Stop from './components/Stop.vue';
-import StopLimit from './components/StopLimit.vue';
 import LossProfit from './components/LossProfit/index.vue';
 import BaseButton from '@/components/BaseButton.vue';
 
@@ -102,16 +100,6 @@ const dialogStore = useDialog();
 const orderStore = useOrder();
 const subStore = useChartSub();
 const userStore = useUser();
-
-// 弹窗打开隐藏
-const open = computed(() => {
-  return dialogStore.orderDialogVisible;
-});
-
-// 弹框关闭
-const handleCancel = () => {
-  dialogStore.closeOrderDialog();
-}
 
 type OrderType = 'price' | 'limit' | 'stop' | 'stopLimit';
 
@@ -123,16 +111,10 @@ const state = reactive({
   },
   items: [
     { key: 'price', label: '市价单' },
-    // { key: 'limit', label: '限价单' },
+    { key: 'limit', label: '限价单' },
     // { key: 'stop', label: '止损单' },
     // { key: 'stopLimit', label: '止损限价单' },
   ],
-  itemsEnum: {
-    price: '',
-    limit: markRaw(Limit),
-    stop: markRaw(Stop),
-    stopLimit: markRaw(StopLimit)
-  },
   // 买入 or 卖出
   type: 'buy' as 'buy' | 'sell',
   symbol: '',
@@ -160,17 +142,33 @@ const state = reactive({
     volume: '', // 手数
     sl: '', // 止损价
     tp: '', // 止盈价
-  }
+  },
+  socketList: [] as string[]
+});
+
+// 弹窗打开隐藏
+const open = computed(() => {
+  return dialogStore.orderDialogVisible;
+});
+
+// 弹框关闭
+const handleCancel = () => {
+  // 取消订阅
+  const unsubList = state.socketList.filter(e => e !== orderStore.currentSymbol);
+  unsubList.forEach(item => {
+    unsubscribeSocket({ resolution: '1', symbol: item });
+  });
+  dialogStore.closeOrderDialog();
+}
+
+const ifPrice = computed(() => {
+  return state.selectedKeys[0] === 'price';
 });
 
 // 可交易品种
 const tradeAllowSymbols = computed(() => {
   return subStore.symbols.filter(e => e.trade_allow === 1);
 });
-
-const getComponent = () => {
-  return state.itemsEnum[state.selectedKeys[0]];
-};
 
 // 弹框标题
 const title = computed(() => {
@@ -185,34 +183,16 @@ const spread = computed(() => {
   return Math.abs(ask - bid).toFixed(2);
 });
 
-// 获取初始化报价
-const getQuotes = async () => {
-  const res = await allSymbolQuotes();
-  const foundQuote = res.data.find(e => e.symbol === state.symbol);
-  foundQuote && (state.quote = foundQuote);
-};
-
 // 给当前页面的报价赋值
 watch(() => orderStore.currentQuote, (newVal) => {
-  if (newVal) {
+  if (newVal && newVal.symbol === state.symbol) {
     state.quote = newVal;
   }
 }, { immediate: true });
 
-// 初始化最高最低价
-const getklineHistory = async () => {
-  const { data } = await klineHistory({
-    period_type: '1',
-    symbol: orderStore.currentSymbol,
-    count: 1,
-    limit_ctm: Math.floor(Date.now() / 1000)
-  });
-  state.newKlineData = data[0];
-};
-
 // 给最高最低价赋值
 watch(() => orderStore.currentKline, (newVal) => {
-  if (newVal) {
+  if (newVal && newVal.symbol === state.symbol) {
     state.newKlineData = newVal;
   }
 }, { immediate: true });
@@ -226,33 +206,53 @@ watch(open, (newVal) => {
   }
 });
 
-// interface Updata {
-//   server:	string // 经纪商交易线路编码
-//   login:	number // 账户
-//   token:	string // 登录成功得到的token
-//   orders:	[] // 订单列表
-//   symbol:	string // 品种
-//   type:	number // 操作方向。0=buy，1=sell
-//   volume:	number // 手数。1=0.01手
-//   sl?:	number // 止损价。1=0.01手
-//   tp?:	number // 止盈价。1=0.01手
-// }
+// 获取初始化报价
+const getQuotes = async () => {
+  const res = await allSymbolQuotes();
+  const foundQuote = res.data.find(e => e.symbol === state.symbol);
+  foundQuote && (state.quote = foundQuote);
+};
 
+// 初始化最高最低价
+const getklineHistory = async () => {
+  const { data } = await klineHistory({
+    period_type: '1',
+    symbol: state.symbol,
+    count: 1,
+    limit_ctm: Math.floor(Date.now() / 1000)
+  });
+  state.newKlineData = data[0];
+};
+
+// 品种变化
+const symbolChange = (value: string) => {
+  if (state.socketList.indexOf(value) === -1) {
+    state.socketList.push(value);
+  }
+  subscribeSocket({ resolution: '1', symbol: value });
+  getklineHistory();
+  getQuotes();
+};
 
 const addOrders = async () => {
   const orderType = state.selectedKeys[0];
   switch(orderType) {
     case 'price':
-      const updata = {
+      const { sl, tp, volume } = state.marketOrders;
+      const updata: ReqOrderAdd = {
         login: userStore.account.login,
         orders: [],
         symbol: state.symbol,
         type: STOCKS_DIRECTION[state.type],
-        volume: Number(state.marketOrders.volume) * 100,
-        comment: state.remark
-        // sl: '',
-        // tp: ''
+        volume: +volume * 100,
+        comment: state.remark,
       };
+      if (sl !== '') {
+        updata.sl = +sl;
+      }
+      if (tp !== '') {
+        updata.tp = +tp;
+      }
       const res = await marketOrdersAdd(updata);
       if (res.data.action_success) {
         message.success('下单成功');
@@ -310,6 +310,10 @@ const addOrders = async () => {
   .placeOrder {
     margin-top: 10px;
     width: 100%;
+  }
+  .center {
+    display: flex;
+    justify-content: space-between;
   }
 }
 :deep(.ant-menu) {

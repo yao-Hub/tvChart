@@ -26,6 +26,7 @@ export interface Line {
   low: number
   open: number
   volume: number
+  symbol?: string
 }
 
 export enum Periods {

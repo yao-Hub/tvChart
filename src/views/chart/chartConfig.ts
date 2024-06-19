@@ -1,4 +1,4 @@
-import { flattenDeep, groupBy, orderBy, get } from 'lodash'
+import { flattenDeep, groupBy, orderBy, get, cloneDeep } from 'lodash'
 import { socket } from '@/utils/socket/operation'
 import { klineHistory } from 'api/kline/index'
 import * as types from '@/types/chart/index'
@@ -241,15 +241,14 @@ export const datafeed = () => {
 function socketOpera() {
   // 监听报价
   socket.on('quote', function (d) {
+    // 提升订单报价
+    orderStore.currentQuote = d;
+  
     if (!subscribed.symbolInfo) {//图表没初始化
       return false;
     }
-
     //报价更新 最新一条柱子 实时 上下 跳动
     if (d.symbol === subscribed.symbolInfo.name) { //报价为图表当前品种的报价
-       // 提升订单报价
-      orderStore.currentQuote = d;
-      
       if (new_one.high < d.bid) {
         new_one.high = d.bid;
       }
@@ -269,6 +268,9 @@ function socketOpera() {
   });
   // 监听k线
   socket.on('kline_new', function (d) {
+    // 提升k线数据
+    const klines = cloneDeep(d.klines);
+    orderStore.currentKline = {...klines.reverse().pop(), symbol: d.symbol};
     if (!subscribed.symbolInfo) {//图表没初始化
       return false;
     }
@@ -288,8 +290,6 @@ function socketOpera() {
           new_one = JSON.parse(JSON.stringify(newlastbar));
         }
         newlastbar.time = newlastbar.time * 1000;
-        // 提升k线数据
-        orderStore.currentKline = {...d.klines[i], ...newlastbar};
         subscribed.onRealtimeCallback(newlastbar) //更新K线
       }
     }

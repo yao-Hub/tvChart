@@ -9,7 +9,7 @@ enum Api {
 interface OrdersList {
 }
 
-interface ReqOrderAdd {
+export interface ReqOrderAdd {
   login: string // 	账户
   orders: Array<OrdersList>	//	订单列表
   symbol: string // 	品种
@@ -17,6 +17,7 @@ interface ReqOrderAdd {
   volume: number // 	手数。1=0.01手
   sl?: number // 	止损价。1=0.01手
   tp?: number // 	止盈价。1=0.01手
+  comment?: string
 }
 
 interface ResOrderAdd {
