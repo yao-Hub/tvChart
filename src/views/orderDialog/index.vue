@@ -21,59 +21,17 @@
           <a-select v-model:value="state.symbol" class="symbolSelect" @change="symbolChange">
             <a-select-option :value="item.symbol" v-for="item in tradeAllowSymbols">{{ item.symbol }}</a-select-option>
           </a-select>
-          <a-radio-group v-model:value="state.type" class="radioGroup">
-            <a-radio-button value="sell" class="sellRadio">
-              <p>卖出</p>
-              <p v-if="ifPrice">{{ state.quote.bid }}</p>
-            </a-radio-button>
-            <a-radio-button value="buy" class="buyRadio">
-              <p>买入</p>
-              <p v-if="ifPrice">{{ state.quote.ask }}</p>
-            </a-radio-button>
-          </a-radio-group>
-          <span class="market" v-if="ifPrice">
-            点差: {{ spread }}; 高: {{ state.newKlineData.high }}; 低: {{ state.newKlineData.low }}
-          </span>
-          <a-divider class="divider"></a-divider>
 
-          <div class="center">
-            <EntryPrice
-              v-if="!ifPrice"
-              :currentBuy="state.quote.ask"
-              :currentSell="state.quote.bid"
-              :transactionType="state.type">
-            </EntryPrice>
-            <Quantity
-              :type="state.type"
-              @quantity="(num: string) => state.ordersUpdata.volume = num"
-              :selectedSymbol="state.symbol"
-              :tradeAllowSymbols="tradeAllowSymbols"
-              :openPrice="state.type === 'buy' ? state.quote.ask : state.quote.bid"
-            >
-            </Quantity>
-          </div>
-
-          <a-divider class="divider"></a-divider>
-
-          <LossProfit
-            :transactionType="state.type"
-            :currentBuy="state.quote.ask"
-            :currentSell="state.quote.bid"
+          <component
+            :is="state.componentMap[state.selectedKeys[0]]"
             :selectedSymbol="state.symbol"
             :tradeAllowSymbols="tradeAllowSymbols"
-            :volume="+state.ordersUpdata.volume"
-            @stopLoss="(e) => state.ordersUpdata.sl = e"
-            @stopSurplus="(e) => state.ordersUpdata.tp = e">
-          </LossProfit>
-          <a-divider class="divider"></a-divider>
-
-          <a-textarea
-            v-model:value="state.remark"
-            placeholder="备注"
-            :auto-size="{ minRows: 3, maxRows: 5 }"
-            show-count :maxlength="100"
-          />
-          <BaseButton class="placeOrder" type="success" @click="addOrders">下单</BaseButton>
+            :ask="state.quote.ask"
+            :bid="state.quote.bid"
+            :high="state.newKlineData.high"
+            :low="state.newKlineData.low"
+            @success="orderSucced"
+          ></component>
         </div>
       </div>
     </a-modal>
@@ -81,33 +39,27 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, watch } from 'vue';
-import { message } from 'ant-design-vue';
+import { computed, reactive, watch, markRaw } from 'vue';
 
 import { useDialog } from '@/store/modules/dialog';
 import { useOrder } from '@/store/modules/order';
 import { useChartSub } from '@/store/modules/chartSub';
-import { useUser } from '@/store/modules/user';
 
 import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation';
-import { STOCKS_DIRECTION } from '@/constants/common';
 
 import { allSymbolQuotes } from 'api/symbols/index';
 import { klineHistory } from 'api/kline/index'
-import { marketOrdersAdd, ReqOrderAdd } from 'api/order/index';
 
-import EntryPrice from './components/EntryPrice.vue';
-import Quantity from './components/Quantity.vue';
-import LossProfit from './components/LossProfit/index.vue';
-import BaseButton from '@/components/BaseButton.vue';
+import Limit from './Limit.vue';
+import Price from './Price.vue';
+import Stop from './Stop.vue';
+import StopLimit from './StopLimit.vue';
 
 const dialogStore = useDialog();
 const orderStore = useOrder();
 const subStore = useChartSub();
-const userStore = useUser();
 
 type OrderType = 'price' | 'limit' | 'stop' | 'stopLimit';
-type bsType = 'buy' | 'sell';
 
 const state = reactive({
   selectedKeys: ['price'] as OrderType[],
@@ -118,11 +70,15 @@ const state = reactive({
   items: [
     { key: 'price', label: '市价单' },
     { key: 'limit', label: '限价单' },
-    // { key: 'stop', label: '止损单' },
-    // { key: 'stopLimit', label: '止损限价单' },
+    { key: 'stop', label: '止损单' },
+    { key: 'stopLimit', label: '止损限价单' },
   ],
-  // 买入 or 卖出
-  type: 'buy' as bsType,
+  componentMap: {
+    price: markRaw(Price),
+    limit: markRaw(Limit),
+    stop: markRaw(Stop),
+    stopLimit: markRaw(StopLimit),
+  },
   symbol: '',
   // 报价
   quote: {
@@ -143,12 +99,6 @@ const state = reactive({
     open: 0,
     volume: 0
   },
-  remark: '',
-  ordersUpdata: {
-    volume: '', // 手数
-    sl: '', // 止损价
-    tp: '', // 止盈价
-  },
   socketList: [] as string[]
 });
 
@@ -167,10 +117,6 @@ const handleCancel = () => {
   dialogStore.closeOrderDialog();
 }
 
-const ifPrice = computed(() => {
-  return state.selectedKeys[0] === 'price';
-});
-
 // 可交易品种
 const tradeAllowSymbols = computed(() => {
   return subStore.symbols.filter(e => e.trade_allow === 1);
@@ -180,13 +126,6 @@ const tradeAllowSymbols = computed(() => {
 const title = computed(() => {
   const item = state.items.find(e => e.key === state.selectedKeys[0]);
   return item?.label
-});
-
-// 点差 点差是买价和卖价的差。
-const spread = computed(() => {
-  const ask = state.quote.ask;
-  const bid = state.quote.bid;
-  return Math.abs(ask - bid).toFixed(2);
 });
 
 // 给当前页面的报价赋值
@@ -240,36 +179,9 @@ const symbolChange = (value: string) => {
   getQuotes();
 };
 
-const addOrders = async () => {
-  const orderType = state.selectedKeys[0];
-  switch(orderType) {
-    case 'price':
-      const { sl, tp, volume } = state.ordersUpdata;
-      const updata: ReqOrderAdd = {
-        login: userStore.account.login,
-        symbol: state.symbol,
-        type: STOCKS_DIRECTION[state.type],
-        volume: +volume * 100,
-        comment: state.remark,
-      };
-      if (sl !== '') {
-        updata.sl = +sl;
-      }
-      if (tp !== '') {
-        updata.tp = +tp;
-      }
-      const res = await marketOrdersAdd(updata);
-      if (res.data.action_success) {
-        message.success('下单成功');
-        orderStore.refreshOrderArea = true;
-        handleCancel();
-      } else {
-        message.error('下单失败');
-      }
-      break;
-    default:
-      break;
-  }
+const orderSucced = () => {
+  orderStore.refreshOrderArea = true;
+  handleCancel();
 }
 </script>
 
@@ -293,32 +205,9 @@ const addOrders = async () => {
   .title {
     font-size: 21px;
   }
-  .radioGroup {
-    display: flex;
-    gap: 8px;
-    .buyRadio {
-      color: #19b52d;
-    }
-    .sellRadio {
-      color: #dd6600;
-    }
-  }
   .symbolSelect {
     width: 100%;
     margin: 8px 0;
-  }
-  .market {
-    display: block;
-    text-align: center;
-    margin: 8px 0;
-  }
-  .placeOrder {
-    margin-top: 10px;
-    width: 100%;
-  }
-  .center {
-    display: flex;
-    justify-content: space-between;
   }
 }
 :deep(.ant-menu) {

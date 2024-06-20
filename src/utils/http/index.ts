@@ -57,13 +57,13 @@ service.interceptors.response.use(
       console.log('response Data', { url: response.config.url, data })
       return response;
     }
-    if (data.err === 1 && data.errmsg === 'invalid token') {
+    const dialogStroe = useDialog();
+    if (data.err === 1 && data.errmsg.includes('invalid token') && !dialogStroe.loginDialogVisible) {
       const userStore = useUser();
       userStore.ifLogin = false;
       userStore.clearToken();
       userStore.loginInfo = null;
       
-      const dialogStroe = useDialog();
       dialogStroe.showLoginDialog();
       message['error']('登录过期，请重新登录');
       return Promise.reject(data)

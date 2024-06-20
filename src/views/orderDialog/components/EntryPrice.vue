@@ -15,7 +15,7 @@
         </a-input>
       </a-tooltip>
     </div>
-    <span>距离：{{ distance }}</span>
+    <span>{{ props.distanceTitle }}：{{ distance }}</span>
   </div>
 </template>
 
@@ -28,14 +28,17 @@ interface Props {
   transactionType: string // 交易类型：买入卖出
   currentBuy: number // 当前买入价
   currentSell: number // 当前卖出价
+  distanceTitle?: string
 }
 interface State {
   price: number | string
   ifError: boolean
   errorMessage: string
 }
-const props = defineProps<Props>();
 
+const props = withDefaults(defineProps<Props>(), {
+  distanceTitle: '距离'
+});
 const state:State = reactive({
   price: '',
   ifError: false,

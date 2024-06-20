@@ -69,14 +69,6 @@ const getInfo = () => {
   userStore.getLoginInfo();
 };
 
-const startPolling = () => {
-  timer.value = setInterval(() => {
-    if (userStore.ifLogin) {
-      getInfo();
-    }
-  }, 5000); // 每隔5秒钟发送一次请求
-};
-
 const timer = ref();
 
 onUnmounted(() => {
@@ -91,16 +83,6 @@ watchEffect(async () => {
   if (userStore.ifLogin) {
     await nextTick();
     getOrders();
-  }
-});
-
-watch(() => orderStore.polling, newVal => {
-  if (newVal) {
-    startPolling();
-  } else {
-    if (timer.value) {
-      clearInterval(timer.value);
-    }
   }
 });
 

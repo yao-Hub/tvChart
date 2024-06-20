@@ -24,3 +24,24 @@ export const STOCKS_DIRECTION = {
   buy: 0,
   sell: 1
 }
+
+export const BUY_SELL_TYPE = {
+  price: {
+    buy: 0,
+    sell: 1
+  },
+  limit: {
+    buy: 2,
+    sell: 3
+  },
+  stop: {
+    buy: 4,
+    sell: 5
+  },
+  stopLimit : {
+    buy: 6,
+    sell: 7
+  },
+}
+
+export type bsType = 'buy' | 'sell';

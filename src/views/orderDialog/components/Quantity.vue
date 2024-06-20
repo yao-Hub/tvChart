@@ -74,9 +74,9 @@ const Margin = computed(() => {
     const leverage = symbol.leverage;
     const margin = symbol.margin;
     if (leverage) {
-      result = +props.openPrice * symbol.contract_size / leverage * +state.num;
+      result = +props.openPrice * symbol.contract_size / leverage * (+state.num);
     }
-    result = margin * +state.num;
+    result = margin * (+state.num);
     return result.toFixed(symbol.digits);
   }
 });
