@@ -87,8 +87,13 @@ const resizeLineMousedown = () => {
   
   function resize(e: MouseEvent) {
     const containerRect = chart.value.getBoundingClientRect();
-    const mouseY = e.clientY - containerRect.top;
-
+    let mouseY = e.clientY - containerRect.top;
+    if (mouseY < 200) {
+      mouseY = 200;
+    }
+    if (mouseY > containerRect.height - 150) {
+      mouseY = containerRect.height - 150;
+    }
     chartHeight.value = mouseY;
     resizeLineTop.value = mouseY;
     orderAreaHeight.value = containerRect.height - mouseY - 32;
