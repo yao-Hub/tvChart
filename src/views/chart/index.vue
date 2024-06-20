@@ -79,6 +79,7 @@ const resizeLineTop = ref(window.innerHeight - 202);
 
 window.addEventListener('resize', e => {
   resizeLineTop.value = window.innerHeight - orderAreaHeight.value - 32;
+  chartHeight.value = window.innerHeight - orderAreaHeight.value - 32;
 });
 const orderAreaHeight = ref(170);
 const resizeLineMousedown = () => {
