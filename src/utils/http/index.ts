@@ -58,7 +58,7 @@ service.interceptors.response.use(
       return response;
     }
     const dialogStroe = useDialog();
-    if (data.err === 1 && data.errmsg.includes('invalid token') && !dialogStroe.loginDialogVisible) {
+    if (data.err === 1 && data.errmsg.includes('invalid token')) {
       const userStore = useUser();
       userStore.ifLogin = false;
       userStore.clearToken();

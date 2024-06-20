@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, h } from 'vue';
+import { reactive, ref, h, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import  * as library from 'public/charting_library';
@@ -76,6 +76,10 @@ const isResizing = ref(false);
 const chart = ref();
 const chartHeight = ref(window.innerHeight - 204);
 const resizeLineTop = ref(window.innerHeight - 202);
+
+window.addEventListener('resize', e => {
+  resizeLineTop.value = window.innerHeight - orderAreaHeight.value - 32;
+});
 const orderAreaHeight = ref(170);
 const resizeLineMousedown = () => {
   isResizing.value = true;
