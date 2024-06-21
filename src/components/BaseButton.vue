@@ -21,7 +21,8 @@ export default defineComponent({
     size: { type: String, default: '' },
     icon: { type: String, default: '' },
     disabled: { type: Boolean, default: false },
-    permission: { type: [String, Boolean], default: true }
+    permission: { type: [String, Boolean], default: true },
+    loading: { type: Boolean, default: false },
   },
   setup (props) {
     const customClass = ref('c-button-primary')
@@ -157,11 +158,12 @@ export default defineComponent({
   border-color: #00cc66;
 }
 .c-button-success[disabled], .c-button-success[disabled]:hover, .c-button-success[disabled]:focus, .c-button-success[disabled]:active {
-  color: rgba(0, 0, 0, 0.25);
-  background: #f5f5f5;
-  border-color: #d9d9d9;
+  color: #fff;
+  background: #00cc66;
+  border-color: #00cc66;
   text-shadow: none;
   box-shadow: none;
+  opacity: 0.5;
 }
  
 .c-button-cyan {

@@ -1,33 +1,101 @@
 <template>
   <div class="footerInfo">
-    <div v-for="item in state.list" :key="item.label" class="item">
-      <span>{{ item.label }}：</span>
-      <span>{{ loginInfo ? loginInfo[item.prop as keyof UserInfo]??'-' : '-' }}</span>
+    <div class="item">
+      <span>余额：</span>
+      <span>{{ loginInfo?.balance }}</span>
+    </div>
+    <div class="item">
+      <span>净值：</span>
+      <span>{{ equity }}</span>
+    </div>
+    <div class="item">
+      <span>保证金：</span>
+      <span>{{ Margin }}</span>
+    </div>
+    <div class="item">
+      <span>可用保证金：</span>
+      <span>{{ margin_free }}</span>
+    </div>
+    <div class="item">
+      <span>保证金水平：</span>
+      <span>{{ margin_level }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue';
+import { computed } from 'vue';
 import { useUser } from '@/store/modules/user';
-import { UserInfo } from '#/store';
+import { useOrder } from '@/store/modules/order';
+import { useChartSub } from '@/store/modules/chartSub';
+import { round } from 'utils/common/index';
 
+const subStore = useChartSub();
 const userStore = useUser();
+const orderStore = useOrder();
 
 const loginInfo = computed(() => userStore.loginInfo);
 
-const state = reactive({
-  list: [
-    { label: '余额', prop: 'balance' },
-    { label: '净值', prop: 'equity' },
-    { label: '保证金', prop: 'margin' },
-    { label: '可用保证金', prop: 'margin_free' },
-    { label: '保证金水平', prop: 'margin_level' },
-    // { label: '智能止损离场', prop: 'balance' },
-    // { label: 'Unr. Net P&L:', prop: 'balance' },
-  ]
+// 净值
+const equity = computed(() => {
+  try {
+    if (!loginInfo.value) {
+      return '-';
+    }
+    const currentPosition = orderStore.tableData.position;
+    const sum = currentPosition?.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue.profit;
+    }, 0);
+    return round(+loginInfo.value.balance + (sum || 0), 2);
+  } catch (error) {
+    return '-';
+  }
 });
 
+// 保证金
+const Margin = computed(() => {
+  try {
+    if (!loginInfo.value) {
+      return '-';
+    }
+    const currentPosition = orderStore.tableData.position;
+    const sum = currentPosition?.reduce((accumulator, item) => {
+      let result = 0;
+      const symbol = subStore.symbols.find(e => e.symbol === item.symbol);
+      if (symbol) {
+        const leverage = symbol.leverage;
+        const margin = symbol.margin;
+        if (leverage) {
+          result = +item.open_price * symbol.contract_size / leverage * item.volume / 100;
+        } else {
+          result = margin * item.volume / 100;
+        }
+        return accumulator + result;
+      } else {
+        return accumulator;
+      }
+    }, 0);
+    return round(sum || 0, 2);
+  } catch (error) {
+    return '-'
+  }
+});
+
+// 可用保证金
+const margin_free = computed(() => {
+  if (equity.value !== '-' && Margin.value !== '-') {
+    return round(+equity.value - +Margin.value, 2);
+  }
+  return '-';
+});
+
+// 保证金水平
+const margin_level = computed(() => {
+  if (equity.value !== '-' && Margin.value !== '-') {
+    return round(equity.value / Margin.value * 100, 2);
+  }
+  return '-';
+});
 </script>
 
 <style lang="scss" scoped>

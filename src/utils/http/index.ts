@@ -34,6 +34,7 @@ service.interceptors.request.use(
     };
     if (config.needToken) {
       config.data.token = userStore.getToken();
+      config.data.login = userStore.account.login;
     }
     console.log('request Data', { url: config.url, data: config.data })
     var p = {

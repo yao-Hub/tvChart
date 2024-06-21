@@ -242,7 +242,7 @@ function socketOpera() {
   // 监听报价
   socket.on('quote', function (d) {
     // 提升订单报价
-    orderStore.currentQuote = d;
+    orderStore.currentQuotes[d.symbol] = d;
   
     if (!subscribed.symbolInfo) {//图表没初始化
       return false;

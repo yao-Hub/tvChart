@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue';
+import { reactive, computed, watch } from 'vue';
 import { CaretUpFilled, CaretDownFilled } from '@ant-design/icons-vue';
 import { round } from 'utils/common/index';
 
@@ -53,10 +53,26 @@ const distance = computed(() => {
   return round(Math.abs(price - entryPrice), 1);
 });
 const addPrice = () => {
-  state.price = +state.price + 0.01
+  state.price = round(+state.price + 0.01, 2);
 };
-const reducePrice = () => {};
-const handleChange = () => {};
+const reducePrice = () => {
+  state.price = round(+state.price - 0.01, 2);
+};
+
+const emit = defineEmits([ 'entryPrice' ]);
+
+watch(
+  () => state.price,
+  () => {
+    emit('entryPrice', state.price)
+  },
+  { immediate: true }
+);
+
+
+const handleChange = () => {
+  emit('entryPrice', state.price)
+};
 </script>
 
 <style lang="scss" scoped>

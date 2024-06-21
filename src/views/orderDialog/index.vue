@@ -22,16 +22,18 @@
             <a-select-option :value="item.symbol" v-for="item in tradeAllowSymbols">{{ item.symbol }}</a-select-option>
           </a-select>
 
-          <component
-            :is="state.componentMap[state.selectedKeys[0]]"
-            :selectedSymbol="state.symbol"
-            :tradeAllowSymbols="tradeAllowSymbols"
-            :ask="state.quote.ask"
-            :bid="state.quote.bid"
-            :high="state.newKlineData.high"
-            :low="state.newKlineData.low"
-            @success="orderSucced"
-          ></component>
+          <keep-alive>
+            <component
+              :is="state.componentMap[state.selectedKeys[0]]"
+              :selectedSymbol="state.symbol"
+              :tradeAllowSymbols="tradeAllowSymbols"
+              :ask="state.quote.ask"
+              :bid="state.quote.bid"
+              :high="state.newKlineData.high"
+              :low="state.newKlineData.low"
+              @success="orderSucced"
+            ></component>
+          </keep-alive>
         </div>
       </div>
     </a-modal>
@@ -129,11 +131,11 @@ const title = computed(() => {
 });
 
 // 给当前页面的报价赋值
-watch(() => orderStore.currentQuote, (newVal) => {
-  if (newVal && newVal.symbol === state.symbol) {
-    state.quote = newVal;
+watch(() => orderStore.currentQuotes, (newVal) => {
+  if (newVal && newVal[state.symbol]) {
+    state.quote = newVal[state.symbol];
   }
-}, { immediate: true });
+}, { immediate: true, deep: true });
 
 // 给最高最低价赋值
 watch(() => orderStore.currentKline, (newVal) => {

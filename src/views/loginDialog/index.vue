@@ -25,7 +25,7 @@
       </a-form-item>
 
       <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-        <a-button type="primary" html-type="submit">{{ $t('account.login')}}</a-button>
+        <a-button type="primary" html-type="submit" :loading="formState.logging">{{ $t('account.login')}}</a-button>
       </a-form-item>
     </a-form>
   </a-modal>
@@ -64,7 +64,8 @@ interface FormState {
 const formState = reactive<FormState>({
   login: '',
   password: '',
-  remember: true
+  remember: true,
+  logging: false
 });
 
 // 记住密码自动填充
@@ -80,33 +81,38 @@ if (ifRemember) {
 
 // 登录提交
 const onFinish = async (values: any) => {
-  const { login, remember, password } = values;
-  const res = await Login({ password, login: login });
-  message.success(t('tip.succeed', { type: t('account.login') }));
-
-  userStore.setToken(res.data.token);
-  userStore.ifLogin = true;
-  userStore.account.password = password;
-  userStore.account.login = login;
-  const enLogin = CryptoJS.encrypt(login);
-  const enpassword = CryptoJS.encrypt(password);
-  const storage = {
-    login: enLogin,
-    password: enpassword
-  };
-  window.localStorage.setItem('account', JSON.stringify(storage));
-  window.localStorage.setItem('remember', JSON.stringify(remember));
+  try {
+    const { login, remember, password } = values;
+    formState.logging = true;
+    const res = await Login({ password, login: login });
+    message.success(t('tip.succeed', { type: t('account.login') }));
   
-  await userStore.getLoginInfo();
-  // 头像
-  chartActionStore.createAvatar();
-  handleCancel();
-  
-  // 记忆动作
-  const rootStore = useRoot();
-  if (rootStore.cacheAction) {
-    rootStore[rootStore.cacheAction]();
-    rootStore.clearCacheAction();
+    userStore.setToken(res.data.token);
+    userStore.ifLogin = true;
+    userStore.account.password = password;
+    userStore.account.login = login;
+    const enLogin = CryptoJS.encrypt(login);
+    const enpassword = CryptoJS.encrypt(password);
+    const storage = {
+      login: enLogin,
+      password: enpassword
+    };
+    window.localStorage.setItem('account', JSON.stringify(storage));
+    window.localStorage.setItem('remember', JSON.stringify(remember));
+    
+    await userStore.getLoginInfo();
+    // 头像
+    chartActionStore.createAvatar();
+    handleCancel();
+    
+    // 记忆动作
+    const rootStore = useRoot();
+    if (rootStore.cacheAction) {
+      rootStore[rootStore.cacheAction]();
+      rootStore.clearCacheAction();
+    }
+  } finally {
+    formState.logging = false;
   }
 };
 

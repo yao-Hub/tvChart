@@ -58,9 +58,6 @@ export const useUser = defineStore('user', {
         login: this.account.login,
       });
       this.loginInfo = res.data;
-      
-      const userStore = useOrder();
-      userStore.polling = res.data.openning_orders && res.data.openning_orders.length > 0;
     }
   }
 })

@@ -4,7 +4,8 @@
     <a-divider class="divider"></a-divider>
     <Quantity
       :type="state.type"
-      @quantity="(e) => state.volume = e"
+      @quantity="quantity"
+      @quantity-fail="quantityFail"
       :selectedSymbol="props.selectedSymbol"
       :tradeAllowSymbols="props.tradeAllowSymbols"
       :openPrice="openPrice"
@@ -14,7 +15,7 @@
     <LossProfit
       @stopLoss="e => state.sl = e"
       @stopSurplus="e => state.tp = e"></LossProfit>
-    <BaseButton class="placeOrder" type="success" @click="addOrders">下单</BaseButton>
+    <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading" :disabled="state.disabled">下单</BaseButton>
   </div>
 </template>
 
@@ -24,14 +25,11 @@ import { message } from 'ant-design-vue';
 import { SessionSymbolInfo } from '@/types/chart/index';
 import { bsType, BUY_SELL_TYPE } from '@/constants/common';
 
-import { useUser } from '@/store/modules/user';
 import BuySell from './components/BuySell.vue';
 import Quantity from './components/Quantity.vue';
 import LossProfit from './components/LossProfit.vue';
 
 import { marketOrdersAdd, ReqOrderAdd } from 'api/order/index';
-
-const userStore = useUser();
 
 interface Props {
   selectedSymbol: string
@@ -47,6 +45,8 @@ interface State {
   volume: string
   sl: string
   tp: string
+  loading: boolean
+  disabled: boolean
 }
 
 const state: State = reactive({
@@ -54,6 +54,8 @@ const state: State = reactive({
   volume: '',
   sl: '',
   tp: '',
+  loading: false,
+  disabled: false
 });
 
 const props = defineProps<Props>();
@@ -68,25 +70,36 @@ const switchType = (type: bsType) => {
   state.type = type;
 }
 
+const quantity = (e: string) => {
+  state.volume = e;
+  state.disabled = false;
+};
+const quantityFail =() => {
+  state.disabled = true;
+};
 const addOrders = async () => {
-  const updata: ReqOrderAdd = {
-    login: userStore.account.login,
-    symbol: props.selectedSymbol,
-    type: BUY_SELL_TYPE.price[state.type],
-    volume: +state.volume * 100,
-  };
-  if (state.sl !== '') {
-    updata.sl = +state.sl;
-  }
-  if (state.tp !== '') {
-    updata.tp = +state.tp;
-  }
-  const res = await marketOrdersAdd(updata);
-  if (res.data.action_success) {
-    message.success('下单成功');
-    emit('success', true)
-  } else {
-    message.error('下单失败');
+  try {
+    state.loading = true;
+    const updata: ReqOrderAdd = {
+      symbol: props.selectedSymbol,
+      type: BUY_SELL_TYPE.price[state.type],
+      volume: +state.volume * 100,
+    };
+    if (state.sl !== '') {
+      updata.sl = +state.sl;
+    }
+    if (state.tp !== '') {
+      updata.tp = +state.tp;
+    }
+    const res = await marketOrdersAdd(updata);
+    if (res.data.action_success) {
+      message.success('下单成功');
+      emit('success', true)
+    } else {
+      message.error('下单失败');
+    }
+  } finally  {
+    state.loading = false;
   }
 };
 </script>

@@ -3,6 +3,7 @@ import { useDialog } from './dialog';
 import { useChartAction } from './chartAction';
 import { useUser } from './user';
 import * as types from '#/chart/index';
+import * as orderTypes from '#/order';
 import { Modal } from 'ant-design-vue';
 
 const dialogStore = useDialog();
@@ -10,21 +11,21 @@ const chartActionStore = useChartAction();
 const userStore = useUser();
 
 interface State {
-  currentQuote: types.Quote | null
+  currentQuotes: Record<string, types.Quote>
   currentSymbol: string
   currentKline: types.Line | null
   refreshOrderArea: boolean
-  polling: boolean // 是否轮询个人信息和持仓单
+  tableData: orderTypes.TableData
 }
 
 export const useOrder = defineStore('order', {
   state(): State {
     return {
-      currentQuote: null,
+      currentQuotes: {},
       currentSymbol: '',
       currentKline: null,
       refreshOrderArea: false,
-      polling: false
+      tableData: {}
     }
   },
 

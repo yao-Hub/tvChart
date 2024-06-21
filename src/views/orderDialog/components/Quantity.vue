@@ -2,10 +2,9 @@
   <div class="Quantity">
     <span>数量</span>
     <div class="container">
-      <a-tooltip :title="state.errorMessage" v-model:open="state.ifError">
+      <a-tooltip :title="state.errorMessage" :class="[state.ifError ? 'complete' : '']" style="flex: 1;">
         <a-auto-complete
-          :class="[state.ifError ? 'complete' : '']"
-          style="width: 100%;; margin-right: 5px;"
+          style="width: 100%; margin-right: 5px;"
           v-model:value="state.num"
           :options="state.numDataSource"
         >
@@ -75,13 +74,14 @@ const Margin = computed(() => {
     const margin = symbol.margin;
     if (leverage) {
       result = +props.openPrice * symbol.contract_size / leverage * (+state.num);
+    } else {
+      result = margin * (+state.num);
     }
-    result = margin * (+state.num);
     return result.toFixed(symbol.digits);
   }
 });
 
-const emit = defineEmits(['quantity']);
+const emit = defineEmits(['quantity', 'quantityFail']);
 
 const state = reactive({
   num: minVolume.value,
@@ -132,9 +132,12 @@ watch(() => [state.num, currentSymbol.value], () => {
     if (num % step !== 0) {
       state.ifError = true;
       state.errorMessage = `需为${step}的倍数`;
+      emit('quantityFail');
+      return;
     }
   }
   state.ifError = false;
+  state.errorMessage = '';
   emit('quantity', state.num);
 }, { immediate: true });
 
@@ -149,15 +152,19 @@ watch(() => [state.num, currentSymbol.value], () => {
     display: flex;
     flex: 1;
     align-items: center;
+    .complete {
+      position: relative;
+    }
     .complete::before {
       content: '';
       position: absolute;
       width: 100%;
       height: 100%;
       background: #9f4747;
-      z-index: 1;
+      z-index: 9;
       border-radius: 5px;
       opacity: 0.6;
+      pointer-events: none;
     }
   }
 }

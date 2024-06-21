@@ -6,7 +6,8 @@
       <EntryPrice
         :currentBuy="props.ask"
         :currentSell="props.bid"
-        :transactionType="state.type">
+        :transactionType="state.type"
+        @entryPrice="e => state.order_price = e">
       </EntryPrice>
       <Quantity
         :type="state.type"
@@ -21,7 +22,7 @@
     <LossProfit
       @stopLoss="e => state.sl = e"
       @stopSurplus="e => state.tp = e"></LossProfit>
-    <BaseButton class="placeOrder" type="success" @click="addOrders">下单</BaseButton>
+    <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading">下单</BaseButton>
   </div>
 </template>
 
@@ -30,16 +31,13 @@ import { reactive, computed } from 'vue';
 import { message } from 'ant-design-vue';
 import { SessionSymbolInfo } from '@/types/chart/index';
 import { bsType, BUY_SELL_TYPE } from '@/constants/common';
-
-import { useUser } from '@/store/modules/user';
+import moment from 'moment';
 import BuySell from './components/BuySell.vue';
 import Quantity from './components/Quantity.vue';
 import LossProfit from './components/LossProfit.vue';
 import EntryPrice from './components/EntryPrice.vue';
 
-import { marketOrdersAdd, ReqOrderAdd } from 'api/order/index';
-
-const userStore = useUser();
+import { pendingOrdersAdd, reqPendingOrdersAdd } from 'api/order/index';
 
 interface Props {
   selectedSymbol: string
@@ -55,6 +53,8 @@ interface State {
   volume: string
   sl: string
   tp: string
+  loading: boolean
+    order_price: string
 }
 
 const state: State = reactive({
@@ -62,6 +62,8 @@ const state: State = reactive({
   volume: '',
   sl: '',
   tp: '',
+  loading: false,
+  order_price: ''
 });
 
 const props = defineProps<Props>();
@@ -77,24 +79,30 @@ const switchType = (type: bsType) => {
 }
 
 const addOrders = async () => {
-  const updata: ReqOrderAdd = {
-    login: userStore.account.login,
-    symbol: props.selectedSymbol,
-    type: BUY_SELL_TYPE.stopLimit[state.type],
-    volume: +state.volume * 100,
-  };
-  if (state.sl !== '') {
-    updata.sl = +state.sl;
-  }
-  if (state.tp !== '') {
-    updata.tp = +state.tp;
-  }
-  const res = await marketOrdersAdd(updata);
-  if (res.data.action_success) {
-    message.success('下单成功');
-    emit('success', true)
-  } else {
-    message.error('下单失败');
+  try {
+    state.loading = true;
+    const updata: reqPendingOrdersAdd= {
+      symbol: props.selectedSymbol,
+      type: BUY_SELL_TYPE.stopLimit[state.type],
+      volume: +state.volume * 100,
+      order_price: +state.order_price,
+      time_expiration: moment().add(10, 'minutes').unix(),
+    };
+    if (state.sl !== '') {
+      updata.sl = +state.sl;
+    }
+    if (state.tp !== '') {
+      updata.tp = +state.tp;
+    }
+    const res = await pendingOrdersAdd(updata);
+    if (res.data.action_success) {
+      message.success('下单成功');
+      emit('success', true)
+    } else {
+      message.error('下单失败');
+    }
+  } finally  {
+    state.loading = false;
   }
 };
 </script>

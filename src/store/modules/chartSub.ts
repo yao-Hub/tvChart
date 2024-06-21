@@ -19,6 +19,7 @@ interface State {
   symbols: SessionSymbolInfo[]
   barsCache: Map<string, any>
   keydownList: Array<Keydown>
+  mustSubscribeList: Array<string>
 }
 
 interface TurnSocket {
@@ -32,14 +33,17 @@ export const useChartSub = defineStore('chartSub', {
     return {
       symbols: [],
       barsCache: new Map(),
-      keydownList: []
+      keydownList: [],
+
+      // 必须需要监听品种列表
+      mustSubscribeList: []
     }
   },
   getters: {
     chartWidget: () => chartInitStore.getChartWidget()
   },
   actions: {
-    // 监听k线和报价
+    // k线图监听k线和报价
     subscribeKline(args: TurnSocket) {
       const { subscriberUID, symbolInfo, resolution } = args;
       this.barsCache.set(subscriberUID, {
@@ -48,7 +52,7 @@ export const useChartSub = defineStore('chartSub', {
       });
       subscribeSocket({ resolution, symbol: symbolInfo.name });
     },
-    // 取消监听k线和报价
+    // k线图取消监听k线和报价
     unsubscribeKline(subscriberUID: string) {
       const { resolution, name } = this.barsCache.get(subscriberUID);
       unsubscribeSocket({ resolution, symbol: name });
