@@ -56,9 +56,10 @@ const handleCancel = () => {
 }
 
 interface FormState {
-  login: string;
-  password: string;
-  remember: boolean;
+  login: string
+  password: string
+  remember: boolean
+  logging: boolean
 }
 
 const formState = reactive<FormState>({
