@@ -4,7 +4,6 @@ import { eq } from 'lodash';
 import { UserInfo } from '#/store';
 import CryptoJS from 'utils/AES';
 import { loginInfo } from 'api/account/index';
-import { useOrder } from './order';
 import { useChartAction } from '@/store/modules/chartAction';
 
 interface State {
