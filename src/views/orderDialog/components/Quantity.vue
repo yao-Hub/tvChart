@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watch } from 'vue';
+import { reactive, computed, watch } from 'vue';
 import { SessionSymbolInfo } from '#/chart/index';
 import { getDecimalPlaces } from 'utils/common/index';
 
@@ -112,9 +112,6 @@ const setNumDataSource = () => {
 };
 setNumDataSource();
 
-onMounted(() => {
-  emit('quantity', state.num);
-});
 // state.num
 watch(() => [state.num, currentSymbol.value], () => {
   const num = state.num;

@@ -11,7 +11,8 @@
       </EntryPrice>
       <Quantity
         :type="state.type"
-        @quantity="(e) => state.volume = e"
+        @quantity="quantity"
+        @quantity-fail="quantityFail"
         :selectedSymbol="props.selectedSymbol"
         :tradeAllowSymbols="props.tradeAllowSymbols"
         :openPrice="openPrice"
@@ -22,7 +23,7 @@
     <LossProfit
       @stopLoss="e => state.sl = e"
       @stopSurplus="e => state.tp = e"></LossProfit>
-    <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading">下单</BaseButton>
+    <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading" :disabled="state.disabled">下单</BaseButton>
   </div>
 </template>
 
@@ -54,7 +55,8 @@ interface State {
   sl: string
   tp: string
   loading: boolean
-    order_price: string
+  order_price: string
+  disabled: boolean
 }
 
 const state: State = reactive({
@@ -63,7 +65,8 @@ const state: State = reactive({
   sl: '',
   tp: '',
   loading: false,
-  order_price: ''
+  order_price: '',
+  disabled: false
 });
 
 const props = defineProps<Props>();
@@ -77,6 +80,15 @@ const openPrice = computed(() => {
 const switchType = (type: bsType) => {
   state.type = type;
 }
+
+const quantity = (e: string) => {
+  state.volume = e;
+  state.disabled = false;
+};
+
+const quantityFail =() => {
+  state.disabled = true;
+};
 
 const addOrders = async () => {
   try {
