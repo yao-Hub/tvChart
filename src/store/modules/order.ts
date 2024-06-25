@@ -16,6 +16,7 @@ interface State {
   currentKline: types.Line | null
   refreshOrderArea: boolean
   tableData: orderTypes.TableData
+  selectedMenuKey: orderTypes.OrderType
 }
 
 export const useOrder = defineStore('order', {
@@ -25,7 +26,8 @@ export const useOrder = defineStore('order', {
       currentSymbol: '',
       currentKline: null,
       refreshOrderArea: false,
-      tableData: {}
+      tableData: {},
+      selectedMenuKey: 'price'
     }
   },
 

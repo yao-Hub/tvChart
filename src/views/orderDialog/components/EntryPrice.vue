@@ -1,11 +1,9 @@
 <template>
   <div class="EntryPrice">
     <span>入场价</span>
-    <div class="container">
-      <a-tooltip :title="state.errorMessage" v-model:open="state.ifError">
-        <a-input
-          v-model:value="state.price"
-          @change="handleChange">
+    <div :class="[state.errorMessage ? 'complete container' : 'container']">
+      <a-tooltip :title="state.errorMessage">
+        <a-input v-model:value="state.price">
           <template #addonAfter>
             <div class="afterBtns">
               <CaretUpFilled @click="addPrice" />
@@ -25,14 +23,14 @@ import { CaretUpFilled, CaretDownFilled } from '@ant-design/icons-vue';
 import { round } from 'utils/common/index';
 
 interface Props {
-  transactionType: string // 交易类型：买入卖出
-  currentBuy: number // 当前买入价
-  currentSell: number // 当前卖出价
+  transactionType: 'buy' | 'sell' // 交易类型：买入卖出
   distanceTitle?: string
+  orderType: 'limit' | 'stopLimit' | 'stop'
+  ask: number
+  bid: number
 }
 interface State {
   price: number | string
-  ifError: boolean
   errorMessage: string
 }
 
@@ -41,38 +39,69 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const state:State = reactive({
   price: '',
-  ifError: false,
   errorMessage: ''
 });
 
-state.price = props.transactionType === 'buy' ? props.currentBuy : props.currentSell;
+// 初始化价格
+state.price = props.transactionType === 'buy' ? props.ask : props.bid;
 
+// 检查价格是否合法
+const validate = () => {
+  const type = props.transactionType;
+  let size = '';
+  let result = false;
+  if (type === 'buy') {
+    if (props.orderType === 'limit') {
+      size = '小与';
+      result = +state.price <= props.ask;
+    } else {
+      size = '大与';
+      result = +state.price >= props.ask;
+    }
+  }
+  if (type === 'sell') {
+    if (props.orderType === 'limit') {
+      size = '大与';
+      result = +state.price >= props.bid;
+    } else {
+      size = '小与';
+      result = +state.price <= props.bid;
+    }
+  }
+  state.errorMessage = !result ? `必须${size}${type === 'buy' ? '买价' : '卖价'}(${type === 'buy' ? props.ask : props.bid})` : '';
+  return result;
+}
+
+// 距离 价差
 const distance = computed(() => {
-  const price = props.transactionType === 'buy' ? props.currentBuy : props.currentSell;
+  const price = props.transactionType === 'buy' ? props.ask : props.bid;
   const entryPrice = +state.price;
   return round(Math.abs(price - entryPrice), 1);
 });
+
 const addPrice = () => {
   state.price = round(+state.price + 0.01, 2);
 };
+
 const reducePrice = () => {
   state.price = round(+state.price - 0.01, 2);
 };
 
-const emit = defineEmits([ 'entryPrice' ]);
+const emit = defineEmits([ 'entryPrice', 'entryPriceFail' ]);
 
 watch(
-  () => state.price,
+  () => [state.price , props],
   () => {
-    emit('entryPrice', state.price)
+    const valid = validate();
+    if (valid) {
+      emit('entryPrice', state.price);
+    } else {
+      emit('entryPriceFail');
+    }
   },
-  { immediate: true }
+  { immediate: true, deep: true, flush: 'post' }
 );
 
-
-const handleChange = () => {
-  emit('entryPrice', state.price)
-};
 </script>
 
 <style lang="scss" scoped>
@@ -82,16 +111,6 @@ const handleChange = () => {
   flex-direction: column;
   .container {
     flex: 1;
-    .complete::before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: #9f4747;
-      z-index: 1;
-      border-radius: 5px;
-      opacity: 0.6;
-    }
     .afterBtns {
       display: flex;
       flex-direction: column;
@@ -103,6 +122,20 @@ const handleChange = () => {
       & span:hover {
         color: #fff;
       }
+    }
+  }
+  .complete {
+    position: relative;
+    &::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: #9f4747;
+      z-index: 9;
+      border-radius: 5px;
+      opacity: 0.6;
+      pointer-events: none;
     }
   }
 }

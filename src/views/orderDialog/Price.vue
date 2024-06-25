@@ -5,16 +5,22 @@
     <Quantity
       :type="state.type"
       @quantity="quantity"
-      @quantity-fail="quantityFail"
-      :selectedSymbol="props.selectedSymbol"
-      :tradeAllowSymbols="props.tradeAllowSymbols"
+      @quantity-fail="state.disabled = true"
+      :currentSymbolInfo="props.currentSymbolInfo"
       :openPrice="openPrice"
     >
     </Quantity>
     <a-divider class="divider"></a-divider>
     <LossProfit
-      @stopLoss="e => state.sl = e"
-      @stopSurplus="e => state.tp = e"></LossProfit>
+      @stopLoss="setStopLoss"
+      @stopSurplus="setStopSurplus"
+      @lossProfitFail="state.disabled = true"
+      orderType="price"
+      :transactionType="state.type"
+      :bid="props.bid"
+      :ask="props.ask" 
+      :currentSymbolInfo="props.currentSymbolInfo"
+    ></LossProfit>
     <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading" :disabled="state.disabled">下单</BaseButton>
   </div>
 </template>
@@ -33,7 +39,7 @@ import { marketOrdersAdd, ReqOrderAdd } from 'api/order/index';
 
 interface Props {
   selectedSymbol: string
-  tradeAllowSymbols: SessionSymbolInfo[]
+  currentSymbolInfo?: SessionSymbolInfo
   ask: number
   bid: number
   high: number
@@ -74,9 +80,17 @@ const quantity = (e: string) => {
   state.volume = e;
   state.disabled = false;
 };
-const quantityFail =() => {
-  state.disabled = true;
+
+const setStopLoss = (e: string) => {
+  state.sl = e;
+  state.disabled = false;
+}
+
+const setStopSurplus = (e: string) => {
+  state.tp = e;
+  state.disabled = false;
 };
+
 const addOrders = async () => {
   try {
     state.loading = true;

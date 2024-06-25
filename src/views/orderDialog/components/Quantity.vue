@@ -24,13 +24,10 @@ import { reactive, computed, watch } from 'vue';
 import { SessionSymbolInfo } from '#/chart/index';
 import { getDecimalPlaces } from 'utils/common/index';
 
-type SymbolStrings = Props['tradeAllowSymbols'][number]['symbol'];
-
 interface Props {
   type: 'buy' | 'sell'
-  tradeAllowSymbols: SessionSymbolInfo[]
-  selectedSymbol: SymbolStrings
   openPrice: number
+  currentSymbolInfo?: SessionSymbolInfo
 };
 
 const typeOption = {
@@ -40,14 +37,9 @@ const typeOption = {
 
 const props = defineProps<Props>();
 
-// 当前品种
-const currentSymbol = computed(() => {
-  return props.tradeAllowSymbols.find(e => e.symbol === props.selectedSymbol);
-});
-
 // 单笔最小手数
 const minVolume = computed(() => {
-  const symbol = currentSymbol.value;
+  const symbol = props.currentSymbolInfo;
   if (symbol) {
     const volume_min = (symbol.volume_min / 100).toString();
     return volume_min;
@@ -57,7 +49,7 @@ const minVolume = computed(() => {
 
 // 单笔最大手数
 const maxVolume = computed(() => {
-  const symbol = currentSymbol.value;
+  const symbol = props.currentSymbolInfo;
   if (symbol) {
     const volume_max = (symbol.volume_max / 100).toString();
     return volume_max;
@@ -68,7 +60,7 @@ const maxVolume = computed(() => {
 // 保证金
 const Margin = computed(() => {
   let result = 0;
-  const symbol = currentSymbol.value;
+  const symbol = props.currentSymbolInfo;
   if (symbol) {
     const leverage = symbol.leverage;
     const margin = symbol.margin;
@@ -113,7 +105,7 @@ const setNumDataSource = () => {
 setNumDataSource();
 
 // state.num
-watch(() => [state.num, currentSymbol.value], () => {
+watch(() => [state.num, props.currentSymbolInfo], () => {
   const num = state.num;
   if (+num < +minVolume.value) {
     state.num = minVolume.value;
@@ -122,8 +114,8 @@ watch(() => [state.num, currentSymbol.value], () => {
     state.num = maxVolume.value;
   }
   // 必须为volume_step的倍数
-  if (currentSymbol.value && currentSymbol.value.volume_step > 0) {
-    const step = currentSymbol.value.volume_step;
+  if (props.currentSymbolInfo && props.currentSymbolInfo.volume_step > 0) {
+    const step = props.currentSymbolInfo.volume_step;
     const places = getDecimalPlaces(+state.num);
     const num = places > 0 ? +state.num * Math.pow(10, places) : +state.num;
     if (num % step !== 0) {

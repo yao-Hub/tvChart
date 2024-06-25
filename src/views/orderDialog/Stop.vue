@@ -4,26 +4,36 @@
     <a-divider class="divider"></a-divider>
     <div class="center">
       <EntryPrice
+        orderType="stop"
         distanceTitle="价差"
-        :currentBuy="props.ask"
-        :currentSell="props.bid"
         :transactionType="state.type"
-        @entryPrice="e => state.order_price = e">
+        :bid="props.bid"
+        :ask="props.ask"
+        @entryPrice="entryPrice"
+        @entryPriceFail="state.disabled = true">
       </EntryPrice>
       <Quantity
         :type="state.type"
         @quantity="quantity"
-        @quantity-fail="quantityFail"
-        :selectedSymbol="props.selectedSymbol"
-        :tradeAllowSymbols="props.tradeAllowSymbols"
+        @quantity-fail="state.disabled = true"
         :openPrice="openPrice"
+        :currentSymbolInfo="props.currentSymbolInfo"
       >
       </Quantity>
     </div>
     <a-divider class="divider"></a-divider>
     <LossProfit
-      @stopLoss="e => state.sl = e"
-      @stopSurplus="e => state.tp = e"></LossProfit>
+      @stopLoss="setStopLoss"
+      @stopSurplus="setStopSurplus"
+      @lossProfitFail="state.disabled = true"
+      orderType="stop"
+      :orderPrice="state.order_price"
+      :transactionType="state.type"
+      :bid="props.bid"
+      :ask="props.ask"
+      :currentSymbolInfo="props.currentSymbolInfo"
+    >
+    </LossProfit>
     <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading" :disabled="state.disabled">下单</BaseButton>
   </div>
 </template>
@@ -42,8 +52,8 @@ import EntryPrice from './components/EntryPrice.vue';
 import { pendingOrdersAdd, reqPendingOrdersAdd } from 'api/order/index';
 
 interface Props {
+  currentSymbolInfo: SessionSymbolInfo
   selectedSymbol: string
-  tradeAllowSymbols: SessionSymbolInfo[]
   ask: number
   bid: number
   high: number
@@ -82,13 +92,28 @@ const switchType = (type: bsType) => {
   state.type = type;
 }
 
+// 入场价
+const entryPrice = (e: string) => {
+  state.order_price = e;
+  state.disabled = false;
+};
+
+// 手数
 const quantity = (e: string) => {
   state.volume = e;
   state.disabled = false;
 };
 
-const quantityFail =() => {
-  state.disabled = true;
+// 止亏
+const setStopLoss = (e: string) => {
+  state.sl = e;
+  state.disabled = false;
+}
+
+// 止盈
+const setStopSurplus = (e: string) => {
+  state.tp = e;
+  state.disabled = false;
 };
 
 const addOrders = async () => {

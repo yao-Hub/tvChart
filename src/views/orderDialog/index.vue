@@ -26,7 +26,7 @@
             <component
               :is="state.componentMap[state.selectedKeys[0]]"
               :selectedSymbol="state.symbol"
-              :tradeAllowSymbols="tradeAllowSymbols"
+              :currentSymbolInfo="currentSymbolInfo"
               :ask="state.quote.ask"
               :bid="state.quote.bid"
               :high="state.newKlineData.high"
@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, watch, markRaw } from 'vue';
+import { computed, reactive, watch, markRaw, watchEffect } from 'vue';
 
 import { useDialog } from '@/store/modules/dialog';
 import { useOrder } from '@/store/modules/order';
@@ -57,11 +57,11 @@ import Price from './Price.vue';
 import Stop from './Stop.vue';
 import StopLimit from './StopLimit.vue';
 
+import { OrderType } from '#/order';
+
 const dialogStore = useDialog();
 const orderStore = useOrder();
 const subStore = useChartSub();
-
-type OrderType = 'price' | 'limit' | 'stop' | 'stopLimit';
 
 const state = reactive({
   selectedKeys: ['price'] as OrderType[],
@@ -104,6 +104,10 @@ const state = reactive({
   socketList: [] as string[]
 });
 
+watchEffect(() => {
+  orderStore.selectedMenuKey = state.selectedKeys[0];
+});
+
 // 弹窗打开隐藏
 const open = computed(() => {
   return dialogStore.orderDialogVisible;
@@ -118,6 +122,11 @@ const handleCancel = () => {
   });
   dialogStore.closeOrderDialog();
 }
+
+// 当前品种
+const currentSymbolInfo = computed(() => {
+  return tradeAllowSymbols.value.find(e => e.symbol === state.symbol);
+});
 
 // 可交易品种
 const tradeAllowSymbols = computed(() => {
