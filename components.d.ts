@@ -31,6 +31,7 @@ declare module 'vue' {
     ASpin: typeof import('ant-design-vue/es')['Spin']
     ATable: typeof import('ant-design-vue/es')['Table']
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
+    ATimePicker: typeof import('ant-design-vue/es')['TimePicker']
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     BaseButton: typeof import('./src/components/BaseButton.vue')['default']
     LocaleChange: typeof import('./src/components/LocaleChange.vue')['default']

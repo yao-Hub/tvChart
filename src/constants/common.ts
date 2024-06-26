@@ -4,13 +4,19 @@ import zhCN from 'ant-design-vue/es/locale/zh_CN';
 export const LANGUAGE_LIST = {
   "zh": zhCN,
   "en": enUS,
-} as const
+}
 
 // 单选语言切换
 export const LOCALE_SINGLE_LIST = {
   "zh": '中',
   "en": 'En',
-} as const
+}
+
+// 单选语言切换
+export const LOCALE_LIST = {
+  "zh": 'zh-cn',
+  "en": 'en',
+}
 
 // 图标按钮权重
 export const TOOLBAR_BTN_ORDER = {
@@ -21,8 +27,8 @@ export const TOOLBAR_BTN_ORDER = {
 
 // 股票交易方向
 export const STOCKS_DIRECTION = {
-  buy: 0,
-  sell: 1
+  0: 'buy',
+  1: 'sell'
 }
 
 export const BUY_SELL_TYPE = {
@@ -43,5 +49,3 @@ export const BUY_SELL_TYPE = {
     sell: 7
   },
 }
-
-export type bsType = 'buy' | 'sell';

@@ -3,7 +3,7 @@
     <div>
       <a-checkbox v-model:checked="state.stopLoss.disabled">止损</a-checkbox>
       <div :class="[state.stopLoss.errmsg ? 'complete' : '']">
-        <a-tooltip :title="state.stopLoss.errmsg" :open="stopLossTooltipVisabled">
+        <a-tooltip :title="state.stopLoss.errmsg" v-model:open="stopLossTooltipVisabled">
           <a-input
             v-model:value="state.stopLoss.value"
             :disabled="!state.stopLoss.disabled">
@@ -15,7 +15,7 @@
     <div>
       <a-checkbox v-model:checked="state.stopSurplus.disabled">止盈</a-checkbox>
       <div :class="[state.stopSurplus.errmsg ? 'complete' : '']">
-        <a-tooltip :title="state.stopSurplus.errmsg" :open="stopSurplusTooltipVisabled">
+        <a-tooltip :title="state.stopSurplus.errmsg" v-model:open="stopSurplusTooltipVisabled">
           <a-input
             v-model:value="state.stopSurplus.value"
             :disabled="!state.stopSurplus.disabled">
@@ -27,8 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, computed, watchEffect } from 'vue';
-import { debounce } from 'lodash';
+import { ref, reactive, watch, watchEffect } from 'vue';
 import { SessionSymbolInfo } from '@/types/chart/index';
 import { useOrder } from '@/store/modules/order';
 const orderStore = useOrder();
@@ -47,7 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
   ask: 0,
 });
 
-const emit = defineEmits([ 'stopLoss', 'stopSurplus', 'lossProfitFail' ]);
+const emit = defineEmits([ 'stopLoss', 'stopSurplus', 'stopLossFail', 'stopSurplusFail' ]);
 
 const state = reactive({
   stopLoss: {
@@ -62,11 +61,12 @@ const state = reactive({
   },
 });
 
-const stopLossTooltipVisabled = computed(() => {
-  return Boolean(state.stopLoss.errmsg) && orderStore.selectedMenuKey === props.orderType;
-});
-const stopSurplusTooltipVisabled = computed(() => {
-  return Boolean(state.stopSurplus.errmsg) && orderStore.selectedMenuKey === props.orderType;
+const stopLossTooltipVisabled = ref<boolean>(false);
+const stopSurplusTooltipVisabled = ref<boolean>(false);
+
+watchEffect(() => {
+  stopLossTooltipVisabled.value = Boolean(state.stopLoss.errmsg) && orderStore.selectedMenuKey === props.orderType;
+  stopSurplusTooltipVisabled.value = Boolean(state.stopSurplus.errmsg) && orderStore.selectedMenuKey === props.orderType;
 });
 
 watchEffect(() => {
@@ -80,61 +80,82 @@ watchEffect(() => {
   }
 });
 
-watch(() => [ props, state.stopLoss, state.stopSurplus ], () => {
-  if (!props.currentSymbolInfo || (!state.stopLoss.disabled && !state.stopSurplus.disabled)) {
+watch(() => [ props, state.stopLoss ], () => {
+  if (!props.currentSymbolInfo) {
     return;
   }
-  debouncedCheckResult();
+  checkStopLoss();
 }, {
   deep: true,
   flush: 'post'
 });
 
-const debouncedCheckResult = debounce(() => {
-  checkResult();
-}, 100);
+watch(() => [ props, state.stopSurplus ], () => {
+  if (!props.currentSymbolInfo) {
+    return;
+  }
+  checkStopSurplus();
+}, {
+  deep: true,
+  flush: 'post'
+});
 
-const checkResult = () => {
+const getLead = () => {
   const digits = props.currentSymbolInfo?.digits || 0;
   const stopsLevel = props.currentSymbolInfo?.stops_level || 0;
-  const stopLoss = state.stopLoss.value;
-  const stopSurplus = state.stopSurplus.value;
-  const stopLossDisabled = state.stopLoss.disabled;
-  const stopSurplusDisabled = state.stopSurplus.disabled;
-
   const priceVal = props.transactionType === 'buy' ? props.ask : props.bid;
   const lead = props.orderType === 'price' ?  priceVal : +props.orderPrice!;
   const result_1 = lead - 1 / Math.pow(10, +digits) * +stopsLevel;
   const result_2 =  lead + 1 / Math.pow(10, +digits) * +stopsLevel;
+  return {
+    result_1,
+    result_2
+  }
+};
+
+const checkStopLoss =() => {
+  const stopLoss = state.stopLoss.value;
+  const stopLossDisabled = state.stopLoss.disabled;
+  const { result_1, result_2} = getLead();
   if (props.transactionType === 'buy') {
-    if (+stopLoss > result_1 && stopLossDisabled) {
-      emit('lossProfitFail');
+    if (stopLoss !== '' && +stopLoss > result_1 && stopLossDisabled) {
+      emit('stopLossFail');
       state.stopLoss.errmsg = `止损价不能大于${result_1}`;
       return;
     }
-    if (+stopSurplus < result_2 && stopSurplusDisabled) {
-      emit('lossProfitFail');
+  }
+  if (props.transactionType === 'sell') {
+    if (stopLoss !== '' && +stopLoss < result_2 && stopLossDisabled) {
+      emit('stopLossFail');
+      state.stopLoss.errmsg = `止损价不能小于${result_2}`;
+      return;
+    }
+  }
+  state.stopLoss.errmsg = '';
+  if (state.stopLoss.value) {
+    emit('stopLoss', state.stopLoss.value);
+  }
+};
+
+const checkStopSurplus =() => {
+  const stopSurplus = state.stopSurplus.value;
+  const stopSurplusDisabled = state.stopSurplus.disabled;
+  const { result_1, result_2} = getLead();
+  if (props.transactionType === 'buy') {
+    if (stopSurplus !== '' && +stopSurplus < result_2 && stopSurplusDisabled) {
+      emit('stopSurplusFail');
       state.stopSurplus.errmsg = `止盈价不能小于${result_2}`;
       return;
     }
   }
   if (props.transactionType === 'sell') {
-    if (+stopLoss < result_2 && stopLossDisabled) {
-      emit('lossProfitFail');
-      state.stopLoss.errmsg = `止损价不能小于${result_2}`;
-      return;
-    }
-    if (+stopSurplus > result_1 && stopSurplusDisabled) {
-      emit('lossProfitFail');
+    if (stopSurplus !== '' && +stopSurplus > result_1 && stopSurplusDisabled) {
+      emit('stopSurplusFail');
       state.stopSurplus.errmsg = `止盈价不能大于${result_1}`;
       return;
     }
   }
-  state.stopLoss.errmsg = '';
   state.stopSurplus.errmsg = '';
-  if (state.stopLoss.value) {
-    emit('stopLoss', state.stopLoss.value);
-  }
   if (state.stopSurplus.value) {
     emit('stopSurplus', state.stopSurplus.value);
   }

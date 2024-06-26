@@ -21,6 +21,7 @@
 import { reactive, computed, watch } from 'vue';
 import { CaretUpFilled, CaretDownFilled } from '@ant-design/icons-vue';
 import { round } from 'utils/common/index';
+import { SessionSymbolInfo } from '#/chart/index';
 
 interface Props {
   transactionType: 'buy' | 'sell' // 交易类型：买入卖出
@@ -28,6 +29,7 @@ interface Props {
   orderType: 'limit' | 'stopLimit' | 'stop'
   ask: number
   bid: number
+  currentSymbolInfo?: SessionSymbolInfo
 }
 interface State {
   price: number | string
@@ -42,33 +44,64 @@ const state:State = reactive({
   errorMessage: ''
 });
 
+const digits = computed(() => {
+  return props.currentSymbolInfo?.digits || 0;
+});
+
+const stopsLevel = computed(() => {
+  return props.currentSymbolInfo?.stops_level || 0;
+});
+
+const getLeed = () => {
+  const price =  props.transactionType === 'buy' ? props.ask : props.bid;
+  const result_1 = price - 1 / Math.pow(10, +digits.value) * +stopsLevel.value;
+  const result_2 = price + 1 / Math.pow(10, +digits.value) * +stopsLevel.value;
+  return { result_1, result_2 };
+};
+
 // 初始化价格
-state.price = props.transactionType === 'buy' ? props.ask : props.bid;
+const initPrice = () => {
+  const type = props.transactionType;
+  const { result_1, result_2 } = getLeed();
+  if (type === 'buy') {
+    state.price = props.orderType === 'limit' ? result_1 : result_2;
+  }
+  if (type === 'sell') {
+    state.price = props.orderType === 'limit' ? result_2 : result_1;
+  }
+};
+initPrice();
 
 // 检查价格是否合法
 const validate = () => {
   const type = props.transactionType;
+  const { result_1, result_2 } = getLeed();
   let size = '';
+  let value: string | number = '';
   let result = false;
   if (type === 'buy') {
     if (props.orderType === 'limit') {
-      size = '小与';
-      result = +state.price <= props.ask;
+      result = +state.price <= result_1;
+      size = '≤';
+      value = result_1;
     } else {
-      size = '大与';
-      result = +state.price >= props.ask;
+      result = +state.price >= result_2;
+      size = '≥';
+      value = result_2;
     }
   }
   if (type === 'sell') {
     if (props.orderType === 'limit') {
-      size = '大与';
-      result = +state.price >= props.bid;
+      result = +state.price >= result_2;
+      size = '≥';
+      value = result_2;
     } else {
-      size = '小与';
-      result = +state.price <= props.bid;
+      result = +state.price <= result_1;
+      size = '≤';
+      value = result_1;
     }
   }
-  state.errorMessage = !result ? `必须${size}${type === 'buy' ? '买价' : '卖价'}(${type === 'buy' ? props.ask : props.bid})` : '';
+  state.errorMessage = result ? '' : `价格必须${size}${value}`;
   return result;
 }
 

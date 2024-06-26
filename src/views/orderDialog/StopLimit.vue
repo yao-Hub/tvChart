@@ -8,23 +8,29 @@
         :transactionType="state.type"
         :bid="props.bid"
         :ask="props.ask"
+        :currentSymbolInfo="props.currentSymbolInfo"
         @entryPrice="entryPrice"
-        @entryPriceFail="state.disabled = true">
+        @entryPriceFail="state.disabledList.EntryPrice = true">
       </EntryPrice>
       <Quantity
         :type="state.type"
         @quantity="quantity"
-        @quantity-fail="state.disabled = true"
+        @quantity-fail="state.disabledList.Quantity = true"
         :openPrice="openPrice"
         :currentSymbolInfo="props.currentSymbolInfo"
       >
       </Quantity>
     </div>
+    <DueDate
+      @dueDateFail="state.disabledList.DueDate = true"
+      @dueDate="dueDate">
+    </DueDate>
     <a-divider class="divider"></a-divider>
     <LossProfit
       @stopLoss="setStopLoss"
       @stopSurplus="setStopSurplus"
-      @lossProfitFail="state.disabled = true"
+      @stopLossFail="state.disabledList.StopLoss = true"
+      @stopSurplusFail="state.disabledList.StopSurplus = true"
       orderType="stopLimit"
       :orderPrice="state.order_price"
       :transactionType="state.type"
@@ -32,20 +38,22 @@
       :ask="props.ask"
       :currentSymbolInfo="props.currentSymbolInfo"
     ></LossProfit>
-    <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading" :disabled="state.disabled">下单</BaseButton>
+    <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading" :disabled="btnDisabled">下单</BaseButton>
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, computed } from 'vue';
 import { message } from 'ant-design-vue';
-import { SessionSymbolInfo } from '@/types/chart/index';
-import { bsType, BUY_SELL_TYPE } from '@/constants/common';
-import moment from 'moment';
+import { values } from 'lodash';
+import { SessionSymbolInfo } from '#/chart/index';
+import { BUY_SELL_TYPE } from '@/constants/common';
+import { bsType } from '#/order';
 import BuySell from './components/BuySell.vue';
 import Quantity from './components/Quantity.vue';
 import LossProfit from './components/LossProfit.vue';
 import EntryPrice from './components/EntryPrice.vue';
+import DueDate from './components/DueDate.vue';
 
 import { pendingOrdersAdd, reqPendingOrdersAdd } from 'api/order/index';
 
@@ -65,7 +73,8 @@ interface State {
   tp: string
   loading: boolean
   order_price: string
-  disabled: boolean
+  disabledList: Record<string, boolean>
+  dueDate: number | string
 }
 
 const state: State = reactive({
@@ -75,7 +84,14 @@ const state: State = reactive({
   tp: '',
   loading: false,
   order_price: '',
-  disabled: false
+  dueDate: '',
+  disabledList: {
+    EntryPrice: false,
+    Quantity: false,
+    DueDate: false,
+    StopLoss: false,
+    StopSurplus: false,
+  }
 });
 
 const props = defineProps<Props>();
@@ -86,6 +102,10 @@ const openPrice = computed(() => {
   return state.type === 'buy' ? props.ask : props.bid;
 });
 
+const btnDisabled = computed(() => {
+  return values(state.disabledList).indexOf(true) > -1;
+});
+
 const switchType = (type: bsType) => {
   state.type = type;
 }
@@ -93,25 +113,31 @@ const switchType = (type: bsType) => {
 // 入场价
 const entryPrice = (e: string) => {
   state.order_price = e;
-  state.disabled = false;
+  state.disabledList.EntryPrice = false;
 };
 
 // 手数
 const quantity = (e: string) => {
   state.volume = e;
-  state.disabled = false;
+  state.disabledList.Quantity = false;
 };
 
 // 止亏
 const setStopLoss = (e: string) => {
   state.sl = e;
-  state.disabled = false;
+  state.disabledList.StopLoss = false;
 }
 
 // 止盈
 const setStopSurplus = (e: string) => {
   state.tp = e;
-  state.disabled = false;
+  state.disabledList.StopSurplus = false;
+};
+
+// 到期日
+const dueDate = (e: string | number) => {
+  state.dueDate = e;
+  state.disabledList.DueDate = false;
 };
 
 const addOrders = async () => {
@@ -122,8 +148,10 @@ const addOrders = async () => {
       type: BUY_SELL_TYPE.stopLimit[state.type],
       volume: +state.volume * 100,
       order_price: +state.order_price,
-      time_expiration: moment().add(10, 'minutes').unix(),
     };
+    if (state.dueDate) {
+      updata.time_expiration = +state.dueDate;
+    }
     if (state.sl !== '') {
       updata.sl = +state.sl;
     }

@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { assign } from 'lodash';
+import { uniq, difference } from 'lodash';
 import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation'
 import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index'
 import { keydownList } from 'utils/keydown';
@@ -43,6 +44,22 @@ export const useChartSub = defineStore('chartSub', {
     chartWidget: () => chartInitStore.getChartWidget()
   },
   actions: {
+    // 设置必须监听品种
+    setMustSubscribeList(sources: Array<string>) {
+      this.chartWidget.onChartReady(() => {
+        const barsCacheSymbols: Array<string> = [];
+        this.barsCache.forEach(item => {
+          barsCacheSymbols.push(item.name);
+        });
+        const nowsubList = uniq([...this.mustSubscribeList, ...barsCacheSymbols]);
+        const subList = difference(sources, nowsubList);
+        subList.forEach(item => {
+          subscribeSocket({ resolution: '1', symbol: item });
+        })
+        this.mustSubscribeList = uniq([...this.mustSubscribeList, ...sources]);
+      });
+    },
+
     // k线图监听k线和报价
     subscribeKline(args: TurnSocket) {
       const { subscriberUID, symbolInfo, resolution } = args;

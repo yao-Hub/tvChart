@@ -5,7 +5,7 @@
     <Quantity
       :type="state.type"
       @quantity="quantity"
-      @quantity-fail="state.disabled = true"
+      @quantity-fail="state.disabledList.Quantity = true"
       :currentSymbolInfo="props.currentSymbolInfo"
       :openPrice="openPrice"
     >
@@ -14,22 +14,32 @@
     <LossProfit
       @stopLoss="setStopLoss"
       @stopSurplus="setStopSurplus"
-      @lossProfitFail="state.disabled = true"
+      @stopLossFail="state.disabledList.StopLoss = true"
+      @stopSurplusFail="state.disabledList.StopSurplus = true"
       orderType="price"
       :transactionType="state.type"
       :bid="props.bid"
       :ask="props.ask" 
       :currentSymbolInfo="props.currentSymbolInfo"
     ></LossProfit>
-    <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading" :disabled="state.disabled">下单</BaseButton>
+    <BaseButton
+      class="placeOrder"
+      type="success"
+      @click="addOrders"
+      :loading="state.loading"
+      :disabled="btnDisabled">
+      下单
+    </BaseButton>
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, computed } from 'vue';
 import { message } from 'ant-design-vue';
-import { SessionSymbolInfo } from '@/types/chart/index';
-import { bsType, BUY_SELL_TYPE } from '@/constants/common';
+import { values } from 'lodash';
+import { SessionSymbolInfo } from '#/chart/index';
+import { BUY_SELL_TYPE } from '@/constants/common';
+import { bsType } from '#/order';
 
 import BuySell from './components/BuySell.vue';
 import Quantity from './components/Quantity.vue';
@@ -52,7 +62,11 @@ interface State {
   sl: string
   tp: string
   loading: boolean
-  disabled: boolean
+  disabledList: {
+    Quantity: boolean
+    StopLoss: boolean
+    StopSurplus: boolean
+  }
 }
 
 const state: State = reactive({
@@ -61,7 +75,11 @@ const state: State = reactive({
   sl: '',
   tp: '',
   loading: false,
-  disabled: false
+  disabledList: {
+    Quantity: false,
+    StopLoss: false,
+    StopSurplus: false
+  }
 });
 
 const props = defineProps<Props>();
@@ -72,23 +90,27 @@ const openPrice = computed(() => {
   return state.type === 'buy' ? props.ask : props.bid;
 });
 
+const btnDisabled = computed(() => {
+  return values(state.disabledList).indexOf(true) > -1;
+});
+
 const switchType = (type: bsType) => {
   state.type = type;
 }
 
 const quantity = (e: string) => {
   state.volume = e;
-  state.disabled = false;
+  state.disabledList.Quantity = false;
 };
 
 const setStopLoss = (e: string) => {
   state.sl = e;
-  state.disabled = false;
+  state.disabledList.StopLoss = false;
 }
 
 const setStopSurplus = (e: string) => {
   state.tp = e;
-  state.disabled = false;
+  state.disabledList.StopSurplus = false;
 };
 
 const addOrders = async () => {

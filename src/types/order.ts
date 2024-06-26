@@ -6,3 +6,5 @@ export type TableData = {
 }
 
 export type OrderType = 'price' | 'limit' | 'stop' | 'stopLimit';
+
+export type bsType = 'buy' | 'sell';
