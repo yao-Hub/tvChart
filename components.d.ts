@@ -37,6 +37,7 @@ declare module 'vue' {
     LocaleChange: typeof import('./src/components/LocaleChange.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    Spin: typeof import('./src/components/Spin.vue')['default']
     TVChart: typeof import('./src/components/TVChart.vue')['default']
   }
 }

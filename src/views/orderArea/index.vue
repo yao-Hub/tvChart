@@ -2,11 +2,13 @@
   <div class="orderArea">
     <a-segmented v-model:value="state.menuActive" :options="segmentedOption" />
     <div class="container">
-      <a-table style="flex: 1" :dataSource="dataSource" :columns="columns" :pagination="false">
+      <a-table style="flex: 1;" sticky :dataSource="dataSource" :columns="columns" :pagination="false" size="small">
         <template #bodyCell="{ record, column, index }">
           <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
+          <template v-if="column.dataIndex === 'time_expiration'">{{ formatTime(record.time_expiration) }}</template>
           <template v-if="column.dataIndex === 'volume'">{{ record.volume / 100 }}手</template>
           <template v-if="column.dataIndex === 'type'">{{ $t(`order.${getType(record.type)}`) }}</template>
+          <template v-if="column.dataIndex === 'orderType'">{{ $t(`order.type.${getOrderType(record.type)}`) }}</template>
           <template v-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
           <template v-if="column.dataIndex === 'profit'">{{ getProfit(record, index) }}</template>
           <template v-if="column.dataIndex === 'distance'">{{ getDistance(record) }}</template>
@@ -28,15 +30,16 @@
 
 <script setup lang="ts">
 import { reactive, watchEffect, nextTick, h, computed, onUnmounted } from 'vue';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, findKey } from 'lodash';
 import { CloseOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import moment from 'moment';
 import { openningOrders, marketOrdersAddClose, resOrders, pendingOrders, delPendingOrders } from 'api/order/index';
+import { tableColumns } from './config';
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
 import { useChartSub } from '@/store/modules/chartSub';
-import { BUY_SELL_TYPE } from '@/constants/common';
+import { ORDER_TYPE } from '@/constants/common';
 import { round } from 'utils/common/index';
 import * as orderTypes from '#/order';
 
@@ -51,34 +54,7 @@ const state = reactive({
     { label: '交易历史', key: 'transactionHistory' },
   ],
   menuActive: '',
-  columns: {
-    'position': [
-      { title: '已创建 (UTC+8)', dataIndex: 'time_setup', key: 'time_setup' },
-      { title: '交易品种', dataIndex: 'symbol', key: 'symbol' },
-      { title: '数量', dataIndex: 'volume', key: 'volume' },
-      { title: '方向', dataIndex: 'type', key: 'type' },
-      { title: '入场', dataIndex: 'open_price', key: 'open_price' },
-      { title: '现价', dataIndex: 'now_price', key: 'now_price', width: 150 },
-      { title: '止盈', dataIndex: 'tp_price', key: 'tp_price' },
-      { title: '止损', dataIndex: 'sl_price', key: 'sl_price' },
-      { title: '净 EUR', dataIndex: 'profit', key: 'profit' },
-      { title: '', dataIndex: 'positionAction', key: 'positionAction' },
-    ],
-    'order': [
-      { title: '交易品种', dataIndex: 'symbol', key: 'symbol' },
-      { title: '方向', dataIndex: 'type', key: 'type' },
-      { title: '提交时间（UTC+8）', dataIndex: 'time_setup', key: 'time_setup' },
-      { title: '订单类型', dataIndex: 'type', key: 'type' },
-      { title: '当前数量', dataIndex: 'volume', key: 'volume' },
-      { title: '触发价位', dataIndex: 'order_price', key: 'order_price' },
-      { title: '现价', dataIndex: 'now_price', key: 'now_price', width: 150 },
-      { title: '距离', dataIndex: 'distance', key: 'distance' },
-      { title: '止盈', dataIndex: 'tp_price', key: 'tp_price' },
-      { title: '止损', dataIndex: 'sl_price', key: 'sl_price' },
-      { title: '', dataIndex: 'orderAction', key: 'orderAction' },
-    ],
-    'transactionHistory': []
-  } as any,
+  columns: tableColumns,
   dataSource: {
     'position': [],
     'order': [],
@@ -112,16 +88,19 @@ const dataSource = computed(() => {
 
 // 获取交易方向
 const getType = (e: string | number) => {
-  for (let type in BUY_SELL_TYPE) {
+  for (let type in ORDER_TYPE) {
     // @ts-ignore
-    for (let action in BUY_SELL_TYPE[type]) {
+    for (let action in ORDER_TYPE[type]) {
       // @ts-ignore
-      if (BUY_SELL_TYPE[type][action] === +e) {
-        // return t(`order.${action}`);
+      if (ORDER_TYPE[type][action] === +e) {
         return action;
       }
     }
   }
+};
+
+const getOrderType = (e: number) => {
+  return findKey(ORDER_TYPE, (o) => o.buy === e || o.sell === e);
 };
 
 // 挂单价距离
@@ -130,7 +109,7 @@ const getDistance = (e: resOrders) => {
   const type = getType(e.type);
   const result = type === 'buy' ? currentQuote.ask :  currentQuote.bid;
   const entryPrice = +e.order_price;
-  return round(Math.abs(result - entryPrice), 1);
+  return round(Math.abs(result - entryPrice), 2);
 };
 
 // 格式化表格时间字段
@@ -283,6 +262,7 @@ onUnmounted(() => {
     padding: 5px;
     display: flex;
     box-sizing: border-box;
+    overflow-y: auto;
   }
 }
 

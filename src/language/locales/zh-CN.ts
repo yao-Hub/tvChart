@@ -34,7 +34,13 @@ export default {
     balance: '余额',
     profit: '盈利',
     buy: '买入',
-    sell: '卖出'
+    sell: '卖出',
+    type: {
+      price: '市价单',
+      limit: '限价单',
+      stop: '止损单',
+      stopLimit: '止损限价单',
+    }
   },
 
   tip: {

@@ -108,7 +108,7 @@ interface reqHistoryPendingOrders {
   symbol: string  // 	品种
 }
 
-interface resPendingOrders {
+export interface resPendingOrders {
   id: number //	订单ID
   time_setup: number //	订单创建时间，即记录插入时间。挂单成交后 time_setup 与 open_time 不一样
   symbol: string //	订单交易品种

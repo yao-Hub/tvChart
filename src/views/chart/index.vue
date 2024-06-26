@@ -16,7 +16,7 @@
     <FooterInfo></FooterInfo>
     
   </div>
-  <a-spin class="spin" :indicator="indicator" v-else />
+  <Spin v-else></Spin>
 
   <FloatMenu></FloatMenu>
   <OrderDialog></OrderDialog>
@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, h } from 'vue';
+import { reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import  * as library from 'public/charting_library';
@@ -41,19 +41,13 @@ import { datafeed } from './chartConfig';
 import { okLight, okDark } from '@/assets/icons/index';
 
 import TVChart from '@/components/TVChart.vue';
+import Spin from '@/components/Spin.vue';
+
 import OrderDialog from '../orderDialog/index.vue';
 import FloatMenu from './components/FloatMenu.vue';
 import OrderArea from '../orderArea/index.vue';
 import LoginDialog from '../loginDialog/index.vue';
 import FooterInfo from '../footerInfo/index.vue';
-
-import { LoadingOutlined } from '@ant-design/icons-vue';
-const indicator = h(LoadingOutlined, {
-  style: {
-    fontSize: '50px',
-  },
-  spin: true,
-});
 
 const { t } = useI18n();
 
@@ -76,12 +70,11 @@ const isResizing = ref(false);
 const chart = ref();
 const chartHeight = ref(window.innerHeight - 204);
 const resizeLineTop = ref(window.innerHeight - 202);
-
-window.addEventListener('resize', e => {
+const orderAreaHeight = ref(170);
+window.addEventListener('resize', () => {
   resizeLineTop.value = window.innerHeight - orderAreaHeight.value - 32;
   chartHeight.value = window.innerHeight - orderAreaHeight.value - 32;
 });
-const orderAreaHeight = ref(170);
 const resizeLineMousedown = () => {
   isResizing.value = true;
   
@@ -197,12 +190,7 @@ getSymbols();
   flex-direction: column;
   overflow: hidden;
 }
-.spin {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translateY(-50%);
-}
+
 .resizeLine {
   background-color: #7cb305;
   height: 2px;

@@ -3,6 +3,7 @@
     <a-modal
       :width="700"
       v-model:open="open"
+      :key="open"
       :title="title"
       @cancel="handleCancel"
       :bodyStyle="state.bodyStyle"
@@ -22,7 +23,10 @@
             <a-select-option :value="item.symbol" v-for="item in tradeAllowSymbols">{{ item.symbol }}</a-select-option>
           </a-select>
 
-          <keep-alive>
+          <div v-if="state.loading" class="loadingSpin">
+            <Spin></Spin>
+          </div>
+          <keep-alive v-else>
             <component
               :is="state.componentMap[state.selectedKeys[0]]"
               :selectedSymbol="state.symbol"
@@ -52,6 +56,7 @@ import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation';
 import { allSymbolQuotes } from 'api/symbols/index';
 import { klineHistory } from 'api/kline/index'
 
+import Spin from '@/components/Spin.vue';
 import Limit from './Limit.vue';
 import Price from './Price.vue';
 import Stop from './Stop.vue';
@@ -101,7 +106,8 @@ const state = reactive({
     open: 0,
     volume: 0
   },
-  socketList: [] as string[]
+  socketList: [] as string[],
+  loading: false
 });
 
 watchEffect(() => {
@@ -181,13 +187,15 @@ const getklineHistory = async () => {
 };
 
 // 品种变化
-const symbolChange = (value: string) => {
+const symbolChange = async (value: string) => {
+  state.loading = true;
   if (state.socketList.indexOf(value) === -1) {
     state.socketList.push(value);
   }
   subscribeSocket({ resolution: '1', symbol: value });
-  getklineHistory();
-  getQuotes();
+  await getklineHistory();
+  await getQuotes();
+  state.loading = false;
 };
 
 const orderSucced = () => {
@@ -212,6 +220,8 @@ const orderSucced = () => {
 }
 .right {
   flex: 1;
+  display: flex;
+  flex-direction: column;
   padding: 10px;
   .title {
     font-size: 21px;
@@ -219,6 +229,11 @@ const orderSucced = () => {
   .symbolSelect {
     width: 100%;
     margin: 8px 0;
+  }
+  .loadingSpin {
+    flex: 1;
+    position: relative;
+    min-height: 300px;
   }
 }
 :deep(.ant-menu) {

@@ -48,7 +48,7 @@ import { reactive, computed } from 'vue';
 import { message } from 'ant-design-vue';
 import { values } from 'lodash';
 import { SessionSymbolInfo } from '#/chart/index';
-import { BUY_SELL_TYPE } from '@/constants/common';
+import { ORDER_TYPE } from '@/constants/common';
 import { bsType } from '#/order';
 
 import BuySell from './components/BuySell.vue';
@@ -147,7 +147,7 @@ const addOrders = async () => {
     state.loading = true;
     const updata: reqPendingOrdersAdd = {
       symbol: props.selectedSymbol,
-      type: BUY_SELL_TYPE.limit[state.type],
+      type: ORDER_TYPE.limit[state.type],
       volume: +state.volume * 100,
       order_price: +state.order_price,
     };

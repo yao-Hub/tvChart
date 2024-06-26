@@ -31,7 +31,7 @@ export const STOCKS_DIRECTION = {
   1: 'sell'
 }
 
-export const BUY_SELL_TYPE = {
+export const ORDER_TYPE = {
   price: {
     buy: 0,
     sell: 1

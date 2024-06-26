@@ -34,7 +34,13 @@ export default {
     balance: 'balance',
     profit: 'profit',
     buy: 'buy',
-    sell: 'sell'
+    sell: 'sell',
+    type: {
+      price: 'price',
+      limit: 'limit',
+      stop: 'stop',
+      stopLimit: 'stopLimit',
+    }
   },
 
   tip: {

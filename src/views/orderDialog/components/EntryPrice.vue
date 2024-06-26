@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, watch } from 'vue';
+import { reactive, computed, watch, nextTick } from 'vue';
 import { CaretUpFilled, CaretDownFilled } from '@ant-design/icons-vue';
 import { round } from 'utils/common/index';
 import { SessionSymbolInfo } from '#/chart/index';
@@ -56,11 +56,14 @@ const getLeed = () => {
   const price =  props.transactionType === 'buy' ? props.ask : props.bid;
   const result_1 = price - 1 / Math.pow(10, +digits.value) * +stopsLevel.value;
   const result_2 = price + 1 / Math.pow(10, +digits.value) * +stopsLevel.value;
-  return { result_1, result_2 };
+  return {
+    result_1: round(result_1, digits.value),
+    result_2: round(result_2, digits.value)
+  };
 };
 
 // 初始化价格
-const initPrice = () => {
+const initPrice = async () => {
   const type = props.transactionType;
   const { result_1, result_2 } = getLeed();
   if (type === 'buy') {
@@ -69,6 +72,8 @@ const initPrice = () => {
   if (type === 'sell') {
     state.price = props.orderType === 'limit' ? result_2 : result_1;
   }
+  await nextTick();
+  emit('entryPrice', state.price);
 };
 initPrice();
 
@@ -109,21 +114,21 @@ const validate = () => {
 const distance = computed(() => {
   const price = props.transactionType === 'buy' ? props.ask : props.bid;
   const entryPrice = +state.price;
-  return round(Math.abs(price - entryPrice), 1);
+  return round(Math.abs(price - entryPrice), digits.value);
 });
 
 const addPrice = () => {
-  state.price = round(+state.price + 0.01, 2);
+  state.price = round(+state.price + 0.01, digits.value);
 };
 
 const reducePrice = () => {
-  state.price = round(+state.price - 0.01, 2);
+  state.price = round(+state.price - 0.01, digits.value);
 };
 
 const emit = defineEmits([ 'entryPrice', 'entryPriceFail' ]);
 
 watch(
-  () => [state.price , props],
+  () => [state.price, props],
   () => {
     const valid = validate();
     if (valid) {
