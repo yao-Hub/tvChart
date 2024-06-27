@@ -19,20 +19,20 @@
 // 字体颜色
 @mixin font_color($color) {
   @include themeify {
-    color: themed($color)!important;
+    color: themed($color) !important;
   }
 }
 
 // 边框颜色
 @mixin border_color($color) {
   @include themeify {
-    border-color: themed($color)!important;
+    border-color: themed($color) !important;
   }
 }
 
 // 背景颜色
 @mixin background_color($color) {
   @include themeify {
-    background-color: themed($color)!important;
+    background-color: themed($color) !important;
   }
 }

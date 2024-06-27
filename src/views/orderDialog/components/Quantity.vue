@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { reactive, computed, watch } from 'vue';
 import { SessionSymbolInfo } from '#/chart/index';
-import { getDecimalPlaces } from 'utils/common/index';
+import { getDecimalPlaces, round } from 'utils/common/index';
 
 interface Props {
   type: 'buy' | 'sell'
@@ -69,7 +69,7 @@ const Margin = computed(() => {
     } else {
       result = margin * (+state.num);
     }
-    return result.toFixed(symbol.digits);
+    return round(result, symbol.digits);
   }
 });
 

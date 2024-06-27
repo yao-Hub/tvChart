@@ -18,7 +18,6 @@
   </div>
   <Spin v-else></Spin>
 
-  <FloatMenu></FloatMenu>
   <OrderDialog></OrderDialog>
   <LoginDialog></LoginDialog>
 </template>
@@ -44,7 +43,6 @@ import TVChart from '@/components/TVChart.vue';
 import Spin from '@/components/Spin.vue';
 
 import OrderDialog from '../orderDialog/index.vue';
-import FloatMenu from './components/FloatMenu.vue';
 import OrderArea from '../orderArea/index.vue';
 import LoginDialog from '../loginDialog/index.vue';
 import FooterInfo from '../footerInfo/index.vue';

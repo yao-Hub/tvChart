@@ -1,59 +1,71 @@
 <template>
   <div class="orderArea">
-    <a-segmented v-model:value="state.menuActive" :options="segmentedOption" />
-    <div class="container">
-      <a-table style="flex: 1;" sticky :dataSource="dataSource" :columns="columns" :pagination="false" size="small">
-        <template #bodyCell="{ record, column, index }">
-          <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
-          <template v-if="column.dataIndex === 'time_expiration'">{{ formatTime(record.time_expiration) }}</template>
-          <template v-if="column.dataIndex === 'volume'">{{ record.volume / 100 }}手</template>
-          <template v-if="column.dataIndex === 'type'">{{ $t(`order.${getType(record.type)}`) }}</template>
-          <template v-if="column.dataIndex === 'orderType'">{{ $t(`order.type.${getOrderType(record.type)}`) }}</template>
-          <template v-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
-          <template v-if="column.dataIndex === 'profit'">{{ getProfit(record, index) }}</template>
-          <template v-if="column.dataIndex === 'distance'">{{ getDistance(record) }}</template>
-          <template v-if="column.dataIndex === 'positionAction'">
-            <a-tooltip title="平仓">
-              <a-button :icon="h(CloseOutlined)" size="small" @click="orderClose(record)"></a-button>
-            </a-tooltip>
-          </template>
-          <template v-if="column.dataIndex === 'orderAction'">
-            <a-tooltip title="撤销">
-              <a-button :icon="h(CloseOutlined)" size="small" @click="delOrders(record)"></a-button>
-            </a-tooltip>
-          </template>
-        </template>
-      </a-table>
-    </div>
+    <a-tabs v-model:activeKey="activeKey" type="card">
+      <a-tab-pane v-for="item in state.menu" :key="item.key" :tab="item.label">
+        <div class="container">
+          <a-table style="flex: 1;" sticky :dataSource="state.dataSource[activeKey]" :columns="state.columns[item.key]" :pagination="false" size="small">
+            <template #bodyCell="{ record, column, index }">
+              <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
+              <template v-if="column.dataIndex === 'time_expiration'">{{ formatTime(record.time_expiration) }}</template>
+              <template v-if="column.dataIndex === 'time_done'">{{ formatTime(record.time_done) }}</template>
+              <template v-if="column.dataIndex === 'volume'">{{ record.volume / 100 }}手</template>
+              <template v-if="column.dataIndex === 'type'">{{ $t(`order.${getType(record.type)}`) }}</template>
+              <template v-if="column.dataIndex === 'orderType'">{{ $t(`order.type.${getOrderType(record.type)}`) }}</template>
+              <template v-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
+              <template v-if="column.dataIndex === 'profit' && activeKey !== 'transactionHistory'">{{ getProfit(record, index) }}</template>
+              <template v-if="column.dataIndex === 'distance'">{{ getDistance(record) }}</template>
+              <template v-if="column.dataIndex === 'positionAction'">
+                <a-tooltip title="平仓">
+                  <a-button :icon="h(CloseOutlined)" size="small" @click="orderClose(record)"></a-button>
+                </a-tooltip>
+              </template>
+              <template v-if="column.dataIndex === 'orderAction'">
+                <a-tooltip title="撤销">
+                  <a-button :icon="h(CloseOutlined)" size="small" @click="delOrders(record)"></a-button>
+                </a-tooltip>
+              </template>
+            </template>
+          </a-table>
+        </div>
+      </a-tab-pane>
+    </a-tabs>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, watchEffect, nextTick, h, computed, onUnmounted } from 'vue';
+import { reactive, watchEffect, nextTick, h, ref, onUnmounted } from 'vue';
 import { cloneDeep, findKey } from 'lodash';
 import { CloseOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import moment from 'moment';
-import { openningOrders, marketOrdersAddClose, resOrders, pendingOrders, delPendingOrders } from 'api/order/index';
+
+import * as orders from 'api/order/index';
+import { allSymbolQuotes } from 'api/symbols/index';
+
+import * as orderTypes from '#/order';
 import { tableColumns } from './config';
+
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
 import { useChartSub } from '@/store/modules/chartSub';
 import { ORDER_TYPE } from '@/constants/common';
 import { round } from 'utils/common/index';
-import * as orderTypes from '#/order';
 
 const userStore = useUser();
 const orderStore = useOrder();
 const subStore = useChartSub();
+
+interface Menu {
+  label: string
+  key: orderTypes.TableDataKey
+}
 
 const state = reactive({
   menu: [
     { label: '持仓', key: 'position' },
     { label: '订单', key: 'order' },
     { label: '交易历史', key: 'transactionHistory' },
-  ],
-  menuActive: '',
+  ] as Menu[],
   columns: tableColumns,
   dataSource: {
     'position': [],
@@ -61,30 +73,7 @@ const state = reactive({
     'transactionHistory': []
   } as any
 });
-
-// 顶部菜单
-const segmentedOption = computed<string[]>(() => {
-  return state.menu.map(e => e.label);
-});
-
-state.menuActive = segmentedOption.value[0];
-
-// 当前顶部激活菜单
-const menuKey = computed(() => {
-  const currentMenu = state.menu.find((e: any) => e.label === state.menuActive);
-  const key = currentMenu!.key;
-  return key as orderTypes.TableDataKey;
-});
-
-// 表格列
-const columns = computed(() => {
-  return state.columns[menuKey.value];
-});
-
-// 表格数据
-const dataSource = computed(() => {
-  return state.dataSource[menuKey.value];
-});
+const activeKey = ref<orderTypes.TableDataKey>('position');
 
 // 获取交易方向
 const getType = (e: string | number) => {
@@ -99,12 +88,13 @@ const getType = (e: string | number) => {
   }
 };
 
+// 获取订单类型
 const getOrderType = (e: number) => {
   return findKey(ORDER_TYPE, (o) => o.buy === e || o.sell === e);
 };
 
 // 挂单价距离
-const getDistance = (e: resOrders) => {
+const getDistance = (e: orders.resOrders) => {
   const currentQuote = orderStore.currentQuotes[e.symbol];
   const type = getType(e.type);
   const result = type === 'buy' ? currentQuote.ask :  currentQuote.bid;
@@ -119,12 +109,12 @@ const formatTime = (timestamp: string) => {
 };
 
 // 获取现价
-const getNowPrice = (e: resOrders, index: number) => {
+const getNowPrice = (e: orders.resOrders, index: number) => {
   try {
     const currentQuote = orderStore.currentQuotes[e.symbol];
     const type = getType(e.type);
     const result = type === 'buy' ? currentQuote.ask :  currentQuote.bid;
-    orderStore.tableData[menuKey.value]![index].now_price = +result;
+    orderStore.tableData[activeKey.value]![index].now_price = +result;
     return result;
   } catch (error) {
     return '';
@@ -132,7 +122,7 @@ const getNowPrice = (e: resOrders, index: number) => {
 };
 
 // 获取盈亏
-const getProfit = (e: resOrders, index: number) => {
+const getProfit = (e: orders.resOrders, index: number) => {
   try {
     let result: string | number = '';
     const currentQuote = orderStore.currentQuotes[e.symbol];
@@ -156,7 +146,7 @@ const getProfit = (e: resOrders, index: number) => {
       result = direction + (storage || 0) + (fee || 0);
       result = result.toFixed(digits);
     }
-    orderStore.tableData[menuKey.value]![index].profit = +result;
+    orderStore.tableData[activeKey.value]![index].profit = +result;
     return result;
   } catch (error) {
     return '';
@@ -167,6 +157,7 @@ const getProfit = (e: resOrders, index: number) => {
 const getInfo = () => {
   getOrders();
   getPendingOrders();
+  getTradingHistory();
   userStore.getLoginInfo();
 };
 
@@ -176,26 +167,36 @@ watchEffect(async () => {
     getInfo();
     orderStore.refreshOrderArea = false;
   }
+  // 登录时后查找数据
   if (userStore.ifLogin) {
     await nextTick();
     getOrders();
     getPendingOrders();
+    getTradingHistory();
   }
 });
 
 // 查询持仓
 const getOrders = async () => {
-  const res = await openningOrders();
-  state.dataSource.position= res.data;
-  orderStore.tableData.position = cloneDeep(res.data);
+  const resOrders = await orders.openningOrders();
+  const resQuotes = await allSymbolQuotes();
+  resOrders.data.forEach(item => {
+    const foundQuote = resQuotes.data.find(e => e.symbol === item.symbol);
+    if (foundQuote) {
+      orderStore.currentQuotes[item.symbol] = foundQuote;
+    }
+  });
 
-  const symbols = res.data.map(e => e.symbol);
+  state.dataSource.position= resOrders.data;
+  orderStore.tableData.position = cloneDeep(resOrders.data);
+
+  const symbols = resOrders.data.map(e => e.symbol);
   subStore.setMustSubscribeList(symbols);
 };
 
 // 市价单平仓
-const orderClose = async (record: resOrders) => {
-  const res = await marketOrdersAddClose({
+const orderClose = async (record: orders.resOrders) => {
+  const res = await orders.marketOrdersAddClose({
     symbol: record.symbol,
     id: record.id,
     volume: record.volume
@@ -209,7 +210,7 @@ const orderClose = async (record: resOrders) => {
 
 // 查询挂单
 const getPendingOrders = async () => {
-  const res = await pendingOrders();
+  const res = await orders.pendingOrders();
   state.dataSource.order= res.data;
   orderStore.tableData.order = cloneDeep(res.data);
 
@@ -218,9 +219,8 @@ const getPendingOrders = async () => {
 };
 
 // 删除挂单
-const delOrders = async (record: resOrders) => {
-  console.log(record);
-  const res = await delPendingOrders({
+const delOrders = async (record: orders.resOrders) => {
+  const res = await orders.delPendingOrders({
     id: record.id,
     symbol: record.symbol
   });
@@ -231,6 +231,12 @@ const delOrders = async (record: resOrders) => {
   } else {
     message.error(res.data.err_text);
   }
+};
+
+// 查询交易历史
+const getTradingHistory = async () => {
+  const res = await orders.historyOrders({});
+  state.dataSource.transactionHistory= res.data;
 };
 
 onUnmounted(() => {
@@ -250,23 +256,41 @@ onUnmounted(() => {
   box-sizing: border-box;
   @include border_color('border');
   @include background_color('primary');
-  padding: 0 10px;
+  padding: 5px 10px 0 10px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  &::-webkit-scrollbar {
+    width: 5px; /*  设置纵轴（y轴）轴滚动条 */
+    height: 100%; /*  设置横轴（x轴）轴滚动条 */
+  }
+  // 滑块颜色
+  &::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    box-shadow: inset 0 0 5px #525252;
+    background: #525252;
+  }
+  // 滚动条背景色
+  &::-webkit-scrollbar-track {
+    border-radius: 0;
+    box-shadow: inset 0 0 5px #131722;
+    background: #131722;
+  }
 
   .container {
     width: 100%;
-    height: calc(100% - 30px - 10px);
     background-color: #525252;
     border-radius: 5px;
     padding: 5px;
     display: flex;
     box-sizing: border-box;
-    overflow-y: auto;
   }
 }
 
-:deep(.ant-segmented .ant-segmented-item-selected) {
-  background-color: #525252;
+:deep(.ant-tabs-tab .ant-tabs-tab-active) {
+  color: #d1d4dc;
+}
+:deep(.ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn) {
+  color: #d1d4dc;
 }
 </style>

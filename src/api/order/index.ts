@@ -140,15 +140,15 @@ export interface resPendingOrders {
 }
 
 interface reqHistoryOrders {
-  limit_id: number //	挂单ID < limit_id
+  limit_id?: number //	挂单ID < limit_id
   open_begin_time?: string //	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
   open_end_time?: string //	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
   close_begin_time?: string //	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
   close_end_time?: string //	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
-  count: number //	最大200
-  symbol: string //	品种
+  count?: number //	最大200
+  symbol?: string //	品种
 }
-interface resHistoryOrders {
+export interface resHistoryOrders {
   id: number //	订单ID
   login: number //	订单账户
   time_setup: number //	订单创建时间，即记录插入时间。挂单成交后 time_setup 与 open_time 不一样
@@ -241,7 +241,7 @@ export const pendingOrders = () => {
 }
 
 // 查询失效挂单/委托单
-export const historyPendingOrders = (data: reqHistoryPendingOrders) => {
+export const invalidPendingOrders = (data: reqHistoryPendingOrders) => {
   return request<resPendingOrders[]>({
     url: Api.HistoryPendingOrders,
     method: 'post',
