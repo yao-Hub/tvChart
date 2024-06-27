@@ -32,8 +32,6 @@ export const tableColumns = {
       key: 'profit',
       sorter: (a: resOrders, b: resOrders) => a.profit - b.profit
     },
-    { title: '过夜费', dataIndex: 'storage', key: 'storage' },
-    { title: '手续费', dataIndex: 'fee', key: 'fee' },
     { title: '操作', dataIndex: 'positionAction', key: 'positionAction' },
   ],
   'order': [
@@ -59,7 +57,7 @@ export const tableColumns = {
     { title: '订单类型', dataIndex: 'orderType', key: 'orderType'},
     { title: '当前数量', dataIndex: 'volume', key: 'volume' },
     { title: '触发价位', dataIndex: 'order_price', key: 'order_price' },
-    { title: '现价', dataIndex: 'now_price', key: 'now_price', width: 150 },
+    { title: '现价', dataIndex: 'now_price', key: 'now_price' },
     { title: '距离', dataIndex: 'distance', key: 'distance' },
     { title: '止盈', dataIndex: 'tp_price', key: 'tp_price' },
     { title: '止损', dataIndex: 'sl_price', key: 'sl_price' },
@@ -67,10 +65,9 @@ export const tableColumns = {
       title: '过期时间',
       dataIndex: 'time_expiration',
       key: 'time_expiration',
+      width: 200,
       sorter: (a: resPendingOrders, b: resPendingOrders) => a.time_setup - b.time_setup
     },
-    { title: '过夜费', dataIndex: 'storage', key: 'storage' },
-    { title: '手续费', dataIndex: 'fee', key: 'fee' },
     { title: '操作', dataIndex: 'orderAction', key: 'orderAction' },
   ],
   'transactionHistory': [
@@ -119,7 +116,5 @@ export const tableColumns = {
       key: 'profit',
       sorter: (a: resHistoryOrders, b: resHistoryOrders) => a.profit - b.profit
     },
-    { title: '过夜费', dataIndex: 'storage', key: 'storage' },
-    { title: '手续费', dataIndex: 'fee', key: 'fee' },
   ]
 }

@@ -132,7 +132,7 @@ const addOrders = async () => {
       message.success('下单成功');
       emit('success', true)
     } else {
-      message.error('下单失败');
+      message.error(`下单失败：${res.data.err_text}`);
     }
   } finally  {
     state.loading = false;

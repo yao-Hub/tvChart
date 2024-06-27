@@ -57,7 +57,7 @@ onUnmounted(() => {
 const dayTimeStamp = computed(() => {
   const daystr = dayjs(day.value).format(dateFormat);
   const timestr = dayjs(time.value).format(timeFormat);
-  const timeStamp = dayjs(`${daystr} ${timestr}`, `${dateFormat} ${timeFormat}`).valueOf();
+  const timeStamp = dayjs(`${daystr} ${timestr}`, `${dateFormat} ${timeFormat}`).unix();
   return timeStamp;
 });
 

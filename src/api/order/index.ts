@@ -29,6 +29,7 @@ interface ResOrderAdd {
   comment: string // 	订单评论备注
   id: string // 	成功时产生的订单ID
   action_success: boolean //	是否操作成功
+  err_text: string //	失败原因。需映射成国际化语言
 }
 
 export interface resOrders {
@@ -98,6 +99,7 @@ interface resPendingOrdersAdd {
   time_expiration: number //	过期时间，秒级
   id: string //	成功时产生的订单ID
   action_success: boolean //	是否操作成功
+  err_text: string //	失败原因。需映射成国际化语言
 }
 
 interface reqHistoryPendingOrders {
