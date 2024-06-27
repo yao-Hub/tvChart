@@ -1,34 +1,40 @@
 <template>
   <div class="orderArea">
     <a-tabs v-model:activeKey="activeKey" type="card">
-      <a-tab-pane v-for="item in state.menu" :key="item.key" :tab="item.label">
+      <a-tab-pane v-for="item in state.menu" :key="item.key" :tab="item.label" size="small">
         <div class="container">
-          <a-table style="flex: 1;" sticky :dataSource="state.dataSource[activeKey]" :columns="state.columns[item.key]" :pagination="false" size="small">
-            <template #bodyCell="{ record, column, index }">
-              <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
-              <template v-if="column.dataIndex === 'time_expiration'">{{ formatTime(record.time_expiration) }}</template>
-              <template v-if="column.dataIndex === 'time_done'">{{ formatTime(record.time_done) }}</template>
-              <template v-if="column.dataIndex === 'volume'">{{ record.volume / 100 }}手</template>
-              <template v-if="column.dataIndex === 'type'">{{ $t(`order.${getType(record.type)}`) }}</template>
-              <template v-if="column.dataIndex === 'orderType'">{{ $t(`order.type.${getOrderType(record.type)}`) }}</template>
-              <template v-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
-              <template v-if="column.dataIndex === 'profit' && activeKey !== 'transactionHistory'">{{ getProfit(record, index) }}</template>
-              <template v-if="column.dataIndex === 'distance'">{{ getDistance(record) }}</template>
-              <template v-if="column.dataIndex === 'positionAction'">
-                <a-tooltip title="平仓">
-                  <a-button :icon="h(CloseOutlined)" size="small" @click="orderClose(record)"></a-button>
-                </a-tooltip>
-              </template>
-              <template v-if="column.dataIndex === 'orderAction'">
-                <a-tooltip title="撤销">
-                  <a-button :icon="h(CloseOutlined)" size="small" @click="delOrders(record)"></a-button>
-                </a-tooltip>
-              </template>
+          <a-table sticky :dataSource="state.dataSource[activeKey]" :columns="state.columns[item.key]" :pagination="false" size="small">
+            <template #bodyCell="{ record, column, index, text }">
+              <div @dblclick="handleRowDoubleClick(record)">
+                <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
+                <template v-else-if="column.dataIndex === 'time_expiration'">{{ formatTime(record.time_expiration) }}</template>
+                <template v-else-if="column.dataIndex === 'time_done'">{{ formatTime(record.time_done) }}</template>
+                <template v-else-if="column.dataIndex === 'volume'">{{ record.volume / 100 }}手</template>
+                <template v-else-if="column.dataIndex === 'type'">{{ $t(`order.${getType(record.type)}`) }}</template>
+                <template v-else-if="column.dataIndex === 'orderType'">{{ $t(`order.type.${getOrderType(record.type)}`) }}</template>
+                <template v-else-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
+                <template v-else-if="column.dataIndex === 'profit' && activeKey !== 'transactionHistory'">{{ getProfit(record, index) }}</template>
+                <template v-else-if="column.dataIndex === 'distance'">{{ getDistance(record) }}</template>
+                <template v-else-if="column.dataIndex === 'positionAction'">
+                  <a-tooltip title="平仓">
+                    <a-button :icon="h(CloseOutlined)" size="small" @click="orderClose(record)"></a-button>
+                  </a-tooltip>
+                </template>
+                <template v-else-if="column.dataIndex === 'orderAction'">
+                  <a-tooltip title="撤销">
+                    <a-button :icon="h(CloseOutlined)" size="small" @click="delOrders(record)"></a-button>
+                  </a-tooltip>
+                </template>
+                <template v-else>
+                  {{ text }}
+                </template>
+              </div>
             </template>
           </a-table>
         </div>
       </a-tab-pane>
     </a-tabs>
+    <EditOrderDialog v-model:visible="state.closeDialogVisible" :orderInfo="state.orderInfo"></EditOrderDialog>
   </div>
 </template>
 
@@ -44,12 +50,14 @@ import { allSymbolQuotes } from 'api/symbols/index';
 
 import * as orderTypes from '#/order';
 import { tableColumns } from './config';
+import { ORDER_TYPE } from '@/constants/common';
+import { round } from 'utils/common/index';
 
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
 import { useChartSub } from '@/store/modules/chartSub';
-import { ORDER_TYPE } from '@/constants/common';
-import { round } from 'utils/common/index';
+
+import EditOrderDialog from '../orderDialog/edit.vue';
 
 const userStore = useUser();
 const orderStore = useOrder();
@@ -71,7 +79,9 @@ const state = reactive({
     'position': [],
     'order': [],
     'transactionHistory': []
-  } as any
+  } as any,
+  closeDialogVisible: false,
+  orderInfo: {} as orders.resOrders
 });
 const activeKey = ref<orderTypes.TableDataKey>('position');
 
@@ -196,7 +206,7 @@ const getOrders = async () => {
 
 // 市价单平仓
 const orderClose = async (record: orders.resOrders) => {
-  const res = await orders.marketOrdersAddClose({
+  const res = await orders.marketOrdersClose({
     symbol: record.symbol,
     id: record.id,
     volume: record.volume
@@ -238,6 +248,14 @@ const delOrders = async (record: orders.resOrders) => {
 const getTradingHistory = async () => {
   const res = await orders.historyOrders({});
   state.dataSource.transactionHistory= res.data;
+};
+
+const handleRowDoubleClick = (record: orders.resOrders) => {
+  if (activeKey.value !== 'position') {
+    return;
+  }
+  state.orderInfo = record;
+  state.closeDialogVisible = true;
 };
 
 onUnmounted(() => {

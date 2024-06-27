@@ -214,7 +214,7 @@ export const openningOrders = () => {
 }
 
 // 平仓
-export const marketOrdersAddClose = (data: reqMarketClose) => {
+export const marketOrdersClose = (data: reqMarketClose) => {
   return request<resMarketClose>({
     url: Api.MarketOrdersAddClose,
     method: 'post',

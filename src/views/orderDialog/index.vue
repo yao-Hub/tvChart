@@ -2,7 +2,7 @@
   <div>
     <a-modal
       :width="700"
-      v-model:open="open"
+      :open="open"
       :key="open"
       :title="title"
       @cancel="handleCancel"
@@ -57,10 +57,10 @@ import { allSymbolQuotes } from 'api/symbols/index';
 import { klineHistory } from 'api/kline/index'
 
 import Spin from '@/components/Spin.vue';
-import Limit from './components/Limit.vue';
-import Price from './components/Price.vue';
-import Stop from './components/Stop.vue';
-import StopLimit from './components/StopLimit.vue';
+import Limit from './components/orders/Limit.vue';
+import Price from './components/orders/Price.vue';
+import Stop from './components/orders/Stop.vue';
+import StopLimit from './components/orders/StopLimit.vue';
 
 import { OrderType } from '#/order';
 

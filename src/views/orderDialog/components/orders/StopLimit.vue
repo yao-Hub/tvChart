@@ -4,7 +4,7 @@
     <a-divider class="divider"></a-divider>
     <div class="center">
       <EntryPrice
-        orderType="limit"
+        orderType="stopLimit"
         :transactionType="state.type"
         :bid="props.bid"
         :ask="props.ask"
@@ -31,14 +31,13 @@
       @stopSurplus="setStopSurplus"
       @stopLossFail="state.disabledList.StopLoss = true"
       @stopSurplusFail="state.disabledList.StopSurplus = true"
-      orderType="limit"
+      orderType="stopLimit"
       :orderPrice="state.order_price"
       :transactionType="state.type"
       :bid="props.bid"
       :ask="props.ask"
       :currentSymbolInfo="props.currentSymbolInfo"
-      >
-    </LossProfit>
+    ></LossProfit>
     <BaseButton class="placeOrder" type="success" @click="addOrders" :loading="state.loading" :disabled="btnDisabled">下单</BaseButton>
   </div>
 </template>
@@ -50,18 +49,17 @@ import { values } from 'lodash';
 import { SessionSymbolInfo } from '#/chart/index';
 import { ORDER_TYPE } from '@/constants/common';
 import { bsType } from '#/order';
-
-import BuySell from './BuySell.vue';
-import Quantity from './Quantity.vue';
-import LossProfit from './LossProfit.vue';
-import EntryPrice from './EntryPrice.vue';
-import DueDate from './DueDate.vue';
+import BuySell from '../BuySell.vue';
+import Quantity from '../Quantity.vue';
+import LossProfit from '../LossProfit.vue';
+import EntryPrice from '../EntryPrice.vue';
+import DueDate from '../DueDate.vue';
 
 import { pendingOrdersAdd, reqPendingOrdersAdd } from 'api/order/index';
 
 interface Props {
-  currentSymbolInfo: SessionSymbolInfo
   selectedSymbol: string
+  currentSymbolInfo: SessionSymbolInfo
   ask: number
   bid: number
   high: number
@@ -145,9 +143,9 @@ const dueDate = (e: string | number) => {
 const addOrders = async () => {
   try {
     state.loading = true;
-    const updata: reqPendingOrdersAdd = {
+    const updata: reqPendingOrdersAdd= {
       symbol: props.selectedSymbol,
-      type: ORDER_TYPE.limit[state.type],
+      type: ORDER_TYPE.stopLimit[state.type],
       volume: +state.volume * 100,
       order_price: +state.order_price,
     };
