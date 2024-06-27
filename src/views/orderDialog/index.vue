@@ -57,10 +57,10 @@ import { allSymbolQuotes } from 'api/symbols/index';
 import { klineHistory } from 'api/kline/index'
 
 import Spin from '@/components/Spin.vue';
-import Limit from './Limit.vue';
-import Price from './Price.vue';
-import Stop from './Stop.vue';
-import StopLimit from './StopLimit.vue';
+import Limit from './components/Limit.vue';
+import Price from './components/Price.vue';
+import Stop from './components/Stop.vue';
+import StopLimit from './components/StopLimit.vue';
 
 import { OrderType } from '#/order';
 

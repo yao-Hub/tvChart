@@ -148,10 +148,11 @@ export const datafeed = () => {
       temResolution = resolution;
       temSymbol = symbolInfo.name;
       const bar: types.LineData[] = [];
+      const count = Math.ceil((periodParams.to - periodParams.from) / 60)
       const updata = {
         "period_type": types.Periods[resolution as keyof typeof types.Periods] || resolution,
         "symbol": symbolInfo.name,
-        "count": periodParams.countBack,
+        "count": count,
         "limit_ctm": periodParams.to
       };
       getCacheBars(updata).then((res: any) => {
