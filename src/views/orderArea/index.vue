@@ -204,6 +204,7 @@ const orderClose = async (record: orders.resOrders) => {
   if (res.data.action_success) {
     message.success('平仓成功');
     getOrders();
+    getTradingHistory();
     userStore.getLoginInfo();
   }
 }
