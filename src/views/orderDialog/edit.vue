@@ -59,6 +59,7 @@ const formState = reactive({
 const formRef = ref<FormInstance>();
 
 const handleCancel = () => {
+  formRef.value?.resetFields();
   emit('update:visible', false)
 };
 
