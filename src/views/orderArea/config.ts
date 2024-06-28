@@ -2,6 +2,7 @@ import { resOrders, resPendingOrders, resHistoryOrders } from 'api/order/index';
 
 export const tableColumns = {
   'position': [
+    { title: '订单id', dataIndex: 'id', key: 'id' },
     {
       title: '创建时间 (UTC+8)',
       dataIndex: 'time_setup',
@@ -35,6 +36,7 @@ export const tableColumns = {
     { title: '操作', dataIndex: 'positionAction', key: 'positionAction' },
   ],
   'order': [
+    { title: '订单id', dataIndex: 'id', key: 'id' },
     {
       title: '提交时间（UTC+8）',
       dataIndex: 'time_setup',
@@ -71,6 +73,7 @@ export const tableColumns = {
     { title: '操作', dataIndex: 'orderAction', key: 'orderAction' },
   ],
   'transactionHistory': [
+    { title: '订单id', dataIndex: 'id', key: 'id' },
     {
       title: '建仓时间（UTC+8）',
       dataIndex: 'time_setup',

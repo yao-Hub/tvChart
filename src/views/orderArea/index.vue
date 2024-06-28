@@ -1,7 +1,13 @@
 <template>
   <div class="orderArea">
     <a-tabs v-model:activeKey="activeKey" type="card">
-      <a-tab-pane v-for="item in state.menu" :key="item.key" :tab="item.label" size="small">
+      <a-tab-pane v-for="item in state.menu" :key="item.key" size="small">
+        <template #tab>
+          <span>
+            {{ item.label }}
+          </span>
+          <a-tag :color="state.dataSource[item.key].length ? '#009345' : '#7f7f7f'" style="margin-left: 3px; scale: 0.8;">{{ state.dataSource[item.key].length }}</a-tag>
+        </template>
         <div class="container">
           <a-table sticky :dataSource="state.dataSource[activeKey]" :columns="state.columns[item.key]" :pagination="false" size="small">
             <template #bodyCell="{ record, column, index, text }">
@@ -109,7 +115,7 @@ const getNowPrice = (e: orders.resOrders, index: number) => {
   try {
     const currentQuote = orderStore.currentQuotes[e.symbol];
     const type = getTradingDirection(e.type);
-    const result = type === 'buy' ? currentQuote.ask :  currentQuote.bid;
+    const result = type === 'buy' ? currentQuote.bid :  currentQuote.ask;
     orderStore.tableData[activeKey.value]![index].now_price = +result;
     return result;
   } catch (error) {
@@ -287,7 +293,6 @@ onUnmounted(() => {
     background-color: #525252;
     border-radius: 5px;
     padding: 5px;
-    display: flex;
     box-sizing: border-box;
   }
 }
