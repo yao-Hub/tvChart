@@ -213,27 +213,26 @@ const orderSucced = () => {
   display: flex;
   width: 100%;
   padding: 3px;
-}
-.left {
-  max-width: 129px !important;
-  min-width: 129px !important;
-}
-.right {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  padding: 10px;
-  .title {
-    font-size: 21px;
+  .left {
+    width: 129px;
   }
-  .symbolSelect {
-    width: 100%;
-    margin: 8px 0;
-  }
-  .loadingSpin {
+  .right {
     flex: 1;
-    position: relative;
-    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    .title {
+      font-size: 21px;
+    }
+    .symbolSelect {
+      width: 100%;
+      margin: 8px 0;
+    }
+    .loadingSpin {
+      flex: 1;
+      position: relative;
+      min-height: 300px;
+    }
   }
 }
 :deep(.ant-menu) {

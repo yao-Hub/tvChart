@@ -30,8 +30,10 @@ export const STOCKS_DIRECTION = {
   0: 'buy',
   1: 'sell'
 }
-
-export const ORDER_TYPE = {
+interface OrderType {
+  [value: string]: { buy: number; sell: number }
+}
+export const ORDER_TYPE: OrderType = {
   price: {
     buy: 0,
     sell: 1
@@ -48,4 +50,4 @@ export const ORDER_TYPE = {
     buy: 6,
     sell: 7
   },
-}
+} as const

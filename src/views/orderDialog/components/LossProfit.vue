@@ -1,24 +1,28 @@
 <template>
-  <div class="lossProfit">
-    <div>
-      <a-checkbox v-model:checked="state.stopLoss.disabled">止损</a-checkbox>
+  <div class="lossProfit" :style="{flexDirection: props.layout === 'Horizontal' ? 'row' : 'column'}">
+    <div :class="[props.inline ? 'inline' : '']">
+      <a-checkbox v-model:checked="state.stopLoss.disabled" v-if="props.titleType === 'checkbox'">止损</a-checkbox>
+      <span v-else>止损：</span>
       <div :class="[state.stopLoss.errmsg ? 'complete' : '']">
         <a-tooltip :title="state.stopLoss.errmsg" v-model:open="stopLossTooltipVisabled">
           <a-input
             v-model:value="state.stopLoss.value"
-            :disabled="!state.stopLoss.disabled">
+            :disabled="!state.stopLoss.disabled"
+            v-bind="props.inputOption">
           </a-input>
         </a-tooltip>
       </div>
     </div>
 
-    <div>
-      <a-checkbox v-model:checked="state.stopSurplus.disabled">止盈</a-checkbox>
+    <div :class="[props.inline ? 'inline' : '']">
+      <a-checkbox v-model:checked="state.stopSurplus.disabled" v-if="props.titleType === 'checkbox'">止盈</a-checkbox>
+      <span v-else>止盈：</span>
       <div :class="[state.stopSurplus.errmsg ? 'complete' : '']">
         <a-tooltip :title="state.stopSurplus.errmsg" v-model:open="stopSurplusTooltipVisabled">
           <a-input
             v-model:value="state.stopSurplus.value"
-            :disabled="!state.stopSurplus.disabled">
+            :disabled="!state.stopSurplus.disabled"
+            v-bind="props.inputOption">
           </a-input>
         </a-tooltip>
       </div>
@@ -28,34 +32,41 @@
 
 <script setup lang="ts">
 import { ref, reactive, watch, watchEffect } from 'vue';
-import { SessionSymbolInfo } from '@/types/chart/index';
+import { SessionSymbolInfo, OrderType } from '@/types/chart/index';
 import { useOrder } from '@/store/modules/order';
 const orderStore = useOrder();
 
 interface Props {
+  titleType?: 'checkbox' | 'text'
+  layout?: 'Horizontal' | 'vertical'
+  inline?: boolean
   currentSymbolInfo?: SessionSymbolInfo
   transactionType: 'sell' | 'buy' // 交易类型：买入卖出
-  orderType: 'limit' | 'stopLimit' | 'stop' | 'price'
+  orderType: OrderType
   bid: number
   ask: number
   orderPrice?: string | number
+  inputOption?: Object
 }
 
 const props = withDefaults(defineProps<Props>(), {
   bid: 0,
   ask: 0,
+  layout: 'Horizontal',
+  titleType: 'checkbox',
+  inline: false
 });
 
 const emit = defineEmits([ 'stopLoss', 'stopSurplus', 'stopLossFail', 'stopSurplusFail' ]);
 
 const state = reactive({
   stopLoss: {
-    disabled: false,
+    disabled: props.titleType !== 'checkbox',
     value: '',
     errmsg: '',
   },
   stopSurplus: {
-    disabled: false,
+    disabled: props.titleType !== 'checkbox',
     value: '',
     errmsg: '',
   },
@@ -168,6 +179,11 @@ const checkStopSurplus =() => {
   display: flex;
   justify-content: space-between;
   width: 100%;
+  .inline {
+    display: flex;
+    gap: 5px;
+    margin: 5px 0;
+  }
   .complete {
     position: relative;
   }

@@ -14,6 +14,8 @@ interface CustomAxiosRequestConfig extends AxiosRequestConfig<any> {
 const baseURL = import.meta.env.MODE === 'development' ? import.meta.env.VITE_HTTP_BASE_URL : import.meta.env.VITE_HTTP_URL;
 console.log(import.meta.env.MODE, baseURL)
 
+let ifTokenError = false;
+
 const service = axios.create({
   baseURL,
   timeout: 30 * 1000,
@@ -52,8 +54,9 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
-    const { data } = response
+    const { data } = response;
     if (data.err === 0) {
+      ifTokenError = false;
       data.data = JSON.parse(decrypt(data.data));
       console.log('response Data', { url: response.config.url, data })
       return response;
@@ -65,8 +68,11 @@ service.interceptors.response.use(
       userStore.clearToken();
       userStore.loginInfo = null;
       
-      dialogStroe.showLoginDialog();
-      message['error']('登录过期，请重新登录');
+      if (!ifTokenError) {
+        dialogStroe.showLoginDialog();
+        message['error']('登录过期，请重新登录');
+      }
+      ifTokenError = true;
       return Promise.reject(data)
     }
     notification['error']({

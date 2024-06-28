@@ -98,3 +98,5 @@ export enum Type {
   forex = '外汇',
   index = '指数'
 }
+
+export type OrderType = 'limit' | 'stopLimit' | 'stop' | 'price'

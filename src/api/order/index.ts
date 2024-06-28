@@ -8,7 +8,8 @@ enum Api {
   PendingOrders = 'login/get_pending_orders',
   HistoryPendingOrders = 'login/get_history_pending_orders',
   HistoryOrders = 'login/get_history_orders',
-  DelPendingOrders = 'login/delete_pending_orders'
+  DelPendingOrders = 'login/delete_pending_orders',
+  EditPendingOrders = 'login/modify_openning_orders'
 }
 
 export interface ReqOrderAdd {
@@ -75,6 +76,7 @@ interface resMarketClose {
   id: number //	订单ID
   volume: number //	手数
   action_success: boolean	// 是否操作成功
+  err_text: string
 }
 
 export interface reqPendingOrdersAdd {
@@ -194,6 +196,21 @@ interface resDelPendingOrders {
   action_success: boolean //	是否操作成功
   err_text: string //	失败原因。需映射成国际化语言
 }
+export interface reqEditOpeningOrders {
+  symbol: string //	品种
+  id: number //	订单ID
+  sl?: number //	止损价
+  tp?: number //	止盈价
+}
+interface resEditOpeningOrders {
+  login: number //	订单账户
+  symbol: string //	品种
+  id: number //	订单ID
+  sl: number //	最新止损价
+  tp: number //	最新止盈价
+  action_success: boolean // 是否操作成功
+  err_text: string
+}
 // 市价建单
 export const marketOrdersAdd = (data: ReqOrderAdd) => {
   return request<ResOrderAdd>({
@@ -209,6 +226,16 @@ export const openningOrders = () => {
   return request<resOrders[]>({
     url: Api.OpenningOrders,
     method: 'post',
+    needToken: true
+  })
+}
+
+// 更新持仓
+export const editopenningOrders = (data: reqEditOpeningOrders) => {
+  return request<resEditOpeningOrders>({
+    url: Api.EditPendingOrders,
+    method: 'post',
+    data,
     needToken: true
   })
 }

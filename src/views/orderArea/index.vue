@@ -10,7 +10,7 @@
                 <template v-else-if="column.dataIndex === 'time_expiration'">{{ formatTime(record.time_expiration) }}</template>
                 <template v-else-if="column.dataIndex === 'time_done'">{{ formatTime(record.time_done) }}</template>
                 <template v-else-if="column.dataIndex === 'volume'">{{ record.volume / 100 }}手</template>
-                <template v-else-if="column.dataIndex === 'type'">{{ $t(`order.${getType(record.type)}`) }}</template>
+                <template v-else-if="column.dataIndex === 'type'">{{ $t(`order.${getTradingDirection(record.type)}`) }}</template>
                 <template v-else-if="column.dataIndex === 'orderType'">{{ $t(`order.type.${getOrderType(record.type)}`) }}</template>
                 <template v-else-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
                 <template v-else-if="column.dataIndex === 'profit' && activeKey !== 'transactionHistory'">{{ getProfit(record, index) }}</template>
@@ -34,13 +34,17 @@
         </div>
       </a-tab-pane>
     </a-tabs>
-    <EditOrderDialog v-model:visible="state.closeDialogVisible" :orderInfo="state.orderInfo"></EditOrderDialog>
+    <EditOrderDialog
+      v-model:visible="state.closeDialogVisible"
+      :orderInfo="state.orderInfo"
+      :quote = orderStore.currentQuotes[state.orderInfo.symbol]>
+    </EditOrderDialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, watchEffect, nextTick, h, ref, onUnmounted } from 'vue';
-import { cloneDeep, findKey } from 'lodash';
+import { cloneDeep } from 'lodash';
 import { CloseOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import moment from 'moment';
@@ -50,8 +54,8 @@ import { allSymbolQuotes } from 'api/symbols/index';
 
 import * as orderTypes from '#/order';
 import { tableColumns } from './config';
-import { ORDER_TYPE } from '@/constants/common';
 import { round } from 'utils/common/index';
+import { getTradingDirection, getOrderType } from 'utils/order/index';
 
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
@@ -85,28 +89,10 @@ const state = reactive({
 });
 const activeKey = ref<orderTypes.TableDataKey>('position');
 
-// 获取交易方向
-const getType = (e: string | number) => {
-  for (let type in ORDER_TYPE) {
-    // @ts-ignore
-    for (let action in ORDER_TYPE[type]) {
-      // @ts-ignore
-      if (ORDER_TYPE[type][action] === +e) {
-        return action;
-      }
-    }
-  }
-};
-
-// 获取订单类型
-const getOrderType = (e: number) => {
-  return findKey(ORDER_TYPE, (o) => o.buy === e || o.sell === e);
-};
-
 // 挂单价距离
 const getDistance = (e: orders.resOrders) => {
   const currentQuote = orderStore.currentQuotes[e.symbol];
-  const type = getType(e.type);
+  const type = getTradingDirection(e.type);
   const result = type === 'buy' ? currentQuote.ask :  currentQuote.bid;
   const entryPrice = +e.order_price;
   return round(Math.abs(result - entryPrice), 2);
@@ -122,7 +108,7 @@ const formatTime = (timestamp: string) => {
 const getNowPrice = (e: orders.resOrders, index: number) => {
   try {
     const currentQuote = orderStore.currentQuotes[e.symbol];
-    const type = getType(e.type);
+    const type = getTradingDirection(e.type);
     const result = type === 'buy' ? currentQuote.ask :  currentQuote.bid;
     orderStore.tableData[activeKey.value]![index].now_price = +result;
     return result;
@@ -139,7 +125,7 @@ const getProfit = (e: orders.resOrders, index: number) => {
     const currentBuy = currentQuote.ask;
     const currentSell = currentQuote.bid;
     const openPrice = e.open_price;;
-    const type = getType(e.type);
+    const type = getTradingDirection(e.type);
     const closePrice = type === 'buy' ? currentBuy : currentSell;
     const volume = e.volume;
     const symbols = subStore.symbols;
