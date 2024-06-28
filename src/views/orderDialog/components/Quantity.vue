@@ -72,7 +72,7 @@ const Margin = computed(() => {
     } else {
       result = margin * (+state.num);
     }
-    return round(result, symbol.digits);
+    return round(result, 2);
   }
 });
 
@@ -121,16 +121,10 @@ const step = computed(() => {
 });
 
 const addNum = () => {
-  if (props.currentSymbolInfo) {
-    const digits = props.currentSymbolInfo.digits;
-    state.num = String(round(+state.num + step.value, digits));
-  }
+  state.num = String(round(+state.num + step.value, 2));
 };
 const reduceNum = () => {
-  if (props.currentSymbolInfo) {
-    const digits = props.currentSymbolInfo.digits;
-    state.num = String(round(+state.num - step.value, digits));
-  }
+  state.num = String(round(+state.num - step.value, 2));
 };
 
 </script>
@@ -153,6 +147,10 @@ const reduceNum = () => {
       margin-right: 5px;
       box-sizing: content-box;
       border-radius: 5px;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
       & span {
         color: #7f7f7f;
       }

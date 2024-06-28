@@ -49,7 +49,7 @@ const digits = computed(() => {
 });
 
 const stopsLevel = computed(() => {
-  return props.currentSymbolInfo?.stops_level || 0;
+  return props.currentSymbolInfo?.stops_level || 1;
 });
 
 const getLeed = () => {
@@ -57,8 +57,8 @@ const getLeed = () => {
   const result_1 = price - 1 / Math.pow(10, +digits.value) * +stopsLevel.value;
   const result_2 = price + 1 / Math.pow(10, +digits.value) * +stopsLevel.value;
   return {
-    result_1: round(result_1, digits.value),
-    result_2: round(result_2, digits.value)
+    result_1: round(result_1, 2),
+    result_2: round(result_2, 2)
   };
 };
 
@@ -114,15 +114,15 @@ const validate = () => {
 const distance = computed(() => {
   const price = props.transactionType === 'buy' ? props.ask : props.bid;
   const entryPrice = +state.price;
-  return round(Math.abs(price - entryPrice), digits.value);
+  return round(Math.abs(price - entryPrice), 2);
 });
 
 const addPrice = () => {
-  state.price = round(+state.price + 0.01, digits.value);
+  state.price = round(+state.price + 0.01, +digits.value);
 };
 
 const reducePrice = () => {
-  state.price = round(+state.price - 0.01, digits.value);
+  state.price = round(+state.price - 0.01, +digits.value);
 };
 
 const emit = defineEmits([ 'entryPrice', 'entryPriceFail' ]);
@@ -152,7 +152,10 @@ watch(
     .afterBtns {
       display: flex;
       flex-direction: column;
-
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
       & span {
         color: #7f7f7f;
       }
