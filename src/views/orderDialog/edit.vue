@@ -160,7 +160,7 @@ const handelOk = async () => {
     }
   }
   if (state.selectedKeys[0] === 'modifyStop') {
-    if (!state.validList.sl || !state.validList.tp) {
+    if (!state.validList.sl || !state.validList.tp || (tp === '' && sl === '')) {
       return;
     }
     const updata:reqEditOpeningOrders = { symbol, id };
