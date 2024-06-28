@@ -26,7 +26,14 @@
             </a-form-item>
           </template>
           <template v-if="state.selectedKeys[0] === 'modifyStop'">
+            <a-form-item label="当前止损">
+              <span>{{ props.orderInfo.sl_price }}</span>
+            </a-form-item>
+            <a-form-item label="当前止盈">
+              <span>{{ props.orderInfo.tp_price }}</span>
+            </a-form-item>
             <LossProfit
+              :key="+props.visible"
               :inputOption="{
                 size: 'small'
               }"
