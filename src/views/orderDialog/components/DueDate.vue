@@ -65,7 +65,7 @@ const duration = computed(() => {
   if (!state.checked) {
     return '';
   }
-  const distanceFromNow = dayjs(dayTimeStamp.value).fromNow();
+  const distanceFromNow = dayjs.unix(dayTimeStamp.value).fromNow();
   if (distanceFromNow.includes('ago') || distanceFromNow.includes('前')) {
     emit('dueDateFail');
     return '过期';
