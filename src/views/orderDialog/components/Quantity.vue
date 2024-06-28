@@ -2,27 +2,30 @@
   <div class="Quantity">
     <span>数量</span>
     <div class="container">
-      <a-tooltip :title="state.errorMessage" :class="[state.ifError ? 'complete' : '']" style="flex: 1;">
-        <a-auto-complete
-          style="width: 100%; margin-right: 5px;"
-          v-model:value="state.num"
-          :options="state.numDataSource"
-        >
-          <template #option="item">
-            {{ item.value }} 手
-          </template>
-        </a-auto-complete>
-      </a-tooltip>
+      <a-auto-complete
+        style="flex: 5.5;"
+        v-model:value="state.num"
+        :options="state.numDataSource"
+      >
+        <template #option="item">
+          {{ item.value }} 手
+        </template>
+      </a-auto-complete>
+      <div class="step">
+        <CaretUpFilled @click="addNum" />
+        <CaretDownFilled @click="reduceNum" />
+      </div>
       <span>手</span>
     </div>
-    <span>{{ typeOption[props.type] }}保证金：~{{ Margin  }}</span>
+    <span>{{ typeOption[props.type] }}保证金：~{{ Margin }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
 import { reactive, computed, watch } from 'vue';
 import { SessionSymbolInfo } from '#/chart/index';
-import { getDecimalPlaces, round } from 'utils/common/index';
+import { round } from 'utils/common/index';
+import { CaretUpFilled, CaretDownFilled } from '@ant-design/icons-vue';
 
 interface Props {
   type: 'buy' | 'sell'
@@ -81,8 +84,6 @@ const state = reactive({
     { value: '0.01'},
     { value: '0.05'},
   ],
-  ifError: false,
-  errorMessage: ''
 });
 
 // 数量自动填充列表
@@ -104,7 +105,6 @@ const setNumDataSource = () => {
 };
 setNumDataSource();
 
-// state.num
 watch(() => [state.num, props.currentSymbolInfo], () => {
   const num = state.num;
   if (+num < +minVolume.value) {
@@ -113,22 +113,25 @@ watch(() => [state.num, props.currentSymbolInfo], () => {
   if (+num > +maxVolume.value) {
     state.num = maxVolume.value;
   }
-  // 必须为volume_step的倍数
-  if (props.currentSymbolInfo && props.currentSymbolInfo.volume_step > 0) {
-    const step = props.currentSymbolInfo.volume_step;
-    const places = getDecimalPlaces(+state.num);
-    const num = places > 0 ? +state.num * Math.pow(10, places) : +state.num;
-    if (num % step !== 0) {
-      state.ifError = true;
-      state.errorMessage = `需为${step}的倍数`;
-      emit('quantityFail');
-      return;
-    }
-  }
-  state.ifError = false;
-  state.errorMessage = '';
   emit('quantity', state.num);
 }, { immediate: true });
+
+const step = computed(() => {
+  return props.currentSymbolInfo ? props.currentSymbolInfo.volume_step : 1;
+});
+
+const addNum = () => {
+  if (props.currentSymbolInfo) {
+    const digits = props.currentSymbolInfo.digits;
+    state.num = String(round(+state.num + step.value, digits));
+  }
+};
+const reduceNum = () => {
+  if (props.currentSymbolInfo) {
+    const digits = props.currentSymbolInfo.digits;
+    state.num = String(round(+state.num - step.value, digits));
+  }
+};
 
 </script>
 
@@ -141,19 +144,21 @@ watch(() => [state.num, props.currentSymbolInfo], () => {
     display: flex;
     flex: 1;
     align-items: center;
-    .complete {
-      position: relative;
-    }
-    .complete::before {
-      content: '';
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: #9f4747;
-      z-index: 9;
+    .step {
+      display: flex;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      background-color: #595959;
+      margin-right: 5px;
+      box-sizing: content-box;
       border-radius: 5px;
-      opacity: 0.6;
-      pointer-events: none;
+      & span {
+        color: #7f7f7f;
+      }
+      & span:hover {
+        color: #fff;
+      }
     }
   }
 }
