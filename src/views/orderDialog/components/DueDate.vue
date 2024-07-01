@@ -2,19 +2,19 @@
   <div class="dueDate">
     <div style="display: flex;">
       <a-checkbox v-model:checked="state.checked">到期日</a-checkbox>
-      <div :class="[state.ifError ? 'complete' : '']">
-        <a-tooltip :title="state.ifError ? '请选择正确日期' : ''" v-model:open="state.toopTipOpen">
+      <div :class="[ifError ? 'complete' : '']">
+        <a-tooltip :title="ifError ? '请选择正确日期' : ''" v-model:open="ifError">
           <a-date-picker size="small" :allowClear="false" v-model:value="day" :disabled="!state.checked" :format="dateFormat" :disabled-date="disabledDate"/>
         </a-tooltip>
       </div>
       <a-time-picker v-model:value="time" :allowClear="false" :format="timeFormat" :showNow="false" size="small" :disabled="!state.checked"/>
     </div>
-    <span v-show="state.checked">持续时间：{{ duration }}</span>
+    <span v-show="state.checked">持续时间：{{ state.duration }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed, onMounted, onUnmounted, watchEffect } from 'vue';
+import { reactive, ref, computed, onMounted, onUnmounted } from 'vue';
 import dayjs, { Dayjs } from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -24,8 +24,7 @@ const timeFormat = 'HH:mm';
 
 const state = reactive({
   checked: false,
-  toopTipOpen: false,
-  ifError: false,
+  duration: ''
 });
 
 const emit = defineEmits([ 'dueDate', 'dueDateFail' ]);
@@ -45,14 +44,15 @@ onMounted(() => {
     if (!state.checked) {
       time.value = dayjs().add(12, 'minute');
       day.value = dayjs();
-      emit('dueDate', dayTimeStamp.value);
     }
+    getDuration();
   }, 1000);
 });
 
 onUnmounted(() => {
   clearInterval(timer);
 });
+
 
 const dayTimeStamp = computed(() => {
   const daystr = dayjs(day.value).format(dateFormat);
@@ -61,25 +61,18 @@ const dayTimeStamp = computed(() => {
   return timeStamp;
 });
 
-const duration = computed(() => {
-  if (!state.checked) {
-    return '';
-  }
+const getDuration = () => {
   const distanceFromNow = dayjs.unix(dayTimeStamp.value).fromNow();
   if (distanceFromNow.includes('ago') || distanceFromNow.includes('前')) {
     emit('dueDateFail');
-    return '过期';
+    state.duration = '过期';
+    return;
   }
+  state.duration = distanceFromNow;
   emit('dueDate', dayTimeStamp.value);
-  return distanceFromNow;
-});
+}
 
-watchEffect(
-  () => {
-    state.ifError = duration.value === '过期';
-    state.toopTipOpen = duration.value === '过期';
-  },
-);
+const ifError = computed(() => state.duration === '过期');
 
 </script>
 
