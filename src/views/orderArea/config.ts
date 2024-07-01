@@ -60,7 +60,8 @@ export const tableColumns = {
     },
     { title: '订单类型', dataIndex: 'orderType', key: 'orderType'},
     { title: '当前数量', dataIndex: 'volume', key: 'volume' },
-    { title: '触发价位', dataIndex: 'order_price', key: 'order_price' },
+    { title: '挂单价位', dataIndex: 'order_price', key: 'order_price' },
+    { title: '限制价位', dataIndex: 'trigger_price', key: 'trigger_price' },
     { title: '现价', dataIndex: 'now_price', key: 'now_price' },
     { title: '距离', dataIndex: 'distance', key: 'distance' },
     { title: '止盈', dataIndex: 'tp_price', key: 'tp_price' },
@@ -97,7 +98,10 @@ export const tableColumns = {
     },
     { title: '订单类型', dataIndex: 'orderType', key: 'orderType'},
     { title: '数量', dataIndex: 'volume', key: 'volume' },
-    { title: '触发价位', dataIndex: 'order_price', key: 'order_price' },
+    { title: '挂单价位', dataIndex: 'order_price', key: 'order_price' },
+    { title: '限制价位', dataIndex: 'trigger_price', key: 'trigger_price' },
+    { title: '止盈', dataIndex: 'tp_price', key: 'tp_price' },
+    { title: '止损', dataIndex: 'sl_price', key: 'sl_price' },
     {
       title: '过期时间',
       dataIndex: 'time_expiration',
@@ -108,6 +112,9 @@ export const tableColumns = {
   ],
   transactionHistory: [
     { title: '订单id', dataIndex: 'id', key: 'id' },
+    { title: '订单来源id', dataIndex: 'from_id', key: 'from_id' },
+    { title: '最初的建仓订单', dataIndex: 'position_id', key: 'position_id', width: 120 },
+    { title: '平仓类型', dataIndex: 'close_type', key: 'close_type' },
     {
       title: '建仓时间（UTC+8）',
       dataIndex: 'time_setup',
@@ -147,11 +154,16 @@ export const tableColumns = {
       sorter: (a: resHistoryOrders, b: resHistoryOrders) => a.close_price - b.close_price
     },
     { title: '数量', dataIndex: 'volume', key: 'volume' },
+    { title: '止盈', dataIndex: 'tp_price', key: 'tp_price' },
+    { title: '止损', dataIndex: 'sl_price', key: 'sl_price' },
     {
       title: '盈亏',
       dataIndex: 'profit',
       key: 'profit',
       sorter: (a: resHistoryOrders, b: resHistoryOrders) => a.profit - b.profit
     },
+    { title: '过夜费', dataIndex: 'storage', key: 'storage' },
+    { title: '手续费', dataIndex: 'fee', key: 'fee' },
+    { title: '备注', dataIndex: 'comment', key: 'comment' },
   ]
 }

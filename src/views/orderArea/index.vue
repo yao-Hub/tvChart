@@ -9,7 +9,11 @@
           <a-tag :color="state.dataSource[item.key].length ? '#009345' : '#7f7f7f'" style="margin-left: 3px; scale: 0.8;">{{ state.dataSource[item.key].length }}</a-tag>
         </template>
         <div class="container">
-          <a-table sticky :dataSource="state.dataSource[activeKey]" :columns="state.columns[item.key]" :pagination="false" size="small">
+          <div style="display: flex; gap: 10px;" v-show="activeKey === 'transactionHistory'">
+            <TimeSelect @timeRange="setOpenTime">建仓时间：</TimeSelect>
+            <TimeSelect @timeRange="setCloseTime">平仓时间：</TimeSelect>
+          </div>
+          <a-table sticky :dataSource="state.dataSource[activeKey]" :columns="state.columns[item.key]" :pagination="false" size="small" :scroll="{ x: 1000 }">
             <template #bodyCell="{ record, column, index, text }">
               <div @dblclick="handleRowDoubleClick(record)">
                 <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
@@ -21,6 +25,7 @@
                 <template v-else-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
                 <template v-else-if="column.dataIndex === 'profit' && activeKey === 'position'">{{ getProfit(record, index) }}</template>
                 <template v-else-if="column.dataIndex === 'distance'">{{ getDistance(record) }}</template>
+                <template v-else-if="column.dataIndex === 'close_type'">{{ getCloseType(record) }}</template>
                 <template v-else-if="column.dataIndex === 'positionAction'">
                   <a-tooltip title="平仓">
                     <a-button :icon="h(CloseOutlined)" size="small" @click="orderClose(record)"></a-button>
@@ -50,7 +55,7 @@
 
 <script setup lang="ts">
 import { reactive, watchEffect, nextTick, h, ref, onUnmounted } from 'vue';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, debounce } from 'lodash';
 import { CloseOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import moment from 'moment';
@@ -62,12 +67,14 @@ import * as orderTypes from '#/order';
 import { tableColumns } from './config';
 import { round } from 'utils/common/index';
 import { getTradingDirection, getOrderType } from 'utils/order/index';
+import { CLOSE_TYPE } from '@/constants/common'; 
 
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
 import { useChartSub } from '@/store/modules/chartSub';
 
 import EditOrderDialog from '../orderDialog/edit.vue';
+import TimeSelect from './components/TimeSelect.vue';
 
 const userStore = useUser();
 const orderStore = useOrder();
@@ -81,8 +88,8 @@ interface Menu {
 const state = reactive({
   menu: [
     { label: '持仓', key: 'position' },
-    { label: '订单', key: 'order' },
-    { label: '订单历史', key: 'orderHistory'},
+    { label: '挂单', key: 'order' },
+    { label: '失效挂单', key: 'orderHistory'},
     { label: '交易历史', key: 'transactionHistory' },
   ] as Menu[],
   columns: tableColumns,
@@ -93,8 +100,13 @@ const state = reactive({
     'transactionHistory': []
   } as any,
   closeDialogVisible: false,
-  orderInfo: {} as orders.resOrders
+  orderInfo: {} as orders.resOrders,
+  open_begin_time: '',
+  open_end_time: '',
+  close_begin_time: '',
+  close_end_time: '',
 });
+
 const activeKey = ref<orderTypes.TableDataKey>('position');
 
 // 挂单价距离
@@ -104,6 +116,14 @@ const getDistance = (e: orders.resOrders) => {
   const result = type === 'buy' ? currentQuote.ask :  currentQuote.bid;
   const entryPrice = +e.order_price;
   return round(Math.abs(result - entryPrice), 2);
+};
+
+// 平仓类型
+const getCloseType = (e: orders.resHistoryOrders) => {
+  const { close_type } = e;
+  if (close_type !== undefined) {
+    return CLOSE_TYPE[close_type];
+  }
 };
 
 // 格式化表格时间字段
@@ -157,16 +177,29 @@ const getProfit = (e: orders.resOrders, index: number) => {
   }
 };
 
+const setOpenTime = (time: [string, string]) => {
+  const [startDay, endDay] = time;
+  state.open_begin_time = startDay;
+  state.open_end_time = endDay;
+  debouncedGetTradingHistory();
+};
+const setCloseTime = (time: [string, string]) => {
+  const [startDay, endDay] = time;
+  state.close_begin_time = startDay;
+  state.close_end_time = endDay;
+  debouncedGetTradingHistory();
+};
+
 // 查找表格数据
 const getInfo = () => {
   getOrders();
   getPendingOrders();
-  getTradingHistory();
+  debouncedGetTradingHistory();
   getOrderHistory();
   userStore.getLoginInfo();
 };
 
-// 下单时触发
+// 下单时和登录时触发
 watchEffect(async () => {
   if (orderStore.refreshOrderArea) {
     getInfo();
@@ -243,9 +276,18 @@ const delOrders = async (record: orders.resOrders) => {
 
 // 查询交易历史
 const getTradingHistory = async () => {
-  const res = await orders.historyOrders({});
+  console.log(111111)
+  const { open_begin_time, open_end_time, close_begin_time, close_end_time } = state;
+  const res = await orders.historyOrders({
+    open_begin_time,
+    open_end_time,
+    close_begin_time,
+    close_end_time
+  });
   state.dataSource.transactionHistory= res.data;
 };
+
+const debouncedGetTradingHistory = debounce(getTradingHistory, 500);
 
 // 双击行
 const handleRowDoubleClick = (record: orders.resOrders) => {
@@ -294,11 +336,13 @@ onUnmounted(() => {
   }
 
   .container {
-    width: 100%;
+    display: flex;
+    flex-direction: column;
     background-color: #525252;
     border-radius: 5px;
     padding: 5px;
     box-sizing: border-box;
+    gap: 5px;
   }
 }
 

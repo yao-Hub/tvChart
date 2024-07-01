@@ -20,6 +20,10 @@
       <span>保证金水平：</span>
       <span>{{ margin_level }}</span>
     </div>
+    <div class="item">
+      <span>账户总盈亏：</span>
+      <span>{{ profit }}</span>
+    </div>
   </div>
 </template>
 
@@ -96,6 +100,23 @@ const margin_level = computed(() => {
   }
   return '-';
 });
+
+// 总盈亏
+const profit =  computed(() => {
+  try {
+    if (!loginInfo.value) {
+      return '-';
+    }
+    const currentPosition = orderStore.tableData.position;
+    const sum = currentPosition?.reduce((accumulator, currentValue) => {
+      return accumulator + currentValue.profit;
+    }, 0);
+    return round(sum || 0, 2);
+  } catch (error) {
+    return '-';
+  }
+});
+
 </script>
 
 <style lang="scss" scoped>

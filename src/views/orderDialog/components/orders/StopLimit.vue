@@ -4,23 +4,36 @@
     <a-divider class="divider"></a-divider>
     <div class="center">
       <EntryPrice
-        orderType="stopLimit"
+        title="突破价位"
+        orderType="breakthroughPrice"
         :transactionType="state.type"
         :bid="props.bid"
         :ask="props.ask"
         :currentSymbolInfo="props.currentSymbolInfo"
-        @entryPrice="entryPrice"
-        @entryPriceFail="state.disabledList.EntryPrice = true">
+        @entryPrice="(e) => entryPrice(e, 'breakthroughPrice')"
+        @entryPriceFail="state.disabledList.breakthroughPrice = true">
       </EntryPrice>
-      <Quantity
-        :type="state.type"
-        @quantity="quantity"
-        @quantity-fail="state.disabledList.Quantity = true"
-        :openPrice="openPrice"
+
+      <EntryPrice
+        title="限价价位"
+        orderType="limitedPrice"
+        :transactionType="state.type"
+        :bid="props.bid"
+        :ask="props.ask"
         :currentSymbolInfo="props.currentSymbolInfo"
-      >
-      </Quantity>
+        @entryPrice="(e) => entryPrice(e, 'limitedPrice')"
+        @entryPriceFail="state.disabledList.limitedPrice = true">
+      </EntryPrice>
     </div>
+    <a-divider class="divider"></a-divider>
+    <Quantity
+      :type="state.type"
+      @quantity="quantity"
+      @quantity-fail="state.disabledList.Quantity = true"
+      :openPrice="openPrice"
+      :currentSymbolInfo="props.currentSymbolInfo"
+    >
+    </Quantity>
     <DueDate
       @dueDateFail="state.disabledList.DueDate = true"
       @dueDate="dueDate">
@@ -32,7 +45,7 @@
       @stopLossFail="state.disabledList.StopLoss = true"
       @stopSurplusFail="state.disabledList.StopSurplus = true"
       orderType="stopLimit"
-      :orderPrice="state.order_price"
+      :orderPrice="state.limitedPrice"
       :transactionType="state.type"
       :bid="props.bid"
       :ask="props.ask"
@@ -72,7 +85,8 @@ interface State {
   sl: string
   tp: string
   loading: boolean
-  order_price: string
+  breakthroughPrice: string
+  limitedPrice: string
   disabledList: Record<string, boolean>
   dueDate: number | string
 }
@@ -83,10 +97,12 @@ const state: State = reactive({
   sl: '',
   tp: '',
   loading: false,
-  order_price: '',
+  breakthroughPrice: '',
+  limitedPrice: '',
   dueDate: '',
   disabledList: {
-    EntryPrice: false,
+    breakthroughPrice: false,
+    limitedPrice: false,
     Quantity: false,
     DueDate: false,
     StopLoss: false,
@@ -111,9 +127,9 @@ const switchType = (type: bsType) => {
 }
 
 // 入场价
-const entryPrice = (e: string) => {
-  state.order_price = e;
-  state.disabledList.EntryPrice = false;
+const entryPrice = (e: string, type: 'breakthroughPrice' | 'limitedPrice') => {
+  state[type] = e;
+  state.disabledList[type] = false;
 };
 
 // 手数
@@ -147,7 +163,8 @@ const addOrders = async () => {
       symbol: props.selectedSymbol,
       type: ORDER_TYPE.stopLimit[state.type],
       volume: +state.volume * 100,
-      order_price: +state.order_price,
+      order_price: +state.breakthroughPrice,
+      trigger_price: +state.limitedPrice
     };
     if (state.dueDate) {
       updata.time_expiration = +state.dueDate;

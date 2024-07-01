@@ -51,3 +51,11 @@ export const ORDER_TYPE: OrderType = {
     sell: 7
   },
 } as const
+
+export const CLOSE_TYPE: Record<number, string> = {
+  0: '手动',
+  1: 'sl',
+  2: 'tp',
+  3: '强平'
+}
+

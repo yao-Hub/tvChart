@@ -1,6 +1,6 @@
 <template>
   <div class="EntryPrice">
-    <span>入场价</span>
+    <span>{{ props.title }}</span>
     <div :class="[state.errorMessage ? 'complete container' : 'container']">
       <a-tooltip :title="state.errorMessage">
         <a-input v-model:value="state.price">
@@ -24,9 +24,10 @@ import { round } from 'utils/common/index';
 import { SessionSymbolInfo } from '#/chart/index';
 
 interface Props {
+  title?: string
   transactionType: 'buy' | 'sell' // 交易类型：买入卖出
   distanceTitle?: string
-  orderType: 'limit' | 'stopLimit' | 'stop'
+  orderType: 'limit' | 'stop' | 'breakthroughPrice' | 'limitedPrice'
   ask: number
   bid: number
   currentSymbolInfo?: SessionSymbolInfo
@@ -37,7 +38,8 @@ interface State {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  distanceTitle: '距离'
+  distanceTitle: '距离',
+  title: '入场价'
 });
 const state:State = reactive({
   price: '',
@@ -89,6 +91,10 @@ const validate = () => {
       result = +state.price <= result_1;
       size = '≤';
       value = result_1;
+    } else if (props.orderType === 'limitedPrice') {
+      result = +state.price <= result_2;
+      size = '≤';
+      value = result_2;
     } else {
       result = +state.price >= result_2;
       size = '≥';
@@ -100,6 +106,10 @@ const validate = () => {
       result = +state.price >= result_2;
       size = '≥';
       value = result_2;
+    } else if (props.orderType === 'limitedPrice') {
+      result = +state.price >= result_1;
+      size = '≥';
+      value = result_1;
     } else {
       result = +state.price <= result_1;
       size = '≤';

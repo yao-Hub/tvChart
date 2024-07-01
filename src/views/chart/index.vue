@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 
 import  * as library from 'public/charting_library';
@@ -66,11 +66,14 @@ const states = reactive({
 });
 
 // 拖拽线移动
+const height = computed(() => {
+  return window.innerHeight - orderAreaHeight.value - 32;
+});
 const isResizing = ref(false);
 const chart = ref();
-const chartHeight = ref(window.innerHeight - 204);
-const resizeLineTop = ref(window.innerHeight - 202);
-const orderAreaHeight = ref(170);
+const orderAreaHeight = ref(300);
+const chartHeight = ref(height.value);
+const resizeLineTop = ref(height.value);
 window.addEventListener('resize', () => {
   resizeLineTop.value = window.innerHeight - orderAreaHeight.value - 32;
   chartHeight.value = window.innerHeight - orderAreaHeight.value - 32;

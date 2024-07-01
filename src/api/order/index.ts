@@ -182,6 +182,7 @@ export interface resHistoryOrders {
   fee: number //	手续费
   profit: number //	浮动盈亏
   comment: string //	备注评论
+  close_type?: number // 平仓类型。平仓类型，0=手动，1=sl，2=tp，3=强平
 }
 
 interface reqDelPendingOrders {
