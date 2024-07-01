@@ -82,12 +82,14 @@ const state = reactive({
   menu: [
     { label: '持仓', key: 'position' },
     { label: '订单', key: 'order' },
+    { label: '订单历史', key: 'orderHistory'},
     { label: '交易历史', key: 'transactionHistory' },
   ] as Menu[],
   columns: tableColumns,
   dataSource: {
     'position': [],
     'order': [],
+    'orderHistory': [],
     'transactionHistory': []
   } as any,
   closeDialogVisible: false,
@@ -160,6 +162,7 @@ const getInfo = () => {
   getOrders();
   getPendingOrders();
   getTradingHistory();
+  getOrderHistory();
   userStore.getLoginInfo();
 };
 
@@ -208,7 +211,7 @@ const orderClose = async (record: orders.resOrders) => {
   }
 }
 
-// 查询挂单
+// 查询挂单（有效）
 const getPendingOrders = async () => {
   const res = await orders.pendingOrders();
   state.dataSource.order= res.data;
@@ -216,6 +219,12 @@ const getPendingOrders = async () => {
 
   const symbols = res.data.map(e => e.symbol);
   subStore.setMustSubscribeList(symbols);
+};
+
+// 查询挂单历史（失效）
+const getOrderHistory = async () => {
+  const res = await orders.invalidPendingOrders({});
+  state.dataSource.orderHistory = res.data;
 };
 
 // 删除挂单
@@ -238,12 +247,12 @@ const getTradingHistory = async () => {
   state.dataSource.transactionHistory= res.data;
 };
 
+// 双击行
 const handleRowDoubleClick = (record: orders.resOrders) => {
-  if (activeKey.value !== 'position') {
-    return;
+  if (activeKey.value === 'position') {
+    state.orderInfo = record;
+    state.closeDialogVisible = true;
   }
-  state.orderInfo = record;
-  state.closeDialogVisible = true;
 };
 
 onUnmounted(() => {

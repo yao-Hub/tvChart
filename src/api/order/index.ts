@@ -105,11 +105,11 @@ interface resPendingOrdersAdd {
 }
 
 interface reqHistoryPendingOrders {
-  limit_id: number // 	挂单ID < limit_id
+  limit_id?: number // 	挂单ID < limit_id
   begin_time?: string  // 	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
   end_time?: string  // 	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
-  count: number // 	最大200
-  symbol: string  // 	品种
+  count?: number // 	最大200
+  symbol?: string  // 	品种
 }
 
 export interface resPendingOrders {

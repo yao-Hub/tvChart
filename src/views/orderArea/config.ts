@@ -1,7 +1,7 @@
 import { resOrders, resPendingOrders, resHistoryOrders } from 'api/order/index';
 
 export const tableColumns = {
-  'position': [
+  position: [
     { title: '订单id', dataIndex: 'id', key: 'id' },
     {
       title: '创建时间 (UTC+8)',
@@ -37,7 +37,7 @@ export const tableColumns = {
     },
     { title: '操作', dataIndex: 'positionAction', key: 'positionAction' },
   ],
-  'order': [
+  order: [
     { title: '订单id', dataIndex: 'id', key: 'id' },
     {
       title: '提交时间（UTC+8）',
@@ -74,7 +74,39 @@ export const tableColumns = {
     },
     { title: '操作', dataIndex: 'orderAction', key: 'orderAction' },
   ],
-  'transactionHistory': [
+  orderHistory: [
+    { title: '订单id', dataIndex: 'id', key: 'id' },
+    {
+      title: '提交时间（UTC+8）',
+      dataIndex: 'time_setup',
+      key: 'time_setup',
+      width: 200,
+      sorter: (a: resPendingOrders, b: resPendingOrders) => a.time_setup - b.time_setup
+    },
+    {
+      title: '交易品种',
+      dataIndex: 'symbol',
+      key: 'symbol',
+      sorter: (a: resPendingOrders, b: resPendingOrders) => a.symbol.localeCompare(b.symbol)
+    },
+    {
+      title: '方向',
+      dataIndex: 'type',
+      key: 'type',
+      sorter: (a: resPendingOrders, b: resPendingOrders) => a.type - b.type
+    },
+    { title: '订单类型', dataIndex: 'orderType', key: 'orderType'},
+    { title: '数量', dataIndex: 'volume', key: 'volume' },
+    { title: '触发价位', dataIndex: 'order_price', key: 'order_price' },
+    {
+      title: '过期时间',
+      dataIndex: 'time_expiration',
+      key: 'time_expiration',
+      width: 200,
+      sorter: (a: resPendingOrders, b: resPendingOrders) => a.time_setup - b.time_setup
+    },
+  ],
+  transactionHistory: [
     { title: '订单id', dataIndex: 'id', key: 'id' },
     {
       title: '建仓时间（UTC+8）',
