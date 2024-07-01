@@ -19,7 +19,7 @@
                 <template v-else-if="column.dataIndex === 'type'">{{ $t(`order.${getTradingDirection(record.type)}`) }}</template>
                 <template v-else-if="column.dataIndex === 'orderType'">{{ $t(`order.type.${getOrderType(record.type)}`) }}</template>
                 <template v-else-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
-                <template v-else-if="column.dataIndex === 'profit' && activeKey !== 'transactionHistory'">{{ getProfit(record, index) }}</template>
+                <template v-else-if="column.dataIndex === 'profit' && activeKey === 'position'">{{ getProfit(record, index) }}</template>
                 <template v-else-if="column.dataIndex === 'distance'">{{ getDistance(record) }}</template>
                 <template v-else-if="column.dataIndex === 'positionAction'">
                   <a-tooltip title="平仓">
@@ -132,7 +132,7 @@ const getProfit = (e: orders.resOrders, index: number) => {
     const currentSell = currentQuote.bid;
     const openPrice = e.open_price;;
     const type = getTradingDirection(e.type);
-    const closePrice = type === 'buy' ? currentBuy : currentSell;
+    const closePrice = type === 'buy' ? currentSell : currentBuy;
     const volume = e.volume;
     const symbols = subStore.symbols;
     const currentSymbol = symbols.find(e => e.symbol === e.symbol);
@@ -168,13 +168,12 @@ watchEffect(async () => {
   if (orderStore.refreshOrderArea) {
     getInfo();
     orderStore.refreshOrderArea = false;
+    return;
   }
   // 登录时后查找数据
   if (userStore.ifLogin) {
     await nextTick();
-    getOrders();
-    getPendingOrders();
-    getTradingHistory();
+    getInfo();
   }
 });
 
@@ -205,9 +204,7 @@ const orderClose = async (record: orders.resOrders) => {
   });
   if (res.data.action_success) {
     message.success('平仓成功');
-    getOrders();
-    getTradingHistory();
-    userStore.getLoginInfo();
+    getInfo();
   }
 }
 
@@ -229,8 +226,7 @@ const delOrders = async (record: orders.resOrders) => {
   });
   if (res.data.action_success) {
     message.success('撤销挂单成功');
-    getPendingOrders();
-    userStore.getLoginInfo();
+    getInfo();
   } else {
     message.error(res.data.err_text);
   }

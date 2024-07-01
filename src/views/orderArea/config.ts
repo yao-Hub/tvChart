@@ -27,8 +27,10 @@ export const tableColumns = {
     { title: '现价', dataIndex: 'now_price', key: 'now_price', width: 150 },
     { title: '止盈', dataIndex: 'tp_price', key: 'tp_price' },
     { title: '止损', dataIndex: 'sl_price', key: 'sl_price' },
+    { title: '过夜费', dataIndex: 'storage', key: 'storage' },
+    { title: '手续费', dataIndex: 'fee', key: 'fee' },
     {
-      title: '净 EUR',
+      title: '盈亏',
       dataIndex: 'profit',
       key: 'profit',
       sorter: (a: resOrders, b: resOrders) => a.profit - b.profit
@@ -114,7 +116,7 @@ export const tableColumns = {
     },
     { title: '数量', dataIndex: 'volume', key: 'volume' },
     {
-      title: '净 EUR',
+      title: '盈亏',
       dataIndex: 'profit',
       key: 'profit',
       sorter: (a: resHistoryOrders, b: resHistoryOrders) => a.profit - b.profit
