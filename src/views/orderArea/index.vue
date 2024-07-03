@@ -1,7 +1,7 @@
 <template>
   <div class="orderArea">
     <a-tabs v-model:activeKey="activeKey" type="card">
-      <a-tab-pane v-for="item in state.menu" :key="item.key" size="small">
+      <a-tab-pane v-for="item in state.menu" :key="item.key">
         <template #tab>
           <span>
             {{ item.label }}
@@ -39,7 +39,6 @@
             :dataSource="state.dataSource[activeKey]"
             :columns="state.columns[item.key]"
             :pagination="false"
-            size="small"
             :loading="state.loadingList[activeKey]">
             <template #bodyCell="{ record, column, index, text }">
               <div @dblclick="handleRowDoubleClick(record)">
@@ -209,7 +208,6 @@ const getProfit = (e: orders.resOrders, index: number) => {
 };
 
 const setOrderBeginTime = (time: [string, string]) => {
-  console.log('setOrderBeginTime')
   const [startDay, endDay] = time;
   state.open_begin_time = startDay;
   state.open_end_time = endDay;
@@ -232,10 +230,11 @@ const setPendingOrderTime = (time: [string, string]) => {
 // 下单时和登录时触发
 watchEffect(async () => {
   if (orderStore.refreshOrderArea) {
+    await getAllQuotes();
     getOrders();
     getPendingOrders();
-    getTradingHistory();
-    getOrderHistory();
+    debouncedGetTradingHistory();
+    debouncedGetOrderHistory();
     userStore.getLoginInfo();
     orderStore.refreshOrderArea = false;
     return;
@@ -243,6 +242,7 @@ watchEffect(async () => {
   // 登录时后查找数据
   if (userStore.ifLogin) {
     await nextTick();
+    await getAllQuotes();
     getOrders();
     getPendingOrders();
     debouncedGetTradingHistory();
@@ -284,19 +284,20 @@ watchEffect(async () => {
   }
 });
 
+// 获取当前所有品种报价
+const getAllQuotes = async () => {
+  const resQuotes = await allSymbolQuotes();
+  resQuotes.data.forEach(item => {
+    orderStore.currentQuotes[item.symbol] = item;
+  });
+};
+
 // 查询持仓
 const getOrders = async () => {
   try {
     state.loadingList.position = true;
     const resOrders = await orders.openningOrders();
-    const resQuotes = await allSymbolQuotes();
-    resOrders.data.forEach(item => {
-      const foundQuote = resQuotes.data.find(e => e.symbol === item.symbol);
-      if (foundQuote) {
-        orderStore.currentQuotes[item.symbol] = foundQuote;
-      }
-    });
-  
+
     state.dataSource.position= resOrders.data;
     orderStore.tableData.position = cloneDeep(resOrders.data);
   
@@ -348,6 +349,9 @@ const getOrderHistory = async () => {
       symbol: pendingOrderSymbol
     });
     state.dataSource.orderHistory = res.data;
+
+    const symbols = res.data.map(e => e.symbol);
+    subStore.setMustSubscribeList(symbols);
   } finally {
     state.loadingList.orderHistory = false;
   }
