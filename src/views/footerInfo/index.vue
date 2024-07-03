@@ -88,7 +88,7 @@ const Margin = computed(() => {
 // 可用保证金
 const margin_free = computed(() => {
   if (equity.value !== '-' && Margin.value !== '-') {
-    return round(+equity.value - +Margin.value, 2);
+    return round(Number(equity.value) - Number(Margin.value), 2);
   }
   return '-';
 });
@@ -96,7 +96,7 @@ const margin_free = computed(() => {
 // 保证金水平
 const margin_level = computed(() => {
   if (equity.value !== '-' && Margin.value !== '-') {
-    return round(equity.value / Margin.value * 100, 2);
+    return round(+equity.value / +Margin.value * 100, 2);
   }
   return '-';
 });
@@ -109,7 +109,7 @@ const profit =  computed(() => {
     }
     const currentPosition = orderStore.tableData.position;
     const sum = currentPosition?.reduce((accumulator, currentValue) => {
-      return accumulator + currentValue.profit;
+      return accumulator + Number(currentValue.profit);
     }, 0);
     return round(sum || 0, 2);
   } catch (error) {

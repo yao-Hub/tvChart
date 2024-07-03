@@ -17,6 +17,7 @@ export const tableColumns = {
       sorter: (a: resOrders, b: resOrders) => a.symbol.localeCompare(b.symbol)
     },
     { title: '数量', dataIndex: 'volume', key: 'volume' },
+    { title: '合约数量', dataIndex: 'contract_size', key: 'contract_size' },
     {
       title: '方向',
       dataIndex: 'type',

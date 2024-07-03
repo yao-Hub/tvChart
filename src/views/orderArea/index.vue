@@ -161,27 +161,20 @@ const getNowPrice = (e: orders.resOrders, index: number) => {
 const getProfit = (e: orders.resOrders, index: number) => {
   try {
     let result: string | number = '';
-    const currentQuote = orderStore.currentQuotes[e.symbol];
-    const currentBuy = currentQuote.ask;
-    const currentSell = currentQuote.bid;
-    const openPrice = e.open_price;;
     const type = getTradingDirection(e.type);
-    const closePrice = type === 'buy' ? currentSell : currentBuy;
-    const volume = e.volume;
-    const symbols = subStore.symbols;
-    const currentSymbol = symbols.find(e => e.symbol === e.symbol);
-    if (currentSymbol) {
-      const { contract_size, storage, fee, digits } = currentSymbol;
-      // 建仓合约价值 = open_price X contract_size X volume / 100
-      const buildingPrice = +(openPrice * contract_size * volume / 100).toFixed(digits);
-      // 平仓合约价值 = close_price X contract_size X volume / 100
-      const closingPrice = +(closePrice * contract_size * volume / 100).toFixed(digits);
-      // buy时 : profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
-      // sell时 : profit = 建仓合约价值 - 平仓合约价值 + 手续费 + 过夜费
-      const direction = type === 'buy' ? closingPrice - buildingPrice : buildingPrice - closingPrice;
-      result = direction + (storage || 0) + (fee || 0);
-      result = result.toFixed(digits);
-    }
+    const currentQuote = orderStore.currentQuotes[e.symbol];
+    // 持仓多单时，close_price = 现价卖价
+    // 持仓空单时，close_price = 现价买价
+    const closePrice = type === 'buy' ? currentQuote.bid :  currentQuote.ask;
+    const { contract_size, storage, fee, open_price, volume } = e;
+    // 建仓合约价值 = open_price X contract_size X volume / 100
+    const buildingPrice = open_price * contract_size * volume / 100;
+    // 平仓合约价值 = close_price X contract_size X volume / 100
+    const closingPrice = closePrice * contract_size * volume / 100;
+    // buy时 : profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
+    // sell时 : profit = 建仓合约价值 - 平仓合约价值 + 手续费 + 过夜费
+    const direction = type === 'buy' ? closingPrice - buildingPrice : buildingPrice - closingPrice;
+    result = (direction + (storage || 0) + (fee || 0)).toFixed(2);
     orderStore.tableData[activeKey.value]![index].profit = +result;
     return result;
   } catch (error) {
