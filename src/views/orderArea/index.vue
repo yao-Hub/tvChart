@@ -10,9 +10,10 @@
         </template>
         <div class="container">
           <div style="display: flex; gap: 10px;" v-show="activeKey === 'transactionHistory'">
-            <TimeSelect @timeRange="setOpenTime">建仓时间：</TimeSelect>
-            <TimeSelect @timeRange="setCloseTime">平仓时间：</TimeSelect>
+            <TimeSelect @timeRange="setOrderBeginTime">建仓时间：</TimeSelect>
+            <TimeSelect initFill @timeRange="setOrderCloseTime">平仓时间：</TimeSelect>
           </div>
+          <TimeSelect @timeRange="setPendingOrderTime" v-show="activeKey === 'orderHistory'">创建时间：</TimeSelect>
           <a-table
             sticky
             :dataSource="state.dataSource[activeKey]"
@@ -108,6 +109,8 @@ const state = reactive({
   } as any,
   closeDialogVisible: false,
   orderInfo: {} as orders.resOrders,
+  end_time: '',
+  begin_time: '',
   open_begin_time: '',
   open_end_time: '',
   close_begin_time: '',
@@ -183,17 +186,25 @@ const getProfit = (e: orders.resOrders, index: number) => {
   }
 };
 
-const setOpenTime = (time: [string, string]) => {
+const setOrderBeginTime = (time: [string, string]) => {
+  console.log('setOrderBeginTime')
   const [startDay, endDay] = time;
   state.open_begin_time = startDay;
   state.open_end_time = endDay;
   debouncedGetTradingHistory();
 };
-const setCloseTime = (time: [string, string]) => {
+const setOrderCloseTime = (time: [string, string]) => {
   const [startDay, endDay] = time;
   state.close_begin_time = startDay;
   state.close_end_time = endDay;
   debouncedGetTradingHistory();
+};
+
+const setPendingOrderTime = (time: [string, string]) => {
+  const [startDay, endDay] = time;
+  state.begin_time = startDay;
+  state.end_time = endDay;
+  debouncedGetOrderHistory();
 };
 
 // 下单时和登录时触发
@@ -201,7 +212,7 @@ watchEffect(async () => {
   if (orderStore.refreshOrderArea) {
     getOrders();
     getPendingOrders();
-    debouncedGetTradingHistory();
+    getTradingHistory();
     getOrderHistory();
     userStore.getLoginInfo();
     orderStore.refreshOrderArea = false;
@@ -213,7 +224,7 @@ watchEffect(async () => {
     getOrders();
     getPendingOrders();
     debouncedGetTradingHistory();
-    getOrderHistory();
+    debouncedGetOrderHistory();
     orderChanges((type: string) => {
       switch(type) {
         case 'order_opened':
@@ -222,7 +233,7 @@ watchEffect(async () => {
           break;
         case 'order_closed':
           getOrders();
-          debouncedGetTradingHistory();
+          getTradingHistory();
           userStore.getLoginInfo();
           break;
         case 'order_modified':
@@ -284,7 +295,7 @@ const orderClose = async (record: orders.resOrders) => {
   if (res.data.action_success) {
     message.success('平仓成功');
     getOrders();
-    debouncedGetTradingHistory();
+    getTradingHistory();
     userStore.getLoginInfo();
   }
 }
@@ -308,12 +319,17 @@ const getPendingOrders = async () => {
 const getOrderHistory = async () => {
   try {
     state.loadingList.orderHistory = true;
-    const res = await orders.invalidPendingOrders({});
+    const { begin_time, end_time } = state;
+    const res = await orders.invalidPendingOrders({
+      begin_time,
+      end_time
+    });
     state.dataSource.orderHistory = res.data;
   } finally {
     state.loadingList.orderHistory = false;
   }
 };
+const debouncedGetOrderHistory = debounce(getOrderHistory, 500);
 
 // 删除挂单
 const delOrders = async (record: orders.resOrders) => {
