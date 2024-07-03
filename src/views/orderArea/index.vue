@@ -74,6 +74,7 @@ import { tableColumns } from './config';
 import { round } from 'utils/common/index';
 import { getTradingDirection, getOrderType } from 'utils/order/index';
 import { CLOSE_TYPE } from '@/constants/common'; 
+import { orderChanges } from 'utils/socket/operation';
 
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
@@ -195,26 +196,58 @@ const setCloseTime = (time: [string, string]) => {
   debouncedGetTradingHistory();
 };
 
-// 查找表格数据
-const getInfo = () => {
-  getOrders();
-  getPendingOrders();
-  debouncedGetTradingHistory();
-  getOrderHistory();
-  userStore.getLoginInfo();
-};
-
 // 下单时和登录时触发
 watchEffect(async () => {
   if (orderStore.refreshOrderArea) {
-    getInfo();
+    getOrders();
+    getPendingOrders();
+    debouncedGetTradingHistory();
+    getOrderHistory();
+    userStore.getLoginInfo();
     orderStore.refreshOrderArea = false;
     return;
   }
   // 登录时后查找数据
   if (userStore.ifLogin) {
     await nextTick();
-    getInfo();
+    getOrders();
+    getPendingOrders();
+    debouncedGetTradingHistory();
+    getOrderHistory();
+    orderChanges((type: string) => {
+      switch(type) {
+        case 'order_opened':
+          getOrders();
+          userStore.getLoginInfo();
+          break;
+        case 'order_closed':
+          getOrders();
+          debouncedGetTradingHistory();
+          userStore.getLoginInfo();
+          break;
+        case 'order_modified':
+          getOrders();
+          break;
+        case 'pending_order_opened':
+        case 'pending_order_modified':
+          getPendingOrders();
+          break;
+        case 'pending_order_deleted':
+          getPendingOrders();
+          getOrderHistory();
+          break;
+        case 'pending_order_dealt':
+          getOrders();
+          getPendingOrders();
+          userStore.getLoginInfo();
+          break;
+        case 'balance_order_added':
+          userStore.getLoginInfo();
+          break;
+        default:
+          break;
+      }
+    });
   }
 });
 
@@ -250,7 +283,9 @@ const orderClose = async (record: orders.resOrders) => {
   });
   if (res.data.action_success) {
     message.success('平仓成功');
-    getInfo();
+    getOrders();
+    debouncedGetTradingHistory();
+    userStore.getLoginInfo();
   }
 }
 
@@ -288,7 +323,8 @@ const delOrders = async (record: orders.resOrders) => {
   });
   if (res.data.action_success) {
     message.success('撤销挂单成功');
-    getInfo();
+    getPendingOrders();
+    getOrderHistory();
   } else {
     message.error(res.data.err_text);
   }

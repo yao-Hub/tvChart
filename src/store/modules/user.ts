@@ -5,6 +5,7 @@ import { UserInfo } from '#/store';
 import CryptoJS from 'utils/AES';
 import { loginInfo } from 'api/account/index';
 import { useChartAction } from '@/store/modules/chartAction';
+import { sendToken } from 'utils/socket/operation';
 
 interface State {
   account: Pick<UserInfo, 'login' | 'password'>
@@ -33,7 +34,7 @@ export const useUser = defineStore('user', {
         this.account.password = CryptoJS.decrypt(parseAccount.password);
       }
       if (this.ifLogin) {
-        this.getLoginInfo();
+        this.getLoginInfo(true);
       }
     },
     getToken() {
@@ -52,11 +53,14 @@ export const useUser = defineStore('user', {
     clearToken() {
       window.localStorage.removeItem('token');
     },
-    async getLoginInfo() {
+    async getLoginInfo(emitSocket?: boolean) {
       const res = await loginInfo({
         login: this.account.login,
       });
       this.loginInfo = res.data;
+      if (emitSocket) {
+        sendToken(res.data.login, this.getToken());
+      }
     }
   }
 })

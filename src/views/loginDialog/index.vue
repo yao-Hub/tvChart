@@ -101,7 +101,7 @@ const onFinish = async (values: any) => {
     window.localStorage.setItem('account', JSON.stringify(storage));
     window.localStorage.setItem('remember', JSON.stringify(remember));
     
-    await userStore.getLoginInfo();
+    await userStore.getLoginInfo(true);
     // 头像
     chartActionStore.createAvatar();
     handleCancel();
