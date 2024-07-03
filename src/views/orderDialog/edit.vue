@@ -145,7 +145,7 @@ const formRef = ref<FormInstance>();
 
 const handleCancel = () => {
   formRef.value?.resetFields();
-  emit('update:visible', false)
+  emit('update:visible', false);
 };
 
 const handelOk = async () => {

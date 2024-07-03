@@ -19,9 +19,7 @@
           <div class="title">新{{ title }}</div>
           <a-divider class="divider"></a-divider>
 
-          <a-select v-model:value="state.symbol" class="symbolSelect" @change="symbolChange">
-            <a-select-option :value="item.symbol" v-for="item in tradeAllowSymbols">{{ item.symbol }}</a-select-option>
-          </a-select>
+          <SymbolSelect class="symbolSelect" type="tradeAllow" v-model="state.symbol" @change="symbolChange"></SymbolSelect>
 
           <div v-if="state.loading" class="loadingSpin">
             <Spin></Spin>
@@ -56,7 +54,6 @@ import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation';
 import { allSymbolQuotes } from 'api/symbols/index';
 import { klineHistory } from 'api/kline/index'
 
-import Spin from '@/components/Spin.vue';
 import Limit from './components/orders/Limit.vue';
 import Price from './components/orders/Price.vue';
 import Stop from './components/orders/Stop.vue';
@@ -131,12 +128,7 @@ const handleCancel = () => {
 
 // 当前品种
 const currentSymbolInfo = computed(() => {
-  return tradeAllowSymbols.value.find(e => e.symbol === state.symbol);
-});
-
-// 可交易品种
-const tradeAllowSymbols = computed(() => {
-  return subStore.symbols.filter(e => e.trade_allow === 1);
+  return subStore.symbols.find(e => e.symbol === state.symbol);
 });
 
 // 弹框标题

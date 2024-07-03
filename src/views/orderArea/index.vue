@@ -9,11 +9,31 @@
           <a-tag :color="state.dataSource[item.key].length ? '#009345' : '#7f7f7f'" style="margin-left: 3px; scale: 0.8;">{{ state.dataSource[item.key].length }}</a-tag>
         </template>
         <div class="container">
-          <div style="display: flex; gap: 10px;" v-show="activeKey === 'transactionHistory'">
+          <div class="filter" v-show="activeKey === 'orderHistory'">
+            <div style="display: flex; align-items: center">
+              <span>品种：</span>
+              <SymbolSelect
+                v-model="state.pendingOrderSymbol"
+                @change="debouncedGetOrderHistory"
+                :selectOption="{allowClear: true}"
+                style="width: 200px;">
+              </SymbolSelect>
+            </div>
+            <TimeSelect @timeRange="setPendingOrderTime" >创建时间：</TimeSelect>
+          </div>
+          <div class="filter" v-show="activeKey === 'transactionHistory'">
+            <div style="display: flex; align-items: center">
+              <span>品种：</span>
+              <SymbolSelect
+                v-model="state.orderSymbol"
+                @change="debouncedGetTradingHistory"
+                :selectOption="{allowClear: true}"
+                style="width: 200px;">
+              </SymbolSelect>
+            </div>
             <TimeSelect @timeRange="setOrderBeginTime">建仓时间：</TimeSelect>
             <TimeSelect initFill @timeRange="setOrderCloseTime">平仓时间：</TimeSelect>
           </div>
-          <TimeSelect @timeRange="setPendingOrderTime" v-show="activeKey === 'orderHistory'">创建时间：</TimeSelect>
           <a-table
             sticky
             :dataSource="state.dataSource[activeKey]"
@@ -115,6 +135,8 @@ const state = reactive({
   open_end_time: '',
   close_begin_time: '',
   close_end_time: '',
+  pendingOrderSymbol: '',
+  orderSymbol: '',
   loadingList: {
     position: false,
     order: false,
@@ -319,10 +341,11 @@ const getPendingOrders = async () => {
 const getOrderHistory = async () => {
   try {
     state.loadingList.orderHistory = true;
-    const { begin_time, end_time } = state;
+    const { begin_time, end_time, pendingOrderSymbol } = state;
     const res = await orders.invalidPendingOrders({
       begin_time,
-      end_time
+      end_time,
+      symbol: pendingOrderSymbol
     });
     state.dataSource.orderHistory = res.data;
   } finally {
@@ -350,12 +373,13 @@ const delOrders = async (record: orders.resOrders) => {
 const getTradingHistory = async () => {
   try {
     state.loadingList.transactionHistory = true;
-    const { open_begin_time, open_end_time, close_begin_time, close_end_time } = state;
+    const { open_begin_time, open_end_time, close_begin_time, close_end_time, orderSymbol } = state;
     const res = await orders.historyOrders({
       open_begin_time,
       open_end_time,
       close_begin_time,
-      close_end_time
+      close_end_time,
+      symbol: orderSymbol
     });
     state.dataSource.transactionHistory= res.data;
   } finally {
@@ -419,6 +443,10 @@ onUnmounted(() => {
     padding: 5px;
     box-sizing: border-box;
     gap: 5px;
+    .filter {
+      display: flex;
+      gap: 10px;
+    }
   }
 }
 

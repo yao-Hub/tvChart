@@ -48,6 +48,7 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Spin: typeof import('./src/components/Spin.vue')['default']
+    SymbolSelect: typeof import('./src/components/SymbolSelect.vue')['default']
     TVChart: typeof import('./src/components/TVChart.vue')['default']
   }
 }
