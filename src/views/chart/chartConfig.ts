@@ -1,4 +1,5 @@
 import { flattenDeep, groupBy, orderBy, get, cloneDeep } from 'lodash'
+import moment from 'moment';
 import { socket } from '@/utils/socket/operation'
 import { klineHistory } from 'api/kline/index'
 import * as types from '@/types/chart/index'
@@ -7,6 +8,18 @@ import { useOrder } from '@/store/modules/order'
 
 const chartSubStore = useChartSub();
 const orderStore = useOrder();
+
+const countOptions: any = {
+  '1D': 'days',
+  '1W': 'weeks',
+  '1M': 'months',
+  '60': 'hours',
+  '240': [ 'hours', 4 ],
+  "1": 'minutes',
+  "5": [ 'minutes', 5 ],
+  "15": [ 'minutes', 15 ],
+  "30": [ 'minutes', 30 ],
+}
 
 const config = {
   "supports_search": true,
@@ -148,7 +161,22 @@ export const datafeed = () => {
       temResolution = resolution;
       temSymbol = symbolInfo.name;
       const bar: types.LineData[] = [];
-      const count = Math.ceil((periodParams.to - periodParams.from) / 60)
+      let count = periodParams.countBack;
+      // 第一次请求会出现数据请求长度不够导致数据缺失
+      if (periodParams.firstDataRequest) {
+        const to = moment.unix(periodParams.to);
+        const from = moment.unix(periodParams.from);
+        const option = countOptions[resolution];
+        let diffType;
+        let gap = 1;
+        if (typeof option === 'string') {
+          diffType = option;
+        } else {
+          diffType = option[0];
+          gap = option[1];
+        }
+        count = Math.ceil(to.diff(from, diffType) / gap);
+      }
       const updata = {
         "period_type": types.Periods[resolution as keyof typeof types.Periods] || resolution,
         "symbol": symbolInfo.name,
