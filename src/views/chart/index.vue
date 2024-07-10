@@ -9,7 +9,7 @@
       </div>
       <div class="header__right">
         <span>账号</span>
-        <span>9999,9999</span>
+        <!-- <span>9999,9999</span> -->
         <CaretDownOutlined />
       </div>
     </div>
@@ -205,7 +205,10 @@ onMounted(async () => {
   .dragArea {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 5px;
+    align-content: flex-start;
+    overflow: auto;
+    height: calc(100vh - 30px - 50px);
 
     .gragItem {
       resize: both;
@@ -213,18 +216,18 @@ onMounted(async () => {
     }
 
     .chartList {
-      width: 60vw;
-      height: 50vh;
+      width: 60%;
+      height: 50%;
     }
 
     .symbolList {
-      width: 35vw;
-      height: 40vh;
+      width: 39%;
+      height: 40%;
     }
 
     .orderArea {
-      width: 100vw;
-      height: 40vh;
+      width: 100%;
+      height: 40%;
     }
   }
 

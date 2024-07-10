@@ -13,13 +13,6 @@ import { allSymbolQuotes } from 'api/symbols/index';
 const dialogStore = useDialog();
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
-
-interface Keydown {
-  key: string
-  keyCode: number
-  callback: void
-}
-
 interface State {
   symbols: SessionSymbolInfo[]
   barsCache: Map<string, any>
