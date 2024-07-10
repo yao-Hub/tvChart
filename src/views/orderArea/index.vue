@@ -1,6 +1,8 @@
 <template>
   <div class="orderArea">
-    <a-tabs v-model:activeKey="activeKey" type="card">
+    <HolderOutlined class="handle"/>
+    <a-button v-if="!userStore.ifLogin" type="primary" @click="dialogStore.showLoginDialog" style="width: 200px; margin:auto">登录使用交易系统</a-button>
+    <a-tabs v-model:activeKey="activeKey" type="card" v-else>
       <a-tab-pane v-for="item in state.menu" :key="item.key">
         <template #tab>
           <span>
@@ -19,7 +21,7 @@
                 style="width: 200px;">
               </SymbolSelect>
             </div>
-            <TimeSelect @timeRange="setPendingOrderTime" >创建时间：</TimeSelect>
+            <TimeSelect v-model="state.orderHistoryCreateTime" @timeRange="debouncedGetOrderHistory">创建时间：</TimeSelect>
           </div>
           <div class="filter" v-show="activeKey === 'transactionHistory'">
             <div style="display: flex; align-items: center">
@@ -31,15 +33,15 @@
                 style="width: 200px;">
               </SymbolSelect>
             </div>
-            <TimeSelect @timeRange="setOrderBeginTime">建仓时间：</TimeSelect>
-            <TimeSelect initFill @timeRange="setOrderCloseTime">平仓时间：</TimeSelect>
+            <TimeSelect v-model="state.transactionHistoryCreateTime" @timeRange="debouncedGetTradingHistory">建仓时间：</TimeSelect>
+            <TimeSelect v-model="state.transactionHistoryCloseTime" initFill @timeRange="debouncedGetTradingHistory">平仓时间：</TimeSelect>
           </div>
           <a-table
-            sticky
             :dataSource="state.dataSource[activeKey]"
             :columns="state.columns[item.key]"
             :pagination="false"
-            :loading="state.loadingList[activeKey]">
+            :loading="state.loadingList[activeKey]"
+            :scroll="{ x: 1300 }">
             <template #bodyCell="{ record, column, index, text }">
               <div @dblclick="handleRowDoubleClick(record)">
                 <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
@@ -80,14 +82,13 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watchEffect, nextTick, h, ref, onUnmounted } from 'vue';
+import { reactive, watchEffect, nextTick, h, ref } from 'vue';
 import { cloneDeep, debounce } from 'lodash';
-import { CloseOutlined } from '@ant-design/icons-vue';
+import { CloseOutlined, HolderOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import moment from 'moment';
 
 import * as orders from 'api/order/index';
-import { allSymbolQuotes } from 'api/symbols/index';
 
 import * as orderTypes from '#/order';
 import { tableColumns } from './config';
@@ -98,14 +99,14 @@ import { orderChanges } from 'utils/socket/operation';
 
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
-import { useChartSub } from '@/store/modules/chartSub';
+import { useDialog } from '@/store/modules/dialog';
 
 import EditOrderDialog from '../orderDialog/edit.vue';
 import TimeSelect from './components/TimeSelect.vue';
 
 const userStore = useUser();
 const orderStore = useOrder();
-const subStore = useChartSub();
+const dialogStore = useDialog();
 
 interface Menu {
   label: string
@@ -128,12 +129,9 @@ const state = reactive({
   } as any,
   closeDialogVisible: false,
   orderInfo: {} as orders.resOrders,
-  end_time: '',
-  begin_time: '',
-  open_begin_time: '',
-  open_end_time: '',
-  close_begin_time: '',
-  close_end_time: '',
+  orderHistoryCreateTime: [],
+  transactionHistoryCreateTime: [],
+  transactionHistoryCloseTime: [],
   pendingOrderSymbol: '',
   orderSymbol: '',
   loadingList: {
@@ -207,30 +205,9 @@ const getProfit = (e: orders.resOrders, index: number) => {
   }
 };
 
-const setOrderBeginTime = (time: [string, string]) => {
-  const [startDay, endDay] = time;
-  state.open_begin_time = startDay;
-  state.open_end_time = endDay;
-  debouncedGetTradingHistory();
-};
-const setOrderCloseTime = (time: [string, string]) => {
-  const [startDay, endDay] = time;
-  state.close_begin_time = startDay;
-  state.close_end_time = endDay;
-  debouncedGetTradingHistory();
-};
-
-const setPendingOrderTime = (time: [string, string]) => {
-  const [startDay, endDay] = time;
-  state.begin_time = startDay;
-  state.end_time = endDay;
-  debouncedGetOrderHistory();
-};
-
 // 下单时和登录时触发
 watchEffect(async () => {
   if (orderStore.refreshOrderArea) {
-    await getAllQuotes();
     getOrders();
     getPendingOrders();
     debouncedGetTradingHistory();
@@ -242,7 +219,6 @@ watchEffect(async () => {
   // 登录时后查找数据
   if (userStore.ifLogin) {
     await nextTick();
-    await getAllQuotes();
     getOrders();
     getPendingOrders();
     debouncedGetTradingHistory();
@@ -284,14 +260,6 @@ watchEffect(async () => {
   }
 });
 
-// 获取当前所有品种报价
-const getAllQuotes = async () => {
-  const resQuotes = await allSymbolQuotes();
-  resQuotes.data.forEach(item => {
-    orderStore.currentQuotes[item.symbol] = item;
-  });
-};
-
 // 查询持仓
 const getOrders = async () => {
   try {
@@ -300,9 +268,6 @@ const getOrders = async () => {
 
     state.dataSource.position= resOrders.data;
     orderStore.tableData.position = cloneDeep(resOrders.data);
-  
-    const symbols = resOrders.data.map(e => e.symbol);
-    subStore.setMustSubscribeList(symbols);
   } finally {
     state.loadingList.position = false;
   }
@@ -330,9 +295,6 @@ const getPendingOrders = async () => {
     const res = await orders.pendingOrders();
     state.dataSource.order= res.data;
     orderStore.tableData.order = cloneDeep(res.data);
-  
-    const symbols = res.data.map(e => e.symbol);
-    subStore.setMustSubscribeList(symbols);
   } finally {
     state.loadingList.order = false;
   }
@@ -341,17 +303,24 @@ const getPendingOrders = async () => {
 // 查询挂单历史（失效）
 const getOrderHistory = async () => {
   try {
+    if (!userStore.ifLogin) {
+      return;
+    }
     state.loadingList.orderHistory = true;
-    const { begin_time, end_time, pendingOrderSymbol } = state;
-    const res = await orders.invalidPendingOrders({
-      begin_time,
-      end_time,
-      symbol: pendingOrderSymbol
-    });
+    const { orderHistoryCreateTime, pendingOrderSymbol } = state;
+    const [begin_time, end_time] = orderHistoryCreateTime;
+    const updata: any = {};
+    if (pendingOrderSymbol) {
+      updata.symbol = pendingOrderSymbol;
+    }
+    if (begin_time) {
+      updata.begin_time = begin_time;
+    }
+    if (end_time) {
+      updata.begin_time = begin_time;
+    }
+    const res = await orders.invalidPendingOrders(updata);
     state.dataSource.orderHistory = res.data;
-
-    const symbols = res.data.map(e => e.symbol);
-    subStore.setMustSubscribeList(symbols);
   } finally {
     state.loadingList.orderHistory = false;
   }
@@ -376,15 +345,30 @@ const delOrders = async (record: orders.resOrders) => {
 // 查询交易历史
 const getTradingHistory = async () => {
   try {
+    if (!userStore.ifLogin) {
+      return;
+    }
     state.loadingList.transactionHistory = true;
-    const { open_begin_time, open_end_time, close_begin_time, close_end_time, orderSymbol } = state;
-    const res = await orders.historyOrders({
-      open_begin_time,
-      open_end_time,
-      close_begin_time,
-      close_end_time,
-      symbol: orderSymbol
-    });
+    const { transactionHistoryCreateTime, transactionHistoryCloseTime, orderSymbol } = state;
+    const [ open_begin_time, open_end_time ] = transactionHistoryCreateTime;
+    const [ close_begin_time, close_end_time ] = transactionHistoryCloseTime;
+    const updata: any = {};
+    if (orderSymbol) {
+      updata.symbol = orderSymbol;
+    }
+    if (open_begin_time) {
+      updata.open_begin_time = open_begin_time;
+    }
+    if (open_end_time) {
+      updata.open_end_time = open_end_time;
+    }
+    if (close_begin_time) {
+      updata.close_begin_time = close_begin_time;
+    }
+    if (close_end_time) {
+      updata.close_end_time = close_end_time;
+    }
+    const res = await orders.historyOrders(updata);
     state.dataSource.transactionHistory= res.data;
   } finally {
     state.loadingList.transactionHistory = false;
@@ -401,55 +385,53 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
   }
 };
 
-onUnmounted(() => {
-  subStore.mustSubscribeList = [];
-});
 </script>
 
 <style lang="scss" scoped>
 @import '@/assets/styles/_handle.scss';
 
 .orderArea {
-  position: fixed;
-  bottom: 30px;
-  left: 0;
-  width: 100%;
-  border-top: 1px solid;
-  box-sizing: border-box;
-  @include border_color('border');
-  @include background_color('primary');
-  padding: 5px 10px 0 10px;
+  // width: 100vw;
+  padding: 5px 20px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  &::-webkit-scrollbar {
-    width: 5px; /*  设置纵轴（y轴）轴滚动条 */
-    height: 100%; /*  设置横轴（x轴）轴滚动条 */
-  }
-  // 滑块颜色
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    box-shadow: inset 0 0 5px #525252;
-    background: #525252;
-  }
-  // 滚动条背景色
-  &::-webkit-scrollbar-track {
-    border-radius: 0;
-    box-shadow: inset 0 0 5px #131722;
-    background: #131722;
-  }
+  overflow-x: hidden;
+  // height: 100%;
+  box-sizing: border-box;
+  position: relative;
+  background: #525252;
+  border-radius: 5px;
 
+  // &::-webkit-scrollbar {
+  //   width: 5px; /*  设置纵轴（y轴）轴滚动条 */
+  //   height: 100%; /*  设置横轴（x轴）轴滚动条 */
+  // }
+  // // 滑块颜色
+  // &::-webkit-scrollbar-thumb {
+  //   border-radius: 10px;
+  //   box-shadow: inset 0 0 5px #525252;
+  //   background: #525252;
+  // }
+  // // 滚动条背景色
+  // &::-webkit-scrollbar-track {
+  //   border-radius: 0;
+  //   box-shadow: inset 0 0 5px #131722;
+  //   background: #131722;
+  // }
+  .handle {
+    position: absolute;
+    left: 0;
+    top: 15px;
+  }
   .container {
     display: flex;
     flex-direction: column;
-    background-color: #525252;
-    border-radius: 5px;
-    padding: 5px;
     box-sizing: border-box;
-    gap: 5px;
     .filter {
       display: flex;
       gap: 10px;
+      margin-bottom: 10px;
     }
   }
 }

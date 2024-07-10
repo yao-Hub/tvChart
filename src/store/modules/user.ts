@@ -66,9 +66,12 @@ export const useUser = defineStore('user', {
 })
 
 watch(() => useUser().loginInfo, (newVal, oldVal) => {
-  const chartActionStore = useChartAction();
-  const ifEq = eq(newVal, oldVal);
-  if (!ifEq) {
-    chartActionStore.createAvatar();
+  try {
+    const chartActionStore = useChartAction();
+    const ifEq = eq(newVal, oldVal);
+    if (!ifEq) {
+      chartActionStore.createAvatar();
+    }
+  } catch (error) {
   }
 });

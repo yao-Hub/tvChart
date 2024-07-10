@@ -39,6 +39,7 @@ const formatToSeesion = (time: number) => {
 }
 
 const subscribed: any = {};
+
 let new_one: types.LineData;
 
 const barsCache: any = {};
@@ -52,16 +53,12 @@ function hasEmptyArrayValue(map: Map<string, any>) {
   return false;
 }
 
-let temSymbol: string = '';
-let temResolution: string = '';
-let nowResolution: string = '';
-let nowSymbol: string = '';
-
 // 优化当前k线图加载
-function getCacheBars(data: any) {
+const infoCache:any = {};
+function getCacheBars(data: any, id: string) {
   return new Promise(async (resolve, reject) => {
     try {
-      const fkey = `${data.symbol}#${data['period_type']}`;
+      const fkey = `${id}${data.symbol}#${data['period_type']}`;
       const skey = `${data['limit_ctm']}#${data['period_type']}`;
       const cache = barsCache[fkey];
       if ([undefined, null].includes(cache)) {
@@ -79,6 +76,7 @@ function getCacheBars(data: any) {
       }
       const emptyKey = hasEmptyArrayValue(barsCache[fkey]);
       if (emptyKey) {
+        const { nowSymbol, temSymbol, temResolution, nowResolution } = infoCache[id];
         if (!nowSymbol || (temSymbol === nowSymbol && temResolution === nowResolution)) {
           resolve([]);
           return;
@@ -86,8 +84,8 @@ function getCacheBars(data: any) {
         if (temSymbol !== nowSymbol || temResolution !== nowResolution) {
           barsCache[fkey].delete(emptyKey);
         }
-        nowResolution = data.period_type;
-        nowSymbol = data.symbol;
+        infoCache[id].nowResolution = data.period_type;
+        infoCache[id].nowSymbol = data.symbol;
       }
       const res = await klineHistory(data);
       barsCache[fkey].set(skey, res.data);
@@ -98,9 +96,11 @@ function getCacheBars(data: any) {
   });
 };
 
-export const datafeed = () => {
+export const datafeed = (id: string) => {
   return {
     onReady: (callback: Function) => {
+      subscribed[id] = {};
+      infoCache[id] = {};
       setTimeout(() => {
         callback(config);
         socketOpera();
@@ -153,13 +153,13 @@ export const datafeed = () => {
 
       setTimeout(function () {
         onSymbolResolvedCallback(symbol_stub);
-      }, 0);
+      });
     },
 
     //渲染历史数据
     getBars: (symbolInfo: types.TVSymbolInfo, resolution: string, periodParams: types.PeriodParams, onHistoryCallback: Function, onErrorCallback: Function) => {
-      temResolution = resolution;
-      temSymbol = symbolInfo.name;
+      infoCache[id].temResolution = resolution;
+      infoCache[id].temSymbol = symbolInfo.name;
       const bar: types.LineData[] = [];
       let count = periodParams.countBack;
       // 第一次请求会出现数据请求长度不够导致数据缺失
@@ -183,12 +183,12 @@ export const datafeed = () => {
         "count": count,
         "limit_ctm": periodParams.to
       };
-      getCacheBars(updata).then((res: any) => {
+      getCacheBars(updata, id).then((res: any) => {
         if (res.length === 0) {
           onHistoryCallback([]);
           return;
         }
-        const preSymbol = get(subscribed, 'symbolInfo.name') || '';
+        const preSymbol = get(subscribed, `${id}.symbolInfo.name`) || '';
         const reverse_data = orderBy(res, 'ctm');
         const data_cache = reverse_data.map(item => {
           const { ctm, open, high, low, close, volume } = item;
@@ -209,7 +209,7 @@ export const datafeed = () => {
         })
         setTimeout(() => {
           onHistoryCallback(bar);
-        }, 0);
+        });
       }).catch(() => {
         onErrorCallback(bar);
       })
@@ -219,10 +219,10 @@ export const datafeed = () => {
     subscribeBars: (symbolInfo: types.TVSymbolInfo, resolution: string, onRealtimeCallback: Function, subscriberUID: string, onResetCacheNeededCallback: Function) => {
       orderStore.currentSymbol = symbolInfo.name;
 
-      subscribed.symbolInfo = symbolInfo;
-      subscribed.resolution = resolution;
-      subscribed.onRealtimeCallback = onRealtimeCallback;
-      subscribed.onResetCacheNeededCallback = onResetCacheNeededCallback;
+      subscribed[id].symbolInfo = symbolInfo;
+      subscribed[id].resolution = resolution;
+      subscribed[id].onRealtimeCallback = onRealtimeCallback;
+      subscribed[id].onResetCacheNeededCallback = onResetCacheNeededCallback;
       chartSubStore.subscribeKline({
         subscriberUID,
         symbolInfo,
@@ -232,7 +232,7 @@ export const datafeed = () => {
 
     //取消订阅,撤销掉某条线的实时更新
     unsubscribeBars: (subscriberUID: string) => {
-      chartSubStore.unsubscribeKline(subscriberUID);
+      // chartSubStore.unsubscribeKline(subscriberUID);
     },
 
     // 查找品种（商品）
@@ -272,27 +272,29 @@ function socketOpera() {
   socket.on('quote', function (d) {
     // 提升订单报价
     orderStore.currentQuotes[d.symbol] = d;
-  
-    if (!subscribed.symbolInfo) {//图表没初始化
-      return false;
-    }
-    //报价更新 最新一条柱子 实时 上下 跳动
-    if (d.symbol === subscribed.symbolInfo.name) { //报价为图表当前品种的报价
-      if (new_one.high < d.bid) {
-        new_one.high = d.bid;
+
+    for (const id in subscribed) {
+      if (!subscribed[id].symbolInfo) { //图表没初始化
+        return;
       }
-      if (new_one.low > d.bid) {
-        new_one.low = d.bid;
+      //报价更新 最新一条柱子 实时 上下 跳动
+      if (d.symbol === subscribed[id].symbolInfo.name) { //报价为图表当前品种的报价
+        if (new_one.high < d.bid) {
+          new_one.high = d.bid;
+        }
+        if (new_one.low > d.bid) {
+          new_one.low = d.bid;
+        }
+        const newlastbar = {
+          time: new_one.time * 1000,
+          close: d.bid,
+          high: new_one.high,
+          low: new_one.low,
+          open: new_one.open,
+          volume: new_one.volume + 1
+        }
+        subscribed[id].onRealtimeCallback(newlastbar) //更新K线
       }
-      const newlastbar = {
-        time: new_one.time * 1000,
-        close: d.bid,
-        high: new_one.high,
-        low: new_one.low,
-        open: new_one.open,
-        volume: new_one.volume + 1
-      }
-      subscribed.onRealtimeCallback(newlastbar) //更新K线
     }
   });
   // 监听k线
@@ -300,26 +302,29 @@ function socketOpera() {
     // 提升k线数据
     const klines = cloneDeep(d.klines);
     orderStore.currentKline = {...klines.reverse().pop(), symbol: d.symbol};
-    if (!subscribed.symbolInfo) {//图表没初始化
-      return false;
-    }
-    //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1},{"ctm":1715408400,"date_time":"2024-05-11 14:20:00","open":60940,"high":60956,"low":60940,"close":60956,"volume":6}]}
-    if (d.symbol == subscribed.symbolInfo.name && subscribed.resolution == d.period_type) {
-      d.klines = d.klines.reverse();
-      for (let i in d.klines) {
-        let newlastbar = {
-          time: d.klines[i].ctm,
-          close: d.klines[i].close,
-          high: d.klines[i].high,
-          low: d.klines[i].low,
-          open: d.klines[i].open,
-          volume: d.klines[i].volume
+
+    for (const id in subscribed) {
+      if (!subscribed[id].symbolInfo) { // 图表没初始化
+        return;
+      }
+      //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1},{"ctm":1715408400,"date_time":"2024-05-11 14:20:00","open":60940,"high":60956,"low":60940,"close":60956,"volume":6}]}
+      if (d.symbol == subscribed[id].symbolInfo.name && subscribed[id].resolution == d.period_type) {
+        d.klines = d.klines.reverse();
+        for (let i in d.klines) {
+          let newlastbar = {
+            time: d.klines[i].ctm,
+            close: d.klines[i].close,
+            high: d.klines[i].high,
+            low: d.klines[i].low,
+            open: d.klines[i].open,
+            volume: d.klines[i].volume
+          }
+          if (newlastbar.time > new_one.time) {
+            new_one = JSON.parse(JSON.stringify(newlastbar));
+          }
+          newlastbar.time = newlastbar.time * 1000;
+          subscribed[id].onRealtimeCallback(newlastbar) //更新K线
         }
-        if (newlastbar.time > new_one.time) {
-          new_one = JSON.parse(JSON.stringify(newlastbar));
-        }
-        newlastbar.time = newlastbar.time * 1000;
-        subscribed.onRealtimeCallback(newlastbar) //更新K线
       }
     }
   });

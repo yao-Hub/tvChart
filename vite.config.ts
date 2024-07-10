@@ -46,7 +46,8 @@ export default defineConfig((mode: ConfigEnv) => {
       }
     },
     server: {
-      host: 'localhost',
+      host: '0.0.0.0',
+      disableHostCheck: true,
       port: 8080,
       proxy: {
         [env.VITE_HTTP_BASE_URL]: {

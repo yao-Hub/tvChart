@@ -51,7 +51,6 @@ import { useChartSub } from '@/store/modules/chartSub';
 
 import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation';
 
-import { allSymbolQuotes } from 'api/symbols/index';
 import { klineHistory } from 'api/kline/index'
 
 import Limit from './components/orders/Limit.vue';
@@ -156,16 +155,8 @@ watch(open, (newVal) => {
   if (newVal) {
     state.symbol = orderStore.currentSymbol;
     getklineHistory();
-    getQuotes();
   }
 });
-
-// 获取初始化报价
-const getQuotes = async () => {
-  const res = await allSymbolQuotes();
-  const foundQuote = res.data.find(e => e.symbol === state.symbol);
-  foundQuote && (state.quote = foundQuote);
-};
 
 // 初始化最高最低价
 const getklineHistory = async () => {
@@ -186,7 +177,6 @@ const symbolChange = async (value: string) => {
   }
   subscribeSocket({ resolution: '1', symbol: value });
   await getklineHistory();
-  await getQuotes();
   state.loading = false;
 };
 

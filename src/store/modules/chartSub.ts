@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 import { assign } from 'lodash';
 import { uniq, difference } from 'lodash';
 import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation'
@@ -6,9 +6,13 @@ import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index'
 import { keydownList } from 'utils/keydown';
 import { useChartInit } from './chartInit';
 import { useDialog } from './dialog';
+import { useOrder } from './order';
+
+import { allSymbolQuotes } from 'api/symbols/index';
 
 const dialogStore = useDialog();
 const chartInitStore = useChartInit();
+const orderStore = useOrder();
 
 interface Keydown {
   key: string
@@ -19,7 +23,6 @@ interface Keydown {
 interface State {
   symbols: SessionSymbolInfo[]
   barsCache: Map<string, any>
-  keydownList: Array<Keydown>
   mustSubscribeList: Array<string>
 }
 
@@ -29,35 +32,40 @@ interface TurnSocket {
   resolution: string
 }
 
+
 export const useChartSub = defineStore('chartSub', {
   state(): State {
     return {
       symbols: [],
       barsCache: new Map(),
-      keydownList: [],
-
+      
       // 必须需要监听品种列表
       mustSubscribeList: []
     }
   },
-  getters: {
-    chartWidget: () => chartInitStore.getChartWidget()
-  },
   actions: {
+    async setSymbols(list: SessionSymbolInfo[]) {
+      this.symbols = list;
+      list.forEach(item => {
+        subscribeSocket({ resolution: '1', symbol: item.symbol });
+      });
+      const resQuotes = await allSymbolQuotes();
+      resQuotes.data.forEach(item => {
+        orderStore.currentQuotes[item.symbol] = item;
+      });
+    },
     // 设置必须监听品种
     setMustSubscribeList(sources: Array<string>) {
-      this.chartWidget.onChartReady(() => {
-        const barsCacheSymbols: Array<string> = [];
-        this.barsCache.forEach(item => {
-          barsCacheSymbols.push(item.name);
-        });
-        const nowsubList = uniq([...this.mustSubscribeList, ...barsCacheSymbols]);
-        const subList = difference(sources, nowsubList);
-        subList.forEach(item => {
-          subscribeSocket({ resolution: '1', symbol: item });
-        })
-        this.mustSubscribeList = uniq([...this.mustSubscribeList, ...sources]);
+      const barsCacheSymbols: Array<string> = [];
+      this.barsCache.forEach(item => {
+        barsCacheSymbols.push(item.name);
       });
+      const nowsubList = uniq([...this.mustSubscribeList, ...barsCacheSymbols]);
+      const subList = difference(sources, nowsubList);
+      subList.forEach(item => {
+        subscribeSocket({ resolution: '1', symbol: item });
+      })
+      this.mustSubscribeList = uniq([...this.mustSubscribeList, ...sources]);
     },
 
     // k线图监听k线和报价
@@ -75,15 +83,19 @@ export const useChartSub = defineStore('chartSub', {
       unsubscribeSocket({ resolution, symbol: name });
       this.barsCache.delete(subscriberUID);
     },
-    // 监听点击报价加号按钮
+    // 监听点击报价加号按钮（显示加号菜单）
     subscribePlusBtn() {
-      this.chartWidget.subscribe('onPlusClick', (e) => {
-        assign(dialogStore.floatMenuParams, { ...e, visible: true });
+      const widgetList = chartInitStore.chartWidgetList;
+      widgetList.forEach(Widget => {
+        Widget.widget.subscribe('onPlusClick', (e) => {
+          assign(dialogStore.floatMenuParams, { ...e, visible: true });
+        })
       })
     },
-    // 监听鼠标按下动作
-    subscribeMouseDown() {
-      this.chartWidget.subscribe('mouse_down', (e) => {
+    // 监听鼠标按下动作 （隐藏加号菜单）
+    subscribeMouseDown(id?: string) {
+      const widget = chartInitStore.getChartWidget(id);
+      widget?.subscribe('mouse_down', (e) => {
         const { visible } = dialogStore.floatMenuParams;
         if (visible) {
           assign(dialogStore.floatMenuParams, { ...e, visible: false });
@@ -92,9 +104,15 @@ export const useChartSub = defineStore('chartSub', {
     },
     // 监听键盘快捷键
     subscribeKeydown() {
-      keydownList.forEach(item => {
-        this.chartWidget!.onShortcut(item.keyCode, item.callback);
-      })
+      try {
+        const widgetList = chartInitStore.chartWidgetList;
+        keydownList.forEach(item => {
+          widgetList.forEach(Widget => {
+            Widget.widget.onShortcut(item.keyCode, item.callback);
+          })
+        })
+      } catch (error) {
+      }
       document.addEventListener("keydown", (event) => {
         const found = keydownList.find(e => e.keyCode === event.keyCode);
         found?.callback();

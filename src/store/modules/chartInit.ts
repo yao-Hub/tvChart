@@ -2,23 +2,32 @@ import { defineStore } from 'pinia'
 import { IChartingLibraryWidget } from 'public/charting_library/charting_library';
 
 interface State {
-  chartWidget: IChartingLibraryWidget | null
+  chartWidgetList: {
+    widget: IChartingLibraryWidget
+    id: string
+  }[]
   loading: Boolean
+  mainId: string
 }
 
 export const useChartInit = defineStore('chartInit', {
   state(): State {
     return {
-      chartWidget: null,
-      loading: false
+      chartWidgetList: [],
+      loading: false,
+      mainId: ''
     }
   },
   actions: {
-    getChartWidget() {
-      if (!this.chartWidget) {
+    setChartWidget(id: string, widget: IChartingLibraryWidget) {
+      this.chartWidgetList?.push({ widget, id });
+    },
+    getChartWidget(id?: string) {
+      if (this.chartWidgetList.length === 0) {
         throw new Error('chartWidget is null')
       }
-      return this.chartWidget;
+      const findId = id || this.mainId;
+      return this.chartWidgetList.find(e => e.id === findId)?.widget;
     },
   }
 })

@@ -6,17 +6,27 @@
 import { ref, onUnmounted, onMounted } from 'vue';
 import  * as library from 'public/charting_library';
 import { useI18n } from 'vue-i18n';
+// import { useChartAction } from '@/store/modules/chartAction';
+import { useChartInit } from '@/store/modules/chartInit';
 
 const { locale } = useI18n();
 
 // 字段含义见：https://zlq4863947.gitbook.io/tradingview/4-tu-biao-ding-zhi/widget-constructor
 const props = defineProps({
+  chartId: {
+    default: '',
+    type: String,
+  },
+  mainChart: {
+    default: false,
+    type: Boolean
+  },
   loading: {
     default: false,
     type: Boolean
   },
   symbol: {
-    default: 'AAPL',
+    default: 'XAU',
     type: String,
   },
   interval: {
@@ -117,7 +127,7 @@ const props = defineProps({
 
 const chartContainer = ref();
 const chartWidget = ref();
-const emit = defineEmits(['createChart']);
+const emit = defineEmits(['initChart']);
 
 onMounted(() => {
   initonReady();
@@ -131,6 +141,9 @@ onUnmounted(() => {
 });
 
 const initonReady = () => {
+  if (!props.chartId) {
+    return new Error('chartId is no defined');
+  }
   const widgetOptions: library.ChartingLibraryWidgetOptions = {
     symbol: props.symbol,
     interval: props.interval as library.ResolutionString,
@@ -154,7 +167,23 @@ const initonReady = () => {
     context_menu: props.contextMenu
   };
   chartWidget.value = new library.widget(widgetOptions);
-  emit('createChart', chartWidget.value);
+  chartWidget.value.onChartReady(() => {
+    chartWidget.value.headerReady().then(() => {
+
+      const chartInitStore = useChartInit();
+      chartInitStore.setChartWidget(props.chartId, chartWidget.value);
+
+      if (props.mainChart) {
+        chartInitStore.mainId = props.chartId;
+        // const chartActionStore = useChartAction();
+        // 增加左上角头像
+        // chartActionStore.createAvatar();
+        // 增加新订单按钮
+        // chartActionStore.createAddOrderBtn();
+      }
+      emit('initChart');
+    });
+  })
 };
 </script>
 

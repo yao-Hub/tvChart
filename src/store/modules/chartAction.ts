@@ -22,10 +22,8 @@ export const useChartAction = defineStore('chartAction', {
       cacheAction: ''
     }
   },
-  getters: {
-    widget: () => chartInitStore.getChartWidget()
-  },
   actions: {
+    
     setCacheAction(action: string) {
       this.cacheAction = action;
     },
@@ -33,9 +31,10 @@ export const useChartAction = defineStore('chartAction', {
       this.cacheAction = '';
     },
     // 增加左上角头像
-    createAvatar() {
+    createAvatar(id?: string) {
+      const widget = chartInitStore.getChartWidget(id);
       const username =  userStore.loginInfo ? userStore.loginInfo.total_name || userStore.account.login : '';
-      this.widget.headerReady().then(() => {
+      widget?.headerReady().then(() => {
         const iframe = document.querySelector('iframe');
         if (iframe) {
           const iframeDocument = iframe.contentDocument || iframe.contentWindow!.document;
@@ -47,7 +46,7 @@ export const useChartAction = defineStore('chartAction', {
           }
         }
 
-        const Button = this.widget.createButton();
+        const Button = widget.createButton();
         Button.setAttribute('title', username || i18n.global.t('tip.needLogin'));
 
         const grandpa = <HTMLElement>Button.parentNode?.parentNode;
@@ -83,10 +82,11 @@ export const useChartAction = defineStore('chartAction', {
     },
 
     // 增加顶部语言切换按钮
-    createLocaleBtn() {
+    createLocaleBtn(id?: string) {
+      const widget = chartInitStore.getChartWidget(id);
       let currentlocale = i18n.global.locale.value;
-      this.widget.headerReady().then(() => {
-        const Button = this.widget.createButton({
+      widget?.headerReady().then(() => {
+        const Button = widget.createButton({
           align: 'right',
           useTradingViewStyle: false
         });
@@ -103,9 +103,10 @@ export const useChartAction = defineStore('chartAction', {
     },
 
     // 增加订单线
-    createOrderLine() {
-      this.widget.onChartReady(() => {
-        const orderLine = this.widget.activeChart().createOrderLine();
+    createOrderLine(id: string) {
+      const widget = chartInitStore.getChartWidget(id);
+      widget?.onChartReady(() => {
+        const orderLine = widget.activeChart().createOrderLine();
         const price = orderLine.getPrice().toString();
         orderLine
           .setText(price)
@@ -126,11 +127,12 @@ export const useChartAction = defineStore('chartAction', {
     },
 
     // 增加新订单按钮
-    createAddOrderBtn() {
-      this.widget.headerReady().then(() => {
+    createAddOrderBtn(id?: string) {
+      const widget = chartInitStore.getChartWidget(id);
+      widget?.headerReady().then(() => {
         const orderStore = useOrder();
         
-        const Button = this.widget.createButton();
+        const Button = widget.createButton();
         Button.style.border = '1px solid #fff';
         Button.style.borderRadius = '4px';
         Button.style.cursor = 'pointer';

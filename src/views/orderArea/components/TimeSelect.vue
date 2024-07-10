@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
+import { ref, onMounted } from 'vue';
 import dayjs, { Dayjs } from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime);
@@ -25,6 +25,8 @@ interface Props {
 
 const props = defineProps<Props>()
 
+const model = defineModel();
+
 type RangeValue = [Dayjs, Dayjs];
 const timeRange = ref<RangeValue>();
 
@@ -33,16 +35,19 @@ const initializeTimeRange = async () => {
     const monday = dayjs().startOf('week').startOf('day');  // 当前周一的日期
     const today = dayjs();
     timeRange.value = [monday, today];
-    await nextTick();
-    emit('timeRange', [ monday.format(dateFormat), today.format(dateFormat) ]);
+    model.value = [monday, today];
+    emit('timeRange', [monday, today]);
   }
 }
-initializeTimeRange();
+onMounted(() => {
+  initializeTimeRange();
+});
 
 const emit = defineEmits([ 'timeRange' ]);
 
 const timeChange = (date: Dayjs | string, dateString: string[]) => {
   emit('timeRange', dateString);
+  model.value = dateString;
 }
 const disabledDate = (current: Dayjs) => {
   return current && current > dayjs().endOf('day');
