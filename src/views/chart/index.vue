@@ -1,5 +1,5 @@
 <template>
-  <div ref="chart" class="chart" v-if="!chartInitStore.loading">
+  <div class="chart" v-if="!chartInitStore.loading">
     <div class="header">
       <div class="header__left">
         <MenuOutlined />
@@ -13,19 +13,27 @@
         <CaretDownOutlined />
       </div>
     </div>
-    <div class="container">
-      <DragArea @isResizing="(e: boolean) => state.isResizing = e">
-        <template v-slot:one>
-          <ChartList class="container_item" v-if="layoutStore.chartsVisable" name="one" :loading="state.isResizing"></ChartList>
-        </template>
-        <template v-slot:two>
-          <SymbolList class="container_item" v-if="layoutStore.symbolsVisable" name="two"></SymbolList>
-        </template>
-        <template v-slot:three>
-          <OrderArea class="container_item" v-if="layoutStore.orderAreaVisable"></OrderArea>
-        </template>
-      </DragArea>
-    </div>
+    <!-- <div class="container"> -->
+      <div class="dragArea">
+        <div class="resizeLine" @mousedown="resizeLineMousedown"></div>
+        <div class="dragArea_item dragArea_item_top">
+          <div class="demo" v-if="layoutStore.chartsVisable">
+            <HolderOutlined class="handle" />
+            <ChartList class="container_item" name="one" :loading="state.isResizing"></ChartList>
+          </div>
+          <div class="demo" v-if="layoutStore.symbolsVisable">
+            <HolderOutlined class="handle" />
+            <SymbolList class="container_item" name="two"></SymbolList>
+          </div>
+        </div>
+        <div class="dragArea_item dragArea_item_down">
+          <div class="demo" v-if="layoutStore.orderAreaVisable">
+            <HolderOutlined class="handle" />
+            <OrderArea class="container_item"></OrderArea>
+          </div>
+        </div>
+      </div>
+    <!-- </div> -->
     <FooterInfo class="footerInfo"></FooterInfo>
   </div>
   <Spin v-else></Spin>
@@ -36,12 +44,14 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from 'vue';
+import { reactive, onMounted, nextTick } from 'vue';
+import Sortable from 'sortablejs';
 // import { useI18n } from 'vue-i18n';
 import {
   MenuOutlined,
   ThunderboltOutlined,
   CaretDownOutlined,
+  HolderOutlined
 } from '@ant-design/icons-vue';
 
 import * as types from '@/types/chart/index';
@@ -58,14 +68,14 @@ import { allSymbols } from 'api/symbols/index';
 // import { datafeed } from './chartConfig';
 // import { okLight, okDark } from '@/assets/icons/index';
 
+import LayoutController from './components/LayoutController.vue';
 import OrderDialog from '../orderDialog/index.vue';
 import FloatMenu from './components/FloatMenu.vue';
-import OrderArea from '../orderArea/index.vue';
 import LoginDialog from '../loginDialog/index.vue';
 import FooterInfo from '../footerInfo/index.vue';
+import OrderArea from '../orderArea/index.vue';
 import SymbolList from './components/SymbolList.vue';
 import ChartList from './components/ChartList.vue';
-import LayoutController from './components/LayoutController.vue';
 
 // const { t } = useI18n();
 
@@ -158,8 +168,56 @@ const getSymbols = async () => {
 };
 getSymbols();
 
-onMounted(() => {
+// onMounted(() => {
+//   userStore.initUser();
+// });
+
+const resizeLineMousedown = () => {
+  state.isResizing = true;
+  const dragArea = document.querySelector('.dragArea') as HTMLElement;
+  const top = document.querySelector('.dragArea_item_top') as HTMLElement;
+  const down = document.querySelector('.dragArea_item_down') as HTMLElement;
+  const resizeLine = document.querySelector('.resizeLine') as HTMLElement;
+  function resize(e: MouseEvent) {
+    const containerRect = top.getBoundingClientRect();
+    let mouseY = e.clientY - containerRect.top;
+    top.style.height = `${mouseY}px`;
+    resizeLine.style.top = `${mouseY}px`;
+    down.style.height = `${dragArea.getBoundingClientRect().height - mouseY - 3}px`;
+    down.style.top = `${mouseY + 3}px`;
+  }
+  function stopResize() {
+    state.isResizing = false;
+    document.removeEventListener('mousemove', resize);
+    document.removeEventListener('mouseup', stopResize);
+  }
+  document.addEventListener('mousemove', resize);
+  document.addEventListener('mouseup', stopResize);
+};
+
+onMounted(async () => {
   userStore.initUser();
+
+  await nextTick();
+  setTimeout(() => {
+    const dragArea = document.querySelector('.dragArea') as HTMLElement;
+    var nestedSortables = [].slice.call(document.querySelectorAll('.dragArea_item'));
+    for (var i = 0; i < nestedSortables.length; i++) {
+      new Sortable(nestedSortables[i], {
+        group: 'nested',
+        animation: 150,
+        handle: '.handle',
+        fallbackOnBody: true,
+      });
+    }
+    const resizeLine = document.querySelector('.resizeLine') as HTMLElement;
+    const dragArea_item_top = document.querySelector('.dragArea_item_top') as HTMLElement;
+    const dragArea_item_down = document.querySelector('.dragArea_item_down') as HTMLElement;
+    dragArea_item_top.style.height = dragArea.getBoundingClientRect().height / 2 - 1.5 + 'px';
+    dragArea_item_down.style.height = dragArea.getBoundingClientRect().height / 2 - 3 + 'px';
+    dragArea_item_down.style.top = dragArea.getBoundingClientRect().height / 2 + 3 + 'px';
+    resizeLine.style.top = dragArea.getBoundingClientRect().height / 2 + 'px';
+  }, 1000);
 });
 </script>
 
@@ -199,13 +257,60 @@ onMounted(() => {
     }
   }
 
-  .container {
-    height: calc(100vh - 30px - 50px);
-    .container_item {
-      height: 100%;
-      width: 100%;
+  // .container {
+    
+    .dragArea {
+      height: calc(100vh - 30px - 50px);
+      // overflow: hidden;
+      width: 100vw;
+      // height: 100%;
+      box-sizing: border-box;
+      position: relative;
+
+      .dragArea_item {
+        display: flex;
+        width: 100%;
+        gap: 5px;
+        box-sizing: border-box;
+        position: absolute;
+        top: 0;
+        left: 0;
+        .demo {
+          flex: 1;
+          width: 0;
+          height: 100%;
+          box-sizing: border-box;
+          position: relative;
+          user-select: none;
+          overflow: auto;
+  
+          .container_item {
+            height: 100%;
+            width: 100%;
+          }
+  
+          .handle {
+            position: absolute;
+            top: 10px;
+            left: 5px;
+            z-index: 2;
+          }
+        }
+      }
+
+      .resizeLine {
+        height: 3px;
+        cursor: row-resize;
+        width: 100%;
+        position: absolute;
+        z-index: 9;
+
+        &:hover {
+          background-color: #7cb305;
+        }
+      }
     }
-  }
+  // }
 
   .footerInfo {
     position: fixed;
