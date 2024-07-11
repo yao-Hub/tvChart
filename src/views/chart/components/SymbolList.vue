@@ -1,8 +1,7 @@
 <template>
   <div class="main">
-    <div style="display: flex">
-      <HolderOutlined class="handle"/>
-      <a-input v-model:value="state.symbol" placeholder="搜索交易品种">
+    <div style="width: 85%;">
+      <a-input v-model:value="state.symbol" placeholder="搜索交易品种" style="margin-left: 20px;">
         <template #prefix>
           <SearchOutlined />
         </template>
@@ -19,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { SearchOutlined, HolderOutlined } from '@ant-design/icons-vue';
+import { SearchOutlined } from '@ant-design/icons-vue';
 import { reactive, computed } from 'vue';
 import { useChartSub } from '@/store/modules/chartSub';
 import { useOrder } from '@/store/modules/order'

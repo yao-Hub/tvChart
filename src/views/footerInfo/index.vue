@@ -95,6 +95,9 @@ const margin_free = computed(() => {
 
 // 保证金水平
 const margin_level = computed(() => {
+  if (+Margin.value === 0) {
+    return 0;
+  }
   if (equity.value !== '-' && Margin.value !== '-') {
     return round(+equity.value / +Margin.value * 100, 2);
   }

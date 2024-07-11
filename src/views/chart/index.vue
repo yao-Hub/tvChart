@@ -13,10 +13,18 @@
         <CaretDownOutlined />
       </div>
     </div>
-    <div class="dragArea">
-      <ChartList class="gragItem chartList" v-if="layoutStore.chartsVisable"></ChartList>
-      <SymbolList class="gragItem symbolList" v-if="layoutStore.symbolsVisable"></SymbolList>
-      <OrderArea class="gragItem orderArea" v-if="layoutStore.orderAreaVisable"></OrderArea>
+    <div class="container">
+      <DragArea @isResizing="(e: boolean) => state.isResizing = e">
+        <template v-slot:one>
+          <ChartList class="container_item" v-if="layoutStore.chartsVisable" name="one" :loading="state.isResizing"></ChartList>
+        </template>
+        <template v-slot:two>
+          <SymbolList class="container_item" v-if="layoutStore.symbolsVisable" name="two"></SymbolList>
+        </template>
+        <template v-slot:three>
+          <OrderArea class="container_item" v-if="layoutStore.orderAreaVisable"></OrderArea>
+        </template>
+      </DragArea>
     </div>
     <FooterInfo class="footerInfo"></FooterInfo>
   </div>
@@ -28,14 +36,13 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, nextTick } from 'vue';
+import { reactive, onMounted } from 'vue';
 // import { useI18n } from 'vue-i18n';
 import {
   MenuOutlined,
   ThunderboltOutlined,
   CaretDownOutlined,
 } from '@ant-design/icons-vue';
-import Sortable from 'sortablejs';
 
 import * as types from '@/types/chart/index';
 
@@ -77,6 +84,7 @@ const state = reactive({
   contextMenu: {
     // items_processor: (items: readonly library.IActionVariant[], actionsFactory: library.ActionsFactory) => setProcessor(items, actionsFactory)
   },
+  isResizing: false,
 });
 
 // const chartWidget = ref();
@@ -150,19 +158,8 @@ const getSymbols = async () => {
 };
 getSymbols();
 
-onMounted(async () => {
+onMounted(() => {
   userStore.initUser();
-  await nextTick();
-  setTimeout(() => {
-    const dragArea = document.querySelector('.dragArea') as HTMLElement;
-    Sortable.create(dragArea, {
-      animation: 100,
-      handle: '.handle',
-      group: {
-        name: 'charts',
-      },
-    });
-  }, 1000);
 });
 </script>
 
@@ -202,32 +199,11 @@ onMounted(async () => {
     }
   }
 
-  .dragArea {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5px;
-    align-content: flex-start;
-    overflow: auto;
+  .container {
     height: calc(100vh - 30px - 50px);
-
-    .gragItem {
-      resize: both;
-      overflow: auto;
-    }
-
-    .chartList {
-      width: 60%;
-      height: 50%;
-    }
-
-    .symbolList {
-      width: 39%;
-      height: 40%;
-    }
-
-    .orderArea {
+    .container_item {
+      height: 100%;
       width: 100%;
-      height: 40%;
     }
   }
 

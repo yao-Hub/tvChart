@@ -1,14 +1,11 @@
 <template>
   <div class="charts">
-    <div class="header">
-      <HolderOutlined class="handle"/>
-      <a-radio-group v-model:value="state.selectChart" style="display: flex; overflow-x: auto;">
-        <a-radio-button value="chart_1">chart_1</a-radio-button>
-        <a-radio-button value="chart_2">chart_2</a-radio-button>
-        <a-radio-button value="chart_3">chart_3</a-radio-button>
-        <a-radio-button value="chart_4">chart_4</a-radio-button>
-      </a-radio-group>
-    </div>
+    <a-radio-group v-model:value="state.selectChart" style="display: flex; overflow-x: auto;margin-left: 20px">
+      <a-radio-button value="chart_1">chart_1</a-radio-button>
+      <a-radio-button value="chart_2">chart_2</a-radio-button>
+      <a-radio-button value="chart_3">chart_3</a-radio-button>
+      <a-radio-button value="chart_4">chart_4</a-radio-button>
+    </a-radio-group>
     <TVChart
       style="height: calc(100% - 32px);"
       chartId="chart_1"
@@ -25,7 +22,6 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue';
-import { HolderOutlined } from '@ant-design/icons-vue';
 import { useChartSub } from '@/store/modules/chartSub';
 // import { useUser } from '@/store/modules/user';
 import { datafeed } from '../chartConfig';
@@ -67,10 +63,5 @@ const initChart = () => {
   padding: 5px;
   box-sizing: border-box;
   border-radius: 5px;
-}
-.header {
-  display: flex;
-  height: 32px;
-  align-items: center;
 }
 </style>

@@ -1,6 +1,5 @@
 <template>
   <div class="orderArea">
-    <HolderOutlined class="handle"/>
     <a-button v-if="!userStore.ifLogin" type="primary" @click="dialogStore.showLoginDialog" style="width: 200px; margin:auto">登录使用交易系统</a-button>
     <a-tabs v-model:activeKey="activeKey" type="card" v-else>
       <a-tab-pane v-for="item in state.menu" :key="item.key">
@@ -84,7 +83,7 @@
 <script setup lang="ts">
 import { reactive, watchEffect, nextTick, h, ref } from 'vue';
 import { cloneDeep, debounce } from 'lodash';
-import { CloseOutlined, HolderOutlined } from '@ant-design/icons-vue';
+import { CloseOutlined } from '@ant-design/icons-vue';
 import { message } from 'ant-design-vue';
 import moment from 'moment';
 
@@ -391,13 +390,11 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
 @import '@/assets/styles/_handle.scss';
 
 .orderArea {
-  // width: 100vw;
   padding: 5px 20px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  overflow-x: hidden;
-  // height: 100%;
+  overflow-y: hidden !important;
+  overflow-x: auto;
   box-sizing: border-box;
   position: relative;
   background: #525252;
@@ -419,11 +416,6 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
   //   box-shadow: inset 0 0 5px #131722;
   //   background: #131722;
   // }
-  .handle {
-    position: absolute;
-    left: 0;
-    top: 15px;
-  }
   .container {
     display: flex;
     flex-direction: column;
@@ -432,6 +424,7 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
       display: flex;
       gap: 10px;
       margin-bottom: 10px;
+      flex-wrap: wrap;
     }
   }
 }
