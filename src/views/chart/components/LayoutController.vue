@@ -1,5 +1,5 @@
 <template>
-  <a-dropdown v-model:open="visible">
+  <a-dropdown :trigger="['click']">
     <LayoutOutlined />
     <template #overlay>
       <a-menu>
@@ -18,11 +18,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 import { LayoutOutlined } from '@ant-design/icons-vue';
 import { useLayout } from '@/store/modules/layout';
 
 const layoutStore = useLayout();
 
-const visible = ref(false);
 </script>

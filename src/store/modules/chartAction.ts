@@ -6,6 +6,7 @@ import { useDialog } from './dialog';
 import { useUser } from './user';
 import { useOrder } from './order';
 import { avatar } from '@/assets/icons/index';
+import { ResolutionString } from 'public/charting_library/charting_library';
 
 const dialogStore = useDialog();
 const chartInitStore = useChartInit();
@@ -155,6 +156,17 @@ export const useChartAction = defineStore('chartAction', {
 
         Button.innerText = i18n.global.t('order.new');
       })
+    },
+
+    // 改变周期
+    changeResolution({id, resolution}: {
+      id?: string
+      resolution: ResolutionString
+    }) {
+      const widget = chartInitStore.getChartWidget(id);
+      widget?.onChartReady(() => {
+        widget.activeChart().setResolution(resolution);
+      });
     }
   }
 })

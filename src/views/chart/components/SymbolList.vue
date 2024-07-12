@@ -21,7 +21,8 @@
 import { SearchOutlined } from '@ant-design/icons-vue';
 import { reactive, computed } from 'vue';
 import { useChartSub } from '@/store/modules/chartSub';
-import { useOrder } from '@/store/modules/order'
+import { useOrder } from '@/store/modules/order';
+import { selectMatchItem } from 'utils/common/index';
 
 const chartSubStore = useChartSub();
 const orderStore = useOrder();
@@ -36,6 +37,9 @@ const state = reactive({
 });
 
 const symbols = computed(() => {
+  if (state.symbol) {
+    return selectMatchItem(chartSubStore.symbols, state.symbol, 'symbol');
+  }
   return chartSubStore.symbols;
 });
 

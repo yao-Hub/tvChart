@@ -59,3 +59,15 @@ export const CLOSE_TYPE: Record<number, string> = {
   3: '强平'
 }
 
+export const RESOLUTES: Record<string, string> = {
+  '1D': '1 days',
+  '1W': '1 weeks',
+  '1M': '1 months',
+  '60': '1 hours',
+  '240': '4 hours',
+  "1": '1 minutes',
+  "5": '5 minutes',
+  "15": '15 minutes',
+  "30": '30 minutes',
+} as const
+

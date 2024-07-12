@@ -1,10 +1,11 @@
-import { flattenDeep, groupBy, orderBy, get, cloneDeep } from 'lodash'
+import { flattenDeep, groupBy, orderBy, get, cloneDeep } from 'lodash';
 import moment from 'moment';
-import { socket } from '@/utils/socket/operation'
-import { klineHistory } from 'api/kline/index'
-import * as types from '@/types/chart/index'
-import { useChartSub } from '@/store/modules/chartSub'
-import { useOrder } from '@/store/modules/order'
+import { socket } from '@/utils/socket/operation';
+import { klineHistory } from 'api/kline/index';
+import * as types from '@/types/chart/index';
+import { useChartSub } from '@/store/modules/chartSub';
+import { useOrder } from '@/store/modules/order';
+import { RESOLUTES } from '@/constants/common';
 
 const chartSubStore = useChartSub();
 const orderStore = useOrder();
@@ -14,12 +15,12 @@ const countOptions: any = {
   '1W': 'weeks',
   '1M': 'months',
   '60': 'hours',
-  '240': [ 'hours', 4 ],
+  '240': ['hours', 4],
   "1": 'minutes',
-  "5": [ 'minutes', 5 ],
-  "15": [ 'minutes', 15 ],
-  "30": [ 'minutes', 30 ],
-}
+  "5": ['minutes', 5],
+  "15": ['minutes', 15],
+  "30": ['minutes', 30],
+};
 
 const config = {
   "supports_search": true,
@@ -29,14 +30,14 @@ const config = {
   "supports_time": true,
   "exchanges": [],
   "symbols_types": [],
-  "supported_resolutions": ["D", "W", "M", "60", "240", "1", "5", "15", "30"],
-}
+  "supported_resolutions": Object.keys(RESOLUTES),
+};
 
 const formatToSeesion = (time: number) => {
   const hours = Math.floor(time / 60);
   const second = time % 60;
   return `${hours < 9 ? '0' : ''}${hours}${second < 9 ? '0' : ''}${second}`;
-}
+};
 
 const subscribed: any = {};
 
@@ -54,7 +55,7 @@ function hasEmptyArrayValue(map: Map<string, any>) {
 }
 
 // 优化当前k线图加载
-const infoCache:any = {};
+const infoCache: any = {};
 function getCacheBars(data: any, id: string) {
   return new Promise(async (resolve, reject) => {
     try {
@@ -127,7 +128,7 @@ export const datafeed = (id: string) => {
             symbol: symbolName,
             week_day: Number(weekDay),
             session: `${preSession},${endSession}:${Number(weekDay) + 1}`
-          }
+          };
         });
         const resultTs = fTime.session || `${formatToSeesion(fTime.btime)}-${formatToSeesion(fTime.etime)}:${Number(weekDay) + 1}`;
         timeArr.push(resultTs);
@@ -149,7 +150,7 @@ export const datafeed = (id: string) => {
         has_weekly_and_monthly: true, // 月，周数据
         supported_resolutions: ["D", "W", "M", "60", "240", "1", "5", "15", "30"],
         exchange: symbolInfo?.path
-      }
+      };
 
       setTimeout(function () {
         onSymbolResolvedCallback(symbol_stub);
@@ -196,7 +197,7 @@ export const datafeed = (id: string) => {
           if (!new_one || ctm > new_one.time || (symbolInfo.name !== preSymbol && preSymbol)) {
             new_one = JSON.parse(JSON.stringify(tone));
           }
-          return tone
+          return tone;
         });
         // 生成k线数据
         data_cache.forEach(item => {
@@ -206,13 +207,13 @@ export const datafeed = (id: string) => {
             time: item.time * 1000,
           };
           bar.push(barValue);
-        })
+        });
         setTimeout(() => {
           onHistoryCallback(bar);
         });
       }).catch(() => {
         onErrorCallback(bar);
-      })
+      });
     },
 
     //实时更新
@@ -244,13 +245,13 @@ export const datafeed = (id: string) => {
         const symbolMatch = regex.test(item.symbol);
         return { index, count: (exchangeMatch ? 1 : 0) + (symbolMatch ? 1 : 0) };
       });
-  
+
       // 匹配度排列
       matches.sort((a, b) => b.count - a.count);
-  
+
       const sortedIndices = matches.map(match => match.index);
       const sortedArr = sortedIndices.map(index => chartSubStore.symbols[index]);
-  
+
       const targetList = sortedArr.map((item: types.SessionSymbolInfo) => {
         return {
           symbol: item.symbol,
@@ -259,12 +260,12 @@ export const datafeed = (id: string) => {
           exchange: item.path,
           ticker: item.symbol,
           force_session_rebuild: true
-        }
+        };
       });
-      onResultReadyCallback(targetList)
+      onResultReadyCallback(targetList);
     }
-  }
-}
+  };
+};
 
 // 报价和k线图的socket监听
 function socketOpera() {
@@ -292,8 +293,8 @@ function socketOpera() {
           low: new_one.low,
           open: new_one.open,
           volume: new_one.volume + 1
-        }
-        subscribed[id].onRealtimeCallback(newlastbar) //更新K线
+        };
+        subscribed[id].onRealtimeCallback(newlastbar); //更新K线
       }
     }
   });
@@ -301,7 +302,7 @@ function socketOpera() {
   socket.on('kline_new', function (d) {
     // 提升k线数据
     const klines = cloneDeep(d.klines);
-    orderStore.currentKline = {...klines.reverse().pop(), symbol: d.symbol};
+    orderStore.currentKline = { ...klines.reverse().pop(), symbol: d.symbol };
 
     for (const id in subscribed) {
       if (!subscribed[id].symbolInfo) { // 图表没初始化
@@ -318,12 +319,12 @@ function socketOpera() {
             low: d.klines[i].low,
             open: d.klines[i].open,
             volume: d.klines[i].volume
-          }
+          };
           if (newlastbar.time > new_one.time) {
             new_one = JSON.parse(JSON.stringify(newlastbar));
           }
           newlastbar.time = newlastbar.time * 1000;
-          subscribed[id].onRealtimeCallback(newlastbar) //更新K线
+          subscribed[id].onRealtimeCallback(newlastbar); //更新K线
         }
       }
     }
