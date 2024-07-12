@@ -17,6 +17,7 @@ interface State {
   symbols: SessionSymbolInfo[]
   barsCache: Map<string, any>
   mustSubscribeList: Array<string>
+  chartLoading: boolean
 }
 
 interface TurnSocket {
@@ -33,7 +34,8 @@ export const useChartSub = defineStore('chartSub', {
       barsCache: new Map(),
       
       // 必须需要监听品种列表
-      mustSubscribeList: []
+      mustSubscribeList: [],
+      chartLoading: false
     }
   },
   actions: {

@@ -17,7 +17,7 @@
       <div class="dragArea_item dragArea_item_top">
         <div class="demo" v-if="layoutStore.chartsVisable">
           <HolderOutlined class="handle" />
-          <ChartList class="container_item" name="one" :loading="state.isResizing"></ChartList>
+          <ChartList class="container_item" name="one" :loading="chartSubStore.chartLoading"></ChartList>
         </div>
         <div class="demo" v-if="layoutStore.symbolsVisable">
           <HolderOutlined class="handle" />
@@ -75,7 +75,6 @@ const layoutStore = useLayout();
 
 const state = reactive({
   symbol: 'XAU',
-  isResizing: false,
 });
 
 // 获取所有商品(品种)

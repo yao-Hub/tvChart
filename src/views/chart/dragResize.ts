@@ -1,5 +1,7 @@
 import { debounce } from 'lodash';
 import Sortable from 'sortablejs';
+import { useChartSub } from '@/store/modules/chartSub';
+const chartSubStore = useChartSub();
 
 // 初始化上下拖拽区域位置
 export function initDragResizeArea() {
@@ -15,7 +17,7 @@ export function initDragResizeArea() {
         document.querySelectorAll('.demo').forEach(item => {
           const element = item as HTMLElement;
           element.style.flexBasis = 'auto';
-        })
+        });
       },
     });
   }
@@ -60,7 +62,7 @@ function updateHoriLine() {
 
 // 垂直拉伸
 const resizeVertical = () => {
-  // state.isResizing = true;
+  chartSubStore.chartLoading = true;
   const dragArea = document.querySelector('.dragArea') as HTMLElement;
   const top = document.querySelector('.dragArea_item_top') as HTMLElement;
   const down = document.querySelector('.dragArea_item_down') as HTMLElement;
@@ -81,7 +83,7 @@ const resizeVertical = () => {
     down.style.top = `${mouseY + 3}px`;
   }
   function stopResize() {
-    // state.isResizing = false;
+    chartSubStore.chartLoading = false;
     updateVertLine();
     document.removeEventListener('mousemove', resize);
     document.removeEventListener('mouseup', stopResize);
@@ -120,6 +122,7 @@ function resizeHorizontal(event: MouseEvent) {
   const result_0_left = result[0].getBoundingClientRect().left;
   const relust_1_right = result[1].getBoundingClientRect().right;
   function resize({ clientX }: MouseEvent) {
+    chartSubStore.chartLoading = true;
     let leftWidht = clientX - result_0_left;
     let rightWidht = relust_1_right - clientX;
     let lineLeft = clientX - 1;
@@ -138,6 +141,7 @@ function resizeHorizontal(event: MouseEvent) {
 
   function stopResize() {
     updateHoriLine();
+    chartSubStore.chartLoading = false;
     document.removeEventListener('mousemove', resize);
     document.removeEventListener('mouseup', stopResize);
   }
