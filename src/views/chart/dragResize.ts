@@ -3,23 +3,44 @@ import Sortable from 'sortablejs';
 import { useChartSub } from '@/store/modules/chartSub';
 const chartSubStore = useChartSub();
 
-// 高宽铺满
-const selfAdaption = () => {
-  const dragArea = document.querySelector('.dragArea') as HTMLElement;
+export function backInitArea() {
   const demos = document.querySelectorAll('.demo');
-  document.querySelectorAll('.dragArea_item').forEach(item => {
-    const element = item as HTMLElement;
-    if (element.childNodes.length === 0) {
-      element.style.height = '0';
-    }
-    if (element.childNodes.length === demos.length) {
-      const fullHeight = dragArea.getBoundingClientRect().height - 3 + 'px';
-      element.style.height = fullHeight;
-      setDemoPosition();
-      updateHoriLine();
-      updateVertLine();
-    }
-  });
+  const items = Array.from(document.querySelectorAll('.dragArea_item'));
+  const ifZeroHeight = items.some(item => item.getBoundingClientRect().height === 0);
+  if (ifZeroHeight) {
+    items.forEach(item => {
+      const element = item as HTMLElement;
+      if (element.querySelectorAll('.demo').length === 0) {
+        element.style.height = '300px';
+      }
+      if (element.querySelectorAll('.demo').length !== 0 && item.getBoundingClientRect().height === 0) {
+        element.style.height = '300px';
+      }
+      if (element.querySelectorAll('.demo').length === demos.length) {
+        element.style.height = element.getBoundingClientRect().height - 300 + 'px';
+      }
+    });
+    debounceUpdateLayout();
+  }
+};
+
+export function fullArea() {
+  const dragArea = document.querySelector('.dragArea') as HTMLElement;
+  const items = Array.from(document.querySelectorAll('.dragArea_item'));
+  const demos = document.querySelectorAll('.demo');
+  const ifEmptyChild = items.some(item => item.querySelectorAll('.demo').length === 0);
+  if (ifEmptyChild) {
+    items.forEach(item => {
+      const element = item as HTMLElement;
+      if (element.querySelectorAll('.demo').length === demos.length) {
+        element.style.height = dragArea.getBoundingClientRect().height - 3 + 'px';
+      }
+      if (element.querySelectorAll('.demo').length === 0) {
+        element.style.height = '0';
+      }
+    });
+    debounceUpdateLayout();
+  }
 };
 
 // 拖拽区域
@@ -31,19 +52,8 @@ function createDragArea() {
       animation: 150,
       handle: '.handle',
       fallbackOnBody: true,
-      onStart: function () {
-        const demos = document.querySelectorAll('.demo');
-        Array.from(document.querySelectorAll('.dragArea_item')).forEach(item => {
-          const element = item as HTMLElement;
-          if (element.childNodes.length === 0) {
-            element.style.height = '300px';
-          }
-          if (element.childNodes.length === demos.length) {
-            element.style.height = element.getBoundingClientRect().height - 300 + 'px';
-            setDemoPosition();
-          }
-        });
-      },
+      onStart: backInitArea,
+      onEnd: fullArea
     });
   }
 };
@@ -53,11 +63,11 @@ function initDragAreaPosition() {
   const dragArea_item_top = document.querySelector('.dragArea_item_top') as HTMLElement;
   const dragArea_item_down = document.querySelector('.dragArea_item_down') as HTMLElement;
   dragArea_item_top.style.height = dragArea.getBoundingClientRect().height / 2 - 1.5 + 'px';
-  dragArea_item_down.style.height = dragArea.getBoundingClientRect().height / 2 - 3 + 'px';
+  dragArea_item_down.style.height = dragArea.getBoundingClientRect().height / 2 - 1.5 + 'px';
   dragArea_item_down.style.marginTop = '3px';
 }
 
-function setDemoPosition() {
+export function setDemoPosition() {
   const dragArea = document.querySelector('.dragArea') as HTMLElement;
   const dragArea_item_top = document.querySelector('.dragArea_item_top') as HTMLElement;
   const dragArea_item_down = document.querySelector('.dragArea_item_down') as HTMLElement;
@@ -93,7 +103,6 @@ function createHoriLine() {
   line.style.height = "3px";
   line.style.cursor = "row-resize";
   line.style.left = "0";
-  line.style.zIndex = '9';
   line.addEventListener("mouseover", function () {
     line.style.backgroundColor = "#7cb305";
   });
@@ -124,12 +133,12 @@ const resizeVertical = () => {
   function resize(e: MouseEvent) {
     const containerRect = top.getBoundingClientRect();
     let mouseY = e.clientY - containerRect.top;
-    // if (mouseY < 200) {
-    //   mouseY = 200;
-    // }
-    // if (mouseY > dragArea.getBoundingClientRect().height) {
-    //   mouseY = dragArea.getBoundingClientRect().height - 3;
-    // }
+    if (mouseY < 0) {
+      mouseY = 0;
+    }
+    if (mouseY > dragArea.getBoundingClientRect().height) {
+      mouseY = dragArea.getBoundingClientRect().height - 3;
+    }
     resizeLine.style.top = `${mouseY}px`;
 
     top.style.height = `${mouseY}px`;
@@ -296,10 +305,16 @@ function operaVertLine() {
   updateVertLine();
 };
 
-export const debounceUpdate = debounce(() => {
-  selfAdaption();
-  updateHoriLine();
+const debounceUpdateLayout = debounce(() => {
   setDemoPosition();
+  updateHoriLine();
+  operaVertLine();
+}, 20);
+
+const resizeUpdate = debounce(() => {
+  initDragAreaPosition();
+  setDemoPosition();
+  updateHoriLine();
   operaVertLine();
 }, 20);
 
@@ -314,7 +329,7 @@ function observerDom() {
   function callback(mutationList: MutationRecord[], observer: MutationObserver) {
     mutationList.forEach((mutation) => {
       if (mutation.type === 'childList') {
-        debounceUpdate();
+        debounceUpdateLayout();
       }
     });
   }
@@ -332,8 +347,5 @@ export function initDragResizeArea() {
   setDemoPosition();
   operaVertLine();
   observerDom();
-  window.addEventListener('resize', () => {
-    initDragAreaPosition();
-    debounceUpdate();
-  })
+  window.addEventListener('resize', resizeUpdate);
 };

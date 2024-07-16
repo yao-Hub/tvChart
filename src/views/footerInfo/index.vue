@@ -31,10 +31,10 @@
 import { computed } from 'vue';
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
-import { useChartSub } from '@/store/modules/chartSub';
+// import { useChartSub } from '@/store/modules/chartSub';
 import { round } from 'utils/common/index';
 
-const subStore = useChartSub();
+// const subStore = useChartSub();
 const userStore = useUser();
 const orderStore = useOrder();
 
@@ -62,24 +62,25 @@ const Margin = computed(() => {
     if (!loginInfo.value) {
       return '-';
     }
-    const currentPosition = orderStore.tableData.position;
-    const sum = currentPosition?.reduce((accumulator, item) => {
-      let result = 0;
-      const symbol = subStore.symbols.find(e => e.symbol === item.symbol);
-      if (symbol) {
-        const leverage = symbol.leverage;
-        const margin = symbol.margin;
-        if (leverage) {
-          result = +item.open_price * symbol.contract_size / leverage * item.volume / 100;
-        } else {
-          result = margin * item.volume / 100;
-        }
-        return accumulator + result;
-      } else {
-        return accumulator;
-      }
-    }, 0);
-    return round(sum || 0, 2);
+    return loginInfo.value.margin;
+    // const currentPosition = orderStore.tableData.position;
+    // const sum = currentPosition?.reduce((accumulator, item) => {
+    //   let result = 0;
+    //   const symbol = subStore.symbols.find(e => e.symbol === item.symbol);
+    //   if (symbol) {
+    //     const leverage = symbol.leverage;
+    //     const margin = symbol.margin;
+    //     if (leverage) {
+    //       result = +item.open_price * symbol.contract_size / leverage * item.volume / 100;
+    //     } else {
+    //       result = margin * item.volume / 100;
+    //     }
+    //     return accumulator + result;
+    //   } else {
+    //     return accumulator;
+    //   }
+    // }, 0);
+    // return round(sum || 0, 2);
   } catch (error) {
     return '-'
   }

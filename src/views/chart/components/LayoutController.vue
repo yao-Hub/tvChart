@@ -1,16 +1,16 @@
 <template>
-  <a-dropdown :trigger="['click']">
+  <a-dropdown :trigger="['click']" v-model:open="visible">
     <LayoutOutlined />
     <template #overlay>
       <a-menu>
         <a-menu-item>
-          <a-checkbox v-model:checked="layoutStore.chartsVisable">图表列表</a-checkbox>
+          <a-checkbox v-model:checked="layoutStore.chartsVisable" @change="checkboxChange">图表列表</a-checkbox>
         </a-menu-item>
         <a-menu-item>
-          <a-checkbox v-model:checked="layoutStore.symbolsVisable">品种列表</a-checkbox>
+          <a-checkbox v-model:checked="layoutStore.symbolsVisable" @change="checkboxChange">品种列表</a-checkbox>
         </a-menu-item>
         <a-menu-item>
-          <a-checkbox v-model:checked="layoutStore.orderAreaVisable">订单列表</a-checkbox>
+          <a-checkbox v-model:checked="layoutStore.orderAreaVisable" @change="checkboxChange">订单列表</a-checkbox>
         </a-menu-item>
       </a-menu>
     </template>
@@ -18,9 +18,18 @@
 </template>
 
 <script setup lang="ts">
+import { ref, nextTick } from 'vue';
 import { LayoutOutlined } from '@ant-design/icons-vue';
 import { useLayout } from '@/store/modules/layout';
+import { backInitArea, fullArea } from '../dragResize';
+
+const visible = ref(false);
 
 const layoutStore = useLayout();
+
+const checkboxChange = async (e:any) => {
+  await nextTick();
+  e.target.checked ? backInitArea() : fullArea();
+};
 
 </script>
