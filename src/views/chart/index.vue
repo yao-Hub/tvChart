@@ -142,27 +142,21 @@ onMounted(async () => {
 
   .dragArea {
     height: calc(100vh - 30px - 50px);
-    width: 100vw;
+    width: 100%;
     box-sizing: border-box;
     position: relative;
 
     .dragArea_item {
-      display: flex;
       width: 100%;
-      gap: 5px;
       box-sizing: border-box;
-      position: absolute;
-      top: 0;
-      left: 0;
+      position: relative;
 
       .demo {
-        flex: 0 1 auto;
-        width: 100%;
-        height: 100%;
         box-sizing: border-box;
-        position: relative;
+        position: absolute;
         user-select: none;
         overflow: auto;
+        // border: 1px solid red;
 
         .container_item {
           height: 100%;

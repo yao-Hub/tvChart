@@ -393,8 +393,7 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
   padding: 5px 20px;
   display: flex;
   flex-direction: column;
-  overflow-y: hidden !important;
-  overflow-x: auto;
+  overflow: auto;
   box-sizing: border-box;
   position: relative;
   background: #525252;
