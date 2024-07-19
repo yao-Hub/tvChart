@@ -49,8 +49,6 @@ import { useDialog } from '@/store/modules/dialog';
 import { useOrder } from '@/store/modules/order';
 import { useChartSub } from '@/store/modules/chartSub';
 
-import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation';
-
 import { klineHistory } from 'api/kline/index'
 
 import Limit from './components/orders/Limit.vue';
@@ -117,11 +115,6 @@ const open = computed(() => {
 
 // 弹框关闭
 const handleCancel = () => {
-  // 取消订阅
-  const unsubList = state.socketList.filter(e => e !== orderStore.currentSymbol);
-  unsubList.forEach(item => {
-    unsubscribeSocket({ resolution: '1', symbol: item });
-  });
   dialogStore.closeOrderDialog();
 }
 
@@ -175,7 +168,6 @@ const symbolChange = async (value: string) => {
   if (state.socketList.indexOf(value) === -1) {
     state.socketList.push(value);
   }
-  subscribeSocket({ resolution: '1', symbol: value });
   await getklineHistory();
   state.loading = false;
 };

@@ -3,9 +3,17 @@
     <div class="header">
       <div class="header__left">
         <MenuOutlined />
-        <a-button type="link" @click="orderStore.createOrder()">创建订单</a-button>
+        <a-tooltip title="快捷键：F9">
+          <a-button type="link" @click="orderStore.createOrder()">新订单</a-button>
+        </a-tooltip>
         <LayoutController></LayoutController>
         <ThunderboltOutlined />
+        <a-tooltip title="单图模式">
+          <BorderOutlined @click="chartInitStore.chartLayoutType = 'single'"/>
+        </a-tooltip>
+        <a-tooltip title="多图模式">
+          <AppstoreFilled @click="chartInitStore.chartLayoutType = 'multiple'"/>
+        </a-tooltip>
       </div>
       <div class="header__right">
         <span>账号</span>
@@ -46,7 +54,9 @@ import {
   MenuOutlined,
   ThunderboltOutlined,
   CaretDownOutlined,
-  HolderOutlined
+  HolderOutlined,
+  BorderOutlined,
+  AppstoreFilled
 } from '@ant-design/icons-vue';
 
 import { useChartInit } from '@/store/modules/chartInit';
@@ -85,8 +95,7 @@ const getSymbols = async () => {
     chartSubStore.setSymbols(res.data);
     state.symbol = res.data[0].symbol;
     chartInitStore.loading = false;
-  } catch (error) {
-    console.log(error);
+  } catch {
     chartInitStore.loading = false;
   }
 };
@@ -100,7 +109,7 @@ onMounted(async () => {
   await nextTick();
   setTimeout(() => {
     initDragResizeArea();
-  }, 500);
+  }, 200);
 });
 </script>
 
@@ -168,6 +177,7 @@ onMounted(async () => {
           top: 10px;
           left: 5px;
           z-index: 2;
+          cursor: grab;
         }
       }
     }

@@ -3,6 +3,11 @@ import Sortable from 'sortablejs';
 import { useChartSub } from '@/store/modules/chartSub';
 const chartSubStore = useChartSub();
 
+const moving = {
+  horizontalLine: false,
+  verticalLine: false
+};
+
 export function backInitArea() {
   const demos = document.querySelectorAll('.demo');
   const items = Array.from(document.querySelectorAll('.dragArea_item'));
@@ -45,13 +50,14 @@ export function fullArea() {
 
 // 拖拽区域
 function createDragArea() {
-  var nestedSortables = [].slice.call(document.querySelectorAll('.dragArea_item'));
-  for (var i = 0; i < nestedSortables.length; i++) {
-    new Sortable(nestedSortables[i], {
-      group: 'nested',
+  const dragItem = [].slice.call(document.querySelectorAll('.dragArea_item'));
+  for (var i = 0; i < dragItem.length; i++) {
+    new Sortable(dragItem[i], {
+      group: 'dragItem',
       animation: 150,
       handle: '.handle',
-      fallbackOnBody: true,
+      swapThreshold: 0.65,
+      fallbackOnBody: false,
       onStart: backInitArea,
       onEnd: fullArea
     });
@@ -101,15 +107,31 @@ function createHoriLine() {
   line.className = 'resize_handler_vertical';
   line.style.position = "absolute";
   line.style.height = "3px";
-  line.style.cursor = "row-resize";
+  line.style.cursor = "ns-resize";
   line.style.left = "0";
   line.addEventListener("mouseover", function () {
     line.style.backgroundColor = "#7cb305";
   });
   line.addEventListener("mouseout", function () {
+    if (moving.verticalLine) {
+      return;
+    }
     line.style.backgroundColor = "";
   });
-  line.addEventListener("mousedown", resizeVertical);
+  line.addEventListener("mouseup", function () {
+    line.style.backgroundColor = "";
+    moving.verticalLine = false;
+    document.querySelectorAll('.resize_handler_horizontal').forEach(item => {
+      (item as HTMLElement).style.removeProperty('display');
+    })
+  });
+  line.addEventListener("mousedown", () => {
+    document.querySelectorAll('.resize_handler_horizontal').forEach(item => {
+      (item as HTMLElement).style.display = 'none';
+    })
+    moving.verticalLine = true;
+    resizeVertical();
+  });
   document.querySelector('.dragArea')?.appendChild(line);
   updateHoriLine();
 };
@@ -221,15 +243,25 @@ function createVertLine(addNum: number) {
     line.className = 'resize_handler_horizontal';
     line.style.position = "absolute";
     line.style.width = "3px";
-    line.style.cursor = "col-resize";
+    line.style.cursor = "ew-resize";
     line.style.zIndex = '99';
     line.addEventListener("mouseover", function () {
       line.style.backgroundColor = "#7cb305";
     });
     line.addEventListener("mouseout", function () {
+      if (moving.horizontalLine) {
+        return;
+      }
       line.style.backgroundColor = "";
     });
-    line.addEventListener("mousedown", resizeHorizontal);
+    line.addEventListener("mouseup", function () {
+      line.style.backgroundColor = "";
+      moving.horizontalLine = false;
+    });
+    line.addEventListener("mousedown", (e) => {
+      moving.horizontalLine = true;
+      resizeHorizontal(e);
+    });
     document.querySelector('.dragArea')?.appendChild(line);
   }
 };
@@ -328,6 +360,7 @@ function observerDom() {
   };
   function callback(mutationList: MutationRecord[], observer: MutationObserver) {
     mutationList.forEach((mutation) => {
+      console.log(mutation)
       if (mutation.type === 'childList') {
         debounceUpdateLayout();
       }
