@@ -11,36 +11,22 @@
     </a-tabs>
     <div class="charts_container">
       <div
-        class="charts_container_item"
-        :style="{paddingLeft: chartType === 'multiple' ? '20px' : 0}"
-        v-show="(state.activeKey === 'chart_1' && chartType === 'single') || chartType === 'multiple'">
-        <HolderOutlined class="handle" v-if="chartType === 'multiple'"/>
-        <TVChart
-          style="flex: 1; height: 100%;"
-          chartId="chart_1"
-          mainChart
-          :loading="props.loading"
-          :datafeed="datafeed('chart_1')"
-          :symbol="state.symbol"
-          :compareSymbols="compareSymbols"
-          :contextMenu="state.contextMenu"
-          @initChart="initChart">
-        </TVChart>
-      </div>
-      <div
         :style="{paddingLeft: chartType === 'multiple' ? '20px' : 0}"
         class="charts_container_item"
         v-for="id in state.chartIds"
+        :id="id"
         v-show="(state.activeKey === id && chartType === 'single') || chartType === 'multiple'">
         <HolderOutlined class="handle" v-if="chartType === 'multiple'"/>
         <TVChart
           :chartId="id"
+          :mainChart="id === 'chart_1'"
           style="flex: 1; height: 100%;"
           :loading="props.loading"
           :datafeed="datafeed(id)"
           :symbol="state.symbol"
-          :disabledFeatures="['left_toolbar', 'header_saveload']"
-          :compareSymbols="compareSymbols">
+          :disabledFeatures="id === 'chart_1' ? [] : ['left_toolbar', 'header_saveload']"
+          :compareSymbols="compareSymbols"
+          @initChart="initChart(id)">
         </TVChart>
       </div>
     </div>
@@ -48,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from 'vue';
+import { reactive, computed, onMounted } from 'vue';
 import { useChartInit } from '@/store/modules/chartInit';
 import { useChartSub } from '@/store/modules/chartSub';
 import { datafeed } from '../chartConfig';
@@ -74,7 +60,7 @@ const state = reactive({
     // items_processor: (items: readonly library.IActionVariant[], actionsFactory: library.ActionsFactory) => setProcessor(items, actionsFactory)
   },
   activeKey: 'chart_1',
-  chartIds: [] as string[],
+  chartIds: ['chart_1'] as string[],
 });
 
 const compareSymbols = computed(() => {
@@ -97,27 +83,50 @@ const chartType =  computed(() => {
 });
 
 // widget初始化回调
-const initChart = () => {
+const initChart = (id: string) => {
   // 监听点击报价加号按钮
   // chartSubStore.subscribePlusBtn();
   // chartSubStore.subscribeMouseDown();
   chartSubStore.subscribeKeydown();
+};
+
+onMounted(() => {
   const dragArea = document.querySelector('.charts_container');
   new Sortable(dragArea, {
     animation: 150,
-    swapThreshold: 0.65,
+    swapThreshold: 1,
     handle: '.handle',
+    onStart: function(evt: any) {
+      const id = evt.item.id;
+      const symbol = chartInitStore.getChartSymbol(id);
+      chartInitStore.setCacheSymbol(symbol, id);
+    },
+    onEnd: function(evt: any) {
+      const id = evt.item.id;
+      const cacheSymbol = chartInitStore.getCacheSymbol(id);
+      if (cacheSymbol) {
+        chartInitStore.clearCacheSymbol(id);
+        const widget = chartInitStore.getChartWidget(id);
+        widget?.onChartReady(() => {
+          widget?.activeChart().setSymbol(cacheSymbol);
+        });
+      }
+    }
   });
-};
+});
 
 function onEdit(targetKey: string, action: string) {
   if (action === 'add') {
     const len = chartInitStore.chartWidgetList.length;
     state.chartIds.push(`chart_${len + 1}`);
+    state.activeKey = `chart_${len + 1}`;
   } else {
     const index = state.chartIds.indexOf(targetKey);
     state.chartIds.splice(index, 1);
     chartInitStore.removeChartWidget(targetKey);
+    if (targetKey === state.activeKey) {
+      state.activeKey = state.chartIds[index - 1];
+    }
   }
 };
 

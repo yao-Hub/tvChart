@@ -10,6 +10,7 @@ interface State {
   loading: Boolean
   mainId: string
   chartLayoutType: 'single' | 'multiple'
+  cacheSymbols: Record<string, string>
 }
 
 export const useChartInit = defineStore('chartInit', {
@@ -18,7 +19,8 @@ export const useChartInit = defineStore('chartInit', {
       chartWidgetList: [],
       loading: false,
       mainId: '',
-      chartLayoutType: 'single'
+      chartLayoutType: 'single',
+      cacheSymbols: {}
     }
   },
   actions: {
@@ -40,6 +42,21 @@ export const useChartInit = defineStore('chartInit', {
       this.chartWidgetList.forEach(item => {
         item.symbol = item.widget.symbolInterval().symbol;
       });
+    },
+    getChartSymbol(id?:string) {
+      const findId = id || this.mainId;
+      return this.chartWidgetList.find(e => e.id === findId)!.symbol;
+    },
+    setCacheSymbol(symbol:string, id?:string) {
+      const findId = id || this.mainId;
+      this.cacheSymbols[findId] = symbol;
+    },
+    getCacheSymbol(id?:string) {
+      const findId = id || this.mainId;
+      return this.cacheSymbols[findId];
+    },
+    clearCacheSymbol(id:string) {
+      delete this.cacheSymbols[id];
     }
   }
 })

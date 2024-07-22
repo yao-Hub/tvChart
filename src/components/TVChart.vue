@@ -82,11 +82,11 @@ const props = defineProps({
     type: String,
   },
   disabledFeatures: {
-    default: ['use_localstorage_for_settings'],
+    default: [],
     type: Array,
   },
   enabledFeatures: {
-    default: ['move_logo_to_main_pane', 'chart_crosshair_menu'],
+    default: [],
     type: Array,
   },
   chartsStorageUrl: {
@@ -175,11 +175,6 @@ const initonReady = () => {
 
       if (props.mainChart) {
         chartInitStore.mainId = props.chartId;
-        // const chartActionStore = useChartAction();
-        // 增加左上角头像
-        // chartActionStore.createAvatar();
-        // 增加新订单按钮
-        // chartActionStore.createAddOrderBtn();
       }
       emit('initChart');
     });

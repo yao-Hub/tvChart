@@ -118,7 +118,7 @@ function createHoriLine() {
     }
     line.style.backgroundColor = "";
   });
-  line.addEventListener("mouseup", function () {
+  document.addEventListener("mouseup", function () {
     line.style.backgroundColor = "";
     moving.verticalLine = false;
     document.querySelectorAll('.resize_handler_horizontal').forEach(item => {
@@ -155,11 +155,8 @@ const resizeVertical = () => {
   function resize(e: MouseEvent) {
     const containerRect = top.getBoundingClientRect();
     let mouseY = e.clientY - containerRect.top;
-    if (mouseY < 0) {
-      mouseY = 0;
-    }
-    if (mouseY > dragArea.getBoundingClientRect().height) {
-      mouseY = dragArea.getBoundingClientRect().height - 3;
+    if (mouseY < 180 || mouseY > dragArea.getBoundingClientRect().height - 180) {
+      return;
     }
     resizeLine.style.top = `${mouseY}px`;
 
@@ -206,24 +203,18 @@ function resizeHorizontal(event: MouseEvent) {
       }
     }
   }
-  const result_0_left = result[0].getBoundingClientRect().left;
-  const relust_1_right = result[1].getBoundingClientRect().right;
+
   function resize({ clientX }: MouseEvent) {
     chartSubStore.chartLoading = true;
-    let leftWidht = clientX - result_0_left;
-    let rightWidht = relust_1_right - clientX;
-    let lineLeft = clientX - 1;
-    if (leftWidht < 200) {
-      leftWidht = 200;
-      lineLeft = result[0].getBoundingClientRect().right + 3;
-    }
-    if (rightWidht < 200) {
-      rightWidht = 200;
-      lineLeft = result[1].getBoundingClientRect().left - 3;
+    let lineLeft = clientX;
+    let leftWidht = clientX - result[0].getBoundingClientRect().left;
+    let rightWidht = result[1].getBoundingClientRect().right - clientX;
+    if (leftWidht < 200 || rightWidht < 200) {
+      return;
     }
     result[0].style.width = `${leftWidht}px`;
     result[1].style.width = `${rightWidht - 3}px`;
-    result[1].style.left = `${lineLeft + 4}px`;
+    result[1].style.left = `${lineLeft + 3}px`;
     target.style.left = `${lineLeft}px`;
   }
 
@@ -254,7 +245,7 @@ function createVertLine(addNum: number) {
       }
       line.style.backgroundColor = "";
     });
-    line.addEventListener("mouseup", function () {
+    document.addEventListener("mouseup", function () {
       line.style.backgroundColor = "";
       moving.horizontalLine = false;
     });
@@ -293,7 +284,7 @@ async function updateVertLine() {
       const y = item.getBoundingClientRect().y;
       horiLines[count].style.top = `${y - 50}px`;
       horiLines[count].style.height = `${height}px`;
-      horiLines[count].style.left = `${x - 4}px`;
+      horiLines[count].style.left = `${x - 3}px`;
       count++;
     }
   });
@@ -304,7 +295,7 @@ async function updateVertLine() {
       const y = item.getBoundingClientRect().y;
       horiLines[count].style.top = `${y - 50}px`;
       horiLines[count].style.height = `${height}px`;
-      horiLines[count].style.left = `${x - 4}px`;
+      horiLines[count].style.left = `${x - 3}px`;
       count++;
     }
   });
