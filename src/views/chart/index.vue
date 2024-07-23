@@ -22,7 +22,7 @@
       </div>
     </div>
     <div class="dragArea">
-      <div class="dragArea_item dragArea_item_top">
+      <div class="dragArea_item">
         <div class="demo" v-if="layoutStore.chartsVisable">
           <HolderOutlined class="handle" />
           <ChartList class="container_item" name="one" :loading="chartSubStore.chartLoading"></ChartList>
@@ -32,7 +32,7 @@
           <SymbolList class="container_item" name="two"></SymbolList>
         </div>
       </div>
-      <div class="dragArea_item dragArea_item_down">
+      <div class="dragArea_item">
         <div class="demo" v-if="layoutStore.orderAreaVisable">
           <HolderOutlined class="handle" />
           <OrderArea class="container_item"></OrderArea>
@@ -115,11 +115,6 @@ onMounted(async () => {
 
 <style scoped lang="scss">
 @import '@/assets/styles/_handle.scss';
-
-.divider {
-  background-color: #434651;
-}
-
 .chart {
   height: 100vh;
   display: flex;
@@ -133,7 +128,8 @@ onMounted(async () => {
     justify-content: space-between;
     align-items: center;
     height: 50px;
-    border-bottom: 1px solid #434651;
+    border-bottom: 1px solid;
+    @include border_color('border');
     box-sizing: border-box;
 
     .header__left {

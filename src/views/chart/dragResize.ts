@@ -8,6 +8,8 @@ const moving = {
   verticalLine: false
 };
 
+let startY: number;
+
 export function backInitArea() {
   const demos = document.querySelectorAll('.demo');
   const items = Array.from(document.querySelectorAll('.dragArea_item'));
@@ -66,105 +68,132 @@ function createDragArea() {
 
 function initDragAreaPosition() {
   const dragArea = document.querySelector('.dragArea') as HTMLElement;
-  const dragArea_item_top = document.querySelector('.dragArea_item_top') as HTMLElement;
-  const dragArea_item_down = document.querySelector('.dragArea_item_down') as HTMLElement;
-  dragArea_item_top.style.height = dragArea.getBoundingClientRect().height / 2 - 1.5 + 'px';
-  dragArea_item_down.style.height = dragArea.getBoundingClientRect().height / 2 - 1.5 + 'px';
-  dragArea_item_down.style.marginTop = '3px';
+  const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  dragArea_items.forEach((item, index, arr) => {
+    const element = item as HTMLElement;
+    element.style.height = dragArea.getBoundingClientRect().height / arr.length - (1.5 * arr.length - 1) + 'px';
+    if (index > 0) {
+      element.style.marginTop = '3px';
+    }
+  });
 }
 
 export function setDemoPosition() {
   const dragArea = document.querySelector('.dragArea') as HTMLElement;
-  const dragArea_item_top = document.querySelector('.dragArea_item_top') as HTMLElement;
-  const dragArea_item_down = document.querySelector('.dragArea_item_down') as HTMLElement;
-  const topDemos = dragArea_item_top.querySelectorAll('.demo') as NodeListOf<HTMLElement>;
-  const downDemos = dragArea_item_down.querySelectorAll('.demo') as NodeListOf<HTMLElement>;
-  topDemos.forEach((item, index) => {
-    item.style.width = dragArea.getBoundingClientRect().width / topDemos.length - (topDemos.length) + 'px';
-    item.style.height = dragArea_item_top.getBoundingClientRect().height + 'px';
-    item.style.top = '0';
-    if (index === 0) {
-      item.style.left = '0';
-    } else {
-      item.style.left = (dragArea.getBoundingClientRect().width / topDemos.length + 1) * index + 'px';
-    }
-  });
-  downDemos.forEach((item, index) => {
-    item.style.width = dragArea.getBoundingClientRect().width / downDemos.length - (topDemos.length) + 'px';
-    item.style.height = dragArea_item_down.getBoundingClientRect().height + 'px';
-    item.style.top = '0';
-    if (index === 0) {
-      item.style.left = '0';
-    } else {
-      item.style.left = (dragArea.getBoundingClientRect().width / downDemos.length + 1) * index + 'px';
-    }
+  const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  dragArea_items.forEach(item => {
+    const demos = item.querySelectorAll('.demo') as NodeListOf<HTMLElement>;
+    demos.forEach((demo, index) => {
+      const element = demo as HTMLElement;
+      element.style.width = dragArea.getBoundingClientRect().width / demos.length - (demos.length) + 'px';
+      element.style.height = item.getBoundingClientRect().height + 'px';
+      element.style.top = '0';
+      if (index === 0) {
+        element.style.left = '0';
+      } else {
+        element.style.left = (dragArea.getBoundingClientRect().width / demos.length + 1) * index + 'px';
+      }
+    });
   });
 };
 
 // 增加水平线
-function createHoriLine() {
-  const line = document.createElement("div");
-  line.className = 'resize_handler_vertical';
-  line.style.position = "absolute";
-  line.style.height = "3px";
-  line.style.cursor = "ns-resize";
-  line.style.left = "0";
-  line.addEventListener("mouseover", function () {
-    line.style.backgroundColor = "#7cb305";
-  });
-  line.addEventListener("mouseout", function () {
-    if (moving.verticalLine) {
-      return;
-    }
-    line.style.backgroundColor = "";
-  });
-  document.addEventListener("mouseup", function () {
-    line.style.backgroundColor = "";
-    moving.verticalLine = false;
-    document.querySelectorAll('.resize_handler_horizontal').forEach(item => {
-      (item as HTMLElement).style.removeProperty('display');
-    })
-  });
-  line.addEventListener("mousedown", () => {
-    document.querySelectorAll('.resize_handler_horizontal').forEach(item => {
-      (item as HTMLElement).style.display = 'none';
-    })
-    moving.verticalLine = true;
-    resizeVertical();
-  });
-  document.querySelector('.dragArea')?.appendChild(line);
-  updateHoriLine();
+function createHoriLine(addNum: number) {
+  for (let index = 0; index < addNum; index++) {
+    const line = document.createElement("div");
+    line.className = 'resize_handler_vertical';
+    line.style.position = "absolute";
+    line.style.height = "3px";
+    line.style.cursor = "ns-resize";
+    line.style.left = "0";
+    line.style.top = "0";
+    line.addEventListener("mouseover", function () {
+      line.style.backgroundColor = "#7cb305";
+    });
+    line.addEventListener("mouseout", function () {
+      if (moving.verticalLine) {
+        return;
+      }
+      line.style.backgroundColor = "";
+    });
+    document.addEventListener("mouseup", function () {
+      line.style.backgroundColor = "";
+      moving.verticalLine = false;
+      document.querySelectorAll('.resize_handler_horizontal').forEach(item => {
+        (item as HTMLElement).style.removeProperty('display');
+      });
+    });
+    line.addEventListener("mousedown", (e) => {
+      document.querySelectorAll('.resize_handler_horizontal').forEach(item => {
+        (item as HTMLElement).style.display = 'none';
+      });
+      moving.verticalLine = true;
+      startY = e.pageY;
+      resizeVertical(e);
+    });
+    document.querySelector('.dragArea')?.appendChild(line);
+  }
 };
 
 // 水平线位置
 function updateHoriLine() {
-  const line = document.querySelector('.resize_handler_vertical') as HTMLElement;
-  const dragArea_item_top = document.querySelector('.dragArea_item_top') as HTMLElement;
-  line.style.top = dragArea_item_top.getBoundingClientRect().height + 'px';
-  const dragArea = document.querySelector('.dragArea') as HTMLElement;
-  line.style.width = dragArea.getBoundingClientRect().width + 'px';
+  let count = 0;
+  const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  const vertLine = document.querySelectorAll('.resize_handler_vertical') as NodeListOf<HTMLElement>;
+  dragArea_items.forEach((item, index, arr) => {
+    if (index > 0) {
+      const element = arr[index - 1] as HTMLElement;
+      vertLine[count].style.top = `${element.getBoundingClientRect().bottom - 50}px`;
+      vertLine[count].style.width = element.getBoundingClientRect().width + 'px';
+      count ++;
+    }
+  })
 };
 
-// 垂直拉伸
-const resizeVertical = () => {
+// 水平线垂直拉伸
+const resizeVertical = (event: MouseEvent) => {
   chartSubStore.chartLoading = true;
-  const dragArea = document.querySelector('.dragArea') as HTMLElement;
-  const top = document.querySelector('.dragArea_item_top') as HTMLElement;
-  const down = document.querySelector('.dragArea_item_down') as HTMLElement;
-  const resizeLine = document.querySelector('.resize_handler_vertical') as HTMLElement;
+  let result: HTMLDivElement[] = [];
+
+  const lineTarget = event.target as HTMLDivElement;
+  const lineX = lineTarget.getBoundingClientRect().x;
+  const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  const sameXItems = Array.from(dragArea_items).filter(item => {
+    const itemX = item.getBoundingClientRect().x;
+    // 使用一个误差范围来比较浮点数
+    const epsilon = 3;
+    return Math.abs(itemX - lineX) < epsilon;
+  });
+
+  // 查找线两边的item
+  let minDiff = window.innerHeight;
+  const lineY = lineTarget.getBoundingClientRect().y;
+  for (let i = 0; i < sameXItems.length - 1; i++) {
+    const preDemoY = sameXItems[i].getBoundingClientRect().y;
+    const nextDemoY = sameXItems[i + 1].getBoundingClientRect().y;
+    if (preDemoY < lineY && nextDemoY > lineY) {
+      let diff = nextDemoY - preDemoY;
+      if (diff < minDiff) {
+        minDiff = diff;
+        result = [sameXItems[i] as HTMLDivElement, sameXItems[i + 1] as HTMLDivElement];
+      }
+    }
+  }
+  const result_0_height = result[0].getBoundingClientRect().height;
+  const result_1_height = result[1].getBoundingClientRect().height;
   function resize(e: MouseEvent) {
-    const containerRect = top.getBoundingClientRect();
-    let mouseY = e.clientY - containerRect.top;
-    if (mouseY < 180 || mouseY > dragArea.getBoundingClientRect().height - 180) {
+    let mouseY = e.clientY - 50;
+    const offset = e.pageY - startY;
+    const topHeight = result_0_height + offset;
+    const downHeight = result_1_height - offset;
+    if (topHeight < 150 || downHeight < 150) {
       return;
     }
-    resizeLine.style.top = `${mouseY}px`;
-
-    top.style.height = `${mouseY}px`;
-    top.querySelectorAll('.demo').forEach(item => (item as HTMLElement).style.height = `${mouseY}px`);
-
-    down.style.height = `${dragArea.getBoundingClientRect().height - mouseY - 3}px`;
-    down.querySelectorAll('.demo').forEach(item => (item as HTMLElement).style.height = `${dragArea.getBoundingClientRect().height - mouseY - 3}px`);
+    lineTarget.style.top = `${mouseY - 1.5}px`;
+    result[0].style.height = `${topHeight}px`;
+    result[0].querySelectorAll('.demo').forEach(item => (item as HTMLElement).style.height = `${topHeight}px`);
+    result[1].style.height = `${downHeight}px`;
+    result[1].querySelectorAll('.demo').forEach(item => (item as HTMLElement).style.height = `${downHeight}px`);
   }
   function stopResize() {
     chartSubStore.chartLoading = false;
@@ -176,55 +205,31 @@ const resizeVertical = () => {
   document.addEventListener('mouseup', stopResize);
 };
 
-// 水平拉伸
-function resizeHorizontal(event: MouseEvent) {
-  let result: HTMLDivElement[] = [];
-  const demos = document.querySelectorAll('.demo');
-  const target = event.target as HTMLDivElement;
-  const lineY = target.getBoundingClientRect().y;
-  // 跟线在同一层的demo
-  const sameYDemos = Array.from(demos).filter(item => {
-    const itemY = item.getBoundingClientRect().y;
-    // 使用一个误差范围来比较浮点数
-    const epsilon = 3;
-    return Math.abs(itemY - lineY) < epsilon;
+// 删除水平线
+function delHoriLine(delNum: number) {
+  let count = delNum;
+  const horiLines = document.querySelectorAll('.resize_handler_vertical');
+  horiLines.forEach(item => {
+    if (count > 0) {
+      item.remove();
+      count--;
+    }
   });
-  // 查找线两边的demo
-  let minDiff = window.innerWidth;
-  const lineX = target.getBoundingClientRect().x;
-  for (let i = 0; i < sameYDemos.length - 1; i++) {
-    const preDemoX = sameYDemos[i].getBoundingClientRect().x;
-    const nextDemoX = sameYDemos[i + 1].getBoundingClientRect().x;
-    if (preDemoX < lineX && nextDemoX > lineX) {
-      let diff = nextDemoX - preDemoX;
-      if (diff < minDiff) {
-        minDiff = diff;
-        result = [sameYDemos[i] as HTMLDivElement, sameYDemos[i + 1] as HTMLDivElement];
-      }
-    }
-  }
+};
 
-  function resize({ clientX }: MouseEvent) {
-    chartSubStore.chartLoading = true;
-    let lineLeft = clientX;
-    let leftWidht = clientX - result[0].getBoundingClientRect().left;
-    let rightWidht = result[1].getBoundingClientRect().right - clientX;
-    if (leftWidht < 200 || rightWidht < 200) {
-      return;
-    }
-    result[0].style.width = `${leftWidht}px`;
-    result[1].style.width = `${rightWidht - 3}px`;
-    result[1].style.left = `${lineLeft + 3}px`;
-    target.style.left = `${lineLeft}px`;
+// 水平线curd
+function operaHoriLine() {
+  const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  const horiLines = document.querySelectorAll('.resize_handler_vertical');
+  // 新增
+  if (horiLines.length < dragArea_items.length - 1) {
+    createHoriLine(dragArea_items.length - 1);
   }
-
-  function stopResize() {
-    chartSubStore.chartLoading = false;
-    document.removeEventListener('mousemove', resize);
-    document.removeEventListener('mouseup', stopResize);
+  // 删除
+  if (horiLines.length > dragArea_items.length - 1) {
+    delHoriLine(horiLines.length - dragArea_items.length + 1);
   }
-  document.addEventListener('mousemove', resize);
-  document.addEventListener('mouseup', stopResize);
+  updateHoriLine();
 };
 
 // 增加竖直线
@@ -260,8 +265,8 @@ function createVertLine(addNum: number) {
 // 删除竖直线
 function delVertLine(delNum: number) {
   let count = delNum;
-  const horiLines = document.querySelectorAll('.resize_handler_horizontal');
-  horiLines.forEach(item => {
+  const vertLines = document.querySelectorAll('.resize_handler_horizontal');
+  vertLines.forEach(item => {
     if (count > 0) {
       item.remove();
       count--;
@@ -272,60 +277,94 @@ function delVertLine(delNum: number) {
 // 更新竖直线的位置
 async function updateVertLine() {
   let count = 0;
-  const dragArea_item_top = document.querySelector('.dragArea_item_top') as HTMLElement;
-  const dragArea_item_down = document.querySelector('.dragArea_item_down') as HTMLElement;
-  const topDemo = dragArea_item_top.querySelectorAll('.demo');
-  const downDemo = dragArea_item_down.querySelectorAll('.demo');
-  const horiLines = document.querySelectorAll('.resize_handler_horizontal') as NodeListOf<HTMLElement>;
-  topDemo.forEach((item, index) => {
-    if (index > 0) {
-      const x = item.getBoundingClientRect().x;
-      const height = item.getBoundingClientRect().height;
-      const y = item.getBoundingClientRect().y;
-      horiLines[count].style.top = `${y - 50}px`;
-      horiLines[count].style.height = `${height}px`;
-      horiLines[count].style.left = `${x - 3}px`;
-      count++;
-    }
-  });
-  downDemo.forEach((item, index) => {
-    if (index > 0) {
-      const x = item.getBoundingClientRect().x;
-      const height = item.getBoundingClientRect().height;
-      const y = item.getBoundingClientRect().y;
-      horiLines[count].style.top = `${y - 50}px`;
-      horiLines[count].style.height = `${height}px`;
-      horiLines[count].style.left = `${x - 3}px`;
-      count++;
-    }
+  const vertLines = document.querySelectorAll('.resize_handler_horizontal') as NodeListOf<HTMLElement>;
+  const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  dragArea_items.forEach(item => {
+    const demos = item.querySelectorAll('.demo');
+    demos.forEach((demo, index) => {
+      if (index > 0) {
+        const x = demo.getBoundingClientRect().x;
+        const height = demo.getBoundingClientRect().height;
+        const y = demo.getBoundingClientRect().y;
+        vertLines[count].style.top = `${y - 50}px`;
+        vertLines[count].style.height = `${height}px`;
+        vertLines[count].style.left = `${x - 3}px`;
+        count++;
+      }
+    });
   });
 };
 
 // 竖直线curd
 function operaVertLine() {
-  let topAreaLineCount = 0;
-  let downAreaLineCount = 0;
   let lineCount = 0;
-  const dragArea_item_top = document.querySelector('.dragArea_item_top') as HTMLElement;
-  const dragArea_item_down = document.querySelector('.dragArea_item_down') as HTMLElement;
-
-  const topDemoList = dragArea_item_top.querySelectorAll('.demo');
-  const downDemoList = dragArea_item_down.querySelectorAll('.demo');
-
-  topAreaLineCount = topDemoList.length > 1 ? topDemoList.length - 1 : 0;
-  downAreaLineCount = downDemoList.length > 1 ? downDemoList.length - 1 : 0;
-  lineCount = topAreaLineCount + downAreaLineCount;
-
-  const horiLines = document.querySelectorAll('.resize_handler_horizontal');
+  const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  dragArea_items.forEach(item => {
+    const demos = item.querySelectorAll('.demo');
+    const needLineCount = demos.length > 1 ? demos.length - 1 : 0;
+    lineCount += needLineCount;
+  });
+  const vertLines = document.querySelectorAll('.resize_handler_horizontal');
   // 新增
-  if (horiLines.length < lineCount) {
-    createVertLine(lineCount - horiLines.length);
+  if (vertLines.length < lineCount) {
+    createVertLine(lineCount - vertLines.length);
   }
   // 删除
-  if (horiLines.length > lineCount) {
-    delVertLine(horiLines.length - lineCount);
+  if (vertLines.length > lineCount) {
+    delVertLine(vertLines.length - lineCount);
   }
   updateVertLine();
+};
+
+// 竖直线水平拉伸
+function resizeHorizontal(event: MouseEvent) {
+  chartSubStore.chartLoading = true;
+  let result: HTMLDivElement[] = [];
+  const demos = document.querySelectorAll('.demo');
+  const lineTarget = event.target as HTMLDivElement;
+  const lineY = lineTarget.getBoundingClientRect().y;
+  // 跟线在同一层的demo
+  const sameYDemos = Array.from(demos).filter(item => {
+    const itemY = item.getBoundingClientRect().y;
+    // 使用一个误差范围来比较浮点数
+    const epsilon = 3;
+    return Math.abs(itemY - lineY) < epsilon;
+  });
+  // 查找线两边的demo
+  let minDiff = window.innerWidth;
+  const lineX = lineTarget.getBoundingClientRect().x;
+  for (let i = 0; i < sameYDemos.length - 1; i++) {
+    const preDemoX = sameYDemos[i].getBoundingClientRect().x;
+    const nextDemoX = sameYDemos[i + 1].getBoundingClientRect().x;
+    if (preDemoX < lineX && nextDemoX > lineX) {
+      let diff = nextDemoX - preDemoX;
+      if (diff < minDiff) {
+        minDiff = diff;
+        result = [sameYDemos[i] as HTMLDivElement, sameYDemos[i + 1] as HTMLDivElement];
+      }
+    }
+  }
+
+  function resize({ clientX }: MouseEvent) {
+    let lineLeft = clientX;
+    let leftWidht = clientX - result[0].getBoundingClientRect().left;
+    let rightWidht = result[1].getBoundingClientRect().right - clientX;
+    if (leftWidht < 200 || rightWidht < 200) {
+      return;
+    }
+    result[0].style.width = `${leftWidht}px`;
+    result[1].style.width = `${rightWidht - 3}px`;
+    result[1].style.left = `${lineLeft + 3}px`;
+    lineTarget.style.left = `${lineLeft}px`;
+  }
+
+  function stopResize() {
+    chartSubStore.chartLoading = false;
+    document.removeEventListener('mousemove', resize);
+    document.removeEventListener('mouseup', stopResize);
+  }
+  document.addEventListener('mousemove', resize);
+  document.addEventListener('mouseup', stopResize);
 };
 
 const debounceUpdateLayout = debounce(() => {
@@ -351,7 +390,6 @@ function observerDom() {
   };
   function callback(mutationList: MutationRecord[], observer: MutationObserver) {
     mutationList.forEach((mutation) => {
-      console.log(mutation)
       if (mutation.type === 'childList') {
         debounceUpdateLayout();
       }
@@ -367,8 +405,9 @@ function observerDom() {
 export function initDragResizeArea() {
   initDragAreaPosition();
   createDragArea();
-  createHoriLine();
+  // createHoriLine();
   setDemoPosition();
+  operaHoriLine();
   operaVertLine();
   observerDom();
   window.addEventListener('resize', resizeUpdate);
