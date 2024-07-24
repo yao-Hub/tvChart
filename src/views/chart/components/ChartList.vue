@@ -26,7 +26,7 @@
           :symbol="state.symbol"
           :disabledFeatures="id === 'chart_1' ? [] : ['left_toolbar', 'header_saveload']"
           :compareSymbols="compareSymbols"
-          @initChart="initChart(id)">
+          @initChart="initChart">
         </TVChart>
       </div>
     </div>
@@ -102,15 +102,7 @@ onMounted(() => {
       chartInitStore.setCacheSymbol(symbol, id);
     },
     onEnd: function(evt: any) {
-      const id = evt.item.id;
-      const cacheSymbol = chartInitStore.getCacheSymbol(id);
-      if (cacheSymbol) {
-        chartInitStore.clearCacheSymbol(id);
-        const widget = chartInitStore.getChartWidget(id);
-        widget?.onChartReady(() => {
-          widget?.activeChart().setSymbol(cacheSymbol);
-        });
-      }
+      chartInitStore.setChartSymbolWithCache(evt.item.id);
     }
   });
 });

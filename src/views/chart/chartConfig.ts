@@ -173,13 +173,8 @@ export const datafeed = (id: string) => {
 
     //商品配置
     resolveSymbol: (symbolName: string, onSymbolResolvedCallback: Function, onResolveErrorCallback: Function) => {
-      const cacheSymbol = chartInitStore.getCacheSymbol(id);
-      if (cacheSymbol && cacheSymbol !== symbolName) {
-        return;
-      }
       orderStore.currentSymbol = symbolName;
       chartInitStore.setChartSymbol();
-      subscribed[id].onSymbolResolvedCallback = onSymbolResolvedCallback;
 
       // 获取session
       const symbolInfo = chartSubStore.symbols.find(e => e.symbol === symbolName);
@@ -223,7 +218,7 @@ export const datafeed = (id: string) => {
         exchange: symbolInfo?.path
       };
       setTimeout(function () {
-        subscribed[id].onSymbolResolvedCallback(symbol_stub);
+        onSymbolResolvedCallback(symbol_stub);
       });
     },
 
@@ -308,7 +303,6 @@ export const datafeed = (id: string) => {
 
     // 查找品种（商品）
     searchSymbols: (userInput: string, exchange: string, symbolType: string, onResultReadyCallback: Function) => {
-      subscribed[id].onResultReadyCallback = onResultReadyCallback;
       // 模糊匹配
       const regex = new RegExp(userInput.split('').join('.*'), 'i');;
       const matches = chartSubStore.symbols.map((item, index) => {
@@ -319,7 +313,6 @@ export const datafeed = (id: string) => {
 
       // 匹配度排列
       matches.sort((a, b) => b.count - a.count);
-
       const sortedIndices = matches.map(match => match.index);
       const sortedArr = sortedIndices.map(index => chartSubStore.symbols[index]);
 
@@ -333,7 +326,7 @@ export const datafeed = (id: string) => {
           force_session_rebuild: true
         };
       });
-      subscribed[id].onResultReadyCallback(targetList);
+      onResultReadyCallback(targetList);
     }
   };
 };

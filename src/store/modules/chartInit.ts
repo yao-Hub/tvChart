@@ -25,7 +25,10 @@ export const useChartInit = defineStore('chartInit', {
   },
   actions: {
     setChartWidget(id: string, widget: IChartingLibraryWidget) {
-      this.chartWidgetList.push({ widget, id, symbol: widget.symbolInterval().symbol });
+      const foundChart = this.chartWidgetList.find(e => e.id === id);
+      if (!foundChart) {
+        this.chartWidgetList.push({ widget, id, symbol: widget.symbolInterval().symbol });
+      }
     },
     getChartWidget(id?: string) {
       if (this.chartWidgetList.length === 0) {
@@ -51,9 +54,26 @@ export const useChartInit = defineStore('chartInit', {
       const findId = id || this.mainId;
       this.cacheSymbols[findId] = symbol;
     },
-    getCacheSymbol(id?:string) {
-      const findId = id || this.mainId;
-      return this.cacheSymbols[findId];
+    setChartSymbolWithCache(id?: string) {
+      if (id) {
+        const cacheSymbol = this.cacheSymbols[id];
+        if (cacheSymbol) {
+          delete this.cacheSymbols[id];
+          const widget = this.chartWidgetList.find(e => e.id === id)?.widget;
+          widget?.onChartReady(() => {
+            widget?.activeChart().setSymbol(cacheSymbol);
+          });
+        }
+        return;
+      }
+      this.chartWidgetList.forEach(item => {
+        const cacheSymbol = this.cacheSymbols[item.id];
+        if (cacheSymbol) {
+          item.widget.onChartReady(() => {
+            item.widget.activeChart().setSymbol(cacheSymbol);
+          });
+        }
+      })
     },
     clearCacheSymbol(id:string) {
       delete this.cacheSymbols[id];

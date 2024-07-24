@@ -1,6 +1,9 @@
 import { debounce } from 'lodash';
 import Sortable from 'sortablejs';
 import { useChartSub } from '@/store/modules/chartSub';
+import { useChartInit } from '@/store/modules/chartInit';
+
+const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 
 const moving = {
@@ -22,7 +25,7 @@ const dragOption = {
   animation: 150,
   handle: '.handle',
   swapThreshold: 0.65,
-  onEnd: (evt: any) => dragOnEnd(evt),
+  onEnd: () => dragOnEnd(),
   onStart: (evt: any) => dragOnStart(evt),
 };
 
@@ -56,7 +59,6 @@ function createDragAreaItem(parentDom: Element, position: 'down' | 'up') {
   drag.style.width = "100%";
   drag.style.boxSizing = "border-box";
   drag.setAttribute('grag_id', dragIdName);
-  console.log('dragIdName', dragIdName)
   if (position === 'down') {
     parentDom.parentNode?.insertBefore(drag, parentDom.nextSibling);
   }
@@ -72,7 +74,6 @@ function createDragAreaItem(parentDom: Element, position: 'down' | 'up') {
 
 // 拖拽增加拖拽区域
 function dragOnStart(evt: any) {
-
   const demosNum = document.querySelectorAll('.demo').length;
   const fromDom = evt.from as Element;
   const fromDomTop = fromDom.getBoundingClientRect().y;
@@ -95,7 +96,7 @@ function dragOnStart(evt: any) {
   };
 };
 
-function dragOnEnd(evt?: any) {
+function dragOnEnd() {
   const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
   const emptyChildItems = Array.from(dragArea_items).filter(item => item.querySelectorAll('.demo').length === 0);
   emptyChildItems.forEach(item => {

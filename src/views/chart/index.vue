@@ -25,11 +25,11 @@
       <div class="dragArea_item">
         <div class="demo" v-if="layoutStore.chartsVisable">
           <HolderOutlined class="handle" />
-          <ChartList class="container_item" name="one" :loading="chartSubStore.chartLoading"></ChartList>
+          <ChartList class="container_item" :loading="chartSubStore.chartLoading"></ChartList>
         </div>
         <div class="demo" v-if="layoutStore.symbolsVisable">
           <HolderOutlined class="handle" />
-          <SymbolList class="container_item" name="two"></SymbolList>
+          <SymbolList class="container_item"></SymbolList>
         </div>
       </div>
       <div class="dragArea_item">

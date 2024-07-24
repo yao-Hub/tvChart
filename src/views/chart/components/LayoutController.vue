@@ -21,7 +21,7 @@
 import { ref, nextTick } from 'vue';
 import { LayoutOutlined } from '@ant-design/icons-vue';
 import { useLayout } from '@/store/modules/layout';
-import { backInitArea, fullArea } from '../dragResize';
+// import { backInitArea, fullArea } from '../dragResize';
 
 const visible = ref(false);
 
@@ -29,7 +29,7 @@ const layoutStore = useLayout();
 
 const checkboxChange = async (e:any) => {
   await nextTick();
-  e.target.checked ? backInitArea() : fullArea();
+  // e.target.checked ? backInitArea() : fullArea();
 };
 
 </script>
