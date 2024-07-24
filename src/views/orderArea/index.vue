@@ -396,7 +396,6 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
   overflow: auto;
   box-sizing: border-box;
   position: relative;
-  background: #525252;
   border-radius: 5px;
 
   // &::-webkit-scrollbar {

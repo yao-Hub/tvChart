@@ -155,6 +155,7 @@ onMounted(async () => {
       width: 100%;
       box-sizing: border-box;
       position: relative;
+      // background: red;
       
       .demo {
         box-sizing: border-box;
@@ -162,6 +163,7 @@ onMounted(async () => {
         user-select: none;
         overflow: auto;
         // border: 1px solid red;
+        background: #525252;
 
         .container_item {
           height: 100%;

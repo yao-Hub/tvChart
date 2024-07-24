@@ -59,7 +59,6 @@ const getQuotes = (type: 'bid' | 'ask', symbol: string) => {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background: #525252;
   border-radius: 5px;
 }
 </style>

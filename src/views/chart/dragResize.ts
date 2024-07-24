@@ -8,77 +8,131 @@ const moving = {
   verticalLine: false
 };
 
+const minWidht = 200;
+const minHeight = 150;
+
+// 水平线初始拉伸位置
 let startY: number;
 
-export function backInitArea() {
-  const demos = document.querySelectorAll('.demo');
-  const items = Array.from(document.querySelectorAll('.dragArea_item'));
-  const ifZeroHeight = items.some(item => item.getBoundingClientRect().height === 0);
-  if (ifZeroHeight) {
-    items.forEach(item => {
-      const element = item as HTMLElement;
-      if (element.querySelectorAll('.demo').length === 0) {
-        element.style.height = '300px';
-      }
-      if (element.querySelectorAll('.demo').length !== 0 && item.getBoundingClientRect().height === 0) {
-        element.style.height = '300px';
-      }
-      if (element.querySelectorAll('.demo').length === demos.length) {
-        element.style.height = element.getBoundingClientRect().height - 300 + 'px';
-      }
-    });
-    debounceUpdateLayout();
-  }
+// Sortable实例化集合
+let dragList: Record<string, any> = {};
+
+const dragOption = {
+  group: 'dragItem',
+  animation: 150,
+  handle: '.handle',
+  swapThreshold: 0.65,
+  onEnd: (evt: any) => dragOnEnd(evt),
+  onStart: (evt: any) => dragOnStart(evt),
 };
 
-export function fullArea() {
-  const dragArea = document.querySelector('.dragArea') as HTMLElement;
-  const items = Array.from(document.querySelectorAll('.dragArea_item'));
-  const demos = document.querySelectorAll('.demo');
-  const ifEmptyChild = items.some(item => item.querySelectorAll('.demo').length === 0);
-  if (ifEmptyChild) {
-    items.forEach(item => {
-      const element = item as HTMLElement;
-      if (element.querySelectorAll('.demo').length === demos.length) {
-        element.style.height = dragArea.getBoundingClientRect().height - 3 + 'px';
+// 增加拖拽区域
+function createDragAreaItem(parentDom: Element, position: 'down' | 'up') {
+  function findMissingNumber(nums: number[]) {
+    const arr = nums.sort();
+    let expectedNum = 1;
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === expectedNum) {
+        expectedNum++;
+      } else if (arr[i] > expectedNum) {
+        return expectedNum;
       }
-      if (element.querySelectorAll('.demo').length === 0) {
-        element.style.height = '0';
-      }
-    });
-    debounceUpdateLayout();
+    }
+    return expectedNum;
   }
+
+  const items = document.querySelectorAll('.dragArea_item');
+  const dragIds = Array.from(items).map(item => {
+    const dragId = item.getAttribute('grag_id');
+    const num = dragId?.split('_')[1];
+    return num ? +num : 0;
+  });
+  const targetDragId = findMissingNumber(dragIds);
+  const dragIdName = `grag_${targetDragId}`;
+
+  const drag = document.createElement("div");
+  drag.className = 'dragArea_item';
+  drag.style.position = "relative";
+  drag.style.width = "100%";
+  drag.style.boxSizing = "border-box";
+  drag.setAttribute('grag_id', dragIdName);
+  console.log('dragIdName', dragIdName)
+  if (position === 'down') {
+    parentDom.parentNode?.insertBefore(drag, parentDom.nextSibling);
+  }
+  if (position === 'up') {
+    parentDom.parentNode?.insertBefore(drag, parentDom.parentNode.firstChild);
+  }
+  if (!dragList.hasOwnProperty(dragIdName)) {
+    dragList[dragIdName] = new Sortable(drag, dragOption);
+  }
+  dragList[dragIdName].option('disabled', false);
+  resizeUpdate();
 };
 
-// 拖拽区域
-function createDragArea() {
+// 拖拽增加拖拽区域
+function dragOnStart(evt: any) {
+
+  const demosNum = document.querySelectorAll('.demo').length;
+  const fromDom = evt.from as Element;
+  const fromDomTop = fromDom.getBoundingClientRect().y;
+  const fromDomBottom = fromDom.getBoundingClientRect().bottom;
+  const fromDomDemos = fromDom.querySelectorAll('.demo').length;
+
+  evt.item.ondrag = (e: MouseEvent) => {
+    const itemsNum = document.querySelectorAll('.dragArea_item').length;
+    if (demosNum === itemsNum || fromDomDemos <= 1) {
+      return;
+    }
+    // 鼠标位置
+    const y = e.clientY;
+    if (y > (fromDomBottom + fromDomTop) / 2) {
+      createDragAreaItem(fromDom, 'down');
+    }
+    if (y < fromDomTop) {
+      createDragAreaItem(fromDom, 'up');
+    }
+  };
+};
+
+function dragOnEnd(evt?: any) {
+  const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  const emptyChildItems = Array.from(dragArea_items).filter(item => item.querySelectorAll('.demo').length === 0);
+  emptyChildItems.forEach(item => {
+    const gragId = item.getAttribute('grag_id');
+    if (gragId) {
+      dragList[gragId].option('disabled', true);
+      delete dragList[gragId];
+    }
+    item.remove();
+  })
+  resizeUpdate();
+};
+
+// 初始化拖拽实例
+function initDragArea() {
   const dragItem = [].slice.call(document.querySelectorAll('.dragArea_item'));
   for (var i = 0; i < dragItem.length; i++) {
-    new Sortable(dragItem[i], {
-      group: 'dragItem',
-      animation: 150,
-      handle: '.handle',
-      swapThreshold: 0.65,
-      fallbackOnBody: false,
-      onStart: backInitArea,
-      onEnd: fullArea
-    });
+    const item = dragItem[i] as HTMLElement;
+    item.setAttribute('grag_id', `grag_${i}`);
+    dragList[`grag_${i}`] = new Sortable(dragItem[i], dragOption);
   }
 };
 
-function initDragAreaPosition() {
+// 拖拽区域大小
+function setDragAreaSize() {
   const dragArea = document.querySelector('.dragArea') as HTMLElement;
   const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
   dragArea_items.forEach((item, index, arr) => {
     const element = item as HTMLElement;
-    element.style.height = dragArea.getBoundingClientRect().height / arr.length - (1.5 * arr.length - 1) + 'px';
+    element.style.height = dragArea.getBoundingClientRect().height / arr.length - 1.5 * (arr.length - 1) + 'px';
     if (index > 0) {
       element.style.marginTop = '3px';
     }
   });
-}
+};
 
-export function setDemoPosition() {
+function setDemoPosition() {
   const dragArea = document.querySelector('.dragArea') as HTMLElement;
   const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
   dragArea_items.forEach(item => {
@@ -139,15 +193,16 @@ function createHoriLine(addNum: number) {
 function updateHoriLine() {
   let count = 0;
   const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  const haveChildItems = Array.from(dragArea_items).filter(item => item.querySelectorAll('.demo').length !== 0);
   const vertLine = document.querySelectorAll('.resize_handler_vertical') as NodeListOf<HTMLElement>;
-  dragArea_items.forEach((item, index, arr) => {
+  haveChildItems.forEach((item, index, arr) => {
     if (index > 0) {
       const element = arr[index - 1] as HTMLElement;
       vertLine[count].style.top = `${element.getBoundingClientRect().bottom - 50}px`;
       vertLine[count].style.width = element.getBoundingClientRect().width + 'px';
-      count ++;
+      count++;
     }
-  })
+  });
 };
 
 // 水平线垂直拉伸
@@ -158,7 +213,8 @@ const resizeVertical = (event: MouseEvent) => {
   const lineTarget = event.target as HTMLDivElement;
   const lineX = lineTarget.getBoundingClientRect().x;
   const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
-  const sameXItems = Array.from(dragArea_items).filter(item => {
+  const haveChildItems = Array.from(dragArea_items).filter(item => item.querySelectorAll('.demo').length !== 0);
+  const sameXItems = haveChildItems.filter(item => {
     const itemX = item.getBoundingClientRect().x;
     // 使用一个误差范围来比较浮点数
     const epsilon = 3;
@@ -186,7 +242,7 @@ const resizeVertical = (event: MouseEvent) => {
     const offset = e.pageY - startY;
     const topHeight = result_0_height + offset;
     const downHeight = result_1_height - offset;
-    if (topHeight < 150 || downHeight < 150) {
+    if (topHeight < minHeight || downHeight < minHeight) {
       return;
     }
     lineTarget.style.top = `${mouseY - 1.5}px`;
@@ -220,14 +276,15 @@ function delHoriLine(delNum: number) {
 // 水平线curd
 function operaHoriLine() {
   const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
+  const haveChildItems = Array.from(dragArea_items).filter(item => item.querySelectorAll('.demo').length !== 0);
   const horiLines = document.querySelectorAll('.resize_handler_vertical');
   // 新增
-  if (horiLines.length < dragArea_items.length - 1) {
-    createHoriLine(dragArea_items.length - 1);
+  if (horiLines.length < haveChildItems.length - 1) {
+    createHoriLine(haveChildItems.length - 1);
   }
   // 删除
-  if (horiLines.length > dragArea_items.length - 1) {
-    delHoriLine(horiLines.length - dragArea_items.length + 1);
+  if (horiLines.length > haveChildItems.length - 1) {
+    delHoriLine(horiLines.length - haveChildItems.length + 1);
   }
   updateHoriLine();
 };
@@ -275,11 +332,12 @@ function delVertLine(delNum: number) {
 };
 
 // 更新竖直线的位置
-async function updateVertLine() {
+function updateVertLine() {
   let count = 0;
   const vertLines = document.querySelectorAll('.resize_handler_horizontal') as NodeListOf<HTMLElement>;
   const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
-  dragArea_items.forEach(item => {
+  const haveChildItems = Array.from(dragArea_items).filter(item => item.querySelectorAll('.demo').length !== 0);
+  haveChildItems.forEach(item => {
     const demos = item.querySelectorAll('.demo');
     demos.forEach((demo, index) => {
       if (index > 0) {
@@ -299,7 +357,8 @@ async function updateVertLine() {
 function operaVertLine() {
   let lineCount = 0;
   const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
-  dragArea_items.forEach(item => {
+  const haveChildItems = Array.from(dragArea_items).filter(item => item.querySelectorAll('.demo').length !== 0);
+  haveChildItems.forEach(item => {
     const demos = item.querySelectorAll('.demo');
     const needLineCount = demos.length > 1 ? demos.length - 1 : 0;
     lineCount += needLineCount;
@@ -349,7 +408,7 @@ function resizeHorizontal(event: MouseEvent) {
     let lineLeft = clientX;
     let leftWidht = clientX - result[0].getBoundingClientRect().left;
     let rightWidht = result[1].getBoundingClientRect().right - clientX;
-    if (leftWidht < 200 || rightWidht < 200) {
+    if (leftWidht < minWidht || rightWidht < minWidht) {
       return;
     }
     result[0].style.width = `${leftWidht}px`;
@@ -369,14 +428,14 @@ function resizeHorizontal(event: MouseEvent) {
 
 const debounceUpdateLayout = debounce(() => {
   setDemoPosition();
-  updateHoriLine();
+  operaHoriLine();
   operaVertLine();
 }, 20);
 
 const resizeUpdate = debounce(() => {
-  initDragAreaPosition();
+  setDragAreaSize();
   setDemoPosition();
-  updateHoriLine();
+  operaHoriLine();
   operaVertLine();
 }, 20);
 
@@ -403,9 +462,8 @@ function observerDom() {
 
 // 初始化上下拖拽区域位置
 export function initDragResizeArea() {
-  initDragAreaPosition();
-  createDragArea();
-  // createHoriLine();
+  initDragArea();
+  setDragAreaSize();
   setDemoPosition();
   operaHoriLine();
   operaVertLine();

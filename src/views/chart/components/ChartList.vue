@@ -185,7 +185,6 @@ function onEdit(targetKey: string, action: string) {
 .charts {
   display: flex;
   flex-direction: column;
-  background: #525252;
   padding: 5px;
   box-sizing: border-box;
   border-radius: 5px;
