@@ -94,6 +94,7 @@ function dragOnStart(evt: any) {
       createDragAreaItem(fromDom, 'up');
     }
   };
+  chartInitStore.setCacheSymbol();
 };
 
 function dragOnEnd() {
@@ -106,8 +107,11 @@ function dragOnEnd() {
       delete dragList[gragId];
     }
     item.remove();
-  })
+  });
   resizeUpdate();
+  setTimeout(() => {
+    chartInitStore.setChartSymbolWithCache();
+  });
 };
 
 // 初始化拖拽实例
@@ -121,16 +125,29 @@ function initDragArea() {
 };
 
 // 拖拽区域大小
-function setDragAreaSize() {
+function setDragAreaSize(setEmptyChild?: boolean) {
   const dragArea = document.querySelector('.dragArea') as HTMLElement;
   const dragArea_items = document.querySelectorAll('.dragArea_item') as NodeListOf<Element>;
-  dragArea_items.forEach((item, index, arr) => {
-    const element = item as HTMLElement;
-    element.style.height = dragArea.getBoundingClientRect().height / arr.length - 1.5 * (arr.length - 1) + 'px';
-    if (index > 0) {
-      element.style.marginTop = '3px';
-    }
-  });
+  function setSize(arr: NodeListOf<Element> | Element[]) {
+    arr.forEach((item, index, arr) => {
+      const element = item as HTMLElement;
+      element.style.height = dragArea.getBoundingClientRect().height / arr.length - 1.5 * (arr.length - 1) + 'px';
+      if (index > 0) {
+        element.style.marginTop = '3px';
+      }
+    });
+  }
+  if (setEmptyChild) {
+    const haveChildItems = Array.from(dragArea_items).filter(item => item.querySelectorAll('.demo').length !== 0);
+    const emptyChildItems = Array.from(dragArea_items).filter(item => item.querySelectorAll('.demo').length === 0);
+    emptyChildItems.forEach(item => {
+      const element = item as HTMLElement;
+      element.style.height = '0';
+    });
+    setSize(haveChildItems);
+  } else {
+    setSize(dragArea_items);
+  }
 };
 
 function setDemoPosition() {
@@ -433,8 +450,8 @@ const debounceUpdateLayout = debounce(() => {
   operaVertLine();
 }, 20);
 
-const resizeUpdate = debounce(() => {
-  setDragAreaSize();
+export const resizeUpdate = debounce((layoutOpera?: boolean) => {
+  setDragAreaSize(layoutOpera);
   setDemoPosition();
   operaHoriLine();
   operaVertLine();
@@ -469,5 +486,5 @@ export function initDragResizeArea() {
   operaHoriLine();
   operaVertLine();
   observerDom();
-  window.addEventListener('resize', resizeUpdate);
+  window.addEventListener('resize', () => resizeUpdate());
 };

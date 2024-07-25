@@ -174,7 +174,11 @@ export const datafeed = (id: string) => {
     //商品配置
     resolveSymbol: (symbolName: string, onSymbolResolvedCallback: Function, onResolveErrorCallback: Function) => {
       orderStore.currentSymbol = symbolName;
-      chartInitStore.setChartSymbol();
+      try {
+        chartInitStore.setChartSymbol({symbol: symbolName, id});
+      } catch (error) {
+        console.log(error)
+      }
 
       // 获取session
       const symbolInfo = chartSubStore.symbols.find(e => e.symbol === symbolName);

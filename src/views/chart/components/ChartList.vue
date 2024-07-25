@@ -13,7 +13,7 @@
       <div
         :style="{paddingLeft: chartType === 'multiple' ? '20px' : 0}"
         class="charts_container_item"
-        v-for="id in state.chartIds"
+        v-for="{ id } in chartList"
         :id="id"
         v-show="(state.activeKey === id && chartType === 'single') || chartType === 'multiple'">
         <HolderOutlined class="handle" v-if="chartType === 'multiple'"/>
@@ -60,7 +60,6 @@ const state = reactive({
     // items_processor: (items: readonly library.IActionVariant[], actionsFactory: library.ActionsFactory) => setProcessor(items, actionsFactory)
   },
   activeKey: 'chart_1',
-  chartIds: ['chart_1'] as string[],
 });
 
 const compareSymbols = computed(() => {
@@ -75,7 +74,10 @@ const compareSymbols = computed(() => {
 });
 
 const chartList = computed(() => {
-  return chartInitStore.chartWidgetList;
+  if (chartInitStore.chartWidgetList.length > 0) {
+    return chartInitStore.chartWidgetList;
+  }
+  return [{id: 'chart_1'}];
 });
 
 const chartType =  computed(() => {
@@ -88,6 +90,7 @@ const initChart = (id: string) => {
   // chartSubStore.subscribePlusBtn();
   // chartSubStore.subscribeMouseDown();
   chartSubStore.subscribeKeydown();
+  chartInitStore.setCacheSymbol();
 };
 
 onMounted(() => {
@@ -96,10 +99,8 @@ onMounted(() => {
     animation: 150,
     swapThreshold: 1,
     handle: '.handle',
-    onStart: function(evt: any) {
-      const id = evt.item.id;
-      const symbol = chartInitStore.getChartSymbol(id);
-      chartInitStore.setCacheSymbol(symbol, id);
+    onStart: function() {
+      chartInitStore.setCacheSymbol();
     },
     onEnd: function(evt: any) {
       chartInitStore.setChartSymbolWithCache(evt.item.id);
@@ -110,14 +111,15 @@ onMounted(() => {
 function onEdit(targetKey: string, action: string) {
   if (action === 'add') {
     const len = chartInitStore.chartWidgetList.length;
-    state.chartIds.push(`chart_${len + 1}`);
+    chartInitStore.chartWidgetList.push({
+      id: `chart_${len + 1}`,
+    });
     state.activeKey = `chart_${len + 1}`;
   } else {
-    const index = state.chartIds.indexOf(targetKey);
-    state.chartIds.splice(index, 1);
     chartInitStore.removeChartWidget(targetKey);
     if (targetKey === state.activeKey) {
-      state.activeKey = state.chartIds[index - 1];
+      const lastChart = chartInitStore.chartWidgetList.slice(-1);
+      state.activeKey = lastChart[0].id;
     }
   }
 };

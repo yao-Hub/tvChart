@@ -21,15 +21,25 @@
 import { ref, nextTick } from 'vue';
 import { LayoutOutlined } from '@ant-design/icons-vue';
 import { useLayout } from '@/store/modules/layout';
-// import { backInitArea, fullArea } from '../dragResize';
+import { resizeUpdate } from '../dragResize';
+import { useChartInit } from '@/store/modules/chartInit';
+const chartInitStore = useChartInit();
 
 const visible = ref(false);
 
 const layoutStore = useLayout();
 
-const checkboxChange = async (e:any) => {
+const checkboxChange = async (e: any) => {
+  const ifCheck = e.target.checked;
+  // if (!ifCheck) {
+  // } else {
+  //   chartInitStore.setCacheSymbol();
+  // }
+  if (ifCheck) {
+    chartInitStore.setChartSymbolWithCache();
+  }
   await nextTick();
-  // e.target.checked ? backInitArea() : fullArea();
+  resizeUpdate(true);
 };
 
 </script>
