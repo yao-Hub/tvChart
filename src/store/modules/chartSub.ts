@@ -82,7 +82,7 @@ export const useChartSub = defineStore('chartSub', {
     subscribePlusBtn() {
       const widgetList = chartInitStore.chartWidgetList;
       widgetList.forEach(Widget => {
-        Widget.widget.subscribe('onPlusClick', (e) => {
+        Widget.widget?.subscribe('onPlusClick', (e) => {
           assign(dialogStore.floatMenuParams, { ...e, visible: true });
         })
       })
@@ -103,7 +103,7 @@ export const useChartSub = defineStore('chartSub', {
         const widgetList = chartInitStore.chartWidgetList;
         keydownList.forEach(item => {
           widgetList.forEach(Widget => {
-            Widget.widget.onShortcut(item.keyCode, item.callback);
+            Widget.widget?.onShortcut(item.keyCode, item.callback);
           })
         })
       } catch (error) {
