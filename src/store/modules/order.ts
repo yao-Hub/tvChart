@@ -9,16 +9,16 @@ import { Modal } from 'ant-design-vue';
 const dialogStore = useDialog();
 
 interface State {
-  currentQuotes: Record<string, types.Quote>
-  currentSymbol: string
-  currentKline: types.Line | null
-  refreshOrderArea: boolean
-  tableData: orderTypes.TableData
-  selectedMenuKey: orderTypes.OrderType
+  currentQuotes: Record<string, types.Quote>;
+  currentSymbol: string;
+  currentKline: types.Line | null;
+  refreshOrderArea: boolean;
+  tableData: orderTypes.TableData;
+  selectedMenuKey: orderTypes.OrderType;
 }
 
 export const useOrder = defineStore('order', {
-  state(): State {
+  state: (): State => {
     return {
       currentQuotes: {},
       currentSymbol: '',
@@ -26,7 +26,7 @@ export const useOrder = defineStore('order', {
       refreshOrderArea: false,
       tableData: {},
       selectedMenuKey: 'price'
-    }
+    };
   },
 
   actions: {
@@ -48,4 +48,4 @@ export const useOrder = defineStore('order', {
       dialogStore.showOrderDialog();
     }
   }
-})
+});

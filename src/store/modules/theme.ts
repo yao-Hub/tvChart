@@ -2,14 +2,14 @@ import { defineStore } from 'pinia';
 import { theme } from 'ant-design-vue';
 
 interface State {
-  currentTheme: string
+  currentTheme: string;
 }
 
 export const useTheme = defineStore('theme', {
-  state(): State {
+  state: (): State => {
     return {
       currentTheme: 'dark'
-    }
+    };
   },
   getters: {
     antDTheme: (state) => {
@@ -24,4 +24,4 @@ export const useTheme = defineStore('theme', {
       };
     }
   }
-})
+});

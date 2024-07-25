@@ -168,7 +168,7 @@ export const datafeed = (id: string) => {
       setTimeout(() => {
         callback(config);
         socketOpera();
-      }, 0);
+      });
     },
 
     //商品配置

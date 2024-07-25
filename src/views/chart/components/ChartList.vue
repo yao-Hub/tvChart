@@ -18,13 +18,14 @@
         v-show="(state.activeKey === id && chartType === 'single') || chartType === 'multiple'">
         <HolderOutlined class="handle" v-if="chartType === 'multiple'"/>
         <TVChart
+          :key="state.activeKey === id"
           :chartId="id"
           :mainChart="id === 'chart_1'"
           style="flex: 1; height: 100%;"
-          :loading="props.loading"
+          :loading="props.loading || chartInitStore.singleChartLoading[id]"
           :datafeed="datafeed(id)"
           :symbol="state.symbol"
-          :disabledFeatures="id === 'chart_1' ? [] : ['left_toolbar', 'header_saveload']"
+          :disabledFeatures="id === state.activeKey ? [] : ['left_toolbar']"
           :compareSymbols="compareSymbols"
           @initChart="initChart">
         </TVChart>
@@ -74,10 +75,7 @@ const compareSymbols = computed(() => {
 });
 
 const chartList = computed(() => {
-  if (chartInitStore.chartWidgetList.length > 0) {
-    return chartInitStore.chartWidgetList;
-  }
-  return [{id: 'chart_1'}];
+  return chartInitStore.chartWidgetList;
 });
 
 const chartType =  computed(() => {
@@ -90,7 +88,6 @@ const initChart = (id: string) => {
   // chartSubStore.subscribePlusBtn();
   // chartSubStore.subscribeMouseDown();
   chartSubStore.subscribeKeydown();
-  chartInitStore.setCacheSymbol();
 };
 
 onMounted(() => {
@@ -99,16 +96,13 @@ onMounted(() => {
     animation: 150,
     swapThreshold: 1,
     handle: '.handle',
-    onStart: function() {
-      chartInitStore.setCacheSymbol();
-    },
     onEnd: function(evt: any) {
       chartInitStore.setChartSymbolWithCache(evt.item.id);
     }
   });
 });
 
-function onEdit(targetKey: string, action: string) {
+const onEdit = (targetKey: string, action: string) => {
   if (action === 'add') {
     const len = chartInitStore.chartWidgetList.length;
     chartInitStore.chartWidgetList.push({

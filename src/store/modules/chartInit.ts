@@ -1,28 +1,29 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 import { IChartingLibraryWidget } from 'public/charting_library/charting_library';
-import { nextTick } from 'vue';
 
 interface State {
   chartWidgetList: {
-    widget?: IChartingLibraryWidget
-    id: string
-    symbol?: string
-  }[]
-  loading: Boolean
-  mainId: string
-  chartLayoutType: 'single' | 'multiple'
-  cacheSymbols: Record<string, string>
+    widget?: IChartingLibraryWidget;
+    id: string;
+    symbol?: string;
+  }[];
+  loading: Boolean;
+  mainId: string;
+  chartLayoutType: 'single' | 'multiple';
+  cacheSymbols: Record<string, string>;
+  singleChartLoading: Record<string, boolean>;
 }
 
 export const useChartInit = defineStore('chartInit', {
-  state(): State {
+  state: (): State => {
     return {
-      chartWidgetList: [],
+      chartWidgetList: [{ id: 'chart_1' }],
       loading: false,
       mainId: '',
       chartLayoutType: 'single',
-      cacheSymbols: {}
-    }
+      cacheSymbols: {},
+      singleChartLoading: {}
+    };
   },
   actions: {
     setChartWidget(id: string, widget: IChartingLibraryWidget) {
@@ -31,33 +32,29 @@ export const useChartInit = defineStore('chartInit', {
         this.chartWidgetList.push({ widget, id, symbol: widget.symbolInterval().symbol });
       }
       if (foundChart) {
-        if (!foundChart.widget) {
-          foundChart.widget = widget;
-        }
-        if (!foundChart.symbol) {
-          foundChart.symbol = widget.symbolInterval().symbol ;
-        }
+        foundChart.widget = widget;
+        foundChart.symbol = widget.symbolInterval().symbol;
       }
     },
     getChartWidget(id?: string) {
       if (this.chartWidgetList.length === 0) {
-        throw new Error('chartWidget is null')
+        throw new Error('chartWidget is null');
       }
       const findId = id || this.mainId;
       return this.chartWidgetList.find(e => e.id === findId)?.widget;
     },
-    removeChartWidget(id:string) {
+    removeChartWidget(id: string) {
       const index = this.chartWidgetList.findIndex(e => e.id === id);
       if (index > -1) {
         this.chartWidgetList.splice(index, 1);
       }
     },
-    setChartSymbol(params?: {id: string, symbol: string}) {
+    setChartSymbol(params?: { id: string, symbol: string; }) {
       if (params) {
-        const {id, symbol} = params;
+        const { id, symbol } = params;
         const find = this.chartWidgetList.find(e => e.id === id);
         if (find) {
-          find.symbol = symbol
+          find.symbol = symbol;
         }
         return;
       }
@@ -71,54 +68,44 @@ export const useChartInit = defineStore('chartInit', {
         }
       });
     },
-    setCacheSymbol(params?: {symbol: string, id: string}) {
-      if (params) {
-        const {id, symbol} = params;
-        this.cacheSymbols[id] = symbol;
-      } else {
-        this.chartWidgetList.forEach(item => {
-          if (item.widget) {
-            item.widget.onChartReady(() => {
-              item.widget?.headerReady().then(() => {
-                const symbol = item.widget?.activeChart().symbol();
-                if (symbol) {
-                  this.cacheSymbols[item.id] = symbol;
-                }
-              });
-            });
-          }
-        })
-      }
+    setCacheSymbol(params: { symbol: string, id: string; }) {
+      const { id, symbol } = params;
+      this.cacheSymbols[id] = symbol;
     },
 
     // 根据缓存的品种设置当前品种
     async setChartSymbolWithCache(id?: string) {
-      await nextTick();
       if (id) {
-        const cacheSymbol = this.cacheSymbols[id];
-        if (cacheSymbol) {
+        this.singleChartLoading[id] = true;
+      } else {
+        this.chartWidgetList.forEach(item => {
+          this.singleChartLoading[item.id] = true;
+        });
+      }
+      setTimeout(() => {
+        if (id) {
+          const cacheSymbol = this.cacheSymbols[id];
           const widget = this.chartWidgetList.find(e => e.id === id)?.widget;
           widget?.onChartReady(() => {
             widget.headerReady().then(() => {
-              widget.activeChart().setSymbol(cacheSymbol);
+              widget?.activeChart()?.setSymbol(cacheSymbol);
             });
           });
+          this.singleChartLoading[id] = false;
+          return;
         }
-        return;
-      }
-      this.chartWidgetList.forEach(item => {
-        const cacheSymbol = this.cacheSymbols[item.id];
-        if (cacheSymbol && item.widget) {
-          item.widget.onChartReady(() => {
-            item.widget?.headerReady().then(() => {
-              item.widget?.activeChart().setSymbol(cacheSymbol);
-            });
+        this.chartWidgetList.forEach(item => {
+          const widget = item.widget;
+          const cacheSymbol = this.cacheSymbols[item.id];
+          widget?.onChartReady(() => {
+            widget.activeChart().setSymbol(cacheSymbol);
           });
-        }
-      })
+          this.singleChartLoading[item.id] = false;
+        });
+      }, 1000);
     },
-    clearCacheSymbol(id:string) {
+    clearCacheSymbol(id: string) {
       delete this.cacheSymbols[id];
     }
   }
-})
+});

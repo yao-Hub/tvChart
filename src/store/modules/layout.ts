@@ -7,7 +7,7 @@ interface State {
 }
 
 export const useLayout = defineStore('layout', {
-  state(): State {
+  state: (): State => {
     return {
       chartsVisable: true,
       symbolsVisable: true,

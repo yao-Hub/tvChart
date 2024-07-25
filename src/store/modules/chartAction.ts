@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import i18n from "@/language/index"
+import i18n from "@/language/index";
 import { LOCALE_SINGLE_LIST as lacaleList, TOOLBAR_BTN_ORDER as orders } from '@/constants/common';
 import { useChartInit } from './chartInit';
 import { useDialog } from './dialog';
@@ -13,18 +13,18 @@ const chartInitStore = useChartInit();
 const userStore = useUser();
 
 interface State {
-  cacheAction: string
+  cacheAction: string;
 }
 
 export const useChartAction = defineStore('chartAction', {
-  state(): State {
+  state: (): State => {
     return {
       // 即将执行的动作
       cacheAction: ''
-    }
+    };
   },
   actions: {
-    
+
     setCacheAction(action: string) {
       this.cacheAction = action;
     },
@@ -34,7 +34,7 @@ export const useChartAction = defineStore('chartAction', {
     // 增加左上角头像
     createAvatar(id?: string) {
       const widget = chartInitStore.getChartWidget(id);
-      const username =  userStore.loginInfo ? userStore.loginInfo.total_name || userStore.account.login : '';
+      const username = userStore.loginInfo ? userStore.loginInfo.total_name || userStore.account.login : '';
       widget?.headerReady().then(() => {
         const iframe = document.querySelector('iframe');
         if (iframe) {
@@ -78,8 +78,8 @@ export const useChartAction = defineStore('chartAction', {
           if (!userStore.ifLogin) {
             dialogStore.showLoginDialog();
           }
-        })
-      })
+        });
+      });
     },
 
     // 增加顶部语言切换按钮
@@ -97,10 +97,10 @@ export const useChartAction = defineStore('chartAction', {
           currentlocale = currentlocale === "en" ? "zh" : "en";
           Button.innerHTML = lacaleList[currentlocale];
           currentlocale = currentlocale;
-          localStorage.setItem('language', currentlocale)
+          localStorage.setItem('language', currentlocale);
           window.location.reload();
         });
-      })
+      });
     },
 
     // 增加订单线
@@ -132,21 +132,21 @@ export const useChartAction = defineStore('chartAction', {
       const widget = chartInitStore.getChartWidget(id);
       widget?.headerReady().then(() => {
         const orderStore = useOrder();
-        
+
         const Button = widget.createButton();
         Button.style.border = '1px solid #fff';
         Button.style.borderRadius = '4px';
         Button.style.cursor = 'pointer';
-        Button.setAttribute('title', `${i18n.global.t('order.new', {type: i18n.global.t('order.create')})}: F9`);
+        Button.setAttribute('title', `${i18n.global.t('order.new', { type: i18n.global.t('order.create') })}: F9`);
         Button.onmouseover = () => {
           Button.style.background = 'rgb(89, 89, 89)';
-        }
+        };
         Button.onmouseout = () => {
           Button.style.background = 'unset';
-        }
+        };
         Button.onmouseup = () => {
           orderStore.createOrder();
-        }
+        };
 
         const grandpa = <HTMLElement>Button.parentNode?.parentNode;
         grandpa.style.order = orders.AddOrder;
@@ -155,13 +155,13 @@ export const useChartAction = defineStore('chartAction', {
         separator.style.order = orders.AddOrderSeparator;
 
         Button.innerText = i18n.global.t('order.new');
-      })
+      });
     },
 
     // 改变周期
-    changeResolution({id, resolution}: {
-      id?: string
-      resolution: ResolutionString
+    changeResolution({ id, resolution }: {
+      id?: string;
+      resolution: ResolutionString;
     }) {
       const widget = chartInitStore.getChartWidget(id);
       widget?.onChartReady(() => {
@@ -169,4 +169,4 @@ export const useChartAction = defineStore('chartAction', {
       });
     }
   }
-})
+});

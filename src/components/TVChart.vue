@@ -3,8 +3,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onUnmounted, onMounted } from 'vue';
-import  * as library from 'public/charting_library';
+import { ref, onMounted } from 'vue';
+import * as library from 'public/charting_library';
 import { useI18n } from 'vue-i18n';
 // import { useChartAction } from '@/store/modules/chartAction';
 import { useChartInit } from '@/store/modules/chartInit';
@@ -120,24 +120,16 @@ const props = defineProps({
     type: String,
   },
   contextMenu: {
-    default: () => {},
+    default: () => { },
     type: Object
   }
-})
+});
 
 const chartContainer = ref();
-const chartWidget = ref();
 const emit = defineEmits(['initChart']);
 
 onMounted(() => {
   initonReady();
-});
-
-onUnmounted(() => {
-  if (chartWidget.value) {
-    chartWidget.value.remove();
-    chartWidget.value = null;
-  }
 });
 
 const initonReady = () => {
@@ -148,7 +140,7 @@ const initonReady = () => {
     symbol: props.symbol,
     interval: props.interval as library.ResolutionString,
     container: chartContainer.value,
-    datafeed: props.datafeed as library.IBasicDataFeed ,
+    datafeed: props.datafeed as library.IBasicDataFeed,
     timezone: props.timezone as library.Timezone,
     debug: props.debug,
     library_path: props.libraryPath,
@@ -166,21 +158,29 @@ const initonReady = () => {
     compare_symbols: props.compareSymbols as library.CompareSymbol[],
     context_menu: props.contextMenu
   };
-  chartWidget.value = new library.widget(widgetOptions);
-  chartWidget.value.onChartReady(() => {
-    chartWidget.value.headerReady().then(() => {
-
+  const widget = new library.widget(widgetOptions);
+  widget.onChartReady(() => {
+    widget.headerReady().then(() => {
       const chartInitStore = useChartInit();
-      chartInitStore.setChartWidget(props.chartId, chartWidget.value);
-
+      chartInitStore.setChartWidget(props.chartId, widget);
+      chartInitStore.setCacheSymbol({
+        id: props.chartId,
+        symbol: props.symbol
+      });
+      // @ts-ignore
+      widget.activeChart().onSymbolChanged().subscribe(null, e => {
+        chartInitStore.setCacheSymbol({
+          id: props.chartId,
+          symbol: e.name
+        });
+      });
       if (props.mainChart) {
         chartInitStore.mainId = props.chartId;
       }
       emit('initChart');
     });
-  })
+  });
 };
 </script>
 
-<style scoped lang="scss">
-</style>
+<style scoped lang="scss"></style>

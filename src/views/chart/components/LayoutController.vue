@@ -31,10 +31,6 @@ const layoutStore = useLayout();
 
 const checkboxChange = async (e: any) => {
   const ifCheck = e.target.checked;
-  // if (!ifCheck) {
-  // } else {
-  //   chartInitStore.setCacheSymbol();
-  // }
   if (ifCheck) {
     chartInitStore.setChartSymbolWithCache();
   }

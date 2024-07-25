@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { assign } from 'lodash';
 import { uniq, difference } from 'lodash';
-import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation'
-import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index'
+import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation';
+import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index';
 import { keydownList } from 'utils/keydown';
 import { useChartInit } from './chartInit';
 import { useDialog } from './dialog';
@@ -14,29 +14,29 @@ const dialogStore = useDialog();
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
 interface State {
-  symbols: SessionSymbolInfo[]
-  barsCache: Map<string, any>
-  mustSubscribeList: Array<string>
-  chartLoading: boolean
+  symbols: SessionSymbolInfo[];
+  barsCache: Map<string, any>;
+  mustSubscribeList: Array<string>;
+  chartsLoading: boolean;
 }
 
 interface TurnSocket {
-  subscriberUID: string
-  symbolInfo: TVSymbolInfo
-  resolution: string
+  subscriberUID: string;
+  symbolInfo: TVSymbolInfo;
+  resolution: string;
 }
 
 
 export const useChartSub = defineStore('chartSub', {
-  state(): State {
+  state: (): State => {
     return {
       symbols: [],
       barsCache: new Map(),
-      
+
       // 必须需要监听品种列表
       mustSubscribeList: [],
-      chartLoading: false
-    }
+      chartsLoading: false,
+    };
   },
   actions: {
     async setSymbols(list: SessionSymbolInfo[]) {
@@ -59,7 +59,7 @@ export const useChartSub = defineStore('chartSub', {
       const subList = difference(sources, nowsubList);
       subList.forEach(item => {
         subscribeSocket({ resolution: '1', symbol: item });
-      })
+      });
       this.mustSubscribeList = uniq([...this.mustSubscribeList, ...sources]);
     },
 
@@ -84,8 +84,8 @@ export const useChartSub = defineStore('chartSub', {
       widgetList.forEach(Widget => {
         Widget.widget?.subscribe('onPlusClick', (e) => {
           assign(dialogStore.floatMenuParams, { ...e, visible: true });
-        })
-      })
+        });
+      });
     },
     // 监听鼠标按下动作 （隐藏加号菜单）
     subscribeMouseDown(id?: string) {
@@ -95,7 +95,7 @@ export const useChartSub = defineStore('chartSub', {
         if (visible) {
           assign(dialogStore.floatMenuParams, { ...e, visible: false });
         }
-      })
+      });
     },
     // 监听键盘快捷键
     subscribeKeydown() {
@@ -104,8 +104,8 @@ export const useChartSub = defineStore('chartSub', {
         keydownList.forEach(item => {
           widgetList.forEach(Widget => {
             Widget.widget?.onShortcut(item.keyCode, item.callback);
-          })
-        })
+          });
+        });
       } catch (error) {
       }
       document.addEventListener("keydown", (event) => {
@@ -114,4 +114,4 @@ export const useChartSub = defineStore('chartSub', {
       });
     }
   }
-})
+});

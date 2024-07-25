@@ -8,13 +8,13 @@ import { useChartAction } from '@/store/modules/chartAction';
 import { sendToken } from 'utils/socket/operation';
 
 interface State {
-  account: Pick<UserInfo, 'login' | 'password'>
-  ifLogin: Boolean
-  loginInfo: UserInfo | null
+  account: Pick<UserInfo, 'login' | 'password'>;
+  ifLogin: Boolean;
+  loginInfo: UserInfo | null;
 }
 
 export const useUser = defineStore('user', {
-  state(): State {
+  state: (): State => {
     return {
       account: {
         login: '',
@@ -22,7 +22,7 @@ export const useUser = defineStore('user', {
       },
       ifLogin: false,
       loginInfo: null
-    }
+    };
   },
   actions: {
     async initUser() {
@@ -63,7 +63,7 @@ export const useUser = defineStore('user', {
       }
     }
   }
-})
+});
 
 watch(() => useUser().loginInfo, (newVal, oldVal) => {
   try {

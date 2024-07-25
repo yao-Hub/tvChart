@@ -11,8 +11,8 @@ nextTick(async () => {
       }
     }
     return actions;
-  }
-  
+  };
+
   const moduleFiles = import.meta.glob('./modules/*.ts');
   for (const path in moduleFiles) {
     if (Object.prototype.hasOwnProperty.call(moduleFiles, path)) {
@@ -26,8 +26,8 @@ nextTick(async () => {
       }
     }
   }
-})
+});
 export const useRoot = defineStore('root', {
   state: () => allStates,
   actions: allActions
-})
+});

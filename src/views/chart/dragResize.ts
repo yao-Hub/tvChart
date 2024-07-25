@@ -94,7 +94,6 @@ function dragOnStart(evt: any) {
       createDragAreaItem(fromDom, 'up');
     }
   };
-  chartInitStore.setCacheSymbol();
 };
 
 function dragOnEnd() {
@@ -109,9 +108,7 @@ function dragOnEnd() {
     item.remove();
   });
   resizeUpdate();
-  setTimeout(() => {
-    chartInitStore.setChartSymbolWithCache();
-  });
+  chartInitStore.setChartSymbolWithCache();
 };
 
 // 初始化拖拽实例
@@ -225,7 +222,7 @@ function updateHoriLine() {
 
 // 水平线垂直拉伸
 const resizeVertical = (event: MouseEvent) => {
-  chartSubStore.chartLoading = true;
+  chartSubStore.chartsLoading = true;
   let result: HTMLDivElement[] = [];
 
   const lineTarget = event.target as HTMLDivElement;
@@ -270,7 +267,7 @@ const resizeVertical = (event: MouseEvent) => {
     result[1].querySelectorAll('.demo').forEach(item => (item as HTMLElement).style.height = `${downHeight}px`);
   }
   function stopResize() {
-    chartSubStore.chartLoading = false;
+    chartSubStore.chartsLoading = false;
     updateVertLine();
     document.removeEventListener('mousemove', resize);
     document.removeEventListener('mouseup', stopResize);
@@ -395,7 +392,7 @@ function operaVertLine() {
 
 // 竖直线水平拉伸
 function resizeHorizontal(event: MouseEvent) {
-  chartSubStore.chartLoading = true;
+  chartSubStore.chartsLoading = true;
   let result: HTMLDivElement[] = [];
   const demos = document.querySelectorAll('.demo');
   const lineTarget = event.target as HTMLDivElement;
@@ -436,7 +433,7 @@ function resizeHorizontal(event: MouseEvent) {
   }
 
   function stopResize() {
-    chartSubStore.chartLoading = false;
+    chartSubStore.chartsLoading = false;
     document.removeEventListener('mousemove', resize);
     document.removeEventListener('mouseup', stopResize);
   }

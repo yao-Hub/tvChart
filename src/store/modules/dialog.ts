@@ -1,19 +1,19 @@
-import { defineStore } from 'pinia'
+import { defineStore } from 'pinia';
 
 interface FloatMenuParams {
-  visible: boolean
-  clientX: number
-  clientY: number
+  visible: boolean;
+  clientX: number;
+  clientY: number;
 }
 
 interface State {
-  orderDialogVisible: boolean
-  floatMenuParams: FloatMenuParams
-  loginDialogVisible: boolean
+  orderDialogVisible: boolean;
+  floatMenuParams: FloatMenuParams;
+  loginDialogVisible: boolean;
 }
 
 export const useDialog = defineStore('dialog', {
-  state(): State {
+  state: (): State => {
     return {
       loginDialogVisible: false, // 登录弹窗
       orderDialogVisible: false, // 订单弹窗
@@ -22,7 +22,7 @@ export const useDialog = defineStore('dialog', {
         clientX: 0,
         clientY: 0
       }
-    }
+    };
   },
   actions: {
     showOrderDialog() {
@@ -38,4 +38,4 @@ export const useDialog = defineStore('dialog', {
       this.loginDialogVisible = false;
     }
   }
-})
+});
