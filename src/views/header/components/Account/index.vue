@@ -1,0 +1,51 @@
+<template>
+  <a-dropdown v-model:open="state.visible">
+    <div class="item">
+      <span>线路名</span>
+      <span>账户名</span>
+      <span>10285.21</span>
+      <CaretDownOutlined />
+    </div>
+    <template #overlay>
+      <a-menu>
+        <div v-for="i in 3" :key="i">
+          <a-menu-item>
+            <div class="item">
+              <GlobalOutlined />
+              <span>线路名</span>
+              <a-divider type="vertical" />
+              <span>账户名</span>
+              <a-divider type="vertical" />
+              <span>10285.21</span>
+            </div>
+          </a-menu-item>
+          <a-menu-divider />
+        </div>
+        <a-menu-item>
+          <div class="item">
+            <a-button type="link">个人信息</a-button>
+            <a-button type="link">忘记密码</a-button>
+            <a-button danger size="small">退出</a-button>
+          </div>
+        </a-menu-item>
+      </a-menu>
+    </template>
+  </a-dropdown>
+</template>
+
+<script setup lang="ts">
+import { CaretDownOutlined, GlobalOutlined } from '@ant-design/icons-vue';
+import { reactive } from 'vue';
+const state = reactive({
+  visible: false
+});
+</script>
+
+<style lang="scss" scoped>
+.item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+}
+</style>

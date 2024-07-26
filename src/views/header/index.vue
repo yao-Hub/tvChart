@@ -1,7 +1,7 @@
 <template>
   <div class="header">
     <div class="header__left">
-      <MenuOutlined />
+      <Menu></Menu>
       <a-tooltip title="快捷键：F9">
         <a-button type="link" @click="orderStore.createOrder()">新订单</a-button>
       </a-tooltip>
@@ -15,23 +15,21 @@
       </a-tooltip>
     </div>
     <div class="header__right">
-      <span>账号</span>
-      <!-- <span>9999,9999</span> -->
-      <CaretDownOutlined />
+      <Account></Account>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import {
-  MenuOutlined,
   ThunderboltOutlined,
-  CaretDownOutlined,
   BorderOutlined,
   AppstoreFilled
 } from '@ant-design/icons-vue';
 
 import LayoutVisibled from './components/LayoutVisibled.vue';
+import Menu from './components/Menu/index.vue';
+import Account from './components/Account/index.vue';
 
 import { useChartInit } from '@/store/modules/chartInit';
 import { useOrder } from '@/store/modules/order';
