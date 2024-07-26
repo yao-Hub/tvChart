@@ -1,26 +1,6 @@
 <template>
   <div class="chart" v-if="!chartInitStore.loading">
-    <div class="header">
-      <div class="header__left">
-        <MenuOutlined />
-        <a-tooltip title="快捷键：F9">
-          <a-button type="link" @click="orderStore.createOrder()">新订单</a-button>
-        </a-tooltip>
-        <LayoutController></LayoutController>
-        <ThunderboltOutlined />
-        <a-tooltip title="单图模式">
-          <BorderOutlined @click="chartInitStore.chartLayoutType = 'single'"/>
-        </a-tooltip>
-        <a-tooltip title="多图模式">
-          <AppstoreFilled @click="chartInitStore.chartLayoutType = 'multiple'"/>
-        </a-tooltip>
-      </div>
-      <div class="header__right">
-        <span>账号</span>
-        <!-- <span>9999,9999</span> -->
-        <CaretDownOutlined />
-      </div>
-    </div>
+    <WPHeader></WPHeader>
     <div class="dragArea">
       <div class="dragArea_item">
         <div class="demo" v-if="layoutStore.chartsVisable">
@@ -51,24 +31,18 @@
 <script setup lang="ts">
 import { reactive, onMounted, nextTick } from 'vue';
 import {
-  MenuOutlined,
-  ThunderboltOutlined,
-  CaretDownOutlined,
   HolderOutlined,
-  BorderOutlined,
-  AppstoreFilled
 } from '@ant-design/icons-vue';
 
 import { useChartInit } from '@/store/modules/chartInit';
 import { useChartSub } from '@/store/modules/chartSub';
 import { useUser } from '@/store/modules/user';
-import { useOrder } from '@/store/modules/order';
 import { useLayout } from '@/store/modules/layout';
 
 import { allSymbols } from 'api/symbols/index';
-import { initDragResizeArea } from './dragResize';
+import { initDragResizeArea } from 'utils/dragResize/index';
 
-import LayoutController from './components/LayoutController.vue';
+import WPHeader from '../header/index.vue'
 import OrderDialog from '../orderDialog/index.vue';
 import FloatMenu from './components/FloatMenu.vue';
 import LoginDialog from '../loginDialog/index.vue';
@@ -80,7 +54,6 @@ import ChartList from './components/ChartList.vue';
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const userStore = useUser();
-const orderStore = useOrder();
 const layoutStore = useLayout();
 
 const state = reactive({
@@ -116,29 +89,6 @@ onMounted(async () => {
   flex-direction: column;
   position: relative;
   overflow: auto;
-
-  .header {
-    padding: 0 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 50px;
-    border-bottom: 1px solid;
-    @include border_color('border');
-    box-sizing: border-box;
-
-    .header__left {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      justify-content: space-evenly;
-    }
-
-    .header__right {
-      display: flex;
-      gap: 8px;
-    }
-  }
 
   .dragArea {
     height: calc(100vh - 30px - 50px);

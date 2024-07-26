@@ -21,7 +21,7 @@
 import { ref, nextTick } from 'vue';
 import { LayoutOutlined } from '@ant-design/icons-vue';
 import { useLayout } from '@/store/modules/layout';
-import { resizeUpdate } from '../dragResize';
+import { resizeUpdate } from 'utils/dragResize/index';
 import { useChartInit } from '@/store/modules/chartInit';
 const chartInitStore = useChartInit();
 
