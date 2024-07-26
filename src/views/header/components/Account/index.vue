@@ -1,5 +1,5 @@
 <template>
-  <a-dropdown v-model:open="state.visible">
+  <a-dropdown :trigger="['click']" v-model:open="state.visible">
     <div class="item">
       <span>线路名</span>
       <span>账户名</span>
@@ -7,7 +7,7 @@
       <CaretDownOutlined />
     </div>
     <template #overlay>
-      <a-menu>
+      <a-menu @click="handleMenuClick">
         <div v-for="i in 3" :key="i">
           <a-menu-item>
             <div class="item">
@@ -34,11 +34,17 @@
 </template>
 
 <script setup lang="ts">
-import { CaretDownOutlined, GlobalOutlined } from '@ant-design/icons-vue';
 import { reactive } from 'vue';
+import { CaretDownOutlined, GlobalOutlined } from '@ant-design/icons-vue';
+import type { MenuProps } from 'ant-design-vue';
+
 const state = reactive({
   visible: false
 });
+
+const handleMenuClick: MenuProps['onClick'] = () => {
+  state.visible = false;
+};
 </script>
 
 <style lang="scss" scoped>
