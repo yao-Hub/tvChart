@@ -132,6 +132,11 @@ const profit =  computed(() => {
   box-sizing: border-box;
   height: 30px;
   @include background_color('primary');
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  
   .item {
     flex: 1;
     border-right: 1px solid;

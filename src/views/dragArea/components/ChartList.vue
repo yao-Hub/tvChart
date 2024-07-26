@@ -38,12 +38,10 @@
 import { reactive, computed, onMounted } from 'vue';
 import { useChartInit } from '@/store/modules/chartInit';
 import { useChartSub } from '@/store/modules/chartSub';
-import { datafeed } from '../chartConfig';
+import { datafeed } from '../../chart/chartConfig';
 import * as types from '@/types/chart/index';
 import { HolderOutlined } from '@ant-design/icons-vue';
 import Sortable from 'sortablejs';
-
-// import { IChartingLibraryWidget } from 'public/charting_library/charting_library';
 
 const chartSubStore = useChartSub();
 const chartInitStore = useChartInit();
@@ -57,9 +55,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const state = reactive({
   symbol: 'XAU',
-  contextMenu: {
-    // items_processor: (items: readonly library.IActionVariant[], actionsFactory: library.ActionsFactory) => setProcessor(items, actionsFactory)
-  },
   activeKey: 'chart_1',
 });
 
