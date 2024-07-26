@@ -99,17 +99,12 @@ const getSymbols = async () => {
     chartInitStore.loading = false;
   }
 };
-getSymbols();
-
-onMounted(() => {
-  userStore.initUser();
-});
 
 onMounted(async () => {
+  await getSymbols();
   await nextTick();
-  setTimeout(() => {
-    initDragResizeArea();
-  }, 200);
+  userStore.initUser();
+  initDragResizeArea();
 });
 </script>
 
