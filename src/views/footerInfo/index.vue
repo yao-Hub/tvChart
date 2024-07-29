@@ -20,7 +20,7 @@
       <span>保证金水平：</span>
       <span>{{ margin_level }}</span>
     </div>
-    <div class="item">
+    <div class="item" style="border: none;">
       <span>账户总盈亏：</span>
       <span>{{ profit }}</span>
     </div>
@@ -127,7 +127,6 @@ const profit =  computed(() => {
 @import '@/assets/styles/_handle.scss';
 
 .footerInfo {
-  display: flex;
   width: 100vw;
   box-sizing: border-box;
   height: 30px;
@@ -136,15 +135,17 @@ const profit =  computed(() => {
   bottom: 0;
   left: 0;
   right: 0;
+  overflow: auto;
   
   .item {
-    flex: 1;
+    min-width: 100px;
+    float: left;
     border-right: 1px solid;
     @include border_color('border');
-    display: flex;
-    align-items: center;
-    padding-left: 20px;
-    height: 80%;
+    display: block;
+    height: 30px;
+    line-height: 30px;
+    padding: 0 20px;
   }
 }
 </style>

@@ -4,7 +4,7 @@
     <template #overlay>
       <a-menu>
         <a-menu-item>
-          <quickTransactions></quickTransactions>
+          <quickTransactions @switchClick="state.visible = false"></quickTransactions>
         </a-menu-item>
         <a-menu-divider />
         <a-sub-menu :icon="h(SlidersOutlined)" title="图表设置" key="sub1">

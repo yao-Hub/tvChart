@@ -1,81 +1,77 @@
 <template>
   <div class="orderArea">
-    <a-button v-if="!userStore.ifLogin" type="primary" @click="dialogStore.showLoginDialog" style="width: 200px; margin:auto">登录使用交易系统</a-button>
-    <a-tabs v-model:activeKey="activeKey" type="card" v-else>
+    <a-button v-if="!userStore.ifLogin" type="primary" @click="dialogStore.showLoginDialog"
+      style="width: 200px; margin:auto">登录使用交易系统</a-button>
+    <a-tabs v-model:activeKey="activeKey" type="card" v-if="userStore.ifLogin">
       <a-tab-pane v-for="item in state.menu" :key="item.key">
         <template #tab>
           <span>
             {{ item.label }}
           </span>
-          <a-tag :color="state.dataSource[item.key].length ? '#009345' : '#7f7f7f'" style="margin-left: 3px; scale: 0.8;">{{ state.dataSource[item.key].length }}</a-tag>
+          <a-tag :color="state.dataSource[item.key].length ? '#009345' : '#7f7f7f'"
+            style="margin-left: 3px; scale: 0.8;">{{ state.dataSource[item.key].length }}</a-tag>
         </template>
-        <div class="container">
-          <div class="filter" v-show="activeKey === 'orderHistory'">
-            <div style="display: flex; align-items: center">
-              <span>品种：</span>
-              <SymbolSelect
-                v-model="state.pendingOrderSymbol"
-                @change="debouncedGetOrderHistory"
-                :selectOption="{allowClear: true}"
-                style="width: 200px;">
-              </SymbolSelect>
-            </div>
-            <TimeSelect v-model="state.orderHistoryCreateTime" @timeRange="debouncedGetOrderHistory">创建时间：</TimeSelect>
-          </div>
-          <div class="filter" v-show="activeKey === 'transactionHistory'">
-            <div style="display: flex; align-items: center">
-              <span>品种：</span>
-              <SymbolSelect
-                v-model="state.orderSymbol"
-                @change="debouncedGetTradingHistory"
-                :selectOption="{allowClear: true}"
-                style="width: 200px;">
-              </SymbolSelect>
-            </div>
-            <TimeSelect v-model="state.transactionHistoryCreateTime" @timeRange="debouncedGetTradingHistory">建仓时间：</TimeSelect>
-            <TimeSelect v-model="state.transactionHistoryCloseTime" initFill @timeRange="debouncedGetTradingHistory">平仓时间：</TimeSelect>
-          </div>
-          <a-table
-            :dataSource="state.dataSource[activeKey]"
-            :columns="state.columns[item.key]"
-            :pagination="false"
-            :loading="state.loadingList[activeKey]"
-            :scroll="{ x: 1300 }">
-            <template #bodyCell="{ record, column, index, text }">
-              <div @dblclick="handleRowDoubleClick(record)">
-                <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
-                <template v-else-if="column.dataIndex === 'time_expiration'">{{ formatTime(record.time_expiration) }}</template>
-                <template v-else-if="column.dataIndex === 'time_done'">{{ formatTime(record.time_done) }}</template>
-                <template v-else-if="column.dataIndex === 'volume'">{{ record.volume / 100 }}手</template>
-                <template v-else-if="column.dataIndex === 'type'">{{ $t(`order.${getTradingDirection(record.type)}`) }}</template>
-                <template v-else-if="column.dataIndex === 'orderType'">{{ $t(`order.type.${getOrderType(record.type)}`) }}</template>
-                <template v-else-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
-                <template v-else-if="column.dataIndex === 'profit' && activeKey === 'position'">{{ getProfit(record, index) }}</template>
-                <template v-else-if="column.dataIndex === 'distance'">{{ getDistance(record) }}</template>
-                <template v-else-if="column.dataIndex === 'close_type'">{{ getCloseType(record) }}</template>
-                <template v-else-if="column.dataIndex === 'positionAction'">
-                  <a-tooltip title="平仓">
-                    <a-button :icon="h(CloseOutlined)" size="small" @click="orderClose(record)"></a-button>
-                  </a-tooltip>
-                </template>
-                <template v-else-if="column.dataIndex === 'orderAction'">
-                  <a-tooltip title="撤销">
-                    <a-button :icon="h(CloseOutlined)" size="small" @click="delOrders(record)"></a-button>
-                  </a-tooltip>
-                </template>
-                <template v-else>
-                  {{ text }}
-                </template>
-              </div>
-            </template>
-          </a-table>
-        </div>
       </a-tab-pane>
     </a-tabs>
-    <EditOrderDialog
-      v-model:visible="state.closeDialogVisible"
-      :orderInfo="state.orderInfo"
-      :quote = orderStore.currentQuotes[state.orderInfo.symbol]>
+    <div class="container" v-if="userStore.ifLogin">
+      <div class="filter" v-show="activeKey === 'orderHistory'">
+        <div style="display: flex; align-items: center">
+          <span>品种：</span>
+          <SymbolSelect v-model="state.pendingOrderSymbol" @change="debouncedGetOrderHistory"
+            :selectOption="{ allowClear: true }" style="width: 200px;">
+          </SymbolSelect>
+        </div>
+        <TimeSelect v-model="state.orderHistoryCreateTime" @timeRange="debouncedGetOrderHistory">创建时间：</TimeSelect>
+      </div>
+      <div class="filter" v-show="activeKey === 'transactionHistory'">
+        <div style="display: flex; align-items: center">
+          <span>品种：</span>
+          <SymbolSelect v-model="state.orderSymbol" @change="debouncedGetTradingHistory"
+            :selectOption="{ allowClear: true }" style="width: 200px;">
+          </SymbolSelect>
+        </div>
+        <TimeSelect v-model="state.transactionHistoryCreateTime" @timeRange="debouncedGetTradingHistory">建仓时间：
+        </TimeSelect>
+        <TimeSelect v-model="state.transactionHistoryCloseTime" initFill @timeRange="debouncedGetTradingHistory">平仓时间：
+        </TimeSelect>
+      </div>
+      <a-table :dataSource="state.dataSource[activeKey]" :columns="state.columns[activeKey]" :pagination="false"
+        :loading="state.loadingList[activeKey]" :scroll="{ x: 1300 }">
+        <template #bodyCell="{ record, column, index, text }">
+          <div @dblclick="handleRowDoubleClick(record)">
+            <template v-if="column.dataIndex === 'time_setup'">{{ formatTime(record.time_setup) }}</template>
+            <template v-else-if="column.dataIndex === 'time_expiration'">{{ formatTime(record.time_expiration)
+              }}</template>
+            <template v-else-if="column.dataIndex === 'time_done'">{{ formatTime(record.time_done) }}</template>
+            <template v-else-if="column.dataIndex === 'volume'">{{ record.volume / 100 }}手</template>
+            <template v-else-if="column.dataIndex === 'type'">{{ $t(`order.${getTradingDirection(record.type)}`)
+              }}</template>
+            <template v-else-if="column.dataIndex === 'orderType'">{{ $t(`order.type.${getOrderType(record.type)}`)
+              }}</template>
+            <template v-else-if="column.dataIndex === 'now_price'">{{ getNowPrice(record, index) }}</template>
+            <template v-else-if="column.dataIndex === 'profit' && activeKey === 'position'">{{ getProfit(record, index)
+              }}</template>
+            <template v-else-if="column.dataIndex === 'distance'">{{ getDistance(record) }}</template>
+            <template v-else-if="column.dataIndex === 'close_type'">{{ getCloseType(record) }}</template>
+            <template v-else-if="column.dataIndex === 'positionAction'">
+              <a-tooltip title="平仓">
+                <a-button :icon="h(CloseOutlined)" size="small" @click="orderClose(record)"></a-button>
+              </a-tooltip>
+            </template>
+            <template v-else-if="column.dataIndex === 'orderAction'">
+              <a-tooltip title="撤销">
+                <a-button :icon="h(CloseOutlined)" size="small" @click="delOrders(record)"></a-button>
+              </a-tooltip>
+            </template>
+            <template v-else>
+              {{ text }}
+            </template>
+          </div>
+        </template>
+      </a-table>
+    </div>
+    <EditOrderDialog v-model:visible="state.closeDialogVisible" :orderInfo="state.orderInfo"
+      :quote=orderStore.currentQuotes[state.orderInfo.symbol]>
     </EditOrderDialog>
   </div>
 </template>
@@ -84,7 +80,8 @@
 import { reactive, watchEffect, nextTick, h, ref } from 'vue';
 import { cloneDeep, debounce } from 'lodash';
 import { CloseOutlined } from '@ant-design/icons-vue';
-import { message } from 'ant-design-vue';
+import { message, Modal } from 'ant-design-vue';
+
 import moment from 'moment';
 
 import * as orders from 'api/order/index';
@@ -93,12 +90,13 @@ import * as orderTypes from '#/order';
 import { tableColumns } from './config';
 import { round } from 'utils/common/index';
 import { getTradingDirection, getOrderType } from 'utils/order/index';
-import { CLOSE_TYPE } from '@/constants/common'; 
+import { CLOSE_TYPE } from '@/constants/common';
 import { orderChanges } from 'utils/socket/operation';
 
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
 import { useDialog } from '@/store/modules/dialog';
+import { useQuiTrans } from '@/store/modules/quickTransaction';
 
 import EditOrderDialog from '../orderDialog/edit.vue';
 import TimeSelect from './components/TimeSelect.vue';
@@ -106,17 +104,18 @@ import TimeSelect from './components/TimeSelect.vue';
 const userStore = useUser();
 const orderStore = useOrder();
 const dialogStore = useDialog();
+const quiTransStore = useQuiTrans();
 
 interface Menu {
-  label: string
-  key: orderTypes.TableDataKey
+  label: string;
+  key: orderTypes.TableDataKey;
 }
 
 const state = reactive({
   menu: [
     { label: '持仓', key: 'position' },
     { label: '挂单', key: 'order' },
-    { label: '失效挂单', key: 'orderHistory'},
+    { label: '失效挂单', key: 'orderHistory' },
     { label: '交易历史', key: 'transactionHistory' },
   ] as Menu[],
   columns: tableColumns,
@@ -147,7 +146,7 @@ const activeKey = ref<orderTypes.TableDataKey>('position');
 const getDistance = (e: orders.resOrders) => {
   const currentQuote = orderStore.currentQuotes[e.symbol];
   const type = getTradingDirection(e.type);
-  const result = type === 'buy' ? currentQuote.ask :  currentQuote.bid;
+  const result = type === 'buy' ? currentQuote.ask : currentQuote.bid;
   const entryPrice = +e.order_price;
   return round(Math.abs(result - entryPrice), 2);
 };
@@ -171,7 +170,7 @@ const getNowPrice = (e: orders.resOrders, index: number) => {
   try {
     const currentQuote = orderStore.currentQuotes[e.symbol];
     const type = getTradingDirection(e.type);
-    const result = type === 'buy' ? currentQuote.bid :  currentQuote.ask;
+    const result = type === 'buy' ? currentQuote.bid : currentQuote.ask;
     orderStore.tableData[activeKey.value]![index].now_price = +result;
     return result;
   } catch (error) {
@@ -187,7 +186,7 @@ const getProfit = (e: orders.resOrders, index: number) => {
     const currentQuote = orderStore.currentQuotes[e.symbol];
     // 持仓多单时，close_price = 现价卖价
     // 持仓空单时，close_price = 现价买价
-    const closePrice = type === 'buy' ? currentQuote.bid :  currentQuote.ask;
+    const closePrice = type === 'buy' ? currentQuote.bid : currentQuote.ask;
     const { contract_size, storage, fee, open_price, volume } = e;
     // 建仓合约价值 = open_price X contract_size X volume / 100
     const buildingPrice = open_price * contract_size * volume / 100;
@@ -223,7 +222,7 @@ watchEffect(async () => {
     debouncedGetTradingHistory();
     debouncedGetOrderHistory();
     orderChanges((type: string) => {
-      switch(type) {
+      switch (type) {
         case 'order_opened':
           getOrders();
           userStore.getLoginInfo();
@@ -265,7 +264,7 @@ const getOrders = async () => {
     state.loadingList.position = true;
     const resOrders = await orders.openningOrders();
 
-    state.dataSource.position= resOrders.data;
+    state.dataSource.position = resOrders.data;
     orderStore.tableData.position = cloneDeep(resOrders.data);
   } finally {
     state.loadingList.position = false;
@@ -274,25 +273,39 @@ const getOrders = async () => {
 
 // 市价单平仓
 const orderClose = async (record: orders.resOrders) => {
-  const res = await orders.marketOrdersClose({
-    symbol: record.symbol,
-    id: record.id,
-    volume: record.volume
-  });
-  if (res.data.action_success) {
-    message.success('平仓成功');
-    getOrders();
-    getTradingHistory();
-    userStore.getLoginInfo();
+
+  async function delOrder() {
+    const res = await orders.marketOrdersClose({
+      symbol: record.symbol,
+      id: record.id,
+      volume: record.volume
+    });
+    if (res.data.action_success) {
+      message.success('平仓成功');
+      getOrders();
+      getTradingHistory();
+      userStore.getLoginInfo();
+    }
   }
-}
+
+  if (!quiTransStore.ifQuick) {
+    Modal.confirm({
+      title: '确定平仓',
+      onOk() {
+        delOrder();
+      }
+    });
+    return;
+  }
+  delOrder();
+};
 
 // 查询挂单（有效）
 const getPendingOrders = async () => {
   try {
     state.loadingList.order = true;
     const res = await orders.pendingOrders();
-    state.dataSource.order= res.data;
+    state.dataSource.order = res.data;
     orderStore.tableData.order = cloneDeep(res.data);
   } finally {
     state.loadingList.order = false;
@@ -349,8 +362,8 @@ const getTradingHistory = async () => {
     }
     state.loadingList.transactionHistory = true;
     const { transactionHistoryCreateTime, transactionHistoryCloseTime, orderSymbol } = state;
-    const [ open_begin_time, open_end_time ] = transactionHistoryCreateTime;
-    const [ close_begin_time, close_end_time ] = transactionHistoryCloseTime;
+    const [open_begin_time, open_end_time] = transactionHistoryCreateTime;
+    const [close_begin_time, close_end_time] = transactionHistoryCloseTime;
     const updata: any = {};
     if (orderSymbol) {
       updata.symbol = orderSymbol;
@@ -368,7 +381,7 @@ const getTradingHistory = async () => {
       updata.close_end_time = close_end_time;
     }
     const res = await orders.historyOrders(updata);
-    state.dataSource.transactionHistory= res.data;
+    state.dataSource.transactionHistory = res.data;
   } finally {
     state.loadingList.transactionHistory = false;
   }
@@ -418,6 +431,7 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+
     .filter {
       display: flex;
       gap: 10px;
@@ -430,6 +444,7 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
 :deep(.ant-tabs-tab .ant-tabs-tab-active) {
   color: #d1d4dc;
 }
+
 :deep(.ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn) {
   color: #d1d4dc;
 }
