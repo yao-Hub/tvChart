@@ -41,7 +41,6 @@ declare module 'vue' {
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     AUpload: typeof import('ant-design-vue/es')['Upload']
     BaseButton: typeof import('./src/components/BaseButton.vue')['default']
-    DragArea: typeof import('./src/components/DragArea.vue')['default']
     LocaleChange: typeof import('./src/components/LocaleChange.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

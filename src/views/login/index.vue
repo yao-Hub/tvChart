@@ -3,30 +3,28 @@
     <img src="/vite.svg">
 
     <div class="login_title">
-      <span style="font-size: 24px;">登录您的账户</span>
-      <span style="font-size: 12px;">已有交易账号，可直接登录，如没有，可开模拟账号</span>
+      <span style="font-size: 24px;">{{ $t('account.login') }}</span>
+      <span style="font-size: 12px;">{{ $t('tip.ifHasAcount') }}</span>
     </div>
 
     <a-form
-      :labelCol="{span: 6}"
       :model="formState"
       name="normal_login"
       class="login-form"
       @finish="onFinish">
       <a-form-item
-        label="交易线路"
+        :label="$t('order.tradingRoute')"
         name="route">
         <a-select
           v-model:value="formState.route"
           show-search
-          placeholder="选择交易线路"
           :options="options"
           :filter-option="filterOption">
         </a-select>
       </a-form-item>
 
       <a-form-item
-        label="账户"
+        :label="$t('user.login')"
         name="login"
         :rules="[{ required: true, message: 'Please input your login!' }]">
         <a-input v-model:value="formState.login">
@@ -37,7 +35,7 @@
       </a-form-item>
 
       <a-form-item
-        label="密码"
+        :label="$t('user.password')"
         name="password"
         :rules="[{ required: true, message: 'Please input your password!' }]">
         <a-input-password v-model:value="formState.password">
@@ -47,21 +45,23 @@
         </a-input-password>
       </a-form-item>
 
-      <a-form-item>
+      <a-form-item style="position: relative">
         <a-form-item name="remember" no-style>
-          <a-checkbox v-model:checked="formState.remember">记住我</a-checkbox>
+          <a-checkbox v-model:checked="formState.remember">{{ $t('account.rememberMe') }}</a-checkbox>
         </a-form-item>
-        <a class="login-form-forgot" @click="$router.push({name: 'resetPassword'})">忘记密码？</a>
+        <a-form-item name="forgetPassword" no-style>
+          <a-button type="link" @click="$router.push({name: 'resetPassword'})" class="login-form-forgot">{{ $t('account.forgetPassword') }}</a-button>
+        </a-form-item>
       </a-form-item>
 
       <a-form-item>
         <a-button :disabled="disabled" type="primary" html-type="submit" class="login-form-button">
-          登录
+          {{ $t('account.login') }}
         </a-button>
       </a-form-item>
       <a-form-item>
-        <span>没有账号？</span>
-        <a-button type="link" @click="$router.push({name: 'register'})" :loading="formState.logging">创建模拟账号</a-button>
+        <span> {{ $t('account.noAccount') }}</span>
+        <a-button type="link" @click="$router.push({name: 'register'})" :loading="formState.logging"> {{ $t('account.createAccount') }}</a-button>
       </a-form-item>
 
     </a-form>
@@ -157,7 +157,9 @@ const disabled = computed(() => {
   flex-direction: column;
   align-items: center;
   gap: 40px;
-  margin-top: 100px;
+  padding-top: 100px;
+  box-sizing: border-box;
+  overflow: hidden;
   &_title {
     display: flex;
     flex-direction: column;
@@ -166,12 +168,10 @@ const disabled = computed(() => {
   }
 }
 
-.login-form {
-  max-width: 300px;
-}
-
- .login-form-forgot {
-  float: right;
+.login-form-forgot {
+  position: absolute;
+  right: 0;
+  top: 0;
 }
 
 .login-form-button {

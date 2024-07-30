@@ -20,13 +20,23 @@ export default {
   user: {
     login: "user",
     password: 'password',
+    email: 'email',
+    confirmPassword: "confirm password"
   },
 
   account: {
     rememberMe: 'Remember me',
     login: 'Login',
     logout: 'Logout',
-    submit: 'Submit'
+    submit: 'Submit',
+    forgetPassword: "forget password?",
+    noAccount: "Don't have an account?",
+    createAccount: "Create a simulated account",
+    registerAccount: "register Account",
+    register: "register",
+    verificationCode: "verificationCode",
+    sendCode: "send Code",
+    resetPassword: "reset Password",
   },
 
   axios: {
@@ -62,13 +72,16 @@ export default {
       limit: 'limit',
       stop: 'stop',
       stopLimit: 'stopLimit',
-    }
+    },
+    tradingRoute: "trading route"  
   },
 
   tip: {
     usernameRequired: 'Please input your username',
     passwordRequired: 'Please input your password',
     needLogin: 'please Login',
-    succeed: '{type} succeed'
+    succeed: '{type} succeed',
+    ifHasAcount: "If you already have a trading account, you can log in directly. If not, you can open a demo account",
+    agree: "I agree to the terms and conditions of the account opening and data protection policy"
   }
 };

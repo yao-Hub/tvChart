@@ -1,14 +1,17 @@
 <template>
   <div class="resetPassword">
-    <span class="resetPassword_title">重置密码</span>
+    <span class="resetPassword_title">{{ $t('account.resetPassword') }}</span>
     <a-form
       ref="formRef"
-      :model="formState"
       name="form"
-      :labelCol="{span: 5}"
+      :model="formState"
+      :labelCol="{span: 10}"
       :rules="rules"
       @finish="onFinish">
-      <a-form-item label="邮箱" name="email" :rules="[{ required: true, message: 'Please input your email!' }]">
+      <a-form-item 
+        name="email"
+        :label="$t('user.email')"
+        :rules="[{ required: true, message: 'Please input your email!' }]">
         <a-auto-complete
           v-model:value="formState.email"
           placeholder="input here"
@@ -20,24 +23,27 @@
         </a-auto-complete>
       </a-form-item>
   
-      <a-form-item label="验证码" name="code" :rules="[{ required: true, message: 'Please input your code!' }]">
+      <a-form-item
+        name="code"
+        :label="$t('account.verificationCode')"
+        :rules="[{ required: true, message: 'Please input your code!' }]">
         <a-input v-model:value="formState.code" placeholder="Basic usage">
           <template #suffix>
-            <a-button type="link">获取验证码</a-button>
+            <a-button type="link">{{ $t('account.sendCode') }}</a-button>
           </template>
         </a-input>
       </a-form-item>
 
-      <a-form-item has-feedback label="密码" name="pass">
-        <a-input v-model:value="formState.pass" type="password" autocomplete="off" placeholder="输入新密码"/>
+      <a-form-item has-feedback :label="$t('user.password')" name="pass">
+        <a-input v-model:value="formState.pass" type="password" autocomplete="off" placeholder="enter new password"/>
       </a-form-item>
 
-      <a-form-item has-feedback label="确认密码" name="checkPass">
-        <a-input v-model:value="formState.checkPass" type="password" autocomplete="off" placeholder="确认新密码"/>
+      <a-form-item has-feedback :label="$t('user.confirmPassword')" name="checkPass">
+        <a-input v-model:value="formState.checkPass" type="password" autocomplete="off" placeholder="confirm new password"/>
       </a-form-item>
 
       <a-form-item>
-        <a-button type="primary" html-type="submit" style="width: 100%;">重置密码</a-button>
+        <a-button type="primary" html-type="submit" style="width: 100%;">{{ $t('account.resetPassword') }}</a-button>
       </a-form-item>
     </a-form>
   </div>
@@ -78,6 +84,13 @@ const validatePass = async (_rule: Rule, value: string) => {
   if (value === '') {
     return Promise.reject('Please input the password');
   } else {
+    // 匹配6-24位数字和字母组合，不能包含空格
+    const regex = /^[a-zA-Z0-9]{6,24}$/;
+    if (regex.test(value)) {
+      Promise.resolve();
+    } else {
+      return Promise.reject('Please enter a combination of 6-24 digits and letters, without spaces');
+    }
     if (formState.checkPass !== '') {
       formRef.value?.validateFields('checkPass');
     }
@@ -114,7 +127,9 @@ const onFinish = (values: any) => {
   flex-direction: column;
   align-items: center;
   gap: 40px;
-  margin-top: 100px;
+  padding-top: 100px;
+  box-sizing: border-box;
+  overflow: hidden;
   &_title {
     font-size: 24px;
   }

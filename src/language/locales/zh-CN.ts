@@ -20,13 +20,23 @@ export default {
   user: {
     login: "账户",
     password: '密码',
+    email: '邮箱',
+    confirmPassword: "确认密码"
   },
 
   account: {
     rememberMe: '记住我',
     login: '登录',
     logout: '登出',
-    submit: '提交'
+    submit: '提交',
+    forgetPassword: "忘记密码？",
+    noAccount: "没有账号？",
+    createAccount: "创建模拟账号",
+    registerAccount: "注册账号",
+    register: "注册",
+    verificationCode: "验证码",
+    sendCode: "发送验证码",
+    resetPassword: "重置密码",
   },
 
   axios: {
@@ -62,13 +72,16 @@ export default {
       limit: '限价单',
       stop: '止损单',
       stopLimit: '止损限价单',
-    }
+    },
+    tradingRoute: "交易线路"  
   },
 
   tip: {
     usernameRequired: '请输入账号',
     passwordRequired: '请输入密码',
     needLogin: '请登录',
-    succeed: '{type}成功'
+    succeed: '{type}成功',
+    ifHasAcount: "已有交易账号，可直接登录，如没有，可开模拟账号",
+    agree: "我同意开设账户和数据保护政策的条款和条件"
   }
 };
