@@ -2,17 +2,27 @@
   <div class="expandIcon">
     <div class="expandIcon_left">
       <TranslationOutlined />
-      <span>语言</span>
+      <span>{{ $t('lauguage') }}</span>
     </div>
     <div class="expandIcon_right">
-      <span>English</span>
+      <span>{{ nowLocale }}</span>
       <RightOutlined style="font-size: 12px"/>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { RightOutlined, TranslationOutlined } from '@ant-design/icons-vue';
+import { useI18n } from "vue-i18n";
+const I18n = useI18n();
+const nowLocale = computed(() => {
+  const { locale, messages } = I18n;
+  const localeList = messages.value;
+  const curentLocale = locale.value;
+  return localeList[curentLocale].nowLocale;
+});
+
 </script>
 
 <style lang="scss" scoped>

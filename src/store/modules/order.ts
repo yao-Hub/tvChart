@@ -5,9 +5,6 @@ import { useUser } from './user';
 import * as types from '#/chart/index';
 import * as orderTypes from '#/order';
 import { Modal } from 'ant-design-vue';
-
-const dialogStore = useDialog();
-
 interface State {
   currentQuotes: Record<string, types.Quote>;
   currentSymbol: string;
@@ -31,6 +28,7 @@ export const useOrder = defineStore('order', {
 
   actions: {
     createOrder() {
+      const dialogStore = useDialog();
       const userStore = useUser();
       if (!userStore.getToken()) {
         const chartActionStore = useChartAction();

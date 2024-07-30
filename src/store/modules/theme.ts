@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { theme } from 'ant-design-vue';
+import { useChartInit } from './chartInit';
 
 interface State {
   currentTheme: string;
@@ -22,6 +23,25 @@ export const useTheme = defineStore('theme', {
       return {
         algorithm: theme.compactAlgorithm,
       };
+    }
+  },
+  actions: {
+    getTheme() {
+      const chartInitStore = useChartInit();
+      const theme = window.localStorage.getItem('Theme') || 'dark';
+      this.currentTheme = theme;
+      chartInitStore.chartWidgetList.forEach(item => {
+        item.widget?.changeTheme(theme as "light" | "dark");
+      });
+      return theme;
+    },
+    setTheme(theme: string) {
+      this.currentTheme = theme;
+      window.localStorage.setItem('Theme', theme);
+      const chartInitStore = useChartInit();
+      chartInitStore.chartWidgetList.forEach(item => {
+        item.widget?.changeTheme(theme as "light" | "dark");
+      });
     }
   }
 });

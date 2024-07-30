@@ -1,10 +1,7 @@
 import { defineStore } from 'pinia';
-import { watch } from 'vue';
-import { eq } from 'lodash';
 import { UserInfo } from '#/store';
 import CryptoJS from 'utils/AES';
 import { loginInfo } from 'api/account/index';
-import { useChartAction } from '@/store/modules/chartAction';
 import { sendToken } from 'utils/socket/operation';
 
 interface State {
@@ -14,18 +11,16 @@ interface State {
 }
 
 export const useUser = defineStore('user', {
-  state: (): State => {
-    return {
-      account: {
-        login: '',
-        password: ''
-      },
-      ifLogin: false,
-      loginInfo: null
-    };
-  },
+  state: (): State => ({
+    account: {
+      login: '',
+      password: ''
+    },
+    ifLogin: false,
+    loginInfo: null
+  }),
   actions: {
-    async initUser() {
+    initUser() {
       this.ifLogin = !!this.getToken();
       const account = window.localStorage.getItem('account');
       if (account) {
@@ -62,16 +57,5 @@ export const useUser = defineStore('user', {
         sendToken(res.data.login, this.getToken());
       }
     }
-  }
-});
-
-watch(() => useUser().loginInfo, (newVal, oldVal) => {
-  try {
-    const chartActionStore = useChartAction();
-    const ifEq = eq(newVal, oldVal);
-    if (!ifEq) {
-      chartActionStore.createAvatar();
-    }
-  } catch (error) {
   }
 });

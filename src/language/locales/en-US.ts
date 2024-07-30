@@ -1,7 +1,21 @@
 export default {
-  languageTxt: "简体中文", // 当前语言模式下 可切换的语言模式
-
+  languageTxt: "简体中文",
+  nowLocale: 'en',
+  lauguage: "lauguage",
   switchLanguage: "switch language",
+
+  company: "company",
+  aboutUs: "About Us",
+  feedback: "feedback",
+  upload: "Upload",
+  QuickTransactions: "Quick transactions",
+  lightTheme: "LightTheme",
+  shortcutkey: "Shortcut key",
+  SingleImageMode: "Single image mode",
+  MultiGrapMode: "Multi graph mode",
+  chartList: "chart List",
+  symbolList: "symbol List",
+  orderList: "order List",
 
   user: {
     login: "user",
@@ -27,11 +41,19 @@ export default {
   },
 
   order: {
+    symbol: "symbol",
+    sellPrice: "sell price",
+    buyPrice: "buy price",
     new: '{type} new order',
     create: 'create',
     point: 'point',
     price: 'price',
     balance: 'balance',
+    equity: "equity",
+    Margin: 'Margin',
+    marginFree: "margin free",
+    marginLevel: "margin level",
+    TotalProfit: "total profit",
     profit: 'profit',
     buy: 'buy',
     sell: 'sell',

@@ -2,15 +2,15 @@
   <div class="header">
     <div class="header__left">
       <Menu></Menu>
-      <a-tooltip title="快捷键：F9">
-        <a-button type="link" @click="orderStore.createOrder()">新订单</a-button>
+      <a-tooltip :title="`${$t('shortcutkey')}: F9`">
+        <a-button type="link" @click="orderStore.createOrder()">{{ $t('order.new') }}</a-button>
       </a-tooltip>
       <LayoutVisibled></LayoutVisibled>
       <ThunderboltOutlined />
-      <a-tooltip title="单图模式">
+      <a-tooltip :title="$t('SingleImageMode')">
         <BorderOutlined @click="chartInitStore.chartLayoutType = 'single'" />
       </a-tooltip>
-      <a-tooltip title="多图模式">
+      <a-tooltip :title="$t('MultiGrapMode')">
         <AppstoreFilled @click="chartInitStore.chartLayoutType = 'multiple'" />
       </a-tooltip>
     </div>

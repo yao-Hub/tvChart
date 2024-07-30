@@ -10,9 +10,6 @@ import { useOrder } from './order';
 
 import { allSymbolQuotes } from 'api/symbols/index';
 
-const dialogStore = useDialog();
-const chartInitStore = useChartInit();
-const orderStore = useOrder();
 interface State {
   symbols: SessionSymbolInfo[];
   barsCache: Map<string, any>;
@@ -40,6 +37,7 @@ export const useChartSub = defineStore('chartSub', {
   },
   actions: {
     async setSymbols(list: SessionSymbolInfo[]) {
+      const orderStore = useOrder();
       this.symbols = list;
       list.forEach(item => {
         subscribeSocket({ resolution: '1', symbol: item.symbol });
@@ -80,6 +78,8 @@ export const useChartSub = defineStore('chartSub', {
     },
     // 监听点击报价加号按钮（显示加号菜单）
     subscribePlusBtn() {
+      const dialogStore = useDialog();
+      const chartInitStore = useChartInit();
       const widgetList = chartInitStore.chartWidgetList;
       widgetList.forEach(Widget => {
         Widget.widget?.subscribe('onPlusClick', (e) => {
@@ -89,6 +89,8 @@ export const useChartSub = defineStore('chartSub', {
     },
     // 监听鼠标按下动作 （隐藏加号菜单）
     subscribeMouseDown(id?: string) {
+      const dialogStore = useDialog();
+      const chartInitStore = useChartInit();
       const widget = chartInitStore.getChartWidget(id);
       widget?.subscribe('mouse_down', (e) => {
         const { visible } = dialogStore.floatMenuParams;
@@ -100,6 +102,7 @@ export const useChartSub = defineStore('chartSub', {
     // 监听键盘快捷键
     subscribeKeydown() {
       try {
+        const chartInitStore = useChartInit();
         const widgetList = chartInitStore.chartWidgetList;
         keydownList.forEach(item => {
           widgetList.forEach(Widget => {

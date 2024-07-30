@@ -274,7 +274,7 @@ const getOrders = async () => {
 // 市价单平仓
 const orderClose = async (record: orders.resOrders) => {
 
-  async function delOrder() {
+  async function foo() {
     const res = await orders.marketOrdersClose({
       symbol: record.symbol,
       id: record.id,
@@ -292,12 +292,12 @@ const orderClose = async (record: orders.resOrders) => {
     Modal.confirm({
       title: '确定平仓',
       onOk() {
-        delOrder();
+        foo();
       }
     });
     return;
   }
-  delOrder();
+  foo();
 };
 
 // 查询挂单（有效）
@@ -341,17 +341,29 @@ const debouncedGetOrderHistory = debounce(getOrderHistory, 500);
 
 // 删除挂单
 const delOrders = async (record: orders.resOrders) => {
-  const res = await orders.delPendingOrders({
-    id: record.id,
-    symbol: record.symbol
-  });
-  if (res.data.action_success) {
-    message.success('撤销挂单成功');
-    getPendingOrders();
-    getOrderHistory();
-  } else {
+  async function foo() {
+    const res = await orders.delPendingOrders({
+      id: record.id,
+      symbol: record.symbol
+    });
+    if (res.data.action_success) {
+      message.success('撤销挂单成功');
+      getPendingOrders();
+      getOrderHistory();
+      return;
+    } 
     message.error(res.data.err_text);
   }
+  if (!quiTransStore.ifQuick) {
+    Modal.confirm({
+      title: '确定撤销',
+      onOk() {
+        foo();
+      }
+    });
+    return;
+  }
+  foo();
 };
 
 // 查询交易历史

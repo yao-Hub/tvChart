@@ -112,56 +112,6 @@ const onEdit = (targetKey: string, action: string) => {
     }
   }
 };
-
-// import { useUser } from '@/store/modules/user';
-// import { useChartAction } from '@/store/modules/chartAction';
-// import { useTheme } from '@/store/modules/theme';
-// import { datafeed } from './chartConfig';
-// import { okLight, okDark } from '@/assets/icons/index';
-// const { t } = useI18n();
-// const chartActionStore = useChartAction();
-// const themeStore = useTheme();
-// const userStore = useUser();
-
-// const chartWidget = ref();
-
-// 改变主题
-// const changeTheme = (theme: string) => {
-//   if (chartWidget.value) {
-//     chartWidget.value.changeTheme(theme);
-//     window.localStorage.setItem('Theme', theme);
-//     themeStore.currentTheme = theme;
-//   }
-// };
-
-// 设置右键菜单
-// const setProcessor: library.ContextMenuItemsProcessor = (items, actionsFactory) => {
-//   const themeType = chartWidget.value.getTheme().toLowerCase();
-//   const themeIcon = themeType === 'dark' ? okDark : okLight;
-//   const darkTheme = actionsFactory.createAction({
-//     actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
-//     label: t('chart.darkTheme'),
-//     iconChecked: themeIcon,
-//     checkable: true,
-//     checked:  themeType === 'dark',
-//     onExecute: () => changeTheme('dark')
-//   });
-//   const lightTheme = actionsFactory.createAction({
-//     actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
-//     label: t('chart.lightTheme'),
-//     iconChecked: themeIcon,
-//     checkable: true,
-//     checked: themeType === 'light',
-//     onExecute: () => changeTheme('light')
-//   });
-//   const themes = actionsFactory.createAction({
-//     actionId: 'Chart.CustomActionId' as library.ActionId.ChartCustomActionId,
-//     label: t('chart.ThemeColor'),
-//     subItems: [darkTheme, lightTheme]
-//   });
-//   const result = items.length > 10 ? [themes, ...items] : items;
-//   return Promise.resolve(result);
-// }
 </script>
 
 <style lang="scss" scoped>

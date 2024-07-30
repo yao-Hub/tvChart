@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <div style="width: 85%;">
+    <div class="main_search">
       <a-input v-model:value="state.symbol" placeholder="搜索交易品种" style="margin-left: 20px;">
         <template #prefix>
           <SearchOutlined />
@@ -23,6 +23,8 @@ import { reactive, computed } from 'vue';
 import { useChartSub } from '@/store/modules/chartSub';
 import { useOrder } from '@/store/modules/order';
 import { selectMatchItem } from 'utils/common/index';
+import { useI18n } from 'vue-i18n';
+const { t } = useI18n();
 
 const chartSubStore = useChartSub();
 const orderStore = useOrder();
@@ -30,9 +32,9 @@ const orderStore = useOrder();
 const state = reactive({
   symbol: '',
   columns: [
-    { title: '交易品种', dataIndex: 'symbol', key: 'symbol', width: 100 },
-    { title: '卖价', dataIndex: 'bid', key: 'bid', width: 130 },
-    { title: '买价', dataIndex: 'ask', key: 'ask', width: 130 },
+    { title: t("order.symbol"), dataIndex: 'symbol', key: 'symbol', width: 100 },
+    { title: t("order.sellPrice"), dataIndex: 'bid', key: 'bid', width: 130 },
+    { title: t("order.buyPrice"), dataIndex: 'ask', key: 'ask', width: 130 },
   ]
 });
 
@@ -60,5 +62,9 @@ const getQuotes = (type: 'bid' | 'ask', symbol: string) => {
   flex-direction: column;
   box-sizing: border-box;
   border-radius: 5px;
+  &_search {
+    width: 85%;
+    margin-bottom: 10px;
+  }
 }
 </style>

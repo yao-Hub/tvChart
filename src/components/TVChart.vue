@@ -6,7 +6,6 @@
 import { ref, onMounted } from 'vue';
 import * as library from 'public/charting_library';
 import { useI18n } from 'vue-i18n';
-// import { useChartAction } from '@/store/modules/chartAction';
 import { useChartInit } from '@/store/modules/chartInit';
 
 const { locale } = useI18n();

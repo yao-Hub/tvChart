@@ -1,27 +1,27 @@
 <template>
   <div class="footerInfo">
     <div class="item">
-      <span>余额：</span>
+      <span>{{ $t('order.balance') }}: </span>
       <span>{{ loginInfo?.balance }}</span>
     </div>
     <div class="item">
-      <span>净值：</span>
+      <span>{{ $t('order.equity') }}: </span>
       <span>{{ equity }}</span>
     </div>
     <div class="item">
-      <span>保证金：</span>
+      <span>{{ $t('order.Margin') }}: </span>
       <span>{{ Margin }}</span>
     </div>
     <div class="item">
-      <span>可用保证金：</span>
+      <span>{{ $t('order.marginFree') }}: </span>
       <span>{{ margin_free }}</span>
     </div>
     <div class="item">
-      <span>保证金水平：</span>
+      <span>{{ $t('order.marginLevel') }}: </span>
       <span>{{ margin_level }}</span>
     </div>
     <div class="item" style="border: none;">
-      <span>账户总盈亏：</span>
+      <span>{{ $t('order.TotalProfit') }}: </span>
       <span>{{ profit }}</span>
     </div>
   </div>

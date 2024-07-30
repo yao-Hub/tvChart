@@ -4,13 +4,13 @@
     <template #overlay>
       <a-menu>
         <a-menu-item>
-          <a-checkbox v-model:checked="layoutStore.chartsVisable" @change="checkboxChange">图表列表</a-checkbox>
+          <a-checkbox v-model:checked="layoutStore.chartsVisable" @change="checkboxChange">{{ $t('chartList') }}</a-checkbox>
         </a-menu-item>
         <a-menu-item>
-          <a-checkbox v-model:checked="layoutStore.symbolsVisable" @change="checkboxChange">品种列表</a-checkbox>
+          <a-checkbox v-model:checked="layoutStore.symbolsVisable" @change="checkboxChange">{{ $t('symbolList') }}</a-checkbox>
         </a-menu-item>
         <a-menu-item>
-          <a-checkbox v-model:checked="layoutStore.orderAreaVisable" @change="checkboxChange">订单列表</a-checkbox>
+          <a-checkbox v-model:checked="layoutStore.orderAreaVisable" @change="checkboxChange">{{ $t('orderList') }}</a-checkbox>
         </a-menu-item>
       </a-menu>
     </template>

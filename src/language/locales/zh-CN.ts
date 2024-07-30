@@ -1,7 +1,21 @@
 export default {
-  languageTxt: "en-US", // 当前语言模式下 可切换的语言模式
-
+  languageTxt: "en-US",
+  nowLocale: '简体中文',
+  lauguage: "语言",
   switchLanguage: "切换语言",
+
+  company: "公司",
+  aboutUs: "关于我们",
+  feedback: "意见反馈",
+  upload: "上传",
+  QuickTransactions: "快捷交易",
+  lightTheme: "亮色主题",
+  shortcutkey: "快捷键",
+  SingleImageMode: "单图模式",
+  MultiGrapMode: "多图模式",
+  chartList: "图表列表",
+  symbolList: "品种列表",
+  orderList: "订单列表",
 
   user: {
     login: "账户",
@@ -27,12 +41,20 @@ export default {
   },
 
   order: {
+    symbol: "品种",
+    sellPrice: "卖价",
+    buyPrice: "买价",
     new: '{type}新订单',
     create: '创建',
     point: '点',
     price: '价位',
     balance: '余额',
+    equity: "净值",
     profit: '盈利',
+    Margin: '保证金',
+    marginFree: "可用保证金",
+    marginLevel: "保证金水平",
+    TotalProfit: "账户总盈亏",
     buy: '买入',
     sell: '卖出',
     type: {

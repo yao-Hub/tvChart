@@ -39,12 +39,12 @@ import { useDialog } from '@/store/modules/dialog';
 import { Login } from 'api/account/index';
 import { useRoot } from '@/store/store';
 import { useUser } from '@/store/modules/user';
-import { useChartAction } from '@/store/modules/chartAction';
+// import { useChartAction } from '@/store/modules/chartAction';
 import { useI18n } from 'vue-i18n';
 const { t } = useI18n();
 
 const userStore = useUser();
-const chartActionStore = useChartAction();
+// const chartActionStore = useChartAction();
 
 const open = computed(() => {
   return dialogStore.loginDialogVisible;
@@ -103,7 +103,7 @@ const onFinish = async (values: any) => {
     
     await userStore.getLoginInfo(true);
     // 头像
-    chartActionStore.createAvatar();
+    // chartActionStore.createAvatar();
     handleCancel();
     
     // 记忆动作

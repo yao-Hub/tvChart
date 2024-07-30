@@ -10,13 +10,12 @@ import './assets/styles/common.scss'
  */
 const bootstrap = () => {
   const app = createApp(App)
-
   // 安装初始化store
   setupStore(app)
-  
+
   // 安装初始化路由
   setupRouter(app)
-  
+
   app.use(i18n)
   
   app.mount('#app')
