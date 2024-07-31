@@ -56,7 +56,7 @@ const handleSearch = (val: string) => {
   if (!val || val.indexOf('@') >= 0) {
     res = [];
   } else {
-    res = ['gmail.com', '163.com', 'qq.com'].map(domain => ({ value: `${val}@${domain}` }));
+    res = ['gmail.com', '163.com', 'qq.com', '126.com', 'souhu.com'].map(domain => ({ value: `${val}@${domain}` }));
   }
   options.value = res;
 };

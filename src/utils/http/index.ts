@@ -1,10 +1,10 @@
-import axios, { AxiosRequestConfig, AxiosError, InternalAxiosRequestConfig } from 'axios'
-import type { CustomResponseType } from '#/axios'
-import { encrypt, decrypt } from 'utils/DES/index'
+import axios, { AxiosRequestConfig, AxiosError, InternalAxiosRequestConfig } from 'axios';
+import type { CustomResponseType } from '#/axios';
+import { encrypt, decrypt } from 'utils/DES/index';
 import { notification, message } from 'ant-design-vue';
 import { useUser } from '@/store/modules/user';
-import { useDialog } from '@/store/modules/dialog';
-
+import { useRouter } from "vue-router";
+const router = useRouter();
 interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig<any> {
   needToken?: boolean;
 }
@@ -12,7 +12,7 @@ interface CustomAxiosRequestConfig extends AxiosRequestConfig<any> {
   needToken?: boolean;
 }
 const baseURL = import.meta.env.MODE === 'development' ? import.meta.env.VITE_HTTP_BASE_URL : import.meta.env.VITE_HTTP_URL;
-console.log(import.meta.env.MODE, baseURL)
+console.log(import.meta.env.MODE, baseURL);
 
 let ifTokenError = false;
 
@@ -24,7 +24,7 @@ const service = axios.create({
   headers: {
     "Content-Type": 'application/json',
   }
-})
+});
 
 // 请求拦截器
 service.interceptors.request.use(
@@ -38,18 +38,18 @@ service.interceptors.request.use(
       config.data.token = userStore.getToken();
       config.data.login = userStore.account.login;
     }
-    console.log('request Data', { url: config.url, data: config.data })
+    console.log('request Data', { url: config.url, data: config.data });
     var p = {
       action: config.url,
       d: encrypt(JSON.stringify(config.data))
     };
     config.data = JSON.stringify(p);
-    return config
+    return config;
   },
   (err) => {
-    return Promise.reject(err)
+    return Promise.reject(err);
   }
-)
+);
 
 // 响应拦截器
 service.interceptors.response.use(
@@ -58,31 +58,30 @@ service.interceptors.response.use(
     if (data.err === 0) {
       ifTokenError = false;
       data.data = JSON.parse(decrypt(data.data));
-      console.log('response Data', { url: response.config.url, data })
+      console.log('response Data', { url: response.config.url, data });
       return response;
     }
-    const dialogStroe = useDialog();
     if (data.err === 1 && data.errmsg.includes('invalid token')) {
       const userStore = useUser();
       userStore.ifLogin = false;
       userStore.clearToken();
       userStore.loginInfo = null;
-      
+
       if (!ifTokenError) {
-        dialogStroe.showLoginDialog();
+        router.replace({ name: 'login' });
         message['error']('登录过期，请重新登录');
       }
       ifTokenError = true;
-      return Promise.reject(data)
+      return Promise.reject(data);
     }
     notification['error']({
       message: 'error',
       description: data.errmsg || data.err || 'response error',
     });
-    return Promise.reject(data)
+    return Promise.reject(data);
   },
   (err) => {
-    const { status } = err.response
+    const { status } = err.response;
     notification['error']({
       message: err.name || 'request error',
       description: err.message || `statusCode: ${status}`,
@@ -91,20 +90,20 @@ service.interceptors.response.use(
     switch (status) {
       case 401:
         // 鉴权失败
-        break
+        break;
       case 403:
         // 没有权限
-        break
+        break;
       case 500:
         // 服务端错误
-        break
+        break;
 
       default:
-        break
+        break;
     }
-    return Promise.reject(err)
+    return Promise.reject(err);
   }
-)
+);
 
 // 封装一层以更好的统一定义接口返回的类型
 const request = <T>(
@@ -114,13 +113,13 @@ const request = <T>(
     service
       .request<CustomResponseType<T>>(config)
       .then((res) => {
-        resolve(res.data)
+        resolve(res.data);
       })
       .catch((err: Error | AxiosError) => {
-        reject(err)
-      })
-  })
-}
+        reject(err);
+      });
+  });
+};
 
 export default request
 

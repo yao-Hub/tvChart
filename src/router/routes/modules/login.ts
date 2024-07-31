@@ -22,10 +22,15 @@ const routes: RouteRecordRaw[] = [
     path: '/resetPassword',
     name: 'resetPassword',
     component: () => import('@/views/login/resetPassword.vue'),
+  },
+  {
+    path: '/retrievePassword',
+    name: 'retrievePassword',
+    component: () => import('@/views/login/retrievePassword.vue'),
     meta: {
       passGuard: true
     },
-  },
+  }
 ]
 
 export default routes

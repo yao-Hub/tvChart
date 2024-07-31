@@ -1,6 +1,6 @@
 <template>
-  <div class="resetPassword">
-    <span class="resetPassword_title">{{ $t(`account.resetPassword`) }}</span>
+  <div class="retrievePassword">
+    <span class="retrievePassword_title">{{ $t(`account.retrievePassword`) }}</span>
     <a-form
       ref="formRef"
       name="form"
@@ -9,9 +9,30 @@
       :labelCol="{span: 10}"
       :rules="rules"
       @finish="onFinish">
-
-      <a-form-item has-feedback :label="$t('user.oldPassword')" name="oldpass">
-        <a-input v-model:value="formState.oldpass" type="password" autocomplete="off" placeholder="enter old password"/>
+      <a-form-item 
+        name="email"
+        :label="$t('user.email')"
+        :rules="[{ required: true, message: 'Please input your email!' }]">
+        <a-auto-complete
+          v-model:value="formState.email"
+          placeholder="input email"
+          :options="options" @search="handleSearch">
+          <template #option="{ value: val }">
+            {{ val.split('@')[0] }} @
+            <span style="font-weight: bold">{{ val.split('@')[1] }}</span>
+          </template>
+        </a-auto-complete>
+      </a-form-item>
+  
+      <a-form-item
+        name="code"
+        :label="$t('account.verificationCode')"
+        :rules="[{ required: true, message: 'Please input your code!' }]">
+        <a-input v-model:value="formState.code" placeholder="code">
+          <template #suffix>
+            <a-button type="link">{{ $t('account.sendCode') }}</a-button>
+          </template>
+        </a-input>
       </a-form-item>
 
       <a-form-item has-feedback :label="$t('user.newPassword')" name="pass">
@@ -23,7 +44,7 @@
       </a-form-item>
 
       <a-form-item>
-        <a-button type="primary" html-type="submit" style="width: 100%;">{{ $t('account.resetPassword') }}</a-button>
+        <a-button type="primary" html-type="submit" style="width: 100%;">{{ $t('account.retrievePassword') }}</a-button>
       </a-form-item>
     </a-form>
   </div>
@@ -33,23 +54,33 @@
 import { ref, reactive } from 'vue';
 import type { Rule } from 'ant-design-vue/es/form';
 import type { FormInstance } from 'ant-design-vue';
-import { message } from 'ant-design-vue';
-import { passwordReset } from 'api/account/index'
 import { useRouter } from "vue-router";
-import { useI18n } from 'vue-i18n';
-
 const router = useRouter();
-const { t } = useI18n();
+
+const options = ref<{ value: string; }[]>([]);
+
+const handleSearch = (val: string) => {
+  let res: { value: string; }[];
+  if (!val || val.indexOf('@') >= 0) {
+    res = [];
+  } else {
+    res = ['gmail.com', '163.com', 'qq.com', '126.com', 'souhu.com'].map(domain => ({ value: `${val}@${domain}` }));
+  }
+  options.value = res;
+};
+
 interface FormState {
+  email: string;
+  code: string;
   pass: string;
   checkPass: string;
-  oldpass: string;
 }
 
 const formState = reactive<FormState>({
+  code: '',
+  email: '',
   pass: '',
   checkPass: '',
-  oldpass: ''
 });
 const formRef = ref<FormInstance>();
 const validatePass = async (_rule: Rule, value: string) => {
@@ -80,19 +111,12 @@ const validatePass2 = async (_rule: Rule, value: string) => {
 };
 
 const rules: Record<string, Rule[]> = {
-  oldpass: [{ required: true, trigger: 'change' }],
   pass: [{ required: true, validator: validatePass, trigger: 'change' }],
   checkPass: [{ required: true, validator: validatePass2, trigger: 'change' }],
 };
 
-const onFinish = async (values: any) => {
-  const { pass, oldpass } = values
-  const res = await passwordReset({
-    admin_password: oldpass,
-    new_password: pass
-  });
-  console.log(res)
-  message.success(t('tip.succeed', { type: t('account.resetPassword') }));
+const onFinish = (values: any) => {
+  console.log('Success:', values);
   router.push({ name: 'login' });
 };
 
@@ -100,7 +124,7 @@ const onFinish = async (values: any) => {
 
 
 <style lang="scss" scoped>
-.resetPassword {
+.retrievePassword {
   width: 100vw;
   height: 100vh;
   display: flex;

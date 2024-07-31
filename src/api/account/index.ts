@@ -81,11 +81,16 @@ export const loginsAdd = (data: any) => {
   })
 }
 
+interface reqPasswordReset {
+  admin_password: string
+  new_password: string
+}
 // 重置用户密码
-export const passwordReset = (data: any) => {
+export const passwordReset = (data: reqPasswordReset) => {
   return request<any>({
-    url: 'admin/password_reset',
+    url: 'my/password_update',
     method: 'post',
     data,
+    needToken: true
   })
 }

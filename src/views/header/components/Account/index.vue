@@ -24,7 +24,7 @@
         <a-menu-item>
           <div class="item">
             <a-button type="link">个人信息</a-button>
-            <a-button type="link">更改密码</a-button>
+            <a-button type="link" @click="$router.push({ name: 'resetPassword' })">更改密码</a-button>
             <a-button danger size="small" @click="logout">退出</a-button>
           </div>
         </a-menu-item>

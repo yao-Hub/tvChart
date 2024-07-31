@@ -21,7 +21,9 @@ export default {
     login: "user",
     password: 'password',
     email: 'email',
-    confirmPassword: "confirm password"
+    confirmPassword: "confirm password",
+    newPassword: "new Password",
+    oldPassword: "old Password",
   },
 
   account: {
@@ -37,6 +39,7 @@ export default {
     verificationCode: "verificationCode",
     sendCode: "send Code",
     resetPassword: "reset Password",
+    retrievePassword: "retrieve Password",
   },
 
   axios: {

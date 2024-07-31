@@ -21,7 +21,9 @@ export default {
     login: "账户",
     password: '密码',
     email: '邮箱',
-    confirmPassword: "确认密码"
+    confirmPassword: "确认密码",
+    newPassword: "新密码",
+    oldPassword: "旧密码",
   },
 
   account: {
@@ -37,6 +39,7 @@ export default {
     verificationCode: "验证码",
     sendCode: "发送验证码",
     resetPassword: "重置密码",
+    retrievePassword: "找回密码",
   },
 
   axios: {

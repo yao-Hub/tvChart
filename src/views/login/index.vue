@@ -52,7 +52,7 @@
           <a-checkbox v-model:checked="formState.remember">{{ $t('account.rememberMe') }}</a-checkbox>
         </a-form-item>
         <a-form-item name="forgetPassword" no-style>
-          <a-button type="link" @click="$router.push({name: 'resetPassword'})" class="login-form-forgot">{{ $t('account.forgetPassword') }}</a-button>
+          <a-button type="link" @click="$router.push({ name: 'retrievePassword' })" class="login-form-forgot">{{ $t('account.forgetPassword') }}</a-button>
         </a-form-item>
       </a-form-item>
 
