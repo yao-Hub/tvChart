@@ -1,14 +1,13 @@
 <template>
-  <div class="chart" v-if="!chartInitStore.loading">
+  <div class="chart" v-show="!chartInitStore.loading">
     <WPHeader></WPHeader>
     <dragArea></dragArea>
     <FooterInfo></FooterInfo>
   </div>
-  <Spin v-else></Spin>
+  <Spin v-show="chartInitStore.loading"></Spin>
 
   <FloatMenu></FloatMenu>
   <OrderDialog></OrderDialog>
-  <LoginDialog></LoginDialog>
 </template>
 
 <script setup lang="ts">
@@ -25,9 +24,7 @@ import WPHeader from '../header/index.vue';
 import dragArea from '../dragArea/index.vue';
 import OrderDialog from '../orderDialog/index.vue';
 import FloatMenu from './components/FloatMenu.vue';
-import LoginDialog from '../loginDialog/index.vue';
 import FooterInfo from '../footerInfo/index.vue';
-
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
@@ -39,22 +36,22 @@ const state = reactive({
 
 // 获取所有商品(品种)
 const getSymbols = async () => {
-  chartInitStore.loading = true;
-  try {
-    const res: any = await allSymbols();
-    chartSubStore.setSymbols(res.data);
-    state.symbol = res.data[0].symbol;
-    chartInitStore.loading = false;
-  } catch {
-    chartInitStore.loading = false;
-  }
+  const res: any = await allSymbols();
+  chartSubStore.setSymbols(res.data);
+  state.symbol = res.data[0].symbol;
+  chartInitStore.loading = false;
 };
 
 onMounted(async () => {
-  await getSymbols();
-  await nextTick();
-  userStore.initUser();
-  initDragResizeArea();
+  try {
+    chartInitStore.loading = true;
+    await getSymbols();
+    await nextTick();
+    userStore.initUser();
+    initDragResizeArea();
+  } finally {
+    chartInitStore.loading = false;
+  }
 });
 </script>
 

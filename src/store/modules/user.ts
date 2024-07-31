@@ -1,11 +1,11 @@
 import { defineStore } from 'pinia';
 import { UserInfo } from '#/store';
 import CryptoJS from 'utils/AES';
-import { loginInfo } from 'api/account/index';
+import { getLoginInfo } from 'api/account/index';
 import { sendToken } from 'utils/socket/operation';
 
 interface State {
-  account: Pick<UserInfo, 'login' | 'password'>;
+  account: Pick<UserInfo, 'login' | 'password'> & { 'server': string };
   ifLogin: Boolean;
   loginInfo: UserInfo | null;
 }
@@ -14,7 +14,8 @@ export const useUser = defineStore('user', {
   state: (): State => ({
     account: {
       login: '',
-      password: ''
+      password: '',
+      server: ''
     },
     ifLogin: false,
     loginInfo: null
@@ -49,7 +50,7 @@ export const useUser = defineStore('user', {
       window.localStorage.removeItem('token');
     },
     async getLoginInfo(emitSocket?: boolean) {
-      const res = await loginInfo({
+      const res = await getLoginInfo({
         login: this.account.login,
       });
       this.loginInfo = res.data;

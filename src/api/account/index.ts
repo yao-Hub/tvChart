@@ -27,7 +27,7 @@ export const Login = (data: reqLogin) => {
 /**
  * 登录信息
  */
-export const loginInfo = (data: reqLoginInfo) => {
+export const getLoginInfo = (data: reqLoginInfo) => {
   return request<UserInfo>({
     url: Api.LoginInfo,
     method: 'post',

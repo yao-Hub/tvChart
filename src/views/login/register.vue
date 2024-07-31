@@ -2,8 +2,9 @@
   <div class="register">
     <span class="register_title">{{ $t('account.registerAccount') }}</span>
     <a-form
-      :model="formState"
       name="basic"
+      layout="vertical"
+      :model="formState"
       :labelCol="{span: 6}"
       @finish="onFinish">
       <a-form-item

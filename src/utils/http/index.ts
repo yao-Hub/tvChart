@@ -32,7 +32,7 @@ service.interceptors.request.use(
     const userStore = useUser();
     config.data = {
       ...config.data,
-      server: 'upway-live'
+      server: userStore.account.server || 'upway-live'
     };
     if (config.needToken) {
       config.data.token = userStore.getToken();

@@ -1,8 +1,6 @@
 <template>
   <div class="orderArea">
-    <a-button v-if="!userStore.ifLogin" type="primary" @click="dialogStore.showLoginDialog"
-      style="width: 200px; margin:auto">登录使用交易系统</a-button>
-    <a-tabs v-model:activeKey="activeKey" type="card" v-if="userStore.ifLogin">
+    <a-tabs v-model:activeKey="activeKey" type="card">
       <a-tab-pane v-for="item in state.menu" :key="item.key">
         <template #tab>
           <span>
@@ -13,7 +11,7 @@
         </template>
       </a-tab-pane>
     </a-tabs>
-    <div class="container" v-if="userStore.ifLogin">
+    <div class="container">
       <div class="filter" v-show="activeKey === 'orderHistory'">
         <div style="display: flex; align-items: center">
           <span>品种：</span>
@@ -77,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watchEffect, nextTick, h, ref } from 'vue';
+import { reactive, watchEffect, h, ref, onMounted } from 'vue';
 import { cloneDeep, debounce } from 'lodash';
 import { CloseOutlined } from '@ant-design/icons-vue';
 import { message, Modal } from 'ant-design-vue';
@@ -95,7 +93,6 @@ import { orderChanges } from 'utils/socket/operation';
 
 import { useUser } from '@/store/modules/user';
 import { useOrder } from '@/store/modules/order';
-import { useDialog } from '@/store/modules/dialog';
 import { useQuiTrans } from '@/store/modules/quickTransaction';
 
 import EditOrderDialog from '../orderDialog/edit.vue';
@@ -103,7 +100,6 @@ import TimeSelect from './components/TimeSelect.vue';
 
 const userStore = useUser();
 const orderStore = useOrder();
-const dialogStore = useDialog();
 const quiTransStore = useQuiTrans();
 
 interface Menu {
@@ -203,58 +199,56 @@ const getProfit = (e: orders.resOrders, index: number) => {
   }
 };
 
-// 下单时和登录时触发
+onMounted(() => {
+  debouncedGetOrders();
+  debouncedGetPendingOrders();
+  debouncedGetTradingHistory();
+  debouncedGetOrderHistory();
+  orderChanges((type: string) => {
+    switch (type) {
+      case 'order_opened':
+        getOrders();
+        userStore.getLoginInfo();
+        break;
+      case 'order_closed':
+        getOrders();
+        getTradingHistory();
+        userStore.getLoginInfo();
+        break;
+      case 'order_modified':
+        getOrders();
+        break;
+      case 'pending_order_opened':
+      case 'pending_order_modified':
+        getPendingOrders();
+        break;
+      case 'pending_order_deleted':
+        getPendingOrders();
+        getOrderHistory();
+        break;
+      case 'pending_order_dealt':
+        getOrders();
+        getPendingOrders();
+        userStore.getLoginInfo();
+        break;
+      case 'balance_order_added':
+        userStore.getLoginInfo();
+        break;
+      default:
+        break;
+    }
+  });
+});
+
+// 下单时触发
 watchEffect(async () => {
   if (orderStore.refreshOrderArea) {
-    getOrders();
-    getPendingOrders();
+    debouncedGetOrders();
+    debouncedGetPendingOrders();
     debouncedGetTradingHistory();
     debouncedGetOrderHistory();
     userStore.getLoginInfo();
     orderStore.refreshOrderArea = false;
-    return;
-  }
-  // 登录时后查找数据
-  if (userStore.ifLogin) {
-    await nextTick();
-    getOrders();
-    getPendingOrders();
-    debouncedGetTradingHistory();
-    debouncedGetOrderHistory();
-    orderChanges((type: string) => {
-      switch (type) {
-        case 'order_opened':
-          getOrders();
-          userStore.getLoginInfo();
-          break;
-        case 'order_closed':
-          getOrders();
-          getTradingHistory();
-          userStore.getLoginInfo();
-          break;
-        case 'order_modified':
-          getOrders();
-          break;
-        case 'pending_order_opened':
-        case 'pending_order_modified':
-          getPendingOrders();
-          break;
-        case 'pending_order_deleted':
-          getPendingOrders();
-          getOrderHistory();
-          break;
-        case 'pending_order_dealt':
-          getOrders();
-          getPendingOrders();
-          userStore.getLoginInfo();
-          break;
-        case 'balance_order_added':
-          userStore.getLoginInfo();
-          break;
-        default:
-          break;
-      }
-    });
   }
 });
 
@@ -270,6 +264,7 @@ const getOrders = async () => {
     state.loadingList.position = false;
   }
 };
+const debouncedGetOrders = debounce(() => getOrders(), 2000);
 
 // 市价单平仓
 const orderClose = async (record: orders.resOrders) => {
@@ -311,6 +306,7 @@ const getPendingOrders = async () => {
     state.loadingList.order = false;
   }
 };
+const debouncedGetPendingOrders = debounce(() => getPendingOrders(), 2000);
 
 // 查询挂单历史（失效）
 const getOrderHistory = async () => {
@@ -322,22 +318,16 @@ const getOrderHistory = async () => {
     const { orderHistoryCreateTime, pendingOrderSymbol } = state;
     const [begin_time, end_time] = orderHistoryCreateTime;
     const updata: any = {};
-    if (pendingOrderSymbol) {
-      updata.symbol = pendingOrderSymbol;
-    }
-    if (begin_time) {
-      updata.begin_time = begin_time;
-    }
-    if (end_time) {
-      updata.begin_time = begin_time;
-    }
+    updata.symbol = pendingOrderSymbol;
+    updata.begin_time = begin_time;
+    updata.end_time = end_time;
     const res = await orders.invalidPendingOrders(updata);
     state.dataSource.orderHistory = res.data;
   } finally {
     state.loadingList.orderHistory = false;
   }
 };
-const debouncedGetOrderHistory = debounce(getOrderHistory, 500);
+const debouncedGetOrderHistory = debounce(() => getOrderHistory(), 2000);
 
 // 删除挂单
 const delOrders = async (record: orders.resOrders) => {
@@ -377,21 +367,11 @@ const getTradingHistory = async () => {
     const [open_begin_time, open_end_time] = transactionHistoryCreateTime;
     const [close_begin_time, close_end_time] = transactionHistoryCloseTime;
     const updata: any = {};
-    if (orderSymbol) {
-      updata.symbol = orderSymbol;
-    }
-    if (open_begin_time) {
-      updata.open_begin_time = open_begin_time;
-    }
-    if (open_end_time) {
-      updata.open_end_time = open_end_time;
-    }
-    if (close_begin_time) {
-      updata.close_begin_time = close_begin_time;
-    }
-    if (close_end_time) {
-      updata.close_end_time = close_end_time;
-    }
+    updata.symbol = orderSymbol;
+    updata.open_begin_time = open_begin_time;
+    updata.open_end_time = open_end_time;
+    updata.close_begin_time = close_begin_time;
+    updata.close_end_time = close_end_time;
     const res = await orders.historyOrders(updata);
     state.dataSource.transactionHistory = res.data;
   } finally {
@@ -399,7 +379,7 @@ const getTradingHistory = async () => {
   }
 };
 
-const debouncedGetTradingHistory = debounce(getTradingHistory, 500);
+const debouncedGetTradingHistory = debounce(() => getTradingHistory(), 2000);
 
 // 双击行
 const handleRowDoubleClick = (record: orders.resOrders) => {

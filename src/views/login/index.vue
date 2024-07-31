@@ -9,15 +9,17 @@
 
     <a-form
       :model="formState"
+      layout="vertical"
       name="normal_login"
       class="login-form"
       @finish="onFinish">
       <a-form-item
+        name="server"
         :label="$t('order.tradingRoute')"
-        name="route">
+        :rules="[{ required: true, message: 'Please select tradingRoute!' }]">
         <a-select
-          v-model:value="formState.route"
           show-search
+          v-model:value="formState.server"
           :options="options"
           :filter-option="filterOption">
         </a-select>
@@ -85,9 +87,7 @@ const { t } = useI18n();
 
 const userStore = useUser();
 const options = ref<SelectProps['options']>([
-  { value: 'jack', label: 'Jack' },
-  { value: 'lucy', label: 'Lucy' },
-  { value: 'tom', label: 'Tom' },
+  { value: 'upway-live', label: 'upway-live' },
 ]);
 const filterOption = (input: string, option: any) => {
   return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -97,11 +97,11 @@ interface FormState {
   login: string;
   password: string;
   remember: boolean;
-  route: string;
+  server: string;
   logging: boolean;
 }
 const formState = reactive<FormState>({
-  route: '',
+  server: '',
   login: '',
   password: '',
   remember: true,
@@ -112,32 +112,37 @@ const formState = reactive<FormState>({
 const ifRemember = window.localStorage.getItem('remember');
 if (ifRemember) {
   const account = window.localStorage.getItem('account');
-  const parseAccount = account ? JSON.parse(account) : null;
-  if (parseAccount) {
-    formState.login = CryptoJS.decrypt(parseAccount.login);
-    formState.password = CryptoJS.decrypt(parseAccount.password);
+  const parseAccount = account ? JSON.parse(account) : {};
+  for (const i in formState) {
+    const storageItem = parseAccount[i];
+    if (storageItem) {
+      // @ts-ignore
+      formState[i] = CryptoJS.decrypt(storageItem);
+    }
   }
 }
 
 const onFinish = async (values: any) => {
   try {
     formState.logging = true;
-    const { login, remember, password } = values;
+    const { login, remember, password, server } = values;
     const res = await Login({ password, login });
     message.success(t('tip.succeed', { type: t('account.login') }));
     userStore.setToken(res.data.token);
     userStore.ifLogin = true;
     userStore.account.password = password;
     userStore.account.login = login;
+    userStore.account.server = server;
     const enlogin = CryptoJS.encrypt(login);
     const enpassword = CryptoJS.encrypt(password);
+    const enserver = CryptoJS.encrypt(server);
     const storage = {
       login: enlogin,
-      password: enpassword
+      password: enpassword,
+      server: enserver
     };
     window.localStorage.setItem('account', JSON.stringify(storage));
     window.localStorage.setItem('remember', JSON.stringify(remember));
-    await userStore.getLoginInfo(true);
     router.push({ path: '/' });
   } finally {
     formState.logging = false;

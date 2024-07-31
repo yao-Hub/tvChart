@@ -4,6 +4,7 @@
     <a-form
       ref="formRef"
       name="form"
+      layout="vertical"
       :model="formState"
       :labelCol="{span: 10}"
       :rules="rules"
@@ -14,7 +15,7 @@
         :rules="[{ required: true, message: 'Please input your email!' }]">
         <a-auto-complete
           v-model:value="formState.email"
-          placeholder="input here"
+          placeholder="input email"
           :options="options" @search="handleSearch">
           <template #option="{ value: val }">
             {{ val.split('@')[0] }} @
@@ -27,7 +28,7 @@
         name="code"
         :label="$t('account.verificationCode')"
         :rules="[{ required: true, message: 'Please input your code!' }]">
-        <a-input v-model:value="formState.code" placeholder="Basic usage">
+        <a-input v-model:value="formState.code" placeholder="code">
           <template #suffix>
             <a-button type="link">{{ $t('account.sendCode') }}</a-button>
           </template>
