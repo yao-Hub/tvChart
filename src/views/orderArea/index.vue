@@ -200,8 +200,8 @@ const getProfit = (e: orders.resOrders, index: number) => {
 };
 
 onMounted(() => {
-  debouncedGetOrders();
-  debouncedGetPendingOrders();
+  getOrders();
+  getPendingOrders();
   debouncedGetTradingHistory();
   debouncedGetOrderHistory();
   orderChanges((type: string) => {
@@ -243,8 +243,8 @@ onMounted(() => {
 // 下单时触发
 watchEffect(async () => {
   if (orderStore.refreshOrderArea) {
-    debouncedGetOrders();
-    debouncedGetPendingOrders();
+    getOrders();
+    getPendingOrders();
     debouncedGetTradingHistory();
     debouncedGetOrderHistory();
     userStore.getLoginInfo();
@@ -264,7 +264,6 @@ const getOrders = async () => {
     state.loadingList.position = false;
   }
 };
-const debouncedGetOrders = debounce(() => getOrders(), 2000);
 
 // 市价单平仓
 const orderClose = async (record: orders.resOrders) => {
@@ -306,7 +305,6 @@ const getPendingOrders = async () => {
     state.loadingList.order = false;
   }
 };
-const debouncedGetPendingOrders = debounce(() => getPendingOrders(), 2000);
 
 // 查询挂单历史（失效）
 const getOrderHistory = async () => {
@@ -327,7 +325,7 @@ const getOrderHistory = async () => {
     state.loadingList.orderHistory = false;
   }
 };
-const debouncedGetOrderHistory = debounce(() => getOrderHistory(), 2000);
+const debouncedGetOrderHistory = debounce(() => getOrderHistory(), 500);
 
 // 删除挂单
 const delOrders = async (record: orders.resOrders) => {
@@ -379,7 +377,7 @@ const getTradingHistory = async () => {
   }
 };
 
-const debouncedGetTradingHistory = debounce(() => getTradingHistory(), 2000);
+const debouncedGetTradingHistory = debounce(() => getTradingHistory(), 500);
 
 // 双击行
 const handleRowDoubleClick = (record: orders.resOrders) => {
