@@ -3,41 +3,41 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import * as library from 'public/charting_library';
-import { useI18n } from 'vue-i18n';
-import { useChartInit } from '@/store/modules/chartInit';
+import { ref, onMounted } from "vue";
+import * as library from "public/charting_library";
+import { useI18n } from "vue-i18n";
+import { useChartInit } from "@/store/modules/chartInit";
 
 const { locale } = useI18n();
 
 // 字段含义见：https://zlq4863947.gitbook.io/tradingview/4-tu-biao-ding-zhi/widget-constructor
 const props = defineProps({
   chartId: {
-    default: '',
+    default: "",
     type: String,
   },
   mainChart: {
     default: false,
-    type: Boolean
+    type: Boolean,
   },
   loading: {
     default: false,
-    type: Boolean
+    type: Boolean,
   },
   symbol: {
-    default: 'XAU',
+    default: "XAU",
     type: String,
   },
   interval: {
-    default: '1',
+    default: "1",
     type: String,
   },
   datafeed: {
-    default: () => { },
-    type: Object
+    default: () => {},
+    type: Object,
   },
   timezone: {
-    default: 'Asia/Hong_Kong',
+    default: "Asia/Hong_Kong",
     type: String,
   },
   debug: {
@@ -45,7 +45,7 @@ const props = defineProps({
     type: Boolean,
   },
   libraryPath: {
-    default: '/charting_library/',
+    default: "/charting_library/",
     type: String,
   },
   width: {
@@ -69,7 +69,7 @@ const props = defineProps({
     type: Number,
   },
   toolbarBg: {
-    default: '#f4f7f9',
+    default: "#f4f7f9",
     type: String,
   },
   studyCountLimit: {
@@ -77,7 +77,7 @@ const props = defineProps({
     type: Number,
   },
   locale: {
-    default: '',
+    default: "",
     type: String,
   },
   disabledFeatures: {
@@ -89,25 +89,23 @@ const props = defineProps({
     type: Array,
   },
   chartsStorageUrl: {
-    default: 'https://saveload.tradingview.com',
+    default: "https://saveload.tradingview.com",
     type: String,
   },
   chartsStorageApiVersion: {
-    default: '1.1',
+    default: "1.1",
     type: String,
   },
   clientId: {
-    default: 'tradingview.com',
+    default: "tradingview.com",
     type: String,
   },
   theme: {
-    default: 'dark',
+    default: "dark",
     type: String,
   },
   additionalSymbolInfoFields: {
-    default: [
-      { title: 'Ticker', propertyName: 'ticker' }
-    ],
+    default: [{ title: "Ticker", propertyName: "ticker" }],
     type: Array,
   },
   compareSymbols: {
@@ -115,17 +113,17 @@ const props = defineProps({
     type: Array,
   },
   timeframe: {
-    default: '1',
+    default: "1",
     type: String,
   },
   contextMenu: {
-    default: () => { },
-    type: Object
-  }
+    default: () => {},
+    type: Object,
+  },
 });
 
 const chartContainer = ref();
-const emit = defineEmits(['initChart']);
+const emit = defineEmits(["initChart"]);
 
 onMounted(() => {
   initonReady();
@@ -133,7 +131,7 @@ onMounted(() => {
 
 const initonReady = () => {
   if (!props.chartId) {
-    return new Error('chartId is no defined');
+    return new Error("chartId is no defined");
   }
   const widgetOptions: library.ChartingLibraryWidgetOptions = {
     symbol: props.symbol,
@@ -149,13 +147,17 @@ const initonReady = () => {
     autosize: props.autosize,
     locale: (props.locale || locale.value) as library.LanguageCode,
     charts_storage_url: props.chartsStorageUrl,
-    charts_storage_api_version: props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
+    charts_storage_api_version:
+      props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
     client_id: props.clientId,
-    theme: (window.localStorage.getItem('Theme') || props.theme) as library.ThemeName,
-    enabled_features: props.enabledFeatures as library.ChartingLibraryFeatureset[],
-    disabled_features: props.disabledFeatures as library.ChartingLibraryFeatureset[],
+    theme: (window.localStorage.getItem("Theme") ||
+      props.theme) as library.ThemeName,
+    enabled_features:
+      props.enabledFeatures as library.ChartingLibraryFeatureset[],
+    disabled_features:
+      props.disabledFeatures as library.ChartingLibraryFeatureset[],
     compare_symbols: props.compareSymbols as library.CompareSymbol[],
-    context_menu: props.contextMenu
+    context_menu: props.contextMenu,
   };
   const widget = new library.widget(widgetOptions);
   widget.onChartReady(() => {
@@ -164,19 +166,22 @@ const initonReady = () => {
       chartInitStore.setChartWidget(props.chartId, widget);
       chartInitStore.setCacheSymbol({
         id: props.chartId,
-        symbol: props.symbol
+        symbol: props.symbol,
       });
-      // @ts-ignore
-      widget.activeChart().onSymbolChanged().subscribe(null, e => {
-        chartInitStore.setCacheSymbol({
-          id: props.chartId,
-          symbol: e.name
+      widget
+        .activeChart()
+        .onSymbolChanged()
+        // @ts-ignore
+        .subscribe(null, (e) => {
+          chartInitStore.setCacheSymbol({
+            id: props.chartId,
+            symbol: e.name,
+          });
         });
-      });
       if (props.mainChart) {
         chartInitStore.mainId = props.chartId;
       }
-      emit('initChart');
+      emit("initChart");
     });
   });
 };

@@ -1,5 +1,12 @@
 <template>
-  <a-modal :title="title" :width="600" :open="props.visible" :bodyStyle="state.bodyStyle" @cancel="handleCancel" @ok="handelOk">
+  <a-modal
+    :title="title"
+    :width="600"
+    :open="props.visible"
+    :bodyStyle="state.bodyStyle"
+    @cancel="handleCancel"
+    @ok="handelOk"
+  >
     <div class="edit">
       <a-menu
         class="menu"
@@ -22,7 +29,7 @@
               <span>{{ currentVolume }}手</span>
             </a-form-item>
             <a-form-item label="平仓手数" name="volume">
-              <a-input-number v-model:value="formState.volume" :step="step"/>
+              <a-input-number v-model:value="formState.volume" :step="step" />
             </a-form-item>
           </template>
           <template v-if="state.selectedKeys[0] === 'modifyStop'">
@@ -35,7 +42,7 @@
             <LossProfit
               :key="+props.visible"
               :inputOption="{
-                size: 'small'
+                size: 'small',
               }"
               inline
               titleType="text"
@@ -49,7 +56,8 @@
               @stopLoss="stopLoss"
               @stopSurplus="stopSurplus"
               @stopLossFail="stopLossFail"
-              @stopSurplusFail="stopSurplusFail">
+              @stopSurplusFail="stopSurplusFail"
+            >
             </LossProfit>
           </template>
         </a-form>
@@ -59,53 +67,58 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, computed } from 'vue';
-import type { Rule } from 'ant-design-vue/es/form';
-import { message } from 'ant-design-vue';
-import type { FormInstance } from 'ant-design-vue';
+import { reactive, ref, computed } from "vue";
+import type { Rule } from "ant-design-vue/es/form";
+import { message } from "ant-design-vue";
+import type { FormInstance } from "ant-design-vue";
 
-import * as types from '#/chart/index';
-import { resOrders, marketOrdersClose, editopenningOrders, reqEditOpeningOrders } from 'api/order/index';
-import { getTradingDirection, getOrderType } from 'utils/order/index';
-import { getDecimalPlaces } from 'utils/common/index';
+import * as types from "#/chart/index";
+import {
+  resOrders,
+  marketOrdersClose,
+  editopenningOrders,
+  reqEditOpeningOrders,
+} from "api/order/index";
+import { getTradingDirection, getOrderType } from "utils/order/index";
+import { getDecimalPlaces } from "utils/common/index";
 
-import { useOrder } from '@/store/modules/order';
-import { useChartSub } from '@/store/modules/chartSub';
-import LossProfit from './components/LossProfit.vue';
+import { useOrder } from "@/store/modules/order";
+import { useChartSub } from "@/store/modules/chartSub";
+import LossProfit from "./components/LossProfit.vue";
 
 const subStore = useChartSub();
 const orderStore = useOrder();
 
 interface Props {
-  visible: boolean
-  orderInfo: resOrders
-  quote: types.Quote
+  visible: boolean;
+  orderInfo: resOrders;
+  quote: types.Quote;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  visible: false
+  visible: false,
 });
 const emit = defineEmits();
 
 const state = reactive({
-  selectedKeys: [ 'partialClose' ],
+  selectedKeys: ["partialClose"],
   items: [
-    { key: 'partialClose', label: '部分平仓' },
-    { key: 'modifyStop', label: '修改止盈止损' },
+    { key: "partialClose", label: "部分平仓" },
+    { key: "modifyStop", label: "修改止盈止损" },
   ],
   bodyStyle: {
-    backgroundColor: '#525252',
-    borderRadius: '8px'
+    backgroundColor: "#525252",
+    borderRadius: "8px",
   },
   validList: {
     sl: true,
-    tp: true
-  }
+    tp: true,
+  },
 });
 
 const title = computed(() => {
   const { selectedKeys, items } = state;
-  return items.find(e => e.key === selectedKeys[0])?.label;
+  return items.find((e) => e.key === selectedKeys[0])?.label;
 });
 
 const currentVolume = computed(() => {
@@ -122,8 +135,8 @@ const step = computed(() => {
 });
 
 const validateVolume = async (_rule: Rule, value: string) => {
-  if (value === '') {
-    return Promise.reject('请输入手数');
+  if (value === "") {
+    return Promise.reject("请输入手数");
   } else if (+value > currentVolume.value || +value <= 0) {
     return Promise.reject("请输入合适范围的手数");
   } else {
@@ -132,68 +145,71 @@ const validateVolume = async (_rule: Rule, value: string) => {
 };
 
 const rules: Record<string, Rule[]> = {
-  volume: [{ required: true, validator: validateVolume, trigger: 'change' }],
+  volume: [{ required: true, validator: validateVolume, trigger: "change" }],
 };
 
 const formState = reactive({
-  volume: '',
-  tp: '',
-  sl: ''
+  volume: "",
+  tp: "",
+  sl: "",
 });
 
 const formRef = ref<FormInstance>();
 
 const handleCancel = () => {
   formRef.value?.resetFields();
-  emit('update:visible', false);
+  emit("update:visible", false);
 };
 
 const handelOk = async () => {
   const { id, symbol } = props.orderInfo;
   const { volume, tp, sl } = formState;
-  if (state.selectedKeys[0] === 'partialClose') {
+  if (state.selectedKeys[0] === "partialClose") {
     await formRef.value?.validate();
     const res = await marketOrdersClose({
       symbol,
       id,
-      volume: +volume * 100
+      volume: +volume * 100,
     });
     if (res.data.action_success) {
-      message.success('平仓成功');
+      message.success("平仓成功");
       handleCancel();
       orderStore.refreshOrderArea = true;
     } else {
-      message.error(res.data.err_text || '平仓失败')
+      message.error(res.data.err_text || "平仓失败");
     }
   }
-  if (state.selectedKeys[0] === 'modifyStop') {
-    if (!state.validList.sl || !state.validList.tp || (tp === '' && sl === '')) {
+  if (state.selectedKeys[0] === "modifyStop") {
+    if (
+      !state.validList.sl ||
+      !state.validList.tp ||
+      (tp === "" && sl === "")
+    ) {
       return;
     }
-    const updata:reqEditOpeningOrders = { symbol, id };
-    if (tp !== '') {
+    const updata: reqEditOpeningOrders = { symbol, id };
+    if (tp !== "") {
       updata.tp = +tp;
     }
-    if (sl !== '') {
+    if (sl !== "") {
       updata.sl = +sl;
     }
     const res = await editopenningOrders(updata);
     if (res.data.action_success) {
-      message.success('修改成功');
+      message.success("修改成功");
       handleCancel();
       orderStore.refreshOrderArea = true;
     } else {
-      message.error(res.data.err_text || '修改失败')
+      message.error(res.data.err_text || "修改失败");
     }
   }
 };
 
-
 const currentSymbolInfo = computed(() => {
-  return subStore.symbols.find(e => e.symbol === props.orderInfo.symbol);
+  return subStore.symbols.find((e) => e.symbol === props.orderInfo.symbol);
 });
 const transactionType = computed(() => {
-  return getTradingDirection(props.orderInfo.type) as 'buy' | 'sell';
+  return getTradingDirection(props.orderInfo.type) as "buy" | "sell";
 });
 const orderType = computed(() => {
   return getOrderType(props.orderInfo.type);
@@ -205,7 +221,7 @@ const ask = computed(() => {
   return orderStore.currentQuotes[props.orderInfo.symbol].ask;
 });
 const orderPrice = computed(() => {
-  return transactionType.value === 'buy' ? ask.value : bid.value;
+  return transactionType.value === "buy" ? ask.value : bid.value;
 });
 const stopLoss = (e: string) => {
   formState.sl = e;
@@ -221,8 +237,6 @@ const stopLossFail = () => {
 const stopSurplusFail = () => {
   state.validList.tp = false;
 };
-
-
 </script>
 
 <style lang="scss" scoped>

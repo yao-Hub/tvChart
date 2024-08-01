@@ -15,14 +15,14 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, watchEffect } from 'vue';
+import { reactive, computed, watchEffect } from "vue";
 
 interface Props {
-  showPrice: boolean
-  bid: number
-  ask: number
-  high?: number
-  low?: number
+  showPrice: boolean;
+  bid: number;
+  ask: number;
+  high?: number;
+  low?: number;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const state = reactive({
-  type: 'buy'
+  type: "buy",
 });
 
 const spread = computed(() => {
@@ -43,38 +43,37 @@ const spread = computed(() => {
   return Math.abs(ask - bid).toFixed(2);
 });
 
-const emit = defineEmits([ 'switchType' ]);
+const emit = defineEmits(["switchType"]);
 watchEffect(() => {
-  emit('switchType', state.type);
+  emit("switchType", state.type);
 });
-
 </script>
 
 <style lang="scss" scoped>
-  .ant-radio-button-wrapper {
-    height: auto;
+.ant-radio-button-wrapper {
+  height: auto;
+  flex: 1;
+  text-align: center;
+}
+.radioGroup {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  justify-content: space-between;
+  .buyRadio {
     flex: 1;
+    color: #19b52d;
     text-align: center;
   }
-  .radioGroup {
-    display: flex;
-    gap: 8px;
-    width: 100%;
-    justify-content: space-between;
-    .buyRadio {
-      flex: 1;
-      color: #19b52d;
-      text-align: center;
-    }
-    .sellRadio {
-      flex: 1;
-      color: #dd6600;
-      text-align: center;
-    }
-  }
-  .market {
-    display: block;
+  .sellRadio {
+    flex: 1;
+    color: #dd6600;
     text-align: center;
-    margin: 8px 0;
   }
+}
+.market {
+  display: block;
+  text-align: center;
+  margin: 8px 0;
+}
 </style>

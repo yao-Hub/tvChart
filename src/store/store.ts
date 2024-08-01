@@ -1,9 +1,12 @@
-import { defineStore, storeToRefs } from 'pinia';
-import { nextTick } from 'vue';
+import { defineStore, storeToRefs } from "pinia";
+import { nextTick } from "vue";
 const allActions = {};
 const allStates: Record<string, any> = {};
 nextTick(async () => {
-  const getActions = (item: Record<string, any>, states: Record<string, any>) => {
+  const getActions = (
+    item: Record<string, any>,
+    states: Record<string, any>
+  ) => {
     const actions: Record<string, Function> = {};
     for (const i in item) {
       if (!/[$_]/.test(i) && !states.hasOwnProperty(i)) {
@@ -13,7 +16,7 @@ nextTick(async () => {
     return actions;
   };
 
-  const moduleFiles = import.meta.glob('./modules/*.ts');
+  const moduleFiles = import.meta.glob("./modules/*.ts");
   for (const path in moduleFiles) {
     if (Object.prototype.hasOwnProperty.call(moduleFiles, path)) {
       const modules: any = await moduleFiles[path]();
@@ -27,7 +30,7 @@ nextTick(async () => {
     }
   }
 });
-export const useRoot = defineStore('root', {
+export const useRoot = defineStore("root", {
   state: () => allStates,
-  actions: allActions
+  actions: allActions,
 });

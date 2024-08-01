@@ -1,12 +1,12 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import type { App } from 'vue';
-import { createPermissionGuard } from './guard/index';
-import routes from './routes/index';
+import { createRouter, createWebHistory } from "vue-router";
+import type { App } from "vue";
+import { createPermissionGuard } from "./guard/index";
+import routes from "./routes/index";
 
 const router = createRouter({
   // vueRouter@3版本的mode改成了history，hash模式配置createWebHashHistory，history模式配置createWebHistory
   history: createWebHistory(),
-  routes
+  routes,
 });
 
 /**
@@ -18,5 +18,4 @@ export const setupRouter = (app: App<Element>) => {
   app.use(router);
 };
 
-export default router
-
+export default router;

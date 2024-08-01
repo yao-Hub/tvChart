@@ -5,29 +5,40 @@
       v-model:activeKey="state.activeKey"
       type="editable-card"
       @edit="onEdit"
-      size="small">
-      <a-tab-pane v-for="chart in chartList" :key="chart.id" :tab="chart.symbol" :closable="chart.id !== 'chart_1'">
+      size="small"
+    >
+      <a-tab-pane
+        v-for="chart in chartList"
+        :key="chart.id"
+        :tab="chart.symbol"
+        :closable="chart.id !== 'chart_1'"
+      >
       </a-tab-pane>
     </a-tabs>
     <div class="charts_container">
       <div
-        :style="{paddingLeft: chartType === 'multiple' ? '20px' : 0}"
+        :style="{ paddingLeft: chartType === 'multiple' ? '20px' : 0 }"
         class="charts_container_item"
         v-for="{ id } in chartList"
         :id="id"
-        v-show="(state.activeKey === id && chartType === 'single') || chartType === 'multiple'">
-        <HolderOutlined class="handle" v-if="chartType === 'multiple'"/>
+        v-show="
+          (state.activeKey === id && chartType === 'single') ||
+          chartType === 'multiple'
+        "
+      >
+        <HolderOutlined class="handle" v-if="chartType === 'multiple'" />
         <TVChart
           :key="state.activeKey === id"
           :chartId="id"
           :mainChart="id === 'chart_1'"
-          style="flex: 1; height: 100%;"
+          style="flex: 1; height: 100%"
           :loading="props.loading || chartInitStore.singleChartLoading[id]"
           :datafeed="datafeed(id)"
           :symbol="state.symbol"
           :disabledFeatures="id === state.activeKey ? [] : ['left_toolbar']"
           :compareSymbols="compareSymbols"
-          @initChart="initChart">
+          @initChart="initChart"
+        >
         </TVChart>
       </div>
     </div>
@@ -35,27 +46,29 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted } from 'vue';
-import { useChartInit } from '@/store/modules/chartInit';
-import { useChartSub } from '@/store/modules/chartSub';
-import { datafeed } from '../../chart/chartConfig';
-import * as types from '@/types/chart/index';
-import { HolderOutlined } from '@ant-design/icons-vue';
-import Sortable from 'sortablejs';
+import { reactive, computed, onMounted } from "vue";
+import { useChartInit } from "@/store/modules/chartInit";
+import { useChartSub } from "@/store/modules/chartSub";
+import { useChartAction } from "@/store/modules/chartAction";
+import { datafeed } from "../../chart/chartConfig";
+import * as types from "@/types/chart/index";
+import { HolderOutlined } from "@ant-design/icons-vue";
+import Sortable from "sortablejs";
 
 const chartSubStore = useChartSub();
 const chartInitStore = useChartInit();
+const chartActionStore = useChartAction();
 
 interface Props {
   loading?: boolean;
 }
 const props = withDefaults(defineProps<Props>(), {
-  loading: false
+  loading: false,
 });
 
 const state = reactive({
-  symbol: 'XAU',
-  activeKey: 'chart_1',
+  symbol: "XAU",
+  activeKey: "chart_1",
 });
 
 const compareSymbols = computed(() => {
@@ -63,7 +76,7 @@ const compareSymbols = computed(() => {
     return chartSubStore.symbols.map((item: types.SessionSymbolInfo) => {
       return {
         symbol: item.symbol,
-        title: item.symbol
+        title: item.symbol,
       };
     });
   }
@@ -73,7 +86,7 @@ const chartList = computed(() => {
   return chartInitStore.chartWidgetList;
 });
 
-const chartType =  computed(() => {
+const chartType = computed(() => {
   return chartInitStore.chartLayoutType;
 });
 
@@ -82,23 +95,24 @@ const initChart = (id: string) => {
   // 监听点击报价加号按钮
   // chartSubStore.subscribePlusBtn();
   // chartSubStore.subscribeMouseDown();
+  chartActionStore.addOrderBtn(id);
   chartSubStore.subscribeKeydown();
 };
 
 onMounted(() => {
-  const dragArea = document.querySelector('.charts_container');
+  const dragArea = document.querySelector(".charts_container");
   new Sortable(dragArea, {
     animation: 150,
     swapThreshold: 1,
-    handle: '.handle',
-    onEnd: function(evt: any) {
+    handle: ".handle",
+    onEnd: function (evt: any) {
       chartInitStore.setChartSymbolWithCache(evt.item.id);
-    }
+    },
   });
 });
 
 const onEdit = (targetKey: string, action: string) => {
-  if (action === 'add') {
+  if (action === "add") {
     const len = chartInitStore.chartWidgetList.length;
     chartInitStore.chartWidgetList.push({
       id: `chart_${len + 1}`,

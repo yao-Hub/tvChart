@@ -14,7 +14,8 @@
         :selectedSymbol="props.selectedSymbol"
         :tradeAllowSymbols="props.tradeAllowSymbols"
         :volume="props.volume"
-        @priceChange="(e) => stopChange(e, 'stopLoss')">
+        @priceChange="(e) => stopChange(e, 'stopLoss')"
+      >
       </linkage>
     </div>
 
@@ -24,32 +25,33 @@
       </div>
       <linkage
         :disabled="state.stopSurplus"
-        :transactionType="props.transactionType" 
+        :transactionType="props.transactionType"
         stopType="stopSurplus"
         :currentBuy="props.currentBuy"
         :currentSell="props.currentSell"
         :selectedSymbol="props.selectedSymbol"
         :tradeAllowSymbols="props.tradeAllowSymbols"
         :volume="props.volume"
-        @priceChange="(e) => stopChange(e, 'stopSurplus')">
+        @priceChange="(e) => stopChange(e, 'stopSurplus')"
+      >
       </linkage>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue';
-import linkage from './Linkage.vue';
-import { SessionSymbolInfo } from '#/chart/index';
+import { reactive } from "vue";
+import linkage from "./Linkage.vue";
+import { SessionSymbolInfo } from "#/chart/index";
 
-type SymbolStrings = Props['tradeAllowSymbols'][number]['symbol'];
+type SymbolStrings = Props["tradeAllowSymbols"][number]["symbol"];
 interface Props {
-  transactionType: string,
-  currentBuy: number,
-  currentSell: number,
-  tradeAllowSymbols: SessionSymbolInfo[],
-  selectedSymbol: SymbolStrings
-  volume: number
+  transactionType: string;
+  currentBuy: number;
+  currentSell: number;
+  tradeAllowSymbols: SessionSymbolInfo[];
+  selectedSymbol: SymbolStrings;
+  volume: number;
 }
 
 const props = defineProps<Props>();
@@ -61,11 +63,10 @@ const state = reactive({
   currentSell: 0,
 });
 
-
-const emit = defineEmits(['stopLoss', 'stopSurplus']);
-const stopChange = (value: string, type: 'stopLoss' | 'stopSurplus') => {
+const emit = defineEmits(["stopLoss", "stopSurplus"]);
+const stopChange = (value: string, type: "stopLoss" | "stopSurplus") => {
   emit(type, value);
-}
+};
 </script>
 
 <style lang="scss" scoped>

@@ -8,8 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { CheckOutlined } from '@ant-design/icons-vue';
-
+import { CheckOutlined } from "@ant-design/icons-vue";
 </script>
 
 <style lang="scss" scoped>

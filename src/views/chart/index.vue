@@ -11,27 +11,27 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, nextTick } from 'vue';
+import { reactive, onMounted, nextTick } from "vue";
 
-import { useChartInit } from '@/store/modules/chartInit';
-import { useChartSub } from '@/store/modules/chartSub';
-import { useUser } from '@/store/modules/user';
+import { useChartInit } from "@/store/modules/chartInit";
+import { useChartSub } from "@/store/modules/chartSub";
+import { useUser } from "@/store/modules/user";
 
-import { allSymbols } from 'api/symbols/index';
-import { initDragResizeArea } from 'utils/dragResize/index';
+import { allSymbols } from "api/symbols/index";
+import { initDragResizeArea } from "utils/dragResize/index";
 
-import WPHeader from '../header/index.vue';
-import dragArea from '../dragArea/index.vue';
-import OrderDialog from '../orderDialog/index.vue';
-import FloatMenu from './components/FloatMenu.vue';
-import FooterInfo from '../footerInfo/index.vue';
+import WPHeader from "../header/index.vue";
+import dragArea from "../dragArea/index.vue";
+import OrderDialog from "../orderDialog/index.vue";
+import FloatMenu from "./components/FloatMenu.vue";
+import FooterInfo from "../footerInfo/index.vue";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const userStore = useUser();
 
 const state = reactive({
-  symbol: 'XAU',
+  symbol: "XAU",
 });
 
 // 获取所有商品(品种)
@@ -56,7 +56,7 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/_handle.scss';
+@import "@/assets/styles/_handle.scss";
 .chart {
   height: 100vh;
   display: flex;

@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
 interface FloatMenuParams {
   visible: boolean;
@@ -12,7 +12,7 @@ interface State {
   loginDialogVisible: boolean;
 }
 
-export const useDialog = defineStore('dialog', {
+export const useDialog = defineStore("dialog", {
   state: (): State => {
     return {
       loginDialogVisible: false, // 登录弹窗
@@ -20,8 +20,8 @@ export const useDialog = defineStore('dialog', {
       floatMenuParams: {
         visible: false,
         clientX: 0,
-        clientY: 0
-      }
+        clientY: 0,
+      },
     };
   },
   actions: {
@@ -36,6 +36,6 @@ export const useDialog = defineStore('dialog', {
     },
     closeLoginDialog() {
       this.loginDialogVisible = false;
-    }
-  }
+    },
+  },
 });

@@ -2,7 +2,8 @@ import { createI18n } from "vue-i18n";
 import zh from "./locales/zh-CN";
 import en from "./locales/en-US";
 
-let language = localStorage.getItem("language") || navigator.language.toLowerCase();; //  获取本地存储 || 根据浏览器语言设置
+let language =
+  localStorage.getItem("language") || navigator.language.toLowerCase(); //  获取本地存储 || 根据浏览器语言设置
 
 const i18n = createI18n({
   legacy: false, // 使用Composition API，这里必须设置为false

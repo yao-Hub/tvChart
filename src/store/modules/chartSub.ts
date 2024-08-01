@@ -1,14 +1,14 @@
-import { defineStore } from 'pinia';
-import { assign } from 'lodash';
-import { uniq, difference } from 'lodash';
-import { subscribeSocket, unsubscribeSocket } from 'utils/socket/operation';
-import { SessionSymbolInfo, TVSymbolInfo } from '@/types/chart/index';
-import { keydownList } from 'utils/keydown';
-import { useChartInit } from './chartInit';
-import { useDialog } from './dialog';
-import { useOrder } from './order';
+import { defineStore } from "pinia";
+import { assign } from "lodash";
+import { uniq, difference } from "lodash";
+import { subscribeSocket, unsubscribeSocket } from "utils/socket/operation";
+import { SessionSymbolInfo, TVSymbolInfo } from "@/types/chart/index";
+import { keydownList } from "utils/keydown";
+import { useChartInit } from "./chartInit";
+import { useDialog } from "./dialog";
+import { useOrder } from "./order";
 
-import { allSymbolQuotes } from 'api/symbols/index';
+import { allSymbolQuotes } from "api/symbols/index";
 
 interface State {
   symbols: SessionSymbolInfo[];
@@ -23,8 +23,7 @@ interface TurnSocket {
   resolution: string;
 }
 
-
-export const useChartSub = defineStore('chartSub', {
+export const useChartSub = defineStore("chartSub", {
   state: (): State => {
     return {
       symbols: [],
@@ -39,24 +38,24 @@ export const useChartSub = defineStore('chartSub', {
     async setSymbols(list: SessionSymbolInfo[]) {
       const orderStore = useOrder();
       this.symbols = list;
-      list.forEach(item => {
-        subscribeSocket({ resolution: '1', symbol: item.symbol });
+      list.forEach((item) => {
+        subscribeSocket({ resolution: "1", symbol: item.symbol });
       });
       const resQuotes = await allSymbolQuotes();
-      resQuotes.data.forEach(item => {
+      resQuotes.data.forEach((item) => {
         orderStore.currentQuotes[item.symbol] = item;
       });
     },
     // 设置必须监听品种
     setMustSubscribeList(sources: Array<string>) {
       const barsCacheSymbols: Array<string> = [];
-      this.barsCache.forEach(item => {
+      this.barsCache.forEach((item) => {
         barsCacheSymbols.push(item.name);
       });
       const nowsubList = uniq([...this.mustSubscribeList, ...barsCacheSymbols]);
       const subList = difference(sources, nowsubList);
-      subList.forEach(item => {
-        subscribeSocket({ resolution: '1', symbol: item });
+      subList.forEach((item) => {
+        subscribeSocket({ resolution: "1", symbol: item });
       });
       this.mustSubscribeList = uniq([...this.mustSubscribeList, ...sources]);
     },
@@ -66,7 +65,7 @@ export const useChartSub = defineStore('chartSub', {
       const { subscriberUID, symbolInfo, resolution } = args;
       this.barsCache.set(subscriberUID, {
         ...symbolInfo,
-        resolution
+        resolution,
       });
       subscribeSocket({ resolution, symbol: symbolInfo.name });
     },
@@ -81,8 +80,8 @@ export const useChartSub = defineStore('chartSub', {
       const dialogStore = useDialog();
       const chartInitStore = useChartInit();
       const widgetList = chartInitStore.chartWidgetList;
-      widgetList.forEach(Widget => {
-        Widget.widget?.subscribe('onPlusClick', (e) => {
+      widgetList.forEach((Widget) => {
+        Widget.widget?.subscribe("onPlusClick", (e) => {
           assign(dialogStore.floatMenuParams, { ...e, visible: true });
         });
       });
@@ -92,7 +91,7 @@ export const useChartSub = defineStore('chartSub', {
       const dialogStore = useDialog();
       const chartInitStore = useChartInit();
       const widget = chartInitStore.getChartWidget(id);
-      widget?.subscribe('mouse_down', (e) => {
+      widget?.subscribe("mouse_down", (e) => {
         const { visible } = dialogStore.floatMenuParams;
         if (visible) {
           assign(dialogStore.floatMenuParams, { ...e, visible: false });
@@ -104,17 +103,16 @@ export const useChartSub = defineStore('chartSub', {
       try {
         const chartInitStore = useChartInit();
         const widgetList = chartInitStore.chartWidgetList;
-        keydownList.forEach(item => {
-          widgetList.forEach(Widget => {
+        keydownList.forEach((item) => {
+          widgetList.forEach((Widget) => {
             Widget.widget?.onShortcut(item.keyCode, item.callback);
           });
         });
-      } catch (error) {
-      }
+      } catch (error) {}
       document.addEventListener("keydown", (event) => {
-        const found = keydownList.find(e => e.keyCode === event.keyCode);
+        const found = keydownList.find((e) => e.keyCode === event.keyCode);
         found?.callback();
       });
-    }
-  }
+    },
+  },
 });

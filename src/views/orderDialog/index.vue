@@ -7,7 +7,8 @@
       :title="title"
       @cancel="handleCancel"
       :bodyStyle="state.bodyStyle"
-      :footer="null">
+      :footer="null"
+    >
       <div class="main">
         <a-menu
           class="left"
@@ -19,7 +20,12 @@
           <div class="title">新{{ title }}</div>
           <a-divider class="divider"></a-divider>
 
-          <SymbolSelect class="symbolSelect" type="tradeAllow" v-model="state.symbol" @change="symbolChange"></SymbolSelect>
+          <SymbolSelect
+            class="symbolSelect"
+            type="tradeAllow"
+            v-model="state.symbol"
+            @change="symbolChange"
+          ></SymbolSelect>
 
           <div v-if="state.loading" class="loadingSpin">
             <Spin></Spin>
@@ -43,36 +49,36 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, reactive, watch, markRaw, watchEffect } from 'vue';
+import { computed, reactive, watch, markRaw, watchEffect } from "vue";
 
-import { useDialog } from '@/store/modules/dialog';
-import { useOrder } from '@/store/modules/order';
-import { useChartSub } from '@/store/modules/chartSub';
+import { useDialog } from "@/store/modules/dialog";
+import { useOrder } from "@/store/modules/order";
+import { useChartSub } from "@/store/modules/chartSub";
 
-import { klineHistory } from 'api/kline/index'
+import { klineHistory } from "api/kline/index";
 
-import Limit from './components/orders/Limit.vue';
-import Price from './components/orders/Price.vue';
-import Stop from './components/orders/Stop.vue';
-import StopLimit from './components/orders/StopLimit.vue';
+import Limit from "./components/orders/Limit.vue";
+import Price from "./components/orders/Price.vue";
+import Stop from "./components/orders/Stop.vue";
+import StopLimit from "./components/orders/StopLimit.vue";
 
-import { OrderType } from '#/order';
+import { OrderType } from "#/order";
 
 const dialogStore = useDialog();
 const orderStore = useOrder();
 const subStore = useChartSub();
 
 const state = reactive({
-  selectedKeys: ['price'] as OrderType[],
+  selectedKeys: ["price"] as OrderType[],
   bodyStyle: {
-    backgroundColor: '#525252',
-    borderRadius: '8px'
+    backgroundColor: "#525252",
+    borderRadius: "8px",
   },
   items: [
-    { key: 'price', label: '市价单' },
-    { key: 'limit', label: '限价单' },
-    { key: 'stop', label: '止损单' },
-    { key: 'stopLimit', label: '止损限价单' },
+    { key: "price", label: "市价单" },
+    { key: "limit", label: "限价单" },
+    { key: "stop", label: "止损单" },
+    { key: "stopLimit", label: "止损限价单" },
   ],
   componentMap: {
     price: markRaw(Price),
@@ -80,28 +86,28 @@ const state = reactive({
     stop: markRaw(Stop),
     stopLimit: markRaw(StopLimit),
   },
-  symbol: '',
+  symbol: "",
   // 报价
   quote: {
     ask: 0,
     bid: 0,
     ctm_ms: 0,
     ctm: 0,
-    symbol: '',
-    server: 'upway-live',
+    symbol: "",
+    server: "upway-live",
   },
   // k线最新数据（最高最低价）
   newKlineData: {
     close: 0,
     ctm: 0,
-    date_time: '',
+    date_time: "",
     high: 0,
     low: 0,
     open: 0,
-    volume: 0
+    volume: 0,
   },
   socketList: [] as string[],
-  loading: false
+  loading: false,
 });
 
 watchEffect(() => {
@@ -116,32 +122,40 @@ const open = computed(() => {
 // 弹框关闭
 const handleCancel = () => {
   dialogStore.closeOrderDialog();
-}
+};
 
 // 当前品种
 const currentSymbolInfo = computed(() => {
-  return subStore.symbols.find(e => e.symbol === state.symbol);
+  return subStore.symbols.find((e) => e.symbol === state.symbol);
 });
 
 // 弹框标题
 const title = computed(() => {
-  const item = state.items.find(e => e.key === state.selectedKeys[0]);
-  return item?.label
+  const item = state.items.find((e) => e.key === state.selectedKeys[0]);
+  return item?.label;
 });
 
 // 给当前页面的报价赋值
-watch(() => orderStore.currentQuotes, (newVal) => {
-  if (newVal && newVal[state.symbol]) {
-    state.quote = newVal[state.symbol];
-  }
-}, { immediate: true, deep: true });
+watch(
+  () => orderStore.currentQuotes,
+  (newVal) => {
+    if (newVal && newVal[state.symbol]) {
+      state.quote = newVal[state.symbol];
+    }
+  },
+  { immediate: true, deep: true }
+);
 
 // 给最高最低价赋值
-watch(() => orderStore.currentKline, (newVal) => {
-  if (newVal && newVal.symbol === state.symbol) {
-    state.newKlineData = newVal;
-  }
-}, { immediate: true });
+watch(
+  () => orderStore.currentKline,
+  (newVal) => {
+    if (newVal && newVal.symbol === state.symbol) {
+      state.newKlineData = newVal;
+    }
+  },
+  { immediate: true }
+);
 
 // 弹窗初始化
 watch(open, (newVal) => {
@@ -154,10 +168,10 @@ watch(open, (newVal) => {
 // 初始化最高最低价
 const getklineHistory = async () => {
   const { data } = await klineHistory({
-    period_type: '1',
+    period_type: "1",
     symbol: state.symbol,
     count: 1,
-    limit_ctm: Math.floor(Date.now() / 1000)
+    limit_ctm: Math.floor(Date.now() / 1000),
   });
   state.newKlineData = data[0];
 };
@@ -175,11 +189,11 @@ const symbolChange = async (value: string) => {
 const orderSucced = () => {
   orderStore.refreshOrderArea = true;
   handleCancel();
-}
+};
 </script>
 
 <style scoped lang="scss">
-@import '@/assets/styles/_handle.scss';
+@import "@/assets/styles/_handle.scss";
 .divider {
   margin: 5px 0 10px 0;
 }
@@ -225,14 +239,22 @@ const orderSucced = () => {
   flex: 1;
   text-align: center;
 }
-.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):first-child {
+.ant-radio-button-wrapper-checked:not(
+    .ant-radio-button-wrapper-disabled
+  ):first-child {
   border-color: #dd6600;
 }
-.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):last-child {
+.ant-radio-button-wrapper-checked:not(
+    .ant-radio-button-wrapper-disabled
+  ):last-child {
   border-color: #19b52d;
 }
-.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before,
-.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+.ant-radio-button-wrapper-checked:not(
+    .ant-radio-button-wrapper-disabled
+  )::before,
+.ant-radio-button-wrapper-checked:not(
+    .ant-radio-button-wrapper-disabled
+  )::before {
   background-color: #19b52d;
 }
 </style>

@@ -1,6 +1,10 @@
 <template>
-  <div class="FloatMenu" v-if="isMenuVisible" :style="{ top: `${menuTop + 10}px`, left: `${menuLeft - 150}px` }">
-    <a-menu  @click="handleClick">
+  <div
+    class="FloatMenu"
+    v-if="isMenuVisible"
+    :style="{ top: `${menuTop + 10}px`, left: `${menuLeft - 150}px` }"
+  >
+    <a-menu @click="handleClick">
       <a-menu-item key="1st menu item">
         <span>1st menu item</span>
       </a-menu-item>
@@ -15,10 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useDialog } from '@/store/modules/dialog';
-import { message } from 'ant-design-vue';
-
+import { computed } from "vue";
+import { useDialog } from "@/store/modules/dialog";
+import { message } from "ant-design-vue";
 
 const dialogStore = useDialog();
 
@@ -26,10 +29,10 @@ const isMenuVisible = computed(() => dialogStore.floatMenuParams.visible);
 const menuTop = computed(() => dialogStore.floatMenuParams.clientY);
 const menuLeft = computed(() => dialogStore.floatMenuParams.clientX);
 
-const handleClick = ({ key }: {key: string}) => {
+const handleClick = ({ key }: { key: string }) => {
   message.success(key);
   dialogStore.floatMenuParams.visible = false;
-}
+};
 </script>
 
 <style scoped lang="scss">

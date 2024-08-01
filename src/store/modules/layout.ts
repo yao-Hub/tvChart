@@ -1,4 +1,4 @@
-import { defineStore } from 'pinia';
+import { defineStore } from "pinia";
 
 interface State {
   chartsVisable: boolean;
@@ -6,7 +6,7 @@ interface State {
   orderAreaVisable: boolean;
 }
 
-export const useLayout = defineStore('layout', {
+export const useLayout = defineStore("layout", {
   state: (): State => {
     return {
       chartsVisable: true,

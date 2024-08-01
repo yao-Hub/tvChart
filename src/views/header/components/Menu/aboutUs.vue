@@ -1,11 +1,11 @@
 <template>
   <div class="item" @click="showModal">
     <TeamOutlined />
-    <span>{{ $t('aboutUs') }}</span>
+    <span>{{ $t("aboutUs") }}</span>
   </div>
 
   <a-modal v-model:open="open" :title="$t('aboutUs')" @ok="handleOk">
-    <p>{{ $t('company') }}: 广州微派</p>
+    <p>{{ $t("company") }}: 广州微派</p>
     <p>Tel: +86 8803 445</p>
     <p>FaX: +86 8803 445</p>
     <p>Web: www.weipai.com</p>
@@ -14,8 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { TeamOutlined } from '@ant-design/icons-vue';
-import { ref } from 'vue';
+import { TeamOutlined } from "@ant-design/icons-vue";
+import { ref } from "vue";
 const open = ref<boolean>(false);
 
 const showModal = () => {

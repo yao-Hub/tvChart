@@ -18,32 +18,32 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, watch, nextTick } from 'vue';
-import { CaretUpFilled, CaretDownFilled } from '@ant-design/icons-vue';
-import { round } from 'utils/common/index';
-import { SessionSymbolInfo } from '#/chart/index';
+import { reactive, computed, watch, nextTick } from "vue";
+import { CaretUpFilled, CaretDownFilled } from "@ant-design/icons-vue";
+import { round } from "utils/common/index";
+import { SessionSymbolInfo } from "#/chart/index";
 
 interface Props {
-  title?: string
-  transactionType: 'buy' | 'sell' // 交易类型：买入卖出
-  distanceTitle?: string
-  orderType: 'limit' | 'stop' | 'breakthroughPrice' | 'limitedPrice'
-  ask: number
-  bid: number
-  currentSymbolInfo?: SessionSymbolInfo
+  title?: string;
+  transactionType: "buy" | "sell"; // 交易类型：买入卖出
+  distanceTitle?: string;
+  orderType: "limit" | "stop" | "breakthroughPrice" | "limitedPrice";
+  ask: number;
+  bid: number;
+  currentSymbolInfo?: SessionSymbolInfo;
 }
 interface State {
-  price: number | string
-  errorMessage: string
+  price: number | string;
+  errorMessage: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  distanceTitle: '距离',
-  title: '入场价'
+  distanceTitle: "距离",
+  title: "入场价",
 });
-const state:State = reactive({
-  price: '',
-  errorMessage: ''
+const state: State = reactive({
+  price: "",
+  errorMessage: "",
 });
 
 const digits = computed(() => {
@@ -55,12 +55,14 @@ const stopsLevel = computed(() => {
 });
 
 const getLeed = () => {
-  const price =  props.transactionType === 'buy' ? props.ask : props.bid;
-  const result_1 = price - 1 / Math.pow(10, +digits.value) * +stopsLevel.value;
-  const result_2 = price + 1 / Math.pow(10, +digits.value) * +stopsLevel.value;
+  const price = props.transactionType === "buy" ? props.ask : props.bid;
+  const result_1 =
+    price - (1 / Math.pow(10, +digits.value)) * +stopsLevel.value;
+  const result_2 =
+    price + (1 / Math.pow(10, +digits.value)) * +stopsLevel.value;
   return {
     result_1: round(result_1, 2),
-    result_2: round(result_2, 2)
+    result_2: round(result_2, 2),
   };
 };
 
@@ -68,14 +70,14 @@ const getLeed = () => {
 const initPrice = async () => {
   const type = props.transactionType;
   const { result_1, result_2 } = getLeed();
-  if (type === 'buy') {
-    state.price = props.orderType === 'limit' ? result_1 : result_2;
+  if (type === "buy") {
+    state.price = props.orderType === "limit" ? result_1 : result_2;
   }
-  if (type === 'sell') {
-    state.price = props.orderType === 'limit' ? result_2 : result_1;
+  if (type === "sell") {
+    state.price = props.orderType === "limit" ? result_2 : result_1;
   }
   await nextTick();
-  emit('entryPrice', state.price);
+  emit("entryPrice", state.price);
 };
 initPrice();
 
@@ -83,46 +85,46 @@ initPrice();
 const validate = () => {
   const type = props.transactionType;
   const { result_1, result_2 } = getLeed();
-  let size = '';
-  let value: string | number = '';
+  let size = "";
+  let value: string | number = "";
   let result = false;
-  if (type === 'buy') {
-    if (props.orderType === 'limit') {
+  if (type === "buy") {
+    if (props.orderType === "limit") {
       result = +state.price <= result_1;
-      size = '≤';
+      size = "≤";
       value = result_1;
-    } else if (props.orderType === 'limitedPrice') {
+    } else if (props.orderType === "limitedPrice") {
       result = +state.price <= result_2;
-      size = '≤';
+      size = "≤";
       value = result_2;
     } else {
       result = +state.price >= result_2;
-      size = '≥';
+      size = "≥";
       value = result_2;
     }
   }
-  if (type === 'sell') {
-    if (props.orderType === 'limit') {
+  if (type === "sell") {
+    if (props.orderType === "limit") {
       result = +state.price >= result_2;
-      size = '≥';
+      size = "≥";
       value = result_2;
-    } else if (props.orderType === 'limitedPrice') {
+    } else if (props.orderType === "limitedPrice") {
       result = +state.price >= result_1;
-      size = '≥';
+      size = "≥";
       value = result_1;
     } else {
       result = +state.price <= result_1;
-      size = '≤';
+      size = "≤";
       value = result_1;
     }
   }
-  state.errorMessage = result ? '' : `价格必须${size}${value}`;
+  state.errorMessage = result ? "" : `价格必须${size}${value}`;
   return result;
-}
+};
 
 // 距离 价差
 const distance = computed(() => {
-  const price = props.transactionType === 'buy' ? props.ask : props.bid;
+  const price = props.transactionType === "buy" ? props.ask : props.bid;
   const entryPrice = +state.price;
   return round(Math.abs(price - entryPrice), 2);
 });
@@ -135,21 +137,20 @@ const reducePrice = () => {
   state.price = round(+state.price - 0.01, +digits.value);
 };
 
-const emit = defineEmits([ 'entryPrice', 'entryPriceFail' ]);
+const emit = defineEmits(["entryPrice", "entryPriceFail"]);
 
 watch(
   () => [state.price, props],
   () => {
     const valid = validate();
     if (valid) {
-      emit('entryPrice', state.price);
+      emit("entryPrice", state.price);
     } else {
-      emit('entryPriceFail');
+      emit("entryPriceFail");
     }
   },
-  { immediate: true, deep: true, flush: 'post' }
+  { immediate: true, deep: true, flush: "post" }
 );
-
 </script>
 
 <style lang="scss" scoped>
@@ -178,7 +179,7 @@ watch(
   .complete {
     position: relative;
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       width: 100%;
       height: 100%;

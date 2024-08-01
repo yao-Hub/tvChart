@@ -1,36 +1,36 @@
-import type { RouteRecordRaw } from 'vue-router'
+import type { RouteRecordRaw } from "vue-router";
 
 // 路由规则
 const routes: RouteRecordRaw[] = [
   {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/views/login/index.vue'),
+    path: "/login",
+    name: "login",
+    component: () => import("@/views/login/index.vue"),
     meta: {
-      passGuard: true
+      passGuard: true,
     },
   },
   {
-    path: '/register',
-    name: 'register',
-    component: () => import('@/views/login/register.vue'),
+    path: "/register",
+    name: "register",
+    component: () => import("@/views/login/register.vue"),
     meta: {
-      passGuard: true
+      passGuard: true,
     },
   },
   {
-    path: '/resetPassword',
-    name: 'resetPassword',
-    component: () => import('@/views/login/resetPassword.vue'),
+    path: "/resetPassword",
+    name: "resetPassword",
+    component: () => import("@/views/login/resetPassword.vue"),
   },
   {
-    path: '/retrievePassword',
-    name: 'retrievePassword',
-    component: () => import('@/views/login/retrievePassword.vue'),
+    path: "/retrievePassword",
+    name: "retrievePassword",
+    component: () => import("@/views/login/retrievePassword.vue"),
     meta: {
-      passGuard: true
+      passGuard: true,
     },
-  }
-]
+  },
+];
 
-export default routes
+export default routes;

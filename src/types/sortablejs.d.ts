@@ -1,1 +1,1 @@
-declare module 'sortablejs';
+declare module "sortablejs";

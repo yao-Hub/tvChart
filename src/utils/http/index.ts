@@ -1,17 +1,24 @@
-import axios, { AxiosRequestConfig, AxiosError, InternalAxiosRequestConfig } from 'axios';
-import type { CustomResponseType } from '#/axios';
-import { encrypt, decrypt } from 'utils/DES/index';
-import { notification, message } from 'ant-design-vue';
-import { useUser } from '@/store/modules/user';
+import axios, {
+  AxiosRequestConfig,
+  AxiosError,
+  InternalAxiosRequestConfig,
+} from "axios";
+import type { CustomResponseType } from "#/axios";
+import { encrypt, decrypt } from "utils/DES/index";
+import { notification, message } from "ant-design-vue";
+import { useUser } from "@/store/modules/user";
 import { useRouter } from "vue-router";
-const router = useRouter();
-interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig<any> {
+interface CustomInternalAxiosRequestConfig
+  extends InternalAxiosRequestConfig<any> {
   needToken?: boolean;
 }
 interface CustomAxiosRequestConfig extends AxiosRequestConfig<any> {
   needToken?: boolean;
 }
-const baseURL = import.meta.env.MODE === 'development' ? import.meta.env.VITE_HTTP_BASE_URL : import.meta.env.VITE_HTTP_URL;
+const baseURL =
+  import.meta.env.MODE === "development"
+    ? import.meta.env.VITE_HTTP_BASE_URL
+    : import.meta.env.VITE_HTTP_URL;
 console.log(import.meta.env.MODE, baseURL);
 
 let ifTokenError = false;
@@ -22,8 +29,8 @@ const service = axios.create({
   // 请求是否携带cookie
   withCredentials: false,
   headers: {
-    "Content-Type": 'application/json',
-  }
+    "Content-Type": "application/json",
+  },
 });
 
 // 请求拦截器
@@ -32,16 +39,16 @@ service.interceptors.request.use(
     const userStore = useUser();
     config.data = {
       ...config.data,
-      server: userStore.account.server || 'upway-live'
+      server: userStore.account.server || "upway-live",
     };
     if (config.needToken) {
       config.data.token = userStore.getToken();
       config.data.login = userStore.account.login;
     }
-    console.log('request Data', { url: config.url, data: config.data });
+    console.log("request Data", { url: config.url, data: config.data });
     var p = {
       action: config.url,
-      d: encrypt(JSON.stringify(config.data))
+      d: encrypt(JSON.stringify(config.data)),
     };
     config.data = JSON.stringify(p);
     return config;
@@ -58,32 +65,33 @@ service.interceptors.response.use(
     if (data.err === 0) {
       ifTokenError = false;
       data.data = JSON.parse(decrypt(data.data));
-      console.log('response Data', { url: response.config.url, data });
+      console.log("response Data", { url: response.config.url, data });
       return response;
     }
-    if (data.err === 1 && data.errmsg.includes('invalid token')) {
+    if (data.err === 1 && data.errmsg.includes("invalid token")) {
       const userStore = useUser();
       userStore.ifLogin = false;
       userStore.clearToken();
       userStore.loginInfo = null;
 
       if (!ifTokenError) {
-        router.replace({ name: 'login' });
-        message['error']('登录过期，请重新登录');
+        const router = useRouter();
+        router.replace({ name: "login" });
+        message["error"]("登录过期，请重新登录");
       }
       ifTokenError = true;
       return Promise.reject(data);
     }
-    notification['error']({
-      message: 'error',
-      description: data.errmsg || data.err || 'response error',
+    notification["error"]({
+      message: "error",
+      description: data.errmsg || data.err || "response error",
     });
     return Promise.reject(data);
   },
   (err) => {
     const { status } = err.response;
-    notification['error']({
-      message: err.name || 'request error',
+    notification["error"]({
+      message: err.name || "request error",
       description: err.message || `statusCode: ${status}`,
     });
     // 根据返回的http状态码做不同的处理，比如错误提示等 TODO
@@ -121,5 +129,4 @@ const request = <T>(
   });
 };
 
-export default request
-
+export default request;

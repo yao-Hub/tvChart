@@ -1,6 +1,6 @@
 <template>
   <a-dropdown :trigger="['click']">
-    <MenuOutlined @click.prevent/>
+    <MenuOutlined @click.prevent />
     <template #overlay>
       <a-menu>
         <a-menu-item>
@@ -32,16 +32,15 @@
 import {
   MenuOutlined,
   // SlidersOutlined,
-} from '@ant-design/icons-vue';
-import { h } from 'vue';
+} from "@ant-design/icons-vue";
+import { h } from "vue";
 import quickTransactions from "./quickTransactions.vue";
 // import TableSetting from './tableSetting.vue';
-import Theme from './theme.vue';
-import Language from './Language/index.vue';
-import NowLocale from './Language/NowLocale.vue';
+import Theme from "./theme.vue";
+import Language from "./Language/index.vue";
+import NowLocale from "./Language/NowLocale.vue";
 import feedback from "./feedback.vue";
 import aboutUs from "./aboutUs.vue";
-
 </script>
 
 <style lang="scss" scoped></style>

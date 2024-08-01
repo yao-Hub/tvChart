@@ -11,7 +11,7 @@ import CryptoJS from "crypto-js";
 //   return uuid;
 // }
 
-const passphrase = '@2o25UtrA#de$';
+const passphrase = "@2o25UtrA#de$";
 
 // 加密函数
 function encrypt(data: any) {
@@ -28,5 +28,5 @@ function decrypt(ciphertext: string) {
 
 export default {
   encrypt,
-  decrypt
-}
+  decrypt,
+};

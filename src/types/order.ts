@@ -1,10 +1,14 @@
-import { resOrders } from 'api/order/index';
+import { resOrders } from "api/order/index";
 
-export type TableDataKey = 'position' | 'order' |  'orderHistory' | 'transactionHistory'
+export type TableDataKey =
+  | "position"
+  | "order"
+  | "orderHistory"
+  | "transactionHistory";
 export type TableData = {
-  [K in TableDataKey]?: resOrders[]
-}
+  [K in TableDataKey]?: resOrders[];
+};
 
-export type OrderType = 'price' | 'limit' | 'stop' | 'stopLimit';
+export type OrderType = "price" | "limit" | "stop" | "stopLimit";
 
-export type bsType = 'buy' | 'sell';
+export type bsType = "buy" | "sell";

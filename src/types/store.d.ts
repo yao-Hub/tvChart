@@ -43,7 +43,7 @@ export interface UserInfo {
   total_name: string;
   country: string;
   language: string;
-  agent_login: number,
+  agent_login: number;
   last_ip: string;
   currency_digits: number;
   balance: number;

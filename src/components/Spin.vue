@@ -1,14 +1,14 @@
 <template>
-    <a-spin class="spin" :indicator="indicator"/>
+  <a-spin class="spin" :indicator="indicator" />
 </template>
 
 <script setup lang="ts">
-import { h } from 'vue';
-import { LoadingOutlined } from '@ant-design/icons-vue';
+import { h } from "vue";
+import { LoadingOutlined } from "@ant-design/icons-vue";
 
 const indicator = h(LoadingOutlined, {
   style: {
-    fontSize: '50px',
+    fontSize: "50px",
   },
   spin: true,
 });

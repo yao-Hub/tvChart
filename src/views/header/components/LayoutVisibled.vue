@@ -4,13 +4,25 @@
     <template #overlay>
       <a-menu>
         <a-menu-item>
-          <a-checkbox v-model:checked="layoutStore.chartsVisable" @change="checkboxChange">{{ $t('chartList') }}</a-checkbox>
+          <a-checkbox
+            v-model:checked="layoutStore.chartsVisable"
+            @change="checkboxChange"
+            >{{ $t("chartList") }}</a-checkbox
+          >
         </a-menu-item>
         <a-menu-item>
-          <a-checkbox v-model:checked="layoutStore.symbolsVisable" @change="checkboxChange">{{ $t('symbolList') }}</a-checkbox>
+          <a-checkbox
+            v-model:checked="layoutStore.symbolsVisable"
+            @change="checkboxChange"
+            >{{ $t("symbolList") }}</a-checkbox
+          >
         </a-menu-item>
         <a-menu-item>
-          <a-checkbox v-model:checked="layoutStore.orderAreaVisable" @change="checkboxChange">{{ $t('orderList') }}</a-checkbox>
+          <a-checkbox
+            v-model:checked="layoutStore.orderAreaVisable"
+            @change="checkboxChange"
+            >{{ $t("orderList") }}</a-checkbox
+          >
         </a-menu-item>
       </a-menu>
     </template>
@@ -18,11 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue';
-import { LayoutOutlined } from '@ant-design/icons-vue';
-import { useLayout } from '@/store/modules/layout';
-import { resizeUpdate } from 'utils/dragResize/index';
-import { useChartInit } from '@/store/modules/chartInit';
+import { ref, nextTick } from "vue";
+import { LayoutOutlined } from "@ant-design/icons-vue";
+import { useLayout } from "@/store/modules/layout";
+import { resizeUpdate } from "utils/dragResize/index";
+import { useChartInit } from "@/store/modules/chartInit";
 const chartInitStore = useChartInit();
 
 const visible = ref(false);
@@ -37,5 +49,4 @@ const checkboxChange = async (e: any) => {
   await nextTick();
   resizeUpdate(true);
 };
-
 </script>

@@ -1,6 +1,6 @@
-import { useUser } from '@/store/modules/user';
-import type { Router } from 'vue-router';
-import { PageEnum } from '@/constants/pageEnum';
+import { useUser } from "@/store/modules/user";
+import type { Router } from "vue-router";
+import { PageEnum } from "@/constants/pageEnum";
 
 export function createPermissionGuard(router: Router) {
   const userStore = useUser();

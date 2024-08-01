@@ -1,29 +1,29 @@
-import { defineStore } from 'pinia';
-import { UserInfo } from '#/store';
-import CryptoJS from 'utils/AES';
-import { getLoginInfo } from 'api/account/index';
-import { sendToken } from 'utils/socket/operation';
+import { defineStore } from "pinia";
+import { UserInfo } from "#/store";
+import CryptoJS from "utils/AES";
+import { getLoginInfo } from "api/account/index";
+import { sendToken } from "utils/socket/operation";
 
 interface State {
-  account: Pick<UserInfo, 'login' | 'password'> & { 'server': string };
+  account: Pick<UserInfo, "login" | "password"> & { server: string };
   ifLogin: Boolean;
   loginInfo: UserInfo | null;
 }
 
-export const useUser = defineStore('user', {
+export const useUser = defineStore("user", {
   state: (): State => ({
     account: {
-      login: '',
-      password: '',
-      server: ''
+      login: "",
+      password: "",
+      server: "",
     },
     ifLogin: false,
-    loginInfo: null
+    loginInfo: null,
   }),
   actions: {
     initUser() {
       this.ifLogin = !!this.getToken();
-      const account = window.localStorage.getItem('account');
+      const account = window.localStorage.getItem("account");
       if (account) {
         const parseAccount = JSON.parse(account);
         this.account.login = CryptoJS.decrypt(parseAccount.login);
@@ -34,8 +34,8 @@ export const useUser = defineStore('user', {
       }
     },
     getToken() {
-      let result = '';
-      const storageToken = window.localStorage.getItem('token');
+      let result = "";
+      const storageToken = window.localStorage.getItem("token");
       if (storageToken) {
         const parseToken = JSON.parse(storageToken);
         result = CryptoJS.decrypt(parseToken);
@@ -44,10 +44,10 @@ export const useUser = defineStore('user', {
     },
     setToken(token: string) {
       const enToken = CryptoJS.encrypt(token);
-      window.localStorage.setItem('token', JSON.stringify(enToken));
+      window.localStorage.setItem("token", JSON.stringify(enToken));
     },
     clearToken() {
-      window.localStorage.removeItem('token');
+      window.localStorage.removeItem("token");
     },
     async getLoginInfo(emitSocket?: boolean) {
       const res = await getLoginInfo({
@@ -57,6 +57,6 @@ export const useUser = defineStore('user', {
       if (emitSocket) {
         sendToken(res.data.login, this.getToken());
       }
-    }
-  }
+    },
+  },
 });

@@ -1,6 +1,6 @@
 export default {
   languageTxt: "简体中文",
-  nowLocale: 'en',
+  nowLocale: "en",
   lauguage: "lauguage",
   switchLanguage: "switch language",
 
@@ -19,18 +19,18 @@ export default {
 
   user: {
     login: "user",
-    password: 'password',
-    email: 'email',
+    password: "password",
+    email: "email",
     confirmPassword: "confirm password",
     newPassword: "new Password",
     oldPassword: "old Password",
   },
 
   account: {
-    rememberMe: 'Remember me',
-    login: 'Login',
-    logout: 'Logout',
-    submit: 'Submit',
+    rememberMe: "Remember me",
+    login: "Login",
+    logout: "Logout",
+    submit: "Submit",
     forgetPassword: "forget password?",
     noAccount: "Don't have an account?",
     createAccount: "Create a simulated account",
@@ -43,48 +43,50 @@ export default {
   },
 
   axios: {
-    'Send request': 'Send request'
+    "Send request": "Send request",
   },
 
   chart: {
-    name: 'Chart',
-    darkTheme: 'Dark',
-    lightTheme: 'Light',
-    ThemeColor: 'Theme'
+    name: "Chart",
+    darkTheme: "Dark",
+    lightTheme: "Light",
+    ThemeColor: "Theme",
   },
 
   order: {
     symbol: "symbol",
     sellPrice: "sell price",
     buyPrice: "buy price",
-    new: '{type} new order',
-    create: 'create',
-    point: 'point',
-    price: 'price',
-    balance: 'balance',
+    new: "{type} new order",
+    create: "create",
+    point: "point",
+    price: "price",
+    balance: "balance",
     equity: "equity",
-    Margin: 'Margin',
+    Margin: "Margin",
     marginFree: "margin free",
     marginLevel: "margin level",
     TotalProfit: "total profit",
-    profit: 'profit',
-    buy: 'buy',
-    sell: 'sell',
+    profit: "profit",
+    buy: "buy",
+    sell: "sell",
     type: {
-      price: 'price',
-      limit: 'limit',
-      stop: 'stop',
-      stopLimit: 'stopLimit',
+      price: "price",
+      limit: "limit",
+      stop: "stop",
+      stopLimit: "stopLimit",
     },
-    tradingRoute: "trading route"  
+    tradingRoute: "trading route",
   },
 
   tip: {
-    usernameRequired: 'Please input your username',
-    passwordRequired: 'Please input your password',
-    needLogin: 'please Login',
-    succeed: '{type} succeed',
-    ifHasAcount: "If you already have a trading account, you can log in directly. If not, you can open a demo account",
-    agree: "I agree to the terms and conditions of the account opening and data protection policy"
-  }
+    usernameRequired: "Please input your username",
+    passwordRequired: "Please input your password",
+    needLogin: "please Login",
+    succeed: "{type} succeed",
+    ifHasAcount:
+      "If you already have a trading account, you can log in directly. If not, you can open a demo account",
+    agree:
+      "I agree to the terms and conditions of the account opening and data protection policy",
+  },
 };

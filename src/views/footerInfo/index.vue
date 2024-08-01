@@ -1,38 +1,38 @@
 <template>
   <div class="footerInfo">
     <div class="item">
-      <span>{{ $t('order.balance') }}: </span>
+      <span>{{ $t("order.balance") }}: </span>
       <span>{{ loginInfo?.balance }}</span>
     </div>
     <div class="item">
-      <span>{{ $t('order.equity') }}: </span>
+      <span>{{ $t("order.equity") }}: </span>
       <span>{{ equity }}</span>
     </div>
     <div class="item">
-      <span>{{ $t('order.Margin') }}: </span>
+      <span>{{ $t("order.Margin") }}: </span>
       <span>{{ Margin }}</span>
     </div>
     <div class="item">
-      <span>{{ $t('order.marginFree') }}: </span>
+      <span>{{ $t("order.marginFree") }}: </span>
       <span>{{ margin_free }}</span>
     </div>
     <div class="item">
-      <span>{{ $t('order.marginLevel') }}: </span>
+      <span>{{ $t("order.marginLevel") }}: </span>
       <span>{{ margin_level }}</span>
     </div>
-    <div class="item" style="border: none;">
-      <span>{{ $t('order.TotalProfit') }}: </span>
+    <div class="item" style="border: none">
+      <span>{{ $t("order.TotalProfit") }}: </span>
       <span>{{ profit }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { useUser } from '@/store/modules/user';
-import { useOrder } from '@/store/modules/order';
+import { computed } from "vue";
+import { useUser } from "@/store/modules/user";
+import { useOrder } from "@/store/modules/order";
 // import { useChartSub } from '@/store/modules/chartSub';
-import { round } from 'utils/common/index';
+import { round } from "utils/common/index";
 
 // const subStore = useChartSub();
 const userStore = useUser();
@@ -44,7 +44,7 @@ const loginInfo = computed(() => userStore.loginInfo);
 const equity = computed(() => {
   try {
     if (!loginInfo.value) {
-      return '-';
+      return "-";
     }
     const currentPosition = orderStore.tableData.position;
     const sum = currentPosition?.reduce((accumulator, currentValue) => {
@@ -52,7 +52,7 @@ const equity = computed(() => {
     }, 0);
     return round(+loginInfo.value.balance + (sum || 0), 2);
   } catch (error) {
-    return '-';
+    return "-";
   }
 });
 
@@ -60,7 +60,7 @@ const equity = computed(() => {
 const Margin = computed(() => {
   try {
     if (!loginInfo.value) {
-      return '-';
+      return "-";
     }
     return loginInfo.value.margin;
     // const currentPosition = orderStore.tableData.position;
@@ -82,16 +82,16 @@ const Margin = computed(() => {
     // }, 0);
     // return round(sum || 0, 2);
   } catch (error) {
-    return '-'
+    return "-";
   }
 });
 
 // 可用保证金
 const margin_free = computed(() => {
-  if (equity.value !== '-' && Margin.value !== '-') {
+  if (equity.value !== "-" && Margin.value !== "-") {
     return round(Number(equity.value) - Number(Margin.value), 2);
   }
-  return '-';
+  return "-";
 });
 
 // 保证金水平
@@ -99,17 +99,17 @@ const margin_level = computed(() => {
   if (+Margin.value === 0) {
     return 0;
   }
-  if (equity.value !== '-' && Margin.value !== '-') {
-    return round(+equity.value / +Margin.value * 100, 2);
+  if (equity.value !== "-" && Margin.value !== "-") {
+    return round((+equity.value / +Margin.value) * 100, 2);
   }
-  return '-';
+  return "-";
 });
 
 // 总盈亏
-const profit =  computed(() => {
+const profit = computed(() => {
   try {
     if (!loginInfo.value) {
-      return '-';
+      return "-";
     }
     const currentPosition = orderStore.tableData.position;
     const sum = currentPosition?.reduce((accumulator, currentValue) => {
@@ -117,31 +117,30 @@ const profit =  computed(() => {
     }, 0);
     return round(sum || 0, 2);
   } catch (error) {
-    return '-';
+    return "-";
   }
 });
-
 </script>
 
 <style lang="scss" scoped>
-@import '@/assets/styles/_handle.scss';
+@import "@/assets/styles/_handle.scss";
 
 .footerInfo {
   width: 100vw;
   box-sizing: border-box;
   height: 30px;
-  @include background_color('primary');
+  @include background_color("primary");
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   overflow: auto;
-  
+
   .item {
     min-width: 100px;
     float: left;
     border-right: 1px solid;
-    @include border_color('border');
+    @include border_color("border");
     display: block;
     height: 30px;
     line-height: 30px;
