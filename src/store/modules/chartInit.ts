@@ -26,6 +26,7 @@ export const useChartInit = defineStore("chartInit", {
     };
   },
   actions: {
+    // 设置图表实例
     setChartWidget(id: string, widget: IChartingLibraryWidget) {
       const foundChart = this.chartWidgetList.find((e) => e.id === id);
       if (!foundChart) {
@@ -40,6 +41,8 @@ export const useChartInit = defineStore("chartInit", {
         foundChart.symbol = widget.symbolInterval().symbol;
       }
     },
+
+    // 获取图表实例
     getChartWidget(id?: string) {
       if (this.chartWidgetList.length === 0) {
         throw new Error("chartWidget is null");
@@ -47,12 +50,25 @@ export const useChartInit = defineStore("chartInit", {
       const findId = id || this.mainId;
       return this.chartWidgetList.find((e) => e.id === findId)?.widget;
     },
+
+    // 移除chart实例
     removeChartWidget(id: string) {
       const index = this.chartWidgetList.findIndex((e) => e.id === id);
       if (index > -1) {
         this.chartWidgetList.splice(index, 1);
       }
     },
+
+    // 获取chartWidgetList的symbol字段
+    getChartSymbol(id?: string) {
+      if (this.chartWidgetList.length === 0) {
+        throw new Error("chartWidget is null");
+      }
+      const findId = id || this.mainId;
+      return this.chartWidgetList.find((e) => e.id === findId)?.symbol;
+    },
+
+    // 给chartWidgetList设置品种字段
     setChartSymbol(params?: { id: string; symbol: string }) {
       if (params) {
         const { id, symbol } = params;
@@ -72,12 +88,18 @@ export const useChartInit = defineStore("chartInit", {
         }
       });
     },
+
+    getCacheSymbol(id: string) {
+      return this.cacheSymbols[id];
+    },
+
+    // 设置缓存品种，不是手动触发更新品种
     setCacheSymbol(params: { symbol: string; id: string }) {
       const { id, symbol } = params;
       this.cacheSymbols[id] = symbol;
     },
 
-    // 根据缓存的品种设置当前品种
+    // 根据缓存的品种设置当前chart品种
     async setChartSymbolWithCache(id?: string) {
       if (id) {
         this.singleChartLoading[id] = true;

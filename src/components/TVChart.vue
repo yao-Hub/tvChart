@@ -164,10 +164,17 @@ const initonReady = () => {
     widget.headerReady().then(() => {
       const chartInitStore = useChartInit();
       chartInitStore.setChartWidget(props.chartId, widget);
-      chartInitStore.setCacheSymbol({
-        id: props.chartId,
-        symbol: props.symbol,
-      });
+      const cacheSymbol = chartInitStore.getCacheSymbol(props.chartId);
+      if (cacheSymbol) {
+        chartInitStore.setChartSymbolWithCache(props.chartId);
+      } else {
+        chartInitStore.setCacheSymbol({
+          id: props.chartId,
+          symbol: props.symbol,
+        });
+      }
+
+      // 监听品种手动变化
       widget
         .activeChart()
         .onSymbolChanged()
@@ -181,7 +188,7 @@ const initonReady = () => {
       if (props.mainChart) {
         chartInitStore.mainId = props.chartId;
       }
-      emit("initChart");
+      emit("initChart", { id: props.chartId });
     });
   });
 };

@@ -7,7 +7,6 @@ import type { CustomResponseType } from "#/axios";
 import { encrypt, decrypt } from "utils/DES/index";
 import { notification, message } from "ant-design-vue";
 import { useUser } from "@/store/modules/user";
-import { useRouter } from "vue-router";
 interface CustomInternalAxiosRequestConfig
   extends InternalAxiosRequestConfig<any> {
   needToken?: boolean;
@@ -62,6 +61,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     const { data } = response;
+
     if (data.err === 0) {
       ifTokenError = false;
       data.data = JSON.parse(decrypt(data.data));
@@ -75,9 +75,8 @@ service.interceptors.response.use(
       userStore.loginInfo = null;
 
       if (!ifTokenError) {
-        const router = useRouter();
-        router.replace({ name: "login" });
-        message["error"]("登录过期，请重新登录");
+        message.error("登录过期，请重新登录");
+        window.location.replace(window.location.origin + '/login')
       }
       ifTokenError = true;
       return Promise.reject(data);

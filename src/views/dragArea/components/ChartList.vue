@@ -20,6 +20,7 @@
         :style="{ paddingLeft: chartType === 'multiple' ? '20px' : 0 }"
         class="charts_container_item"
         v-for="{ id } in chartList"
+        :key="id"
         :id="id"
         v-show="
           (state.activeKey === id && chartType === 'single') ||
@@ -28,10 +29,10 @@
       >
         <HolderOutlined class="handle" v-if="chartType === 'multiple'" />
         <TVChart
+          style="flex: 1; height: 100%"
           :key="state.activeKey === id"
           :chartId="id"
           :mainChart="id === 'chart_1'"
-          style="flex: 1; height: 100%"
           :loading="props.loading || chartInitStore.singleChartLoading[id]"
           :datafeed="datafeed(id)"
           :symbol="state.symbol"
@@ -50,7 +51,7 @@ import { reactive, computed, onMounted } from "vue";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useChartAction } from "@/store/modules/chartAction";
-import { datafeed } from "../../chart/chartConfig";
+import { datafeed } from "@/config/chartConfig";
 import * as types from "@/types/chart/index";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import Sortable from "sortablejs";
@@ -91,11 +92,11 @@ const chartType = computed(() => {
 });
 
 // widget初始化回调
-const initChart = (id: string) => {
+const initChart = (e: any) => {
   // 监听点击报价加号按钮
   // chartSubStore.subscribePlusBtn();
   // chartSubStore.subscribeMouseDown();
-  chartActionStore.addOrderBtn(id);
+  chartActionStore.addOrderBtn(e.id);
   chartSubStore.subscribeKeydown();
 };
 
@@ -111,7 +112,7 @@ onMounted(() => {
   });
 });
 
-const onEdit = (targetKey: string, action: string) => {
+const onEdit = async (targetKey: string, action: string) => {
   if (action === "add") {
     const len = chartInitStore.chartWidgetList.length;
     chartInitStore.chartWidgetList.push({

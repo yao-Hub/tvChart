@@ -30,8 +30,10 @@ import { useChartSub } from "@/store/modules/chartSub";
 import { round } from "utils/common/index";
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ORDER_TYPE } from "@/constants/common";
+import { useChartInit } from "@/store/modules/chartInit";
 
 const subStore = useChartSub();
+const chartInitStore = useChartInit();
 
 import { useOrder } from "@/store/modules/order";
 import { message } from "ant-design-vue";
@@ -39,15 +41,21 @@ const orderStore = useOrder();
 
 interface Props {
   symbol: string;
+  id: string
 }
 const props = defineProps<Props>();
 
+const currentSymbol = computed(() => {
+  const chartSymbol = chartInitStore.getChartSymbol(props.id);
+  return chartSymbol || props.symbol;
+});
+
 const bid = computed(() => {
-  return getQuotes("bid", props.symbol);
+  return getQuotes("bid", currentSymbol.value);
 });
 
 const ask = computed(() => {
-  return getQuotes("ask", props.symbol);
+  return getQuotes("ask", currentSymbol.value);
 });
 
 const getQuotes = (type: "bid" | "ask", symbol: string) => {
@@ -59,14 +67,14 @@ const getQuotes = (type: "bid" | "ask", symbol: string) => {
 
 // 当前品种
 const symbolInfo = computed(() => {
-  return subStore.symbols.find((e) => e.symbol === props.symbol);
+  return subStore.symbols.find((e) => e.symbol === currentSymbol.value);
 });
 
 // 单笔最小手数
 const minVolume = computed(() => {
-  const symbol = symbolInfo.value;
-  if (symbol) {
-    const volume_min = (symbol.volume_min / 100).toString();
+  const info = symbolInfo.value;
+  if (info) {
+    const volume_min = (info.volume_min / 100).toString();
     return volume_min;
   }
   return "0";
@@ -74,9 +82,9 @@ const minVolume = computed(() => {
 
 // 单笔最大手数
 const maxVolume = computed(() => {
-  const symbol = symbolInfo.value;
-  if (symbol) {
-    const volume_max = (symbol.volume_max / 100).toString();
+  const info = symbolInfo.value;
+  if (info) {
+    const volume_max = (info.volume_max / 100).toString();
     return volume_max;
   }
   return "0";
@@ -116,7 +124,7 @@ const creatOrder = async (type: 'sell' | 'buy') => {
   const v = valid();
   if (v) {
     const updata: ReqOrderAdd = {
-      symbol: props.symbol,
+      symbol: currentSymbol.value,
       type: ORDER_TYPE.price[type],
       volume: +volume.value * 100,
     };

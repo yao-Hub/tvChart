@@ -100,15 +100,13 @@ export const useChartSub = defineStore("chartSub", {
     },
     // 监听键盘快捷键
     subscribeKeydown() {
-      try {
-        const chartInitStore = useChartInit();
-        const widgetList = chartInitStore.chartWidgetList;
-        keydownList.forEach((item) => {
-          widgetList.forEach((Widget) => {
-            Widget.widget?.onShortcut(item.keyCode, item.callback);
-          });
+      const chartInitStore = useChartInit();
+      const widgetList = chartInitStore.chartWidgetList;
+      keydownList.forEach((item) => {
+        widgetList.forEach((Widget) => {
+          Widget.widget?.onShortcut(item.keyCode, item.callback);
         });
-      } catch (error) {}
+      });
       document.addEventListener("keydown", (event) => {
         const found = keydownList.find((e) => e.keyCode === event.keyCode);
         found?.callback();

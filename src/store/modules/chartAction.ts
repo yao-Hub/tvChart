@@ -39,7 +39,7 @@ export const useChartAction = defineStore("chartAction", {
         const Button = widget.createButton();
         Button.setAttribute("id", "chartOrderBtn");
         const symbol = widget.activeChart().symbol();
-        const orderComp = createApp(FastAddOrder, { symbol });
+        const orderComp = createApp(FastAddOrder, { symbol, id });
         orderComp.mount(Button);
       });
     },
