@@ -368,9 +368,6 @@ const getPendingOrders = async () => {
 // 查询挂单历史（失效）
 const getOrderHistory = async () => {
   try {
-    if (!userStore.ifLogin) {
-      return;
-    }
     state.loadingList.orderHistory = true;
     const { orderHistoryCreateTime, pendingOrderSymbol } = state;
     const [begin_time, end_time] = orderHistoryCreateTime;
@@ -416,9 +413,6 @@ const delOrders = async (record: orders.resOrders) => {
 // 查询交易历史
 const getTradingHistory = async () => {
   try {
-    if (!userStore.ifLogin) {
-      return;
-    }
     state.loadingList.transactionHistory = true;
     const {
       transactionHistoryCreateTime,
