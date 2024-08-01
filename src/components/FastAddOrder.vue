@@ -24,12 +24,13 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 import { UpOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { useChartSub } from "@/store/modules/chartSub";
 import { round } from "utils/common/index";
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ORDER_TYPE } from "@/constants/common";
+import { SessionSymbolInfo } from "@/types/chart/index";
 import { useChartInit } from "@/store/modules/chartInit";
 
 const subStore = useChartSub();
@@ -46,7 +47,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const currentSymbol = computed(() => {
-  const chartSymbol = chartInitStore.getChartSymbol(props.id);
+  const chartSymbol = chartInitStore.getCacheSymbol(props.id);
   return chartSymbol || props.symbol;
 });
 
@@ -65,47 +66,43 @@ const getQuotes = (type: "bid" | "ask", symbol: string) => {
   return "-";
 };
 
-// 当前品种
-const symbolInfo = computed(() => {
-  return subStore.symbols.find((e) => e.symbol === currentSymbol.value);
-});
-
+// 下单手数
+const volume = ref<string>();
 // 单笔最小手数
-const minVolume = computed(() => {
-  const info = symbolInfo.value;
-  if (info) {
-    const volume_min = (info.volume_min / 100).toString();
-    return volume_min;
-  }
-  return "0";
-});
-
+const minVolume = ref<string>('0');
 // 单笔最大手数
-const maxVolume = computed(() => {
-  const info = symbolInfo.value;
+const maxVolume = ref<string>('0');
+
+// 当前品种
+const symbolInfo = ref<SessionSymbolInfo>();
+watchEffect(() => {
+  const info = subStore.symbols.find((e) => e.symbol === currentSymbol.value);
   if (info) {
-    const volume_max = (info.volume_max / 100).toString();
-    return volume_max;
+    symbolInfo.value = info;
+    minVolume.value = (info.volume_min / 100).toString();
+    maxVolume.value = (info.volume_max / 100).toString();
+    volume.value = minVolume.value;
   }
-  return "0";
 });
 
 const step = computed(() => {
   return symbolInfo.value ? symbolInfo.value.volume_step : 1;
 });
 
-const volume = ref<string>(minVolume.value);
-
 const addNum = () => {
-  volume.value = String(round(+volume.value + step.value, 2));
+  volume.value = String(round(+(volume.value || 0) + step.value, 2));
 };
 const reduceNum = () => {
-  volume.value = String(round(+volume.value - step.value, 2));
+  volume.value = String(round(+(volume.value || 0) - step.value, 2));
 };
 
 const regex = /^-?\d+(\.\d+)?$/;
 const valid = () => {
   const value = volume.value;
+  if (value === undefined) {
+    message.error("请输入手数");
+    return false;
+  }
   if (!regex.test(value)) {
     message.error("请输入正确的数字格式");
     return false;
@@ -126,7 +123,7 @@ const creatOrder = async (type: 'sell' | 'buy') => {
     const updata: ReqOrderAdd = {
       symbol: currentSymbol.value,
       type: ORDER_TYPE.price[type],
-      volume: +volume.value * 100,
+      volume: +(volume.value || 0) * 100,
     };
     const res = await marketOrdersAdd(updata);
     if (res.data.action_success) {
