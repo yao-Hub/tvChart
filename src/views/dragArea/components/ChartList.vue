@@ -17,9 +17,9 @@
     </a-tabs>
     <div class="charts_container">
       <div
-        :style="{ paddingLeft: chartType === 'multiple' ? '20px' : 0 }"
         class="charts_container_item"
         v-for="{ id } in chartList"
+        :style="{ paddingLeft: chartType === 'multiple' ? '20px' : 0 }"
         :key="id"
         :id="id"
         v-show="
@@ -131,22 +131,20 @@ const onEdit = async (targetKey: string, action: string) => {
 
 <style lang="scss" scoped>
 .charts {
-  display: flex;
-  flex-direction: column;
   padding: 5px;
   box-sizing: border-box;
   border-radius: 5px;
+  height: 100%;
 
   &_container {
     display: flex;
     flex-wrap: wrap;
-    flex: 1;
+    height: calc(100% - 40px);
     gap: 5px;
     padding-left: 20px;
     box-sizing: border-box;
     &_item {
       flex: 1;
-      min-width: 200px;
       position: relative;
       background-color: #141823;
       box-sizing: border-box;
@@ -163,7 +161,9 @@ const onEdit = async (targetKey: string, action: string) => {
   &_tabs {
     display: flex;
     overflow-x: auto;
+    overflow-y: hidden;
     margin-left: 20px;
+    height: 40px;
   }
 }
 </style>
