@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; gap: 5px; align-items: center">
+  <div style="display: flex; gap: 5px; align-items: center" v-show="quiTransStore.ifQuick">
     <span style="min-width: 50px">{{ bid }}</span>
     <span @click="creatOrder('sell')" style="cursor: pointer">sell</span>
     <div
@@ -32,9 +32,11 @@ import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ORDER_TYPE } from "@/constants/common";
 import { SessionSymbolInfo } from "@/types/chart/index";
 import { useChartInit } from "@/store/modules/chartInit";
+import { useQuiTrans } from '@/store/modules/quickTransaction';
 
 const subStore = useChartSub();
 const chartInitStore = useChartInit();
+const quiTransStore = useQuiTrans();
 
 import { useOrder } from "@/store/modules/order";
 import { message } from "ant-design-vue";

@@ -8,7 +8,7 @@
         }}</a-button>
       </a-tooltip>
       <LayoutVisibled></LayoutVisibled>
-      <ThunderboltOutlined />
+      <FastTransation></FastTransation>
       <a-tooltip :title="$t('SingleImageMode')">
         <BorderOutlined @click="chartInitStore.chartLayoutType = 'single'" />
       </a-tooltip>
@@ -24,7 +24,6 @@
 
 <script setup lang="ts">
 import {
-  ThunderboltOutlined,
   BorderOutlined,
   AppstoreFilled,
 } from "@ant-design/icons-vue";
@@ -32,6 +31,7 @@ import {
 import LayoutVisibled from "./components/LayoutVisibled.vue";
 import Menu from "./components/Menu/index.vue";
 import Account from "./components/Account/index.vue";
+import FastTransation from "./components/FastTransation/index.vue";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";

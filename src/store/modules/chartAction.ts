@@ -38,6 +38,9 @@ export const useChartAction = defineStore("chartAction", {
       widget?.headerReady().then(() => {
         const Button = widget.createButton();
         Button.setAttribute("id", "chartOrderBtn");
+        const grandpa = <HTMLElement>Button.parentNode?.parentNode;
+        const separator = <HTMLElement>grandpa.nextSibling;
+        separator.remove();
         const symbol = widget.activeChart().symbol();
         const orderComp = createApp(FastAddOrder, { symbol, id });
         orderComp.mount(Button);
