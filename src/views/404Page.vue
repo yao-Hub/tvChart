@@ -6,7 +6,7 @@
       sub-title="Sorry, the page you visited does not exist."
     >
       <template #extra>
-        <a-button type="primary" @click="router.push({ path: '/' })"
+        <a-button type="primary" @click="$router.push({ path: '/' })"
           >Back Home</a-button
         >
       </template>
@@ -15,9 +15,6 @@
 </template>
 
 <script lang="ts" setup>
-import { useRouter } from "vue-router";
-
-const router = useRouter();
 </script>
 
 <style scoped>

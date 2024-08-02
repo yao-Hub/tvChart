@@ -1,5 +1,8 @@
 <template>
-  <div class="chart" v-show="!chartInitStore.loading && !chartInitStore.ifInitError">
+  <div
+    class="chart"
+    v-show="!chartInitStore.loading && !chartInitStore.ifInitError"
+  >
     <WPHeader></WPHeader>
     <dragArea></dragArea>
     <FooterInfo></FooterInfo>
@@ -8,6 +11,7 @@
 
   <FloatMenu></FloatMenu>
   <OrderDialog></OrderDialog>
+  <Disclaimers></Disclaimers>
 </template>
 
 <script setup lang="ts">
@@ -17,6 +21,8 @@ import { Modal } from "ant-design-vue";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useUser } from "@/store/modules/user";
+import { useOrder } from "@/store/modules/order";
+import { useRoot } from "@/store/store";
 
 import { allSymbols } from "api/symbols/index";
 import { initDragResizeArea } from "utils/dragResize/index";
@@ -30,6 +36,7 @@ import FooterInfo from "../footerInfo/index.vue";
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const userStore = useUser();
+const orderStore = useOrder();
 
 const state = reactive({
   symbol: "XAU",
@@ -49,8 +56,17 @@ onMounted(async () => {
     await getSymbols();
     await nextTick();
     userStore.initUser();
+    // orderStore.getOneTrans();
+    orderStore.getQuickTrans();
     initDragResizeArea();
     chartInitStore.ifInitError = false;
+
+    // 记忆动作
+    const rootStore = useRoot();
+    if (rootStore.cacheAction) {
+      rootStore[rootStore.cacheAction]();
+      rootStore.clearCacheAction();
+    }
   } catch (error) {
     chartInitStore.ifInitError = true;
     Modal.error({

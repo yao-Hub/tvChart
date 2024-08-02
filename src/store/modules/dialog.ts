@@ -9,13 +9,13 @@ interface FloatMenuParams {
 interface State {
   orderDialogVisible: boolean;
   floatMenuParams: FloatMenuParams;
-  loginDialogVisible: boolean;
+  disclaimers: boolean
 }
 
 export const useDialog = defineStore("dialog", {
   state: (): State => {
     return {
-      loginDialogVisible: false, // 登录弹窗
+      disclaimers: false,
       orderDialogVisible: false, // 订单弹窗
       floatMenuParams: {
         visible: false,
@@ -30,12 +30,6 @@ export const useDialog = defineStore("dialog", {
     },
     closeOrderDialog() {
       this.orderDialogVisible = false;
-    },
-    showLoginDialog() {
-      this.loginDialogVisible = true;
-    },
-    closeLoginDialog() {
-      this.loginDialogVisible = false;
     },
   },
 });

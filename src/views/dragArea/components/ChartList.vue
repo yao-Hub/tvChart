@@ -96,7 +96,6 @@ const initChart = (e: any) => {
   // 监听点击报价加号按钮
   // chartSubStore.subscribePlusBtn();
   // chartSubStore.subscribeMouseDown();
-  orderStore.getQuickTrans();
   if (orderStore.ifQuick) {
     orderStore.addOrderBtn();
   }

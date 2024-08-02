@@ -150,12 +150,14 @@ import { orderChanges } from "utils/socket/operation";
 
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
+import { useDialog } from "@/store/modules/dialog";
 
 import EditOrderDialog from "../orderDialog/edit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
 
 const userStore = useUser();
 const orderStore = useOrder();
+const dialogStore = useDialog();
 
 interface Menu {
   label: string;
@@ -339,9 +341,15 @@ const orderClose = async (record: orders.resOrders) => {
     }
   }
 
+  const ifOne = orderStore.getOneTrans();
+  if (ifOne === null) {
+    dialogStore.disclaimers = true;
+  }
+
   if (!orderStore.ifOne) {
     Modal.confirm({
       title: "确定平仓",
+      zIndex: 1,
       onOk() {
         foo();
       },
@@ -396,9 +404,16 @@ const delOrders = async (record: orders.resOrders) => {
     }
     message.error(res.data.err_text);
   }
+
+  const ifOne = orderStore.getOneTrans();
+  if (ifOne === null) {
+    dialogStore.disclaimers = true;
+  }
+
   if (!orderStore.ifOne) {
     Modal.confirm({
       title: "确定撤销",
+      zIndex: 1,
       onOk() {
         foo();
       },

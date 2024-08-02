@@ -52,7 +52,7 @@
 import { computed, reactive } from "vue";
 import { message } from "ant-design-vue";
 import CryptoJS from "utils/AES";
-import { useDialog } from "@/store/modules/dialog";
+// import { useDialog } from "@/store/modules/dialog";
 import { Login } from "api/account/index";
 import { useRoot } from "@/store/store";
 import { useUser } from "@/store/modules/user";
@@ -64,12 +64,12 @@ const userStore = useUser();
 // const chartActionStore = useChartAction();
 
 const open = computed(() => {
-  return dialogStore.loginDialogVisible;
+  // return dialogStore.loginDialogVisible;
 });
 
-const dialogStore = useDialog();
+// const dialogStore = useDialog();
 const handleCancel = () => {
-  dialogStore.closeLoginDialog();
+  // dialogStore.closeLoginDialog();
 };
 
 interface FormState {

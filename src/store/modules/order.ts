@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { createApp } from "vue";
+import { useRouter } from "vue-router";
 import { Modal } from "ant-design-vue";
 
 import { useDialog } from "./dialog";
@@ -33,7 +34,7 @@ export const useOrder = defineStore("order", {
       tableData: {},
       selectedMenuKey: "price",
       ifOne: false, // 一键交易
-      ifQuick: false, // 快捷交易
+      ifQuick: false, // 快捷交易(图表是否显示快捷交易组件)
     };
   },
 
@@ -42,8 +43,9 @@ export const useOrder = defineStore("order", {
       const dialogStore = useDialog();
       const userStore = useUser();
       if (!userStore.getToken()) {
+        const router = useRouter();
+        router.replace({ name: 'login' });
         const chartActionStore = useChartAction();
-        dialogStore.showLoginDialog();
         chartActionStore.setCacheAction("createOrder");
         return;
       }
@@ -57,22 +59,23 @@ export const useOrder = defineStore("order", {
       dialogStore.showOrderDialog();
     },
 
+    // 设置一键交易状态
     setOneTrans(result: boolean) {
       this.ifOne = result;
-      window.localStorage.setItem("ifOneTrans", JSON.stringify(result));
+      window.localStorage.setItem("ifOne", JSON.stringify(result));
     },
 
+    // 获取一键交易状态
     getOneTrans() {
-      const result =
-        window.localStorage.getItem("ifOneTrans") || JSON.stringify(false);
-      this.ifOne = JSON.parse(result);
+      const result = window.localStorage.getItem("ifOne");
+      this.ifOne = JSON.parse(result || JSON.stringify(false));
       return result;
     },
 
-    // 添加快捷下单按钮
+    // 添加快捷下单组件
     addOrderBtn() {
       this.ifQuick = true;
-      window.localStorage.setItem("ifOneQuick", JSON.stringify(true));
+      window.localStorage.setItem("ifQuick", JSON.stringify(true));
       const chartInitStore = useChartInit();
       const iframes = Array.from(document.querySelectorAll("iframe"));
       let ifExistBtn = false;
@@ -104,8 +107,9 @@ export const useOrder = defineStore("order", {
       });
     },
 
+    // 隐藏快捷下单组件
     hideOrderBtn() {
-      window.localStorage.setItem("ifOneQuick", JSON.stringify(false));
+      window.localStorage.setItem("ifQuick", JSON.stringify(false));
       this.ifQuick = false;
       const chartInitStore = useChartInit();
       const widget = chartInitStore.getChartWidget();
@@ -123,9 +127,10 @@ export const useOrder = defineStore("order", {
       });
     },
 
+    // 获取快捷交易状态
     getQuickTrans() {
       const result =
-        window.localStorage.getItem("ifOneQuick") || JSON.stringify(false);
+        window.localStorage.getItem("ifQuick") || JSON.stringify(false);
       this.ifQuick = JSON.parse(result);
     },
   },

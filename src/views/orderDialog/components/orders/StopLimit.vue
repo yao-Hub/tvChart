@@ -75,7 +75,7 @@
 <script setup lang="ts">
 import { reactive, computed } from "vue";
 import { message } from "ant-design-vue";
-import { values } from "lodash";
+import { values, debounce } from "lodash";
 import { SessionSymbolInfo } from "#/chart/index";
 import { ORDER_TYPE } from "@/constants/common";
 import { bsType } from "#/order";
@@ -173,7 +173,7 @@ const dueDate = (e: string | number) => {
   state.disabledList.DueDate = false;
 };
 
-const addOrders = async () => {
+const addOrders = debounce(async () => {
   try {
     state.loading = true;
     const updata: reqPendingOrdersAdd = {
@@ -202,7 +202,7 @@ const addOrders = async () => {
   } finally {
     state.loading = false;
   }
-};
+});
 </script>
 
 <style lang="scss" scoped>

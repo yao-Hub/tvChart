@@ -32,9 +32,11 @@ import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ORDER_TYPE } from "@/constants/common";
 import { SessionSymbolInfo } from "@/types/chart/index";
 import { useChartInit } from "@/store/modules/chartInit";
+import { useDialog } from "@/store/modules/dialog";
 
 const subStore = useChartSub();
 const chartInitStore = useChartInit();
+const dialogStore = useDialog();
 
 import { useOrder } from "@/store/modules/order";
 import { message } from "ant-design-vue";
@@ -118,6 +120,15 @@ const valid = () => {
   return true;
 };
 const creatOrder = async (type: 'sell' | 'buy') => {
+  const ifOne = orderStore.getOneTrans();
+  if (ifOne === null) {
+    dialogStore.disclaimers = true;
+    return;
+  }
+  if (!orderStore.ifOne) {
+    orderStore.createOrder();
+    return;
+  }
   const v = valid();
   if (v) {
     const updata: ReqOrderAdd = {

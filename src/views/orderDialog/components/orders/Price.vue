@@ -44,7 +44,7 @@
 <script setup lang="ts">
 import { reactive, computed } from "vue";
 import { message } from "ant-design-vue";
-import { values } from "lodash";
+import { values, debounce } from "lodash";
 import { SessionSymbolInfo } from "#/chart/index";
 import { ORDER_TYPE } from "@/constants/common";
 import { bsType } from "#/order";
@@ -121,7 +121,7 @@ const setStopSurplus = (e: string) => {
   state.disabledList.StopSurplus = false;
 };
 
-const addOrders = async () => {
+const addOrders = debounce(async () => {
   try {
     state.loading = true;
     const updata: ReqOrderAdd = {
@@ -145,7 +145,7 @@ const addOrders = async () => {
   } finally {
     state.loading = false;
   }
-};
+}, 200);
 </script>
 
 <style lang="scss" scoped>
