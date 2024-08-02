@@ -350,6 +350,7 @@ const orderClose = async (record: orders.resOrders) => {
     Modal.confirm({
       title: "确定平仓",
       zIndex: 1,
+      maskClosable: true,
       onOk() {
         foo();
       },
@@ -414,6 +415,7 @@ const delOrders = async (record: orders.resOrders) => {
     Modal.confirm({
       title: "确定撤销",
       zIndex: 1,
+      maskClosable: true,
       onOk() {
         foo();
       },
