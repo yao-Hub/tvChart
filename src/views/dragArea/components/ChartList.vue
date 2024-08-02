@@ -50,7 +50,7 @@
 import { reactive, computed, onMounted } from "vue";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
-import { useChartAction } from "@/store/modules/chartAction";
+import { useOrder } from "@/store/modules/order";
 import { datafeed } from "@/config/chartConfig";
 import * as types from "@/types/chart/index";
 import { HolderOutlined } from "@ant-design/icons-vue";
@@ -58,7 +58,7 @@ import Sortable from "sortablejs";
 
 const chartSubStore = useChartSub();
 const chartInitStore = useChartInit();
-const chartActionStore = useChartAction();
+const orderStore = useOrder();
 
 interface Props {
   loading?: boolean;
@@ -96,7 +96,10 @@ const initChart = (e: any) => {
   // 监听点击报价加号按钮
   // chartSubStore.subscribePlusBtn();
   // chartSubStore.subscribeMouseDown();
-  chartActionStore.addOrderBtn(e.id);
+  orderStore.getQuickTrans();
+  if (orderStore.ifQuick) {
+    orderStore.addOrderBtn();
+  }
   chartSubStore.subscribeKeydown();
 };
 

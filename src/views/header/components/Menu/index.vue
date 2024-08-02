@@ -4,7 +4,7 @@
     <template #overlay>
       <a-menu>
         <a-menu-item>
-          <quickTransactions></quickTransactions>
+          <OneTransactions></OneTransactions>
         </a-menu-item>
         <a-menu-divider />
         <!-- <a-sub-menu :icon="h(SlidersOutlined)" title="图表设置" key="sub1">
@@ -34,7 +34,7 @@ import {
   // SlidersOutlined,
 } from "@ant-design/icons-vue";
 import { h } from "vue";
-import quickTransactions from "./quickTransactions.vue";
+import OneTransactions from "./oneTransactions.vue";
 // import TableSetting from './tableSetting.vue';
 import Theme from "./theme.vue";
 import Language from "./Language/index.vue";

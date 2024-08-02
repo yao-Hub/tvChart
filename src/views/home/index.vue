@@ -1,5 +1,5 @@
 <template>
-  <div class="chart" v-show="!chartInitStore.loading">
+  <div class="chart" v-show="!chartInitStore.loading && !chartInitStore.ifInitError">
     <WPHeader></WPHeader>
     <dragArea></dragArea>
     <FooterInfo></FooterInfo>
@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, nextTick } from "vue";
+import { Modal } from "ant-design-vue";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
@@ -49,6 +50,16 @@ onMounted(async () => {
     await nextTick();
     userStore.initUser();
     initDragResizeArea();
+    chartInitStore.ifInitError = false;
+  } catch (error) {
+    chartInitStore.ifInitError = true;
+    Modal.error({
+      title: "出错了",
+      content: "请刷新页面重试",
+      onOk() {
+        window.location.reload();
+      },
+    });
   } finally {
     chartInitStore.loading = false;
   }

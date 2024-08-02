@@ -5,7 +5,7 @@
       <span>{{ $t("QuickTransactions") }}</span>
     </div>
     <a-switch
-      :checked="quiTransStore.ifQuick"
+      :checked="orderStore.ifOne"
       size="small"
       @click="handleClick"
     />
@@ -46,7 +46,7 @@
 <script setup lang="ts">
 import { ref, h } from "vue";
 import { DollarCircleFilled } from "@ant-design/icons-vue";
-import { useQuiTrans } from "@/store/modules/quickTransaction";
+import { useOrder } from "@/store/modules/order";
 import { Modal } from "ant-design-vue";
 
 const open = ref<boolean>(false);
@@ -54,8 +54,9 @@ const agree = ref<boolean>(false);
 
 const emit = defineEmits(["switchClick"]);
 
-const quiTransStore = useQuiTrans();
-quiTransStore.getQuiTrans();
+const orderStore = useOrder();
+
+orderStore.getOneTrans();
 
 const handleClick = (checked: boolean) => {
   emit("switchClick");
@@ -63,13 +64,13 @@ const handleClick = (checked: boolean) => {
     open.value = true;
     return;
   }
-  quiTransStore.setQuiTrans(false);
+  orderStore.setOneTrans(false);
 };
 
 const handleOk = (e: MouseEvent) => {
   if (agree.value) {
     open.value = false;
-    quiTransStore.setQuiTrans(true);
+    orderStore.setOneTrans(true);
     return;
   }
   Modal.info({

@@ -1,6 +1,4 @@
 import { defineStore } from "pinia";
-import { createApp } from "vue";
-import FastAddOrder from "@/components/FastAddOrder.vue";
 // import i18n from "@/language/index";
 // import { LOCALE_SINGLE_LIST as lacaleList, TOOLBAR_BTN_ORDER as orders } from '@/constants/common';
 import { useChartInit } from "./chartInit";
@@ -30,21 +28,6 @@ export const useChartAction = defineStore("chartAction", {
     },
     clearCacheAction() {
       this.cacheAction = "";
-    },
-    // 添加快捷下单按钮
-    addOrderBtn(id: string) {
-      const chartInitStore = useChartInit();
-      const widget = chartInitStore.getChartWidget(id);
-      widget?.headerReady().then(() => {
-        const Button = widget.createButton();
-        Button.setAttribute("id", "chartOrderBtn");
-        const grandpa = <HTMLElement>Button.parentNode?.parentNode;
-        const separator = <HTMLElement>grandpa.nextSibling;
-        separator.remove();
-        const symbol = widget.activeChart().symbol();
-        const orderComp = createApp(FastAddOrder, { symbol, id });
-        orderComp.mount(Button);
-      });
     },
     // // 增加左上角头像
     // createAvatar(id?: string) {

@@ -150,14 +150,12 @@ import { orderChanges } from "utils/socket/operation";
 
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
-import { useQuiTrans } from "@/store/modules/quickTransaction";
 
 import EditOrderDialog from "../orderDialog/edit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
 
 const userStore = useUser();
 const orderStore = useOrder();
-const quiTransStore = useQuiTrans();
 
 interface Menu {
   label: string;
@@ -341,7 +339,7 @@ const orderClose = async (record: orders.resOrders) => {
     }
   }
 
-  if (!quiTransStore.ifQuick) {
+  if (!orderStore.ifOne) {
     Modal.confirm({
       title: "确定平仓",
       onOk() {
@@ -398,7 +396,7 @@ const delOrders = async (record: orders.resOrders) => {
     }
     message.error(res.data.err_text);
   }
-  if (!quiTransStore.ifQuick) {
+  if (!orderStore.ifOne) {
     Modal.confirm({
       title: "确定撤销",
       onOk() {

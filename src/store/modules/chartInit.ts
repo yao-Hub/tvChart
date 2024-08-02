@@ -12,6 +12,7 @@ interface State {
   chartLayoutType: "single" | "multiple";
   cacheSymbols: Record<string, string>;
   singleChartLoading: Record<string, boolean>;
+  ifInitError: boolean
 }
 
 export const useChartInit = defineStore("chartInit", {
@@ -23,6 +24,7 @@ export const useChartInit = defineStore("chartInit", {
       chartLayoutType: "multiple",
       cacheSymbols: {},
       singleChartLoading: {},
+      ifInitError: false
     };
   },
   actions: {

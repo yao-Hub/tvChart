@@ -1,9 +1,6 @@
 <template>
   <a-tooltip title="快捷交易">
-    <ThunderboltFilled
-      v-if="quiTransStore.ifQuick"
-      @click="() => debounceSetQuiTrans(false)"
-    />
+    <ThunderboltFilled v-if="orderStore.ifQuick" @click="() => debounceSetQuiTrans(false)" />
     <ThunderboltOutlined v-else @click="() => debounceSetQuiTrans(true)" />
   </a-tooltip>
 </template>
@@ -11,12 +8,15 @@
 <script setup lang="ts">
 import { ThunderboltOutlined, ThunderboltFilled } from "@ant-design/icons-vue";
 import { debounce } from "lodash";
-import { useQuiTrans } from "@/store/modules/quickTransaction";
-
-const quiTransStore = useQuiTrans();
+import { useOrder } from "@/store/modules/order";
+const orderStore = useOrder();
 
 const debounceSetQuiTrans = debounce((e: boolean) => {
-  quiTransStore.setQuiTrans(e);
+  if (e) {
+    orderStore.addOrderBtn();
+  } else {
+    orderStore.hideOrderBtn();
+  }
 }, 200);
 </script>
 
