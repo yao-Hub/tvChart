@@ -104,7 +104,7 @@ interface resPendingOrdersAdd {
   err_text: string; //	失败原因。需映射成国际化语言
 }
 
-interface reqHistoryPendingOrders {
+export interface reqHistoryPendingOrders {
   limit_id?: number; // 	挂单ID < limit_id
   begin_time?: string; // 	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
   end_time?: string; // 	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
@@ -143,7 +143,7 @@ export interface resPendingOrders {
   comment: string; //	备注评论
 }
 
-interface reqHistoryOrders {
+export interface reqHistoryOrders {
   limit_id?: number; //	挂单ID < limit_id
   open_begin_time?: string; //	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
   open_end_time?: string; //	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss

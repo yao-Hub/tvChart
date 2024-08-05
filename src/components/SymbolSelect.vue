@@ -1,13 +1,18 @@
 <template>
-  <a-select
-    v-model:value="model"
-    @change="handleChange"
-    v-bind="props.selectOption"
-  >
-    <a-select-option :value="item.symbol" v-for="item in symbols">{{
-      item.symbol
-    }}</a-select-option>
-  </a-select>
+  <div>
+    <slot></slot>
+    <a-select
+      style="width: 100px;"
+      v-model:value="model"
+      @change="handleChange"
+      v-bind="props.selectOption"
+    >
+      <a-select-option :value="item.symbol" v-for="item in symbols">{{
+        item.symbol
+      }}</a-select-option>
+    </a-select>
+  </div>
+
 </template>
 
 <script setup lang="ts">
