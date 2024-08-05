@@ -22,7 +22,7 @@
             v-model="state.pendingOrderSymbol"
             @change="debouncedGetOrderHistory"
             :selectOption="{ allowClear: true }"
-            style="width: 200px"
+            style="width: 100px"
           >
           </SymbolSelect>
         </div>
@@ -39,7 +39,7 @@
             v-model="state.orderSymbol"
             @change="debouncedGetTradingHistory"
             :selectOption="{ allowClear: true }"
-            style="width: 200px"
+            style="width: 100px"
           >
           </SymbolSelect>
         </div>

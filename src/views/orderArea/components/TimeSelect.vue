@@ -2,6 +2,7 @@
   <div>
     <slot></slot>
     <a-range-picker
+      style="width: 350px;"
       v-model:value="timeRange"
       :format="dateFormat"
       :disabledDate="disabledDate"

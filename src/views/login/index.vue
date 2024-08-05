@@ -112,7 +112,7 @@ const queryTradeLines = ref<SelectProps["options"]>([
 ]);
 
 const getLines = async () => {
-  await queryTradeLine({ lineName: "", brokerName: "" });
+  await queryTradeLine({ lineName: ""});
 };
 getLines();
 

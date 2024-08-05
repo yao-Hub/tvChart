@@ -54,7 +54,7 @@ export const passwordReset = (data: reqPasswordReset) => {
 
 interface reqQueryTradeLine {
   lineName: string; // 交易线路名称
-  brokerName: string; // 经纪商名称
+  // brokerName: string; // 经纪商名称
 }
 
 interface resQueryTradeLine {
@@ -70,6 +70,5 @@ export const queryTradeLine = (data: reqQueryTradeLine) => {
     method: "post",
     data,
     noNeedServer: true,
-    action: 'server/queryBroker'
   });
 };
