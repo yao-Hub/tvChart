@@ -69,6 +69,10 @@
 <script setup lang="ts">
 import { ref, reactive } from "vue";
 import { message } from "ant-design-vue";
+import { register } from "api/account/index";
+import { useRouter } from "vue-router";
+const router = useRouter();
+
 const options = ref<{ value: string }[]>([]);
 
 const open = ref<boolean>(false);
@@ -102,15 +106,17 @@ const account = reactive({
   pass: "abc111",
 });
 
-const onFinish = (values: any) => {
+const onFinish = async (values: any) => {
   console.log("Success:", values);
   const { agree } = values;
-
+  
   if (!agree) {
     message.warning("请同意条款");
     return;
   }
   open.value = true;
+  await register();
+  router.push({ name: 'login' });
 };
 
 import useClipboard from "vue-clipboard3";

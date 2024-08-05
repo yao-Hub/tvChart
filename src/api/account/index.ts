@@ -6,6 +6,7 @@ enum Api {
   LoginInfo = "my/login_info",
   PasswordReset = "my/password_update",
   QueryTradeLine = "server/queryTradeLine",
+  Register = "my/sign_up",
 }
 
 interface reqLogin {
@@ -69,6 +70,15 @@ export const queryTradeLine = (data: reqQueryTradeLine) => {
     url: Api.QueryTradeLine,
     method: "post",
     data,
+    noNeedServer: true,
+  });
+};
+
+// 注册
+export const register = () => {
+  return request<any>({
+    url: Api.Register,
+    method: "post",
     noNeedServer: true,
   });
 };
