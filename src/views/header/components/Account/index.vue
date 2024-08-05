@@ -23,7 +23,7 @@
         </div>
         <a-menu-item>
           <div class="item">
-            <a-button type="link">个人信息</a-button>
+            <a-button type="link" @click="showModal">个人信息</a-button>
             <a-button
               type="link"
               @click="$router.push({ name: 'resetPassword' })"
@@ -35,10 +35,19 @@
       </a-menu>
     </template>
   </a-dropdown>
+
+  <a-modal v-model:open="open" title="个人信息" @ok="handleOk">
+    <p>经纪商名称:</p>
+    <p>线路名称:</p>
+    <p>登录id:</p>
+    <p>服务器:</p>
+    <p>已连接节点:</p>
+    <p>邮箱地址:</p>
+  </a-modal>
 </template>
 
 <script setup lang="ts">
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { CaretDownOutlined, GlobalOutlined } from "@ant-design/icons-vue";
 import type { MenuProps } from "ant-design-vue";
 import { useUser } from "@/store/modules/user";
@@ -58,6 +67,14 @@ const handleMenuClick: MenuProps["onClick"] = () => {
 const logout = () => {
   userStore.clearToken();
   router.replace({ name: "login" });
+};
+
+const open = ref<boolean>(false);
+const showModal = () => {
+  open.value = true;
+};
+const handleOk = () => {
+  open.value = false;
 };
 </script>
 

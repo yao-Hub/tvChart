@@ -7,12 +7,15 @@ import type { CustomResponseType } from "#/axios";
 import { encrypt, decrypt } from "utils/DES/index";
 import { notification, message } from "ant-design-vue";
 import { useUser } from "@/store/modules/user";
-interface CustomInternalAxiosRequestConfig
-  extends InternalAxiosRequestConfig<any> {
+interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig<any> {
   needToken?: boolean;
+  noNeedServer?: boolean;
+  action?: string
 }
 interface CustomAxiosRequestConfig extends AxiosRequestConfig<any> {
   needToken?: boolean;
+  noNeedServer?: boolean;
+  action?: string
 }
 const baseURL =
   import.meta.env.MODE === "development"
@@ -44,11 +47,14 @@ service.interceptors.request.use(
       config.data.token = userStore.getToken();
       config.data.login = userStore.account.login;
     }
-    console.log("request Data", { url: config.url, data: config.data });
+    if (config.noNeedServer) {
+      delete config.data.server;
+    }
     var p = {
-      action: config.url,
+      action: config.action || config.url,
       d: encrypt(JSON.stringify(config.data)),
     };
+    console.log("request Data", { url: config.url, data: config.data, action: p.action });
     config.data = JSON.stringify(p);
     return config;
   },
@@ -76,7 +82,7 @@ service.interceptors.response.use(
 
       if (!ifTokenError) {
         message.error("登录过期，请重新登录");
-        window.location.replace(window.location.origin + '/login')
+        window.location.replace(window.location.origin + "/login");
       }
       ifTokenError = true;
       return Promise.reject(data);

@@ -4,6 +4,8 @@ import { UserInfo } from "#/store";
 enum Api {
   Login = "login",
   LoginInfo = "my/login_info",
+  PasswordReset = "my/password_update",
+  QueryTradeLine = "server/queryTradeLine",
 }
 
 interface reqLogin {
@@ -36,51 +38,6 @@ export const getLoginInfo = (data: reqLoginInfo) => {
   });
 };
 
-// 出入金
-export const balanceOrdersAdd = (data: any) => {
-  return request<any>({
-    url: "admin/balance_orders_add",
-    method: "post",
-    data,
-  });
-};
-
-// 查询账户列表
-export const logins = (data: any) => {
-  return request<any>({
-    url: "admin/logins",
-    method: "post",
-    data,
-  });
-};
-
-// 增加更新组别
-export const groupAddUpdate = (data: any) => {
-  return request<any>({
-    url: "admin/group_add_update",
-    method: "post",
-    data,
-  });
-};
-
-// 查询组别
-export const groupGet = (data: any) => {
-  return request<any>({
-    url: "admin/groups",
-    method: "post",
-    data,
-  });
-};
-
-// 添加账户
-export const loginsAdd = (data: any) => {
-  return request<any>({
-    url: "admin/logins_add",
-    method: "post",
-    data,
-  });
-};
-
 interface reqPasswordReset {
   admin_password: string;
   new_password: string;
@@ -88,9 +45,31 @@ interface reqPasswordReset {
 // 重置用户密码
 export const passwordReset = (data: reqPasswordReset) => {
   return request<any>({
-    url: "my/password_update",
+    url: Api.PasswordReset,
     method: "post",
     data,
     needToken: true,
+  });
+};
+
+interface reqQueryTradeLine {
+  lineName: string; // 交易线路名称
+  brokerName: string; // 经纪商名称
+}
+
+interface resQueryTradeLine {
+  lineName: string; // 交易线路名称
+  brokerName: string; // 经纪商名称
+  lineLogo: string	// 显示图像
+}
+
+// 查询所有交易线路
+export const queryTradeLine = (data: reqQueryTradeLine) => {
+  return request<resQueryTradeLine>({
+    url: Api.QueryTradeLine,
+    method: "post",
+    data,
+    noNeedServer: true,
+    action: 'server/queryBroker'
   });
 };

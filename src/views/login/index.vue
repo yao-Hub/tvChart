@@ -22,7 +22,7 @@
         <a-select
           show-search
           v-model:value="formState.server"
-          :options="options"
+          :options="queryTradeLines"
           :filter-option="filterOption"
         >
         </a-select>
@@ -98,7 +98,7 @@ import type { SelectProps } from "ant-design-vue";
 import { ref, reactive, computed } from "vue";
 import { UserOutlined, LockOutlined } from "@ant-design/icons-vue";
 import CryptoJS from "utils/AES";
-import { Login } from "api/account/index";
+import { Login, queryTradeLine } from "api/account/index";
 import { useUser } from "@/store/modules/user";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -107,9 +107,15 @@ const router = useRouter();
 const { t } = useI18n();
 
 const userStore = useUser();
-const options = ref<SelectProps["options"]>([
+const queryTradeLines = ref<SelectProps["options"]>([
   { value: "upway-live", label: "upway-live" },
 ]);
+
+const getLines = async () => {
+  await queryTradeLine({ lineName: "", brokerName: "" });
+};
+getLines();
+
 const filterOption = (input: string, option: any) => {
   return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
 };
