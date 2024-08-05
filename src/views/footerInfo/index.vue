@@ -135,16 +135,17 @@ const profit = computed(() => {
   left: 0;
   right: 0;
   overflow: auto;
+  display: flex;
 
   .item {
+    flex: 1;
     min-width: 100px;
-    float: left;
     border-right: 1px solid;
     @include border_color("border");
-    display: block;
     height: 30px;
     line-height: 30px;
     padding: 0 20px;
+    overflow: auto;
   }
 }
 </style>
