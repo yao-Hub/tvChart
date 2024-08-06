@@ -187,6 +187,7 @@ export const datafeed = (id: string) => {
       onSymbolResolvedCallback: Function,
       onResolveErrorCallback: Function
     ) => {
+      orderStore.currentSymbol = symbolName;
       // 获取session
       const storeSymbolInfo = chartSubStore.symbols.find(
         (e) => e.symbol === symbolName

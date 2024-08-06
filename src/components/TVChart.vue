@@ -8,6 +8,11 @@ import * as library from "public/charting_library";
 import { useI18n } from "vue-i18n";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
+import { useChartSub } from "@/store/modules/chartSub";
+
+const chartInitStore = useChartInit();
+const orderStore = useOrder();
+const chartSubStore = useChartSub();
 
 const { locale } = useI18n();
 
@@ -162,14 +167,12 @@ const initonReady = () => {
   };
   const widget = new library.widget(widgetOptions);
 
-  const chartInitStore = useChartInit();
-  const orderStore = useOrder();
-
   if (props.mainChart) {
     chartInitStore.mainId = props.chartId;
   }
   widget.onChartReady(() => {
     widget.headerReady().then(() => {
+
       chartInitStore.setChartWidget(props.chartId, widget);
 
       const chartSymbol = chartInitStore.getChartSymbol(props.chartId);
@@ -182,7 +185,7 @@ const initonReady = () => {
         });
       }
 
-      // 监听品种手动变化
+      // 监听品种变化
       widget
         .activeChart()
         .onSymbolChanged()
@@ -191,6 +194,9 @@ const initonReady = () => {
           orderStore.currentSymbol = e.name;
           chartInitStore.setChartSymbol({ symbol: e.name, id: props.chartId });
         });
+
+      chartSubStore.subscribeKeydown(widget);
+
       emit("initChart", { id: props.chartId });
     });
   });

@@ -38,7 +38,6 @@ export const useChartInit = defineStore("chartInit", {
       }
       if (foundChart) {
         foundChart.widget = widget;
-        foundChart.symbol = widget.symbolInterval().symbol;
       }
     },
 
@@ -102,6 +101,16 @@ export const useChartInit = defineStore("chartInit", {
         });
         this.singleChartLoading[item.id] = false;
       });
-    }
+    },
+
+    sortChartList(sortArr: Array<string>) {
+      const indexMap = {} as Record<string, number>;
+      sortArr.forEach((value, index) => {
+        indexMap[value] = index;
+      });
+      this.chartWidgetList.sort((obj1, obj2) => {
+        return indexMap[obj1.id] - indexMap[obj2.id];
+      });
+    },
   },
 });

@@ -78,32 +78,30 @@ export const useOrder = defineStore("order", {
       window.localStorage.setItem("ifQuick", JSON.stringify(true));
       const chartInitStore = useChartInit();
       const iframes = Array.from(document.querySelectorAll("iframe"));
-      let ifExistBtn = false;
       iframes.forEach((iframe) => {
         const iframeDocument =
           iframe.contentDocument || iframe.contentWindow!.document;
         const btn = iframeDocument.querySelector("#chartOrderBtn");
         if (btn) {
-          ifExistBtn = true;
           const grandpa = <HTMLElement>btn.parentNode?.parentNode;
           grandpa.style.display = "flex";
+          return;
         }
-      });
-      if (ifExistBtn) {
-        return;
-      }
-      chartInitStore.chartWidgetList.forEach((item) => {
-        const widget = item.widget;
-        widget?.headerReady().then(() => {
-          const Button = widget.createButton();
-          Button.setAttribute("id", "chartOrderBtn");
-          const grandpa = <HTMLElement>Button.parentNode?.parentNode;
-          const separator = <HTMLElement>grandpa.nextSibling;
-          separator.remove();
-          const symbol = widget.activeChart().symbol();
-          const orderComp = createApp(FastAddOrder, { symbol, id: item.id });
-          orderComp.mount(Button);
-        });
+        const chartItem = iframe.closest('.charts_container_item');
+        const id = chartItem?.getAttribute('id');
+        if (id) {
+          const widget = chartInitStore.getChartWidget(id);
+          widget?.headerReady().then(() => {
+            const Button = widget.createButton();
+            Button.setAttribute("id", "chartOrderBtn");
+            const grandpa = <HTMLElement>Button.parentNode?.parentNode;
+            const separator = <HTMLElement>grandpa.nextSibling;
+            separator.remove();
+            const symbol = widget.activeChart().symbol();
+            const orderComp = createApp(FastAddOrder, { symbol, id });
+            orderComp.mount(Button);
+          });
+        }
       });
     },
 
