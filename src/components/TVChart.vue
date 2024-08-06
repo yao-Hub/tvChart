@@ -7,6 +7,7 @@ import { ref, onMounted } from "vue";
 import * as library from "public/charting_library";
 import { useI18n } from "vue-i18n";
 import { useChartInit } from "@/store/modules/chartInit";
+import { useOrder } from "@/store/modules/order";
 
 const { locale } = useI18n();
 
@@ -160,15 +161,22 @@ const initonReady = () => {
     context_menu: props.contextMenu,
   };
   const widget = new library.widget(widgetOptions);
+
+  const chartInitStore = useChartInit();
+  const orderStore = useOrder();
+
+  if (props.mainChart) {
+    chartInitStore.mainId = props.chartId;
+  }
   widget.onChartReady(() => {
     widget.headerReady().then(() => {
-      const chartInitStore = useChartInit();
       chartInitStore.setChartWidget(props.chartId, widget);
-      const cacheSymbol = chartInitStore.getCacheSymbol(props.chartId);
-      if (cacheSymbol) {
-        chartInitStore.setChartSymbolWithCache(props.chartId);
+
+      const chartSymbol = chartInitStore.getChartSymbol(props.chartId);
+      if (chartSymbol) {
+        chartInitStore.setSymbolBack(props.chartId);
       } else {
-        chartInitStore.setCacheSymbol({
+        chartInitStore.setChartSymbol({
           id: props.chartId,
           symbol: props.symbol,
         });
@@ -180,14 +188,9 @@ const initonReady = () => {
         .onSymbolChanged()
         // @ts-ignore
         .subscribe(null, (e) => {
-          chartInitStore.setCacheSymbol({
-            id: props.chartId,
-            symbol: e.name,
-          });
+          orderStore.currentSymbol = e.name;
+          chartInitStore.setChartSymbol({ symbol: e.name, id: props.chartId });
         });
-      if (props.mainChart) {
-        chartInitStore.mainId = props.chartId;
-      }
       emit("initChart", { id: props.chartId });
     });
   });

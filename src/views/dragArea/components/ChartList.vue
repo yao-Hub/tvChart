@@ -109,7 +109,7 @@ onMounted(() => {
     swapThreshold: 1,
     handle: ".handle",
     onEnd: function (evt: any) {
-      chartInitStore.setChartSymbolWithCache(evt.item.id);
+      setTimeout(() => chartInitStore.setSymbolBack(), 200);
     },
   });
 });

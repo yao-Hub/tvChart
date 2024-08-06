@@ -112,7 +112,7 @@ function dragOnEnd() {
     item.remove();
   });
   resizeUpdate();
-  chartInitStore.setChartSymbolWithCache();
+  setTimeout(() => chartInitStore.setSymbolBack(), 200);
 }
 
 // 初始化拖拽实例
@@ -126,7 +126,7 @@ function initDragArea() {
 }
 
 // 拖拽区域大小
-function setDragAreaSize(setEmptyChild?: boolean) {
+function setDragAreaSize() {
   const dragArea = document.querySelector(".dragArea") as HTMLElement;
   const dragArea_items = document.querySelectorAll(
     ".dragArea_item"
@@ -134,30 +134,23 @@ function setDragAreaSize(setEmptyChild?: boolean) {
   function setSize(arr: NodeListOf<Element> | Element[]) {
     arr.forEach((item, index, arr) => {
       const element = item as HTMLElement;
-      element.style.height =
-        dragArea.getBoundingClientRect().height / arr.length -
-        1.5 * (arr.length - 1) +
-        "px";
+      element.style.height = dragArea.getBoundingClientRect().height / arr.length - 1.5 * (arr.length - 1) + "px";
       if (index > 0) {
         element.style.marginTop = "3px";
       }
     });
   }
-  if (setEmptyChild) {
-    const haveChildItems = Array.from(dragArea_items).filter(
-      (item) => item.querySelectorAll(".demo").length !== 0
-    );
-    const emptyChildItems = Array.from(dragArea_items).filter(
-      (item) => item.querySelectorAll(".demo").length === 0
-    );
-    emptyChildItems.forEach((item) => {
-      const element = item as HTMLElement;
-      element.style.height = "0";
-    });
-    setSize(haveChildItems);
-  } else {
-    setSize(dragArea_items);
-  }
+  const haveChildItems = Array.from(dragArea_items).filter(
+    (item) => item.querySelectorAll(".demo").length !== 0
+  );
+  const emptyChildItems = Array.from(dragArea_items).filter(
+    (item) => item.querySelectorAll(".demo").length === 0
+  );
+  emptyChildItems.forEach((item) => {
+    const element = item as HTMLElement;
+    element.style.height = "0";
+  });
+  setSize(emptyChildItems.length > 0 ? haveChildItems : dragArea_items);
 }
 
 function setDemoPosition() {
@@ -512,8 +505,8 @@ const debounceUpdateLayout = debounce(() => {
   operaVertLine();
 }, 20);
 
-export const resizeUpdate = debounce((layoutOpera?: boolean) => {
-  setDragAreaSize(layoutOpera);
+export const resizeUpdate = debounce(() => {
+  setDragAreaSize();
   setDemoPosition();
   operaHoriLine();
   operaVertLine();

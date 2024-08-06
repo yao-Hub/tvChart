@@ -44,9 +44,9 @@ const layoutStore = useLayout();
 const checkboxChange = async (e: any) => {
   const ifCheck = e.target.checked;
   if (ifCheck) {
-    chartInitStore.setChartSymbolWithCache();
+    setTimeout(() => chartInitStore.setSymbolBack(), 200);
   }
   await nextTick();
-  resizeUpdate(true);
+  resizeUpdate();
 };
 </script>

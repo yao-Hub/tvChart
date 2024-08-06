@@ -111,12 +111,13 @@ export const datafeed = (id: string) => {
       // 提升订单报价
       orderStore.currentQuotes[d.symbol] = d;
 
+      const currentSymbol = chartInitStore.getChartSymbol(id);
       if (!subscribed[id].symbolInfo) {
         //图表没初始化
         return;
       }
       //报价更新 最新一条柱子 实时 上下 跳动
-      if (d.symbol === subscribed[id].symbolInfo.name) {
+      if (d.symbol === currentSymbol) {
         //报价为图表当前品种的报价
         if (new_one[id].high < d.bid) {
           new_one[id].high = d.bid;
@@ -145,11 +146,11 @@ export const datafeed = (id: string) => {
         // 图表没初始化
         return;
       }
+      const currentSymbol = chartInitStore.getChartSymbol(id);
+
+      const condition = d.symbol === currentSymbol && subscribed[id].resolution == d.period_type;
       //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1},{"ctm":1715408400,"date_time":"2024-05-11 14:20:00","open":60940,"high":60956,"low":60940,"close":60956,"volume":6}]}
-      if (
-        d.symbol == subscribed[id].symbolInfo.name &&
-        subscribed[id].resolution == d.period_type
-      ) {
+      if (condition) {
         d.klines = d.klines.reverse();
         for (let i in d.klines) {
           let newlastbar = {
@@ -186,18 +187,11 @@ export const datafeed = (id: string) => {
       onSymbolResolvedCallback: Function,
       onResolveErrorCallback: Function
     ) => {
-      orderStore.currentSymbol = symbolName;
-      try {
-        chartInitStore.setChartSymbol({ symbol: symbolName, id });
-      } catch (error) {
-        console.log(error);
-      }
-
       // 获取session
-      const symbolInfo = chartSubStore.symbols.find(
+      const storeSymbolInfo = chartSubStore.symbols.find(
         (e) => e.symbol === symbolName
       );
-      const ttimes = symbolInfo ? symbolInfo.ttimes : [];
+      const ttimes = storeSymbolInfo ? storeSymbolInfo.ttimes : [];
       // 当时间为0 到 0时为关闭日
       const times = flattenDeep(Object.values(ttimes)).filter(
         (obj) => symbolName === obj.symbol && obj.btime !== obj.etime
@@ -225,8 +219,7 @@ export const datafeed = (id: string) => {
         );
         const resultTs =
           fTime.session ||
-          `${formatToSeesion(fTime.btime)}-${formatToSeesion(fTime.etime)}:${
-            Number(weekDay) + 1
+          `${formatToSeesion(fTime.btime)}-${formatToSeesion(fTime.etime)}:${Number(weekDay) + 1
           }`;
         timeArr.push(resultTs);
       }
@@ -256,7 +249,7 @@ export const datafeed = (id: string) => {
           "15",
           "30",
         ],
-        exchange: symbolInfo?.path,
+        exchange: storeSymbolInfo?.path,
       };
       setTimeout(function () {
         onSymbolResolvedCallback(symbol_stub);

@@ -56,7 +56,6 @@ onMounted(async () => {
     await getSymbols();
     await nextTick();
     userStore.initUser();
-    // orderStore.getOneTrans();
     orderStore.getQuickTrans();
     initDragResizeArea();
     chartInitStore.ifInitError = false;

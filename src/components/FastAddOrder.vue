@@ -49,7 +49,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const currentSymbol = computed(() => {
-  const chartSymbol = chartInitStore.getCacheSymbol(props.id);
+  const chartSymbol = chartInitStore.getChartSymbol(props.id);
   return chartSymbol || props.symbol;
 });
 

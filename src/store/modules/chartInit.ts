@@ -10,7 +10,6 @@ interface State {
   loading: Boolean;
   mainId: string;
   chartLayoutType: "single" | "multiple";
-  cacheSymbols: Record<string, string>;
   singleChartLoading: Record<string, boolean>;
   ifInitError: boolean
 }
@@ -22,7 +21,6 @@ export const useChartInit = defineStore("chartInit", {
       loading: false,
       mainId: "",
       chartLayoutType: "multiple",
-      cacheSymbols: {},
       singleChartLoading: {},
       ifInitError: false
     };
@@ -71,69 +69,39 @@ export const useChartInit = defineStore("chartInit", {
     },
 
     // 给chartWidgetList设置品种字段
-    setChartSymbol(params?: { id: string; symbol: string }) {
-      if (params) {
-        const { id, symbol } = params;
-        const find = this.chartWidgetList.find((e) => e.id === id);
-        if (find) {
-          find.symbol = symbol;
-        }
+    setChartSymbol(params: { id: string; symbol: string }) {
+      const { id, symbol } = params;
+      const find = this.chartWidgetList.find((e) => e.id === id);
+      if (find) {
+        find.symbol = symbol;
+      }
+    },
+
+    // 根据list的symbol字段重新设置当前图的symbol
+    setSymbolBack(id?: string) {
+      if (id) {
+        this.singleChartLoading[id] = true;
+        const symbol = this.getChartSymbol(id);
+        const widget = this.getChartWidget(id);
+        symbol && widget?.onChartReady(() => {
+          widget.headerReady().then(() => {
+            widget?.activeChart()?.setSymbol(symbol);
+          });
+        });
+        this.singleChartLoading[id] = false;
         return;
       }
       this.chartWidgetList.forEach((item) => {
-        if (item.widget) {
-          item.widget.onChartReady(() => {
-            item.widget?.headerReady().then(() => {
-              item.symbol = item.widget?.activeChart().symbol() || "";
-            });
+        this.singleChartLoading[item.id] = true;
+        const widget = item.widget;
+        const symbol = item.symbol;
+        symbol && widget?.onChartReady(() => {
+          widget.headerReady().then(() => {
+            widget.activeChart().setSymbol(symbol);
           });
-        }
+        });
+        this.singleChartLoading[item.id] = false;
       });
-    },
-
-    getCacheSymbol(id: string) {
-      return this.cacheSymbols[id];
-    },
-
-    // 设置缓存品种，不是手动触发更新品种
-    setCacheSymbol(params: { symbol: string; id: string }) {
-      const { id, symbol } = params;
-      this.cacheSymbols[id] = symbol;
-    },
-
-    // 根据缓存的品种设置当前chart品种
-    async setChartSymbolWithCache(id?: string) {
-      if (id) {
-        this.singleChartLoading[id] = true;
-      } else {
-        this.chartWidgetList.forEach((item) => {
-          this.singleChartLoading[item.id] = true;
-        });
-      }
-      setTimeout(() => {
-        if (id) {
-          const cacheSymbol = this.cacheSymbols[id];
-          const widget = this.chartWidgetList.find((e) => e.id === id)?.widget;
-          widget?.onChartReady(() => {
-            widget.headerReady().then(() => {
-              widget?.activeChart()?.setSymbol(cacheSymbol);
-            });
-          });
-          this.singleChartLoading[id] = false;
-          return;
-        }
-        this.chartWidgetList.forEach((item) => {
-          const widget = item.widget;
-          const cacheSymbol = this.cacheSymbols[item.id];
-          widget?.onChartReady(() => {
-            widget.activeChart().setSymbol(cacheSymbol);
-          });
-          this.singleChartLoading[item.id] = false;
-        });
-      }, 1000);
-    },
-    clearCacheSymbol(id: string) {
-      delete this.cacheSymbols[id];
-    },
+    }
   },
 });
