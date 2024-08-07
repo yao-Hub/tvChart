@@ -36,6 +36,7 @@
           initFill
           v-model="state.updata[activeKey].closeTime"
           @timeRange="getTableDate(activeKey)" >平仓时间：</TimeSelect>
+        <CloseOrder v-show="['position', 'order'].includes(activeKey)" :orderType="activeKey" @closeClick="closeOrders"></CloseOrder>
       </div>
       <a-table
         :dataSource="state.dataSource[activeKey]"
@@ -136,6 +137,7 @@ import { useDialog } from "@/store/modules/dialog";
 
 import EditOrderDialog from "../orderDialog/edit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
+import CloseOrder from "./components/CloseOrder.vue";
 
 const userStore = useUser();
 const orderStore = useOrder();
@@ -159,7 +161,7 @@ const state = reactive({
     order: [],
     orderHistory: [],
     transactionHistory: [],
-  } as any,
+  } as Record<orderTypes.TableDataKey, orders.resOrders[]>,
   closeDialogVisible: false,
   orderInfo: {} as orders.resOrders,
   updata: {
@@ -429,6 +431,58 @@ const orderClose = async (record: orders.resOrders) => {
     return;
   }
   foo();
+};
+
+// 批量平仓撤单
+const closeOrders = (data: orders.resOrders[], type: orderTypes.TableDataKey) => {
+  if (data.length === 0) {
+    return;
+  }
+  const closeTipMap: Record<string, string> = {
+    position: '平仓',
+    order: '撤销'
+  };
+  const preTipMap: Record<string, string> = {
+    position: '头寸',
+    order: '挂单'
+  };
+  Modal.confirm({
+    title: `${closeTipMap[type]}${preTipMap[type]}`,
+    content: `您将${closeTipMap[type]}以下选定的${data.length}个${preTipMap[type]}，您想要继续吗？`,
+    maskClosable: true,
+    async onOk() {
+      if (type === 'position') {
+        const list = data.map(item => {
+          return orders.marketOrdersClose({
+            symbol: item.symbol,
+            id: item.id,
+            volume: item.volume,
+          })
+        });
+        const res = await Promise.all(list);
+        if (res[0].data.action_success) {
+          message.success("平仓成功");
+          getOrders();
+          getTradingHistory();
+          userStore.getLoginInfo();
+        }
+      }
+      if (type === 'order') {
+        const list = data.map(item => {
+          return orders.delPendingOrders({
+            symbol: item.symbol,
+            id: item.id,
+          })
+        });
+        const res = await Promise.all(list);
+        if (res[0].data.action_success) {
+          message.success("撤销挂单成功");
+          getPendingOrders();
+          getOrderHistory();
+        }
+      }
+    },
+  });
 };
 
 // 删除挂单
