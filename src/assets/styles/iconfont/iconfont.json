@@ -1,0 +1,23 @@
+{
+  "id": "4646450",
+  "name": "utrader",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "微派",
+  "glyphs": [
+    {
+      "icon_id": "36038900",
+      "name": "横向布局-copy-copy-copy",
+      "font_class": "hengxiangbuju-copy",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "36038614",
+      "name": "横向布局-copy-copy",
+      "font_class": "hengxiangbuju",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    }
+  ]
+}

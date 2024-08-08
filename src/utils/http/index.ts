@@ -4,7 +4,8 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import type { CustomResponseType } from "#/axios";
-import { encrypt, decrypt } from "utils/DES/index";
+import { encrypt, decrypt } from "utils/DES/JS";
+import { aes_decrypt, aes_encrypt } from 'utils/DES/Node';
 import { notification, message } from "ant-design-vue";
 import { useUser } from "@/store/modules/user";
 interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig<any> {
@@ -50,11 +51,15 @@ service.interceptors.request.use(
     if (config.noNeedServer) {
       delete config.data.server;
     }
-    var p = {
-      action: config.action || config.url,
+    const action = config.action || config.url as string;
+    const p = {
+      action,
       d: encrypt(JSON.stringify(config.data)),
+
+      // Node加密
+      // d: aes_encrypt(action, JSON.stringify(config.data))
     };
-    console.log("request Data", { url: config.url, data: config.data, action: p.action });
+    console.log("request----", { data: config.data, p });
     config.data = JSON.stringify(p);
     return config;
   },
@@ -66,12 +71,16 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
-    const { data } = response;
-
+    const { data, config } = response;
     if (data.err === 0) {
       ifTokenError = false;
       data.data = JSON.parse(decrypt(data.data));
-      console.log("response Data", { url: response.config.url, data });
+
+      // Node解密
+      // const action = JSON.parse(config.data).action;
+      // @ts-ignore
+      // data.data = JSON.parse(aes_decrypt(action, data.data));
+      console.log("response....", { url: response.config.url, data });
       return response;
     }
     if (data.err === 1 && data.errmsg.includes("invalid token")) {

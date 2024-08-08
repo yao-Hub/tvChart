@@ -1,5 +1,5 @@
 <template>
-  <a-dropdown :trigger="['click']" v-model:open="visible">
+  <a-dropdown v-model:open="visible">
     <LayoutOutlined />
     <template #overlay>
       <a-menu>

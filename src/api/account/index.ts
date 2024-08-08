@@ -53,20 +53,22 @@ export const passwordReset = (data: reqPasswordReset) => {
   });
 };
 
-interface reqQueryTradeLine {
+export interface reqQueryTradeLine {
   lineName: string; // 交易线路名称
   // brokerName: string; // 经纪商名称
 }
 
-interface resQueryTradeLine {
+export interface resQueryTradeLine {
   lineName: string; // 交易线路名称
   brokerName: string; // 经纪商名称
   lineLogo: string	// 显示图像
+  brokerCode:	string	// 经纪商编码
+  lineCode:	string	// 交易线路编码
 }
 
 // 查询所有交易线路
 export const queryTradeLine = (data: reqQueryTradeLine) => {
-  return request<resQueryTradeLine>({
+  return request<resQueryTradeLine[]>({
     url: Api.QueryTradeLine,
     method: "post",
     data,

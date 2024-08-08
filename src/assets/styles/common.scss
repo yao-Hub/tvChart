@@ -163,3 +163,6 @@ body {
   @include background_color('primary');
   @include font_color('word');
 }
+.iconfont {
+  cursor: pointer;
+}

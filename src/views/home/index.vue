@@ -57,7 +57,10 @@ onMounted(async () => {
     await nextTick();
     userStore.initUser();
     orderStore.getQuickTrans();
+
+    // 初始化拖拽
     initDragResizeArea();
+
     chartInitStore.ifInitError = false;
 
     // 记忆动作

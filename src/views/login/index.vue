@@ -22,7 +22,8 @@
         <a-select
           show-search
           v-model:value="formState.server"
-          :options="queryTradeLines"
+          :options="state.queryTradeLines"
+          :field-names="{ label: 'lineName', value: 'lineCode' }"
           :filter-option="filterOption"
         >
         </a-select>
@@ -94,11 +95,10 @@
 
 <script setup lang="ts">
 import { message } from "ant-design-vue";
-import type { SelectProps } from "ant-design-vue";
-import { ref, reactive, computed } from "vue";
+import { reactive, computed } from "vue";
 import { UserOutlined, LockOutlined } from "@ant-design/icons-vue";
 import CryptoJS from "utils/AES";
-import { Login, queryTradeLine } from "api/account/index";
+import { Login, queryTradeLine, resQueryTradeLine } from "api/account/index";
 import { useUser } from "@/store/modules/user";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -107,12 +107,25 @@ const router = useRouter();
 const { t } = useI18n();
 
 const userStore = useUser();
-const queryTradeLines = ref<SelectProps["options"]>([
-  { value: "upway-live", label: "upway-live" },
-]);
+
+interface State {
+  queryTradeLines: resQueryTradeLine[];
+}
+const state: State = reactive({
+  queryTradeLines: [
+    {
+      lineCode: "upway-live",
+      lineName: "upway-live",
+      brokerName: "",
+      lineLogo: "",
+      brokerCode: "",
+    },
+  ],
+});
 
 const getLines = async () => {
-  await queryTradeLine({ lineName: ""});
+  const res = await queryTradeLine({ lineName: "" });
+  state.queryTradeLines = res.data;
 };
 getLines();
 
@@ -192,6 +205,7 @@ const disabled = computed(() => {
   padding-top: 100px;
   box-sizing: border-box;
   overflow: hidden;
+
   &_title {
     display: flex;
     flex-direction: column;

@@ -1,19 +1,34 @@
 <template>
   <div class="header">
     <div class="header__left">
+      <!-- 菜单 -->
       <Menu></Menu>
+      <!-- 订单 -->
       <a-tooltip :title="`${$t('shortcutkey')}: F9`">
         <a-button type="link" @click="orderStore.createOrder()">{{
           $t("order.new")
         }}</a-button>
       </a-tooltip>
+      <!-- 布局显隐 -->
       <LayoutVisibled></LayoutVisibled>
+      <!-- 快速交易 -->
       <FastTransation></FastTransation>
+      <a-divider type="vertical" style="background-color: #525252; height: 18px;"/>
+      <!-- 单图 -->
       <a-tooltip :title="$t('SingleImageMode')">
         <BorderOutlined @click="chartInitStore.chartLayoutType = 'single'" />
       </a-tooltip>
+      <!-- 多图 -->
       <a-tooltip :title="$t('MultiGrapMode')">
         <AppstoreFilled @click="chartInitStore.chartLayoutType = 'multiple'" />
+      </a-tooltip>
+      <!-- 纵向布局 -->
+      <a-tooltip title="纵向布局">
+        <i class="iconfont" style="font-size: 14px;">&#xe601;</i>
+      </a-tooltip>
+      <!-- 横向布局 -->
+      <a-tooltip title="横向布局">
+        <i class="iconfont" style="font-size: 14px;">&#xe600;</i>
       </a-tooltip>
     </div>
     <div class="header__right">

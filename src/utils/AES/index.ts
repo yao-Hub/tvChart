@@ -1,16 +1,5 @@
 import CryptoJS from "crypto-js";
 
-// function generateUUID() {
-//   const crypto = window.crypto;
-//   const array = new Uint32Array(4);
-//   crypto.getRandomValues(array);
-//   let uuid = "";
-//   array.forEach(function(value) {
-//     uuid += value.toString(16);
-//   });
-//   return uuid;
-// }
-
 const passphrase = "@2o25UtrA#de$";
 
 // 加密函数

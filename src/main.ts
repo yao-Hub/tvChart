@@ -4,6 +4,7 @@ import App from "./App.vue";
 import { setupRouter } from "./router";
 import { setupStore } from "./store";
 import "./assets/styles/common.scss";
+import "./assets/styles/iconfont/iconfont.css";
 
 /**
  * 定义启动初始化函数
