@@ -33,7 +33,6 @@ interface reqRegister {
   server: string; //	经纪商交易线路编码
   email: string; //	邮箱
   verify_code: string; //	验证码 目前只支持 888888
-  device_id: string; 
 }
 // 注册
 export const register = (data: reqRegister) => {

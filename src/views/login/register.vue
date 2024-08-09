@@ -15,7 +15,6 @@
           v-model:value="formState.server"
           :options="queryTradeLines"
           :field-names="{ label: 'lineName', value: 'lineCode' }"
-          :filter-option="filterOption"
         >
         </a-select>
       </a-form-item>
@@ -26,7 +25,6 @@
           v-model:value="formState.queryNode"
           :options="networkStore.nodeList"
           :field-names="{ label: 'nodeName', value: 'nodeName' }"
-          :filter-option="filterOption"
         >
         </a-select>
       </a-form-item>
@@ -170,9 +168,9 @@ const getLines = async () => {
   queryTradeLines.value = res.data;
 };
 getLines();
-const filterOption = (input: string, option: any) => {
-  return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-};
+// const filterOption = (input: string, option: any) => {
+//   return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+// };
 
 // 获取网络节点
 import { useNetwork } from "@/store/modules/network";
@@ -207,7 +205,6 @@ const onFinish = async (values: any) => {
     server,
     email,
     verify_code: code,
-    device_id: code
   });
   console.log(res);
   open.value = true;
