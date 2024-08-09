@@ -77,6 +77,7 @@ export default {
       stopLimit: "stopLimit",
     },
     tradingRoute: "trading route",
+    queryNode: "query node"
   },
 
   tip: {

@@ -5,9 +5,10 @@ import { getLoginInfo } from "api/account/index";
 import { sendToken } from "utils/socket/operation";
 
 interface State {
-  account: Pick<UserInfo, "login" | "password"> & { server: string };
+  account: Pick<UserInfo, "login" | "password"> & { server: string, node: string };
   ifLogin: Boolean;
   loginInfo: UserInfo | null;
+  
 }
 
 export const useUser = defineStore("user", {
@@ -16,6 +17,7 @@ export const useUser = defineStore("user", {
       login: "",
       password: "",
       server: "",
+      node: "",
     },
     ifLogin: false,
     loginInfo: null,

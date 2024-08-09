@@ -77,6 +77,7 @@ export default {
       stopLimit: "止损限价单",
     },
     tradingRoute: "交易线路",
+    queryNode: "交易节点",
   },
 
   tip: {

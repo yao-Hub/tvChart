@@ -4,35 +4,53 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import type { CustomResponseType } from "#/axios";
-import { encrypt, decrypt } from "utils/DES/JS";
-import { aes_decrypt, aes_encrypt } from 'utils/DES/Node';
+// import { encrypt, decrypt } from "utils/DES/JS";
+import { aes_decrypt, aes_encrypt } from "utils/DES/Node";
 import { notification, message } from "ant-design-vue";
 import { useUser } from "@/store/modules/user";
-interface CustomInternalAxiosRequestConfig extends InternalAxiosRequestConfig<any> {
+import { useNetwork } from "@/store/modules/network";
+
+interface CustomInternalAxiosRequestConfig
+  extends InternalAxiosRequestConfig<any> {
   needToken?: boolean;
   noNeedServer?: boolean;
-  action?: string
+  action?: string;
+  urlType?: string;
 }
 interface CustomAxiosRequestConfig extends AxiosRequestConfig<any> {
   needToken?: boolean;
   noNeedServer?: boolean;
-  action?: string
+  action?: string;
+  urlType?: string;
 }
-const baseURL =
-  import.meta.env.MODE === "development"
-    ? import.meta.env.VITE_HTTP_BASE_URL
-    : import.meta.env.VITE_HTTP_URL;
-console.log(import.meta.env.MODE, baseURL);
 
 let ifTokenError = false;
 
+function generateUUID() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+  });
+}
+let uuid;
+const storageId = window.localStorage.getItem('uuid');
+if (storageId) {
+  uuid = storageId;
+} else {
+  uuid = generateUUID();
+  window.localStorage.setItem('uuid', uuid)
+}
+
 const service = axios.create({
-  baseURL,
   timeout: 30 * 1000,
   // 请求是否携带cookie
   withCredentials: false,
   headers: {
     "Content-Type": "application/json",
+    "x-u-app-version": "1.0.0",
+    "version": "1.0.0",
+    "x-u-device-id": uuid,
+    "x-u-platform": "web",
   },
 });
 
@@ -42,24 +60,43 @@ service.interceptors.request.use(
     const userStore = useUser();
     config.data = {
       ...config.data,
-      server: userStore.account.server || "upway-live",
     };
+    if (!config.data.server && !config.noNeedServer) {
+      config.data.server = userStore.account.server;
+    }
     if (config.needToken) {
       config.data.token = userStore.getToken();
       config.data.login = userStore.account.login;
     }
-    if (config.noNeedServer) {
-      delete config.data.server;
-    }
-    const action = config.action || config.url as string;
+    const action = config.action || config.url || "";
     const p = {
       action,
-      d: encrypt(JSON.stringify(config.data)),
+      // d: encrypt(JSON.stringify(config.data)),
 
       // Node加密
-      // d: aes_encrypt(action, JSON.stringify(config.data))
+      d: aes_encrypt(action, JSON.stringify(config.data)),
     };
-    console.log("request----", { data: config.data, p });
+
+    const networkStore = useNetwork();
+    let baseURL = "";
+    switch (config.urlType) {
+      case "admin":
+        baseURL =
+          import.meta.env.MODE === "development"
+            ? import.meta.env.VITE_HTTP_BASE_URL_admin
+            : import.meta.env.VITE_HTTP_URL_admin;
+        break;
+      default:
+        baseURL =
+          import.meta.env.MODE === "development"
+            ? import.meta.env.VITE_HTTP_BASE_URL_client
+            : networkStore.currentNode?.webApi ||
+              import.meta.env.VITE_HTTP_URL_client;
+        break;
+    }
+    config.url = baseURL + config.url;
+
+    console.log("request----", { url: config.url, data: config.data, p });
     config.data = JSON.stringify(p);
     return config;
   },
@@ -72,14 +109,15 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     const { data, config } = response;
+    // const { data } = response;
     if (data.err === 0) {
       ifTokenError = false;
-      data.data = JSON.parse(decrypt(data.data));
+      // data.data = JSON.parse(decrypt(data.data));
 
       // Node解密
-      // const action = JSON.parse(config.data).action;
+      const action = JSON.parse(config.data).action;
       // @ts-ignore
-      // data.data = JSON.parse(aes_decrypt(action, data.data));
+      data.data = JSON.parse(aes_decrypt(action, data.data));
       console.log("response....", { url: response.config.url, data });
       return response;
     }
@@ -103,10 +141,10 @@ service.interceptors.response.use(
     return Promise.reject(data);
   },
   (err) => {
-    const { status } = err.response;
+    const { status, data } = err.response;
     notification["error"]({
       message: err.name || "request error",
-      description: err.message || `statusCode: ${status}`,
+      description: data.errmsg || err.message || `statusCode: ${status}`,
     });
     // 根据返回的http状态码做不同的处理，比如错误提示等 TODO
     switch (status) {

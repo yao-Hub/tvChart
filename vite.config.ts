@@ -50,10 +50,17 @@ export default defineConfig((mode: ConfigEnv) => {
       disableHostCheck: true,
       port: 8080,
       proxy: {
-        [env.VITE_HTTP_BASE_URL]: {
-          target: env.VITE_HTTP_URL,
+        [env.VITE_HTTP_BASE_URL_admin]: {
+          target: env.VITE_HTTP_URL_admin,
           changeOrigin: true,
-          rewrite: path => path.replace(new RegExp('^' + env.VITE_HTTP_BASE_URL), '')
+          rewrite: path => path.replace(new RegExp('^' + env.VITE_HTTP_BASE_URL_admin), '')
+        },
+        [env.VITE_HTTP_BASE_URL_client]: {
+          target: env.VITE_HTTP_URL_client,
+          changeOrigin: true,
+          rewrite: path => {
+            return path.replace(new RegExp('^' + env.VITE_HTTP_BASE_URL_client), '')
+          }
         }
       }
     }

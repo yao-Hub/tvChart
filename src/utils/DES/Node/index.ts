@@ -3,7 +3,6 @@ import sha256 from 'crypto-js/sha256';
 
 const iv = new TextEncoder().encode("1234567890000000");
 const DEFAULT_SECRET_KEY = "@kArs0n2q25*Tr0d2Ru";
-console.log(iv);
 export function aes_decrypt(tcrypto_key: string, secretdata: string) {
   try {
     const cryptkey = sha256(tcrypto_key + DEFAULT_SECRET_KEY);
