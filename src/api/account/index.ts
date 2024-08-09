@@ -34,12 +34,17 @@ interface reqRegister {
   email: string; //	邮箱
   verify_code: string; //	验证码 目前只支持 888888
 }
+interface resRegister {
+  login: string;
+  password: string;
+}
 // 注册
 export const register = (data: reqRegister) => {
-  return request<any>({
+  return request<resRegister>({
     url: Api.Register,
     method: "post",
     data,
+    urlType: "admin",
   });
 };
 

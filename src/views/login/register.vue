@@ -9,26 +9,6 @@
       :rules="rules"
       @finish="onFinish"
     >
-      <a-form-item name="server" :label="$t('order.tradingRoute')">
-        <a-select
-          show-search
-          v-model:value="formState.server"
-          :options="queryTradeLines"
-          :field-names="{ label: 'lineName', value: 'lineCode' }"
-        >
-        </a-select>
-      </a-form-item>
-
-      <a-form-item name="queryNode" :label="$t('order.queryNode')">
-        <a-select
-          show-search
-          v-model:value="formState.queryNode"
-          :options="networkStore.nodeList"
-          :field-names="{ label: 'nodeName', value: 'nodeName' }"
-        >
-        </a-select>
-      </a-form-item>
-
       <a-form-item :label="$t('user.email')" name="email">
         <a-auto-complete
           v-model:value="formState.email"
@@ -80,42 +60,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from "vue";
+import { ref, reactive } from "vue";
 import { message } from "ant-design-vue";
-import {
-  register,
-  queryTradeLine,
-  resQueryTradeLine,
-  queryNode,
-} from "api/account/index";
+import { register } from "api/account/index";
 import type { Rule } from "ant-design-vue/es/form";
 
-const checkNode = async (_rule: Rule, value: string) => {
-  if (value === "") {
-    return Promise.reject("Please select queryNode!");
-  } else {
-    if (formState.server === "") {
-      return Promise.reject("Please select server!");
-    }
-    return Promise.resolve();
-  }
-};
-
 const rules: Record<string, Rule[]> = {
-  server: [
-    {
-      required: true,
-      trigger: "change",
-      message: "Please select tradingRoute!",
-    },
-  ],
-  queryNode: [
-    {
-      required: true,
-      trigger: "change",
-      validator: checkNode,
-    },
-  ],
   email: [
     {
       required: true,
@@ -150,43 +100,16 @@ interface FormState {
   code: string;
   agree: boolean;
   server: string;
-  queryNode: string
+  queryNode: string;
 }
 
 const formState = reactive<FormState>({
   code: "",
   email: "",
-  agree: true,
+  agree: false,
   server: "",
   queryNode: "",
 });
-
-// 获取交易线路
-const queryTradeLines = ref<resQueryTradeLine[]>([]);
-const getLines = async () => {
-  const res = await queryTradeLine({});
-  queryTradeLines.value = res.data;
-};
-getLines();
-// const filterOption = (input: string, option: any) => {
-//   return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-// };
-
-// 获取网络节点
-import { useNetwork } from "@/store/modules/network";
-const networkStore = useNetwork();
-watch(
-  () => formState.server,
-  () => {
-    getNodes();
-  }
-);
-const getNodes = async () => {
-  const res = await queryNode({
-    lineCode: formState.server,
-  });
-  networkStore.nodeList = res.data;
-};
 
 const account = reactive({
   name: "",
@@ -195,18 +118,18 @@ const account = reactive({
 
 const open = ref<boolean>(false);
 const onFinish = async (values: any) => {
-  const { agree, code, email, server, queryNode } = values;
+  const { agree, code, email } = values;
   if (!agree) {
     message.warning("请同意条款");
     return;
   }
-  networkStore.nodeName = queryNode;
   const res = await register({
-    server,
+    server: "upway-live",
     email,
     verify_code: code,
   });
-  console.log(res);
+  account.name = res.data.login;
+  account.pass = res.data.password;
   open.value = true;
 };
 
@@ -247,7 +170,7 @@ const copy = async () => {
   gap: 40px;
   &_account {
     display: flex;
-    width: 300px;
+    gap: 10px;
     justify-content: space-between;
     align-items: center;
   }
