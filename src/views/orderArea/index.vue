@@ -129,11 +129,11 @@ import { tableColumns } from "./config";
 import { round } from "utils/common/index";
 import { getTradingDirection, getOrderType } from "utils/order/index";
 import { CLOSE_TYPE } from "@/constants/common";
-import { orderChanges } from "utils/socket/operation";
 
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
+import { useSocket } from "@/store/modules/socket";
 
 import EditOrderDialog from "../orderDialog/edit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
@@ -142,6 +142,7 @@ import CloseOrder from "./components/CloseOrder.vue";
 const userStore = useUser();
 const orderStore = useOrder();
 const dialogStore = useDialog();
+const socketStore = useSocket();
 
 interface Menu {
   label: string;
@@ -269,7 +270,7 @@ onMounted(() => {
   debouncedGetPendingOrders();
   debouncedGetTradingHistory();
   debouncedGetOrderHistory();
-  orderChanges((type: string) => {
+  socketStore.orderChanges((type: string) => {
     switch (type) {
       case "order_opened":
         getOrders();

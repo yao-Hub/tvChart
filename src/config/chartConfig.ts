@@ -1,16 +1,17 @@
 import { flattenDeep, groupBy, orderBy, get, cloneDeep } from "lodash";
 import moment from "moment";
-import { socket } from "@/utils/socket/operation";
 import { klineHistory } from "api/kline/index";
 import * as types from "@/types/chart/index";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useOrder } from "@/store/modules/order";
+import { useSocket } from "@/store/modules/socket";
 import { RESOLUTES } from "@/constants/common";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const orderStore = useOrder();
+const socketStore = useSocket();
 
 const countOptions: any = {
   "1D": "days",
@@ -107,7 +108,7 @@ export const datafeed = (id: string) => {
   // 报价和k线图的socket监听
   function socketOpera() {
     // 监听报价
-    socket.on("quote", function (d) {
+    socketStore.socket.on("quote", function (d: any) {
       // 提升订单报价
       orderStore.currentQuotes[d.symbol] = d;
 
@@ -137,7 +138,7 @@ export const datafeed = (id: string) => {
       }
     });
     // 监听k线
-    socket.on("kline_new", function (d) {
+    socketStore.socket.on("kline_new", function (d: any) {
       // 提升k线数据
       const klines = cloneDeep(d.klines);
       orderStore.currentKline = { ...klines.reverse().pop(), symbol: d.symbol };

@@ -116,5 +116,6 @@ export const queryNode = (data: { lineCode: string }) => {
     method: "post",
     data,
     urlType: "admin",
+    noNeedServer: true,
   });
 };

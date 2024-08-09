@@ -31,6 +31,7 @@ const dragOption = {
 
 // 增加拖拽区域
 function createDragAreaItem(parentDom: Element, position: "down" | "up") {
+  // 查找数字，如[0, 2]找到1，如[0, 1]找到2，递增div的grag_id
   function findMissingNumber(nums: number[]) {
     const arr = nums.sort();
     let expectedNum = 1;
@@ -44,6 +45,7 @@ function createDragAreaItem(parentDom: Element, position: "down" | "up") {
     return expectedNum;
   }
 
+  // 根据grag_id属性递增增加类为dragArea_item的div（保证id有序方便与vuex对应上）
   const items = document.querySelectorAll(".dragArea_item");
   const dragIds = Array.from(items).map((item) => {
     const dragId = item.getAttribute("grag_id");
@@ -59,6 +61,8 @@ function createDragAreaItem(parentDom: Element, position: "down" | "up") {
   drag.style.width = "100%";
   drag.style.boxSizing = "border-box";
   drag.setAttribute("grag_id", dragIdName);
+
+  // 根据是向上拖拽还是向下拖拽判断是在div的上面还是下面增加div
   if (position === "down") {
     parentDom.parentNode?.insertBefore(drag, parentDom.nextSibling);
   }
@@ -80,6 +84,7 @@ function dragOnStart(evt: any) {
   const fromDomBottom = fromDom.getBoundingClientRect().bottom;
   const fromDomDemos = fromDom.querySelectorAll(".demo").length;
 
+  // 判断是否增加多层拖拽区域，有几个demo就有最多几个拖拽层（dragArea_item）
   evt.item.ondrag = (e: MouseEvent) => {
     const itemsNum = document.querySelectorAll(".dragArea_item").length;
     if (demosNum === itemsNum || fromDomDemos <= 1) {
@@ -103,6 +108,8 @@ function dragOnEnd() {
   const emptyChildItems = Array.from(dragArea_items).filter(
     (item) => item.querySelectorAll(".demo").length === 0
   );
+
+  // 没有demo的拖拽区域移除
   emptyChildItems.forEach((item) => {
     const gragId = item.getAttribute("grag_id");
     if (gragId) {
@@ -112,6 +119,8 @@ function dragOnEnd() {
     item.remove();
   });
   resizeUpdate();
+
+  // 图表区域会因为拖拽重新初始化，需要重新更新图表最新的状态
   setTimeout(() => chartInitStore.setSymbolBack(), 200);
 }
 
@@ -134,6 +143,7 @@ function setDragAreaSize() {
   function setSize(arr: NodeListOf<Element> | Element[]) {
     arr.forEach((item, index, arr) => {
       const element = item as HTMLElement;
+      // 整个区域的高度 / demo的数量 - 拉伸线的高度 * 拉伸线的数量（dragArea_item的数量 - 1）
       element.style.height = dragArea.getBoundingClientRect().height / arr.length - 1.5 * (arr.length - 1) + "px";
       if (index > 0) {
         element.style.marginTop = "3px";
@@ -153,6 +163,7 @@ function setDragAreaSize() {
   setSize(emptyChildItems.length > 0 ? haveChildItems : dragArea_items);
 }
 
+// 设置demo的位置
 function setDemoPosition() {
   const dragArea = document.querySelector(".dragArea") as HTMLElement;
   const dragArea_items = document.querySelectorAll(
@@ -545,4 +556,25 @@ export function initDragResizeArea() {
   operaVertLine();
   observerDom();
   window.addEventListener("resize", () => resizeUpdate());
+}
+
+// 横向布局
+export function horizontalLayout () {
+  const demos = document.querySelectorAll('.demo');
+  const items = document.querySelectorAll('.dragArea_item');
+  const dh = demos.length;
+  const ih = items.length;
+  if (dh === ih) {
+    return;
+  }
+  const needAddItemNum = dh - ih;
+  for (let index = 0; index < needAddItemNum; index++) {
+    // createDragAreaItem()
+    // const lastItem = 
+  }
+}
+
+// 纵向布局
+export function verticalLayout () {
+
 }

@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
 import { assign } from "lodash";
 import { uniq, difference } from "lodash";
-import { subscribeSocket, unsubscribeSocket } from "utils/socket/operation";
 import { SessionSymbolInfo, TVSymbolInfo } from "@/types/chart/index";
 import { keydownList } from "utils/keydown";
 import { useChartInit } from "./chartInit";
 import { useDialog } from "./dialog";
 import { useOrder } from "./order";
+import { useSocket } from "@/store/modules/socket";
 
 import { allSymbolQuotes } from "api/symbols/index";
 
@@ -37,9 +37,11 @@ export const useChartSub = defineStore("chartSub", {
   actions: {
     async setSymbols(list: SessionSymbolInfo[]) {
       const orderStore = useOrder();
+      const socketStore = useSocket();
+
       this.symbols = list;
       list.forEach((item) => {
-        subscribeSocket({ resolution: "1", symbol: item.symbol });
+        socketStore.subscribeSocket({ resolution: "1", symbol: item.symbol });
       });
       const resQuotes = await allSymbolQuotes();
       resQuotes.data.forEach((item) => {
@@ -48,6 +50,7 @@ export const useChartSub = defineStore("chartSub", {
     },
     // 设置必须监听品种
     setMustSubscribeList(sources: Array<string>) {
+      const socketStore = useSocket();
       const barsCacheSymbols: Array<string> = [];
       this.barsCache.forEach((item) => {
         barsCacheSymbols.push(item.name);
@@ -55,24 +58,26 @@ export const useChartSub = defineStore("chartSub", {
       const nowsubList = uniq([...this.mustSubscribeList, ...barsCacheSymbols]);
       const subList = difference(sources, nowsubList);
       subList.forEach((item) => {
-        subscribeSocket({ resolution: "1", symbol: item });
+        socketStore.subscribeSocket({ resolution: "1", symbol: item });
       });
       this.mustSubscribeList = uniq([...this.mustSubscribeList, ...sources]);
     },
 
     // k线图监听k线和报价
     subscribeKline(args: TurnSocket) {
+      const socketStore = useSocket();
       const { subscriberUID, symbolInfo, resolution } = args;
       this.barsCache.set(subscriberUID, {
         ...symbolInfo,
         resolution,
       });
-      subscribeSocket({ resolution, symbol: symbolInfo.name });
+      socketStore.subscribeSocket({ resolution, symbol: symbolInfo.name });
     },
     // k线图取消监听k线和报价
     unsubscribeKline(subscriberUID: string) {
+      const socketStore = useSocket();
       const { resolution, name } = this.barsCache.get(subscriberUID);
-      unsubscribeSocket({ resolution, symbol: name });
+      socketStore.unsubscribeSocket({ resolution, symbol: name });
       this.barsCache.delete(subscriberUID);
     },
     // 监听点击报价加号按钮（显示加号菜单）

@@ -18,11 +18,13 @@
 import { reactive, onMounted, nextTick } from "vue";
 import { Modal } from "ant-design-vue";
 
+import { useSocket } from "@/store/modules/socket";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
-import { useRoot } from "@/store/store";
+import { useNetwork } from "@/store/modules/network";
+// import { useRoot } from "@/store/store";
 
 import { allSymbols } from "api/symbols/index";
 import { initDragResizeArea } from "utils/dragResize/index";
@@ -37,6 +39,8 @@ const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const userStore = useUser();
 const orderStore = useOrder();
+const networkStore = useNetwork();
+const socketStore = useSocket();
 
 const state = reactive({
   symbol: "XAU",
@@ -53,22 +57,23 @@ const getSymbols = async () => {
 onMounted(async () => {
   try {
     chartInitStore.loading = true;
-    await getSymbols();
-    await nextTick();
-    userStore.initUser();
+    chartInitStore.ifInitError = false;
+    networkStore.initNode();
+    socketStore.initSocket();
     orderStore.getQuickTrans();
+    await nextTick();
+    await userStore.initUser();
+    await getSymbols();
 
     // 初始化拖拽
     initDragResizeArea();
 
-    chartInitStore.ifInitError = false;
-
     // 记忆动作
-    const rootStore = useRoot();
-    if (rootStore.cacheAction) {
-      rootStore[rootStore.cacheAction]();
-      rootStore.clearCacheAction();
-    }
+    // const rootStore = useRoot();
+    // if (rootStore.cacheAction) {
+    //   rootStore[rootStore.cacheAction]();
+    //   rootStore.clearCacheAction();
+    // }
   } catch (error) {
     chartInitStore.ifInitError = true;
     Modal.error({

@@ -2,13 +2,14 @@ import { defineStore } from "pinia";
 import { UserInfo } from "#/store";
 import CryptoJS from "utils/AES";
 import { getLoginInfo } from "api/account/index";
-import { sendToken } from "utils/socket/operation";
+import { useSocket } from "@/store/modules/socket";
 
 interface State {
-  account: Pick<UserInfo, "login" | "password"> & { server: string, node: string };
-  ifLogin: Boolean;
+  account: Pick<UserInfo, "login" | "password"> & {
+    server: string;
+    queryNode: string;
+  };
   loginInfo: UserInfo | null;
-  
 }
 
 export const useUser = defineStore("user", {
@@ -17,23 +18,21 @@ export const useUser = defineStore("user", {
       login: "",
       password: "",
       server: "",
-      node: "",
+      queryNode: "",
     },
-    ifLogin: false,
     loginInfo: null,
   }),
   actions: {
-    initUser() {
-      this.ifLogin = !!this.getToken();
+    async initUser() {
       const account = window.localStorage.getItem("account");
       if (account) {
         const parseAccount = JSON.parse(account);
         this.account.login = CryptoJS.decrypt(parseAccount.login);
         this.account.password = CryptoJS.decrypt(parseAccount.password);
+        this.account.server = CryptoJS.decrypt(parseAccount.server);
+        // this.account.queryNode = CryptoJS.decrypt(parseAccount.queryNode);
       }
-      if (this.ifLogin) {
-        this.getLoginInfo(true);
-      }
+      await this.getLoginInfo(true);
     },
     getToken() {
       let result = "";
@@ -52,12 +51,13 @@ export const useUser = defineStore("user", {
       window.localStorage.removeItem("token");
     },
     async getLoginInfo(emitSocket?: boolean) {
+      const socketStore = useSocket();
       const res = await getLoginInfo({
         login: this.account.login,
       });
       this.loginInfo = res.data;
       if (emitSocket) {
-        sendToken(res.data.login, this.getToken());
+        socketStore.sendToken(res.data.login, this.getToken());
       }
     },
   },

@@ -19,7 +19,8 @@
         <a-select
           show-search
           v-model:value="formState.server"
-          :options="queryTradeLines"
+          :options="networkStore.queryTradeLines"
+          :filter-option="filterOption"
           :field-names="{ label: 'lineName', value: 'lineCode' }"
         >
         </a-select>
@@ -92,22 +93,17 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, ref, watch } from "vue";
+import { reactive, computed, watch } from "vue";
 import { message } from "ant-design-vue";
 import { UserOutlined, LockOutlined } from "@ant-design/icons-vue";
 import type { Rule } from "ant-design-vue/es/form";
-import CryptoJS from "utils/AES";
-import {
-  Login,
-  queryTradeLine,
-  resQueryTradeLine,
-  queryNode,
-} from "api/account/index";
-import { useUser } from "@/store/modules/user";
-import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-const router = useRouter();
+import { useI18n } from "vue-i18n";
+import CryptoJS from "utils/AES";
+import { Login } from "api/account/index";
+import { useUser } from "@/store/modules/user";
 
+const router = useRouter();
 const { t } = useI18n();
 
 const userStore = useUser();
@@ -170,62 +166,47 @@ const formState = reactive<FormState>({
   queryNode: "",
 });
 
-// 获取交易线路
-const queryTradeLines = ref<resQueryTradeLine[]>([]);
-const getLines = async () => {
-  const res = await queryTradeLine({});
-  queryTradeLines.value = res.data;
-};
-getLines();
-// const filterOption = (input: string, option: any) => {
-//   return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-// };
 
 // 获取网络节点
 import { useNetwork } from "@/store/modules/network";
 const networkStore = useNetwork();
+networkStore.getLines();
+const filterOption = (input: string, option: any) => {
+  const regex = new RegExp(input.split("").join(".*"), "i");
+  return regex.test(option.label);
+};
 watch(
   () => formState.server,
-  () => {
-    getNodes();
+  (val) => {
+    if (val) {
+      networkStore.getNodes(val);
+    }
   }
 );
-const getNodes = async () => {
-  const res = await queryNode({
-    lineCode: formState.server,
-  });
-  networkStore.nodeList = res.data;
-};
-
 
 // 记住密码自动填充
 const ifRemember = window.localStorage.getItem("remember");
 if (ifRemember) {
   const account = window.localStorage.getItem("account");
   const parseAccount = account ? JSON.parse(account) : {};
-  for (const i in formState) {
-    const storageItem = parseAccount[i];
-    if (storageItem) {
-      // @ts-ignore
-      formState[i] = CryptoJS.decrypt(storageItem);
-    }
-  }
+  formState.server = CryptoJS.decrypt(parseAccount.server || "");
+  formState.login = CryptoJS.decrypt(parseAccount.login);
+  formState.password = CryptoJS.decrypt(parseAccount.password);
+  formState.queryNode = CryptoJS.decrypt(parseAccount.queryNode || "");
 }
 
 const onFinish = async (values: any) => {
   try {
     formState.logging = true;
     const { login, remember, password, server, queryNode } = values;
-
     networkStore.nodeName = queryNode;
     const res = await Login({ password, login, server });
     message.success(t("tip.succeed", { type: t("account.login") }));
     userStore.setToken(res.data.token);
-    userStore.ifLogin = true;
     userStore.account.password = password;
     userStore.account.login = login;
     userStore.account.server = server;
-    userStore.account.node = queryNode;
+    // userStore.account.node = getLineCode();
     const enlogin = CryptoJS.encrypt(login);
     const enpassword = CryptoJS.encrypt(password);
     const enserver = CryptoJS.encrypt(server);
@@ -234,7 +215,7 @@ const onFinish = async (values: any) => {
       login: enlogin,
       password: enpassword,
       server: enserver,
-      node: enNode
+      queryNode: enNode,
     };
     window.localStorage.setItem("account", JSON.stringify(storage));
     window.localStorage.setItem("remember", JSON.stringify(remember));

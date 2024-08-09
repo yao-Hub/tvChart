@@ -27,18 +27,19 @@ interface CustomAxiosRequestConfig extends AxiosRequestConfig<any> {
 let ifTokenError = false;
 
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-      return v.toString(16);
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
   });
 }
 let uuid;
-const storageId = window.localStorage.getItem('uuid');
+const storageId = window.localStorage.getItem("uuid");
 if (storageId) {
   uuid = storageId;
 } else {
   uuid = generateUUID();
-  window.localStorage.setItem('uuid', uuid)
+  window.localStorage.setItem("uuid", uuid);
 }
 
 const service = axios.create({
@@ -48,7 +49,7 @@ const service = axios.create({
   headers: {
     "Content-Type": "application/json",
     "x-u-app-version": "1.0.0",
-    "version": "1.0.0",
+    version: "1.0.0",
     "x-u-device-id": uuid,
     "x-u-platform": "web",
   },
@@ -79,7 +80,7 @@ service.interceptors.request.use(
       // Node加密
       d: aes_encrypt(action, JSON.stringify(config.data)),
     };
-    
+
     const networkStore = useNetwork();
     let baseURL = "";
     switch (config.urlType) {
@@ -126,7 +127,6 @@ service.interceptors.response.use(
     }
     if (data.err === 1 && data.errmsg.includes("invalid token")) {
       const userStore = useUser();
-      userStore.ifLogin = false;
       userStore.clearToken();
       userStore.loginInfo = null;
 
