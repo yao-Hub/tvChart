@@ -2,12 +2,12 @@ import request from "utils/http";
 import { UserInfo } from "#/store";
 
 enum Api {
-  Login = "login",
-  LoginInfo = "my/login_info",
-  PasswordReset = "my/password_update",
-  QueryTradeLine = "server/queryTradeLine",
-  Register = "my/sign_up",
-  QueryNode = "server/queryNode",
+  Login = "/login",
+  LoginInfo = "/my/login_info",
+  PasswordReset = "/my/password_update",
+  QueryTradeLine = "/server/queryTradeLine",
+  Register = "/my/sign_up",
+  QueryNode = "/server/queryNode",
 }
 
 interface reqLogin {

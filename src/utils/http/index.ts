@@ -68,7 +68,10 @@ service.interceptors.request.use(
       config.data.token = userStore.getToken();
       config.data.login = userStore.account.login;
     }
-    const action = config.action || config.url || "";
+    let action = config.action || config.url || "";
+    if (action.startsWith("/")) {
+      action = action.slice(1);
+    }
     const p = {
       action,
       // d: encrypt(JSON.stringify(config.data)),
@@ -76,7 +79,7 @@ service.interceptors.request.use(
       // Node加密
       d: aes_encrypt(action, JSON.stringify(config.data)),
     };
-
+    
     const networkStore = useNetwork();
     let baseURL = "";
     switch (config.urlType) {
@@ -144,7 +147,7 @@ service.interceptors.response.use(
     const { status } = err.response;
     notification["error"]({
       message: err.name || "request error",
-      description: err.response.data?.errmsg || err.message || `statusCode: ${status}`,
+      description: err.message || `statusCode: ${status}`,
     });
     // 根据返回的http状态码做不同的处理，比如错误提示等 TODO
     switch (status) {

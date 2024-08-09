@@ -1,7 +1,7 @@
 import request from "utils/http";
 
 enum Api {
-  klineHistory = "kline/history",
+  klineHistory = "/kline/history",
 }
 
 interface ReqLineInfo {

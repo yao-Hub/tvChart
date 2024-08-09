@@ -1,8 +1,8 @@
 import request from "utils/http";
 
 enum Api {
-  allSymbols = "symbol/all_symbols",
-  allSymbolsQuotes = "quote/all_symbol_quotes",
+  allSymbols = "/symbol/all_symbols",
+  allSymbolsQuotes = "/quote/all_symbol_quotes",
 }
 
 interface TimeInfo {

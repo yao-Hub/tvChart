@@ -1,15 +1,15 @@
 import request from "utils/http";
 
 enum Api {
-  MarketOrdersAdd = "login/market_orders_add",
-  OpenningOrders = "login/openning_orders",
-  MarketOrdersAddClose = "login/market_orders_close",
-  PendingOrdersAdd = "login/pending_orders_add",
-  PendingOrders = "login/get_pending_orders",
-  HistoryPendingOrders = "login/get_history_pending_orders",
-  HistoryOrders = "login/get_history_orders",
-  DelPendingOrders = "login/delete_pending_orders",
-  EditPendingOrders = "login/modify_openning_orders",
+  MarketOrdersAdd = "/login/market_orders_add",
+  OpenningOrders = "/login/openning_orders",
+  MarketOrdersAddClose = "/login/market_orders_close",
+  PendingOrdersAdd = "/login/pending_orders_add",
+  PendingOrders = "/login/get_pending_orders",
+  HistoryPendingOrders = "/login/get_history_pending_orders",
+  HistoryOrders = "/login/get_history_orders",
+  DelPendingOrders = "/login/delete_pending_orders",
+  EditPendingOrders = "/login/modify_openning_orders",
 }
 
 export interface ReqOrderAdd {
