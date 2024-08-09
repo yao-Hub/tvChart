@@ -141,10 +141,10 @@ service.interceptors.response.use(
     return Promise.reject(data);
   },
   (err) => {
-    const { status, data } = err.response;
+    const { status } = err.response;
     notification["error"]({
       message: err.name || "request error",
-      description: data.errmsg || err.message || `statusCode: ${status}`,
+      description: err.response.data?.errmsg || err.message || `statusCode: ${status}`,
     });
     // 根据返回的http状态码做不同的处理，比如错误提示等 TODO
     switch (status) {
