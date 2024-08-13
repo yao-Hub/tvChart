@@ -24,11 +24,11 @@
       </a-tooltip>
       <!-- 纵向布局 -->
       <a-tooltip title="纵向布局">
-        <i class="iconfont" style="font-size: 14px;">&#xe601;</i>
+        <i class="iconfont" style="font-size: 14px;" @click="verticalLayout">&#xe601;</i>
       </a-tooltip>
       <!-- 横向布局 -->
       <a-tooltip title="横向布局">
-        <i class="iconfont" style="font-size: 14px;">&#xe600;</i>
+        <i class="iconfont" style="font-size: 14px;" @click="horizontalLayout">&#xe600;</i>
       </a-tooltip>
     </div>
     <div class="header__right">
@@ -47,6 +47,8 @@ import LayoutVisibled from "./components/LayoutVisibled.vue";
 import Menu from "./components/Menu/index.vue";
 import Account from "./components/Account/index.vue";
 import FastTransation from "./components/FastTransation/index.vue";
+
+import { horizontalLayout, verticalLayout } from "utils/dragResize/index";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";

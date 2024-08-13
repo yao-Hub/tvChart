@@ -25,7 +25,7 @@ const dragOption = {
   animation: 150,
   handle: ".handle",
   swapThreshold: 0.65,
-  onEnd: () => dragOnEnd(),
+  onEnd: () => dragOnEnd(true),
   onStart: (evt: any) => dragOnStart(evt),
 };
 
@@ -74,6 +74,7 @@ function createDragAreaItem(parentDom: Element, position: "down" | "up") {
   }
   dragList[dragIdName].option("disabled", false);
   resizeUpdate();
+  return drag;
 }
 
 // 拖拽增加拖拽区域
@@ -101,7 +102,7 @@ function dragOnStart(evt: any) {
   };
 }
 
-function dragOnEnd() {
+function dragOnEnd(refreshChart?:boolean) {
   const dragArea_items = document.querySelectorAll(
     ".dragArea_item"
   ) as NodeListOf<Element>;
@@ -120,8 +121,10 @@ function dragOnEnd() {
   });
   resizeUpdate();
 
-  // 图表区域会因为拖拽重新初始化，需要重新更新图表最新的状态
-  setTimeout(() => chartInitStore.setSymbolBack(), 200);
+  if (refreshChart) {
+    // 图表区域会因为拖拽重新初始化，需要重新更新图表最新的状态
+    setTimeout(() => chartInitStore.setSymbolBack(), 200);
+  }
 }
 
 // 初始化拖拽实例
@@ -135,7 +138,7 @@ function initDragArea() {
 }
 
 // 拖拽区域大小
-function setDragAreaSize() {
+function setDragAreaSize(hideEmptyDemoArea?:boolean) {
   const dragArea = document.querySelector(".dragArea") as HTMLElement;
   const dragArea_items = document.querySelectorAll(
     ".dragArea_item"
@@ -150,22 +153,27 @@ function setDragAreaSize() {
       }
     });
   }
-  const haveChildItems = Array.from(dragArea_items).filter(
-    (item) => item.querySelectorAll(".demo").length !== 0
-  );
-  const emptyChildItems = Array.from(dragArea_items).filter(
-    (item) => item.querySelectorAll(".demo").length === 0
-  );
-  emptyChildItems.forEach((item) => {
-    const element = item as HTMLElement;
-    element.style.height = "0";
-  });
-  setSize(emptyChildItems.length > 0 ? haveChildItems : dragArea_items);
+  if (hideEmptyDemoArea) {
+    const haveChildItems = Array.from(dragArea_items).filter(
+      (item) => item.querySelectorAll(".demo").length !== 0
+    );
+    const emptyChildItems = Array.from(dragArea_items).filter(
+      (item) => item.querySelectorAll(".demo").length === 0
+    );
+    emptyChildItems.forEach((item) => {
+      const element = item as HTMLElement;
+      element.style.height = "0";
+    });
+    setSize(emptyChildItems.length > 0 ? haveChildItems : dragArea_items);
+  } else {
+    setSize(dragArea_items);
+  }
 }
 
 // 设置demo的位置
 function setDemoPosition() {
   const dragArea = document.querySelector(".dragArea") as HTMLElement;
+  const dw = dragArea.getBoundingClientRect().width;
   const dragArea_items = document.querySelectorAll(
     ".dragArea_item"
   ) as NodeListOf<Element>;
@@ -173,18 +181,13 @@ function setDemoPosition() {
     const demos = item.querySelectorAll(".demo") as NodeListOf<HTMLElement>;
     demos.forEach((demo, index) => {
       const element = demo as HTMLElement;
-      element.style.width =
-        dragArea.getBoundingClientRect().width / demos.length -
-        demos.length +
-        "px";
+      element.style.width = dw / demos.length - 1.5 + "px";
       element.style.height = item.getBoundingClientRect().height + "px";
       element.style.top = "0";
       if (index === 0) {
         element.style.left = "0";
       } else {
-        element.style.left =
-          (dragArea.getBoundingClientRect().width / demos.length + 1) * index +
-          "px";
+        element.style.left = (dw / demos.length) * index + 3 + "px";
       }
     });
   });
@@ -516,8 +519,10 @@ const debounceUpdateLayout = debounce(() => {
   operaVertLine();
 }, 20);
 
-export const resizeUpdate = debounce(() => {
-  setDragAreaSize();
+export const resizeUpdate = debounce((params?: {
+  hideEmptyDemoArea?: boolean
+}) => {
+  setDragAreaSize(params?.hideEmptyDemoArea);
   setDemoPosition();
   operaHoriLine();
   operaVertLine();
@@ -569,12 +574,17 @@ export function horizontalLayout () {
   }
   const needAddItemNum = dh - ih;
   for (let index = 0; index < needAddItemNum; index++) {
-    // createDragAreaItem()
-    // const lastItem = 
+    const item = createDragAreaItem(items[ih - 1], 'down');
+    item.appendChild(demos[index + 1]);
   }
 }
 
 // 纵向布局
 export function verticalLayout () {
-
+  const item = document.querySelector('.dragArea_item');
+  const demos = document.querySelectorAll('.demo');
+  demos.forEach(demo => {
+    item?.appendChild(demo);
+  })
+  dragOnEnd();
 }

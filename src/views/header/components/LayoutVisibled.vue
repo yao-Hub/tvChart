@@ -6,7 +6,7 @@
         <a-menu-item>
           <a-checkbox
             v-model:checked="layoutStore.chartsVisable"
-            @change="checkboxChange"
+            @change="(e: any) => checkboxChange(e, 'chartList')"
             >{{ $t("chartList") }}</a-checkbox
           >
         </a-menu-item>
@@ -41,12 +41,12 @@ const visible = ref(false);
 
 const layoutStore = useLayout();
 
-const checkboxChange = async (e: any) => {
+const checkboxChange = async (e: any, type: string) => {
   const ifCheck = e.target.checked;
-  if (ifCheck) {
+  await nextTick();
+  if (type === 'chartList' && ifCheck) {
     setTimeout(() => chartInitStore.setSymbolBack(), 200);
   }
-  await nextTick();
-  resizeUpdate();
+  resizeUpdate({ hideEmptyDemoArea: true });
 };
 </script>
