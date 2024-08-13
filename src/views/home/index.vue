@@ -16,7 +16,8 @@
 
 <script setup lang="ts">
 import { reactive, onMounted, nextTick } from "vue";
-import { Modal } from "ant-design-vue";
+// import { Modal } from "ant-design-vue";
+import { useRouter } from "vue-router";
 
 import { useSocket } from "@/store/modules/socket";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -76,13 +77,15 @@ onMounted(async () => {
     // }
   } catch (error) {
     chartInitStore.ifInitError = true;
-    Modal.error({
-      title: "出错了",
-      content: "请刷新页面重试",
-      onOk() {
-        window.location.reload();
-      },
-    });
+    const router = useRouter();
+    router.push({ name: 'login' });
+    // Modal.error({
+    //   title: "出错了",
+    //   content: "请刷新页面重试",
+    //   onOk() {
+    //     window.location.reload();
+    //   },
+    // });
   } finally {
     chartInitStore.loading = false;
   }
