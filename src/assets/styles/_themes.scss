@@ -1,12 +1,16 @@
 $themes: (
   light: (
-    primary: #fff,
+    background: #fff,
+    primary: #F4B201,
     border: #e0e3eb,
-    word: #131722,
+    word: #081021,
+    word-gray: #94959B,
   ),
   dark: (
+    background: #fff,
     primary: #131722,
     border: #434651,
     word: #d1d4dc,
+    word-gray: #63636A,
   )
 )

@@ -11,25 +11,9 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
-    path: "/register",
-    name: "register",
-    component: () => import("@/views/login/register.vue"),
-    meta: {
-      passGuard: true,
-    },
-  },
-  {
     path: "/resetPassword",
     name: "resetPassword",
     component: () => import("@/views/login/resetPassword.vue"),
-  },
-  {
-    path: "/retrievePassword",
-    name: "retrievePassword",
-    component: () => import("@/views/login/retrievePassword.vue"),
-    meta: {
-      passGuard: true,
-    },
   },
 ];
 

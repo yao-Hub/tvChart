@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
-import { UserInfo } from "#/store";
 import CryptoJS from "utils/AES";
-import { getLoginInfo } from "api/account/index";
+import { getLoginInfo, UserInfo } from "api/account/index";
 import { useSocket } from "@/store/modules/socket";
 
 interface State {

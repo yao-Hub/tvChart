@@ -9,7 +9,13 @@ import { useTheme } from "@/store/modules/theme";
 const themeStore = useTheme();
 themeStore.currentTheme = window.localStorage.getItem("Theme") || "dark";
 const theme = computed(() => {
-  return themeStore.antDTheme;
+  return {
+    ...themeStore.antDTheme,
+    token: {
+      colorPrimary: '#F4B201',
+      colorBgContainerDisabled: '#BEC2C9'
+    },
+  };
 });
 
 // ant-design 国际化

@@ -5,6 +5,7 @@ import { setupRouter } from "./router";
 import { setupStore } from "./store";
 import "./assets/styles/common.scss";
 import "./assets/styles/iconfont/iconfont.css";
+import 'animate.css';
 
 /**
  * 定义启动初始化函数

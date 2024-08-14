@@ -160,7 +160,7 @@ button {
   outline: none;
 }
 body {
-  @include background_color('primary');
+  @include background_color('background');
   @include font_color('word');
 }
 .iconfont {
