@@ -112,5 +112,16 @@ export const useChartInit = defineStore("chartInit", {
         return indexMap[obj1.id] - indexMap[obj2.id];
       });
     },
+
+    intLayoutType() {
+      const type = window.localStorage.getItem('chartLayoutType') as State["chartLayoutType"];
+      if (type) {
+        this.chartLayoutType = type;
+      }
+    },
+    setLayoutType(type: State["chartLayoutType"]) {
+      this.chartLayoutType = type;
+      window.localStorage.setItem('chartLayoutType', type)
+    }
   },
 });

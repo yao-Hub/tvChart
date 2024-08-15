@@ -1,6 +1,8 @@
 <template>
   <a-dropdown :trigger="['click']">
-    <MenuOutlined @click.prevent />
+    <div class="menu">
+      <MenuOutlined @click.prevent />
+    </div>
     <template #overlay>
       <a-menu>
         <a-menu-item>
@@ -43,4 +45,12 @@ import feedback from "./feedback.vue";
 import aboutUs from "./aboutUs.vue";
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.menu {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

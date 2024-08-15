@@ -37,8 +37,10 @@ const layoutStore = useLayout();
 </script>
 
 <style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
 .dragArea {
-  height: calc(100vh - 30px - 50px);
+  height: calc(100vh - 30px - 48px);
   width: 100%;
   box-sizing: border-box;
   position: relative;
@@ -47,27 +49,27 @@ const layoutStore = useLayout();
     width: 100%;
     box-sizing: border-box;
     position: relative;
-    // background: red;
 
     .demo {
       box-sizing: border-box;
       position: absolute;
       user-select: none;
       overflow: auto;
-      // border: 1px solid red;
-      background: #525252;
-
+      @include background_color("background-component");
+      
       .container_item {
-        height: 100%;
         width: 100%;
       }
 
       .handle {
         position: absolute;
-        top: 10px;
-        left: 5px;
+        top: 0;
+        left: 0;
         z-index: 2;
+        height: 24px;
+        width: 16px;
         cursor: grab;
+        @include background_color("border");
       }
     }
   }

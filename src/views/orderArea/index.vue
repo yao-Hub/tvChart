@@ -1,7 +1,10 @@
 <template>
   <div class="orderArea">
-    <a-tabs v-model:activeKey="activeKey" type="card">
-      <a-tab-pane v-for="item in state.menu" :key="item.key">
+    <baseTabs v-model:activeKey="activeKey">
+      <TabItem
+        v-for="item in state.menu"
+        :key="item.key"
+        :activeKey="item.key">
         <template #tab>
           <span>
             {{ item.label }}
@@ -12,8 +15,8 @@
             >{{ state.dataSource[item.key].length }}</a-tag
           >
         </template>
-      </a-tab-pane>
-    </a-tabs>
+      </TabItem>
+    </baseTabs>
     <div class="container">
       <div class="filter">
         <SymbolSelect
@@ -553,7 +556,7 @@ const getTableDate = (type: string) => {
 @import "@/assets/styles/_handle.scss";
 
 .orderArea {
-  padding: 5px 20px;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   overflow: auto;

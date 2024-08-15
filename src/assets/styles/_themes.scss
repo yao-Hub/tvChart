@@ -1,16 +1,22 @@
 $themes: (
   light: (
-    background: #fff,
+    background: #EEF2F6,
+    background-component: #fff,
     primary: #F4B201,
-    border: #e0e3eb,
+    border: #DEE2E9,
     word: #081021,
     word-gray: #94959B,
+    closeBtn: #333333,
+    tabActive: rgba(2,16,36,0.06),
   ),
   dark: (
-    background: #fff,
+    background: #141823,
+    background-component: #525252,
     primary: #131722,
     border: #434651,
     word: #d1d4dc,
     word-gray: #63636A,
+    closeBtn: #d1d4dc,
+    tabActive: #d1d4dc,
   )
 )

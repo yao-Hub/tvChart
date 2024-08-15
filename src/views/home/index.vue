@@ -24,7 +24,7 @@ import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
-// import { useNetwork } from "@/store/modules/network";
+import { useNetwork } from "@/store/modules/network";
 // import { useRoot } from "@/store/store";
 
 import { allSymbols } from "api/symbols/index";
@@ -40,7 +40,7 @@ const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const userStore = useUser();
 const orderStore = useOrder();
-// const networkStore = useNetwork();
+const networkStore = useNetwork();
 const socketStore = useSocket();
 
 const state = reactive({
@@ -59,12 +59,12 @@ onMounted(async () => {
   try {
     chartInitStore.loading = true;
     chartInitStore.ifInitError = false;
-    // networkStore.initNode();
+    await networkStore.initNode();
     socketStore.initSocket();
     orderStore.getQuickTrans();
-    await nextTick();
     await userStore.initUser();
     await getSymbols();
+    await nextTick();
 
     // 初始化拖拽
     initDragResizeArea();

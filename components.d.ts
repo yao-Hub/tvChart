@@ -35,14 +35,13 @@ declare module 'vue' {
     ASubMenu: typeof import('ant-design-vue/es')['SubMenu']
     ASwitch: typeof import('ant-design-vue/es')['Switch']
     ATable: typeof import('ant-design-vue/es')['Table']
-    ATabPane: typeof import('ant-design-vue/es')['TabPane']
-    ATabs: typeof import('ant-design-vue/es')['Tabs']
     ATag: typeof import('ant-design-vue/es')['Tag']
     ATextarea: typeof import('ant-design-vue/es')['Textarea']
     ATimePicker: typeof import('ant-design-vue/es')['TimePicker']
     ATooltip: typeof import('ant-design-vue/es')['Tooltip']
     AUpload: typeof import('ant-design-vue/es')['Upload']
     BaseButton: typeof import('./src/components/BaseButton.vue')['default']
+    BaseTabs: typeof import('./src/components/BaseTabs/index.vue')['default']
     Disclaimers: typeof import('./src/components/Disclaimers.vue')['default']
     FastAddOrder: typeof import('./src/components/FastAddOrder.vue')['default']
     LocaleChange: typeof import('./src/components/LocaleChange.vue')['default']
@@ -50,6 +49,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     Spin: typeof import('./src/components/Spin.vue')['default']
     SymbolSelect: typeof import('./src/components/SymbolSelect.vue')['default']
+    TabItem: typeof import('./src/components/BaseTabs/tabItem.vue')['default']
     TVChart: typeof import('./src/components/TVChart.vue')['default']
   }
 }

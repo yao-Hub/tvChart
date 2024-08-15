@@ -1,6 +1,9 @@
 <template>
   <a-dropdown v-model:open="visible">
-    <LayoutOutlined />
+    <div class="layoutVisibled">
+      <LayoutOutlined class="layoutVisibled_left" />
+      <DownOutlined class="layoutVisibled_right" />
+    </div>
     <template #overlay>
       <a-menu>
         <a-menu-item>
@@ -31,7 +34,7 @@
 
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
-import { LayoutOutlined } from "@ant-design/icons-vue";
+import { LayoutOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { useLayout } from "@/store/modules/layout";
 import { resizeUpdate } from "utils/dragResize/index";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -44,9 +47,27 @@ const layoutStore = useLayout();
 const checkboxChange = async (e: any, type: string) => {
   const ifCheck = e.target.checked;
   await nextTick();
-  if (type === 'chartList' && ifCheck) {
+  if (type === "chartList" && ifCheck) {
     setTimeout(() => chartInitStore.setSymbolBack(), 200);
   }
   resizeUpdate({ hideEmptyDemoArea: true });
 };
 </script>
+
+<style lang="scss" scoped>
+.layoutVisibled {
+  display: flex;
+  align-items: center;
+  width: 36px;
+  height: 24px;
+  &_left {
+    width: 16px;
+    height: 16px;
+  }
+  &_right {
+    width: 4px;
+    height: 2px;
+    margin: 5px 4px;
+  }
+}
+</style>

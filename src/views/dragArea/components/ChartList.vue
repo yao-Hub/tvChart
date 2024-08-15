@@ -1,20 +1,15 @@
 <template>
   <div class="charts">
-    <a-tabs
-      class="charts_tabs"
-      v-model:activeKey="state.activeKey"
-      type="editable-card"
-      @edit="onEdit"
-      size="small"
-    >
-      <a-tab-pane
+    <baseTabs class="charts_tabs" addable v-model:activeKey="state.activeKey" @handleAdd="tabAdd">
+      <TabItem
         v-for="chart in chartList"
-        :key="chart.id"
         :tab="chart.symbol"
+        :activeKey="chart.id"
+        :key="chart.id"
         :closable="chart.id !== 'chart_1'"
-      >
-      </a-tab-pane>
-    </a-tabs>
+        @itemDel="tabDelete"
+      ></TabItem>
+    </baseTabs>
     <div class="charts_container">
       <div
         class="charts_container_item"
@@ -110,9 +105,11 @@ onMounted(() => {
     onEnd: function (evt: any) {
       setTimeout(() => chartInitStore.setSymbolBack(), 200);
       if (dragArea) {
-        const conItems = Array.from(dragArea.querySelectorAll('.charts_container_item'));
-        const chartIdList = conItems.map(item => {
-          const id = item.getAttribute('id');
+        const conItems = Array.from(
+          dragArea.querySelectorAll(".charts_container_item")
+        );
+        const chartIdList = conItems.map((item) => {
+          const id = item.getAttribute("id");
           return id;
         });
         chartInitStore.sortChartList(chartIdList as string[]);
@@ -121,58 +118,59 @@ onMounted(() => {
   });
 });
 
-const onEdit = async (targetKey: string, action: string) => {
-  if (action === "add") {
-    const len = chartInitStore.chartWidgetList.length;
-    chartInitStore.chartWidgetList.push({
-      id: `chart_${len + 1}`,
-    });
-    state.activeKey = `chart_${len + 1}`;
-  } else {
-    chartInitStore.removeChartWidget(targetKey);
-    if (targetKey === state.activeKey) {
-      const lastChart = chartInitStore.chartWidgetList.slice(-1);
-      state.activeKey = lastChart[0].id;
-    }
+const tabDelete = (targetKey: string) => {
+  chartInitStore.removeChartWidget(targetKey);
+  if (targetKey === state.activeKey) {
+    const lastChart = chartInitStore.chartWidgetList.slice(-1);
+    state.activeKey = lastChart[0].id;
   }
+};
+
+const tabAdd = async () => {
+  const len = chartInitStore.chartWidgetList.length;
+  chartInitStore.chartWidgetList.push({
+    id: `chart_${len + 1}`,
+  });
+  state.activeKey = `chart_${len + 1}`;
+  console.log(chartList.value)
 };
 </script>
 
 <style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
 .charts {
-  padding: 5px;
   box-sizing: border-box;
   border-radius: 5px;
-  height: 100%;
+  height: calc(100% - 24px);
 
   &_container {
     display: flex;
     flex-wrap: wrap;
-    height: calc(100% - 40px);
+    height: 100%;
     gap: 5px;
-    padding-left: 20px;
     box-sizing: border-box;
+    height: 100%;
     &_item {
       flex: 1;
       position: relative;
-      background-color: #141823;
       box-sizing: border-box;
-
       .handle {
         cursor: grab;
         position: absolute;
-        top: 10px;
-        left: 5px;
+        top: 0;
+        left: 0;
+        height: 24px;
+        width: 16px;
+        @include background_color("border");
       }
     }
   }
 
   &_tabs {
-    display: flex;
     overflow-x: auto;
     overflow-y: hidden;
-    margin-left: 20px;
-    height: 40px;
+    margin-left: 16px;
   }
 }
 </style>

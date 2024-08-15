@@ -187,7 +187,7 @@ const copy = async () => {
   height: 648px;
   border-radius: 8px;
   box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
-  @include background_color("background");
+  @include background_color("background-component");
   box-sizing: border-box;
   &_header {
     width: 100%;

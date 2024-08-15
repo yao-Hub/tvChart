@@ -20,9 +20,21 @@
       <span>{{ $t("order.marginLevel") }}: </span>
       <span>{{ margin_level }}</span>
     </div>
-    <div class="item" style="border: none">
+    <div class="item">
       <span>{{ $t("order.TotalProfit") }}: </span>
       <span>{{ profit }}</span>
+    </div>
+    <div class="item" style="border: none">
+      <a-dropdown v-model:open="visible" placement="top" size="large">
+        <span>
+          {{ networkStore.currentNode?.ip }}
+        </span>
+        <template #overlay>
+          <a-menu @click="handleMenuClick">
+            <a-menu-item v-for="node in networkStore.nodeList" :key="node.nodeName">{{ node.nodeName }}</a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
     </div>
   </div>
 </template>
@@ -120,6 +132,19 @@ const profit = computed(() => {
     return "-";
   }
 });
+
+
+import { ref } from 'vue';
+import type { MenuProps } from 'ant-design-vue';
+import { useNetwork } from "@/store/modules/network";
+const networkStore = useNetwork();
+
+const visible = ref(false);
+const handleMenuClick: MenuProps['onClick'] = e => {
+  const name = e.key as string;
+  networkStore.changeNode(name);
+  window.location.reload();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -129,7 +154,7 @@ const profit = computed(() => {
   width: 100vw;
   box-sizing: border-box;
   height: 30px;
-  @include background_color("primary");
+  @include background_color("background");
   position: fixed;
   bottom: 0;
   left: 0;

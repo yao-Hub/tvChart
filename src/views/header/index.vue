@@ -3,32 +3,37 @@
     <div class="header__left">
       <!-- 菜单 -->
       <Menu></Menu>
+      <a-divider type="vertical" class="divider" />
       <!-- 订单 -->
       <a-tooltip :title="`${$t('shortcutkey')}: F9`">
-        <a-button type="link" @click="orderStore.createOrder()">{{
-          $t("order.new")
-        }}</a-button>
+        <a-button
+          @click="orderStore.createOrder()"
+          class="header__left_orderBtn"
+          >{{ $t("order.new") }}</a-button
+        >
       </a-tooltip>
       <!-- 布局显隐 -->
       <LayoutVisibled></LayoutVisibled>
       <!-- 快速交易 -->
       <FastTransation></FastTransation>
-      <a-divider type="vertical" style="background-color: #525252; height: 18px;"/>
       <!-- 单图 -->
       <a-tooltip :title="$t('SingleImageMode')">
-        <BorderOutlined @click="chartInitStore.chartLayoutType = 'single'" />
+        <BorderOutlined @click="() => chartInitStore.setLayoutType('single')" style="margin-left: 16px;"/>
       </a-tooltip>
+      <a-divider type="vertical" class="divider-small" />
       <!-- 多图 -->
       <a-tooltip :title="$t('MultiGrapMode')">
-        <AppstoreFilled @click="chartInitStore.chartLayoutType = 'multiple'" />
+        <AppstoreFilled @click="() => chartInitStore.setLayoutType('multiple')" />
       </a-tooltip>
+      <a-divider type="vertical" class="divider-small" />
       <!-- 纵向布局 -->
       <a-tooltip title="纵向布局">
-        <i class="iconfont" style="font-size: 14px;" @click="verticalLayout">&#xe601;</i>
+        <i class="iconfont" style="font-size: 12px" @click="verticalLayout" >&#xe601;</i>
       </a-tooltip>
+      <a-divider type="vertical" class="divider-small" />
       <!-- 横向布局 -->
       <a-tooltip title="横向布局">
-        <i class="iconfont" style="font-size: 14px;" @click="horizontalLayout">&#xe600;</i>
+        <i class="iconfont" style="font-size: 12px" @click="horizontalLayout">&#xe600;</i>
       </a-tooltip>
     </div>
     <div class="header__right">
@@ -38,10 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  BorderOutlined,
-  AppstoreFilled,
-} from "@ant-design/icons-vue";
+import { BorderOutlined, AppstoreFilled } from "@ant-design/icons-vue";
 
 import LayoutVisibled from "./components/LayoutVisibled.vue";
 import Menu from "./components/Menu/index.vue";
@@ -54,26 +56,39 @@ import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
+chartInitStore.intLayoutType();
 </script>
 
 <style lang="scss" scoped>
 @import "@/assets/styles/_handle.scss";
 
 .header {
-  padding: 0 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 50px;
-  border-bottom: 1px solid;
-  @include border_color("border");
+  height: 48px;
   box-sizing: border-box;
+  @include background_color("background-component");
 
   .header__left {
+    box-sizing: border-box;
+    height: 100%;
     display: flex;
-    gap: 8px;
     align-items: center;
-    justify-content: space-evenly;
+    .divider {
+      height: 32px;
+      @include background_color("border");
+    }
+    .divider-small {
+      height: 12px;
+      @include background_color("border");
+      margin: 0 7px;
+    }
+    &_orderBtn {
+      width: 72px;
+      height: 32px;
+      margin: 0 16px;
+    }
   }
 
   .header__right {

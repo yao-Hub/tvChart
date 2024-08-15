@@ -191,7 +191,7 @@ const onFinish = async (values: any) => {
   height: 648px;
   border-radius: 16px;
   box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
-  @include background_color("background");
+  @include background_color("background-component");
   display: flex;
   flex-direction: column;
   box-sizing: border-box;

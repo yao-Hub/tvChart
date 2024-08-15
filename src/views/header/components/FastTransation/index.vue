@@ -21,6 +21,8 @@ const debounceSetQuiTrans = debounce((e: boolean) => {
 </script>
 
 <style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
 span {
   cursor: pointer;
 }

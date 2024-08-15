@@ -13,6 +13,9 @@ const moving = {
 
 const minWidht = 200;
 const minHeight = 150;
+const lineWidth = 8;
+const marginTop = 8;
+const lineColor = "#7cb305";
 
 // 水平线初始拉伸位置
 let startY: number;
@@ -139,20 +142,16 @@ function initDragArea() {
 
 // 拖拽区域大小
 function setDragAreaSize(hideEmptyDemoArea?:boolean) {
-  const dragArea = document.querySelector(".dragArea") as HTMLElement;
-  const dragArea_items = document.querySelectorAll(
-    ".dragArea_item"
-  ) as NodeListOf<Element>;
   function setSize(arr: NodeListOf<Element> | Element[]) {
+    const dragArea = document.querySelector(".dragArea") as HTMLElement;
     arr.forEach((item, index, arr) => {
       const element = item as HTMLElement;
-      // 整个区域的高度 / demo的数量 - 拉伸线的高度 * 拉伸线的数量（dragArea_item的数量 - 1）
-      element.style.height = dragArea.getBoundingClientRect().height / arr.length - 1.5 * (arr.length - 1) + "px";
-      if (index > 0) {
-        element.style.marginTop = "3px";
-      }
+      // 整个区域的高度 / dragArea_item的数量 - 拉伸线的高度 * 水平拉伸线的数量（dragArea_item的数量 - 1）
+      element.style.height = dragArea.getBoundingClientRect().height / arr.length - lineWidth * (arr.length - 1) + "px";
+      element.style.marginTop = marginTop + 'px';
     });
   }
+  const dragArea_items = document.querySelectorAll(".dragArea_item") as NodeListOf<Element>;
   if (hideEmptyDemoArea) {
     const haveChildItems = Array.from(dragArea_items).filter(
       (item) => item.querySelectorAll(".demo").length !== 0
@@ -181,13 +180,13 @@ function setDemoPosition() {
     const demos = item.querySelectorAll(".demo") as NodeListOf<HTMLElement>;
     demos.forEach((demo, index) => {
       const element = demo as HTMLElement;
-      element.style.width = dw / demos.length - 1.5 + "px";
+      element.style.width = dw / demos.length - (lineWidth / 2) * (demos.length - 1) + "px";
       element.style.height = item.getBoundingClientRect().height + "px";
       element.style.top = "0";
       if (index === 0) {
         element.style.left = "0";
       } else {
-        element.style.left = (dw / demos.length) * index + 3 + "px";
+        element.style.left = (dw / demos.length) * index + (lineWidth / 2) + "px";
       }
     });
   });
@@ -199,12 +198,12 @@ function createHoriLine(addNum: number) {
     const line = document.createElement("div");
     line.className = "resize_handler_vertical";
     line.style.position = "absolute";
-    line.style.height = "3px";
+    line.style.height = lineWidth + 'px';
     line.style.cursor = "ns-resize";
     line.style.left = "0";
     line.style.top = "0";
     line.addEventListener("mouseover", function () {
-      line.style.backgroundColor = "#7cb305";
+      line.style.backgroundColor = lineColor;
     });
     line.addEventListener("mouseout", function () {
       if (moving.verticalLine) {
@@ -237,6 +236,7 @@ function createHoriLine(addNum: number) {
 
 // 水平线位置
 function updateHoriLine() {
+  const headerHight = document.querySelector('.header')?.getBoundingClientRect().height || 48;
   let count = 0;
   const dragArea_items = document.querySelectorAll(
     ".dragArea_item"
@@ -251,7 +251,7 @@ function updateHoriLine() {
     if (index > 0) {
       const element = arr[index - 1] as HTMLElement;
       vertLine[count].style.top = `${
-        element.getBoundingClientRect().bottom - 50
+        element.getBoundingClientRect().bottom - headerHight
       }px`;
       vertLine[count].style.width =
         element.getBoundingClientRect().width + "px";
@@ -299,15 +299,16 @@ const resizeVertical = (event: MouseEvent) => {
   }
   const result_0_height = result[0].getBoundingClientRect().height;
   const result_1_height = result[1].getBoundingClientRect().height;
+  const headerHight = document.querySelector('.header')?.getBoundingClientRect().height || 48;
   function resize(e: MouseEvent) {
-    let mouseY = e.clientY - 50;
+    let mouseY = e.clientY - headerHight;
     const offset = e.pageY - startY;
     const topHeight = result_0_height + offset;
     const downHeight = result_1_height - offset;
     if (topHeight < minHeight || downHeight < minHeight) {
       return;
     }
-    lineTarget.style.top = `${mouseY - 1.5}px`;
+    lineTarget.style.top = `${mouseY - lineWidth / 2}px`;
     result[0].style.height = `${topHeight}px`;
     result[0]
       .querySelectorAll(".demo")
@@ -369,11 +370,11 @@ function createVertLine(addNum: number) {
     const line = document.createElement("div");
     line.className = "resize_handler_horizontal";
     line.style.position = "absolute";
-    line.style.width = "3px";
+    line.style.width = lineWidth + 'px';
     line.style.cursor = "ew-resize";
     line.style.zIndex = "99";
     line.addEventListener("mouseover", function () {
-      line.style.backgroundColor = "#7cb305";
+      line.style.backgroundColor = lineColor;
     });
     line.addEventListener("mouseout", function () {
       if (moving.horizontalLine) {
@@ -407,6 +408,7 @@ function delVertLine(delNum: number) {
 
 // 更新竖直线的位置
 function updateVertLine() {
+  const headerHight = document.querySelector('.header')?.getBoundingClientRect().height || 48;
   let count = 0;
   const vertLines = document.querySelectorAll(
     ".resize_handler_horizontal"
@@ -424,9 +426,9 @@ function updateVertLine() {
         const x = demo.getBoundingClientRect().x;
         const height = demo.getBoundingClientRect().height;
         const y = demo.getBoundingClientRect().y;
-        vertLines[count].style.top = `${y - 50}px`;
+        vertLines[count].style.top = `${y - headerHight}px`;
         vertLines[count].style.height = `${height}px`;
-        vertLines[count].style.left = `${x - 3}px`;
+        vertLines[count].style.left = `${x - lineWidth}px`;
         count++;
       }
     });
@@ -499,8 +501,8 @@ function resizeHorizontal(event: MouseEvent) {
       return;
     }
     result[0].style.width = `${leftWidht}px`;
-    result[1].style.width = `${rightWidht - 3}px`;
-    result[1].style.left = `${lineLeft + 3}px`;
+    result[1].style.width = `${rightWidht - lineWidth}px`;
+    result[1].style.left = `${lineLeft + lineWidth}px`;
     lineTarget.style.left = `${lineLeft}px`;
   }
 

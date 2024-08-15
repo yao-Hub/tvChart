@@ -1,10 +1,13 @@
 <template>
   <a-dropdown :trigger="['click']" v-model:open="state.visible">
     <div class="item">
-      <span>线路名</span>
-      <span>账户名</span>
-      <span>10285.21</span>
-      <CaretDownOutlined />
+      <div class="item_top">
+        <span class="item_top_name">线路名, 账户名</span>
+        <span class="item_top_num">10285.21</span>
+      </div>
+      <div class="item_down">
+        <CaretDownOutlined />
+      </div>
     </div>
     <template #overlay>
       <a-menu @click="handleMenuClick">
@@ -79,10 +82,28 @@ const handleOk = () => {
 </script>
 
 <style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
 .item {
   display: flex;
-  gap: 10px;
   align-items: center;
-  font-size: 14px;
+  gap: 4px;
+  padding-right: 14px;
+  font-size: 12px;
+  box-sizing: border-box;
+  &_top {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 4px;
+    &_name {
+      @include font_color("word-gray");
+    }
+  }
+  &_down {
+    height: 100%;
+    display: flex;
+    align-items: flex-end;
+  }
 }
 </style>

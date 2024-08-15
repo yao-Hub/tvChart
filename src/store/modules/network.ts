@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-// import CryptoJS from "utils/AES";
+import CryptoJS from "utils/AES";
 import {
   queryTradeLine,
   resQueryTradeLine,
@@ -29,13 +29,15 @@ export const useNetwork = defineStore("network", {
   },
 
   actions: {
-    initNode() {
-      // const account = window.localStorage.getItem("account");
-      // if (account) {
-      //   const parseAccount = JSON.parse(account);
-      //   const queryNode = CryptoJS.decrypt(parseAccount.queryNode);
-      //   this.nodeName = queryNode;
-      // }
+    async initNode() {
+      const account = window.localStorage.getItem("account");
+      if (account) {
+        const parseAccount = JSON.parse(account);
+        const queryNode = CryptoJS.decrypt(parseAccount.queryNode);
+        const server = CryptoJS.decrypt(parseAccount.server);
+        await this.getNodes(server);
+        this.nodeName = queryNode;
+      }
     },
 
     // 交易线路
@@ -55,5 +57,16 @@ export const useNetwork = defineStore("network", {
         this.nodeList = [];
       }
     },
+
+    changeNode(nodeName: string) {
+      this.nodeName = nodeName;
+      const account = window.localStorage.getItem("account");
+      if (account) {
+        const parseAccount = JSON.parse(account);
+        const enNode = CryptoJS.encrypt(nodeName);
+        parseAccount.queryNode = enNode;
+        window.localStorage.setItem("account", JSON.stringify(parseAccount));
+      }
+    }
   },
 });
