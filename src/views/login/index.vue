@@ -13,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, markRaw, ref } from "vue";
+import { reactive, markRaw, ref, onMounted } from "vue";
 import { virtualLine } from "api/account/index";
 
 import Login from "./components/Login.vue";
@@ -37,11 +37,13 @@ const lineInfo = ref({
   lineCode: "", // 交易线路编码
 });
 
-// 获取虚拟线路
-(async function () {
-  const res = await virtualLine();
-  lineInfo.value = res.data;
-})();
+onMounted(() => {
+  // 获取虚拟线路
+  (async function () {
+    const res = await virtualLine();
+    lineInfo.value = res.data;
+  })();
+});
 </script>
 
 <style lang="scss">
@@ -57,7 +59,7 @@ const lineInfo = ref({
   position: relative;
   .welcome {
     position: absolute;
-    left: 289px;
+    left: 18%;
     top: 216px;
     font-size: 40px;
     font-weight: 500;

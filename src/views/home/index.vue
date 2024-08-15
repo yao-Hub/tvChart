@@ -51,7 +51,7 @@ const state = reactive({
 const getSymbols = async () => {
   const res: any = await allSymbols();
   chartSubStore.setSymbols(res.data);
-  state.symbol = res.data[0].symbol;
+  state.symbol = res.data[0]?.symbol;
   chartInitStore.loading = false;
 };
 
@@ -76,6 +76,7 @@ onMounted(async () => {
     //   rootStore.clearCacheAction();
     // }
   } catch (error) {
+    console.log(error)
     chartInitStore.ifInitError = true;
     const router = useRouter();
     router.push({ name: 'login' });
