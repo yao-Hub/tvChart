@@ -100,7 +100,7 @@ service.interceptors.request.use(
     }
     config.url = baseURL + config.url;
 
-    console.log("request----", { url: config.url, data: config.data, p });
+    console.log("request----", { baseURL, url: config.url, data: config.data, p });
     config.data = JSON.stringify(p);
     return config;
   },
