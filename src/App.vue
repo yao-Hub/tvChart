@@ -7,7 +7,7 @@ import { LANGUAGE_LIST, LOCALE_LIST } from "@/constants/common";
 import { useTheme } from "@/store/modules/theme";
 
 const themeStore = useTheme();
-themeStore.currentTheme = window.localStorage.getItem("Theme") || "light";
+themeStore.getTheme();
 const theme = computed(() => {
   return {
     ...themeStore.antDTheme,

@@ -31,7 +31,7 @@ export const useTheme = defineStore("theme", {
   actions: {
     getTheme() {
       const chartInitStore = useChartInit();
-      const theme = window.localStorage.getItem("Theme") || "dark";
+      const theme = window.localStorage.getItem("Theme") || "light";
       this.currentTheme = theme;
       chartInitStore.chartWidgetList.forEach((item) => {
         item.widget?.changeTheme(theme as "light" | "dark");
