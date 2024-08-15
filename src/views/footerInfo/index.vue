@@ -27,7 +27,7 @@
     <div class="item" style="border: none">
       <a-dropdown v-model:open="visible" placement="top" size="large">
         <span>
-          {{ networkStore.currentNode?.ip }}
+          {{ networkStore.currentNode?.nodeName }}
         </span>
         <template #overlay>
           <a-menu @click="handleMenuClick">
