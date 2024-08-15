@@ -33,6 +33,7 @@ const emit = defineEmits(["handleAdd"]);
   display: flex;
   font-size: 12px;
   @include border_color("border");
+  @include background_color("background-component");
   &_add {
     width: 24px;
     height: 24px;

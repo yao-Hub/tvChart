@@ -51,6 +51,7 @@ const layoutStore = useLayout();
     position: relative;
 
     .demo {
+      padding: 0 5px 5px 0;
       box-sizing: border-box;
       position: absolute;
       user-select: none;
