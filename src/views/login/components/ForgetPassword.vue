@@ -171,7 +171,7 @@ watch(() => formState, validateForm, { deep: true });
 const onFinish = async (values: any) => {
   const { code, email, pass, checkPass } = values;
   await emailPasswordUpdate({
-    server: props.lineInfo.lineCode,
+    server: props.lineInfo.lineName,
     email,
     verify_code: code,
     new_password: pass,

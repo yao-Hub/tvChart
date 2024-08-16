@@ -17,7 +17,7 @@
           v-model:value="formState.server"
           :options="networkStore.queryTradeLines"
           :filter-option="filterOption"
-          :field-names="{ label: 'lineName', value: 'lineCode' }"
+          :field-names="{ label: 'lineName', value: 'lineName' }"
         >
           <template #suffixIcon
             ><SearchOutlined style="font-size: 18px"

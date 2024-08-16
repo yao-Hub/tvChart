@@ -148,7 +148,7 @@ const onFinish = async (values: any) => {
     return;
   }
   const res = await register({
-    server: props.lineInfo.lineCode,
+    server: props.lineInfo.lineName,
     email,
     verify_code: code,
   });
