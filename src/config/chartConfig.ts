@@ -1,4 +1,4 @@
-import { flattenDeep, groupBy, orderBy, get, cloneDeep, set } from "lodash";
+import { flattenDeep, groupBy, orderBy, get, cloneDeep } from "lodash";
 import moment from "moment";
 import { klineHistory } from "api/kline/index";
 import * as types from "@/types/chart/index";
