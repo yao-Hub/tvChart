@@ -143,26 +143,32 @@ service.interceptors.response.use(
     return Promise.reject(data);
   },
   (err) => {
-    const { status } = err.response;
-    notification["error"]({
-      message: err.name || "request error",
-      description: err.message || `statusCode: ${status}`,
-    });
-    // 根据返回的http状态码做不同的处理，比如错误提示等 TODO
-    switch (status) {
-      case 401:
-        // 鉴权失败
-        break;
-      case 403:
-        // 没有权限
-        break;
-      case 500:
-        // 服务端错误
-        break;
-
-      default:
-        break;
+    const res = err.response;
+    if (res && res.status) {
+      notification["error"]({
+        message: err.name || "request error",
+        description: err.message || `statusCode: ${res.status}`,
+      });
+    } else {
+      notification["error"]({
+        message: "request error",
+      });
     }
+    // // 根据返回的http状态码做不同的处理，比如错误提示等 TODO
+    // switch (status) {
+    //   case 401:
+    //     // 鉴权失败
+    //     break;
+    //   case 403:
+    //     // 没有权限
+    //     break;
+    //   case 500:
+    //     // 服务端错误
+    //     break;
+
+    //   default:
+    //     break;
+    // }
     return Promise.reject(err);
   }
 );
