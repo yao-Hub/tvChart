@@ -24,6 +24,7 @@
       >
         <HolderOutlined class="handle" v-if="chartType === 'multiple'" />
         <TVChart
+          v-if="!chartInitStore.loading"
           style="flex: 1; height: 100%"
           :key="state.activeKey === id"
           :chartId="id"

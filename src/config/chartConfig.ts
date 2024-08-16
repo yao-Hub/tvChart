@@ -1,4 +1,4 @@
-import { flattenDeep, groupBy, orderBy, get, cloneDeep } from "lodash";
+import { flattenDeep, groupBy, orderBy, get, cloneDeep, set } from "lodash";
 import moment from "moment";
 import { klineHistory } from "api/kline/index";
 import * as types from "@/types/chart/index";
@@ -113,11 +113,12 @@ export const datafeed = (id: string) => {
       orderStore.currentQuotes[d.symbol] = d;
 
       const currentSymbol = chartInitStore.getChartSymbol(id);
-      if (!subscribed[id].symbolInfo) {
+      if (!subscribed[id].symbolInfo || !new_one[id]) {
         //图表没初始化
         return;
       }
       //报价更新 最新一条柱子 实时 上下 跳动
+      //报价为图表当前品种的报价
       if (d.symbol === currentSymbol) {
         //报价为图表当前品种的报价
         if (new_one[id].high < d.bid) {
@@ -143,7 +144,7 @@ export const datafeed = (id: string) => {
       const klines = cloneDeep(d.klines);
       orderStore.currentKline = { ...klines.reverse().pop(), symbol: d.symbol };
 
-      if (!subscribed[id].symbolInfo) {
+      if (!subscribed[id].symbolInfo || !new_one[id]) {
         // 图表没初始化
         return;
       }
