@@ -11,18 +11,16 @@ interface State {
   mainId: string;
   chartLayoutType: "single" | "multiple";
   singleChartLoading: Record<string, boolean>;
-  ifInitError: boolean
 }
 
 export const useChartInit = defineStore("chartInit", {
   state: (): State => {
     return {
       chartWidgetList: [{ id: "chart_1" }],
-      loading: false,
+      loading: true,
       mainId: "",
       chartLayoutType: "multiple",
       singleChartLoading: {},
-      ifInitError: false
     };
   },
   actions: {

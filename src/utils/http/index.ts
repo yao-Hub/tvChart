@@ -4,9 +4,9 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 import type { CustomResponseType } from "#/axios";
-// import { encrypt, decrypt } from "utils/DES/JS";
+import { encrypt, decrypt } from "utils/DES/JS";
 import { aes_decrypt, aes_encrypt } from "utils/DES/Node";
-import { notification, message } from "ant-design-vue";
+import { notification, Modal } from "ant-design-vue";
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
 
@@ -73,14 +73,6 @@ service.interceptors.request.use(
     if (action.startsWith("/")) {
       action = action.slice(1);
     }
-    const p = {
-      action,
-      // d: encrypt(JSON.stringify(config.data)),
-
-      // Node加密
-      d: aes_encrypt(action, JSON.stringify(config.data)),
-    };
-
     const networkStore = useNetwork();
     let baseURL = "";
     switch (config.urlType) {
@@ -98,7 +90,18 @@ service.interceptors.request.use(
         break;
     }
     config.url = baseURL + config.url;
-
+    let d;
+    if (baseURL.indexOf("120.79.186.23") > -1) {
+      // js加密
+      d = encrypt(JSON.stringify(config.data));
+    } else {
+      // Node加密
+      d = aes_encrypt(action, JSON.stringify(config.data));
+    }
+    const p = {
+      action,
+      d,
+    };
     console.log("request----", { currentNode: networkStore.currentNode, url: config.url, data: config.data, p });
     config.data = JSON.stringify(p);
     return config;
@@ -112,15 +115,16 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     const { data, config } = response;
-    // const { data } = response;
     if (data.err === 0) {
       ifTokenError = false;
-      // data.data = JSON.parse(decrypt(data.data));
-
-      // Node解密
-      const action = JSON.parse(config.data).action;
-      // @ts-ignore
-      data.data = JSON.parse(aes_decrypt(action, data.data));
+      if (config.url && config.url.indexOf("120.79.186.23") > -1) {
+        // js解密
+        data.data = JSON.parse(decrypt(data.data));
+      } else {
+        // Node解密
+        const action = JSON.parse(config.data).action;
+        data.data = JSON.parse(aes_decrypt(action, data.data));
+      }
       console.log("response....", { url: response.config.url, data });
       return response;
     }
@@ -130,8 +134,13 @@ service.interceptors.response.use(
       userStore.loginInfo = null;
 
       if (!ifTokenError) {
-        message.error("登录过期，请重新登录");
-        window.location.replace(window.location.origin + "/login");
+        Modal.warning({
+          title: 'waring',
+          content: 'data.errmsg',
+          onOk() {
+            window.location.replace(window.location.origin + "/login");
+          },
+        });
       }
       ifTokenError = true;
       return Promise.reject(data);
@@ -144,15 +153,19 @@ service.interceptors.response.use(
   },
   (err) => {
     const res = err.response;
-    if (res && res.status) {
+    if (res.data) {
+      notification["error"]({
+        message: "request error",
+        description: res.data.errmsg || err.message || 'something error',
+      });
+      return Promise.reject(err);
+    }
+    if (res.status) {
       notification["error"]({
         message: err.name || "request error",
         description: err.message || `statusCode: ${res.status}`,
       });
-    } else {
-      notification["error"]({
-        message: "request error",
-      });
+      return Promise.reject(err);
     }
     // // 根据返回的http状态码做不同的处理，比如错误提示等 TODO
     // switch (status) {

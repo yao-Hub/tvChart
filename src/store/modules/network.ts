@@ -35,8 +35,8 @@ export const useNetwork = defineStore("network", {
         const parseAccount = JSON.parse(account);
         const queryNode = CryptoJS.decrypt(parseAccount.queryNode);
         const server = CryptoJS.decrypt(parseAccount.server);
-        await this.getNodes(server);
         this.nodeName = queryNode;
+        await this.getNodes(server);
       }
     },
 

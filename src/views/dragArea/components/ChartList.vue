@@ -132,7 +132,6 @@ const tabAdd = async () => {
     id: `chart_${len + 1}`,
   });
   state.activeKey = `chart_${len + 1}`;
-  console.log(chartList.value)
 };
 </script>
 

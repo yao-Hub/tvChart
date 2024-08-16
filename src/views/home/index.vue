@@ -1,13 +1,12 @@
 <template>
-  <div
-    class="chart"
-    v-show="!chartInitStore.loading && !chartInitStore.ifInitError"
-  >
+  <div class="chart">
     <WPHeader></WPHeader>
     <dragArea></dragArea>
     <FooterInfo></FooterInfo>
   </div>
-  <Spin v-show="chartInitStore.loading"></Spin>
+  <div v-if="chartInitStore.loading" class="loading">
+    <Spin></Spin>
+  </div>
 
   <FloatMenu></FloatMenu>
   <OrderDialog></OrderDialog>
@@ -15,9 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted, nextTick } from "vue";
-// import { Modal } from "ant-design-vue";
-import { useRouter } from "vue-router";
+import { reactive, onMounted } from "vue";
 
 import { useSocket } from "@/store/modules/socket";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -25,7 +22,6 @@ import { useChartSub } from "@/store/modules/chartSub";
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
 import { useNetwork } from "@/store/modules/network";
-// import { useRoot } from "@/store/store";
 
 import { allSymbols } from "api/symbols/index";
 import { initDragResizeArea } from "utils/dragResize/index";
@@ -52,42 +48,19 @@ const getSymbols = async () => {
   const res: any = await allSymbols();
   chartSubStore.setSymbols(res.data);
   state.symbol = res.data[0]?.symbol;
-  chartInitStore.loading = false;
 };
-
 onMounted(async () => {
   try {
-    chartInitStore.loading = true;
-    chartInitStore.ifInitError = false;
+    // 初始化拖拽
+    initDragResizeArea();
     await networkStore.initNode();
+    socketStore.initSocket();
     await getSymbols();
     await userStore.initUser();
     orderStore.getQuickTrans();
-    socketStore.initSocket();
-    await nextTick();
-
-    // 初始化拖拽
-    initDragResizeArea();
-
-    // 记忆动作
-    // const rootStore = useRoot();
-    // if (rootStore.cacheAction) {
-    //   rootStore[rootStore.cacheAction]();
-    //   rootStore.clearCacheAction();
-    // }
+    chartInitStore.loading = false;
   } catch (error) {
-    console.log(error)
-    chartInitStore.ifInitError = true;
-    const router = useRouter();
-    router.push({ name: 'login' });
-    // Modal.error({
-    //   title: "出错了",
-    //   content: "请刷新页面重试",
-    //   onOk() {
-    //     window.location.reload();
-    //   },
-    // });
-  } finally {
+    console.log(error);
     chartInitStore.loading = false;
   }
 });
@@ -101,5 +74,14 @@ onMounted(async () => {
   flex-direction: column;
   position: relative;
   overflow: auto;
+}
+.loading {
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  @include background_color("background");
 }
 </style>

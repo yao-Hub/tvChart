@@ -1,5 +1,5 @@
 import CryptoJS from "crypto-js";
-import sha256 from 'crypto-js/sha256';
+import sha256 from "crypto-js/sha256";
 
 const iv = new TextEncoder().encode("1234567890000000");
 const DEFAULT_SECRET_KEY = "@kArs0n2q25*Tr0d2Ru";
@@ -13,7 +13,8 @@ export function aes_decrypt(tcrypto_key: string, secretdata: string) {
     });
     return decrypted.toString(CryptoJS.enc.Utf8);
   } catch (error) {
-   console.log(error)
+    console.log(error);
+    return ""
   }
 }
 
@@ -23,10 +24,10 @@ export function aes_encrypt(tcrypto_key: string, cleardata: string) {
     const encrypted = CryptoJS.AES.encrypt(cleardata, cryptkey, {
       iv: CryptoJS.lib.WordArray.create(iv),
       mode: CryptoJS.mode.CBC,
-      padding: CryptoJS.pad.Pkcs7
+      padding: CryptoJS.pad.Pkcs7,
     });
     return encrypted.toString();
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 }
