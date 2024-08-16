@@ -140,7 +140,26 @@ const formState = reactive<FormState>({
 // 获取网络节点
 import { useNetwork } from "@/store/modules/network";
 const networkStore = useNetwork();
-networkStore.getLines();
+
+(async function () {
+  await networkStore.getLines();
+  // 记住密码自动填充
+  const ifRemember = window.localStorage.getItem("remember");
+  if (ifRemember) {
+    const account = window.localStorage.getItem("account");
+    const parseAccount = account ? JSON.parse(account) : {};
+    if (parseAccount.server) {
+      formState.server = CryptoJS.decrypt(parseAccount.server);
+    }
+    if (parseAccount.login) {
+      formState.login = CryptoJS.decrypt(parseAccount.login);
+    }
+    if (parseAccount.password) {
+      formState.password = CryptoJS.decrypt(parseAccount.password);
+    }
+  }
+})();
+
 const filterOption = (input: string, option: any) => {
   const regex = new RegExp(input.split("").join(".*"), "i");
   return regex.test(option.label);
@@ -154,29 +173,13 @@ watch(
   }
 );
 
-// 记住密码自动填充
-const ifRemember = window.localStorage.getItem("remember");
-if (ifRemember) {
-  const account = window.localStorage.getItem("account");
-  const parseAccount = account ? JSON.parse(account) : {};
-  if (parseAccount.server) {
-    formState.server = CryptoJS.decrypt(parseAccount.server);
-  }
-  if (parseAccount.login) {
-    formState.login = CryptoJS.decrypt(parseAccount.login);
-  }
-  if (parseAccount.password) {
-    formState.password = CryptoJS.decrypt(parseAccount.password);
-  }
-}
-
 const onFinish = async (values: any) => {
   try {
     formState.logging = true;
     const { login, remember, password, server } = values;
     const nodeList = networkStore.nodeList;
     if (nodeList.length === 0) {
-      return message.info('找不到网络节点，请切换交易线路重试');
+      return message.info("找不到网络节点，请切换交易线路重试");
     }
     for (let i in nodeList) {
       const item = nodeList[i];

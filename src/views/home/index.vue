@@ -53,6 +53,7 @@ onMounted(async () => {
   try {
     // 初始化拖拽
     initDragResizeArea();
+    await networkStore.getLines();
     await networkStore.initNode();
     socketStore.initSocket();
     await getSymbols();

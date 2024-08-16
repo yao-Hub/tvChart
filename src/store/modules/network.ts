@@ -49,9 +49,6 @@ export const useNetwork = defineStore("network", {
     // 网络节点
     async getNodes(lineName: string) {
       try {
-        if (this.queryTradeLines.length === 0) {
-          await this.getLines();
-        }
         const lineCode = this.queryTradeLines.find(e => e.lineName === lineName)?.lineCode;
         if (lineCode) {
           const res = await queryNode({
