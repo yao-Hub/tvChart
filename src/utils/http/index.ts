@@ -48,9 +48,9 @@ const service = axios.create({
   withCredentials: false,
   headers: {
     "Content-Type": "application/json",
-    "x-u-app-version": "1.0.0",
-    version: "1.0.0",
-    "x-u-device-id": uuid,
+    // "x-u-app-version": "1.0.0",
+    // version: "1.0.0",
+    // "x-u-device-id": uuid,
     // "x-u-platform": "web",
   },
 });
@@ -96,6 +96,9 @@ service.interceptors.request.use(
       d = encrypt(JSON.stringify(config.data));
     } else {
       config.headers["x-u-platform"] = "web";
+      config.headers["x-u-app-version"] = "1.0.0";
+      config.headers["version"] = "1.0.0";
+      config.headers["x-u-device-id"] = uuid;
       // Node加密
       d = aes_encrypt(action, JSON.stringify(config.data));
     }
