@@ -7,8 +7,8 @@ enum Api {
   QueryTradeLine = "/server/queryTradeLine",
   Register = "/my/sign_up",
   QueryNode = "/server/queryNode",
-  VirtualLine = "my/virtual_line_query",
-  EmailPasswordUpdate = "my/email_password_update",
+  VirtualLine = "/my/virtual_line_query",
+  EmailPasswordUpdate = "/my/email_password_update",
 }
 export interface Order {
   id: number; //	订单ID

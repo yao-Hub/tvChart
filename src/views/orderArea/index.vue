@@ -1,10 +1,7 @@
 <template>
   <div class="orderArea">
     <baseTabs v-model:activeKey="activeKey">
-      <TabItem
-        v-for="item in state.menu"
-        :key="item.key"
-        :activeKey="item.key">
+      <TabItem v-for="item in state.menu" :key="item.key" :activeKey="item.key">
         <template #tab>
           <span>
             {{ item.label }}
@@ -19,27 +16,50 @@
     </baseTabs>
     <div class="container">
       <div class="filter">
-        <SymbolSelect
+        <a-dropdown v-show="['position', 'order'].includes(activeKey)">
+          <template #overlay>
+            <a-menu @click="(e: MenuProps['onClick']) => symbolSearch(e, activeKey)">
+              <a-menu-item v-for="item in subStore.symbols" :key="item.symbol">
+                {{ item.symbol }}
+              </a-menu-item>
+            </a-menu>
+          </template>
+          <a-button>
+            品种
+            <CaretDownFilled />
+          </a-button>
+        </a-dropdown>
+        <!-- <SymbolSelect
           v-model="state.updata[activeKey].symbol"
           @change="getTableDate(activeKey)"
           :selectOption="{ allowClear: true }"
         >
           品种：
-        </SymbolSelect>
+        </SymbolSelect> -->
         <TimeSelect
           v-show="activeKey === 'orderHistory'"
           v-model="state.updata[activeKey].createTime"
-          @timeRange="getTableDate(activeKey)">创建时间：</TimeSelect>
+          @timeRange="getTableDate(activeKey)"
+          >创建时间：</TimeSelect
+        >
         <TimeSelect
           v-show="activeKey === 'transactionHistory'"
           v-model="state.updata[activeKey].addTime"
-          @timeRange="getTableDate(activeKey)">建仓时间：</TimeSelect>
+          @timeRange="getTableDate(activeKey)"
+          >建仓时间：</TimeSelect
+        >
         <TimeSelect
           v-show="activeKey === 'transactionHistory'"
           initFill
           v-model="state.updata[activeKey].closeTime"
-          @timeRange="getTableDate(activeKey)" >平仓时间：</TimeSelect>
-        <CloseOrder v-show="['position', 'order'].includes(activeKey)" :orderType="activeKey" @closeClick="closeOrders"></CloseOrder>
+          @timeRange="getTableDate(activeKey)"
+          >平仓时间：</TimeSelect
+        >
+        <CloseOrder
+          v-show="['position', 'order'].includes(activeKey)"
+          :orderType="activeKey"
+          @closeClick="closeOrders"
+        ></CloseOrder>
       </div>
       <a-table
         :dataSource="state.dataSource[activeKey]"
@@ -120,8 +140,9 @@
 <script setup lang="ts">
 import { reactive, watchEffect, h, ref, onMounted } from "vue";
 import { cloneDeep, debounce } from "lodash";
-import { CloseOutlined } from "@ant-design/icons-vue";
+import { CloseOutlined, CaretDownFilled } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
+import type { MenuProps } from 'ant-design-vue';
 
 import moment from "moment";
 
@@ -137,6 +158,7 @@ import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
 import { useSocket } from "@/store/modules/socket";
+import { useChartSub } from "@/store/modules/chartSub";
 
 import EditOrderDialog from "../orderDialog/edit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
@@ -146,6 +168,7 @@ const userStore = useUser();
 const orderStore = useOrder();
 const dialogStore = useDialog();
 const socketStore = useSocket();
+const subStore = useChartSub();
 
 interface Menu {
   label: string;
@@ -327,7 +350,7 @@ const getOrders = async () => {
     state.loadingList.position = true;
     const res = await orders.openningOrders();
     const selectSymbol = state.updata.position.symbol;
-    state.dataSource.position = res.data.filter(item => {
+    state.dataSource.position = res.data.filter((item) => {
       if (selectSymbol) {
         return item.symbol === selectSymbol;
       }
@@ -345,7 +368,7 @@ const getPendingOrders = async () => {
     state.loadingList.order = true;
     const res = await orders.pendingOrders();
     const selectSymbol = state.updata.order.symbol;
-    state.dataSource.order = res.data.filter(item => {
+    state.dataSource.order = res.data.filter((item) => {
       if (selectSymbol) {
         return item.symbol === selectSymbol;
       }
@@ -377,11 +400,7 @@ const getOrderHistory = async () => {
 const getTradingHistory = async () => {
   try {
     state.loadingList.transactionHistory = true;
-    const {
-      addTime,
-      closeTime,
-      symbol,
-    } = state.updata.transactionHistory;
+    const { addTime, closeTime, symbol } = state.updata.transactionHistory;
     const [open_begin_time, open_end_time] = addTime;
     const [close_begin_time, close_end_time] = closeTime;
     const updata: any = {};
@@ -438,30 +457,33 @@ const orderClose = async (record: orders.resOrders) => {
 };
 
 // 批量平仓撤单
-const closeOrders = (data: orders.resOrders[], type: orderTypes.TableDataKey) => {
+const closeOrders = (
+  data: orders.resOrders[],
+  type: orderTypes.TableDataKey
+) => {
   if (data.length === 0) {
     return;
   }
   const closeTipMap: Record<string, string> = {
-    position: '平仓',
-    order: '撤销'
+    position: "平仓",
+    order: "撤销",
   };
   const preTipMap: Record<string, string> = {
-    position: '头寸',
-    order: '挂单'
+    position: "头寸",
+    order: "挂单",
   };
   Modal.confirm({
     title: `${closeTipMap[type]}${preTipMap[type]}`,
     content: `您将${closeTipMap[type]}以下选定的${data.length}个${preTipMap[type]}，您想要继续吗？`,
     maskClosable: true,
     async onOk() {
-      if (type === 'position') {
-        const list = data.map(item => {
+      if (type === "position") {
+        const list = data.map((item) => {
           return orders.marketOrdersClose({
             symbol: item.symbol,
             id: item.id,
             volume: item.volume,
-          })
+          });
         });
         const res = await Promise.all(list);
         if (res[0].data.action_success) {
@@ -471,12 +493,12 @@ const closeOrders = (data: orders.resOrders[], type: orderTypes.TableDataKey) =>
           userStore.getLoginInfo();
         }
       }
-      if (type === 'order') {
-        const list = data.map(item => {
+      if (type === "order") {
+        const list = data.map((item) => {
           return orders.delPendingOrders({
             symbol: item.symbol,
             id: item.id,
-          })
+          });
         });
         const res = await Promise.all(list);
         if (res[0].data.action_success) {
@@ -532,8 +554,14 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
   }
 };
 
+const symbolSearch = (e:any, type: string) => {
+  console.log('click', e);
+  // state.updata[type].symbol = 
+  getTableDate(type);
+};
+
 const getTableDate = (type: string) => {
-  switch(type) {
+  switch (type) {
     case "position":
       debouncedGetOrders();
       break;

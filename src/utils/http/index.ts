@@ -94,13 +94,12 @@ service.interceptors.request.use(
         baseURL =
           import.meta.env.MODE === "development"
             ? import.meta.env.VITE_HTTP_BASE_URL_client
-            : networkStore.currentNode?.webApi ||
-              import.meta.env.VITE_HTTP_URL_client;
+            : networkStore.currentNode?.webApi;
         break;
     }
     config.url = baseURL + config.url;
 
-    console.log("request----", { baseURL, url: config.url, data: config.data, p });
+    console.log("request----", { currentNode: networkStore.currentNode, url: config.url, data: config.data, p });
     config.data = JSON.stringify(p);
     return config;
   },

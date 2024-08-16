@@ -60,10 +60,10 @@ onMounted(async () => {
     chartInitStore.loading = true;
     chartInitStore.ifInitError = false;
     await networkStore.initNode();
-    socketStore.initSocket();
-    orderStore.getQuickTrans();
-    await userStore.initUser();
     await getSymbols();
+    await userStore.initUser();
+    orderStore.getQuickTrans();
+    socketStore.initSocket();
     await nextTick();
 
     // 初始化拖拽

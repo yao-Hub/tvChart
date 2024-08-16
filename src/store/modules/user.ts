@@ -6,7 +6,6 @@ import { useSocket } from "@/store/modules/socket";
 interface State {
   account: Pick<UserInfo, "login" | "password"> & {
     server: string;
-    queryNode: string;
   };
   loginInfo: UserInfo | null;
 }
@@ -17,7 +16,6 @@ export const useUser = defineStore("user", {
       login: "",
       password: "",
       server: "",
-      queryNode: "",
     },
     loginInfo: null,
   }),
@@ -29,7 +27,6 @@ export const useUser = defineStore("user", {
         this.account.login = CryptoJS.decrypt(parseAccount.login);
         this.account.password = CryptoJS.decrypt(parseAccount.password);
         this.account.server = CryptoJS.decrypt(parseAccount.server);
-        // this.account.queryNode = CryptoJS.decrypt(parseAccount.queryNode);
       }
       await this.getLoginInfo(true);
     },
