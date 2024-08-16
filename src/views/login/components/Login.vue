@@ -159,9 +159,15 @@ const ifRemember = window.localStorage.getItem("remember");
 if (ifRemember) {
   const account = window.localStorage.getItem("account");
   const parseAccount = account ? JSON.parse(account) : {};
-  formState.server = CryptoJS.decrypt(parseAccount.server || "");
-  formState.login = CryptoJS.decrypt(parseAccount.login);
-  formState.password = CryptoJS.decrypt(parseAccount.password);
+  if (parseAccount.server) {
+    formState.server = CryptoJS.decrypt(parseAccount.server);
+  }
+  if (parseAccount.login) {
+    formState.login = CryptoJS.decrypt(parseAccount.login);
+  }
+  if (parseAccount.password) {
+    formState.password = CryptoJS.decrypt(parseAccount.password);
+  }
 }
 
 const onFinish = async (values: any) => {
