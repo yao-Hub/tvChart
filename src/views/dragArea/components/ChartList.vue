@@ -1,6 +1,11 @@
 <template>
   <div class="charts">
-    <baseTabs class="charts_tabs" addable v-model:activeKey="state.activeKey" @handleAdd="tabAdd">
+    <baseTabs
+      class="charts_tabs"
+      addable
+      v-model:activeKey="state.activeKey"
+      @handleAdd="tabAdd"
+    >
       <TabItem
         v-for="chart in chartList"
         :tab="chart.symbol"
@@ -142,7 +147,7 @@ const tabAdd = async () => {
   box-sizing: border-box;
   border-radius: 5px;
   height: calc(100% - 24px);
-
+  margin-top: -24px;
   &_container {
     display: flex;
     flex-wrap: wrap;

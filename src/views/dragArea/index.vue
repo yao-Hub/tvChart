@@ -66,13 +66,14 @@ const layoutStore = useLayout();
 
       .container_item {
         width: 100%;
+        display: inline-block;
       }
 
       .handle {
-        position: absolute;
-        top: 0;
-        left: 0;
         z-index: 2;
+        position: sticky;
+        top: 0;
+        float: left;
         height: 24px;
         width: 16px;
         cursor: grab;

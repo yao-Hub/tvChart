@@ -69,7 +69,6 @@ const getQuotes = (type: "bid" | "ask", symbol: string) => {
 @import "@/assets/styles/_handle.scss";
 
 .main {
-  padding: 24px 0;
   width: 400px;
   display: flex;
   flex-direction: column;

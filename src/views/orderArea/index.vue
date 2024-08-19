@@ -575,6 +575,7 @@ const getTableDate = (type: string) => {
   box-sizing: border-box;
   position: relative;
   border-radius: 5px;
+  margin-top: -24px;
 
   // &::-webkit-scrollbar {
   //   width: 5px; /*  设置纵轴（y轴）轴滚动条 */
