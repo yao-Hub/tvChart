@@ -10,14 +10,13 @@ import { notification, Modal } from "ant-design-vue";
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
 
-interface CustomInternalAxiosRequestConfig
-  extends InternalAxiosRequestConfig<any> {
+type reqConfig = InternalAxiosRequestConfig<any> & {
   needToken?: boolean;
   noNeedServer?: boolean;
   action?: string;
   urlType?: string;
 }
-interface CustomAxiosRequestConfig extends AxiosRequestConfig<any> {
+type resConfig = AxiosRequestConfig<any> & {
   needToken?: boolean;
   noNeedServer?: boolean;
   action?: string;
@@ -42,6 +41,9 @@ if (storageId) {
   window.localStorage.setItem("uuid", uuid);
 }
 
+const ifLocal = import.meta.env.MODE === "development";
+const jsUrl = "120.79.186.23";
+
 const service = axios.create({
   timeout: 30 * 1000,
   // 请求是否携带cookie
@@ -57,7 +59,7 @@ const service = axios.create({
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config: CustomInternalAxiosRequestConfig) => {
+  (config: reqConfig) => {
     const userStore = useUser();
     config.data = {
       ...config.data,
@@ -66,7 +68,7 @@ service.interceptors.request.use(
       config.data.server = userStore.account.server;
     }
     if (config.needToken) {
-      config.data.token = userStore.getToken();
+      config.data.token = userStore.token || userStore.getToken();
       config.data.login = userStore.account.login;
     }
     let action = config.action || config.url || "";
@@ -77,21 +79,22 @@ service.interceptors.request.use(
     let baseURL = "";
     switch (config.urlType) {
       case "admin":
-        baseURL =
-          import.meta.env.MODE === "development"
-            ? import.meta.env.VITE_HTTP_BASE_URL_admin
-            : import.meta.env.VITE_HTTP_URL_admin;
+        baseURL = ifLocal
+          ? import.meta.env.VITE_HTTP_BASE_URL_admin
+          : import.meta.env.VITE_HTTP_URL_admin;
         break;
       default:
-        baseURL =
-          import.meta.env.MODE === "development"
-            ? import.meta.env.VITE_HTTP_BASE_URL_client
-            : networkStore.currentNode?.webApi;
+        baseURL = ifLocal
+          ? import.meta.env.VITE_HTTP_BASE_URL_client
+          : networkStore.currentNode?.webApi;
         break;
     }
     config.url = baseURL + config.url;
     let d;
-    if (baseURL.indexOf("120.79.186.23") > -1) {
+    if (
+      (baseURL.indexOf(jsUrl) > -1 || ifLocal) &&
+      config.urlType !== "admin"
+    ) {
       // js加密
       d = encrypt(JSON.stringify(config.data));
     } else {
@@ -106,7 +109,12 @@ service.interceptors.request.use(
       action,
       d,
     };
-    console.log("request----", { currentNode: networkStore.currentNode, url: config.url, data: config.data, p });
+    console.log("request----", {
+      currentNode: networkStore.currentNode,
+      url: config.url,
+      data: config.data,
+      p,
+    });
     config.data = JSON.stringify(p);
     return config;
   },
@@ -121,7 +129,8 @@ service.interceptors.response.use(
     const { data, config } = response;
     if (data.err === 0) {
       ifTokenError = false;
-      if (config.url && config.url.indexOf("120.79.186.23") > -1) {
+      // @ts-ignorets
+      if ((config.urlType !== "admin") && (config.url.indexOf(jsUrl) > -1 || ifLocal)) {
         // js解密
         data.data = JSON.parse(decrypt(data.data));
       } else {
@@ -133,15 +142,15 @@ service.interceptors.response.use(
       return response;
     }
     if (data.err === 1 && data.errmsg.includes("invalid token")) {
-      const userStore = useUser();
-      userStore.clearToken();
-      userStore.loginInfo = null;
-
       if (!ifTokenError) {
-        Modal.warning({
-          title: 'waring',
-          content: 'data.errmsg',
+        Modal.confirm({
+          title: "error",
+          content: data.errmsg,
+          okText: '重新登陆',
           onOk() {
+            const userStore = useUser();
+            userStore.clearToken();
+            userStore.loginInfo = null;
             window.location.replace(window.location.origin + "/login");
           },
         });
@@ -160,7 +169,7 @@ service.interceptors.response.use(
     if (res.data) {
       notification["error"]({
         message: "request error",
-        description: res.data.errmsg || err.message || 'something error',
+        description: res.data.errmsg || err.message || "something error",
       });
       return Promise.reject(err);
     }
@@ -171,28 +180,13 @@ service.interceptors.response.use(
       });
       return Promise.reject(err);
     }
-    // // 根据返回的http状态码做不同的处理，比如错误提示等 TODO
-    // switch (status) {
-    //   case 401:
-    //     // 鉴权失败
-    //     break;
-    //   case 403:
-    //     // 没有权限
-    //     break;
-    //   case 500:
-    //     // 服务端错误
-    //     break;
-
-    //   default:
-    //     break;
-    // }
     return Promise.reject(err);
   }
 );
 
 // 封装一层以更好的统一定义接口返回的类型
 const request = <T>(
-  config: CustomAxiosRequestConfig
+  config: resConfig
 ): Promise<CustomResponseType<T>> => {
   return new Promise((resolve, reject) => {
     service

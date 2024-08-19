@@ -1,6 +1,6 @@
 <template>
   <div class="orderArea">
-    <baseTabs v-model:activeKey="activeKey">
+    <baseTabs v-model:activeKey="activeKey" style="margin-left: 16px">
       <TabItem v-for="item in state.menu" :key="item.key" :activeKey="item.key">
         <template #tab>
           <span>
@@ -16,26 +16,12 @@
     </baseTabs>
     <div class="container">
       <div class="filter">
-        <a-dropdown v-show="['position', 'order'].includes(activeKey)">
-          <template #overlay>
-            <a-menu @click="(e: MenuProps['onClick']) => symbolSearch(e, activeKey)">
-              <a-menu-item v-for="item in subStore.symbols" :key="item.symbol">
-                {{ item.symbol }}
-              </a-menu-item>
-            </a-menu>
-          </template>
-          <a-button>
-            品种
-            <CaretDownFilled />
-          </a-button>
-        </a-dropdown>
-        <!-- <SymbolSelect
+        <SymbolSelect
           v-model="state.updata[activeKey].symbol"
           @change="getTableDate(activeKey)"
           :selectOption="{ allowClear: true }"
         >
-          品种：
-        </SymbolSelect> -->
+        </SymbolSelect>
         <TimeSelect
           v-show="activeKey === 'orderHistory'"
           v-model="state.updata[activeKey].createTime"
@@ -140,9 +126,8 @@
 <script setup lang="ts">
 import { reactive, watchEffect, h, ref, onMounted } from "vue";
 import { cloneDeep, debounce } from "lodash";
-import { CloseOutlined, CaretDownFilled } from "@ant-design/icons-vue";
+import { CloseOutlined } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
-import type { MenuProps } from 'ant-design-vue';
 
 import moment from "moment";
 
@@ -158,7 +143,6 @@ import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
 import { useSocket } from "@/store/modules/socket";
-import { useChartSub } from "@/store/modules/chartSub";
 
 import EditOrderDialog from "../orderDialog/edit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
@@ -168,7 +152,6 @@ const userStore = useUser();
 const orderStore = useOrder();
 const dialogStore = useDialog();
 const socketStore = useSocket();
-const subStore = useChartSub();
 
 interface Menu {
   label: string;
@@ -193,7 +176,8 @@ const state = reactive({
   orderInfo: {} as orders.resOrders,
   updata: {
     position: {
-      symbol: "",
+      // symbol: [],
+      symbol: null,
       createTime: "",
       addTime: "",
       closeTime: "",
@@ -216,7 +200,7 @@ const state = reactive({
       addTime: "",
       closeTime: "",
     },
-  },
+  } as Record<orderTypes.TableDataKey, any>,
   loadingList: {
     position: false,
     order: false,
@@ -349,10 +333,12 @@ const getOrders = async () => {
   try {
     state.loadingList.position = true;
     const res = await orders.openningOrders();
+    // const selectSymbols = state.updata.position.symbol;
     const selectSymbol = state.updata.position.symbol;
     state.dataSource.position = res.data.filter((item) => {
+      // return selectSymbols.include(item.symbol);
       if (selectSymbol) {
-        return item.symbol === selectSymbol;
+        return selectSymbol === item.symbol;
       }
       return true;
     });
@@ -554,11 +540,10 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
   }
 };
 
-const symbolSearch = (e:any, type: string) => {
-  console.log('click', e);
-  // state.updata[type].symbol = 
-  getTableDate(type);
-};
+// const symbolSearch = (list: any, type: orderTypes.TableDataKey) => {
+//   state.updata[type].symbol = list;
+//   getTableDate(type);
+// };
 
 const getTableDate = (type: string) => {
   switch (type) {
@@ -584,7 +569,6 @@ const getTableDate = (type: string) => {
 @import "@/assets/styles/_handle.scss";
 
 .orderArea {
-  padding: 0 20px;
   display: flex;
   flex-direction: column;
   overflow: auto;
@@ -612,12 +596,14 @@ const getTableDate = (type: string) => {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
+    padding: 0 16px;
 
     .filter {
       display: flex;
-      gap: 10px;
-      margin-bottom: 10px;
+      gap: 8px;
       flex-wrap: wrap;
+      box-sizing: border-box;
+      margin: 11px 0;
     }
   }
 }

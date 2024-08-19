@@ -52,13 +52,14 @@ const getSymbols = async () => {
 onMounted(async () => {
   try {
     // 初始化拖拽
+    orderStore.getQuickTrans();
+    userStore.initUser();
     initDragResizeArea();
     await networkStore.getLines();
     await networkStore.initNode();
     socketStore.initSocket();
+    await userStore.getLoginInfo(true);
     await getSymbols();
-    await userStore.initUser();
-    orderStore.getQuickTrans();
     chartInitStore.loading = false;
   } catch (error) {
     console.log(error);

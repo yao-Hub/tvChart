@@ -8,11 +8,12 @@ export function createPermissionGuard(router: Router) {
     if (to.meta.passGuard) {
       return true;
     }
-    if (to.path !== PageEnum.LOGIN && !userStore.getToken()) {
+    const token = userStore.getToken();
+    if (to.path !== PageEnum.LOGIN && !token) {
       await router.replace({ path: PageEnum.LOGIN });
       return false;
     }
-    if (to.path === PageEnum.LOGIN && userStore.getToken()) {
+    if (to.path === PageEnum.LOGIN && token) {
       await router.replace(PageEnum.CHART);
       return false;
     }

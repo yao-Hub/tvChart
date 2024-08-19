@@ -8,6 +8,7 @@ interface State {
     server: string;
   };
   loginInfo: UserInfo | null;
+  token: string;
 }
 
 export const useUser = defineStore("user", {
@@ -18,9 +19,13 @@ export const useUser = defineStore("user", {
       server: "",
     },
     loginInfo: null,
+    token: "",
   }),
   actions: {
-    async initUser() {
+    initUser() {
+      if (!this.token) {
+        this.getToken();
+      }
       const account = window.localStorage.getItem("account");
       if (account) {
         const parseAccount = JSON.parse(account);
@@ -28,7 +33,6 @@ export const useUser = defineStore("user", {
         this.account.password = CryptoJS.decrypt(parseAccount.password);
         this.account.server = CryptoJS.decrypt(parseAccount.server);
       }
-      await this.getLoginInfo(true);
     },
     getToken() {
       let result = "";
@@ -37,14 +41,17 @@ export const useUser = defineStore("user", {
         const parseToken = JSON.parse(storageToken);
         result = CryptoJS.decrypt(parseToken);
       }
+      this.token = result;
       return result;
     },
     setToken(token: string) {
       const enToken = CryptoJS.encrypt(token);
+      this.token = token;
       window.localStorage.setItem("token", JSON.stringify(enToken));
     },
     clearToken() {
       window.localStorage.removeItem("token");
+      this.token = "";
     },
     async getLoginInfo(emitSocket?: boolean) {
       const socketStore = useSocket();

@@ -1,18 +1,15 @@
 <template>
-  <div>
-    <slot></slot>
-    <a-select
-      style="width: 100px;"
-      v-model:value="model"
-      @change="handleChange"
-      v-bind="props.selectOption"
-    >
-      <a-select-option :value="item.symbol" v-for="item in symbols">{{
-        item.symbol
-      }}</a-select-option>
-    </a-select>
-  </div>
-
+  <a-select
+    style="width: 100px"
+    v-model:value="model"
+    @change="handleChange"
+    placeholder="品种"
+    v-bind="props.selectOption"
+  >
+    <a-select-option :value="item.symbol" v-for="item in symbols">{{
+      item.symbol
+    }}</a-select-option>
+  </a-select>
 </template>
 
 <script setup lang="ts">
@@ -20,6 +17,7 @@ import { computed } from "vue";
 import { useChartSub } from "@/store/modules/chartSub";
 
 interface Props {
+  title?: string;
   type?: "tradeAllow" | "default";
   selectOption?: object;
 }
@@ -27,6 +25,7 @@ interface Props {
 const subStore = useChartSub();
 
 const props = withDefaults(defineProps<Props>(), {
+  title: "品种",
   type: "default",
 });
 

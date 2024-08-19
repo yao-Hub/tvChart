@@ -4,6 +4,7 @@
       <div class="demo" v-if="layoutStore.chartsVisable">
         <HolderOutlined class="handle" />
         <ChartList
+          v-if="!chartInitStore.loading"
           class="container_item"
           :loading="chartSubStore.chartsLoading"
         ></ChartList>
@@ -16,7 +17,10 @@
     <div class="dragArea_item">
       <div class="demo" v-if="layoutStore.orderAreaVisable">
         <HolderOutlined class="handle" />
-        <OrderArea class="container_item"></OrderArea>
+        <OrderArea
+          v-if="!chartInitStore.loading"
+          class="container_item"
+        ></OrderArea>
       </div>
     </div>
   </div>
@@ -27,11 +31,13 @@ import { HolderOutlined } from "@ant-design/icons-vue";
 
 import { useLayout } from "@/store/modules/layout";
 import { useChartSub } from "@/store/modules/chartSub";
+import { useChartInit } from "@/store/modules/chartInit";
 
 import OrderArea from "../orderArea/index.vue";
 import SymbolList from "./components/SymbolList.vue";
 import ChartList from "./components/ChartList.vue";
 
+const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const layoutStore = useLayout();
 </script>
@@ -57,7 +63,7 @@ const layoutStore = useLayout();
       user-select: none;
       overflow: auto;
       @include background_color("background-component");
-      
+
       .container_item {
         width: 100%;
       }

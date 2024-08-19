@@ -20,6 +20,10 @@ import Login from "./components/Login.vue";
 import Register from "./components/Register.vue";
 import ForgetPassword from "./components/ForgetPassword.vue";
 
+import { useUser } from "@/store/modules/user";
+const userStore = useUser();
+userStore.initUser();
+
 const state = reactive({
   componentMap: {
     login: markRaw(Login),

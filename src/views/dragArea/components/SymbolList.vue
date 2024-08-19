@@ -4,7 +4,6 @@
       <a-input
         v-model:value="state.symbol"
         placeholder="搜索交易品种"
-        style="margin-left: 20px"
       >
         <template #prefix>
           <SearchOutlined />
@@ -67,16 +66,24 @@ const getQuotes = (type: "bid" | "ask", symbol: string) => {
 </script>
 
 <style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
 .main {
-  padding: 5px;
+  padding: 24px 0;
   width: 400px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   border-radius: 5px;
+  
   &_search {
-    width: 85%;
+    box-sizing: border-box;
+    padding: 4px 16px;
+    width: 100%;
     margin-bottom: 10px;
+    border-top: 1px solid;
+    border-bottom: 1px solid;
+    @include border_color("border");
   }
 }
 </style>
