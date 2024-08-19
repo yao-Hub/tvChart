@@ -170,14 +170,14 @@ service.interceptors.response.use(
   },
   (err) => {
     const res = err.response;
-    if (res.data) {
+    if (res && res.data) {
       notification["error"]({
         message: "request error",
         description: res.data.errmsg || err.message || "something error",
       });
       return Promise.reject(err);
     }
-    if (res.status) {
+    if (res && res.status) {
       notification["error"]({
         message: err.name || "request error",
         description: err.message || `statusCode: ${res.status}`,
