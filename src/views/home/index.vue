@@ -58,8 +58,8 @@ onMounted(async () => {
     await networkStore.getLines();
     await networkStore.initNode();
     socketStore.initSocket();
-    await userStore.getLoginInfo(true);
     await getSymbols();
+    await userStore.getLoginInfo(true);
     chartInitStore.loading = false;
   } catch (error) {
     console.log(error);

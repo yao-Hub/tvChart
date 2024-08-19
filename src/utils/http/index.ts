@@ -3,6 +3,7 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
+import { remove } from "lodash";
 import type { CustomResponseType } from "#/axios";
 import { encrypt, decrypt } from "utils/DES/JS";
 import { aes_decrypt, aes_encrypt } from "utils/DES/Node";
@@ -23,7 +24,7 @@ type resConfig = AxiosRequestConfig<any> & {
   urlType?: string;
 }
 
-let ifTokenError = false;
+const tokenErrorList: string[] = [];
 
 function generateUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
@@ -128,7 +129,7 @@ service.interceptors.response.use(
   (response) => {
     const { data, config } = response;
     if (data.err === 0) {
-      ifTokenError = false;
+      remove(tokenErrorList, url => config.url === url);
       // @ts-ignorets
       if ((config.urlType !== "admin") && (config.url.indexOf(jsUrl) > -1 || ifLocal)) {
         // js解密
@@ -142,7 +143,10 @@ service.interceptors.response.use(
       return response;
     }
     if (data.err === 1 && data.errmsg.includes("invalid token")) {
-      if (!ifTokenError) {
+      if (config.url) {
+        tokenErrorList.push(config.url);
+      }
+      if (tokenErrorList.length === 1) {
         Modal.confirm({
           title: "error",
           content: data.errmsg,
@@ -151,11 +155,11 @@ service.interceptors.response.use(
             const userStore = useUser();
             userStore.clearToken();
             userStore.loginInfo = null;
+            remove(tokenErrorList);
             window.location.replace(window.location.origin + "/login");
           },
         });
       }
-      ifTokenError = true;
       return Promise.reject(data);
     }
     notification["error"]({
