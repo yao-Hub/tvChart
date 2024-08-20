@@ -62,6 +62,7 @@
           type="primary"
           html-type="submit"
           class="login-form-button"
+          :loading="formState.logging"
         >
           {{ $t("account.login") }}
         </a-button>
@@ -92,11 +93,13 @@ import { useI18n } from "vue-i18n";
 import CryptoJS from "utils/AES";
 import { Login } from "api/account/index";
 import { useUser } from "@/store/modules/user";
+import { useSocket } from "@/store/modules/socket";
 
 const router = useRouter();
 const { t } = useI18n();
 
 const userStore = useUser();
+const socketStore = useSocket();
 
 const rules: Record<string, Rule[]> = {
   server: [
@@ -185,12 +188,13 @@ const onFinish = async (values: any) => {
       const item = nodeList[i];
       try {
         networkStore.nodeName = item.nodeName;
+        socketStore.initSocket();
         const res = await Login({ password, login, server });
-        message.success(t("tip.succeed", { type: t("account.login") }));
         userStore.setToken(res.data.token);
         userStore.account.password = password;
         userStore.account.login = login;
         userStore.account.server = server;
+        socketStore.sendToken(login, res.data.token);
         const enlogin = CryptoJS.encrypt(login);
         const enpassword = CryptoJS.encrypt(password);
         const enserver = CryptoJS.encrypt(server);
@@ -203,6 +207,7 @@ const onFinish = async (values: any) => {
         };
         window.localStorage.setItem("account", JSON.stringify(storage));
         window.localStorage.setItem("remember", JSON.stringify(remember));
+        message.success(t("tip.succeed", { type: t("account.login") }));
         router.push({ path: "/" });
         return;
       } catch (error) {

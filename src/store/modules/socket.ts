@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import SingletonSocket from "utils/socket";
 import { useNetwork } from "@/store/modules/network";
 import { useChartSub } from "@/store/modules/chartSub";
+import { useUser } from "@/store/modules/user";
 
 interface State {
   socket: any;
@@ -25,8 +26,9 @@ export const useSocket = defineStore("socket", {
     },
 
     subscribeSocket({ resolution, symbol }: ChartProps) {
+      const userStore = useUser();
       this.socket?.emit("subscribe_kline", {
-        server: "upway-live",
+        server: userStore.account.server,
         symbol_period_type: [
           {
             symbol,
@@ -36,7 +38,7 @@ export const useSocket = defineStore("socket", {
       });
 
       this.socket?.emit("subscribe_quote", {
-        server: "upway-live",
+        server: userStore.account.server,
         symbols: [symbol],
       });
     },
@@ -44,6 +46,7 @@ export const useSocket = defineStore("socket", {
     // 取消订阅k线和报价
     unsubscribeSocket({ resolution, symbol }: ChartProps) {
       const subStore = useChartSub();
+      const userStore = useUser();
 
       const list = subStore.mustSubscribeList;
       if (list.indexOf(symbol) > -1) {
@@ -51,7 +54,7 @@ export const useSocket = defineStore("socket", {
         return;
       }
       this.socket?.emit("unsubscribe_kline", {
-        server: "upway-live",
+        server: userStore.account.server,
         symbol_period_type: [
           {
             symbol,
@@ -60,15 +63,16 @@ export const useSocket = defineStore("socket", {
         ],
       });
       this.socket?.emit("unsubscribe_qoute", {
-        server: "upway-live",
+        server: userStore.account.server,
         symbol_period_type: [symbol],
       });
     },
 
     // 验证登录信息绑定交易账户
     sendToken(login: string, token: string) {
+      const userStore = useUser();
       this.socket?.emit("set_login", {
-        server: "upway-live",
+        server: userStore.account.server,
         login,
         token,
       });
