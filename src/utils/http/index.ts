@@ -93,7 +93,7 @@ service.interceptors.request.use(
     config.url = baseURL + config.url;
     let d;
     if (
-      (baseURL.indexOf(jsUrl) > -1 || ifLocal) &&
+      (baseURL.includes(jsUrl) || ifLocal) &&
       config.urlType !== "admin"
     ) {
       // js加密
