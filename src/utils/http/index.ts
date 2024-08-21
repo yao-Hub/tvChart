@@ -92,10 +92,7 @@ service.interceptors.request.use(
     }
     config.url = baseURL + config.url;
     let d;
-    if (
-      (baseURL.includes(jsUrl) || ifLocal) &&
-      config.urlType !== "admin"
-    ) {
+    if ((baseURL && baseURL.includes(jsUrl) || ifLocal) && config.urlType !== "admin") {
       // js加密
       d = encrypt(JSON.stringify(config.data));
     } else {
