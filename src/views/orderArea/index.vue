@@ -540,11 +540,6 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
   }
 };
 
-// const symbolSearch = (list: any, type: orderTypes.TableDataKey) => {
-//   state.updata[type].symbol = list;
-//   getTableDate(type);
-// };
-
 const getTableDate = (type: string) => {
   switch (type) {
     case "position":
@@ -607,13 +602,5 @@ const getTableDate = (type: string) => {
       margin: 11px 0;
     }
   }
-}
-
-:deep(.ant-tabs-tab .ant-tabs-tab-active) {
-  color: #d1d4dc;
-}
-
-:deep(.ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn) {
-  color: #d1d4dc;
 }
 </style>

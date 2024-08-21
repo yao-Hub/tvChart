@@ -131,7 +131,7 @@ service.interceptors.response.use(
     if (data.err === 0) {
       remove(tokenErrorList, url => config.url === url);
       // @ts-ignorets
-      if ((config.urlType !== "admin") && (config.url.indexOf(jsUrl) > -1 || ifLocal)) {
+      if ((!config.urlType || config.urlType !== "admin") && (config.url?.includes(jsUrl) || ifLocal)) {
         // js解密
         data.data = JSON.parse(decrypt(data.data));
       } else {
@@ -142,7 +142,7 @@ service.interceptors.response.use(
       console.log("response....", { url: response.config.url, data });
       return response;
     }
-    if (data.err === 1 && data.errmsg.includes("invalid token")) {
+    if (data.err === 1 && data.errmsg && data.errmsg.includes("invalid token")) {
       if (config.url) {
         tokenErrorList.push(config.url);
       }
