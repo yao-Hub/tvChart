@@ -51,6 +51,7 @@ import { reactive, computed, onMounted } from "vue";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useOrder } from "@/store/modules/order";
+import { useTheme } from "@/store/modules/theme";
 import { datafeed } from "@/config/chartConfig";
 import * as types from "@/types/chart/index";
 import { HolderOutlined } from "@ant-design/icons-vue";
@@ -59,6 +60,7 @@ import Sortable from "sortablejs";
 const chartSubStore = useChartSub();
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
+const themeStore = useTheme();
 
 interface Props {
   loading?: boolean;
@@ -99,6 +101,7 @@ const initChart = (e: any) => {
   if (orderStore.ifQuick) {
     orderStore.addOrderBtn();
   }
+  themeStore.setChartTheme();
 };
 
 onMounted(() => {
@@ -146,7 +149,7 @@ const tabAdd = async () => {
 .charts {
   box-sizing: border-box;
   border-radius: 5px;
-  height: calc(100% - 24px);
+  height: calc(100% - 26px);
   margin-top: -24px;
   &_container {
     display: flex;

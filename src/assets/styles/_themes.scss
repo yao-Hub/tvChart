@@ -1,4 +1,4 @@
-$themes: (
+$systemThemes: (
   light: (
     background: #EEF2F6,
     background-component: #fff,
@@ -8,6 +8,8 @@ $themes: (
     word-gray: #94959B,
     closeBtn: #333333,
     tabActive: rgba(2,16,36,0.06),
+    btnDisabled: #BEC2C9,
+    inputDisabled: #EEF2F6,
   ),
   dark: (
     background: #141823,
@@ -18,5 +20,26 @@ $themes: (
     word-gray: #63636A,
     closeBtn: #d1d4dc,
     tabActive: rgba(2,16,36,0.06),
-  )
+    btnDisabled: #BEC2C9,
+    inputDisabled: #EEF2F6,
+  ),
+);
+
+$updwonThemes: (
+  upRedDownGreen: (
+    up: #DC1D43,
+    upHover: #FF4A61,
+    upActive: #A41532,
+    down: #009355,
+    downHover: #00C673,
+    downActive: #03663D,
+  ),
+  upGreenDownRed: (
+    up: #009355,
+    upHover: #00C673,
+    upActive: #03663D,
+    down: #DC1D43,
+    downHover: #FF4A61,
+    downActive: #A41532,
+  ),
 )

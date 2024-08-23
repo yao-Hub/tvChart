@@ -1,260 +1,465 @@
 <template>
   <div>
     <a-modal
-      :width="700"
+      wrapClassName="orderDialog"
+      :width="464"
       :open="open"
-      :key="open"
-      :title="title"
       @cancel="handleCancel"
-      :bodyStyle="state.bodyStyle"
       :footer="null"
+      :mask="false"
+      :maskClosable="false"
     >
-      <div class="main">
-        <a-menu
-          class="left"
-          v-model:selectedKeys="state.selectedKeys"
-          mode="inline"
-          :items="state.items"
-        ></a-menu>
-        <div class="right">
-          <div class="title">新{{ title }}</div>
-          <a-divider class="divider"></a-divider>
+      <a-form
+        ref="orderFormRef"
+        :model="formState"
+        :rules="rules"
+        layout="vertical"
+        size="large"
+      >
+        <a-row :gutter="24">
+          <a-col :span="12">
+            <a-form-item name="symbol" label="交易品种" validateFirst>
+              <SymbolSelect
+                style="width: 100%"
+                v-model="formState.symbol"
+                :selectOption="{ allowClear: true }"
+              ></SymbolSelect>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item name="orderType" label="订单类型">
+              <a-select
+                v-model:value="formState.orderType"
+                show-search
+                placeholder="orderType"
+                :options="orderTypeOptions"
+                :filter-option="orderTypeFilterOption"
+              ></a-select>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12" v-if="['buyLimit', 'sellLimit', 'buyStop', 'sellStop'].includes(formState.orderType)">
+            <a-form-item name="orderPrice" label="下单价" validateFirst>
+              <Price
+                v-model:value="formState.orderPrice"
+                :type="formState.orderType"
+                :symbolInfo="symbolInfo"
+                :quote="quote">
+              </Price>
+            </a-form-item>
+          </a-col>
+          <a-col :span="['', 'price', 'buyStopLimit', 'sellStopLimit'].includes(formState.orderType) ? 24 : 12">
+            <a-form-item name="volume" label="交易量">
+              <Volume
+                v-model:volume="formState.volume"
+                :symbolInfo="symbolInfo"
+                :quote="quote"
+              ></Volume>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12" v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)">
+            <a-form-item name="breakPrice" label="突破价">
+              <Price
+                v-model:value="formState.breakPrice"
+                :type="formState.orderType"
+                :symbolInfo="symbolInfo"
+                :quote="quote">
+              </Price>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12" v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)">
+            <a-form-item name="limitedPrice" label="限价">
+              <Price
+                v-model:value="formState.limitedPrice"
+                :type="formState.orderType"
+                :symbolInfo="symbolInfo"
+                :quote="quote">
+              </Price>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <StopLossProfit
+              type="stopLoss"
+              v-model:point="formState.stopLoss"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+              :orderType="formState.orderType === 'price' ? `${ifCreateSell ? 'sell' : 'buy'}Price` : 'formState.orderType'"
+            ></StopLossProfit>
+          </a-col>
+          <a-col :span="12">
+            <StopLossProfit
+              type="stopProfit"
+              v-model:point="formState.stopProfit"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+              :orderType="formState.orderType === 'price' ? `${ifCreateSell ? 'sell' : 'buy'}Price` : 'formState.orderType'"
+            ></StopLossProfit>
+          </a-col>
+          <a-col :span="24" v-if="!['', 'price'].includes(formState.orderType)">
+            <a-form-item name="dueDate" label="期限">
+              <Term v-model:term="formState.dueDate"></Term>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12">
+            <a-form-item>
+              <a-flex gap="16">
+                <span class="sellWord" style="width: 50%;">卖价: {{ formState.symbol ? quote.bid : "" }}</span>
+                <span class="buyWord" style="width: 50%;">买价: {{ formState.symbol ? quote.ask : "" }}</span>
+              </a-flex>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
+            <a-form-item>
+              <a-flex justify="space-evenly">
+                <a-button
+                  class="sellBtn"
+                  type="primary"
+                  :disabled="!ifCreateSell"
+                  :loading="priceBtnLoading"
+                  @click="showConfirmModal('sell')">卖出</a-button>
+                <a-button
+                  class="buyBtn"
+                  type="primary"
+                  :disabled="!ifCreateBuy"
+                  :loading="priceBtnLoading"
+                  @click="showConfirmModal('buy')">买入</a-button>
+              </a-flex>
+            </a-form-item>
+          </a-col>
+          <a-col :span="12" v-if="!['', 'price'].includes(formState.orderType)">
+            <a-form-item>
+              <a-flex justify="flex-end">
+                <a-button :class="[formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn']" type="primary">下单</a-button>
+              </a-flex>
+            </a-form-item>
+          </a-col>
+        </a-row>
+      </a-form>
 
-          <SymbolSelect
-            class="symbolSelect"
-            type="tradeAllow"
-            v-model="state.symbol"
-            @change="symbolChange"
-          ></SymbolSelect>
-
-          <div v-if="state.loading" class="loadingSpin">
-            <Spin></Spin>
-          </div>
-          <keep-alive v-else>
-            <component
-              :is="state.componentMap[state.selectedKeys[0]]"
-              :selectedSymbol="state.symbol"
-              :currentSymbolInfo="currentSymbolInfo"
-              :ask="state.quote.ask"
-              :bid="state.quote.bid"
-              :high="state.newKlineData.high"
-              :low="state.newKlineData.low"
-              @success="orderSucced"
-            ></component>
-          </keep-alive>
+      <template #title>
+        <div ref="modalTitleRef" style="width: 100%; cursor: move">下单</div>
+      </template>
+      <template #modalRender="{ originVNode }">
+        <div :style="transformStyle">
+          <component :is="originVNode" />
         </div>
-      </div>
+      </template>
     </a-modal>
+
+    <!-- 下单确认 -->
+    <a-modal :open="confirmOrderOpen" @cancel="handleConfirmOrderCancle" title="下单确认" :width="400">
+      <a-flex wrap="wrap">
+        <div style="width: 45%; margin: 8px 0" v-for="(value, key) in formState" v-show="!!value">
+          <span v-if="key === 'orderType'">{{ formMap[key] }}: {{ directionType }}</span>
+          <span v-else>
+            {{ formMap[key] }}: {{ value }}
+          </span>
+        </div>
+      </a-flex>
+      <template #footer>
+        <a-button @click="handleConfirmOrderCancle">修改</a-button>
+        <a-button type="primary" @click="createPriceOrder">确认</a-button>
+      </template>
+    </a-modal>
+
   </div>
 </template>
 
-<script lang="ts" setup>
-import { computed, reactive, watch, markRaw, watchEffect } from "vue";
+<script setup lang="ts">
+import { ref, computed, reactive, watch, watchEffect, nextTick } from "vue";
+import { debounce } from "lodash";
+import Volume from "./components/Volume.vue";
+import StopLossProfit from "./components/StopLossProfit.vue";
+import Term from "./components/Term.vue";
+import Price from "./components/Price.vue";
 
+/** 弹窗处理 */
 import { useDialog } from "@/store/modules/dialog";
-import { useOrder } from "@/store/modules/order";
-import { useChartSub } from "@/store/modules/chartSub";
-
-import { klineHistory } from "api/kline/index";
-
-import Limit from "./components/orders/Limit.vue";
-import Price from "./components/orders/Price.vue";
-import Stop from "./components/orders/Stop.vue";
-import StopLimit from "./components/orders/StopLimit.vue";
-
-import { OrderType } from "#/order";
-
 const dialogStore = useDialog();
-const orderStore = useOrder();
-const subStore = useChartSub();
-
-const state = reactive({
-  selectedKeys: ["price"] as OrderType[],
-  bodyStyle: {
-    backgroundColor: "#525252",
-    borderRadius: "8px",
-  },
-  items: [
-    { key: "price", label: "市价单" },
-    { key: "limit", label: "限价单" },
-    { key: "stop", label: "止损单" },
-    { key: "stopLimit", label: "止损限价单" },
-  ],
-  componentMap: {
-    price: markRaw(Price),
-    limit: markRaw(Limit),
-    stop: markRaw(Stop),
-    stopLimit: markRaw(StopLimit),
-  },
-  symbol: "",
-  // 报价
-  quote: {
-    ask: 0,
-    bid: 0,
-    ctm_ms: 0,
-    ctm: 0,
-    symbol: "",
-    server: "upway-live",
-  },
-  // k线最新数据（最高最低价）
-  newKlineData: {
-    close: 0,
-    ctm: 0,
-    date_time: "",
-    high: 0,
-    low: 0,
-    open: 0,
-    volume: 0,
-  },
-  socketList: [] as string[],
-  loading: false,
-});
-
-watchEffect(() => {
-  orderStore.selectedMenuKey = state.selectedKeys[0];
-});
-
-// 弹窗打开隐藏
 const open = computed(() => {
   return dialogStore.orderDialogVisible;
 });
-
-// 弹框关闭
 const handleCancel = () => {
   dialogStore.closeOrderDialog();
 };
-
-// 当前品种
-const currentSymbolInfo = computed(() => {
-  return subStore.symbols.find((e) => e.symbol === state.symbol);
+// 弹窗拖拽
+import { CSSProperties } from "vue";
+import { useDraggable } from "@vueuse/core";
+const modalTitleRef = ref<HTMLElement>();
+const { x, y, isDragging } = useDraggable(modalTitleRef);
+const startX = ref<number>(0);
+const startY = ref<number>(0);
+const startedDrag = ref(false);
+const transformX = ref(0);
+const transformY = ref(0);
+const preTransformX = ref(0);
+const preTransformY = ref(0);
+const dragRect = ref({ left: 0, right: 0, top: 0, bottom: 0 });
+watch([x, y], () => {
+  if (!startedDrag.value) {
+    startX.value = x.value;
+    startY.value = y.value;
+    const bodyRect = document.body.getBoundingClientRect();
+    if (modalTitleRef.value) {
+      const titleRect = modalTitleRef.value.getBoundingClientRect();
+      dragRect.value.right = bodyRect.width - titleRect.width;
+      dragRect.value.bottom = bodyRect.height - titleRect.height;
+      preTransformX.value = transformX.value;
+      preTransformY.value = transformY.value;
+    }
+  }
+  startedDrag.value = true;
+});
+watch(isDragging, () => {
+  if (!isDragging) {
+    startedDrag.value = false;
+  }
+});
+watchEffect(() => {
+  if (startedDrag.value) {
+    transformX.value =
+      preTransformX.value +
+      Math.min(Math.max(dragRect.value.left, x.value), dragRect.value.right) -
+      startX.value;
+    transformY.value =
+      preTransformY.value +
+      Math.min(Math.max(dragRect.value.top, y.value), dragRect.value.bottom) -
+      startY.value;
+  }
+});
+const transformStyle = computed<CSSProperties>(() => {
+  return {
+    transform: `translate(${transformX.value}px, ${transformY.value}px)`,
+  };
 });
 
-// 弹框标题
-const title = computed(() => {
-  const item = state.items.find((e) => e.key === state.selectedKeys[0]);
-  return item?.label;
+/** 表单处理 */ 
+import type { FormInstance, SelectProps } from "ant-design-vue";
+import type { Rule } from "ant-design-vue/es/form";
+const orderFormRef = ref<FormInstance>();
+interface FormState {
+  symbol: string;
+  orderType: string;
+  volume: string;
+  stopLoss: string;
+  stopProfit: string;
+  orderPrice: string;
+  dueDate: string;
+  breakPrice: string;
+  limitedPrice: string;
+}
+const formMap = {
+  symbol: "交易品种",
+  orderType: "订单类型",
+  volume: "交易量",
+  stopLoss: "止损",
+  stopProfit: "止盈",
+  orderPrice: "下单价",
+  dueDate: "期限",
+  breakPrice: "突破价",
+  limitedPrice: "限价",
+};
+const formState = reactive<FormState>({
+  symbol: "",
+  orderType: "",
+  volume: "",
+  stopLoss: "",
+  stopProfit: "",
+  orderPrice: "",
+  dueDate: "",
+  breakPrice: "",
+  limitedPrice: "",
 });
-
-// 给当前页面的报价赋值
+// 重置表单
 watch(
-  () => orderStore.currentQuotes,
-  (newVal) => {
-    if (newVal && newVal[state.symbol]) {
-      state.quote = newVal[state.symbol];
+  () => open.value,
+  async (val) => {
+    if (val) {
+      await nextTick();
+      orderFormRef.value?.resetFields();
+    }
+  },
+  { flush: 'post'}
+);
+// 订单类型
+const orderTypeOptions = ref<SelectProps["options"]>([
+  { value: "price", label: "市价" },
+  // { value: "buyLimit", label: "buy limit" },
+  // { value: "sellLimit", label: "sell limit" },
+  // { value: "buyStop", label: "buy stop" },
+  // { value: "sellStop", label: "sell stop" },
+  // { value: "buyStopLimit", label: "buy stop limit" },
+  // { value: "sellStopLimit", label: "sell stop limit" },
+]);
+const orderTypeFilterOption = (input: string, option: any) => {
+  return option.label.includes(input);
+};
+// 是否可以市价下单
+const ifCreateSell = computed(() => {
+  const stopLoss = formState.stopLoss;
+  const stopProfit = formState.stopProfit;
+  if (stopLoss === "" && stopProfit === "") {
+    return true;
+  }
+  const ask = quote.value.ask;
+  const bid = quote.value.bid;
+  const checkAsk = ask && +stopLoss > ask;
+  const checkBid = bid && +stopProfit < bid;
+  if (stopLoss && stopProfit) {
+    if (checkAsk && checkBid) {
+      return true;
+    }
+  } else if (stopLoss && checkAsk) {
+    return true;
+  } else if (stopProfit && checkBid) {
+    return true;
+  }
+  return false;
+});
+const ifCreateBuy = computed(() => {
+  const stopLoss = formState.stopLoss;
+  const stopProfit = formState.stopProfit;
+  if (stopLoss === "" && stopProfit === "") {
+    return true;
+  }
+  const ask = quote.value.ask;
+  const bid = quote.value.bid;
+  const checkAsk = ask && +stopProfit > ask;
+  const checkBid = bid && +stopLoss < bid;
+  if (stopLoss && stopProfit) {
+    if (checkAsk && checkBid) {
+      return true;
+    }
+  }
+  if (stopLoss && checkBid) {
+    return true;
+  }
+  if (stopProfit && checkAsk) {
+    return true;
+  }
+  return false;
+});
+// 期限规则
+import dayjs from "dayjs";
+const validDate = () => {
+  const term = +formState.dueDate;
+  if (!term) {
+    return Promise.reject(`请选择期限`);
+  }
+  const distanceFromNow = dayjs.unix(term).fromNow();
+  if (distanceFromNow.includes("ago") || distanceFromNow.includes("前")) {
+    return Promise.reject(`时间不能小于当前时间`);
+  }
+  return Promise.resolve();
+};
+const rules: Record<string, Rule[]> = {
+  symbol: [{ required: true, trigger: "change", message: "请输入品种" }],
+  orderType: [{ required: true, trigger: "change", message: "请选择订单类型" }],
+  volume: [{ required: true, trigger: "change", message: "请输入交易量" }],
+  orderPrice: [{ required: true, trigger: "change", message: "请输入下单价" }],
+  dueDate: [{ required: true, trigger: "change", validator: validDate }],
+  breakPrice: [{ required: true, trigger: "change" }],
+  limitedPrice: [{ required: true, trigger: "change" }],
+};
+
+/** 当前品种 */
+import { useChartSub } from "@/store/modules/chartSub";
+import { Quote } from "#/chart/index";
+const subStore = useChartSub();
+const symbolInfo = computed(() => {
+  return subStore.symbols.find((e) => e.symbol === formState.symbol);
+});
+
+/** 当前报价 */
+const quote = ref<Quote>({
+  ask: 0,
+  bid: 0,
+  ctm_ms: 0,
+  ctm: 0,
+  symbol: "",
+  server: "",
+});
+import { useOrder } from "@/store/modules/order";
+const orderStore = useOrder();
+watch(
+  () => [orderStore.currentQuotes, formState.symbol],
+  () => {
+    const quotes = orderStore.currentQuotes;
+    const formSymbol = formState.symbol;
+    if (quotes && quotes[formSymbol]) {
+      quote.value = quotes[formSymbol];
     }
   },
   { immediate: true, deep: true }
 );
 
-// 给最高最低价赋值
-watch(
-  () => orderStore.currentKline,
-  (newVal) => {
-    if (newVal && newVal.symbol === state.symbol) {
-      state.newKlineData = newVal;
+/** 下单 提交 */
+const confirmOrderOpen = ref(false);
+const handleConfirmOrderCancle = () => {
+  confirmOrderOpen.value = false;
+};
+const valids = async () => {
+  let result: any = false;
+  if (orderFormRef.value) {
+    result = await orderFormRef.value.validateFields().then(res => res).catch(e => false);
+  }
+  return result;
+};
+const directionType = ref();
+const priceBtnLoading = ref(false);
+const showConfirmModal = debounce(async (type: 'sell' | 'buy') => {
+  const values = await valids();
+  directionType.value = type;
+  if (values) {
+    confirmOrderOpen.value = true;
+  }
+}, 200);
+import { notification } from 'ant-design-vue';
+import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
+const createPriceOrder = debounce(async () => {
+  try {
+    priceBtnLoading.value = true;
+    const updata: ReqOrderAdd = {
+      symbol: formState.symbol,
+      type: directionType.value === 'buy' ? 0 : 1,
+      volume: +formState.volume * 100,
+    };
+    if (formState.stopLoss !== "") {
+      updata.sl = +formState.stopLoss;
     }
-  },
-  { immediate: true }
-);
-
-// 弹窗初始化
-watch(open, (newVal) => {
-  if (newVal) {
-    state.symbol = orderStore.currentSymbol;
-    getklineHistory();
+    if (formState.stopProfit !== "") {
+      updata.tp = +formState.stopProfit;
+    }
+    const res = await marketOrdersAdd(updata);
+    if (res.data.action_success) {
+      notification.success({
+        message: '下单成功',
+        description: `${directionType.value !== 'buy' ? '卖出': '买入'}${formState.volume}手${formState.symbol}的订单已提交。`,
+        // icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
+      });
+      handleConfirmOrderCancle();
+      handleCancel();
+      orderStore.refreshOrderArea = true;
+    } else {
+      notification.error({
+        message: '下单失败',
+        description: `${res.data.err_text}`,
+      });
+    }
+  } finally {
+    priceBtnLoading.value = false;
   }
-});
-
-// 初始化最高最低价
-const getklineHistory = async () => {
-  const { data } = await klineHistory({
-    period_type: "1",
-    symbol: state.symbol,
-    count: 1,
-    limit_ctm: Math.floor(Date.now() / 1000),
-  });
-  state.newKlineData = data[0];
-};
-
-// 品种变化
-const symbolChange = async (value: string) => {
-  state.loading = true;
-  if (state.socketList.indexOf(value) === -1) {
-    state.socketList.push(value);
-  }
-  await getklineHistory();
-  state.loading = false;
-};
-
-const orderSucced = () => {
-  orderStore.refreshOrderArea = true;
-  handleCancel();
-};
+}, 200);
 </script>
 
-<style scoped lang="scss">
-@import "@/assets/styles/_handle.scss";
-.divider {
-  margin: 5px 0 10px 0;
+<style lang="scss">
+.orderDialog {
+  pointer-events: none;
 }
-.main {
-  display: flex;
-  width: 100%;
-  padding: 3px;
-  .left {
-    width: 129px;
-  }
-  .right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    .title {
-      font-size: 21px;
-    }
-    .symbolSelect {
-      width: 100%;
-      margin: 8px 0;
-    }
-    .loadingSpin {
-      flex: 1;
-      position: relative;
-      min-height: 300px;
-    }
-  }
-}
-:deep(.ant-menu) {
-  border-radius: 8px 0 0 8px;
-}
-:deep(.ant-menu-inline .ant-menu-item) {
-  width: calc(100% - 3px);
-  border-radius: 8px 0 0 8px;
-  color: #fff;
-}
-:deep(.ant-menu-item-selected) {
-  background-color: #525252;
-}
-.ant-radio-button-wrapper {
-  height: auto;
-  flex: 1;
-  text-align: center;
-}
-.ant-radio-button-wrapper-checked:not(
-    .ant-radio-button-wrapper-disabled
-  ):first-child {
-  border-color: #dd6600;
-}
-.ant-radio-button-wrapper-checked:not(
-    .ant-radio-button-wrapper-disabled
-  ):last-child {
-  border-color: #19b52d;
-}
-.ant-radio-button-wrapper-checked:not(
-    .ant-radio-button-wrapper-disabled
-  )::before,
-.ant-radio-button-wrapper-checked:not(
-    .ant-radio-button-wrapper-disabled
-  )::before {
-  background-color: #19b52d;
+</style>
+
+<style lang="scss" scoped>
+.sellBtn,
+.buyBtn {
+  border-radius: 4px;
 }
 </style>

@@ -1,12 +1,20 @@
-@import './themes';
+@import "./themes";
 
 @mixin themeify {
-  @each $theme-name, $theme-map in $themes {
+  @each $theme-name, $theme-map in $systemThemes {
     // 局部变量强升为全局变量
     $theme-map: $theme-map !global;
 
     // @content: 混合器插槽
     [data-theme="#{$theme-name}"] & {
+      @content;
+    }
+  }
+
+  @each $theme-name, $theme-map in $updwonThemes {
+    $theme-map: $theme-map !global;
+
+    [upDown-theme="#{$theme-name}"] & {
       @content;
     }
   }
@@ -29,6 +37,7 @@
     border-color: themed($color) !important;
   }
 }
+
 // 边框颜色
 @mixin border_color_bottom($color) {
   @include themeify {

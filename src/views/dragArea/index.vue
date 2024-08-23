@@ -70,7 +70,7 @@ const layoutStore = useLayout();
       }
 
       .handle {
-        z-index: 2;
+        z-index: 1;
         position: sticky;
         top: 0;
         float: left;

@@ -156,7 +156,7 @@ const initonReady = () => {
     charts_storage_api_version:
       props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
     client_id: props.clientId,
-    theme: (window.localStorage.getItem("Theme") ||
+    theme: (window.localStorage.getItem("systemTheme") ||
       props.theme) as library.ThemeName,
     enabled_features:
       props.enabledFeatures as library.ChartingLibraryFeatureset[],

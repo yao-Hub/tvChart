@@ -268,7 +268,6 @@ const copy = async () => {
       height: 48px;
       border-radius: 8px;
       margin: 158px 56px;
-      @include font_color("word");
     }
   }
 }

@@ -6,6 +6,13 @@
   "description": "微派",
   "glyphs": [
     {
+      "icon_id": "26976657",
+      "name": "k7_ 2 times",
+      "font_class": "a-k7_2times",
+      "unicode": "e662",
+      "unicode_decimal": 58978
+    },
+    {
       "icon_id": "36038900",
       "name": "横向布局-copy-copy-copy",
       "font_class": "hengxiangbuju-copy",

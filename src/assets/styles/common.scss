@@ -154,10 +154,17 @@ img {
 input {
   outline: none;
 }
+input:disabled {
+  @include background_color('inputDisabled');
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none !important;
+}
 button {
   cursor: pointer;
-  // border: none;
   outline: none;
+  @include font_color("word");
 }
 body {
   @include background_color('background');
@@ -165,4 +172,35 @@ body {
 }
 .iconfont {
   cursor: pointer;
+}
+
+.sellWord {
+  @include font_color('down');
+}
+.buyWord {
+  @include font_color('up');
+}
+.sellBtn {
+  @include background_color('down');
+}
+.sellBtn:hover {
+  @include background_color('downHover');
+}
+.sellBtn:active {
+  @include background_color('downActive');
+}
+.buyBtn {
+  @include background_color('up');
+}
+.buyBtn:hover {
+  @include background_color('upHover');
+}
+.buyBtn:active {
+  @include background_color('upActive');
+}
+.buyBtn[disabled] {
+  @include background_color('btnDisabled');
+}
+.sellBtn[disabled] {
+  @include background_color('btnDisabled');
 }

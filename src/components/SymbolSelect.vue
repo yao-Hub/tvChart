@@ -5,6 +5,8 @@
     @change="handleChange"
     placeholder="品种"
     v-bind="props.selectOption"
+    show-search
+    :filter-option="filterOption"
   >
     <a-select-option :value="item.symbol" v-for="item in symbols">{{
       item.symbol
@@ -40,6 +42,11 @@ const symbols = computed(() => {
   }
   return subStore.symbols;
 });
+
+const filterOption = (input: string, option: any) => {
+  const regex = new RegExp(input.split("").join(".*"), "i");
+  return regex.test(option.value);
+};
 
 const handleChange = (value: string) => {
   model.value = value;

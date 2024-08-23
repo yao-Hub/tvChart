@@ -7,7 +7,9 @@ import { LANGUAGE_LIST, LOCALE_LIST } from "@/constants/common";
 import { useTheme } from "@/store/modules/theme";
 
 const themeStore = useTheme();
-themeStore.getTheme();
+themeStore.getSystemTheme();
+const upDownTheme = themeStore.getUpDownTheme();
+themeStore.setUpDownTheme(upDownTheme);
 const theme = computed(() => {
   return {
     ...themeStore.antDTheme,

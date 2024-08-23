@@ -13,12 +13,13 @@ import { BulbOutlined } from "@ant-design/icons-vue";
 import { ref } from "vue";
 import { useTheme } from "@/store/modules/theme";
 const themeStore = useTheme();
-const currentTheme = themeStore.getTheme();
+const systemTheme = themeStore.getSystemTheme();
 
 const checked = ref(false);
-checked.value = currentTheme !== "dark";
+checked.value = systemTheme !== "dark";
 const handleChange = (checked: boolean) => {
-  themeStore.setTheme(checked ? "light" : "dark");
+  themeStore.setSystemTheme(checked ? "light" : "dark");
+  themeStore.setChartTheme();
 };
 </script>
 

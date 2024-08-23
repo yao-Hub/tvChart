@@ -1,5 +1,5 @@
 <template>
-  <a-modal v-model:open="dialogStore.disclaimers" size="small" :footer="null" :zIndex="2">
+  <a-modal v-model:open="dialogStore.disclaimers" size="small" :footer="null" :zIndex="10">
     <span slot="title" style="font-size: 16px">一键交易</span>
     <div class="disclaimers">
       <p style="text-align: center">免责声明</p>
@@ -64,8 +64,10 @@ const handleCancle = () => {
 </script>
 
 <style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
 .disclaimers {
-  background: #525252;
+  @include background_color("background-component");
   border-radius: 5px;
   box-sizing: border-box;
   padding: 10px;

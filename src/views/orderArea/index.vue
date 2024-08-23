@@ -117,7 +117,7 @@
     <EditOrderDialog
       v-model:visible="state.closeDialogVisible"
       :orderInfo="state.orderInfo"
-      :quote="orderStore.currentQuotes[state.orderInfo.symbol]"
+      :quote="getQuote()"
     >
     </EditOrderDialog>
   </div>
@@ -424,22 +424,21 @@ const orderClose = async (record: orders.resOrders) => {
   }
 
   const ifOne = orderStore.getOneTrans();
+  if (orderStore.ifOne) {
+    foo();
+    return;
+  }
+  Modal.confirm({
+    title: "确定平仓",
+    zIndex: 2,
+    maskClosable: true,
+    onOk() {
+      foo();
+    },
+  });
   if (ifOne === null) {
     dialogStore.disclaimers = true;
   }
-
-  if (!orderStore.ifOne) {
-    Modal.confirm({
-      title: "确定平仓",
-      zIndex: 1,
-      maskClosable: true,
-      onOk() {
-        foo();
-      },
-    });
-    return;
-  }
-  foo();
 };
 
 // 批量平仓撤单
@@ -538,6 +537,12 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
     state.orderInfo = record;
     state.closeDialogVisible = true;
   }
+};
+const getQuote = () => {
+  if (state.orderInfo.symbol) {
+    return orderStore.currentQuotes[state.orderInfo.symbol]
+  }
+  return {};
 };
 
 const getTableDate = (type: string) => {
