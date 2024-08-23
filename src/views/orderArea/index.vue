@@ -117,7 +117,7 @@
     <EditOrderDialog
       v-model:visible="state.closeDialogVisible"
       :orderInfo="state.orderInfo"
-      :quote="getQuote()"
+      :quote="() => getQuote()"
     >
     </EditOrderDialog>
   </div>
@@ -542,7 +542,14 @@ const getQuote = () => {
   if (state.orderInfo.symbol) {
     return orderStore.currentQuotes[state.orderInfo.symbol]
   }
-  return {};
+  return {
+    ask: 0,
+    bid: 0,
+    ctm: 0,
+    ctm_ms: 0,
+    server: "",
+    symbol: "",
+  };
 };
 
 const getTableDate = (type: string) => {

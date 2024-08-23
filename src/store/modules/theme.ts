@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { theme } from "ant-design-vue";
 import { useChartInit } from "./chartInit";
-import { nextTick } from "vue";
 
 interface State {
   systemTheme: string; // 系统主题
