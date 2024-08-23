@@ -117,7 +117,7 @@
     <EditOrderDialog
       v-model:visible="state.closeDialogVisible"
       :orderInfo="state.orderInfo"
-      :quote="() => getQuote()"
+      :quote="getQuote()"
     >
     </EditOrderDialog>
   </div>
