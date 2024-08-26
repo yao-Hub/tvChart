@@ -1,7 +1,14 @@
 <template>
-  <div>
+  <a-form-item
+    :name="props.formOption.name"
+    :label="props.formOption.label"
+    :rules="[
+      { required: true, trigger: ['change', 'blur'], validator: validator },
+    ]"
+    validateFirst
+  >
     <StepNumInput v-model:value="price" :step="step"></StepNumInput>
-  </div>
+  </a-form-item>
 </template>
 
 <script setup lang="ts">
@@ -11,12 +18,16 @@ import { round } from "utils/common/index";
 
 interface Props {
   symbolInfo?: SessionSymbolInfo;
-  type: string;
+  orderType: string;
   quote: Quote;
+  formOption: {
+    name: string;
+    label: string;
+  };
 }
 const props = defineProps<Props>();
 
-const price = defineModel('value');
+const price = defineModel<string>("value", {default: ""});
 
 // 步长
 const step = computed(() => {
@@ -25,7 +36,9 @@ const step = computed(() => {
 
 const getLeed = () => {
   if (props.quote && props.symbolInfo) {
-    const price = props.type.includes("buy") ? props.quote.ask : props.quote.bid;
+    const price = props.orderType.includes("buy")
+      ? props.quote.ask
+      : props.quote.bid;
     const stopsLevel = props.symbolInfo.stops_level;
     const digits = props.symbolInfo.digits;
     const result_1 = price - (1 / Math.pow(10, digits)) * stopsLevel;
@@ -40,27 +53,78 @@ const getLeed = () => {
 // 初始化价格
 const initPrice = async () => {
   const leed = getLeed();
-  const type = props.type;
+  const orderType = props.orderType;
   if (leed) {
     const { result_1, result_2 } = leed;
-    if (type.includes("buy")) {
-      price.value = type.includes("Limit") ? result_1 : result_2;
+    if (orderType.includes("buy")) {
+      price.value = orderType.includes("Limit") ? String(result_1) : String(result_2);
     }
-    if (type.includes("sell")) {
-      price.value  = type.includes("Limit") ? result_2 : result_1;
+    if (orderType.includes("sell")) {
+      price.value = orderType.includes("Limit") ? String(result_2) : String(result_1);
     }
   }
 };
 watch(
-  () => [props.symbolInfo, props.type],
+  () => [props.symbolInfo, props.orderType],
   () => {
-    if (props.symbolInfo && props.type) {
+    if (props.symbolInfo && props.orderType) {
       initPrice();
     }
   },
   {
     deep: true,
-    immediate: true
+    immediate: true,
   }
 );
+
+// 检查价格是否合法
+const validator = () => {
+  const type = props.orderType.toLocaleLowerCase();
+  if ([undefined, ""].includes(price.value)) {
+    return Promise.reject(`请输入${props.formOption.label}`);
+  }
+  const leed = getLeed();
+  if (leed) {
+    const { result_1, result_2 } = leed;
+    let size = "";
+    let value: string | number = "";
+    let result = false;
+    if (type.includes("buy")) {
+      if (['buyLimit', 'sellLimit'].includes(props.orderType)) {
+        result = +price.value <= result_1;
+        size = "≤";
+        value = result_1;
+      } else if (props.orderType === "limitedPrice") {
+        result = +price.value <= result_2;
+        size = "≤";
+        value = result_2;
+      } else {
+        result = +price.value >= result_2;
+        size = "≥";
+        value = result_2;
+      }
+    }
+    if (type.includes("sell")) {
+      if (['buyLimit', 'sellLimit'].includes(props.orderType)) {
+        result = +price.value >= result_2;
+        size = "≥";
+        value = result_2;
+      } else if (props.orderType === "limitedPrice") {
+        result = +price.value >= result_1;
+        size = "≥";
+        value = result_1;
+      } else {
+        result = +price.value <= result_1;
+        size = "≤";
+        value = result_1;
+      }
+    }
+    if (result) {
+      return Promise.resolve();
+    } else {
+      return Promise.reject(`${props.formOption.label}需${size}${value}`);
+    }
+  }
+  return Promise.resolve();
+};
 </script>

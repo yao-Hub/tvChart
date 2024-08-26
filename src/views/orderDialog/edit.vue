@@ -86,6 +86,7 @@
                 :quote="props.quote"
                 :orderType="type"
                 :orderPrice="props.orderInfo.order_price"
+                :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
             </a-col>
             <a-col :span="12">
@@ -96,6 +97,7 @@
                 :quote="props.quote"
                 :orderType="type"
                 :orderPrice="props.orderInfo.order_price"
+                :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
             </a-col>
           </a-row>

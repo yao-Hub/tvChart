@@ -4,9 +4,10 @@
     :label="titleMap[props.type]"
     :rules="[{ required: false, trigger: ['change', 'blur'], validator: validatorMap[props.type] }]"
   >
-    <StepNumInput v-model:value="point"></StepNumInput>
+    <StepNumInput v-model:value="price"></StepNumInput>
     <a-form-item no-style>
-      <span class="tip" v-if="props.symbolInfo">至少远离市价{{ props.symbolInfo?.stops_level }}点</span>
+      <span class="tip" v-if="props.symbolInfo && price === ''">至少远离市价{{ props.symbolInfo?.stops_level }}点</span>
+      <span class="tip" v-if="props.symbolInfo && price !== ''">预计盈亏: {{ profit }}</span>
     </a-form-item>
   </a-form-item>
 </template>
@@ -25,10 +26,11 @@ interface Props {
   symbolInfo?: SessionSymbolInfo;
   quote: Quote;
   orderType: string;
-  orderPrice?: string | number;
+  orderPrice: string | number;
+  volume: string | number;
 }
 const props = defineProps<Props>();
-const point = defineModel("point", { type: String, default: "" });
+const price = defineModel("price", { type: String, default: "" });
 
 // 止盈止损验证规则
 const ifBuy = computed(() => props.orderType.toLocaleLowerCase().includes("buy"));
@@ -43,7 +45,7 @@ const getLead = (type: 'sell' | 'buy') => {
   return { result_1: round(result_1, +digits), result_2: round(result_2, +digits) };
 };
 const validLoss = () => {
-  const stopLoss = point.value;
+  const stopLoss = price.value;
   if (stopLoss === "") {
     return Promise.resolve();
   }
@@ -58,7 +60,7 @@ const validLoss = () => {
   return Promise.resolve();
 };
 const validProfit = () => {
-  const stopProfit = point.value;
+  const stopProfit = price.value;
   if (stopProfit === "") {
     return Promise.resolve();
   }
@@ -76,6 +78,30 @@ const validatorMap = {
   stopLoss: validLoss,
   stopProfit: validProfit,
 };
+
+const profit = computed(() => {
+  let result: string | number = "";
+  const ask = props.quote.ask;
+  const bid = props.quote.bid;
+  const openPrice = ifBuy.value ? ask : bid;
+  // profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
+  // 建仓合约价值 = open_price X contract_size X volume / 100
+  // 平仓合约价值 = close_price X contract_size X volume / 100
+  const closePrice = +price.value;
+  const volume = +props.volume;
+  if (props.symbolInfo) {
+    const { contract_size, storage, fee, digits } = props.symbolInfo;
+    const buildingPrice = +((openPrice * contract_size * volume) / 100).toFixed(
+      digits
+    );
+    const closingPrice = +((closePrice * contract_size * volume) / 100).toFixed(
+      digits
+    );
+    result = closingPrice - buildingPrice + (storage || 0) + (fee || 0);
+    result = result.toFixed(digits);
+  }
+  return result;
+});
 </script>
 
 <style lang="scss" scoped>

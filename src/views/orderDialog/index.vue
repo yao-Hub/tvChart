@@ -37,17 +37,32 @@
               ></a-select>
             </a-form-item>
           </a-col>
-          <a-col :span="12" v-if="['buyLimit', 'sellLimit', 'buyStop', 'sellStop'].includes(formState.orderType)">
-            <a-form-item name="orderPrice" label="下单价" validateFirst>
-              <Price
-                v-model:value="formState.orderPrice"
-                :type="formState.orderType"
-                :symbolInfo="symbolInfo"
-                :quote="quote">
-              </Price>
-            </a-form-item>
+          <a-col
+            :span="12"
+            v-if="
+              ['buyLimit', 'sellLimit', 'buyStop', 'sellStop'].includes(
+                formState.orderType
+              )
+            "
+          >
+            <Price
+              v-model:value="formState.orderPrice"
+              :formOption="{ name: 'orderPrice', label: '下单价' }"
+              :orderType="formState.orderType"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+            >
+            </Price>
           </a-col>
-          <a-col :span="['', 'price', 'buyStopLimit', 'sellStopLimit'].includes(formState.orderType) ? 24 : 12">
+          <a-col
+            :span="
+              ['', 'price', 'buyStopLimit', 'sellStopLimit'].includes(
+                formState.orderType
+              )
+                ? 24
+                : 12
+            "
+          >
             <a-form-item name="volume" label="交易量">
               <Volume
                 v-model:volume="formState.volume"
@@ -56,42 +71,64 @@
               ></Volume>
             </a-form-item>
           </a-col>
-          <a-col :span="12" v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)">
-            <a-form-item name="breakPrice" label="突破价">
-              <Price
-                v-model:value="formState.breakPrice"
-                :type="formState.orderType"
-                :symbolInfo="symbolInfo"
-                :quote="quote">
-              </Price>
-            </a-form-item>
+          <a-col
+            :span="12"
+            v-if="
+              ['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)
+            "
+          >
+            <Price
+              v-model:value="formState.breakPrice"
+              :formOption="{ name: 'breakPrice', label: '突破价' }"
+              :orderType="formState.orderType"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+            >
+            </Price>
           </a-col>
-          <a-col :span="12" v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)">
-            <a-form-item name="limitedPrice" label="限价">
-              <Price
-                v-model:value="formState.limitedPrice"
-                :type="formState.orderType"
-                :symbolInfo="symbolInfo"
-                :quote="quote">
-              </Price>
-            </a-form-item>
+          <a-col
+            :span="12"
+            v-if="
+              ['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)
+            "
+          >
+            <Price
+              v-model:value="formState.limitedPrice"
+              :formOption="{ name: 'limitedPrice', label: '限价' }"
+              :orderType="formState.orderType"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+            >
+            </Price>
           </a-col>
           <a-col :span="12">
             <StopLossProfit
               type="stopLoss"
-              v-model:point="formState.stopLoss"
+              v-model:price="formState.stopLoss"
+              :volume="formState.volume"
               :symbolInfo="symbolInfo"
               :quote="quote"
-              :orderType="formState.orderType === 'price' ? `${ifCreateSell ? 'sell' : 'buy'}Price` : 'formState.orderType'"
+              :orderPrice="formState.orderPrice"
+              :orderType="
+                formState.orderType === 'price'
+                  ? `${ifCreateSell ? 'sell' : 'buy'}Price`
+                  : formState.orderType
+              "
             ></StopLossProfit>
           </a-col>
           <a-col :span="12">
             <StopLossProfit
               type="stopProfit"
-              v-model:point="formState.stopProfit"
+              v-model:price="formState.stopProfit"
+              :volume="formState.volume"
               :symbolInfo="symbolInfo"
               :quote="quote"
-              :orderType="formState.orderType === 'price' ? `${ifCreateSell ? 'sell' : 'buy'}Price` : 'formState.orderType'"
+              :orderPrice="formState.orderPrice"
+              :orderType="
+                formState.orderType === 'price'
+                  ? `${ifCreateSell ? 'sell' : 'buy'}Price`
+                  : formState.orderType
+              "
             ></StopLossProfit>
           </a-col>
           <a-col :span="24" v-if="!['', 'price'].includes(formState.orderType)">
@@ -102,8 +139,12 @@
           <a-col :span="12">
             <a-form-item>
               <a-flex gap="16">
-                <span class="sellWord" style="width: 50%;">卖价: {{ formState.symbol ? quote.bid : "" }}</span>
-                <span class="buyWord" style="width: 50%;">买价: {{ formState.symbol ? quote.ask : "" }}</span>
+                <span class="sellWord" style="width: 50%"
+                  >卖价: {{ formState.symbol ? quote.bid : "" }}</span
+                >
+                <span class="buyWord" style="width: 50%"
+                  >买价: {{ formState.symbol ? quote.ask : "" }}</span
+                >
               </a-flex>
             </a-form-item>
           </a-col>
@@ -115,20 +156,32 @@
                   type="primary"
                   :disabled="!ifCreateSell"
                   :loading="priceBtnLoading"
-                  @click="showConfirmModal('sell')">卖出</a-button>
+                  @click="showConfirmModal('sell')"
+                  >卖出</a-button
+                >
                 <a-button
                   class="buyBtn"
                   type="primary"
                   :disabled="!ifCreateBuy"
                   :loading="priceBtnLoading"
-                  @click="showConfirmModal('buy')">买入</a-button>
+                  @click="showConfirmModal('buy')"
+                  >买入</a-button
+                >
               </a-flex>
             </a-form-item>
           </a-col>
           <a-col :span="12" v-if="!['', 'price'].includes(formState.orderType)">
             <a-form-item>
               <a-flex justify="flex-end">
-                <a-button :class="[formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn']" type="primary">下单</a-button>
+                <a-button
+                  :class="[
+                    formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
+                  ]"
+                  type="primary"
+                  :loading="pendingBtnLoading"
+                  @click="addPendingOrders"
+                  >下单</a-button
+                >
               </a-flex>
             </a-form-item>
           </a-col>
@@ -146,13 +199,22 @@
     </a-modal>
 
     <!-- 下单确认 -->
-    <a-modal :open="confirmOrderOpen" @cancel="handleConfirmOrderCancle" title="下单确认" :width="400">
+    <a-modal
+      :open="confirmOrderOpen"
+      @cancel="handleConfirmOrderCancle"
+      title="下单确认"
+      :width="400"
+    >
       <a-flex wrap="wrap">
-        <div style="width: 45%; margin: 8px 0" v-for="(value, key) in formState" v-show="!!value">
-          <span v-if="key === 'orderType'">{{ formMap[key] }}: {{ directionType }}</span>
-          <span v-else>
-            {{ formMap[key] }}: {{ value }}
-          </span>
+        <div
+          style="width: 45%; margin: 8px 0"
+          v-for="(value, key) in formState"
+          v-show="!!value"
+        >
+          <span v-if="key === 'orderType'"
+            >{{ formMap[key] }}: {{ directionType }}</span
+          >
+          <span v-else> {{ formMap[key] }}: {{ value }} </span>
         </div>
       </a-flex>
       <template #footer>
@@ -160,7 +222,6 @@
         <a-button type="primary" @click="createPriceOrder">确认</a-button>
       </template>
     </a-modal>
-
   </div>
 </template>
 
@@ -232,7 +293,7 @@ const transformStyle = computed<CSSProperties>(() => {
   };
 });
 
-/** 表单处理 */ 
+/** 表单处理 */
 import type { FormInstance, SelectProps } from "ant-design-vue";
 import type { Rule } from "ant-design-vue/es/form";
 const orderFormRef = ref<FormInstance>();
@@ -278,17 +339,17 @@ watch(
       orderFormRef.value?.resetFields();
     }
   },
-  { flush: 'post'}
+  { flush: "post" }
 );
 // 订单类型
 const orderTypeOptions = ref<SelectProps["options"]>([
   { value: "price", label: "市价" },
-  // { value: "buyLimit", label: "buy limit" },
-  // { value: "sellLimit", label: "sell limit" },
-  // { value: "buyStop", label: "buy stop" },
-  // { value: "sellStop", label: "sell stop" },
-  // { value: "buyStopLimit", label: "buy stop limit" },
-  // { value: "sellStopLimit", label: "sell stop limit" },
+  { value: "buyLimit", label: "buy limit" },
+  { value: "sellLimit", label: "sell limit" },
+  { value: "buyStop", label: "buy stop" },
+  { value: "sellStop", label: "sell stop" },
+  { value: "buyStopLimit", label: "buy stop limit" },
+  { value: "sellStopLimit", label: "sell stop limit" },
 ]);
 const orderTypeFilterOption = (input: string, option: any) => {
   return option.label.includes(input);
@@ -355,7 +416,6 @@ const rules: Record<string, Rule[]> = {
   symbol: [{ required: true, trigger: "change", message: "请输入品种" }],
   orderType: [{ required: true, trigger: "change", message: "请选择订单类型" }],
   volume: [{ required: true, trigger: "change", message: "请输入交易量" }],
-  orderPrice: [{ required: true, trigger: "change", message: "请输入下单价" }],
   dueDate: [{ required: true, trigger: "change", validator: validDate }],
   breakPrice: [{ required: true, trigger: "change" }],
   limitedPrice: [{ required: true, trigger: "change" }],
@@ -392,7 +452,7 @@ watch(
   { immediate: true, deep: true }
 );
 
-/** 下单 提交 */
+/** 下单 */
 const confirmOrderOpen = ref(false);
 const handleConfirmOrderCancle = () => {
   confirmOrderOpen.value = false;
@@ -400,27 +460,31 @@ const handleConfirmOrderCancle = () => {
 const valids = async () => {
   let result: any = false;
   if (orderFormRef.value) {
-    result = await orderFormRef.value.validateFields().then(res => res).catch(e => false);
+    result = await orderFormRef.value
+      .validateFields()
+      .then((res) => res)
+      .catch((e) => false);
   }
   return result;
 };
 const directionType = ref();
 const priceBtnLoading = ref(false);
-const showConfirmModal = debounce(async (type: 'sell' | 'buy') => {
+const showConfirmModal = debounce(async (type: "sell" | "buy") => {
   const values = await valids();
   directionType.value = type;
   if (values) {
     confirmOrderOpen.value = true;
   }
 }, 200);
-import { notification } from 'ant-design-vue';
+// 市价单下单
+import { notification } from "ant-design-vue";
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 const createPriceOrder = debounce(async () => {
   try {
     priceBtnLoading.value = true;
     const updata: ReqOrderAdd = {
       symbol: formState.symbol,
-      type: directionType.value === 'buy' ? 0 : 1,
+      type: directionType.value === "buy" ? 0 : 1,
       volume: +formState.volume * 100,
     };
     if (formState.stopLoss !== "") {
@@ -432,8 +496,10 @@ const createPriceOrder = debounce(async () => {
     const res = await marketOrdersAdd(updata);
     if (res.data.action_success) {
       notification.success({
-        message: '下单成功',
-        description: `${directionType.value !== 'buy' ? '卖出': '买入'}${formState.volume}手${formState.symbol}的订单已提交。`,
+        message: "下单成功",
+        description: `${directionType.value !== "buy" ? "卖出" : "买入"}${
+          formState.volume
+        }手${formState.symbol}的订单已提交。`,
         // icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
       });
       handleConfirmOrderCancle();
@@ -441,12 +507,45 @@ const createPriceOrder = debounce(async () => {
       orderStore.refreshOrderArea = true;
     } else {
       notification.error({
-        message: '下单失败',
+        message: "下单失败",
         description: `${res.data.err_text}`,
       });
     }
   } finally {
     priceBtnLoading.value = false;
+  }
+}, 200);
+// 挂单下单
+import { pendingOrdersAdd, reqPendingOrdersAdd } from "api/order/index";
+import { message } from "ant-design-vue";
+import { ORDERMAP } from "@/constants/common";
+
+const pendingBtnLoading = ref(false);
+const addPendingOrders = debounce(async () => {
+  try {
+    pendingBtnLoading.value = true;
+    const values = await valids();
+    if (values) {
+      const updata: reqPendingOrdersAdd = {
+        symbol: formState.symbol,
+        type: ORDERMAP[formState.orderType],
+        volume: +formState.volume * 100,
+        order_price: +formState.orderPrice,
+        trigger_price: +formState.limitedPrice,
+        sl: +formState.stopLoss,
+        tp: +formState.stopProfit,
+        time_expiration: +formState.dueDate,
+      };
+      const res = await pendingOrdersAdd(updata);
+      if (res.data.action_success) {
+        message.success("下单成功");
+        handleCancel();
+      } else {
+        message.error(`下单失败：${res.data.err_text}`);
+      }
+    }
+  } finally {
+    pendingBtnLoading.value = false;
   }
 }, 200);
 </script>

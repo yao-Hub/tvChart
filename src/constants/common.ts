@@ -50,7 +50,16 @@ export const ORDER_TYPE: OrderType = {
     buy: 6,
     sell: 7,
   },
-} as const;
+} as Record<string, {buy: number, sell: number}>;
+
+export const ORDERMAP = {
+  buyLimit: 2,
+  sellLimit: 3,
+  buyStop: 4,
+  sellStop: 5,
+  buyStopLimit: 6,
+  sellStopLimit: 7,
+} as Record<string, number>;
 
 export const CLOSE_TYPE: Record<number, string> = {
   0: "手动",
