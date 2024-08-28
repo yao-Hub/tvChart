@@ -19,7 +19,7 @@
       :dataSource="dataSource"
       :columns="columns"
       :pagination="false"
-      v-if="!ifSearch"
+      v-show="!ifSearch"
     >
       <template #bodyCell="{ record, column }">
         <template v-if="column.dataIndex === 'bid'">{{
@@ -31,7 +31,7 @@
       </template>
     </a-table>
 
-    <Search :input="input" v-else></Search>
+    <Search :input="input" v-show="ifSearch"></Search>
   </div>
 </template>
 

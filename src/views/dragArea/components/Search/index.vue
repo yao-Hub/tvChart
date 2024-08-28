@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="!listState.loading">
     <div v-if="!input">
       <Block
         v-if="!showSymbols"
@@ -43,11 +43,13 @@
     >
     </Block>
   </div>
+
+  <LoadingOutlined v-else class="loading"/>
 </template>
 
 <script setup lang="ts">
 import { reactive, computed, watch, ref } from "vue";
-import { LeftOutlined } from "@ant-design/icons-vue";
+import { LeftOutlined, LoadingOutlined } from "@ant-design/icons-vue";
 import Block from "./Block.vue";
 
 const props = defineProps<{ input: string }>();
@@ -80,15 +82,18 @@ const listState = reactive({
   menu: [] as Array<any>,
   pathMap: {} as Record<string, any>,
   query: [] as Array<string>,
+  loading: false,
 });
 const getQuery = async () => {
   const queryRes = await optionalQuery();
   listState.query = queryRes.data;
 };
 (async function () {
+  listState.loading = true;
   const allPathRes = await symbolAllPath();
   listState.menu = allPathRes.data;
-  getQuery();
+  await getQuery();
+  listState.loading = false;
 })();
 watch(
   () => [allSymbols.value, listState.menu],
@@ -163,5 +168,10 @@ const getCheckType = (type: string) => {
 .back:hover {
   cursor: pointer;
   @include font_color("primary");
+}
+.loading {
+  position: absolute;
+  left: 50%;
+  top: 50%;
 }
 </style>
