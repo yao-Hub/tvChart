@@ -34,8 +34,8 @@ import { useChartSub } from "@/store/modules/chartSub";
 import { useChartInit } from "@/store/modules/chartInit";
 
 import OrderArea from "../orderArea/index.vue";
-import SymbolList from "./components/SymbolList.vue";
-import ChartList from "./components/ChartList.vue";
+import SymbolList from "./SymbolList.vue";
+import ChartList from "./ChartList.vue";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();

@@ -16,12 +16,14 @@ type reqConfig = InternalAxiosRequestConfig<any> & {
   noNeedServer?: boolean;
   action?: string;
   urlType?: string;
+  needLogin?: boolean;
 }
 type resConfig = AxiosRequestConfig<any> & {
   needToken?: boolean;
   noNeedServer?: boolean;
   action?: string;
   urlType?: string;
+  needLogin?: boolean;
 }
 
 const tokenErrorList: string[] = [];
@@ -70,6 +72,9 @@ service.interceptors.request.use(
     }
     if (config.needToken) {
       config.data.token = userStore.token || userStore.getToken();
+      config.data.login = userStore.account.login;
+    }
+    if (config.needLogin) {
       config.data.login = userStore.account.login;
     }
     let action = config.action || config.url || "";
@@ -127,14 +132,16 @@ service.interceptors.response.use(
     const { data, config } = response;
     if (data.err === 0) {
       remove(tokenErrorList, url => config.url === url);
-      // @ts-ignorets
-      if ((!config.urlType || config.urlType !== "admin") && (config.url?.includes(jsUrl) || ifLocal)) {
-        // js解密
-        data.data = JSON.parse(decrypt(data.data));
-      } else {
-        // Node解密
-        const action = JSON.parse(config.data).action;
-        data.data = JSON.parse(aes_decrypt(action, data.data));
+      if (data.data) {
+        // @ts-ignorets
+        if ((!config.urlType || config.urlType !== "admin") && (config.url?.includes(jsUrl) || ifLocal)) {
+          // js解密
+          data.data = JSON.parse(decrypt(data.data));
+        } else {
+          // Node解密
+          const action = JSON.parse(config.data).action;
+          data.data = JSON.parse(aes_decrypt(action, data.data));
+        }
       }
       console.log("response....", { url: response.config.url, data });
       return response;
