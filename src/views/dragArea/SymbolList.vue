@@ -39,6 +39,8 @@
 import { ref, watch, onMounted } from "vue";
 import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
 import { useI18n } from "vue-i18n";
+import Search from "./components/search/index.vue";
+
 const { t } = useI18n();
 const columns = [
   {
@@ -71,7 +73,6 @@ watch(
 onMounted(() => {
   userStore.account.login && getQuery();
 });
-import Search from "./components/search/index.vue";
 const ifSearch = ref(false);
 const input = ref("");
 const inputClick = () => {
