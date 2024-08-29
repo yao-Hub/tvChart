@@ -81,8 +81,13 @@ service.interceptors.request.use(
     if (action.startsWith("/")) {
       action = action.slice(1);
     }
-    const networkStore = useNetwork();
     let baseURL = "";
+    const networkStore = useNetwork();
+    const webApi = networkStore.currentNode?.webApi;
+    function changeLocalUrl(str: string) {
+      return str.replace(/^https?:\/\//, '-').replace(/\./g, '-').replace(/:/g, '-');
+    }
+    const baseClientUrl = import.meta.env.VITE_HTTP_BASE_URL_client + `${webApi ? changeLocalUrl(webApi) : ""}`;
     switch (config.urlType) {
       case "admin":
         baseURL = ifLocal
@@ -90,14 +95,12 @@ service.interceptors.request.use(
           : import.meta.env.VITE_HTTP_URL_admin;
         break;
       default:
-        baseURL = ifLocal
-          ? import.meta.env.VITE_HTTP_BASE_URL_client
-          : networkStore.currentNode?.webApi;
+        baseURL = ifLocal ? baseClientUrl : webApi || "";
         break;
     }
     config.url = baseURL + config.url;
     let d;
-    if ((baseURL && baseURL.includes(jsUrl) || ifLocal) && config.urlType !== "admin") {
+    if ((baseURL && baseURL.includes(jsUrl)) || (webApi && webApi.includes(jsUrl)) && config.urlType !== "admin") {
       // js加密
       d = encrypt(JSON.stringify(config.data));
     } else {
@@ -133,8 +136,10 @@ service.interceptors.response.use(
     if (data.err === 0) {
       remove(tokenErrorList, url => config.url === url);
       if (data.data) {
-        // @ts-ignorets
-        if ((!config.urlType || config.urlType !== "admin") && (config.url?.includes(jsUrl) || ifLocal)) {
+          const networkStore = useNetwork();
+          const webApi = networkStore.currentNode?.webApi;
+          // @ts-ignorets
+        if ((config.url && config.url.includes(jsUrl)) || (webApi && webApi.includes(jsUrl)) && config.urlType !== "admin") {
           // js解密
           data.data = JSON.parse(decrypt(data.data));
         } else {

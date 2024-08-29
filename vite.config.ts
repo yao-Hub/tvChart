@@ -55,11 +55,25 @@ export default defineConfig((mode: ConfigEnv) => {
           changeOrigin: true,
           rewrite: path => path.replace(new RegExp('^' + env.VITE_HTTP_BASE_URL_admin), '')
         },
-        [env.VITE_HTTP_BASE_URL_client]: {
-          target: env.VITE_HTTP_URL_client,
+        "/client-api-120-79-186-23-13556": {
+          target: "http://120.79.186.23:13556",
           changeOrigin: true,
           rewrite: path => {
-            return path.replace(new RegExp('^' + env.VITE_HTTP_BASE_URL_client), '')
+            return path.replace(new RegExp('^' + '/client-api-120-79-186-23-13556'), '')
+          }
+        },
+        "/client-api-39-108-122-78-8098": {
+          target: "http://39.108.122.78:8098",
+          changeOrigin: true,
+          rewrite: path => {
+            return path.replace(new RegExp('^' + '/client-api-39-108-122-78-8098'), '')
+          }
+        },
+        "/client-api": {
+          target: "http://120.79.186.23:13556",
+          changeOrigin: true,
+          rewrite: path => {
+            return path.replace(new RegExp('^' + '/client-api'), '')
           }
         }
       }
