@@ -36,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
@@ -61,14 +61,17 @@ const getQuery = async () => {
     return { symbol: item };
   });
 };
+
 watch(
   () => userStore.account.login,
   (val) => {
     val && getQuery();
-  }
+  },
 );
-
-import Search from "./components/Search/index.vue";
+onMounted(() => {
+  userStore.account.login && getQuery();
+});
+import Search from "./components/search/index.vue";
 const ifSearch = ref(false);
 const input = ref("");
 const inputClick = () => {

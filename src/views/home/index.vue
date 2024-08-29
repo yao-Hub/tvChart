@@ -51,7 +51,6 @@ const getSymbols = async () => {
 };
 onMounted(async () => {
   try {
-    // 初始化拖拽
     orderStore.getQuickTrans();
     userStore.initUser();
     initDragResizeArea();
