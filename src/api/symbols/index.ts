@@ -4,9 +4,9 @@ enum Api {
   allSymbols = "/symbol/all_symbols",
   allSymbolsQuotes = "/quote/all_symbol_quotes",
   SymbolAllPath = "/symbol/all_path",
-  MySymbols = "my/optional_query",
-  DelMySymbols = "my/optional_delete",
-  AddMySymbols = "my/optional_add",
+  MySymbols = "/my/optional_query",
+  DelMySymbols = "/my/optional_delete",
+  AddMySymbols = "/my/optional_add",
 }
 
 // 获取交易商线路的所有交易品种
