@@ -69,7 +69,7 @@ export const useSocket = defineStore("socket", {
     },
 
     // 验证登录信息绑定交易账户
-    sendToken(login: string, token: string) {
+    sendToken(login: number | string, token: string) {
       const userStore = useUser();
       this.socket?.emit("set_login", {
         server: userStore.account.server,

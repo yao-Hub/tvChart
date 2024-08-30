@@ -81,25 +81,21 @@
 
 <script setup lang="ts">
 import { reactive, computed, watch } from "vue";
-import { message } from "ant-design-vue";
 import {
   UserOutlined,
   LockOutlined,
   SearchOutlined,
 } from "@ant-design/icons-vue";
+import { message } from "ant-design-vue";
 import type { Rule } from "ant-design-vue/es/form";
+import { pick } from 'lodash'
+import CryptoJS from "utils/AES";
+import { useUser } from "@/store/modules/user";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import CryptoJS from "utils/AES";
-import { Login } from "api/account/index";
-import { useUser } from "@/store/modules/user";
-import { useSocket } from "@/store/modules/socket";
-
+const userStore = useUser();
 const router = useRouter();
 const { t } = useI18n();
-
-const userStore = useUser();
-const socketStore = useSocket();
 
 const rules: Record<string, Rule[]> = {
   server: [
@@ -179,41 +175,11 @@ watch(
 const onFinish = async (values: any) => {
   try {
     formState.logging = true;
-    const { login, remember, password, server } = values;
-    const nodeList = networkStore.nodeList;
-    if (nodeList.length === 0) {
-      return message.info("找不到网络节点，请切换交易线路重试");
-    }
-    for (let i in nodeList) {
-      const item = nodeList[i];
-      try {
-        networkStore.nodeName = item.nodeName;
-        socketStore.initSocket();
-        const res = await Login({ password, login, server });
-        userStore.setToken(res.data.token);
-        userStore.account.password = password;
-        userStore.account.login = login;
-        userStore.account.server = server;
-        socketStore.sendToken(login, res.data.token);
-        const enlogin = CryptoJS.encrypt(login);
-        const enpassword = CryptoJS.encrypt(password);
-        const enserver = CryptoJS.encrypt(server);
-        const enNode = CryptoJS.encrypt(item.nodeName);
-        const storage = {
-          login: enlogin,
-          password: enpassword,
-          server: enserver,
-          queryNode: enNode,
-        };
-        window.localStorage.setItem("account", JSON.stringify(storage));
-        window.localStorage.setItem("remember", JSON.stringify(remember));
-        message.success(t("tip.succeed", { type: t("account.login") }));
-        router.push({ path: "/" });
-        return;
-      } catch (error) {
-        continue;
-      }
-    }
+    const data = pick(values, ['login', 'password', 'queryNode', 'server']);
+    await userStore.login(data);
+    window.localStorage.setItem("remember", JSON.stringify(values.remember));
+    message.success(t("tip.succeed", { type: t("account.login") }));
+    router.push({ path: "/" });
   } finally {
     formState.logging = false;
   }

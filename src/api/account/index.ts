@@ -71,8 +71,8 @@ export interface UserInfo {
   openning_orders: Order[];
 }
 
-interface reqLogin {
-  login: number;
+export interface reqLogin {
+  login: number | string;
   password: string;
   server: string;
 }

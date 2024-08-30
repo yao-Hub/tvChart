@@ -49,16 +49,21 @@ const getSymbols = async () => {
   chartSubStore.setSymbols(res.data);
   state.symbol = res.data[0]?.symbol;
 };
+
+async function init() {
+  chartInitStore.loading = true;
+  orderStore.getQuickTrans();
+  userStore.initUser();
+  initDragResizeArea();
+  await networkStore.getLines();
+  await networkStore.initNode();
+  socketStore.initSocket();
+  await getSymbols();
+  await userStore.getLoginInfo(true);
+};
 onMounted(async () => {
   try {
-    orderStore.getQuickTrans();
-    userStore.initUser();
-    initDragResizeArea();
-    await networkStore.getLines();
-    await networkStore.initNode();
-    socketStore.initSocket();
-    await getSymbols();
-    await userStore.getLoginInfo(true);
+    await init();
     chartInitStore.loading = false;
   } catch (error) {
     console.log(error);

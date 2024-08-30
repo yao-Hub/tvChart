@@ -1,45 +1,50 @@
 <template>
-  <a-dropdown :trigger="['click']" v-model:open="state.visible">
-    <div class="item">
-      <div class="item_top">
-        <span class="item_top_name">线路名, 账户名</span>
-        <span class="item_top_num">10285.21</span>
-      </div>
-      <div class="item_down">
+  <a-dropdown :trigger="['click']" v-model:open="visible">
+    <div class="info">
+      <span
+        >{{ networkStore.currentNode?.nodeName }},
+        {{ userStore.loginInfo?.total_name || userStore.account.login }}</span
+      >
+      <a-flex justify="space-between" class="blance" @click="visible = true">
+        <span>{{ userStore.loginInfo?.balance }}</span>
         <CaretDownOutlined />
-      </div>
+      </a-flex>
     </div>
     <template #overlay>
       <a-menu @click="handleMenuClick">
-        <div v-for="i in 3" :key="i">
-          <a-menu-item>
-            <div class="item">
+        <div v-for="item in userStore.accountList" :key="item.login">
+          <a-menu-item :key="item.login">
+            <a-flex align="center" :gap="5">
               <GlobalOutlined />
-              <span>线路名</span>
+              <span class="menuItem">{{ item.server }}</span>
               <a-divider type="vertical" />
-              <span>账户名</span>
+              <span class="menuItem">{{ item.login }}</span>
               <a-divider type="vertical" />
-              <span>10285.21</span>
-            </div>
+              <span>{{ item.blance }}</span>
+            </a-flex>
           </a-menu-item>
           <a-menu-divider />
         </div>
         <a-menu-item>
-          <div class="item">
-            <a-button type="link" @click="showModal">个人信息</a-button>
-            <a-button
-              type="link"
-              @click="$router.push({ name: 'resetPassword' })"
-              >更改密码</a-button
+          <a-flex justify="space-between" align="center" :gap="5">
+            <span class="btn" @click="showModal">个人信息</span>
+            <a-divider type="vertical" />
+            <span class="btn" @click="$router.push({ name: 'resetPassword' })"
+              >更改密码</span
             >
-            <a-button danger size="small" @click="logout">退出</a-button>
-          </div>
+            <a-divider type="vertical" />
+            <span class="btn" @click="$router.push({ name: 'login' })"
+              >添加账号</span
+            >
+            <a-divider type="vertical" />
+            <span class="btn logout" @click="logout">退出登录</span>
+          </a-flex>
         </a-menu-item>
       </a-menu>
     </template>
   </a-dropdown>
 
-  <a-modal v-model:open="open" title="个人信息" @ok="handleOk">
+  <a-modal v-model:open="modalOpen" title="个人信息" @ok="handleOk">
     <p>经纪商名称:</p>
     <p>线路名称:</p>
     <p>登录id:</p>
@@ -50,21 +55,33 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 import { CaretDownOutlined, GlobalOutlined } from "@ant-design/icons-vue";
 import type { MenuProps } from "ant-design-vue";
-import { useUser } from "@/store/modules/user";
 import { useRouter } from "vue-router";
+import { useUser } from "@/store/modules/user";
+import { useNetwork } from "@/store/modules/network";
 
+const networkStore = useNetwork();
 const userStore = useUser();
 const router = useRouter();
 
-const state = reactive({
-  visible: false,
-});
-
-const handleMenuClick: MenuProps["onClick"] = () => {
-  state.visible = false;
+const visible = ref(false);
+const handleMenuClick: MenuProps["onClick"] = async (e) => {
+  visible.value = false;
+  if (e.key === userStore.account.login) {
+    return;
+  }
+  const account = userStore.accountList.find((item) => item.login === e.key);
+  if (account) {
+    const { login, password, server } = account;
+    await userStore.login({
+      login,
+      password,
+      server,
+    });
+    window.location.reload();
+  }
 };
 
 const logout = () => {
@@ -72,38 +89,48 @@ const logout = () => {
   router.replace({ name: "login" });
 };
 
-const open = ref<boolean>(false);
+const modalOpen = ref<boolean>(false);
 const showModal = () => {
-  open.value = true;
+  modalOpen.value = true;
 };
 const handleOk = () => {
-  open.value = false;
+  modalOpen.value = false;
 };
 </script>
 
 <style lang="scss" scoped>
 @import "@/assets/styles/_handle.scss";
 
-.item {
+.info {
+  height: 100%;
+  margin-right: 13px;
   display: flex;
-  align-items: center;
-  gap: 4px;
-  padding-right: 14px;
+  flex-direction: column;
+  justify-content: space-evenly;
   font-size: 12px;
-  box-sizing: border-box;
-  &_top {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    gap: 4px;
-    &_name {
-      @include font_color("word-gray");
-    }
+}
+.blance {
+  cursor: pointer;
+  &:hover {
+    @include font_color("primary");
   }
-  &_down {
-    height: 100%;
-    display: flex;
-    align-items: flex-end;
+}
+.menuItem {
+  max-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ant-divider {
+  @include background_color("border");
+}
+.btn {
+  cursor: pointer;
+  &:hover {
+    @include font_color("primary");
   }
+}
+.logout {
+  color: #dc1d43;
 }
 </style>

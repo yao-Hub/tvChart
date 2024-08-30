@@ -1,18 +1,27 @@
 import { defineStore } from "pinia";
+import { message } from "ant-design-vue";
+import { pick } from 'lodash'
 import CryptoJS from "utils/AES";
-import { getLoginInfo, UserInfo } from "api/account/index";
+import { getLoginInfo, UserInfo, Login, reqLogin } from "api/account/index";
 import { useSocket } from "@/store/modules/socket";
+import { useNetwork } from "@/store/modules/network";
 
+type Account = Pick<UserInfo, "login" | "password"> & {
+  server: string;
+};
+type AccountListItem = Account & {
+  blance: string;
+};
 interface State {
-  account: Pick<UserInfo, "login" | "password"> & {
-    server: string;
-  };
+  account: Account;
+  accountList: Array<AccountListItem>;
   loginInfo: UserInfo | null;
   token: string;
 }
 
 export const useUser = defineStore("user", {
   state: (): State => ({
+    accountList: [],
     account: {
       login: "",
       password: "",
@@ -22,6 +31,20 @@ export const useUser = defineStore("user", {
     token: "",
   }),
   actions: {
+    deAccount(params: any) {
+      const result: any = {};
+      for (const i in params) {
+        result[i] = CryptoJS.decrypt(params[i]);
+      }
+      return result;
+    },
+    enAccount(params: any) {
+      const result: any = {};
+      for (const i in params) {
+        result[i] = CryptoJS.encrypt(params[i]);
+      }
+      return result;
+    },
     initUser() {
       if (!this.token) {
         this.getToken();
@@ -29,9 +52,7 @@ export const useUser = defineStore("user", {
       const account = window.localStorage.getItem("account");
       if (account) {
         const parseAccount = JSON.parse(account);
-        this.account.login = CryptoJS.decrypt(parseAccount.login);
-        this.account.password = CryptoJS.decrypt(parseAccount.password);
-        this.account.server = CryptoJS.decrypt(parseAccount.server);
+        this.account = this.deAccount(parseAccount);
       }
     },
     getToken() {
@@ -62,6 +83,68 @@ export const useUser = defineStore("user", {
       if (emitSocket) {
         socketStore.sendToken(res.data.login, this.getToken());
       }
+      this.setAccountList();
     },
+    setStorageAccount(data: any) {
+      this.account = pick(data, ['login' , 'password', 'server']) ;
+      window.localStorage.setItem(
+        "account",
+        JSON.stringify(this.enAccount(data))
+      );
+    },
+    setAccountList() {
+      const accountList = window.localStorage.getItem("accountList");
+      const list: Array<AccountListItem> = accountList ? JSON.parse(accountList) : [];
+      // 解密
+      const deList = list.map((item) => this.deAccount(item));
+      // 赋值
+      const found = deList.find((e) => e.login === this.account.login);
+      if (!found) {
+        deList.push({
+          ...this.account,
+          blance: this.loginInfo?.balance.toString() || "-",
+        });
+      }
+      this.accountList = deList;
+      // 加密缓存
+      const storageList = deList.map((item) => this.enAccount(item));
+      window.localStorage.setItem("accountList", JSON.stringify(storageList));
+    },
+
+    async login(updata: reqLogin) {
+      const networkStore = useNetwork();
+      const socketStore = useSocket();
+
+      const nodeList = networkStore.nodeList;
+      if (nodeList.length === 0) {
+        return message.info("找不到网络节点，请切换交易线路重试");
+      }
+      for (let i in nodeList) {
+        const item = nodeList[i];
+        try {
+          // 接口节点确定
+          networkStore.nodeName = item.nodeName;
+  
+          // socket地址确定
+          socketStore.initSocket();
+  
+          const res = await Login(updata);
+  
+          // 缓存token 发送登录状态
+          this.setToken(res.data.token);
+          socketStore.sendToken(updata.login, res.data.token);
+  
+          // 缓存登录信息
+          this.setStorageAccount({
+            ...updata,
+            queryNode: item.nodeName
+          });
+          return;
+        } catch (error) {
+          console.log(error)
+          continue;
+        }
+      }
+    }
   },
 });

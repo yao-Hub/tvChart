@@ -36,9 +36,7 @@
         <i class="iconfont" style="font-size: 12px" @click="horizontalLayout">&#xe600;</i>
       </a-tooltip>
     </div>
-    <div class="header__right">
-      <Account></Account>
-    </div>
+    <Account></Account>
   </div>
 </template>
 
