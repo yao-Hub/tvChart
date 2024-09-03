@@ -68,7 +68,7 @@ const equity = computed(() => {
   }
 });
 
-// 保证金
+// 预付款
 const Margin = computed(() => {
   try {
     if (!loginInfo.value) {
@@ -98,7 +98,7 @@ const Margin = computed(() => {
   }
 });
 
-// 可用保证金
+// 可用预付款
 const margin_free = computed(() => {
   if (equity.value !== "-" && Margin.value !== "-") {
     return round(Number(equity.value) - Number(Margin.value), 2);
@@ -106,7 +106,7 @@ const margin_free = computed(() => {
   return "-";
 });
 
-// 保证金水平
+// 预付款水平
 const margin_level = computed(() => {
   if (+Margin.value === 0) {
     return 0;
@@ -154,7 +154,7 @@ const handleMenuClick: MenuProps['onClick'] = e => {
   width: 100vw;
   box-sizing: border-box;
   height: 30px;
-  @include background_color("background");
+  @include background_color("background-component");
   position: fixed;
   bottom: 0;
   left: 0;
@@ -171,6 +171,7 @@ const handleMenuClick: MenuProps['onClick'] = e => {
     line-height: 30px;
     padding: 0 20px;
     overflow: auto;
+    text-align: center;
   }
 }
 </style>

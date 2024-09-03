@@ -61,12 +61,12 @@ const layoutStore = useLayout();
       box-sizing: border-box;
       position: absolute;
       user-select: none;
-      overflow: auto;
+      overflow: hidden;
       @include background_color("background-component");
 
       .container_item {
         width: 100%;
-        display: inline-block;
+        height: 100%;
       }
 
       .handle {

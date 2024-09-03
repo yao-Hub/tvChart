@@ -42,7 +42,8 @@
           >平仓时间：</TimeSelect
         >
         <CloseOrder
-          v-show="['position', 'order'].includes(activeKey)"
+          class="closeBtn"
+          v-show="['position'].includes(activeKey)"
           :orderType="activeKey"
           @closeClick="closeOrders"
         ></CloseOrder>
@@ -184,19 +185,19 @@ const state = reactive({
     },
     order: {
       createTime: "",
-      symbol: "",
+      symbol: null,
       addTime: "",
       closeTime: "",
     },
     orderHistory: {
       createTime: "",
-      symbol: "",
+      symbol: null,
       addTime: "",
       closeTime: "",
     },
     transactionHistory: {
       createTime: "",
-      symbol: "",
+      symbol: null,
       addTime: "",
       closeTime: "",
     },
@@ -575,6 +576,11 @@ const getTableDate = (type: string) => {
 <style lang="scss" scoped>
 @import "@/assets/styles/_handle.scss";
 
+.ant-table-wrapper {
+  @include border_color("border");
+  border: 1px solid;
+}
+
 .orderArea {
   display: flex;
   flex-direction: column;
@@ -612,6 +618,9 @@ const getTableDate = (type: string) => {
       flex-wrap: wrap;
       box-sizing: border-box;
       margin: 11px 0;
+      .closeBtn {
+        margin-left: auto;
+      }
     }
   }
 }

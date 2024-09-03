@@ -77,7 +77,8 @@ export default {
       stopLimit: "stopLimit",
     },
     tradingRoute: "trading route",
-    queryNode: "query node"
+    queryNode: "query node",
+    diurnalVariation: "diurnal variation",
   },
 
   tip: {

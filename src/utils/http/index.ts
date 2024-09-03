@@ -17,14 +17,14 @@ type reqConfig = InternalAxiosRequestConfig<any> & {
   action?: string;
   urlType?: string;
   needLogin?: boolean;
-}
+};
 type resConfig = AxiosRequestConfig<any> & {
   needToken?: boolean;
   noNeedServer?: boolean;
   action?: string;
   urlType?: string;
   needLogin?: boolean;
-}
+};
 
 const tokenErrorList: string[] = [];
 
@@ -85,9 +85,14 @@ service.interceptors.request.use(
     const networkStore = useNetwork();
     const webApi = networkStore.currentNode?.webApi;
     function changeLocalUrl(str: string) {
-      return str.replace(/^https?:\/\//, '-').replace(/\./g, '-').replace(/:/g, '-');
+      return str
+        .replace(/^https?:\/\//, "-")
+        .replace(/\./g, "-")
+        .replace(/:/g, "-");
     }
-    const baseClientUrl = import.meta.env.VITE_HTTP_BASE_URL_client + `${webApi ? changeLocalUrl(webApi) : ""}`;
+    const baseClientUrl =
+      import.meta.env.VITE_HTTP_BASE_URL_client +
+      `${webApi ? changeLocalUrl(webApi) : ""}`;
     switch (config.urlType) {
       case "admin":
         baseURL = ifLocal
@@ -100,7 +105,10 @@ service.interceptors.request.use(
     }
     config.url = baseURL + config.url;
     let d;
-    if ((baseURL && baseURL.includes(jsUrl)) || (webApi && webApi.includes(jsUrl)) && config.urlType !== "admin") {
+    if (
+      (baseURL && baseURL.includes(jsUrl)) ||
+      (webApi && webApi.includes(jsUrl) && config.urlType !== "admin")
+    ) {
       // js加密
       d = encrypt(JSON.stringify(config.data));
     } else {
@@ -134,12 +142,15 @@ service.interceptors.response.use(
   (response) => {
     const { data, config } = response;
     if (data.err === 0) {
-      remove(tokenErrorList, url => config.url === url);
+      remove(tokenErrorList, (url) => config.url === url);
       if (data.data) {
-          const networkStore = useNetwork();
-          const webApi = networkStore.currentNode?.webApi;
+        const networkStore = useNetwork();
+        const webApi = networkStore.currentNode?.webApi;
+        if (
+          (config.url && config.url.includes(jsUrl)) ||
           // @ts-ignorets
-        if ((config.url && config.url.includes(jsUrl)) || (webApi && webApi.includes(jsUrl)) && config.urlType !== "admin") {
+          (webApi && webApi.includes(jsUrl) && config.urlType !== "admin")
+        ) {
           // js解密
           data.data = JSON.parse(decrypt(data.data));
         } else {
@@ -151,7 +162,12 @@ service.interceptors.response.use(
       console.log("response....", { url: response.config.url, data });
       return response;
     }
-    if (data.err === 1 && data.errmsg && data.errmsg.includes("invalid token")) {
+    if (
+      data.err === 1 &&
+      data.errmsg &&
+      typeof data.errmsg === "string" &&
+      data.errmsg.includes("invalid token")
+    ) {
       if (config.url) {
         tokenErrorList.push(config.url);
       }
@@ -159,7 +175,7 @@ service.interceptors.response.use(
         Modal.confirm({
           title: "error",
           content: data.errmsg,
-          okText: '重新登陆',
+          okText: "重新登陆",
           onOk() {
             const userStore = useUser();
             userStore.clearToken();
@@ -198,9 +214,7 @@ service.interceptors.response.use(
 );
 
 // 封装一层以更好的统一定义接口返回的类型
-const request = <T>(
-  config: resConfig
-): Promise<CustomResponseType<T>> => {
+const request = <T>(config: resConfig): Promise<CustomResponseType<T>> => {
   return new Promise((resolve, reject) => {
     service
       .request<CustomResponseType<T>>(config)

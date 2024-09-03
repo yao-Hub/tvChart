@@ -12,9 +12,9 @@
       ></Block>
 
       <div v-else>
-        <Block>
+        <Block class="back">
           <template #title>
-            <div class="back" @click="() => (showSymbols = false)">
+            <div class="back_title" @click="() => (showSymbols = false)">
               <LeftOutlined />
               <span>{{ currentPath }}</span>
             </div>
@@ -163,12 +163,17 @@ const getCheckType = (type: string) => {
 <style lang="scss" scoped>
 @import "@/assets/styles/_handle.scss";
 .back {
-  display: flex;
-  gap: 5px;
-}
-.back:hover {
-  cursor: pointer;
-  @include font_color("primary");
+  @include background_color("background-component");
+  position: sticky;
+  top: 0;
+  &_title {
+    display: flex;
+    gap: 5px;
+    &:hover {
+      cursor: pointer;
+      @include font_color("primary");
+    }
+  }
 }
 .loading {
   position: absolute;

@@ -557,8 +557,11 @@ const addPendingOrders = debounce(async () => {
 </style>
 
 <style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
 .sellBtn,
 .buyBtn {
   border-radius: 4px;
+  @include font_color("background-component");
 }
 </style>

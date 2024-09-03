@@ -1,5 +1,5 @@
 <template>
-  <a-dropdown-button @click="handleButtonClick" v-model:open="visible">
+  <a-dropdown-button @click="handleButtonClick" v-model:open="visible" type="primary" size="small">
     <a-tooltip :title="state.toolTip">
       <span class="title">{{ state.title }}</span>
     </a-tooltip>
@@ -19,14 +19,14 @@
       </a-menu>
     </template>
     <template #icon>
-      <DownOutlined />
+      <CaretDownOutlined />
     </template>
   </a-dropdown-button>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, watch } from "vue";
-import { DownOutlined } from "@ant-design/icons-vue";
+import { CaretDownOutlined } from "@ant-design/icons-vue";
 import { throttle } from 'lodash';
 import { getTradingDirection } from "utils/order/index";
 import { resOrders } from "api/order/index";
@@ -185,5 +185,6 @@ const handleButtonClick = (e: Event) => {
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100px;
+  font-size: 12px;
 }
 </style>

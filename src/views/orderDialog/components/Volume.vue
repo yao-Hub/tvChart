@@ -47,7 +47,7 @@ const max = computed(() => {
   return 0;
 });
 
-// 保证金(以买入计算)
+// 预付款(以买入计算)
 const Margin = computed(() => {
   let result = 0;
   const symbol = props.symbolInfo;

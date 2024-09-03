@@ -12,7 +12,11 @@
     </div>
     <template #overlay>
       <a-menu @click="handleMenuClick">
-        <div v-for="item in userStore.accountList" :key="item.login">
+        <div
+          v-for="item in userStore.accountList"
+          :key="item.login"
+          class="item"
+        >
           <a-menu-item :key="item.login">
             <a-flex align="center" :gap="5">
               <GlobalOutlined />
@@ -45,12 +49,14 @@
   </a-dropdown>
 
   <a-modal v-model:open="modalOpen" title="个人信息" @ok="handleOk">
-    <p>经纪商名称:</p>
-    <p>线路名称:</p>
-    <p>登录id:</p>
-    <p>服务器:</p>
-    <p>已连接节点:</p>
-    <p>邮箱地址:</p>
+    <div class="personalInfo">
+      <p>经纪商名称: {{ networkStore.currentLine?.brokerName }}</p>
+      <p>线路名称: {{ networkStore.nodeName }}</p>
+      <p>登录id:</p>
+      <p>服务器: {{ networkStore.currentNode?.ip }}</p>
+      <p>已连接节点: {{ networkStore.currentNode?.nodeName }}</p>
+      <p>邮箱地址:</p>
+    </div>
   </a-modal>
 </template>
 
@@ -109,6 +115,12 @@ const handleOk = () => {
   justify-content: space-evenly;
   font-size: 12px;
 }
+.item {
+  border-radius: 4px;
+  &:active {
+    @include background_color("primary");
+  }
+}
 .blance {
   cursor: pointer;
   &:hover {
@@ -132,5 +144,13 @@ const handleOk = () => {
 }
 .logout {
   color: #dc1d43;
+}
+.personalInfo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  p {
+    width: calc(50% - 15px);
+  }
 }
 </style>

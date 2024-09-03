@@ -50,7 +50,7 @@ export interface SessionSymbolInfo {
   volume_max: number; // 单笔交易最大手数
   volume_max_total: number; // 单个账户最大持仓手数
   stops_level: number; // 交易距离。200=200点。即digits=2时，止损止盈等设定需远离现价2。digits=3时，止损止盈等设定需远离现价0.2
-  margin: number; // 1手固定的保证金金额
+  margin: number; // 1手固定的预付款金额
   contract_size: number; // 合约数量
   trade_allow: number; // 是否能交易，1=是。
   ttimes: Array<Array<TimeUnit>>; // 交易时间段。休闭市设定

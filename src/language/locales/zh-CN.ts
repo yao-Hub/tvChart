@@ -64,9 +64,9 @@ export default {
     balance: "余额",
     equity: "净值",
     profit: "盈利",
-    Margin: "保证金",
-    marginFree: "可用保证金",
-    marginLevel: "保证金水平",
+    Margin: "预付款",
+    marginFree: "可用预付款",
+    marginLevel: "预付款比例",
     TotalProfit: "账户总盈亏",
     buy: "买入",
     sell: "卖出",
@@ -78,6 +78,7 @@ export default {
     },
     tradingRoute: "交易线路",
     queryNode: "交易节点",
+    diurnalVariation: "日变化",
   },
 
   tip: {

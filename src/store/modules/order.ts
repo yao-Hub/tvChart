@@ -16,7 +16,7 @@ import FastAddOrder from "@/components/FastAddOrder.vue";
 interface State {
   currentQuotes: Record<string, types.Quote>;
   currentSymbol: string;
-  currentKline: types.Line | null;
+  currentKline: Record<string, types.Line>;
   refreshOrderArea: boolean;
   tableData: orderTypes.TableData;
   selectedMenuKey: orderTypes.OrderType;
@@ -29,7 +29,7 @@ export const useOrder = defineStore("order", {
     return {
       currentQuotes: {},
       currentSymbol: "",
-      currentKline: null,
+      currentKline: {},
       refreshOrderArea: false,
       tableData: {},
       selectedMenuKey: "price",

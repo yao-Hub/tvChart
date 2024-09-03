@@ -8,6 +8,7 @@ import {
 } from "api/account/index";
 
 interface State {
+  server: string;
   nodeName: string;
   nodeList: resQueryNode[];
   queryTradeLines: resQueryTradeLine[];
@@ -16,6 +17,7 @@ interface State {
 export const useNetwork = defineStore("network", {
   state: (): State => {
     return {
+      server: "",
       nodeName: "",
       nodeList: [],
       queryTradeLines: [],
@@ -26,6 +28,9 @@ export const useNetwork = defineStore("network", {
     currentNode: (state) => {
       return state.nodeList.find((e) => e.nodeName === state.nodeName);
     },
+    currentLine: (state) => {
+      return state.queryTradeLines.find((e) => e.lineName === state.server);
+    },
   },
 
   actions: {
@@ -35,6 +40,7 @@ export const useNetwork = defineStore("network", {
         const parseAccount = JSON.parse(account);
         const queryNode = CryptoJS.decrypt(parseAccount.queryNode);
         const server = CryptoJS.decrypt(parseAccount.server);
+        this.server = server;
         this.nodeName = queryNode;
         await this.getNodes(server);
       }

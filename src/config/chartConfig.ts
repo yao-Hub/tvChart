@@ -1,4 +1,4 @@
-import { flattenDeep, groupBy, orderBy, get, cloneDeep } from "lodash";
+import { flattenDeep, groupBy, orderBy, get, last } from "lodash";
 import moment from "moment";
 import { klineHistory } from "api/kline/index";
 import * as types from "@/types/chart/index";
@@ -141,8 +141,8 @@ export const datafeed = (id: string) => {
     // 监听k线
     socketStore.socket.on("kline_new", function (d: any) {
       // 提升k线数据
-      const klines = cloneDeep(d.klines);
-      orderStore.currentKline = { ...klines.reverse().pop(), symbol: d.symbol };
+      const lastLines = last(orderBy(d.klines, 'ctm', 'desc'));
+      orderStore.currentKline[d.symbol] = lastLines;
 
       if (!subscribed[id].symbolInfo || !new_one[id]) {
         // 图表没初始化
