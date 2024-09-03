@@ -14,7 +14,7 @@
         </template>
       </TabItem>
     </baseTabs>
-    <div class="container">
+    <div class="container" ref="container">
       <div class="filter">
         <SymbolSelect
           v-model="state.updata[activeKey].symbol"
@@ -53,7 +53,7 @@
         :columns="state.columns[activeKey]"
         :pagination="false"
         :loading="state.loadingList[activeKey]"
-        :scroll="{ x: 1300 }"
+        :scroll="{ x: '100%', y: tableY }"
       >
         <template #bodyCell="{ record, column, index, text }">
           <div @dblclick="handleRowDoubleClick(record)">
@@ -158,6 +158,19 @@ interface Menu {
   label: string;
   key: orderTypes.TableDataKey;
 }
+
+const container = ref();
+const tableY = ref("");
+let observer: ResizeObserver | null = null;
+onMounted(() => {
+  observer = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const { height } = entry.contentRect;
+      tableY.value = `${height - 40 - 24 - 24 - 15 }px`;
+    }
+  });
+  observer.observe(container.value);
+});
 
 const state = reactive({
   menu: [
@@ -584,7 +597,7 @@ const getTableDate = (type: string) => {
 .orderArea {
   display: flex;
   flex-direction: column;
-  overflow: auto;
+  overflow: hidden;
   box-sizing: border-box;
   position: relative;
   border-radius: 5px;
@@ -611,13 +624,14 @@ const getTableDate = (type: string) => {
     flex-direction: column;
     box-sizing: border-box;
     padding: 0 16px;
+    height: 100%;
 
     .filter {
+      height: 40px;
       display: flex;
       gap: 8px;
-      flex-wrap: wrap;
       box-sizing: border-box;
-      margin: 11px 0;
+      align-items: center;
       .closeBtn {
         margin-left: auto;
       }
