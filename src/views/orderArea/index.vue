@@ -7,21 +7,42 @@
             {{ item.label }}
           </span>
           <a-tag
-            :color="state.dataSource[item.key].length ? '#009345' : '#7f7f7f'"
+            :color="state.dataSource[item.key].length ? '#F4B201' : '#BEC2C9'"
             style="margin-left: 3px; scale: 0.8"
-            >{{ state.dataSource[item.key].length }}</a-tag
           >
+            {{ state.dataSource[item.key].length }}
+          </a-tag>
         </template>
       </TabItem>
     </baseTabs>
     <div class="container" ref="container">
       <div class="filter">
         <SymbolSelect
+          style="min-width: 130px"
           v-model="state.updata[activeKey].symbol"
-          @change="getTableDate(activeKey)"
-          :selectOption="{ allowClear: true }"
+          :selectOption="{ allowClear: true, mode: 'multiple', maxTagCount: 1 }"
         >
         </SymbolSelect>
+        <a-select
+          style="width: 130px"
+          v-show="activeKey === 'position'"
+          v-model:value="state.updata[activeKey].direction"
+          allowClear
+          placeholder="方向"
+        >
+          <a-select-option value="buy">{{ $t("order.buy") }}</a-select-option>
+          <a-select-option value="sell">{{ $t("order.sell") }}</a-select-option>
+        </a-select>
+        <a-select
+          style="width: 130px"
+          v-show="activeKey === 'position'"
+          v-model:value="state.updata[activeKey].pol"
+          allowClear
+          placeholder="盈亏"
+        >
+          <a-select-option value="profit">盈利</a-select-option>
+          <a-select-option value="loss">亏损</a-select-option>
+        </a-select>
         <TimeSelect
           v-show="activeKey === 'orderHistory'"
           v-model="state.updata[activeKey].createTime"
@@ -55,7 +76,7 @@
         :loading="state.loadingList[activeKey]"
         :scroll="{ x: '100%', y: tableY }"
       >
-        <template #bodyCell="{ record, column, index, text }">
+        <template #bodyCell="{ record, column, text }">
           <div @dblclick="handleRowDoubleClick(record)">
             <template v-if="column.dataIndex === 'time_setup'">{{
               formatTime(record.time_setup)
@@ -76,14 +97,10 @@
               $t(`order.type.${getOrderType(record.type)}`)
             }}</template>
             <template v-else-if="column.dataIndex === 'now_price'">{{
-              getNowPrice(record, index)
+              getNowPrice(record)
             }}</template>
-            <template
-              v-else-if="
-                column.dataIndex === 'profit' && activeKey === 'position'
-              "
-              >{{ getProfit(record, index) }}</template
-            >
+            <template v-else-if="column.dataIndex === 'profit' && activeKey === 'position'"
+              >{{ getProfit(record) }}</template>
             <template v-else-if="column.dataIndex === 'distance'">{{
               getDistance(record)
             }}</template>
@@ -125,8 +142,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watchEffect, h, ref, onMounted } from "vue";
-import { cloneDeep, debounce } from "lodash";
+import { reactive, watchEffect, h, ref, onMounted, watch } from "vue";
+import { cloneDeep, debounce, throttle, set } from "lodash";
 import { CloseOutlined } from "@ant-design/icons-vue";
 import { message, Modal } from "ant-design-vue";
 
@@ -159,19 +176,6 @@ interface Menu {
   key: orderTypes.TableDataKey;
 }
 
-const container = ref();
-const tableY = ref("");
-let observer: ResizeObserver | null = null;
-onMounted(() => {
-  observer = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const { height } = entry.contentRect;
-      tableY.value = `${height - 40 - 24 - 24 - 15 }px`;
-    }
-  });
-  observer.observe(container.value);
-});
-
 const state = reactive({
   menu: [
     { label: "持仓", key: "position" },
@@ -190,27 +194,28 @@ const state = reactive({
   orderInfo: {} as orders.resOrders,
   updata: {
     position: {
-      // symbol: [],
-      symbol: null,
+      symbol: [],
+      direction: null,
+      pol: null,
       createTime: "",
       addTime: "",
       closeTime: "",
     },
     order: {
+      symbol: [],
       createTime: "",
-      symbol: null,
       addTime: "",
       closeTime: "",
     },
     orderHistory: {
+      symbol: [],
       createTime: "",
-      symbol: null,
       addTime: "",
       closeTime: "",
     },
     transactionHistory: {
+      symbol: [],
       createTime: "",
-      symbol: null,
       addTime: "",
       closeTime: "",
     },
@@ -224,6 +229,44 @@ const state = reactive({
 });
 
 const activeKey = ref<orderTypes.TableDataKey>("position");
+
+// 筛选过滤
+watch(
+  () => [
+    state.updata[activeKey.value].symbol,
+    state.updata[activeKey.value].direction,
+    state.updata[activeKey.value].pol,
+  ],
+  throttle(() => {
+    const active = activeKey.value;
+    const originData = cloneDeep(orderStore.tableData[active]);
+    const selectSymbols = state.updata[active].symbol;
+    const direction = state.updata[active].direction;
+    const pol = state.updata[active].pol;
+    if (originData) {
+      state.dataSource[active] = originData.filter(
+        (item) => {
+          let symbolResult = true;
+          let directionResult = true;
+          let polResult = true;
+          if (selectSymbols.length) {
+            symbolResult = selectSymbols.includes(item.symbol);
+          }
+          if (direction) {
+            directionResult = direction === getTradingDirection(item.type);
+          }
+          if (pol && pol === 'profit') {
+            polResult = item.profit > 0;
+          }
+          if (pol && pol === 'loss') {
+            polResult = item.profit < 0;
+          }
+          return symbolResult && directionResult && polResult;
+        }
+      );
+    }
+  }, 100, { trailing: true })
+);
 
 // 挂单价距离
 const getDistance = (e: orders.resOrders) => {
@@ -249,12 +292,19 @@ const formatTime = (timestamp: string) => {
 };
 
 // 获取现价
-const getNowPrice = (e: orders.resOrders, index: number) => {
+const getNowPrice = (e: orders.resOrders) => {
   try {
     const currentQuote = orderStore.currentQuotes[e.symbol];
     const type = getTradingDirection(e.type);
     const result = type === "buy" ? currentQuote.bid : currentQuote.ask;
-    orderStore.tableData[activeKey.value]![index].now_price = +result;
+    const id = e.id;
+    const data = orderStore.tableData[activeKey.value];
+    if (data) {
+      const index = data.findIndex(e => e.id === id);
+      if (index) {
+        set(data, [index, 'now_price'], +result);
+      }
+    }
     return result;
   } catch (error) {
     return "";
@@ -262,7 +312,7 @@ const getNowPrice = (e: orders.resOrders, index: number) => {
 };
 
 // 获取盈亏
-const getProfit = (e: orders.resOrders, index: number) => {
+const getProfit = (e: orders.resOrders) => {
   try {
     let result: string | number = "";
     const type = getTradingDirection(e.type);
@@ -270,7 +320,7 @@ const getProfit = (e: orders.resOrders, index: number) => {
     // 持仓多单时，close_price = 现价卖价
     // 持仓空单时，close_price = 现价买价
     const closePrice = type === "buy" ? currentQuote.bid : currentQuote.ask;
-    const { contract_size, storage, fee, open_price, volume } = e;
+    const { contract_size, storage, fee, open_price, volume, id } = e;
     // 建仓合约价值 = open_price X contract_size X volume / 100
     const buildingPrice = (open_price * contract_size * volume) / 100;
     // 平仓合约价值 = close_price X contract_size X volume / 100
@@ -282,53 +332,18 @@ const getProfit = (e: orders.resOrders, index: number) => {
         ? closingPrice - buildingPrice
         : buildingPrice - closingPrice;
     result = (direction + (storage || 0) + (fee || 0)).toFixed(2);
-    orderStore.tableData[activeKey.value]![index].profit = +result;
+    const data = orderStore.tableData[activeKey.value];
+    if (data) {
+      const index = data.findIndex(e => e.id === id);
+      if (index) {
+        set(data, [index, 'profit'], +result);
+      }
+    }
     return result;
   } catch (error) {
     return "";
   }
 };
-
-onMounted(() => {
-  debouncedGetOrders();
-  debouncedGetPendingOrders();
-  debouncedGetTradingHistory();
-  debouncedGetOrderHistory();
-  socketStore.orderChanges((type: string) => {
-    switch (type) {
-      case "order_opened":
-        getOrders();
-        userStore.getLoginInfo();
-        break;
-      case "order_closed":
-        getOrders();
-        getTradingHistory();
-        userStore.getLoginInfo();
-        break;
-      case "order_modified":
-        getOrders();
-        break;
-      case "pending_order_opened":
-      case "pending_order_modified":
-        getPendingOrders();
-        break;
-      case "pending_order_deleted":
-        getPendingOrders();
-        getOrderHistory();
-        break;
-      case "pending_order_dealt":
-        getOrders();
-        getPendingOrders();
-        userStore.getLoginInfo();
-        break;
-      case "balance_order_added":
-        userStore.getLoginInfo();
-        break;
-      default:
-        break;
-    }
-  });
-});
 
 // 下单时触发
 watchEffect(async () => {
@@ -347,15 +362,7 @@ const getOrders = async () => {
   try {
     state.loadingList.position = true;
     const res = await orders.openningOrders();
-    // const selectSymbols = state.updata.position.symbol;
-    const selectSymbol = state.updata.position.symbol;
-    state.dataSource.position = res.data.filter((item) => {
-      // return selectSymbols.include(item.symbol);
-      if (selectSymbol) {
-        return selectSymbol === item.symbol;
-      }
-      return true;
-    });
+    state.dataSource.position = cloneDeep(res.data);
     orderStore.tableData.position = cloneDeep(res.data);
   } finally {
     state.loadingList.position = false;
@@ -367,13 +374,7 @@ const getPendingOrders = async () => {
   try {
     state.loadingList.order = true;
     const res = await orders.pendingOrders();
-    const selectSymbol = state.updata.order.symbol;
-    state.dataSource.order = res.data.filter((item) => {
-      if (selectSymbol) {
-        return item.symbol === selectSymbol;
-      }
-      return true;
-    });
+    state.dataSource.order = cloneDeep(res.data);
     orderStore.tableData.order = cloneDeep(res.data);
   } finally {
     state.loadingList.order = false;
@@ -386,7 +387,6 @@ const getOrderHistory = async () => {
     state.loadingList.orderHistory = true;
     const [begin_time, end_time] = state.updata.orderHistory.createTime;
     const updata: any = {};
-    updata.symbol = state.updata.orderHistory.symbol;
     updata.begin_time = begin_time;
     updata.end_time = end_time;
     const res = await orders.invalidPendingOrders(updata);
@@ -400,11 +400,10 @@ const getOrderHistory = async () => {
 const getTradingHistory = async () => {
   try {
     state.loadingList.transactionHistory = true;
-    const { addTime, closeTime, symbol } = state.updata.transactionHistory;
+    const { addTime, closeTime } = state.updata.transactionHistory;
     const [open_begin_time, open_end_time] = addTime;
     const [close_begin_time, close_end_time] = closeTime;
     const updata: any = {};
-    updata.symbol = symbol;
     updata.open_begin_time = open_begin_time;
     updata.open_end_time = open_end_time;
     updata.close_begin_time = close_begin_time;
@@ -554,7 +553,7 @@ const handleRowDoubleClick = (record: orders.resOrders) => {
 };
 const getQuote = () => {
   if (state.orderInfo.symbol) {
-    return orderStore.currentQuotes[state.orderInfo.symbol]
+    return orderStore.currentQuotes[state.orderInfo.symbol];
   }
   return {
     ask: 0,
@@ -584,6 +583,58 @@ const getTableDate = (type: string) => {
       break;
   }
 };
+
+const container = ref();
+const tableY = ref("");
+let observer: ResizeObserver | null = null;
+onMounted(() => {
+  observer = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const { height } = entry.contentRect;
+      tableY.value = `${height - 40 - 24 - 24 - 15}px`;
+    }
+  });
+  observer.observe(container.value);
+
+  debouncedGetOrders();
+  debouncedGetPendingOrders();
+  debouncedGetTradingHistory();
+  debouncedGetOrderHistory();
+  socketStore.orderChanges((type: string) => {
+    switch (type) {
+      case "order_opened":
+        getOrders();
+        userStore.getLoginInfo();
+        break;
+      case "order_closed":
+        getOrders();
+        getTradingHistory();
+        userStore.getLoginInfo();
+        break;
+      case "order_modified":
+        getOrders();
+        break;
+      case "pending_order_opened":
+      case "pending_order_modified":
+        getPendingOrders();
+        break;
+      case "pending_order_deleted":
+        getPendingOrders();
+        getOrderHistory();
+        break;
+      case "pending_order_dealt":
+        getOrders();
+        getPendingOrders();
+        userStore.getLoginInfo();
+        break;
+      case "balance_order_added":
+        userStore.getLoginInfo();
+        break;
+      default:
+        break;
+    }
+  });
+});
 </script>
 
 <style lang="scss" scoped>
@@ -595,30 +646,9 @@ const getTableDate = (type: string) => {
 }
 
 .orderArea {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
   box-sizing: border-box;
-  position: relative;
   border-radius: 5px;
-  margin-top: -24px;
 
-  // &::-webkit-scrollbar {
-  //   width: 5px; /*  设置纵轴（y轴）轴滚动条 */
-  //   height: 100%; /*  设置横轴（x轴）轴滚动条 */
-  // }
-  // // 滑块颜色
-  // &::-webkit-scrollbar-thumb {
-  //   border-radius: 10px;
-  //   box-shadow: inset 0 0 5px #525252;
-  //   background: #525252;
-  // }
-  // // 滚动条背景色
-  // &::-webkit-scrollbar-track {
-  //   border-radius: 0;
-  //   box-shadow: inset 0 0 5px #131722;
-  //   background: #131722;
-  // }
   .container {
     display: flex;
     flex-direction: column;
@@ -632,6 +662,7 @@ const getTableDate = (type: string) => {
       gap: 8px;
       box-sizing: border-box;
       align-items: center;
+
       .closeBtn {
         margin-left: auto;
       }
