@@ -372,7 +372,6 @@ function createVertLine(addNum: number) {
     line.style.position = "absolute";
     line.style.width = lineWidth + 'px';
     line.style.cursor = "ew-resize";
-    line.style.zIndex = "99";
     line.addEventListener("mouseover", function () {
       line.style.backgroundColor = lineColor;
     });

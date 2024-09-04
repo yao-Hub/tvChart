@@ -46,22 +46,22 @@
         <TimeSelect
           v-show="activeKey === 'orderHistory'"
           v-model="state.updata[activeKey].createTime"
+          :pickerOption="{ placeholder:['创建开始时间', '创建结束时间'] }"
           @timeRange="getTableDate(activeKey)"
-          >创建时间：</TimeSelect
-        >
+        ></TimeSelect>
         <TimeSelect
           v-show="activeKey === 'transactionHistory'"
           v-model="state.updata[activeKey].addTime"
+          :pickerOption="{ placeholder:['建仓开始时间', '建仓结束时间'] }"
           @timeRange="getTableDate(activeKey)"
-          >建仓时间：</TimeSelect
-        >
+        ></TimeSelect>
         <TimeSelect
           v-show="activeKey === 'transactionHistory'"
           initFill
           v-model="state.updata[activeKey].closeTime"
+          :pickerOption="{ placeholder:['平仓开始时间', '平仓结束时间'] }"
           @timeRange="getTableDate(activeKey)"
-          >平仓时间：</TimeSelect
-        >
+        ></TimeSelect>
         <CloseOrder
           class="closeBtn"
           v-show="['position'].includes(activeKey)"
@@ -74,7 +74,7 @@
         :columns="state.columns[activeKey]"
         :pagination="false"
         :loading="state.loadingList[activeKey]"
-        :scroll="{ x: '100%', y: tableY }"
+        :scroll="{ x: 1300, y: tableY }"
       >
         <template #bodyCell="{ record, column, text }">
           <div @dblclick="handleRowDoubleClick(record)">
@@ -99,20 +99,27 @@
             <template v-else-if="column.dataIndex === 'now_price'">{{
               getNowPrice(record)
             }}</template>
-            <template v-else-if="column.dataIndex === 'profit' && activeKey === 'position'">
-              <span :class="[ getCellClass(record.profit) ]">{{ getProfit(record) }}</span>
+            <template v-else-if="column.dataIndex === 'profit'">
+              <span :class="[getCellClass(record.profit)]">
+                {{ activeKey === 'position'? getProfit(record) : record.profit }}
+              </span>
             </template>
             <template v-else-if="column.dataIndex === 'storage'">
-              <span :class="[ getCellClass(record.storage) ]">{{ record.storage }}</span>
+              <span :class="[getCellClass(record.storage)]">{{
+                record.storage
+              }}</span>
             </template>
             <template v-else-if="column.dataIndex === 'fee'">
-              <span :class="[ getCellClass(record.fee) ]">{{ record.fee }}</span>
+              <span :class="[getCellClass(record.fee)]">{{ record.fee }}</span>
             </template>
             <template v-else-if="column.dataIndex === 'distance'">{{
               getDistance(record)
             }}</template>
             <template v-else-if="column.dataIndex === 'close_type'">{{
               getCloseType(record)
+            }}</template>
+            <template v-else-if="column.dataIndex === 'days'">{{
+              getDays(record)
             }}</template>
             <template v-else-if="column.dataIndex === 'positionAction'">
               <a-tooltip title="平仓">
@@ -133,7 +140,7 @@
               </a-tooltip>
             </template>
             <template v-else>
-              {{ text }}
+              {{ [null, undefined, ""].includes(text) ? '-' : text }}
             </template>
           </div>
         </template>
@@ -187,8 +194,8 @@ const state = reactive({
   menu: [
     { label: "持仓", key: "position" },
     { label: "挂单", key: "order" },
-    { label: "失效挂单", key: "orderHistory" },
-    { label: "交易历史", key: "transactionHistory" },
+    { label: "历史持仓", key: "transactionHistory" },
+    { label: "历史挂单", key: "orderHistory" },
   ] as Menu[],
   columns: tableColumns,
   dataSource: {
@@ -240,7 +247,7 @@ const getCellClass = (num: number) => {
   if (!num) {
     return "";
   }
-  return num > 0 ? 'buyWord' : 'sellWord'
+  return num > 0 ? "buyWord" : "sellWord";
 };
 // 筛选过滤
 watch(
@@ -249,15 +256,15 @@ watch(
     state.updata[activeKey.value].direction,
     state.updata[activeKey.value].pol,
   ],
-  throttle(() => {
-    const active = activeKey.value;
-    const originData = cloneDeep(orderStore.tableData[active]);
-    const selectSymbols = state.updata[active].symbol;
-    const direction = state.updata[active].direction;
-    const pol = state.updata[active].pol;
-    if (originData) {
-      state.dataSource[active] = originData.filter(
-        (item) => {
+  throttle(
+    () => {
+      const active = activeKey.value;
+      const originData = cloneDeep(orderStore.tableData[active]);
+      const selectSymbols = state.updata[active].symbol;
+      const direction = state.updata[active].direction;
+      const pol = state.updata[active].pol;
+      if (originData) {
+        state.dataSource[active] = originData.filter((item) => {
           let symbolResult = true;
           let directionResult = true;
           let polResult = true;
@@ -267,17 +274,19 @@ watch(
           if (direction) {
             directionResult = direction === getTradingDirection(item.type);
           }
-          if (pol && pol === 'profit') {
+          if (pol && pol === "profit") {
             polResult = item.profit > 0;
           }
-          if (pol && pol === 'loss') {
+          if (pol && pol === "loss") {
             polResult = item.profit < 0;
           }
           return symbolResult && directionResult && polResult;
-        }
-      );
-    }
-  }, 100, { trailing: true })
+        });
+      }
+    },
+    100,
+    { trailing: true }
+  )
 );
 
 // 挂单价距离
@@ -312,9 +321,9 @@ const getNowPrice = (e: orders.resOrders) => {
     const id = e.id;
     const data = orderStore.tableData[activeKey.value];
     if (data) {
-      const index = data.findIndex(e => e.id === id);
+      const index = data.findIndex((e) => e.id === id);
       if (index) {
-        set(data, [index, 'now_price'], +result);
+        set(data, [index, "now_price"], +result);
       }
     }
     return result;
@@ -347,15 +356,24 @@ const getProfit = (e: orders.resOrders) => {
     e.profit = +result;
     const data = orderStore.tableData[activeKey.value];
     if (data) {
-      const index = data.findIndex(e => e.id === id);
+      const index = data.findIndex((e) => e.id === id);
       if (index) {
-        set(data, [index, 'profit'], +result);
+        set(data, [index, "profit"], +result);
       }
     }
     return result;
   } catch (error) {
     return "";
   }
+};
+// 持仓天数
+const getDays = (e: orders.resHistoryOrders) => {
+  const timeDone = e.time_done || moment().valueOf();
+  const openTime = e.open_time;
+  const date1 = moment(openTime);
+  const date2 = moment(timeDone);
+  const daysDifference = date2.diff(date1, 'days');
+  return +daysDifference;
 };
 
 // 下单时触发
@@ -604,7 +622,7 @@ onMounted(() => {
   observer = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const { height } = entry.contentRect;
-      tableY.value = `${height - 40 - 24 - 24 - 15}px`;
+      tableY.value = `${height - 40 - 24 - 24 - 20}px`;
     }
   });
   observer.observe(container.value);
