@@ -99,8 +99,15 @@
             <template v-else-if="column.dataIndex === 'now_price'">{{
               getNowPrice(record)
             }}</template>
-            <template v-else-if="column.dataIndex === 'profit' && activeKey === 'position'"
-              >{{ getProfit(record) }}</template>
+            <template v-else-if="column.dataIndex === 'profit' && activeKey === 'position'">
+              <span :class="[ getCellClass(record.profit) ]">{{ getProfit(record) }}</span>
+            </template>
+            <template v-else-if="column.dataIndex === 'storage'">
+              <span :class="[ getCellClass(record.storage) ]">{{ record.storage }}</span>
+            </template>
+            <template v-else-if="column.dataIndex === 'fee'">
+              <span :class="[ getCellClass(record.fee) ]">{{ record.fee }}</span>
+            </template>
             <template v-else-if="column.dataIndex === 'distance'">{{
               getDistance(record)
             }}</template>
@@ -229,7 +236,12 @@ const state = reactive({
 });
 
 const activeKey = ref<orderTypes.TableDataKey>("position");
-
+const getCellClass = (num: number) => {
+  if (!num) {
+    return "";
+  }
+  return num > 0 ? 'buyWord' : 'sellWord'
+};
 // 筛选过滤
 watch(
   () => [
@@ -332,6 +344,7 @@ const getProfit = (e: orders.resOrders) => {
         ? closingPrice - buildingPrice
         : buildingPrice - closingPrice;
     result = (direction + (storage || 0) + (fee || 0)).toFixed(2);
+    e.profit = +result;
     const data = orderStore.tableData[activeKey.value];
     if (data) {
       const index = data.findIndex(e => e.id === id);

@@ -2,12 +2,18 @@
   <a-form-item
     :name="props.type"
     :label="titleMap[props.type]"
-    :rules="[{ required: false, trigger: ['change', 'blur'], validator: validatorMap[props.type] }]"
+    :rules="[
+      {
+        required: false,
+        trigger: ['change', 'blur'],
+        validator: validatorMap[props.type],
+      },
+    ]"
   >
     <StepNumInput v-model:value="price"></StepNumInput>
     <a-form-item no-style>
       <span class="tip" v-if="props.symbolInfo && price === ''">至少远离市价{{ props.symbolInfo?.stops_level }}点</span>
-      <span class="tip" v-if="props.symbolInfo && price !== ''">预计盈亏: {{ profit }}</span>
+      <span class="tip" v-if="props.symbolInfo && price !== ''">预计{{ tipWordType }}: {{ profit }}</span>
     </a-form-item>
   </a-form-item>
 </template>
@@ -22,7 +28,7 @@ const titleMap = {
   stopProfit: "止盈",
 };
 interface Props {
-  type: 'stopLoss' | 'stopProfit'
+  type: "stopLoss" | "stopProfit";
   symbolInfo?: SessionSymbolInfo;
   quote: Quote;
   orderType: string;
@@ -32,25 +38,44 @@ interface Props {
 const props = defineProps<Props>();
 const price = defineModel("price", { type: String, default: "" });
 
+const tipWordType = computed(() => {
+  if (props.type === "stopLoss") {
+    return "亏损";
+  }
+  if (props.type === "stopProfit") {
+    return "盈利";
+  }
+  return "盈亏";
+});
+
 // 止盈止损验证规则
-const ifBuy = computed(() => props.orderType.toLocaleLowerCase().includes("buy"));
-const ifSell = computed(() => props.orderType.toLocaleLowerCase().includes("sell"));
-const getLead = (type: 'sell' | 'buy') => {
+const ifBuy = computed(() =>
+  props.orderType.toLocaleLowerCase().includes("buy")
+);
+const ifSell = computed(() =>
+  props.orderType.toLocaleLowerCase().includes("sell")
+);
+const getLead = (type: "sell" | "buy") => {
   const digits = props.symbolInfo?.digits || 0;
   const stopsLevel = props.symbolInfo?.stops_level || 0;
   const priceVal = type === "buy" ? props.quote.ask : props.quote.bid;
-  const lead = props.orderType.toLocaleLowerCase().includes("price") ? priceVal : +(props.orderPrice || 0);
+  const lead = props.orderType.toLocaleLowerCase().includes("price")
+    ? priceVal
+    : +(props.orderPrice || 0);
   const result_1 = lead - (1 / Math.pow(10, +digits)) * +stopsLevel;
   const result_2 = lead + (1 / Math.pow(10, +digits)) * +stopsLevel;
-  return { result_1: round(result_1, +digits), result_2: round(result_2, +digits) };
+  return {
+    result_1: round(result_1, +digits),
+    result_2: round(result_2, +digits),
+  };
 };
 const validLoss = () => {
   const stopLoss = price.value;
   if (stopLoss === "") {
     return Promise.resolve();
   }
-  const buyPrice = getLead('buy').result_1;
-  const sellPrice = getLead('sell').result_2;
+  const buyPrice = getLead("buy").result_1;
+  const sellPrice = getLead("sell").result_2;
   if (ifBuy.value && +stopLoss > buyPrice) {
     return Promise.reject(`止损价不能大于${buyPrice}`);
   }
@@ -106,6 +131,7 @@ const profit = computed(() => {
 
 <style lang="scss" scoped>
 @import "@/assets/styles/_handle.scss";
+
 .tip {
   @include font_color("word-gray");
 }
