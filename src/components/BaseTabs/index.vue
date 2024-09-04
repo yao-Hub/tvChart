@@ -38,6 +38,7 @@ const emit = defineEmits(["handleAdd"]);
     width: 24px;
     height: 24px;
     border: 1px solid;
+    border-left: none;
     @include border_color("border");
     display: flex;
     justify-content: center;

@@ -107,7 +107,7 @@ const props = defineProps({
     type: String,
   },
   theme: {
-    default: "dark",
+    default: "light",
     type: String,
   },
   additionalSymbolInfoFields: {
@@ -156,8 +156,7 @@ const initonReady = () => {
     charts_storage_api_version:
       props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
     client_id: props.clientId,
-    theme: (window.localStorage.getItem("systemTheme") ||
-      props.theme) as library.ThemeName,
+    theme: (window.localStorage.getItem("systemTheme") || props.theme) as library.ThemeName,
     enabled_features:
       props.enabledFeatures as library.ChartingLibraryFeatureset[],
     disabled_features:

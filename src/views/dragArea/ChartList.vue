@@ -36,7 +36,7 @@
           :loading="props.loading || chartInitStore.singleChartLoading[id]"
           :datafeed="datafeed(id)"
           :symbol="state.symbol"
-          :disabledFeatures="id === state.activeKey ? [] : ['left_toolbar']"
+          :disabledFeatures="id === state.activeKey ? state.disabledFeatures : ['left_toolbar', ...state.disabledFeatures]"
           :compareSymbols="compareSymbols"
           @initChart="initChart"
         >
@@ -51,7 +51,6 @@ import { reactive, computed, onMounted } from "vue";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useOrder } from "@/store/modules/order";
-import { useTheme } from "@/store/modules/theme";
 import { datafeed } from "@/config/chartConfig";
 import * as types from "@/types/chart/index";
 import { HolderOutlined } from "@ant-design/icons-vue";
@@ -60,7 +59,6 @@ import Sortable from "sortablejs";
 const chartSubStore = useChartSub();
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
-const themeStore = useTheme();
 
 interface Props {
   loading?: boolean;
@@ -72,6 +70,7 @@ const props = withDefaults(defineProps<Props>(), {
 const state = reactive({
   symbol: "XAU",
   activeKey: "chart_1",
+  disabledFeatures: ['header_compare', 'header_saveload', 'timeframes_toolbar']
 });
 
 const compareSymbols = computed(() => {
@@ -101,7 +100,6 @@ const initChart = (e: any) => {
   if (orderStore.ifQuick) {
     orderStore.addOrderBtn();
   }
-  themeStore.setChartTheme();
 };
 
 onMounted(() => {
@@ -150,14 +148,12 @@ const tabAdd = async () => {
   box-sizing: border-box;
   border-radius: 5px;
   height: calc(100% - 26px);
-  margin-top: -24px;
   &_container {
     display: flex;
     flex-wrap: wrap;
-    height: 100%;
     gap: 5px;
     box-sizing: border-box;
-    height: 100%;
+    height: calc(100% - 26px);
     &_item {
       flex: 1;
       position: relative;

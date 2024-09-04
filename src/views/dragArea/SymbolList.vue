@@ -1,47 +1,32 @@
 <template>
   <div>
     <div class="search">
-      <a-input
-        v-model:value="input"
-        placeholder="搜索交易品种"
-        @click="inputClick"
-      >
+      <a-input v-model:value="input" placeholder="搜索交易品种" @click="inputClick">
         <template #prefix>
           <SearchOutlined />
         </template>
         <template #suffix>
-          <CloseOutlined
-            class="closeBtn"
-            @click="closeSearch"
-            v-show="ifSearch"
-          />
+          <CloseOutlined class="closeBtn" @click="closeSearch" v-show="ifSearch" />
         </template>
       </a-input>
     </div>
     <div class="main" ref="main">
-      <a-table
-        :dataSource="dataSource"
-        :columns="columns"
-        :pagination="false"
-        v-show="!ifSearch"
-        :scroll="{y: tableY}"
-      >
+      <a-table :dataSource="dataSource" :columns="columns" :pagination="false" v-show="!ifSearch"
+        :scroll="{ y: tableY }">
         <template #bodyCell="{ record, column }">
           <template v-if="column.dataIndex === 'bid'">
-            <span class="sellWord">
+            <span :class="[ quotesClass[record.symbol].bid ]">
               {{ getQuotes("bid", record.symbol) }}
             </span>
           </template>
           <template v-if="column.dataIndex === 'ask'">
-            <span class="buyWord">
+            <span :class="[ quotesClass[record.symbol].ask ]">
               {{ getQuotes("ask", record.symbol) }}
             </span>
           </template>
           <template v-if="column.dataIndex === 'variation'">
-            <span
-              :class="[+getLines(record.symbol) > 0 ? 'buyWord' : 'sellWord']"
-            >
-              {{ getLines(record.symbol) }}
+            <span :class="[ getLines(record.symbol).class ]">
+              {{ getLines(record.symbol).value }}
             </span>
           </template>
         </template>
@@ -92,10 +77,11 @@ import { optionalQuery } from "api/symbols/index";
 import { useUser } from "@/store/modules/user";
 
 const userStore = useUser();
-const dataSource = ref<{ symbol: string }[]>([]);
+const dataSource = ref<{ symbol: string; }[]>([]);
 const getQuery = async () => {
   const queryRes = await optionalQuery();
   dataSource.value = queryRes.data.map((item) => {
+    quotesClass.value[item] = { ask: "", bid: "" };
     return { symbol: item };
   });
 };
@@ -125,11 +111,49 @@ const closeSearch = () => {
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
 const getQuotes = (type: "bid" | "ask", symbol: string) => {
-  if (orderStore.currentQuotes[symbol]) {
-    return orderStore.currentQuotes[symbol][type];
+  if (!symbol) {
+    return "-";
   }
-  return "-";
+  const quote = orderStore.currentQuotes[symbol];
+  return quote ? quote[type] : "-";
 };
+
+import { Quote } from "#/chart/index";
+import { eq, cloneDeep } from "lodash";
+const temQuotes = ref<Record<string, Quote>>({});
+const quotesClass = ref<Record<string, {ask: string, bid: string}>>({});
+watch(
+  () => orderStore.currentQuotes,
+  (quotes) => {
+    for(const i in quotes) {
+      const newQuote = cloneDeep(quotes[i]);
+      const oldQuote = temQuotes.value[i];
+      if (!newQuote) {
+        break;
+      }
+      if (!oldQuote) {
+        temQuotes.value[i] = newQuote;
+        break;
+      }
+      const ifEq = eq(newQuote, oldQuote);
+      if (ifEq) {
+        break;
+      }
+      if (quotesClass.value[i]) {
+        const nowBid = newQuote.bid;
+        const nowAsk = newQuote.ask;
+        const oldBid = oldQuote.bid;
+        const oldAsk = oldQuote.ask;
+        quotesClass.value[i].ask = oldAsk > nowAsk ? "sellWord" : "buyWord";
+        quotesClass.value[i].bid = oldBid > nowBid ? "sellWord" : "buyWord";
+      }
+      temQuotes.value[i] = newQuote;
+    }
+  },
+  {
+    deep: true,
+  }
+);
 
 import { round } from "utils/common/index";
 import { klineHistory } from "api/kline/index";
@@ -160,9 +184,16 @@ const getKlines = async () => {
 const getLines = (symbol: string) => {
   if (orderStore.currentKline[symbol]) {
     const { close, open } = orderStore.currentKline[symbol];
-    return round(((close - open) / open) * 100, 5);
+    const result = round(((close - open) / open) * 100, 3);
+    return {
+      value: result + '%',
+      class: result > 0 ? 'buyWord' : 'sellWord'
+    };
   }
-  return "-";
+  return {
+    value: '-',
+    class: ''
+  };
 };
 </script>
 
@@ -174,6 +205,7 @@ const getLines = (symbol: string) => {
   overflow: auto;
   height: calc(100% - 60px);
 }
+
 .search {
   box-sizing: border-box;
   padding: 4px 16px;
@@ -182,6 +214,7 @@ const getLines = (symbol: string) => {
   border-bottom: 1px solid;
   @include border_color("border");
   margin-top: 24px;
+
   .closeBtn:hover {
     @include font_color("primary");
   }
