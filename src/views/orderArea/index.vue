@@ -48,20 +48,20 @@
           v-model="state.updata[activeKey].createTime"
           :pickerOption="{ placeholder:['创建开始时间', '创建结束时间'] }"
           @timeRange="getTableDate(activeKey)"
-        ></TimeSelect>
+        >创建时间：</TimeSelect>
         <TimeSelect
           v-show="activeKey === 'transactionHistory'"
           v-model="state.updata[activeKey].addTime"
           :pickerOption="{ placeholder:['建仓开始时间', '建仓结束时间'] }"
           @timeRange="getTableDate(activeKey)"
-        ></TimeSelect>
+        >建仓时间：</TimeSelect>
         <TimeSelect
           v-show="activeKey === 'transactionHistory'"
           initFill
           v-model="state.updata[activeKey].closeTime"
           :pickerOption="{ placeholder:['平仓开始时间', '平仓结束时间'] }"
           @timeRange="getTableDate(activeKey)"
-        ></TimeSelect>
+        >平仓时间：</TimeSelect>
         <CloseOrder
           class="closeBtn"
           v-show="['position'].includes(activeKey)"

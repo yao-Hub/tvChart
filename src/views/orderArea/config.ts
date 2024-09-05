@@ -51,6 +51,7 @@ export const tableColumns = {
       key: "positionAction",
       fixed: "right",
       width: 100,
+      align: "right"
     },
   ],
   order: [

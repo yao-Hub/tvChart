@@ -1,8 +1,10 @@
 <template>
-  <div>
-    <slot></slot>
+  <div class="timeSelect">
+    <span style="font-size: 12px;">
+      <slot></slot>
+    </span>
     <a-range-picker
-      style="min-width: 350px;"
+      style="max-width: 300px;"
       v-model:value="timeRange"
       :format="dateFormat"
       :disabledDate="disabledDate"
@@ -62,3 +64,17 @@ const disabledDate = (current: Dayjs) => {
   return current && current > dayjs().endOf("day");
 };
 </script>
+
+<style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
+.ant-picker-range {
+  border: none;
+}
+.timeSelect {
+  border-radius: 4px;
+  border: 1px solid;
+  @include border_color("border");
+  padding-left: 8px;
+}
+</style>
