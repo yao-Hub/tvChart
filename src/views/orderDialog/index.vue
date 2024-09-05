@@ -40,11 +40,7 @@
           </a-col>
           <a-col
             :span="12"
-            v-if="
-              ['buyLimit', 'sellLimit', 'buyStop', 'sellStop'].includes(
-                formState.orderType
-              )
-            "
+            v-if="['buyLimit', 'sellLimit', 'buyStop', 'sellStop'].includes(formState.orderType)"
           >
             <Price
               v-model:value="formState.orderPrice"
@@ -56,13 +52,7 @@
             </Price>
           </a-col>
           <a-col
-            :span="
-              ['', 'price', 'buyStopLimit', 'sellStopLimit'].includes(
-                formState.orderType
-              )
-                ? 24
-                : 12
-            "
+            :span="['', 'price', 'buyStopLimit', 'sellStopLimit'].includes(formState.orderType) ? 24 : 12"
           >
             <a-form-item name="volume" label="交易量">
               <Volume
@@ -74,9 +64,7 @@
           </a-col>
           <a-col
             :span="12"
-            v-if="
-              ['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)
-            "
+            v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)"
           >
             <Price
               v-model:value="formState.breakPrice"
@@ -89,9 +77,7 @@
           </a-col>
           <a-col
             :span="12"
-            v-if="
-              ['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)
-            "
+            v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)"
           >
             <Price
               v-model:value="formState.limitedPrice"
@@ -331,13 +317,15 @@ const formState = reactive<FormState>({
   breakPrice: "",
   limitedPrice: "",
 });
-// 重置表单
+// 重置表单 自动填充
 watch(
   () => open.value,
   async (val) => {
     if (val) {
       await nextTick();
       orderFormRef.value?.resetFields();
+      formState.symbol = orderStore.currentSymbol;
+      formState.orderType = "price";
     }
   },
   { flush: "post" }
