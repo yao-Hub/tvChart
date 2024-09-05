@@ -33,26 +33,40 @@
               </a-col>
               <a-col :span="24">
                 <a-form-item name="transactionType" label="订单类型">
-                  <a-input disabled :value="transactionType"></a-input>
+                  <a-input disabled :value="$t(`order.${transactionType}`)"></a-input>
                 </a-form-item>
               </a-col>
               <a-col :span="24">
-                <a-form-item name="volume" label="平仓量" :rules="[{ required: true, validator: validateVolume, trigger: 'change' }]">
+                <a-form-item
+                  name="volume"
+                  label="平仓量"
+                  :rules="[
+                    {
+                      required: true,
+                      validator: validateVolume,
+                      trigger: 'change',
+                    },
+                  ]"
+                >
                   <a-flex style="width: 100%" gap="16">
                     <StepNumInput
                       :step="step"
                       v-model:value="closeFormState.volume"
                     ></StepNumInput>
-                    <a-button class="iconbtn">
-                      <template #icon>
-                        <RollbackOutlined />
-                      </template>
-                    </a-button>
-                    <a-button class="iconbtn">
-                      <template #icon>
-                        <i class="iconfont icon-a-k7_2times"></i>
-                      </template>
-                    </a-button>
+                    <a-tooltip title="反向持仓">
+                      <a-button class="iconbtn" @click="reversePositionConfirm">
+                        <template #icon>
+                          <RollbackOutlined />
+                        </template>
+                      </a-button>
+                    </a-tooltip>
+                    <a-tooltip title="双倍持仓">
+                      <a-button class="iconbtn" @click="doubleHoldingsConfirm">
+                        <template #icon>
+                          <i class="iconfont icon-icon_2times"></i>
+                        </template>
+                      </a-button>
+                    </a-tooltip>
                   </a-flex>
                 </a-form-item>
               </a-col>
@@ -66,7 +80,12 @@
               </a-col>
               <a-col :span="7" style="margin-top: 10px">
                 <a-form-item>
-                  <a-button type="primary" class="closeBtn" @click="closeOrder">按市价平仓</a-button>
+                  <a-button
+                    type="primary"
+                    class="closeBtn"
+                    @click="closeOrderConfirm"
+                    >按市价平仓</a-button
+                  >
                 </a-form-item>
               </a-col>
             </a-row>
@@ -85,7 +104,7 @@
                 v-model:point="stopFormState.stopLoss"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
-                :orderType="type"
+                :orderType="combinationType"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
@@ -96,7 +115,7 @@
                 v-model:point="stopFormState.stopProfit"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
-                :orderType="type"
+                :orderType="combinationType"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
@@ -105,7 +124,13 @@
         </a-form>
       </div>
       <template #footer>
-        <a-button type="primary" class="btn" :loading="modifyLoading" @click="modify">确认修改</a-button>
+        <a-button
+          type="primary"
+          class="btn"
+          :loading="modifyLoading"
+          @click="modify"
+          >确认修改</a-button
+        >
       </template>
     </a-modal>
 
@@ -122,14 +147,13 @@
         <span v-if="confirmType === 'reverse'">反向持仓</span>
         <span v-if="confirmType === 'double'">确定对当前持仓加倍吗</span>
       </template>
-      <a-row :gutter="24" style="gap: 16px; flex-wrap: wrap; margin-top: 24px;">
+      <a-row :gutter="24" style="gap: 16px; flex-wrap: wrap; margin-top: 24px">
         <a-col :span="9">订单ID：{{ props.orderInfo.id }}</a-col>
         <a-col :span="9">交易品种：{{ props.orderInfo.symbol }}</a-col>
-        <a-col :span="9">订单类型：{{ transactionType }}</a-col>
+        <a-col :span="9">订单类型：{{ $t(`order.${confirmType === 'reverse' ? reverseType : transactionType}`) }}</a-col>
         <a-col :span="9">交易量：{{ closeFormState.volume }}</a-col>
       </a-row>
     </a-modal>
-
   </div>
 </template>
 
@@ -188,14 +212,19 @@ const stopFormState = reactive<StopFormState>({
 const stopFormRef = ref();
 import StopLossProfit from "./components/StopLossProfit.vue";
 import { getTradingDirection, getOrderType } from "utils/order/index";
+// buy or sell
 const transactionType = computed(() => {
   return getTradingDirection(props.orderInfo.type);
 });
+// price or limit or stop or stopLimit
 const orderType = computed(() => {
   return getOrderType(props.orderInfo.type);
 });
-const type = computed(() => {
+const combinationType = computed(() => {
   return `${transactionType.value}${orderType.value}`;
+});
+const reverseType = computed(() => {
+  return transactionType.value === 'sell' ? 'buy' : 'sell';
 });
 
 import { getDecimalPlaces } from "utils/common/index";
@@ -223,55 +252,113 @@ watch(
   { deep: true }
 );
 
-// 平仓操作
+import { marketOrdersClose } from "api/order/index";
+import { useOrder } from "@/store/modules/order";
+import { message, notification } from "ant-design-vue";
+import { debounce } from "lodash";
 const confirmOpen = ref(false);
 const confirmLoading = ref(false);
 const confirmCancel = () => {
   confirmOpen.value = false;
 };
 const confirmType = ref<"close" | "reverse" | "double">("close");
-const closeOrder = async () => {
+// 平仓操作
+const closeOrderConfirm = async () => {
   await closeFormRef.value?.validateFields();
   confirmType.value = "close";
   confirmOpen.value = true;
 };
-import { marketOrdersClose } from "api/order/index";
-import { useOrder } from "@/store/modules/order";
-import { message } from "ant-design-vue";
-import { debounce } from "lodash";
 const orderStore = useOrder();
-const okCancel = debounce(async() => {
-  confirmLoading.value = true;
-  switch(confirmType.value) {
-    case "close":
-      const { id, symbol } = props.orderInfo;
-      const res = await marketOrdersClose({
-        symbol,
-        id,
-        volume: +closeFormState.volume * 100,
-      });
-      if (res.data.action_success) {
-        message.success("仓位关闭成功");
-        handleCancel();
-        confirmCancel();
-        orderStore.refreshOrderArea = true;
-      } else {
-        message.error(res.data.err_text || "仓位关闭失败");
-      }
-      break;
-    default:
-      break;
+const closeOrder = async () => {
+  const { id, symbol } = props.orderInfo;
+  const res = await marketOrdersClose({
+    symbol,
+    id,
+    volume: +closeFormState.volume * 100,
+  });
+  if (res.data.action_success) {
+    notification.success({
+      message: "仓位关闭成功",
+      description: `${closeFormState.volume}手${symbol}的订单已关闭。`,
+    });
+    handleCancel();
+    confirmCancel();
+  } else {
+    notification.error({
+      message: "仓位关闭失败",
+      description: `${res.data.err_text}`,
+    });
   }
-  confirmLoading.value = false;
-}, 200)
+};
+// 双倍持仓 （增加一个单）
+const doubleHoldingsConfirm = debounce(() => {
+  confirmType.value = "double";
+  confirmOpen.value = true;
+}, 200);
+import { marketOrdersAdd } from "api/order/index";
+const doubleHoldings = async (reverse?: boolean) => {
+  const { symbol, sl_price, tp_price, volume, type } = props.orderInfo;
+  const realType = reverse ? +!type : type;
+  const updata = {
+    sl: sl_price,
+    tp: tp_price,
+    volume,
+    symbol,
+    type: realType,
+  };
+  const res = await marketOrdersAdd(updata);
+  if (res.data.action_success) {
+    notification.success({
+      message: "下单成功",
+      description: `${
+        realType ? "卖出" : "买入"
+      }${volume / 100}手${symbol}的订单已提交。`,
+    });
+    handleCancel();
+    confirmCancel();
+  } else {
+    notification.error({
+      message: "下单失败",
+      description: `${res.data.err_text}`,
+    });
+  }
+};
+// 反向持仓（先删除在反向下单）
+const reversePositionConfirm = debounce(() => {
+  confirmType.value = "reverse";
+  confirmOpen.value = true;
+}, 200);
+const reversePosition = async () => {
+  const { symbol, id, volume } = props.orderInfo;
+  await marketOrdersClose({ id, symbol, volume });
+  await doubleHoldings(true);
+};
+const okCancel = debounce(async () => {
+  try {
+    confirmLoading.value = true;
+    switch (confirmType.value) {
+      case "close":
+        await closeOrder();
+        break;
+      case "reverse":
+        await reversePosition();
+        break;
+      case "double":
+        await doubleHoldings();
+        break;
+      default:
+        break;
+    }
+    confirmLoading.value = false;
+  } catch (error) {
+    confirmLoading.value = false;
+  }
+}, 200);
 
 // 修改止盈止损
-import {
-  editopenningOrders,
-  reqEditOpeningOrders,
-} from "api/order/index";
+import { editopenningOrders, reqEditOpeningOrders } from "api/order/index";
 const modifyLoading = ref(false);
-const modify = debounce(async() => {
+const modify = debounce(async () => {
   await stopFormRef.value?.validateFields();
   const { stopLoss, stopProfit } = stopFormState;
   if (stopLoss === "" && stopProfit === "") {
@@ -343,7 +430,6 @@ const modify = debounce(async() => {
 .iconbtn {
   width: 40px !important;
   height: 40px;
-  font-size: 12px;
   border-radius: 4px;
 }
 .closeBtn {

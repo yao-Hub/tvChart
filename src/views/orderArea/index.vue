@@ -270,43 +270,40 @@ const getCellClass = (num: number) => {
   return num > 0 ? "buyWord" : "sellWord";
 };
 // 筛选过滤
+const filterData = () => {
+  const active = activeKey.value;
+  const originData = cloneDeep(orderStore.tableData[active]);
+  const selectSymbols = state.updata[active].symbol;
+  const direction = state.updata[active].direction;
+  const pol = state.updata[active].pol;
+  if (originData) {
+    state.dataSource[active] = originData.filter((item) => {
+      let symbolResult = true;
+      let directionResult = true;
+      let polResult = true;
+      if (selectSymbols.length) {
+        symbolResult = selectSymbols.includes(item.symbol);
+      }
+      if (direction) {
+        directionResult = direction === getTradingDirection(item.type);
+      }
+      if (pol && pol === "profit") {
+        polResult = item.profit > 0;
+      }
+      if (pol && pol === "loss") {
+        polResult = item.profit < 0;
+      }
+      return symbolResult && directionResult && polResult;
+    });
+  }
+};
 watch(
   () => [
     state.updata[activeKey.value].symbol,
     state.updata[activeKey.value].direction,
     state.updata[activeKey.value].pol,
   ],
-  throttle(
-    () => {
-      const active = activeKey.value;
-      const originData = cloneDeep(orderStore.tableData[active]);
-      const selectSymbols = state.updata[active].symbol;
-      const direction = state.updata[active].direction;
-      const pol = state.updata[active].pol;
-      if (originData) {
-        state.dataSource[active] = originData.filter((item) => {
-          let symbolResult = true;
-          let directionResult = true;
-          let polResult = true;
-          if (selectSymbols.length) {
-            symbolResult = selectSymbols.includes(item.symbol);
-          }
-          if (direction) {
-            directionResult = direction === getTradingDirection(item.type);
-          }
-          if (pol && pol === "profit") {
-            polResult = item.profit > 0;
-          }
-          if (pol && pol === "loss") {
-            polResult = item.profit < 0;
-          }
-          return symbolResult && directionResult && polResult;
-        });
-      }
-    },
-    100,
-    { trailing: true }
-  )
+  throttle(() => filterData(), 100, { trailing: true })
 );
 
 // 挂单价距离
@@ -399,12 +396,15 @@ const getDays = (e: orders.resHistoryOrders) => {
 // 下单时触发
 watchEffect(async () => {
   if (orderStore.refreshOrderArea) {
-    debouncedGetOrders();
-    debouncedGetPendingOrders();
-    debouncedGetTradingHistory();
-    debouncedGetOrderHistory();
-    userStore.getLoginInfo();
+    await Promise.all([
+      debouncedGetOrders(),
+      debouncedGetPendingOrders(),
+      debouncedGetTradingHistory(),
+      debouncedGetOrderHistory(),
+      userStore.getLoginInfo(),
+    ])
     orderStore.refreshOrderArea = false;
+    filterData();
   }
 });
 
@@ -638,7 +638,7 @@ const getTableDate = (type: string) => {
 const container = ref();
 const tableY = ref("");
 let observer: ResizeObserver | null = null;
-onMounted(() => {
+onMounted(async () => {
   observer = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const { height } = entry.contentRect;
@@ -646,45 +646,48 @@ onMounted(() => {
     }
   });
   observer.observe(container.value);
-
-  debouncedGetOrders();
-  debouncedGetPendingOrders();
-  debouncedGetTradingHistory();
-  debouncedGetOrderHistory();
-  socketStore.orderChanges((type: string) => {
+  await Promise.all([
+    debouncedGetOrders(),
+    debouncedGetPendingOrders(),
+    debouncedGetTradingHistory(),
+    debouncedGetOrderHistory(),
+  ]);
+  socketStore.orderChanges(async (type: string) => {
     switch (type) {
       case "order_opened":
-        getOrders();
-        userStore.getLoginInfo();
+        await getOrders();
+        await userStore.getLoginInfo();
         break;
       case "order_closed":
-        getOrders();
-        getTradingHistory();
-        userStore.getLoginInfo();
+        await getOrders();
+        await getTradingHistory();
+        await userStore.getLoginInfo();
         break;
       case "order_modified":
-        getOrders();
+        await getOrders();
         break;
       case "pending_order_opened":
       case "pending_order_modified":
-        getPendingOrders();
+        await getPendingOrders();
         break;
       case "pending_order_deleted":
-        getPendingOrders();
-        getOrderHistory();
+        await getPendingOrders();
+        await getOrderHistory();
         break;
       case "pending_order_dealt":
-        getOrders();
-        getPendingOrders();
-        userStore.getLoginInfo();
+        await getOrders();
+        await getPendingOrders();
+        await userStore.getLoginInfo();
         break;
       case "balance_order_added":
-        userStore.getLoginInfo();
+        await userStore.getLoginInfo();
         break;
       default:
         break;
     }
+    filterData();
   });
+  filterData();
 });
 </script>
 
