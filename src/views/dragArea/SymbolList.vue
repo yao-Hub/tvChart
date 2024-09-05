@@ -1,32 +1,45 @@
 <template>
   <div>
     <div class="search">
-      <a-input v-model:value="input" placeholder="搜索交易品种" @click="inputClick">
+      <a-input
+        v-model:value="input"
+        placeholder="搜索交易品种"
+        @click="inputClick"
+      >
         <template #prefix>
           <SearchOutlined />
         </template>
         <template #suffix>
-          <CloseOutlined class="closeBtn" @click="closeSearch" v-show="ifSearch" />
+          <CloseOutlined
+            class="closeBtn"
+            @click="closeSearch"
+            v-show="ifSearch"
+          />
         </template>
       </a-input>
     </div>
     <div class="main" ref="main">
-      <a-table :dataSource="dataSource" :columns="columns" :pagination="false" v-show="!ifSearch"
-        :scroll="{ y: tableY }">
+      <a-table
+        :dataSource="dataSource"
+        :columns="columns"
+        :pagination="false"
+        v-show="!ifSearch"
+        :scroll="{ y: tableY }"
+      >
         <template #bodyCell="{ record, column }">
           <template v-if="column.dataIndex === 'bid'">
-            <span :class="[ quotesClass[record.symbol].bid ]">
-              {{ getQuotes("bid", record.symbol) }}
+            <span :class="[quotesClass[record.symbol].bid]">
+              {{ getQuotes("bid", record) }}
             </span>
           </template>
           <template v-if="column.dataIndex === 'ask'">
-            <span :class="[ quotesClass[record.symbol].ask ]">
-              {{ getQuotes("ask", record.symbol) }}
+            <span :class="[quotesClass[record.symbol].ask]">
+              {{ getQuotes("ask", record) }}
             </span>
           </template>
           <template v-if="column.dataIndex === 'variation'">
-            <span :class="[ getLines(record.symbol).class ]">
-              {{ getLines(record.symbol).value }}
+            <span :class="[ record.variation > 0 ? 'buyWord' : 'sellWord' ]">
+              {{ getLines(record) }}
             </span>
           </template>
         </template>
@@ -44,20 +57,52 @@ import { useI18n } from "vue-i18n";
 import Search from "./components/search/index.vue";
 
 const { t } = useI18n();
+interface DataSource {
+  symbol: string;
+  bid?: string | number;
+  ask?: string | number;
+  variation?: string | number;
+}
 const columns = [
   {
     title: t("order.symbol"),
     dataIndex: "symbol",
     key: "symbol",
     width: 100,
+    sorter: (a: DataSource, b: DataSource) => a.symbol.localeCompare(b.symbol),
   },
-  { title: t("order.sellPrice"), dataIndex: "bid", key: "bid", width: 130 },
-  { title: t("order.buyPrice"), dataIndex: "ask", key: "ask", width: 130 },
+  {
+    title: t("order.sellPrice"),
+    dataIndex: "bid",
+    key: "bid",
+    width: 130,
+    sorter: (a: DataSource, b: DataSource) => {
+      const bidA = typeof a.bid === 'number' ? a.bid : -Infinity;
+      const bidB = typeof b.bid === 'number' ? b.bid : -Infinity;
+      return bidA - bidB;
+    },
+  },
+  {
+    title: t("order.buyPrice"),
+    dataIndex: "ask",
+    key: "ask",
+    width: 130,
+    sorter: (a: DataSource, b: DataSource) => {
+      const askA = typeof a.ask === 'number' ? a.ask : -Infinity;
+      const askB = typeof b.ask === 'number' ? b.ask : -Infinity;
+      return askA - askB;
+    },
+  },
   {
     title: t("order.diurnalVariation"),
     dataIndex: "variation",
     key: "variation",
     width: 130,
+    sorter: (a: DataSource, b: DataSource) => {
+      const variationA = typeof a.variation === 'number' ? a.variation : -Infinity;
+      const variationB = typeof b.variation === 'number' ? b.variation : -Infinity;
+      return variationA - variationB;
+    },
   },
 ];
 const main = ref();
@@ -77,7 +122,7 @@ import { optionalQuery } from "api/symbols/index";
 import { useUser } from "@/store/modules/user";
 
 const userStore = useUser();
-const dataSource = ref<{ symbol: string; }[]>([]);
+const dataSource = ref<DataSource[]>([]);
 const getQuery = async () => {
   const queryRes = await optionalQuery();
   dataSource.value = queryRes.data.map((item) => {
@@ -110,22 +155,24 @@ const closeSearch = () => {
 // 实时报价
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
-const getQuotes = (type: "bid" | "ask", symbol: string) => {
-  if (!symbol) {
+const getQuotes = (type: "bid" | "ask", e: DataSource) => {
+  if (!e.symbol) {
     return "-";
   }
-  const quote = orderStore.currentQuotes[symbol];
-  return quote ? quote[type] : "-";
+  const quote = orderStore.currentQuotes[e.symbol];
+  const result = quote ? quote[type] : "-";
+  e[type] = result;
+  return result;
 };
 
 import { Quote } from "#/chart/index";
 import { eq, cloneDeep } from "lodash";
 const temQuotes = ref<Record<string, Quote>>({});
-const quotesClass = ref<Record<string, {ask: string, bid: string}>>({});
+const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
 watch(
   () => orderStore.currentQuotes,
   (quotes) => {
-    for(const i in quotes) {
+    for (const i in quotes) {
       const newQuote = cloneDeep(quotes[i]);
       const oldQuote = temQuotes.value[i];
       if (!newQuote) {
@@ -181,19 +228,15 @@ const getKlines = async () => {
   });
 };
 
-const getLines = (symbol: string) => {
-  if (orderStore.currentKline[symbol]) {
-    const { close, open } = orderStore.currentKline[symbol];
-    const result = round(((close - open) / open) * 100, 3);
-    return {
-      value: result + '%',
-      class: result > 0 ? 'buyWord' : 'sellWord'
-    };
+const getLines = (e: DataSource) => {
+  let result = "-";
+  if (orderStore.currentKline[e.symbol]) {
+    const { close, open } = orderStore.currentKline[e.symbol];
+    const calc = round(((close - open) / open) * 100, 3);
+    e.variation = calc;
+    result = calc + '%';
   }
-  return {
-    value: '-',
-    class: ''
-  };
+  return result;
 };
 </script>
 
