@@ -33,9 +33,7 @@
           <a-flex justify="space-between" align="center" :gap="5">
             <span class="btn" @click="showModal">个人信息</span>
             <a-divider type="vertical" />
-            <span class="btn" @click="$router.push({ name: 'resetPassword' })"
-              >更改密码</span
-            >
+            <span class="btn" @click="resetPasswordOpen = true">更改密码</span>
             <a-divider type="vertical" />
             <span class="btn" @click="$router.push({ name: 'login' })"
               >添加账号</span
@@ -58,6 +56,8 @@
       <p>邮箱地址:</p>
     </div>
   </a-modal>
+
+  <ResetPassword v-model:open="resetPasswordOpen"></ResetPassword>
 </template>
 
 <script setup lang="ts">
@@ -67,6 +67,9 @@ import type { MenuProps } from "ant-design-vue";
 import { useRouter } from "vue-router";
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
+
+import ResetPassword from "@/views/login/components/ResetPassword.vue"
+const resetPasswordOpen = ref(false);
 
 const networkStore = useNetwork();
 const userStore = useUser();

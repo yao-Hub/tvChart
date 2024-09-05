@@ -24,6 +24,7 @@ export default {
     confirmPassword: "confirm password",
     newPassword: "new Password",
     oldPassword: "old Password",
+    nowPassword: "now password",
   },
 
   account: {
@@ -90,5 +91,6 @@ export default {
       "If you already have a trading account, you can log in directly. If not, you can open a demo account",
     agree:
       "I agree to the terms and conditions of the account opening and data protection policy",
+    resetPassword: "Must consist of a combination of 6-24 digits and letters",
   },
 };

@@ -24,6 +24,7 @@ export default {
     confirmPassword: "确认密码",
     newPassword: "新密码",
     oldPassword: "旧密码",
+    nowPassword: "当前密码",
   },
 
   account: {
@@ -88,5 +89,6 @@ export default {
     succeed: "{type}成功",
     ifHasAcount: "已有交易账号，可直接登录，如没有，可开模拟账号",
     agree: "我同意开设账户和数据保护政策的条款和条件",
+    resetPassword: "需由6-24位数字和字母组合",
   },
 };

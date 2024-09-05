@@ -10,11 +10,6 @@ const routes: RouteRecordRaw[] = [
       passGuard: true,
     },
   },
-  {
-    path: "/resetPassword",
-    name: "resetPassword",
-    component: () => import("@/views/login/resetPassword.vue"),
-  },
 ];
 
 export default routes;
