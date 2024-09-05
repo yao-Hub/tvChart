@@ -20,9 +20,6 @@
         </a-sub-menu>
         <a-menu-divider />
         <a-menu-item>
-          <feedback></feedback>
-        </a-menu-item>
-        <a-menu-item>
           <aboutUs></aboutUs>
         </a-menu-item>
       </a-menu>
@@ -41,7 +38,6 @@ import OneTransactions from "./oneTransactions.vue";
 import Theme from "./theme.vue";
 import Language from "./Language/index.vue";
 import NowLocale from "./Language/NowLocale.vue";
-import feedback from "./feedback.vue";
 import aboutUs from "./aboutUs.vue";
 </script>
 

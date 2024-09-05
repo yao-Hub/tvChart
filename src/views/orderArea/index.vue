@@ -1,20 +1,27 @@
 <template>
   <div class="orderArea">
-    <baseTabs v-model:activeKey="activeKey" style="margin-left: 16px">
-      <TabItem v-for="item in state.menu" :key="item.key" :activeKey="item.key">
-        <template #tab>
-          <span>
-            {{ item.label }}
-          </span>
-          <a-tag
-            :color="state.dataSource[item.key].length ? '#F4B201' : '#BEC2C9'"
-            style="margin-left: 3px; scale: 0.8"
-          >
-            {{ state.dataSource[item.key].length }}
-          </a-tag>
-        </template>
-      </TabItem>
-    </baseTabs>
+    <div class="orderArea_header">
+      <baseTabs v-model:activeKey="activeKey">
+        <TabItem
+          v-for="item in state.menu"
+          :key="item.key"
+          :activeKey="item.key"
+        >
+          <template #tab>
+            <span>
+              {{ item.label }}
+            </span>
+            <a-tag
+              :color="state.dataSource[item.key].length ? '#F4B201' : '#BEC2C9'"
+              style="margin-left: 3px; scale: 0.8"
+            >
+              {{ state.dataSource[item.key].length }}
+            </a-tag>
+          </template>
+        </TabItem>
+      </baseTabs>
+      <Feedback></Feedback>
+    </div>
     <div class="container" ref="container">
       <div class="filter">
         <SymbolSelect
@@ -46,28 +53,38 @@
         <TimeSelect
           v-show="activeKey === 'orderHistory'"
           v-model="state.updata[activeKey].createTime"
-          :pickerOption="{ placeholder:['创建开始时间', '创建结束时间'] }"
+          :pickerOption="{ placeholder: ['创建开始时间', '创建结束时间'] }"
           @timeRange="getTableDate(activeKey)"
-        >创建时间：</TimeSelect>
+          >创建时间：</TimeSelect
+        >
         <TimeSelect
           v-show="activeKey === 'transactionHistory'"
           v-model="state.updata[activeKey].addTime"
-          :pickerOption="{ placeholder:['建仓开始时间', '建仓结束时间'] }"
+          :pickerOption="{ placeholder: ['建仓开始时间', '建仓结束时间'] }"
           @timeRange="getTableDate(activeKey)"
-        >建仓时间：</TimeSelect>
+          >建仓时间：</TimeSelect
+        >
         <TimeSelect
           v-show="activeKey === 'transactionHistory'"
           initFill
           v-model="state.updata[activeKey].closeTime"
-          :pickerOption="{ placeholder:['平仓开始时间', '平仓结束时间'] }"
+          :pickerOption="{ placeholder: ['平仓开始时间', '平仓结束时间'] }"
           @timeRange="getTableDate(activeKey)"
-        >平仓时间：</TimeSelect>
+          >平仓时间：</TimeSelect
+        >
         <CloseOrder
           class="closeBtn"
           v-show="['position'].includes(activeKey)"
           :orderType="activeKey"
           @closeClick="closeOrders"
         ></CloseOrder>
+        <a-button
+          class="closeBtn"
+          type="primary"
+          v-show="activeKey === 'order'"
+          @click="closeOrders(orderStore.tableData['order'] || [], 'order')"
+          >全部撤单</a-button
+        >
       </div>
       <a-table
         :dataSource="state.dataSource[activeKey]"
@@ -101,7 +118,9 @@
             }}</template>
             <template v-else-if="column.dataIndex === 'profit'">
               <span :class="[getCellClass(record.profit)]">
-                {{ activeKey === 'position'? getProfit(record) : record.profit }}
+                {{
+                  activeKey === "position" ? getProfit(record) : record.profit
+                }}
               </span>
             </template>
             <template v-else-if="column.dataIndex === 'storage'">
@@ -140,7 +159,7 @@
               </a-tooltip>
             </template>
             <template v-else>
-              {{ [null, undefined, ""].includes(text) ? '-' : text }}
+              {{ [null, undefined, ""].includes(text) ? "-" : text }}
             </template>
           </div>
         </template>
@@ -179,6 +198,7 @@ import { useSocket } from "@/store/modules/socket";
 import EditOrderDialog from "../orderDialog/edit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
 import CloseOrder from "./components/CloseOrder.vue";
+import Feedback from "./components/Feedback.vue";
 
 const userStore = useUser();
 const orderStore = useOrder();
@@ -372,7 +392,7 @@ const getDays = (e: orders.resHistoryOrders) => {
   const openTime = e.open_time;
   const date1 = moment(openTime);
   const date2 = moment(timeDone);
-  const daysDifference = date2.diff(date1, 'days');
+  const daysDifference = date2.diff(date1, "days");
   return +daysDifference;
 };
 
@@ -679,6 +699,17 @@ onMounted(() => {
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;
+
+  &_header {
+    display: flex;
+    border-bottom: 1px solid;
+    @include border_color("border");
+    box-sizing: border-box;
+    width: calc(100% - 16px);
+    justify-content: space-between;
+    padding-right: 16px;
+    align-items: center;
+  }
 
   .container {
     display: flex;

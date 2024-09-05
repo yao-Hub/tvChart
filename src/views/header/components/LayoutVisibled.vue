@@ -58,8 +58,6 @@ const checkboxChange = async (e: any, type: string) => {
 .layoutVisibled {
   display: flex;
   align-items: center;
-  width: 36px;
-  height: 24px;
   &_left {
     width: 16px;
     height: 16px;
@@ -67,7 +65,6 @@ const checkboxChange = async (e: any, type: string) => {
   &_right {
     width: 4px;
     height: 2px;
-    margin: 5px 4px;
   }
 }
 </style>

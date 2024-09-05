@@ -2,6 +2,7 @@
   <div ref="editRef">
     <a-modal
       wrapClassName="editModal"
+      centered
       :getContainer="() => editRef"
       :width="464"
       :open="props.visible"

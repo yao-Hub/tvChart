@@ -1,10 +1,10 @@
 <template>
   <div class="item" @click="showModal">
-    <CommentOutlined />
+    <MailOutlined />
     <span>{{ $t("feedback") }}</span>
   </div>
 
-  <a-modal v-model:open="open" :title="$t('feedback')" @ok="handleOk">
+  <a-modal v-model:open="open" :title="$t('feedback')">
     <a-textarea
       v-model:value="value"
       :placeholder="$t('feedback')"
@@ -24,6 +24,11 @@
         <div style="margin-top: 8px">{{ $t("upload") }}</div>
       </div>
     </a-upload>
+
+    <template #footer>
+      <a-button @click="myFeedBackOpen = true">我的反馈</a-button>
+      <a-button type="primary" @click="handleOk">提交</a-button>
+    </template>
   </a-modal>
 
   <a-modal
@@ -34,10 +39,20 @@
   >
     <img alt="example" style="width: 100%" :src="previewImage" />
   </a-modal>
+
+  <a-modal
+    :open="myFeedBackOpen"
+    title="我的反馈"
+    @cancel="myFeedBackOpen = false"
+  >
+    <template #footer>
+      <a-button type="primary" @click="myFeedBackOpen = false">返回</a-button>
+    </template>
+  </a-modal>
 </template>
 
 <script setup lang="ts">
-import { CommentOutlined } from "@ant-design/icons-vue";
+import { MailOutlined } from "@ant-design/icons-vue";
 import { ref } from "vue";
 const open = ref<boolean>(false);
 const value = ref<string>("");
@@ -80,12 +95,19 @@ const handlePreview = async (file: any) => {
   previewTitle.value =
     file.name || file.url.substring(file.url.lastIndexOf("/") + 1);
 };
+
+const myFeedBackOpen = ref(false);
 </script>
 
 <style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
 .item {
   display: flex;
   gap: 5px;
+  font-size: 12px;
+  @include font_color("word-gray");
+  cursor: pointer;
 }
 .ant-upload-select-picture-card i {
   font-size: 32px;

@@ -16,6 +16,7 @@ const minHeight = 150;
 const lineWidth = 8;
 const marginTop = 8;
 const lineColor = "#7cb305";
+const dragItemNum = 2;
 
 // 水平线初始拉伸位置
 let startY: number;
@@ -82,18 +83,21 @@ function createDragAreaItem(parentDom: Element, position: "down" | "up") {
 
 // 拖拽增加拖拽区域
 function dragOnStart(evt: any) {
-  const demosNum = document.querySelectorAll(".demo").length;
+  // const demosNum = document.querySelectorAll(".demo").length;
   const fromDom = evt.from as Element;
   const fromDomTop = fromDom.getBoundingClientRect().y;
   const fromDomBottom = fromDom.getBoundingClientRect().bottom;
-  const fromDomDemos = fromDom.querySelectorAll(".demo").length;
+  // const fromDomDemos = fromDom.querySelectorAll(".demo").length;
 
-  // 判断是否增加多层拖拽区域，有几个demo就有最多几个拖拽层（dragArea_item）
+  // 判断是否增加多层拖拽区域
   evt.item.ondrag = (e: MouseEvent) => {
     const itemsNum = document.querySelectorAll(".dragArea_item").length;
-    if (demosNum === itemsNum || fromDomDemos <= 1) {
+    if (dragItemNum === itemsNum) {
       return;
     }
+    // if (demosNum === itemsNum || fromDomDemos <= 1) {
+    //   return;
+    // }
     // 鼠标位置
     const y = e.clientY;
     if (y > (fromDomBottom + fromDomTop) / 2) {
@@ -566,26 +570,26 @@ export function initDragResizeArea() {
 
 // 横向布局
 export function horizontalLayout () {
-  const demos = document.querySelectorAll('.demo');
-  const items = document.querySelectorAll('.dragArea_item');
-  const dh = demos.length;
-  const ih = items.length;
-  if (dh === ih) {
-    return;
-  }
-  const needAddItemNum = dh - ih;
-  for (let index = 0; index < needAddItemNum; index++) {
-    const item = createDragAreaItem(items[ih - 1], 'down');
-    item.appendChild(demos[index + 1]);
-  }
+  // const demos = document.querySelectorAll('.demo');
+  // const items = document.querySelectorAll('.dragArea_item');
+  // const dh = demos.length;
+  // const ih = items.length;
+  // if (dh === ih) {
+  //   return;
+  // }
+  // const needAddItemNum = dh - ih;
+  // for (let index = 0; index < needAddItemNum; index++) {
+  //   const item = createDragAreaItem(items[ih - 1], 'down');
+  //   item.appendChild(demos[index + 1]);
+  // }
 }
 
 // 纵向布局
 export function verticalLayout () {
-  const item = document.querySelector('.dragArea_item');
-  const demos = document.querySelectorAll('.demo');
-  demos.forEach(demo => {
-    item?.appendChild(demo);
-  })
-  dragOnEnd();
+  // const item = document.querySelector('.dragArea_item');
+  // const demos = document.querySelectorAll('.demo');
+  // demos.forEach(demo => {
+  //   item?.appendChild(demo);
+  // })
+  // dragOnEnd();
 }

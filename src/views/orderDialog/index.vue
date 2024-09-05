@@ -5,6 +5,7 @@
       :width="464"
       :open="open"
       @cancel="handleCancel"
+      centered
       :footer="null"
       :mask="false"
       :maskClosable="false"

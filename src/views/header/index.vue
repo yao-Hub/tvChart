@@ -12,29 +12,28 @@
           >{{ $t("order.new") }}</a-button
         >
       </a-tooltip>
-      <!-- 布局显隐 -->
-      <LayoutVisibled></LayoutVisibled>
-      <!-- 快速交易 -->
-      <FastTransation></FastTransation>
-      <!-- 单图 -->
-      <a-tooltip :title="$t('SingleImageMode')">
-        <BorderOutlined @click="() => chartInitStore.setLayoutType('single')" style="margin-left: 16px;"/>
-      </a-tooltip>
-      <a-divider type="vertical" class="divider-small" />
-      <!-- 多图 -->
-      <a-tooltip :title="$t('MultiGrapMode')">
-        <AppstoreFilled @click="() => chartInitStore.setLayoutType('multiple')" />
-      </a-tooltip>
-      <a-divider type="vertical" class="divider-small" />
-      <!-- 纵向布局 -->
-      <a-tooltip title="纵向布局">
-        <i class="iconfont" style="font-size: 12px" @click="verticalLayout" >&#xe601;</i>
-      </a-tooltip>
-      <a-divider type="vertical" class="divider-small" />
-      <!-- 横向布局 -->
-      <a-tooltip title="横向布局">
-        <i class="iconfont" style="font-size: 12px" @click="horizontalLayout">&#xe600;</i>
-      </a-tooltip>
+      <a-flex :gap="16" align="center">
+        <!-- 布局显隐 -->
+        <LayoutVisibled></LayoutVisibled>
+        <!-- 快速交易 -->
+        <FastTransation></FastTransation>
+        <!-- 单图 -->
+        <a-tooltip :title="$t('SingleImageMode')">
+          <BorderOutlined @click="() => chartInitStore.setLayoutType('single')"/>
+        </a-tooltip>
+        <!-- 多图 -->
+        <a-tooltip :title="$t('MultiGrapMode')">
+          <AppstoreFilled @click="() => chartInitStore.setLayoutType('multiple')" />
+        </a-tooltip>
+        <!-- 纵向布局 -->
+        <a-tooltip title="纵向布局">
+          <i class="iconfont" style="font-size: 12px" @click="verticalLayout" >&#xe601;</i>
+        </a-tooltip>
+        <!-- 横向布局 -->
+        <a-tooltip title="横向布局">
+          <i class="iconfont" style="font-size: 12px" @click="horizontalLayout">&#xe600;</i>
+        </a-tooltip>
+      </a-flex>
     </div>
     <Account></Account>
   </div>
@@ -76,11 +75,6 @@ chartInitStore.intLayoutType();
     .divider {
       height: 32px;
       @include background_color("border");
-    }
-    .divider-small {
-      height: 12px;
-      @include background_color("border");
-      margin: 0 7px;
     }
     &_orderBtn {
       width: 72px;
