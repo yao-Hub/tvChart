@@ -25,6 +25,7 @@
               <span class="menuItem">{{ item.login }}</span>
               <a-divider type="vertical" />
               <span>{{ item.blance }}</span>
+              <CheckOutlined v-show="item.login === userStore.account.login" style="margin-left: auto;"/>
             </a-flex>
           </a-menu-item>
           <a-menu-divider />
@@ -62,7 +63,7 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { CaretDownOutlined, GlobalOutlined } from "@ant-design/icons-vue";
+import { CaretDownOutlined, GlobalOutlined, CheckOutlined } from "@ant-design/icons-vue";
 import type { MenuProps } from "ant-design-vue";
 import { useRouter } from "vue-router";
 import { useUser } from "@/store/modules/user";
@@ -84,6 +85,7 @@ const handleMenuClick: MenuProps["onClick"] = async (e) => {
   const account = userStore.accountList.find((item) => item.login === e.key);
   if (account) {
     const { login, password, server } = account;
+    await networkStore.getNodes(server);
     await userStore.login({
       login,
       password,

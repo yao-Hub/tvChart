@@ -15,19 +15,19 @@ class SingletonSocket {
     this.tempConnection();
   }
 
-
-  // 单例模式
   getInstance(): Socket {
     this.startTimeMap[this.mainUri] = new Date().getTime();
-    if (!this.instance) {
-      this.instance = io(this.mainUri, {
-        transports: ["websocket"],
-        reconnection: true, // 开启重连功能
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-      });
-      this.setupSocketEvents();
+    if (this.instance) {
+      this.instance.disconnect();
+      this.instance = null;
     }
+    this.instance = io(this.mainUri, {
+      transports: ["websocket"],
+      reconnection: true, // 开启重连功能
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+    });
+    this.setupSocketEvents();
     return this.instance;
   }
 
@@ -53,12 +53,6 @@ class SingletonSocket {
     }
   }
 
-  disconnect() {
-    if (this.instance) {
-      this.instance.disconnect();
-      this.instance = null;
-    }
-  }
 
   tempConnection() {
     this.uriList.forEach(uri => {

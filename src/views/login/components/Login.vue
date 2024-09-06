@@ -140,8 +140,8 @@ const formState = reactive<FormState>({
 import { useNetwork } from "@/store/modules/network";
 const networkStore = useNetwork();
 
-(async function () {
-  await networkStore.getLines();
+(function () {
+  networkStore.getLines();
   // 记住密码自动填充
   const ifRemember = window.localStorage.getItem("remember");
   if (ifRemember) {

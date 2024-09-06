@@ -58,8 +58,8 @@ async function init() {
   await networkStore.getLines();
   await networkStore.initNode();
   socketStore.initSocket();
-  await getSymbols();
-  await userStore.getLoginInfo(true);
+  getSymbols();
+  userStore.getLoginInfo(true);
 };
 onMounted(async () => {
   try {

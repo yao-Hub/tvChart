@@ -54,6 +54,7 @@ export const useUser = defineStore("user", {
         const parseAccount = JSON.parse(account);
         this.account = this.deAccount(parseAccount);
       }
+      this.setAccountList();
     },
     getToken() {
       let result = "";
@@ -83,7 +84,6 @@ export const useUser = defineStore("user", {
       if (emitSocket) {
         socketStore.sendToken(res.data.login, this.getToken());
       }
-      this.setAccountList();
     },
     setStorageAccount(data: any) {
       this.account = pick(data, ['login' , 'password', 'server']) ;
@@ -100,10 +100,14 @@ export const useUser = defineStore("user", {
       // 赋值
       const found = deList.find((e) => e.login === this.account.login);
       if (!found) {
-        deList.push({
+        const deItem = {
           ...this.account,
-          blance: this.loginInfo?.balance.toString() || "-",
-        });
+          blance: '-'
+        };
+        if (this.loginInfo && this.loginInfo.balance) {
+          deItem.blance = this.loginInfo.balance.toString();
+        }
+        deList.push(deItem);
       }
       this.accountList = deList;
       // 加密缓存
@@ -117,7 +121,7 @@ export const useUser = defineStore("user", {
 
       const nodeList = networkStore.nodeList;
       if (nodeList.length === 0) {
-        return message.info("找不到网络节点，请切换交易线路重试");
+        return message.info("找不到网络节点");
       }
       for (let i in nodeList) {
         const item = nodeList[i];
@@ -139,7 +143,7 @@ export const useUser = defineStore("user", {
             ...updata,
             queryNode: item.nodeName
           });
-          return;
+          return Promise.resolve();
         } catch (error) {
           console.log(error)
           continue;
