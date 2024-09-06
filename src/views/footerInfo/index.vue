@@ -35,12 +35,12 @@
         <template #overlay>
           <a-menu @click="handleMenuClick">
             <a-menu-item v-for="node in networkStore.nodeList" :key="node.nodeName">
-              <a-flex gap="15" justify="space-between">
+              <a-flex gap="15" justify="space-between" align="center">
                 <a-flex gap="5">
                   <CheckOutlined v-show="node.nodeName === networkStore.currentNode?.nodeName"/>
                   <span> {{ node.nodeName }} </span>
                 </a-flex>
-                <a-flex gap="5">
+                <a-flex gap="5" align="center">
                   <i class="iconfont" style="color: green;">&#xe602;</i>
                   <span>{{ getDelay(node.webWebsocket) }}</span>
                 </a-flex>
