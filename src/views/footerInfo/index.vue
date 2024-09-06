@@ -25,13 +25,27 @@
       <span>{{ profit }}</span>
     </div>
     <div class="item" style="border: none">
-      <a-dropdown v-model:open="visible" placement="top" size="large">
-        <span>
-          {{ networkStore.currentNode?.nodeName }}
-        </span>
+      <a-dropdown v-model:open="visible" placement="top" :trigger="[ 'click' ]">
+        <div>
+          <a-flex gap="5" style="cursor: pointer;" justify="center">
+            <i class="iconfont" style="color: green;">&#xe602;</i>
+            <span>{{ currentDelay }}</span>
+          </a-flex>
+        </div>
         <template #overlay>
           <a-menu @click="handleMenuClick">
-            <a-menu-item v-for="node in networkStore.nodeList" :key="node.nodeName">{{ node.nodeName }}</a-menu-item>
+            <a-menu-item v-for="node in networkStore.nodeList" :key="node.nodeName">
+              <a-flex gap="15" justify="space-between">
+                <a-flex gap="5">
+                  <CheckOutlined v-show="node.nodeName === networkStore.currentNode?.nodeName"/>
+                  <span> {{ node.nodeName }} </span>
+                </a-flex>
+                <a-flex gap="5">
+                  <i class="iconfont" style="color: green;">&#xe602;</i>
+                  <span>{{ getDelay(node.webWebsocket) }}</span>
+                </a-flex>
+              </a-flex>
+            </a-menu-item>
           </a-menu>
         </template>
       </a-dropdown>
@@ -43,10 +57,8 @@
 import { computed } from "vue";
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
-// import { useChartSub } from '@/store/modules/chartSub';
 import { round } from "utils/common/index";
 
-// const subStore = useChartSub();
 const userStore = useUser();
 const orderStore = useOrder();
 
@@ -75,24 +87,6 @@ const Margin = computed(() => {
       return "-";
     }
     return loginInfo.value.margin;
-    // const currentPosition = orderStore.tableData.position;
-    // const sum = currentPosition?.reduce((accumulator, item) => {
-    //   let result = 0;
-    //   const symbol = subStore.symbols.find(e => e.symbol === item.symbol);
-    //   if (symbol) {
-    //     const leverage = symbol.leverage;
-    //     const margin = symbol.margin;
-    //     if (leverage) {
-    //       result = +item.open_price * symbol.contract_size / leverage * item.volume / 100;
-    //     } else {
-    //       result = margin * item.volume / 100;
-    //     }
-    //     return accumulator + result;
-    //   } else {
-    //     return accumulator;
-    //   }
-    // }, 0);
-    // return round(sum || 0, 2);
   } catch (error) {
     return "-";
   }
@@ -144,6 +138,20 @@ const handleMenuClick: MenuProps['onClick'] = e => {
   const name = e.key as string;
   networkStore.changeNode(name);
   window.location.reload();
+};
+
+import { get } from "lodash";
+import { useSocket } from "@/store/modules/socket";
+import { CheckOutlined } from '@ant-design/icons-vue';
+const socketStore = useSocket();
+const currentDelay = computed(() => {
+  const currentWsUri = networkStore.currentNode?.webWebsocket || '';
+  const delay = get(socketStore.delayMap, currentWsUri) || '-';
+  return `${delay}ms`;
+});
+const getDelay = (uri: string) => {
+  const delay = get(socketStore.delayMap, uri) || '-';
+  return `${delay}ms`;
 };
 </script>
 

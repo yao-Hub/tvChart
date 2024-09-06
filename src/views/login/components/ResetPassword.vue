@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
+import { ref, reactive, nextTick, watch } from "vue";
 import type { Rule } from "ant-design-vue/es/form";
 import type { FormInstance } from "ant-design-vue";
 import { message } from "ant-design-vue";
@@ -90,6 +90,15 @@ const formState = reactive<FormState>({
   oldpass: "",
 });
 const formRef = ref<FormInstance>();
+watch(
+  () => modalOpen.value,
+  async (val) => {
+    if (val && formRef.value) {
+      await nextTick();
+      formRef.value.resetFields();
+    }
+  },
+);
 const validatePass = async (_rule: Rule, value: string) => {
   if (value === "") {
     return Promise.reject("Please input the password");

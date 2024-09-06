@@ -1,31 +1,48 @@
 import { io, Socket } from "socket.io-client";
+import { useSocket } from "@/store/modules/socket";
 
 class SingletonSocket {
-  private static instance: Socket | null = null;
+  private instance: Socket | null = null;
+  private mainUri: string;
+  private uriList: string[];
 
-  constructor() {}
+  private startTimeMap: Record<string, number> = {};
+  
+  constructor(params: { wsUriList: string[], mainUri: string }) {
+    const { wsUriList, mainUri} = params;
+    this.mainUri = mainUri;
+    this.uriList = wsUriList.filter(item => item !== mainUri);
+    this.tempConnection();
+  }
+
 
   // 单例模式
-  public static getInstance(serverUrl: string): Socket {
-    if (!SingletonSocket.instance) {
-      SingletonSocket.instance = io(serverUrl, {
+  getInstance(): Socket {
+    this.startTimeMap[this.mainUri] = new Date().getTime();
+    if (!this.instance) {
+      this.instance = io(this.mainUri, {
         transports: ["websocket"],
         reconnection: true, // 开启重连功能
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
       });
-      SingletonSocket.setupSocketEvents();
+      this.setupSocketEvents();
     }
-    return SingletonSocket.instance;
+    return this.instance;
   }
 
-  private static setupSocketEvents(): void {
-    if (SingletonSocket.instance) {
-      SingletonSocket.instance!.on("connect", () => {
+  setupSocketEvents(): void {
+    if (this.instance) {
+      this.instance!.on("connect", () => {
+        const endTime = new Date().getTime();
+        const connectionTime = endTime - this.startTimeMap[this.mainUri];
+        const socketStore = useSocket();
+        socketStore.delayMap[this.mainUri] = connectionTime;
         console.log("Connected to server");
+        console.log(`${this.mainUri} Connection established in ${connectionTime} milliseconds`);
       });
 
-      SingletonSocket.instance!.on("disconnect", (reason: string) => {
+      this.instance!.on("disconnect", (reason: string) => {
         // 手动断开
         if (reason === "io client disconnect") {
           console.log("Disconnected from server");
@@ -36,11 +53,31 @@ class SingletonSocket {
     }
   }
 
-  public static disconnect(): void {
-    if (SingletonSocket.instance) {
-      SingletonSocket.instance.disconnect();
-      SingletonSocket.instance = null;
+  disconnect() {
+    if (this.instance) {
+      this.instance.disconnect();
+      this.instance = null;
     }
+  }
+
+  tempConnection() {
+    this.uriList.forEach(uri => {
+      this.startTimeMap[uri] = new Date().getTime();
+      const IO = io(uri, {
+        transports: ["websocket"],
+        reconnection: true, // 开启重连功能
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
+      IO.on("connect", () => {
+        const endTime = new Date().getTime();
+        const connectionTime = endTime - this.startTimeMap[uri];
+        const socketStore = useSocket();
+        socketStore.delayMap[uri] = connectionTime;
+        console.log(`${uri} Connection established in ${connectionTime} milliseconds`);
+        IO.disconnect();
+      });
+    })
   }
 }
 

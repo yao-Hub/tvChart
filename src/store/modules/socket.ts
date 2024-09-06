@@ -6,6 +6,7 @@ import { useUser } from "@/store/modules/user";
 
 interface State {
   socket: any;
+  delayMap: Record<string, string | number>;
 }
 interface ChartProps {
   resolution: string | number;
@@ -14,14 +15,16 @@ interface ChartProps {
 export const useSocket = defineStore("socket", {
   state: (): State => ({
     socket: null,
+    delayMap: {}
   }),
 
   actions: {
     initSocket() {
       const networkStore = useNetwork();
-      const url = networkStore.currentNode?.webWebsocket;
-      if (url) {
-        this.socket = SingletonSocket.getInstance(url);
+      const mainUri = networkStore.currentNode?.webWebsocket;
+      if (mainUri) {
+        const wsUriList = networkStore.nodeList.map(item => item.webWebsocket);
+        this.socket = new SingletonSocket({ wsUriList, mainUri }).getInstance();
       }
     },
 
