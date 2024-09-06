@@ -11,7 +11,7 @@ class SingletonSocket {
   constructor(params: { wsUriList: string[], mainUri: string }) {
     const { wsUriList, mainUri} = params;
     this.mainUri = mainUri;
-    this.uriList = wsUriList.filter(item => item !== mainUri);
+    this.uriList = wsUriList;
     this.tempConnection();
   }
 
@@ -34,12 +34,7 @@ class SingletonSocket {
   setupSocketEvents(): void {
     if (this.instance) {
       this.instance!.on("connect", () => {
-        const endTime = new Date().getTime();
-        const connectionTime = endTime - this.startTimeMap[this.mainUri];
-        const socketStore = useSocket();
-        socketStore.delayMap[this.mainUri] = connectionTime;
-        console.log("Connected to server");
-        console.log(`${this.mainUri} Connection established in ${connectionTime} milliseconds`);
+        console.log(`${this.mainUri} Connected to server`);
       });
 
       this.instance!.on("disconnect", (reason: string) => {
@@ -52,7 +47,6 @@ class SingletonSocket {
       });
     }
   }
-
 
   tempConnection() {
     this.uriList.forEach(uri => {
@@ -70,6 +64,13 @@ class SingletonSocket {
         socketStore.delayMap[uri] = connectionTime;
         console.log(`${uri} Connection established in ${connectionTime} milliseconds`);
         IO.disconnect();
+      });
+      IO.on("disconnect", (reason: string) => {
+        if (reason === "io client disconnect") {
+          console.log(`${uri} Disconnected from server`);
+        } else {
+          console.log(`${uri} Connection lost, trying to reconnect...`);
+        }
       });
     })
   }
