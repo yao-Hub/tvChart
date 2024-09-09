@@ -76,33 +76,21 @@ const columns = [
     dataIndex: "bid",
     key: "bid",
     width: 130,
-    sorter: (a: DataSource, b: DataSource) => {
-      const bidA = typeof a.bid === 'number' ? a.bid : -Infinity;
-      const bidB = typeof b.bid === 'number' ? b.bid : -Infinity;
-      return bidA - bidB;
-    },
+    sorter: (a: DataSource, b: DataSource) => a.bid - b.bid,
   },
   {
     title: t("order.buyPrice"),
     dataIndex: "ask",
     key: "ask",
     width: 130,
-    sorter: (a: DataSource, b: DataSource) => {
-      const askA = typeof a.ask === 'number' ? a.ask : -Infinity;
-      const askB = typeof b.ask === 'number' ? b.ask : -Infinity;
-      return askA - askB;
-    },
+    sorter: (a: DataSource, b: DataSource) => a.ask - b.ask,
   },
   {
     title: t("order.diurnalVariation"),
     dataIndex: "variation",
     key: "variation",
     width: 130,
-    sorter: (a: DataSource, b: DataSource) => {
-      const variationA = typeof a.variation === 'number' ? a.variation : -Infinity;
-      const variationB = typeof b.variation === 'number' ? b.variation : -Infinity;
-      return variationA - variationB;
-    },
+    sorter: (a: DataSource, b: DataSource) => a.variation - b.variation,
   },
 ];
 const main = ref();
