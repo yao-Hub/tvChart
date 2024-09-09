@@ -173,7 +173,9 @@ body {
 .iconfont {
   cursor: pointer;
 }
-
+.ant-divider {
+  @include background_color("border");
+}
 .sellWord {
   @include font_color('down');
 }

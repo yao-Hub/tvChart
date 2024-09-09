@@ -76,5 +76,8 @@ const disabledDate = (current: Dayjs) => {
   border: 1px solid;
   @include border_color("border");
   padding-left: 8px;
+  &:hover {
+    @include border_color("primary");
+  }
 }
 </style>

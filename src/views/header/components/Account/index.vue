@@ -139,9 +139,6 @@ const handleOk = () => {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.ant-divider {
-  @include background_color("border");
-}
 .btn {
   cursor: pointer;
   &:hover {

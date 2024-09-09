@@ -198,7 +198,7 @@ import { useSocket } from "@/store/modules/socket";
 import EditOrderDialog from "../orderDialog/edit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
 import CloseOrder from "./components/CloseOrder.vue";
-import Feedback from "./components/Feedback.vue";
+import Feedback from "./components/Feedback/index.vue";
 
 const userStore = useUser();
 const orderStore = useOrder();

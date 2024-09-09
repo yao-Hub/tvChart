@@ -40,15 +40,7 @@
     <img alt="example" style="width: 100%" :src="previewImage" />
   </a-modal>
 
-  <a-modal
-    :open="myFeedBackOpen"
-    title="我的反馈"
-    @cancel="myFeedBackOpen = false"
-  >
-    <template #footer>
-      <a-button type="primary" @click="myFeedBackOpen = false">返回</a-button>
-    </template>
-  </a-modal>
+  <MyFeedBack v-model:open="myFeedBackOpen"></MyFeedBack>
 </template>
 
 <script setup lang="ts">
@@ -96,6 +88,7 @@ const handlePreview = async (file: any) => {
     file.name || file.url.substring(file.url.lastIndexOf("/") + 1);
 };
 
+import MyFeedBack from "./MyFeedBack.vue";
 const myFeedBackOpen = ref(false);
 </script>
 
