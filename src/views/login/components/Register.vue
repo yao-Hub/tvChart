@@ -172,7 +172,6 @@ const copy = async () => {
     await toClipboard(`账号：${account.name};密码：${account.pass}`);
     message.success("复制成功");
   } catch (e) {
-    console.log(e);
     message.error("复制失败");
   }
 };

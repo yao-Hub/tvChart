@@ -84,12 +84,13 @@ const handleMenuClick: MenuProps["onClick"] = async (e) => {
   }
   const account = userStore.accountList.find((item) => item.login === e.key);
   if (account) {
-    const { login, password, server } = account;
+    const { login, password, server, token } = account;
     await networkStore.getNodes(server);
     await userStore.login({
       login,
       password,
       server,
+      token
     });
     window.location.reload();
   }

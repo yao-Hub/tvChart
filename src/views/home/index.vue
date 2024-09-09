@@ -64,9 +64,7 @@ async function init() {
 onMounted(async () => {
   try {
     await init();
-    chartInitStore.loading = false;
-  } catch (error) {
-    console.log(error);
+  } finally {
     chartInitStore.loading = false;
   }
 });
