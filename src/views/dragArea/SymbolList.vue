@@ -76,21 +76,33 @@ const columns = [
     dataIndex: "bid",
     key: "bid",
     width: 130,
-    sorter: (a: DataSource, b: DataSource) => a.bid - b.bid,
+    sorter: (a: DataSource, b: DataSource) => {
+      const bidA = typeof a.bid === 'number' ? a.bid : -Infinity;
+      const bidB = typeof b.bid === 'number' ? b.bid : -Infinity;
+      return bidA - bidB;
+    }
   },
   {
     title: t("order.buyPrice"),
     dataIndex: "ask",
     key: "ask",
     width: 130,
-    sorter: (a: DataSource, b: DataSource) => a.ask - b.ask,
+    sorter: (a: DataSource, b: DataSource) => {
+      const askA = typeof a.ask === 'number' ? a.ask : -Infinity;
+      const askB = typeof b.ask === 'number' ? b.ask : -Infinity;
+      return askA - askB;
+    },
   },
   {
     title: t("order.diurnalVariation"),
     dataIndex: "variation",
     key: "variation",
     width: 130,
-    sorter: (a: DataSource, b: DataSource) => a.variation - b.variation,
+    sorter: (a: DataSource, b: DataSource) => {
+      const variationA = typeof a.variation === 'number' ? a.variation : -Infinity;
+      const variationB = typeof b.variation === 'number' ? b.variation : -Infinity;
+      return variationA - variationB;
+    },
   },
 ];
 const main = ref();
@@ -244,7 +256,6 @@ const getLines = (e: DataSource) => {
   border-top: 1px solid;
   border-bottom: 1px solid;
   @include border_color("border");
-  margin-top: 24px;
 
   .closeBtn:hover {
     @include font_color("primary");

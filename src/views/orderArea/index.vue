@@ -702,13 +702,15 @@ onMounted(async () => {
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;
+  width: calc(100% - 16px);
+  float: right;
 
   &_header {
     display: flex;
     border-bottom: 1px solid;
     @include border_color("border");
     box-sizing: border-box;
-    width: calc(100% - 16px);
+    width: 100%;
     justify-content: space-between;
     padding-right: 16px;
     align-items: center;
@@ -718,7 +720,7 @@ onMounted(async () => {
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
-    padding: 0 16px;
+    padding-right: 16px;
     height: 100%;
 
     .filter {

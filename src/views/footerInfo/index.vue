@@ -26,24 +26,19 @@
     </div>
     <div class="item" style="border: none">
       <a-dropdown v-model:open="visible" placement="top" :trigger="[ 'click' ]">
-        <div>
-          <a-flex gap="5" style="cursor: pointer;" justify="center">
-            <i class="iconfont" style="color: green;">&#xe602;</i>
-            <span>{{ currentDelay }}</span>
-          </a-flex>
+        <div :class="[+currentDelay > 500 ? 'redWord delay' : 'greenWord delay']">
+          <i class="iconfont">&#xe602;</i>
+          <span>{{ currentDelay }}ms</span>
         </div>
         <template #overlay>
           <a-menu @click="handleMenuClick">
             <a-menu-item v-for="node in networkStore.nodeList" :key="node.nodeName">
-              <a-flex gap="15" justify="space-between" align="center">
+              <a-flex justify="space-between" align="center" class="delayItem">
                 <a-flex gap="5">
-                  <CheckOutlined v-show="node.nodeName === networkStore.currentNode?.nodeName"/>
-                  <span> {{ node.nodeName }} </span>
+                  <CheckOutlined v-show="node.nodeName === networkStore.currentNode?.nodeName" class="checkIcon"/>
+                  <span class="nodeName"> {{ node.nodeName }} </span>
                 </a-flex>
-                <a-flex gap="5" align="center">
-                  <i class="iconfont" style="color: green;">&#xe602;</i>
-                  <span>{{ getDelay(node.webWebsocket) }}</span>
-                </a-flex>
+                <span :class="[+getDelay(node.webWebsocket) > 500 ? 'redWord' : 'greenWord']">{{ getDelay(node.webWebsocket) }}ms</span>
               </a-flex>
             </a-menu-item>
           </a-menu>
@@ -147,11 +142,11 @@ const socketStore = useSocket();
 const currentDelay = computed(() => {
   const currentWsUri = networkStore.currentNode?.webWebsocket || '';
   const delay = get(socketStore.delayMap, currentWsUri) || '-';
-  return `${delay}ms`;
+  return delay;
 });
 const getDelay = (uri: string) => {
   const delay = get(socketStore.delayMap, uri) || '-';
-  return `${delay}ms`;
+  return delay;
 };
 </script>
 
@@ -181,5 +176,35 @@ const getDelay = (uri: string) => {
     overflow: auto;
     text-align: center;
   }
+}
+
+.delay {
+  display: flex;
+  cursor: pointer;
+  font-size: 12px;
+  gap: 5px;
+  justify-content: center;
+}
+.delay:hover {
+  @include font_color("primary");
+}
+.checkIcon {
+  @include font_color("primary");
+}
+.delayItem {
+  min-width: 300px;
+  font-size: 14px;
+  .nodeName {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+.redWord {
+  color: #FF4A61;
+}
+.greenWord {
+  color: #00C673;
 }
 </style>

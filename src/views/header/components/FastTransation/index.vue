@@ -13,9 +13,9 @@ const orderStore = useOrder();
 
 const debounceSetQuiTrans = debounce((e: boolean) => {
   if (e) {
-    orderStore.addOrderBtn();
+    // orderStore.addOrderBtn();
   } else {
-    orderStore.hideOrderBtn();
+    // orderStore.hideOrderBtn();
   }
 }, 200);
 </script>

@@ -45,7 +45,6 @@ declare module 'vue' {
     BaseButton: typeof import('./src/components/BaseButton.vue')['default']
     BaseTabs: typeof import('./src/components/BaseTabs/index.vue')['default']
     Disclaimers: typeof import('./src/components/Disclaimers.vue')['default']
-    FastAddOrder: typeof import('./src/components/FastAddOrder.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Spin: typeof import('./src/components/Spin.vue')['default']

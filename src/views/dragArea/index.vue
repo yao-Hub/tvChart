@@ -2,7 +2,7 @@
   <div class="dragArea">
     <div class="dragArea_item">
       <div class="demo" v-if="layoutStore.chartsVisable">
-        <HolderOutlined class="handle" />
+        <HolderOutlined class="handle" v-show="chartType === 'single'" />
         <ChartList
           v-if="!chartInitStore.loading"
           class="container_item"
@@ -10,13 +10,13 @@
         ></ChartList>
       </div>
       <div class="demo" v-if="layoutStore.symbolsVisable">
-        <HolderOutlined class="handle" />
+        <HolderOutlined class="handle" v-show="chartType === 'single'" />
         <SymbolList class="container_item"></SymbolList>
       </div>
     </div>
     <div class="dragArea_item">
       <div class="demo" v-if="layoutStore.orderAreaVisable">
-        <HolderOutlined class="handle" />
+        <HolderOutlined class="handle" v-show="chartType === 'single'" />
         <OrderArea
           v-if="!chartInitStore.loading"
           class="container_item"
@@ -27,6 +27,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import { HolderOutlined } from "@ant-design/icons-vue";
 
 import { useLayout } from "@/store/modules/layout";
@@ -40,6 +41,10 @@ import ChartList from "./ChartList.vue";
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const layoutStore = useLayout();
+
+const chartType = computed(() => {
+  return chartInitStore.chartLayoutType;
+});
 </script>
 
 <style lang="scss" scoped>
@@ -65,15 +70,10 @@ const layoutStore = useLayout();
       @include background_color("background-component");
 
       .container_item {
-        width: 100%;
         height: 100%;
       }
 
       .handle {
-        z-index: 1;
-        position: sticky;
-        top: 0;
-        float: left;
         height: 24px;
         width: 16px;
         cursor: grab;

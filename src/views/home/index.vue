@@ -22,6 +22,7 @@ import { useChartSub } from "@/store/modules/chartSub";
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
 import { useNetwork } from "@/store/modules/network";
+import { useRoot } from "@/store/store";
 
 import { allSymbols } from "api/symbols/index";
 import { initDragResizeArea } from "utils/dragResize/index";
@@ -64,6 +65,13 @@ async function init() {
 onMounted(async () => {
   try {
     await init();
+    
+    // 记忆动作
+    const rootStore = useRoot();
+    if (rootStore.cacheAction) {
+      rootStore[rootStore.cacheAction]();
+      rootStore.clearCacheAction();
+    }
   } finally {
     chartInitStore.loading = false;
   }
