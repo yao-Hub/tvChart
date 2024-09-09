@@ -143,7 +143,6 @@ export const useUser = defineStore("user", {
             ...updata,
             queryNode: item.nodeName
           });
-          return Promise.resolve();
         } catch (error) {
           console.log(error)
           continue;
