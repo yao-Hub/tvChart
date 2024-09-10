@@ -186,6 +186,7 @@ const creatOrder = async (type: 'sell' | 'buy') => {
   box-sizing: border-box;
   flex: 1;
   height: 100%;
+  @include background_color('background-component');
 }
 .icon {
   font-size: 12px;
