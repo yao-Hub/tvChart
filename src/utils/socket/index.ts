@@ -3,25 +3,15 @@ import { useSocket } from "@/store/modules/socket";
 
 class SingletonSocket {
   private instance: Socket | null = null;
-  private mainUri: string;
-  private uriList: string[];
 
-  private startTimeMap: Record<string, number> = {};
-  
-  constructor(params: { wsUriList: string[], mainUri: string }) {
-    const { wsUriList, mainUri} = params;
-    this.mainUri = mainUri;
-    this.uriList = wsUriList;
-    this.tempConnection();
-  }
+  constructor() {}
 
-  getInstance(): Socket {
-    this.startTimeMap[this.mainUri] = new Date().getTime();
+  getInstance(mainUri: string): Socket {
     if (this.instance) {
       this.instance.disconnect();
       this.instance = null;
     }
-    this.instance = io(this.mainUri, {
+    this.instance = io(mainUri, {
       transports: ["websocket"],
       reconnection: true, // 开启重连功能
       reconnectionAttempts: 5,
@@ -34,7 +24,7 @@ class SingletonSocket {
   setupSocketEvents(): void {
     if (this.instance) {
       this.instance!.on("connect", () => {
-        console.log(`${this.mainUri} Connected to server`);
+        console.log(`main socket Connected to server`);
       });
 
       this.instance!.on("disconnect", (reason: string) => {
@@ -48,9 +38,10 @@ class SingletonSocket {
     }
   }
 
-  tempConnection() {
-    this.uriList.forEach(uri => {
-      this.startTimeMap[uri] = new Date().getTime();
+  getSocketDelay(uriList: string[]) {
+    const startTimeMap: Record<string, number> = {};
+    uriList.forEach(uri => {
+      startTimeMap[uri] = new Date().getTime();
       const IO = io(uri, {
         transports: ["websocket"],
         reconnection: true, // 开启重连功能
@@ -59,7 +50,7 @@ class SingletonSocket {
       });
       IO.on("connect", () => {
         const endTime = new Date().getTime();
-        const connectionTime = endTime - this.startTimeMap[uri];
+        const connectionTime = endTime - startTimeMap[uri];
         const socketStore = useSocket();
         socketStore.delayMap[uri] = connectionTime;
         console.log(`${uri} Connection established in ${connectionTime} milliseconds`);
