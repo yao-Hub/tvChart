@@ -101,6 +101,11 @@ const myFeedBackOpen = ref(false);
   font-size: 12px;
   @include font_color("word-gray");
   cursor: pointer;
+  min-width: 70px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  justify-content: flex-end;
 }
 .ant-upload-select-picture-card i {
   font-size: 32px;

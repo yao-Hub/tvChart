@@ -6,18 +6,8 @@
           v-for="item in state.menu"
           :key="item.key"
           :activeKey="item.key"
+          :tab="item.label"
         >
-          <template #tab>
-            <span>
-              {{ item.label }}
-            </span>
-            <a-tag
-              :color="state.dataSource[item.key].length ? '#F4B201' : '#BEC2C9'"
-              style="margin-left: 3px; scale: 0.8"
-            >
-              {{ state.dataSource[item.key].length }}
-            </a-tag>
-          </template>
         </TabItem>
       </baseTabs>
       <Feedback></Feedback>
@@ -402,7 +392,7 @@ watchEffect(async () => {
       debouncedGetTradingHistory(),
       debouncedGetOrderHistory(),
       userStore.getLoginInfo(),
-    ])
+    ]);
     orderStore.refreshOrderArea = false;
     filterData();
   }

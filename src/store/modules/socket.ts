@@ -130,7 +130,7 @@ export const useSocket = defineStore("socket", {
     },
 
     pollingDelay(uriList: string[]) {
-      const pollingInterval = 10 * 1000;
+      const pollingInterval = 30 * 1000;
       if (this.instance) {
         setInterval(() => {
           this.instance.getSocketDelay(uriList);
