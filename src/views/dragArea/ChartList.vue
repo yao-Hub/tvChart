@@ -40,9 +40,10 @@
           </baseTabs>
         </div>
         <FastAddOrder
-          v-if="symbol && orderStore.ifQuick"
+          v-if="symbol && !props.loading && !chartInitStore.singleChartLoading[id] && orderStore.ifQuick"
           class="fastAddOrder"
-          :symbol="symbol || ''"
+          :style="{left: state.activeKey === id ? '60px' : '8px'}"
+          :symbol="symbol"
           :id="id"
         ></FastAddOrder>
         <TVChart
@@ -182,7 +183,6 @@ const tabAdd = async () => {
       .fastAddOrder {
         position: absolute;
         top: 120px;
-        left: 60px;
       }
     }
   }
