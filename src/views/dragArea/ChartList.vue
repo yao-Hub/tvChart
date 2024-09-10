@@ -4,6 +4,7 @@
       class="charts_tabs"
       addable
       v-model:activeKey="state.activeKey"
+      v-if="chartType === 'single'"
       @handleAdd="tabAdd"
     >
       <TabItem
@@ -18,18 +19,19 @@
     <div class="charts_container">
       <div
         class="charts_container_item"
-        v-for="{ id } in chartList"
-        :style="{ paddingLeft: chartType === 'multiple' ? '20px' : 0 }"
+        v-for="{ id, symbol } in chartList"
         :key="id"
         :id="id"
-        v-show="
-          (state.activeKey === id && chartType === 'single') ||
-          chartType === 'multiple'
-        "
+        v-show="(state.activeKey === id && chartType === 'single') || chartType === 'multiple'"
       >
-        <HolderOutlined class="handle" v-if="chartType === 'multiple'" />
+        <div v-if="chartType === 'multiple'" style="display: flex;">
+          <HolderOutlined class="handle"/>
+          <baseTabs v-model:activeKey="state.activeKey" :addable="state.activeKey === id" @handleAdd="tabAdd">
+            <TabItem :tab="symbol" :closable="chartList.length > 1" :activeKey="id" @itemDel="tabDelete"></TabItem>
+          </baseTabs>
+        </div>
         <TVChart
-          style="flex: 1; height: 100%"
+          style="height: 100%"
           :key="state.activeKey === id"
           :chartId="id"
           :mainChart="id === 'chart_1'"
@@ -47,10 +49,9 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted } from "vue";
+import { reactive, computed, onMounted, watchEffect } from "vue";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
-// import { useOrder } from "@/store/modules/order";
 import { datafeed } from "@/config/chartConfig";
 import * as types from "@/types/chart/index";
 import { HolderOutlined } from "@ant-design/icons-vue";
@@ -58,7 +59,7 @@ import Sortable from "sortablejs";
 
 const chartSubStore = useChartSub();
 const chartInitStore = useChartInit();
-// const orderStore = useOrder();
+chartInitStore.intLayoutType();
 
 interface Props {
   loading?: boolean;
@@ -71,6 +72,10 @@ const state = reactive({
   symbol: "XAU",
   activeKey: "chart_1",
   disabledFeatures: ['header_compare', 'header_saveload', 'timeframes_toolbar']
+});
+
+watchEffect(() => {
+  chartInitStore.activeChartId = state.activeKey;
 });
 
 const compareSymbols = computed(() => {
@@ -144,34 +149,27 @@ const tabAdd = async () => {
 .charts {
   box-sizing: border-box;
   border-radius: 5px;
-  height: calc(100% - 26px);
-  width: calc(100% - 16px);
-  float: right;
   &_container {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
     box-sizing: border-box;
     height: calc(100% - 26px);
+    // overflow: auto;
     &_item {
       flex: 1;
-      position: relative;
-      box-sizing: border-box;
-      .handle {
-        cursor: grab;
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 24px;
-        width: 16px;
-        @include background_color("border");
-      }
+      min-width: 316px;
     }
   }
-
   &_tabs {
     overflow-x: auto;
     overflow-y: hidden;
   }
+}
+.handle {
+  cursor: grab;
+  height: 24px;
+  width: 16px;
+  @include background_color("border");
 }
 </style>

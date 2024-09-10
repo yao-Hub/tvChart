@@ -26,22 +26,27 @@
         v-show="!ifSearch"
         :scroll="{ y: tableY }"
       >
-        <template #bodyCell="{ record, column }">
-          <template v-if="column.dataIndex === 'bid'">
-            <span :class="[quotesClass[record.symbol].bid]">
-              {{ getQuotes("bid", record) }}
-            </span>
-          </template>
-          <template v-if="column.dataIndex === 'ask'">
-            <span :class="[quotesClass[record.symbol].ask]">
-              {{ getQuotes("ask", record) }}
-            </span>
-          </template>
-          <template v-if="column.dataIndex === 'variation'">
-            <span :class="[ record.variation > 0 ? 'buyWord' : 'sellWord' ]">
-              {{ getLines(record) }}
-            </span>
-          </template>
+        <template #bodyCell="{ record, column, text }">
+          <div @click="changeChartSymbol(record)" style="cursor: pointer;">
+            <template v-if="column.dataIndex === 'bid'">
+              <span :class="[quotesClass[record.symbol].bid]">
+                {{ getQuotes("bid", record) }}
+              </span>
+            </template>
+            <template v-else-if="column.dataIndex === 'ask'">
+              <span :class="[quotesClass[record.symbol].ask]">
+                {{ getQuotes("ask", record) }}
+              </span>
+            </template>
+            <template v-else-if="column.dataIndex === 'variation'">
+              <span :class="[ record.variation > 0 ? 'buyWord' : 'sellWord' ]">
+                {{ getLines(record) }}
+              </span>
+            </template>
+            <template v-else>
+              {{ [null, undefined, ""].includes(text) ? "-" : text }}
+            </template>
+          </div>
         </template>
       </a-table>
 
@@ -237,6 +242,14 @@ const getLines = (e: DataSource) => {
     result = calc + '%';
   }
   return result;
+};
+
+import { useChartInit } from "@/store/modules/chartInit";
+const chartInitStore = useChartInit();
+const changeChartSymbol = (e: any) => {
+  const symbol = e.symbol;
+  const chartId = chartInitStore.activeChartId;
+  chartInitStore.setChartSymbol({ id: chartId, symbol })
 };
 </script>
 

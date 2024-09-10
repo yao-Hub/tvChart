@@ -11,6 +11,7 @@ interface State {
   mainId: string;
   chartLayoutType: "single" | "multiple";
   singleChartLoading: Record<string, boolean>;
+  activeChartId: string;
 }
 
 export const useChartInit = defineStore("chartInit", {
@@ -18,9 +19,10 @@ export const useChartInit = defineStore("chartInit", {
     return {
       chartWidgetList: [{ id: "chart_1" }],
       loading: true,
-      mainId: "",
+      mainId: "chart_1",
       chartLayoutType: "multiple",
       singleChartLoading: {},
+      activeChartId: "chart_1",
     };
   },
   actions: {
@@ -71,6 +73,11 @@ export const useChartInit = defineStore("chartInit", {
       const find = this.chartWidgetList.find((e) => e.id === id);
       if (find) {
         find.symbol = symbol;
+        find.widget?.onChartReady(() => {
+          find.widget?.headerReady().then(() => {
+            find.widget?.activeChart()?.setSymbol(symbol);
+          });
+        });
       }
     },
 

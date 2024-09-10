@@ -2,7 +2,7 @@
   <div class="dragArea">
     <div class="dragArea_item">
       <div class="demo" v-if="layoutStore.chartsVisable">
-        <HolderOutlined class="handle" v-show="chartType === 'single'" />
+        <HolderOutlined class="handle" style="float: left;" v-show="chartType === 'single'" />
         <ChartList
           v-if="!chartInitStore.loading"
           class="container_item"

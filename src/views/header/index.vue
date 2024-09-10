@@ -53,7 +53,6 @@ import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
-chartInitStore.intLayoutType();
 </script>
 
 <style lang="scss" scoped>
