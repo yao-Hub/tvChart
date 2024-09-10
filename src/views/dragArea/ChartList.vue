@@ -24,12 +24,27 @@
         :id="id"
         v-show="(state.activeKey === id && chartType === 'single') || chartType === 'multiple'"
       >
-        <div v-if="chartType === 'multiple'" style="display: flex;">
-          <HolderOutlined class="handle"/>
-          <baseTabs v-model:activeKey="state.activeKey" :addable="state.activeKey === id" @handleAdd="tabAdd">
-            <TabItem :tab="symbol" :closable="chartList.length > 1" :activeKey="id" @itemDel="tabDelete"></TabItem>
+        <div v-if="chartType === 'multiple'" style="display: flex">
+          <HolderOutlined class="handle" />
+          <baseTabs
+            v-model:activeKey="state.activeKey"
+            :addable="state.activeKey === id"
+            @handleAdd="tabAdd"
+          >
+            <TabItem
+              :tab="symbol"
+              :closable="chartList.length > 1"
+              :activeKey="id"
+              @itemDel="tabDelete"
+            ></TabItem>
           </baseTabs>
         </div>
+        <FastAddOrder
+          v-if="symbol && orderStore.ifQuick"
+          class="fastAddOrder"
+          :symbol="symbol || ''"
+          :id="id"
+        ></FastAddOrder>
         <TVChart
           style="height: 100%"
           :key="state.activeKey === id"
@@ -50,16 +65,21 @@
 
 <script setup lang="ts">
 import { reactive, computed, onMounted, watchEffect } from "vue";
-import { useChartInit } from "@/store/modules/chartInit";
-import { useChartSub } from "@/store/modules/chartSub";
-import { datafeed } from "@/config/chartConfig";
-import * as types from "@/types/chart/index";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import Sortable from "sortablejs";
 
-const chartSubStore = useChartSub();
+import { useChartInit } from "@/store/modules/chartInit";
+import { useChartSub } from "@/store/modules/chartSub";
+import { useOrder } from "@/store/modules/order";
+
+import { datafeed } from "@/config/chartConfig";
+import * as types from "@/types/chart/index";
+
+import FastAddOrder from "./components/FastAddOrder.vue";
+
 const chartInitStore = useChartInit();
-chartInitStore.intLayoutType();
+const chartSubStore = useChartSub();
+const orderStore = useOrder();
 
 interface Props {
   loading?: boolean;
@@ -71,7 +91,7 @@ const props = withDefaults(defineProps<Props>(), {
 const state = reactive({
   symbol: "XAU",
   activeKey: "chart_1",
-  disabledFeatures: ['header_compare', 'header_saveload', 'timeframes_toolbar']
+  disabledFeatures: ["header_compare", "header_saveload", "timeframes_toolbar"],
 });
 
 watchEffect(() => {
@@ -155,10 +175,15 @@ const tabAdd = async () => {
     gap: 5px;
     box-sizing: border-box;
     height: calc(100% - 26px);
-    // overflow: auto;
     &_item {
       flex: 1;
       min-width: 316px;
+      position: relative;
+      .fastAddOrder {
+        position: absolute;
+        top: 120px;
+        left: 60px;
+      }
     }
   }
   &_tabs {

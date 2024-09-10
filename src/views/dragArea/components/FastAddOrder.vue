@@ -1,25 +1,18 @@
 <template>
-  <div style="display: flex; gap: 5px; align-items: center">
-    <span style="min-width: 50px">{{ bid }}</span>
-    <span @click="creatOrder('sell')" style="cursor: pointer">sell</span>
-    <div
-      style="
-        display: flex;
-        align-items: center;
-        border: 1px solid #525252;
-        padding: 0 5px;
-        border-radius: 3px;
-      "
-    >
-      <UpOutlined style="font-size: 12px; cursor: pointer" @click="addNum" />
-      <input type="text" style="width: 50px; border: none" v-model="volume" />
-      <DownOutlined
-        style="font-size: 12px; cursor: pointer"
-        @click="reduceNum"
-      />
+  <div class="orderBtn">
+    <div class="area">
+      <div class="price sellword">{{ bid }}</div>
+      <div class="btn sellBtn" @click="creatOrder('sell')">SELL</div>
     </div>
-    <span @click="creatOrder('buy')" style="cursor: pointer">buy</span>
-    <span style="min-width: 50px">{{ ask }}</span>
+    <div class="input">
+      <UpOutlined class="icon" @click="addNum" />
+      <input type="text" v-model="volume" />
+      <DownOutlined class="icon" @click="reduceNum"/>
+    </div>
+    <div class="area">
+      <div class="btn buybtn" @click="creatOrder('buy')">BUY</div>
+      <div class="price buyword">{{ ask }}</div>
+    </div>
   </div>
 </template>
 
@@ -145,3 +138,65 @@ const creatOrder = async (type: 'sell' | 'buy') => {
   }
 };
 </script>
+
+<style lang="scss" scoped>
+@import "@/assets/styles/_handle.scss";
+
+.orderBtn {
+  display: flex;
+  height: 18px;
+  width: 267px;
+  justify-content: space-between;
+  .area {
+    display: flex;
+  }
+}
+.price, .btn {
+  color: #fff;
+  font-size: 12px;
+  height: 18px;
+  text-align: center;
+  line-height: 18px;
+  padding: 0 5px;
+}
+.price {
+  width: 51px;
+}
+.btn {
+  cursor: pointer;
+}
+.sellword {
+  @include background_color('upHover');
+}
+.sellBtn {
+  @include background_color('up');
+}
+.buybtn {
+  @include background_color('down');
+}
+.buyword {
+  @include background_color('downHover');
+} 
+.input {
+  display: flex;
+  border: 1px solid;
+  @include border_color("border");
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  flex: 1;
+  height: 100%;
+}
+.icon {
+  font-size: 12px;
+  scale: 0.5;
+  width: 12px;
+  height: 12px;
+}
+input {
+  border: none;
+  width: 50px;
+  height: 14px;
+  text-align: center;
+}
+</style>

@@ -78,59 +78,6 @@ export const useOrder = defineStore("order", {
       return result;
     },
 
-    // 添加快捷下单组件
-    // addOrderBtn() {
-    //   this.ifQuick = true;
-    //   window.localStorage.setItem("ifQuick", JSON.stringify(true));
-    //   const chartInitStore = useChartInit();
-    //   const iframes = Array.from(document.querySelectorAll("iframe"));
-    //   iframes.forEach((iframe) => {
-    //     const iframeDocument =
-    //       iframe.contentDocument || iframe.contentWindow!.document;
-    //     const btn = iframeDocument.querySelector("#chartOrderBtn");
-    //     if (btn) {
-    //       const grandpa = <HTMLElement>btn.parentNode?.parentNode;
-    //       grandpa.style.display = "flex";
-    //       return;
-    //     }
-    //     const chartItem = iframe.closest('.charts_container_item');
-    //     const id = chartItem?.getAttribute('id');
-    //     if (id) {
-    //       const widget = chartInitStore.getChartWidget(id);
-    //       widget?.headerReady().then(() => {
-    //         const Button = widget.createButton();
-    //         Button.setAttribute("id", "chartOrderBtn");
-    //         const grandpa = <HTMLElement>Button.parentNode?.parentNode;
-    //         const separator = <HTMLElement>grandpa.nextSibling;
-    //         separator.remove();
-    //         const symbol = widget.activeChart().symbol();
-    //         const orderComp = createApp(FastAddOrder, { symbol, id });
-    //         orderComp.mount(Button);
-    //       });
-    //     }
-    //   });
-    // },
-
-    // 隐藏快捷下单组件
-    // hideOrderBtn() {
-    //   window.localStorage.setItem("ifQuick", JSON.stringify(false));
-    //   this.ifQuick = false;
-    //   const chartInitStore = useChartInit();
-    //   const widget = chartInitStore.getChartWidget();
-    //   widget?.headerReady().then(() => {
-    //     const iframes = document.querySelectorAll("iframe");
-    //     iframes.forEach((iframe) => {
-    //       if (iframe) {
-    //         const iframeDocument =
-    //           iframe.contentDocument || iframe.contentWindow!.document;
-    //         const btn = iframeDocument.querySelector("#chartOrderBtn");
-    //         const grandpa = <HTMLElement>btn?.parentNode?.parentNode;
-    //         grandpa.style.display = "none";
-    //       }
-    //     });
-    //   });
-    // },
-
     // 获取快捷交易状态
     getQuickTrans() {
       const result = window.localStorage.getItem("ifQuick") || JSON.stringify(false);

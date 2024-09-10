@@ -53,6 +53,7 @@ const getSymbols = async () => {
 
 async function init() {
   chartInitStore.loading = true;
+  chartInitStore.intLayoutType();
   orderStore.getQuickTrans();
   userStore.initUser();
   initDragResizeArea();
@@ -60,7 +61,7 @@ async function init() {
   await networkStore.initNode();
   socketStore.initSocket();
   getSymbols();
-  userStore.getLoginInfo(true);
+  userStore.getLoginInfo({ emitSocket: true });
 };
 onMounted(async () => {
   try {

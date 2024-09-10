@@ -75,7 +75,7 @@ export const useUser = defineStore("user", {
       window.localStorage.removeItem("token");
       this.token = "";
     },
-    async getLoginInfo(emitSocket?: boolean) {
+    async getLoginInfo(params?: { emitSocket?: boolean }) {
       try {
         this.loginInfo = null;
         const socketStore = useSocket();
@@ -83,7 +83,7 @@ export const useUser = defineStore("user", {
           login: this.account.login,
         });
         this.loginInfo = res.data;
-        if (emitSocket) {
+        if (params && params.emitSocket) {
           socketStore.sendToken(res.data.login, this.getToken());
         }
       } finally {

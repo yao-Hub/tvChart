@@ -1,23 +1,23 @@
 <template>
   <a-tooltip title="快捷交易">
-    <ThunderboltFilled v-if="orderStore.ifQuick" @click="() => debounceSetQuiTrans(false)" />
-    <ThunderboltOutlined v-else @click="() => debounceSetQuiTrans(true)" />
+    <ThunderboltFilled
+      class="checked"
+      v-if="orderStore.ifQuick"
+      @click="() => handleClick(false)"
+    />
+    <ThunderboltOutlined v-else @click="() => handleClick(true)" />
   </a-tooltip>
 </template>
 
 <script setup lang="ts">
 import { ThunderboltOutlined, ThunderboltFilled } from "@ant-design/icons-vue";
-import { debounce } from "lodash";
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
 
-const debounceSetQuiTrans = debounce((e: boolean) => {
-  if (e) {
-    // orderStore.addOrderBtn();
-  } else {
-    // orderStore.hideOrderBtn();
-  }
-}, 200);
+const handleClick = (e: boolean) => {
+  orderStore.ifQuick = e;
+  window.localStorage.setItem("ifQuick", JSON.stringify(e));
+}
 </script>
 
 <style lang="scss" scoped>
@@ -25,5 +25,8 @@ const debounceSetQuiTrans = debounce((e: boolean) => {
 
 span {
   cursor: pointer;
+}
+.checked {
+  @include font_color('primary');
 }
 </style>
