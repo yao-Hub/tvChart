@@ -16,7 +16,7 @@
         @itemDel="tabDelete"
       ></TabItem>
     </baseTabs>
-    <div class="charts_container">
+    <div class="charts_container" :style="{flexDirection: chartInitStore.chartFlexDirection}">
       <div
         class="charts_container_item"
         v-for="{ id, symbol } in chartList"

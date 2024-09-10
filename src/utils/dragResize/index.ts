@@ -567,29 +567,3 @@ export function initDragResizeArea() {
   observerDom();
   window.addEventListener("resize", () => resizeUpdate());
 }
-
-// 横向布局
-export function horizontalLayout () {
-  // const demos = document.querySelectorAll('.demo');
-  // const items = document.querySelectorAll('.dragArea_item');
-  // const dh = demos.length;
-  // const ih = items.length;
-  // if (dh === ih) {
-  //   return;
-  // }
-  // const needAddItemNum = dh - ih;
-  // for (let index = 0; index < needAddItemNum; index++) {
-  //   const item = createDragAreaItem(items[ih - 1], 'down');
-  //   item.appendChild(demos[index + 1]);
-  // }
-}
-
-// 纵向布局
-export function verticalLayout () {
-  // const item = document.querySelector('.dragArea_item');
-  // const demos = document.querySelectorAll('.demo');
-  // demos.forEach(demo => {
-  //   item?.appendChild(demo);
-  // })
-  // dragOnEnd();
-}

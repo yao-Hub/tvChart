@@ -53,6 +53,7 @@ const getSymbols = async () => {
 
 async function init() {
   chartInitStore.loading = true;
+  chartInitStore.intChartFlexDirection();
   chartInitStore.intLayoutType();
   orderStore.getQuickTrans();
   userStore.initUser();

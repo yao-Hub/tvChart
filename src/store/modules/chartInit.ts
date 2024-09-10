@@ -12,6 +12,7 @@ interface State {
   chartLayoutType: "single" | "multiple";
   singleChartLoading: Record<string, boolean>;
   activeChartId: string;
+  chartFlexDirection: "row" | "column"
 }
 
 export const useChartInit = defineStore("chartInit", {
@@ -23,6 +24,7 @@ export const useChartInit = defineStore("chartInit", {
       chartLayoutType: "multiple",
       singleChartLoading: {},
       activeChartId: "chart_1",
+      chartFlexDirection: "row",
     };
   },
   actions: {
@@ -127,6 +129,16 @@ export const useChartInit = defineStore("chartInit", {
     setLayoutType(type: State["chartLayoutType"]) {
       this.chartLayoutType = type;
       window.localStorage.setItem('chartLayoutType', type)
+    },
+    intChartFlexDirection() {
+      const type = window.localStorage.getItem('chartFlexDirection') as State["chartFlexDirection"];
+      if (type) {
+        this.chartFlexDirection = type;
+      }
+    },
+    setChartFlexDirection(type: State["chartFlexDirection"]) {
+      this.chartFlexDirection = type;
+      window.localStorage.setItem('chartFlexDirection', type)
     }
   },
 });
