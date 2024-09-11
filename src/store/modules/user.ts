@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { message } from "ant-design-vue";
-import { pick, assign } from 'lodash'
+import { pick, assign } from "lodash";
 import CryptoJS from "utils/AES";
 import { getLoginInfo, UserInfo, Login, reqLogin } from "api/account/index";
 import { useSocket } from "@/store/modules/socket";
@@ -91,7 +91,7 @@ export const useUser = defineStore("user", {
       }
     },
     setStorageAccount(data: any) {
-      this.account = pick(data, ['login', 'password', 'server', 'token']) ;
+      this.account = pick(data, ["login", "password", "server", "token"]);
       window.localStorage.setItem(
         "account",
         JSON.stringify(this.enAccount(data))
@@ -99,7 +99,9 @@ export const useUser = defineStore("user", {
     },
     setAccountList() {
       const accountList = window.localStorage.getItem("accountList");
-      const list: Array<AccountListItem> = accountList ? JSON.parse(accountList) : [];
+      const list: Array<AccountListItem> = accountList
+        ? JSON.parse(accountList)
+        : [];
       if (this.account.login) {
         // 解密
         const deList = list.map((item) => this.deAccount(item));
@@ -109,7 +111,7 @@ export const useUser = defineStore("user", {
           ...this.account,
           token: this.token,
           blance: this.loginInfo ? this.loginInfo.balance.toString() : "-",
-        }
+        };
         if (!found) {
           deList.push(deItem);
         } else {
@@ -122,23 +124,23 @@ export const useUser = defineStore("user", {
       }
     },
 
-    async login(updata: reqLogin & {token?: string}) {
+    async login(updata: reqLogin & { token?: string }) {
       const networkStore = useNetwork();
       const socketStore = useSocket();
-
+      await networkStore.getNodes(updata.server);
       const nodeList = networkStore.nodeList;
       if (nodeList.length === 0) {
-        return message.info("找不到网络节点");
+        message.info("找不到网络节点");
+        return Promise.reject();
       }
+      let errorCount = 0;
       for (let i in nodeList) {
         const item = nodeList[i];
         try {
           // 接口节点确定
           networkStore.nodeName = item.nodeName;
-  
           // socket地址确定
           socketStore.initSocket();
-  
           let token = null;
           if (updata.token) {
             token = updata.token;
@@ -146,22 +148,23 @@ export const useUser = defineStore("user", {
             const res = await Login(updata);
             token = res.data.token;
           }
-  
           // 缓存token 发送登录状态
           this.setToken(token);
           socketStore.sendToken(updata.login, token);
-  
           // 缓存登录信息
           this.setStorageAccount({
             ...updata,
             queryNode: item.nodeName,
-            token
+            token,
           });
         } catch (error) {
-          console.log(error)
+          errorCount++;
           continue;
         }
       }
-    }
+      if (errorCount === nodeList.length) {
+        return Promise.reject();
+      }
+    },
   },
 });

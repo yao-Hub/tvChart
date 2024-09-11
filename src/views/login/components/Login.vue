@@ -80,7 +80,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, watch } from "vue";
+import { reactive, computed } from "vue";
 import {
   UserOutlined,
   LockOutlined,
@@ -163,14 +163,6 @@ const filterOption = (input: string, option: any) => {
   const regex = new RegExp(input.split("").join(".*"), "i");
   return regex.test(option.label);
 };
-watch(
-  () => formState.server,
-  (val) => {
-    if (val) {
-      networkStore.getNodes(val);
-    }
-  }
-);
 
 const onFinish = async (values: any) => {
   try {
