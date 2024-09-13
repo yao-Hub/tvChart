@@ -161,7 +161,7 @@ const networkStore = useNetwork();
 
 const filterOption = (input: string, option: any) => {
   const regex = new RegExp(input.split("").join(".*"), "i");
-  return regex.test(option.label);
+  return regex.test(option.lineName);
 };
 
 const onFinish = async (values: any) => {
