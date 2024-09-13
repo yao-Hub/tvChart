@@ -1,10 +1,5 @@
 <template>
-  <StepNumInput
-    v-model:value="model"
-    :step="step"
-    :min="min"
-    :max="max"
-  ></StepNumInput>
+  <StepNumInput v-model:value="model" :step="step" :min="min" :max="max" @blur="checkVolume"></StepNumInput>
   <a-form-item no-style>
     <span class="tip">参考预付款：{{ Margin }}</span>
   </a-form-item>
@@ -20,7 +15,7 @@ interface Props {
   quote: Quote;
 }
 const props = defineProps<Props>();
-const model = defineModel<string>("volume");
+const model = defineModel<string>("volume", { default: "" });
 
 // 步长
 const step = computed(() => {
@@ -70,22 +65,23 @@ const Margin = computed(() => {
   }
 });
 
-// 填充最小值 确定作用域
+const checkVolume = () => {
+  const value = model.value;
+  if (!value || Number(value) < min.value) {
+    model.value = min.value.toString();
+  }
+  if (value && Number(value) > max.value) {
+    model.value = max.value.toString();
+  }
+};
+
 watch(
-  () => [min.value, max.value, model.value],
-  () => {
-    if (!props.symbolInfo) {
-      return;
+  () => min.value,
+  (value) => {
+    if (value && model.value === "") {
+      model.value = value.toString();
     }
-    const num = model.value;
-    if (!num || Number(num) < min.value) {
-      model.value = min.value.toString();
-    }
-    if (num && Number(num) > max.value) {
-      model.value = max.value.toString();
-    }
-  },
-  { immediate: true, deep: true }
+  }
 );
 </script>
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <a-input v-model:value="model" type="number">
+    <a-input v-model:value="model" type="number" @blur="inputBlur">
       <template #prefix>
         <span class="btn" @click="handleSubtract">-</span>
       </template>
@@ -21,6 +21,11 @@ const props = withDefaults(defineProps<Props>(), {
   step: 1,
 });
 const model = defineModel<string | number>("value");
+const emit = defineEmits(["blur"]);
+
+const inputBlur = () => {
+  emit("blur", model.value);
+};
 
 const handleSubtract = () => {
   model.value = Decimal.sub(model.value || 0, +props.step).toString();
