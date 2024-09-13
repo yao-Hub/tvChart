@@ -35,8 +35,12 @@
 <script setup lang="ts">
 import { ref, nextTick } from "vue";
 import { LayoutOutlined, DownOutlined } from "@ant-design/icons-vue";
+import {
+  hideNoChildDragAreaItem,
+  showNoChildDragAreaItem,
+} from "@/utils/dragResize/drag";
+
 import { useLayout } from "@/store/modules/layout";
-import { resizeUpdate } from "utils/dragResize/index";
 import { useChartInit } from "@/store/modules/chartInit";
 const chartInitStore = useChartInit();
 
@@ -45,12 +49,16 @@ const visible = ref(false);
 const layoutStore = useLayout();
 
 const checkboxChange = async (e: any, type: string) => {
-  const ifCheck = e.target.checked;
+  const checked = e.target.checked;
   await nextTick();
-  if (type === "chartList" && ifCheck) {
+  if (type === "chartList" && checked) {
     setTimeout(() => chartInitStore.setSymbolBack(), 200);
   }
-  resizeUpdate({ hideEmptyDemoArea: true });
+  if (checked) {
+    showNoChildDragAreaItem();
+  } else {
+    hideNoChildDragAreaItem();
+  }
 };
 </script>
 
@@ -58,10 +66,12 @@ const checkboxChange = async (e: any, type: string) => {
 .layoutVisibled {
   display: flex;
   align-items: center;
+
   &_left {
     width: 16px;
     height: 16px;
   }
+
   &_right {
     width: 4px;
     height: 2px;

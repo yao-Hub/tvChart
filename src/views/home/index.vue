@@ -25,7 +25,6 @@ import { useNetwork } from "@/store/modules/network";
 import { useRoot } from "@/store/store";
 
 import { allSymbols } from "api/symbols/index";
-import { initDragResizeArea } from "utils/dragResize/index";
 
 import WPHeader from "../header/index.vue";
 import dragArea from "../dragArea/index.vue";
@@ -57,7 +56,6 @@ async function init() {
   chartInitStore.intLayoutType();
   orderStore.getQuickTrans();
   userStore.initUser();
-  initDragResizeArea();
   await networkStore.getLines();
   await networkStore.initNode();
   socketStore.initSocket();

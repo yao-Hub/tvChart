@@ -1,8 +1,7 @@
 <template>
-  <div v-if="!listState.loading">
-    <div v-if="!input">
+  <div v-if="!listState.loading" class="searchList">
+    <div v-if="!input && !showSymbols" class="detail">
       <Block
-        v-if="!showSymbols"
         v-for="item in listState.menu"
         :title="item.value"
         type="count"
@@ -10,41 +9,42 @@
         :count="getCount(item.type)"
         @blockClick="getSymbols(item.type)"
       ></Block>
-
-      <div v-else>
-        <Block class="back">
-          <template #title>
-            <div class="back_title" @click="() => (showSymbols = false)">
-              <LeftOutlined />
-              <span>{{ currentPath }}</span>
-            </div>
-          </template>
-        </Block>
-        <Block
-          v-for="item in symbolList"
-          :title="item.symbol"
-          type="radio"
-          :loading="item.loading"
-          :ifChecked="getCheckType(item.symbol)"
-          @btnClick="(e) => btnClick(e, item)"
-        >
-        </Block>
-      </div>
     </div>
 
-    <Block
-      v-else
-      v-for="item in filterSymbols"
-      :title="item.symbol"
-      type="radio"
-      :loading="item.loading"
-      :ifChecked="getCheckType(item.symbol)"
-      @btnClick="(e) => btnClick(e, item)"
-    >
-    </Block>
+    <div v-if="!input && showSymbols" class="detail">
+      <Block class="back">
+        <template #title>
+          <div class="back_title" @click="() => showSymbols = false">
+            <LeftOutlined />
+            <span>{{ currentPath }}</span>
+          </div>
+        </template>
+      </Block>
+      <Block
+        v-for="item in symbolList"
+        :title="item.symbol"
+        type="radio"
+        :loading="item.loading"
+        :ifChecked="getCheckType(item.symbol)"
+        @btnClick="(e) => btnClick(e, item)"
+      >
+      </Block>
+    </div>
+
+    <div v-if="input" class="detail">
+      <Block
+        v-for="item in filterSymbols"
+        :title="item.symbol"
+        type="radio"
+        :loading="item.loading"
+        :ifChecked="getCheckType(item.symbol)"
+        @btnClick="(e) => btnClick(e, item)"
+      >
+      </Block>
+    </div>
   </div>
 
-  <LoadingOutlined v-else class="loading"/>
+  <LoadingOutlined v-if="listState.loading" class="loading"/>
 </template>
 
 <script setup lang="ts">
@@ -162,6 +162,13 @@ const getCheckType = (type: string) => {
 
 <style lang="scss" scoped>
 @import "@/assets/styles/_handle.scss";
+.searchList {
+  height: 100%;
+}
+.detail {
+  height: 100%;
+  overflow: auto;
+}
 .back {
   @include background_color("background-component");
   position: sticky;

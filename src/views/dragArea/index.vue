@@ -1,33 +1,55 @@
 <template>
-  <div class="dragArea">
-    <div class="dragArea_item">
-      <div class="demo" v-if="layoutStore.chartsVisable">
-        <HolderOutlined class="handle" style="float: left;" v-show="chartType === 'single'" />
-        <ChartList
-          v-if="!chartInitStore.loading"
-          class="container_item"
-          :loading="chartSubStore.chartsLoading"
-        ></ChartList>
+  <div class="main">
+    <div class="dragArea nested-sortable">
+      <div class="dragArea_item nested-sortable" data-id="item_1">
+        <div
+          v-if="layoutStore.chartsVisable"
+          class="demo nested-1"
+          data-id="demo_1"
+          data-minWidth="350"
+        >
+          <HolderOutlined
+            v-show="chartType === 'single'"
+            class="handle"
+            style="float: left"
+          />
+          <ChartList
+            v-if="!chartInitStore.loading"
+            class="container_item"
+            :loading="chartSubStore.chartsLoading"
+          >
+          </ChartList>
+        </div>
+        <div
+          v-if="layoutStore.symbolsVisable"
+          class="demo nested-1"
+          data-id="demo_2"
+          data-minWidth="345"
+        >
+          <HolderOutlined v-show="chartType === 'single'" class="handle" />
+          <SymbolList class="container_item"></SymbolList>
+        </div>
       </div>
-      <div class="demo" v-if="layoutStore.symbolsVisable">
-        <HolderOutlined class="handle" v-show="chartType === 'single'" />
-        <SymbolList class="container_item"></SymbolList>
-      </div>
-    </div>
-    <div class="dragArea_item">
-      <div class="demo" v-if="layoutStore.orderAreaVisable">
-        <HolderOutlined class="handle" v-show="chartType === 'single'" />
-        <OrderArea
-          v-if="!chartInitStore.loading"
-          class="container_item"
-        ></OrderArea>
+      <div class="dragArea_item nested-sortable" data-id="item_2">
+        <div
+          v-if="layoutStore.orderAreaVisable"
+          class="demo nested-2"
+          data-id="demo_3"
+          data-minWidth="445"
+        >
+          <HolderOutlined v-show="chartType === 'single'" class="handle" />
+          <OrderArea
+            v-if="!chartInitStore.loading"
+            class="container_item"
+          ></OrderArea>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted } from "vue";
 import { HolderOutlined } from "@ant-design/icons-vue";
 
 import { useLayout } from "@/store/modules/layout";
@@ -38,6 +60,8 @@ import OrderArea from "../orderArea/index.vue";
 import SymbolList from "./SymbolList.vue";
 import ChartList from "./ChartList.vue";
 
+import { initDragResize } from "@/utils/dragResize/drag";
+
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const layoutStore = useLayout();
@@ -45,31 +69,42 @@ const layoutStore = useLayout();
 const chartType = computed(() => {
   return chartInitStore.chartLayoutType;
 });
+
+onMounted(() => {
+  initDragResize();
+});
 </script>
 
 <style lang="scss" scoped>
 @import "@/assets/styles/_handle.scss";
 
+.main {
+  padding: 5px 0;
+}
+
 .dragArea {
-  height: calc(100vh - 30px - 48px);
-  width: 100%;
-  box-sizing: border-box;
+  height: calc(100vh - 30px - 48px - 10px);
+  width: 100vw;
   position: relative;
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
 
   .dragArea_item {
     width: 100%;
-    box-sizing: border-box;
-    position: relative;
+    height: 100%;
+    display: flex;
+    gap: 5px;
 
     .demo {
-      padding: 0 5px 5px 0;
-      box-sizing: border-box;
-      position: absolute;
+      height: 100%;
+      width: 100%;
       user-select: none;
-      overflow: hidden;
       @include background_color("background-component");
+      flex-grow: 1;
 
       .container_item {
+        width: 100%;
         height: 100%;
       }
 

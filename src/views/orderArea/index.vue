@@ -81,7 +81,7 @@
         :columns="state.columns[activeKey]"
         :pagination="false"
         :loading="state.loadingList[activeKey]"
-        :scroll="{ x: 1300, y: tableY }"
+        :scroll="{ y: tableY }"
       >
         <template #bodyCell="{ record, column, text }">
           <div @dblclick="handleRowDoubleClick(record)">
@@ -692,7 +692,7 @@ onMounted(async () => {
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;
-  width: calc(100% - 16px);
+  max-width: calc(100% - 16px);
   float: right;
 
   &_header {
@@ -711,7 +711,7 @@ onMounted(async () => {
     flex-direction: column;
     box-sizing: border-box;
     padding-right: 16px;
-    height: 100%;
+    height: calc(100% - 25px - 24px);
 
     .filter {
       height: 40px;

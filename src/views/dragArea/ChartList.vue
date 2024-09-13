@@ -182,7 +182,7 @@ const tabAdd = async () => {
       position: relative;
       .fastAddOrder {
         position: absolute;
-        top: 120px;
+        top: 92px;
       }
     }
   }

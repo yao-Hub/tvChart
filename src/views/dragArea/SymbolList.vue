@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="symbolList">
     <div class="search">
       <a-input
         v-model:value="input"
@@ -18,12 +18,12 @@
         </template>
       </a-input>
     </div>
-    <div class="main" ref="main">
+    <div class="list" ref="list">
       <a-table
         :dataSource="dataSource"
         :columns="columns"
         :pagination="false"
-        v-show="!ifSearch"
+        v-if="!ifSearch"
         :scroll="{ y: tableY }"
       >
         <template #bodyCell="{ record, column, text }">
@@ -50,7 +50,9 @@
         </template>
       </a-table>
 
-      <Search :input="input" v-show="ifSearch"></Search>
+      <div v-if="ifSearch" :style="{height: listH}">
+        <Search :input="input"></Search>
+      </div>
     </div>
   </div>
 </template>
@@ -110,8 +112,9 @@ const columns = [
     },
   },
 ];
-const main = ref();
+const list = ref();
 const tableY = ref("");
+const listH = ref("");
 let observer: ResizeObserver | null = null;
 onMounted(() => {
   observer = new ResizeObserver((entries) => {
@@ -120,7 +123,12 @@ onMounted(() => {
       tableY.value = `${height - 50}px`;
     }
   });
-  observer.observe(main.value);
+  observer.observe(list.value);
+
+  const h = document.querySelector(".list")?.getBoundingClientRect().height;
+  if (h) {
+    listH.value = `${h}px`
+  }
 });
 
 import { optionalQuery } from "api/symbols/index";
@@ -256,16 +264,15 @@ const changeChartSymbol = (e: any) => {
 <style lang="scss" scoped>
 @import "@/assets/styles/_handle.scss";
 
-.main {
+.list {
   width: 100%;
-  overflow: auto;
+  position: relative;
   height: calc(100% - 60px);
 }
 
 .search {
   box-sizing: border-box;
   padding: 4px 16px;
-  width: 100%;
   border-top: 1px solid;
   border-bottom: 1px solid;
   @include border_color("border");
