@@ -632,7 +632,7 @@ onMounted(async () => {
   observer = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const { height } = entry.contentRect;
-      tableY.value = `${height - 40 - 24 - 24 - 20}px`;
+      tableY.value = `${height - 40 - 25}px`;
     }
   });
   observer.observe(container.value);
@@ -707,8 +707,6 @@ onMounted(async () => {
   }
 
   .container {
-    display: flex;
-    flex-direction: column;
     box-sizing: border-box;
     padding-right: 16px;
     height: calc(100% - 25px - 24px);

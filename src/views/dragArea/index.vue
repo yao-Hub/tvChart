@@ -79,11 +79,11 @@ onMounted(() => {
 @import "@/assets/styles/_handle.scss";
 
 .main {
-  padding: 5px 0;
+  padding-top: 5px;
 }
 
 .dragArea {
-  height: calc(100vh - 30px - 48px - 10px);
+  height: calc(100vh - 30px - 48px - 5px);
   width: 100vw;
   position: relative;
   gap: 5px;
