@@ -445,6 +445,26 @@ function observerDom() {
   targetNodes.forEach((item) => {
     observer.observe(item);
   });
+
+  const observerOptions = {
+    childList: true, // 观察目标子节点的变化，是否有添加或者删除
+    subtree: false, // 观察后代节点，默认为 false
+  };
+  function callback(
+    mutationList: MutationRecord[],
+    observer: MutationObserver
+  ) {
+    mutationList.forEach((mutation) => {
+      if (mutation.type === "childList") {
+        operaHoriLine();
+        operaVertLine();
+      }
+    });
+  }
+  targetNodes.forEach((node) => {
+    const observer = new MutationObserver(callback);
+    observer.observe(node, observerOptions);
+  });
 }
 
 export function initDragResize() {
