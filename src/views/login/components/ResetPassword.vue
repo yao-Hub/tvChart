@@ -135,7 +135,7 @@ const rules: Record<string, Rule[]> = {
 const onFinish = async (values: any) => {
   const { pass, oldpass } = values;
   await passwordReset({
-    admin_password: oldpass,
+    old_password: oldpass,
     new_password: pass,
   });
   message.success(t("tip.succeed", { type: t("account.resetPassword") }));

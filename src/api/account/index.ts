@@ -149,7 +149,7 @@ export const getLoginInfo = (data: reqLoginInfo) => {
 };
 
 interface reqPasswordReset {
-  admin_password: string;
+  old_password: string;
   new_password: string;
 }
 // 重置用户密码
