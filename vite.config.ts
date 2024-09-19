@@ -62,8 +62,8 @@ export default defineConfig((mode: ConfigEnv) => {
             return path.replace(new RegExp('^' + '/client-api-120-79-186-23-13556'), '')
           }
         },
-        "/client-api-39-108-122-78-8098": {
-          target: "http://39.108.122.78:8098",
+        "/client-api-120-79-80-70-8098": {
+          target: "http://120.79.80.70:8098",
           changeOrigin: true,
           rewrite: path => {
             return path.replace(new RegExp('^' + '/client-api-39-108-122-78-8098'), '')

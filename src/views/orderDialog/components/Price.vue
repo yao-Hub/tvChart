@@ -24,6 +24,7 @@ interface Props {
     name: string;
     label: string;
   };
+  breakPrice?: string;
 }
 const props = defineProps<Props>();
 
@@ -50,10 +51,36 @@ const getLeed = () => {
   }
 };
 
+// 限价计算
+const limitPrice = () => {
+  if (props.symbolInfo && props.breakPrice !== undefined && props.breakPrice !== "") {
+    const stopsLevel = props.symbolInfo.stops_level;
+    const digits = props.symbolInfo.digits;
+    const result_1 = +props.breakPrice - (1 / Math.pow(10, digits)) * stopsLevel;
+    const result_2 = +props.breakPrice + (1 / Math.pow(10, digits)) * stopsLevel;
+    return {
+      result_1: round(result_1, digits),
+      result_2: round(result_2, digits),
+    };
+  }
+};
+watch(
+  () => props.breakPrice,
+  (val) => {
+    if (![undefined, ""].includes(val) && props.formOption.name === "limitedPrice" && price.value === "") {
+      const limit = limitPrice();
+      if (limit) {
+        const { result_1, result_2 } = limit;
+        price.value = props.orderType.includes("buy") ? String(result_1) : String(result_2);
+      }
+    }
+  }
+);
+
 // 初始化价格
 const initPrice = async () => {
-  const leed = getLeed();
   const orderType = props.orderType;
+  const leed = getLeed();
   if (leed) {
     const { result_1, result_2 } = leed;
     if (orderType.includes("buy")) {
@@ -67,7 +94,7 @@ const initPrice = async () => {
 watch(
   () => [props.symbolInfo, props.orderType],
   () => {
-    if (props.symbolInfo && props.orderType) {
+    if (props.symbolInfo && props.orderType && props.formOption.name !== "limitedPrice") {
       initPrice();
     }
   },
@@ -83,47 +110,47 @@ const validator = () => {
   if ([undefined, ""].includes(price.value)) {
     return Promise.reject(`请输入${props.formOption.label}`);
   }
-  const leed = getLeed();
-  if (leed) {
-    const { result_1, result_2 } = leed;
-    let size = "";
-    let value: string | number = "";
-    let result = false;
-    if (type.includes("buy")) {
-      if (['buyLimit', 'sellLimit'].includes(props.orderType)) {
-        result = +price.value <= result_1;
-        size = "≤";
-        value = result_1;
-      } else if (props.orderType === "limitedPrice") {
-        result = +price.value <= result_2;
-        size = "≤";
-        value = result_2;
-      } else {
-        result = +price.value >= result_2;
-        size = "≥";
-        value = result_2;
+  let size = "";
+  let value: string | number = "";
+  let result = false;
+  if (props.formOption.name === "limitedPrice") {
+    const limit = limitPrice();
+    if (limit) {
+      const { result_1, result_2 } = limit;
+      value = type.includes("buy") ? String(result_1) : String(result_2);
+      result = type.includes("buy") ? +price.value <= result_1 : +price.value >= result_2;
+      size = type.includes("buy") ? "≤" : "≥";
+    }
+  } else {
+    const leed = getLeed();
+    if (leed) {
+      const { result_1, result_2 } = leed;
+      if (type.includes("buy")) {
+        if (['buyLimit', 'sellLimit'].includes(props.orderType)) {
+          result = +price.value <= result_1;
+          size = "≤";
+          value = result_1;
+        } else {
+          result = +price.value >= result_2;
+          size = "≥";
+          value = result_2;
+        }
+      }
+      if (type.includes("sell")) {
+        if (['buyLimit', 'sellLimit'].includes(props.orderType)) {
+          result = +price.value >= result_2;
+          size = "≥";
+          value = result_2;
+        } else {
+          result = +price.value <= result_1;
+          size = "≤";
+          value = result_1;
+        }
       }
     }
-    if (type.includes("sell")) {
-      if (['buyLimit', 'sellLimit'].includes(props.orderType)) {
-        result = +price.value >= result_2;
-        size = "≥";
-        value = result_2;
-      } else if (props.orderType === "limitedPrice") {
-        result = +price.value >= result_1;
-        size = "≥";
-        value = result_1;
-      } else {
-        result = +price.value <= result_1;
-        size = "≤";
-        value = result_1;
-      }
-    }
-    if (result) {
-      return Promise.resolve();
-    } else {
-      return Promise.reject(`${props.formOption.label}需${size}${value}`);
-    }
+  }
+  if (!result) {
+    return Promise.reject(`${props.formOption.label}需${size}${value}`);
   }
   return Promise.resolve();
 };

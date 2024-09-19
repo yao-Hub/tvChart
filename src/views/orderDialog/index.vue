@@ -9,6 +9,7 @@
       :footer="null"
       :mask="false"
       :maskClosable="false"
+      :key="open"
     >
       <a-form
         ref="orderFormRef"
@@ -81,6 +82,7 @@
           >
             <Price
               v-model:value="formState.limitedPrice"
+              :breakPrice="formState.breakPrice"
               :formOption="{ name: 'limitedPrice', label: '限价' }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
