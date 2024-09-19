@@ -130,7 +130,7 @@ function dragOnEnd(refreshChart?:boolean) {
 
   if (refreshChart) {
     // 图表区域会因为拖拽重新初始化，需要重新更新图表最新的状态
-    setTimeout(() => chartInitStore.setSymbolBack(), 200);
+    setTimeout(() => chartInitStore.syncSetChart(), 200);
   }
 }
 

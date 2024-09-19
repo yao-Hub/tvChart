@@ -52,7 +52,7 @@ const checkboxChange = async (e: any, type: string) => {
   const checked = e.target.checked;
   await nextTick();
   if (type === "chartList" && checked) {
-    setTimeout(() => chartInitStore.setSymbolBack(), 200);
+    setTimeout(() => chartInitStore.syncSetChart(), 200);
   }
   if (checked) {
     showNoChildDragAreaItem();

@@ -1,11 +1,12 @@
 import { defineStore } from "pinia";
-import { IChartingLibraryWidget } from "public/charting_library/charting_library";
+import { IChartingLibraryWidget, ResolutionString } from "public/charting_library";
 
 interface State {
   chartWidgetList: {
     widget?: IChartingLibraryWidget;
     id: string;
     symbol?: string;
+    interval?: ResolutionString;
   }[];
   loading: Boolean;
   mainId: string;
@@ -36,6 +37,7 @@ export const useChartInit = defineStore("chartInit", {
           widget,
           id,
           symbol: widget.symbolInterval().symbol,
+          interval: widget.symbolInterval().interval,
         });
       }
       if (foundChart) {
@@ -61,7 +63,7 @@ export const useChartInit = defineStore("chartInit", {
     },
 
     // 获取chartWidgetList的symbol字段
-    getChartSymbol(id?: string) {
+    getChartWidgetListSymbol(id?: string) {
       if (this.chartWidgetList.length === 0) {
         throw new Error("chartWidget is null");
       }
@@ -69,41 +71,48 @@ export const useChartInit = defineStore("chartInit", {
       return this.chartWidgetList.find((e) => e.id === findId)?.symbol;
     },
 
-    // 给chartWidgetList设置品种字段
-    setChartSymbol(params: { id: string; symbol: string }) {
+    setChartWidgetListSymbolInterval(params: { id: string; symbol?: string, interval?: ResolutionString }) {
+      const { id, symbol, interval } = params;
+      const targetItem = this.chartWidgetList.find((e) => e.id === id);
+      if (targetItem && symbol) {
+        targetItem.symbol = symbol;
+      }
+      if (targetItem && interval) {
+        targetItem.interval = interval;
+      }
+    },
+
+    // 设置图表品种
+    changeChartWidgetSymbol(params: { id: string; symbol: string }) {
       const { id, symbol } = params;
-      const find = this.chartWidgetList.find((e) => e.id === id);
-      if (find) {
-        find.symbol = symbol;
-        find.widget?.onChartReady(() => {
-          find.widget?.headerReady().then(() => {
-            find.widget?.activeChart()?.setSymbol(symbol);
+      const target = this.chartWidgetList.find((e) => e.id === id);
+      if (target) {
+        target.symbol = symbol;
+        target.widget?.onChartReady(() => {
+          target.widget?.headerReady().then(() => {
+            target.widget?.activeChart()?.setSymbol(symbol);
           });
         });
       }
     },
 
-    // 根据list的symbol字段重新设置当前图的symbol
-    setSymbolBack(id?: string) {
-      if (id) {
-        this.singleChartLoading[id] = true;
-        const symbol = this.getChartSymbol(id);
-        const widget = this.getChartWidget(id);
-        symbol && widget?.onChartReady(() => {
-          widget.headerReady().then(() => {
-            widget?.activeChart()?.setSymbol(symbol);
-          });
-        });
-        this.singleChartLoading[id] = false;
-        return;
-      }
+    // 图表的品种跟list的品种或者周期不匹配时，令图表的品种和周期更改为list的品种和周期
+    syncSetChart() {
       this.chartWidgetList.forEach((item) => {
         this.singleChartLoading[item.id] = true;
         const widget = item.widget;
-        const symbol = item.symbol;
-        symbol && widget?.onChartReady(() => {
+        const itemSymbol = item.symbol;
+        const itemInterval = item.interval;
+        itemSymbol && widget?.onChartReady(() => {
           widget.headerReady().then(() => {
-            widget.activeChart().setSymbol(symbol);
+            const nowSymbol = widget.symbolInterval().symbol;
+            const nowInterval = widget.symbolInterval().interval;
+            if (nowSymbol !== itemSymbol) {
+              widget.activeChart().setSymbol(itemSymbol);
+            }
+            if (itemInterval && nowInterval !== itemInterval) {
+              widget.activeChart().setResolution(itemInterval);
+            }
           });
         });
         this.singleChartLoading[item.id] = false;

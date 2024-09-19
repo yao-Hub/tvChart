@@ -132,7 +132,7 @@ onMounted(() => {
     swapThreshold: 1,
     handle: ".handle",
     onEnd: function (evt: any) {
-      setTimeout(() => chartInitStore.setSymbolBack(), 200);
+      setTimeout(() => chartInitStore.syncSetChart(), 200);
       if (dragArea) {
         const conItems = Array.from(
           dragArea.querySelectorAll(".charts_container_item")

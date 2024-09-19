@@ -42,7 +42,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const currentSymbol = computed(() => {
-  const chartSymbol = chartInitStore.getChartSymbol(props.id);
+  const chartSymbol = chartInitStore.getChartWidgetListSymbol(props.id);
   return chartSymbol || props.symbol;
 });
 

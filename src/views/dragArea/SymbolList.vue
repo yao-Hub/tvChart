@@ -27,7 +27,7 @@
         :scroll="{ y: tableY }"
       >
         <template #bodyCell="{ record, column, text }">
-          <div @click="changeChartSymbol(record)" style="cursor: pointer;">
+          <div @click="changeSymbol(record)" style="cursor: pointer;">
             <template v-if="column.dataIndex === 'bid'">
               <span :class="[quotesClass[record.symbol].bid]">
                 {{ getQuotes("bid", record) }}
@@ -254,10 +254,10 @@ const getLines = (e: DataSource) => {
 
 import { useChartInit } from "@/store/modules/chartInit";
 const chartInitStore = useChartInit();
-const changeChartSymbol = (e: any) => {
+const changeSymbol = (e: any) => {
   const symbol = e.symbol;
   const chartId = chartInitStore.activeChartId;
-  chartInitStore.setChartSymbol({ id: chartId, symbol })
+  chartInitStore.changeChartWidgetSymbol({ id: chartId, symbol })
 };
 </script>
 

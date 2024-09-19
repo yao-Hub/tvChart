@@ -174,13 +174,14 @@ const initonReady = () => {
 
       chartInitStore.setChartWidget(props.chartId, widget);
 
-      const chartSymbol = chartInitStore.getChartSymbol(props.chartId);
+      const chartSymbol = chartInitStore.getChartWidgetListSymbol(props.chartId);
       if (chartSymbol) {
-        chartInitStore.setSymbolBack(props.chartId);
+        chartInitStore.syncSetChart();
       } else {
-        chartInitStore.setChartSymbol({
+        chartInitStore.setChartWidgetListSymbolInterval({
           id: props.chartId,
           symbol: props.symbol,
+          interval: props.interval as library.ResolutionString,
         });
       }
 
@@ -191,8 +192,15 @@ const initonReady = () => {
         // @ts-ignore
         .subscribe(null, (e) => {
           orderStore.currentSymbol = e.name;
-          chartInitStore.setChartSymbol({ symbol: e.name, id: props.chartId });
+          chartInitStore.setChartWidgetListSymbolInterval({ symbol: e.name, id: props.chartId });
         });
+
+      widget
+        .activeChart()
+        .onIntervalChanged()
+        .subscribe(null, (interval) => {
+          chartInitStore.setChartWidgetListSymbolInterval({ interval, id: props.chartId });
+        })
 
       chartSubStore.subscribeKeydown(widget);
 

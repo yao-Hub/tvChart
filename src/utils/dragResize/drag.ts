@@ -428,7 +428,7 @@ function createSortable() {
           operaVertLine();
           operaHoriLine();
           // 图表区域会因为拖拽重新初始化，需要重新更新图表最新的状态
-          chartInitStore.setSymbolBack();
+          chartInitStore.syncSetChart();
         }, 200),
     });
   }
