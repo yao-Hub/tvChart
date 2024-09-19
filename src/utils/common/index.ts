@@ -13,7 +13,8 @@ export function round(number: number, precision: number) {
   // return Math.round(+number + "e" + precision) / Math.pow(10, precision);
   //same as:
   // @ts-ignore
-  return Number(Math.round(+number + "e" + precision) + "e-" + precision);
+  const roundedNumber = Number(Math.round(+number + "e" + precision) + "e-" + precision);
+  return roundedNumber.toFixed(precision);
 }
 
 /**

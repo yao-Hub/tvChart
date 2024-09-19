@@ -2,13 +2,8 @@
   <a-form-item
     :name="props.type"
     :label="titleMap[props.type]"
-    :rules="[
-      {
-        required: false,
-        trigger: ['change', 'blur'],
-        validator: validatorMap[props.type],
-      },
-    ]"
+    :help="helpMap[props.type]"
+    :validate-status="helpMap[props.type] ? 'error' : ''"
   >
     <StepNumInput v-model:value="price"></StepNumInput>
     <a-form-item no-style>
@@ -19,7 +14,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, reactive, watch } from "vue";
 import { SessionSymbolInfo, Quote } from "#/chart/index";
 import { round } from "utils/common/index";
 
@@ -56,53 +51,95 @@ const ifSell = computed(() =>
   props.orderType.toLocaleLowerCase().includes("sell")
 );
 const getLead = (type: "sell" | "buy") => {
-  const digits = props.symbolInfo?.digits || 0;
-  const stopsLevel = props.symbolInfo?.stops_level || 0;
-  const priceVal = type === "buy" ? props.quote.ask : props.quote.bid;
-  const lead = props.orderType.toLocaleLowerCase().includes("price")
-    ? priceVal
-    : +(props.orderPrice || 0);
-  const result_1 = lead - (1 / Math.pow(10, +digits)) * +stopsLevel;
-  const result_2 = lead + (1 / Math.pow(10, +digits)) * +stopsLevel;
-  return {
-    result_1: round(result_1, +digits),
-    result_2: round(result_2, +digits),
-  };
+  if (props.symbolInfo) {
+    const digits = props.symbolInfo.digits;
+    const stopsLevel = props.symbolInfo.stops_level;
+    const priceVal = type === "buy" ? props.quote.ask : props.quote.bid;
+    const lead = props.orderType.toLocaleLowerCase().includes("price")
+      ? priceVal
+      : +props.orderPrice;
+    const result_1 = lead - (1 / Math.pow(10, +digits)) * stopsLevel;
+    const result_2 = lead + (1 / Math.pow(10, +digits)) * stopsLevel;
+    return {
+      result_1: round(result_1, +digits),
+      result_2: round(result_2, +digits),
+    };
+  }
 };
-const validLoss = () => {
+
+const helpMap = reactive({
+  stopLoss: "",
+  stopProfit: "",
+});
+
+const setStopLossHelp = () => {
   const stopLoss = price.value;
   if (stopLoss === "") {
-    return Promise.resolve();
+    helpMap.stopLoss = "";
+    return;
   }
-  const buyPrice = getLead("buy").result_1;
-  const sellPrice = getLead("sell").result_2;
-  if (ifBuy.value && +stopLoss > buyPrice) {
-    return Promise.reject(`止损价不能大于${buyPrice}`);
+  if (ifBuy.value) {
+    const leed = getLead("buy");
+    if (leed) {
+      const { result_1 } = leed;
+      if (ifBuy.value && +stopLoss > +result_1) {
+        helpMap.stopLoss = `止损价不能大于${result_1}`;
+        return;
+      }
+    }
   }
-  if (ifSell.value && +stopLoss < sellPrice) {
-    return Promise.reject(`止损价不能小于${sellPrice}`);
+  if (ifSell.value) {
+    const leed = getLead("sell");
+    if (leed) {
+      const { result_2 } = leed;
+      if (ifBuy.value && +stopLoss < +result_2) {
+        helpMap.stopLoss = `止损价不能小于${result_2}`;
+        return;
+      }
+    }
   }
-  return Promise.resolve();
+  helpMap.stopLoss = "";
 };
-const validProfit = () => {
+const setStopProfitHelp = () => {
   const stopProfit = price.value;
   if (stopProfit === "") {
-    return Promise.resolve();
+    helpMap.stopProfit = "";
+    return;
   }
-  const buyPrice = getLead("buy").result_2;
-  const sellPrice = getLead("sell").result_1;
-  if (ifBuy.value && +stopProfit < buyPrice) {
-    return Promise.reject(`止盈价不能小于${buyPrice}`);
+  if (ifBuy.value) {
+    const leed = getLead("buy");
+    if (leed) {
+      const { result_2 } = leed;
+      if (ifBuy.value && +stopProfit < +result_2) {
+        helpMap.stopProfit = `止盈价不能小于${result_2}`;
+        return;
+      }
+    }
   }
-  if (ifSell.value && +stopProfit > sellPrice) {
-    return Promise.reject(`止盈价不能大于${sellPrice}`);
+  if (ifSell.value) {
+    const leed = getLead("sell");
+    if (leed) {
+      const { result_1 } = leed;
+      if (ifBuy.value && +stopProfit < +result_1) {
+        helpMap.stopProfit = `止盈价不能大于${result_1}`;
+        return;
+      }
+    }
   }
-  return Promise.resolve();
+  helpMap.stopProfit = "";
 };
-const validatorMap = {
-  stopLoss: validLoss,
-  stopProfit: validProfit,
-};
+
+watch(
+  () => [ props.symbolInfo, props.quote ],
+  () => {
+    setStopLossHelp();
+    setStopProfitHelp();
+  },
+  {
+    deep: true
+  }
+);
+
 
 const profit = computed(() => {
   let result: string | number = "";
