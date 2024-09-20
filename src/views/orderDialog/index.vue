@@ -67,28 +67,24 @@
             :span="12"
             v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)"
           >
-            <Price
+            <BreakLimit
               v-model:value="formState.breakPrice"
               :formOption="{ name: 'breakPrice', label: '突破价' }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
-              :quote="quote"
-            >
-            </Price>
+              :quote="quote"></BreakLimit>
           </a-col>
           <a-col
             :span="12"
             v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)"
           >
-            <Price
+            <BreakLimit
               v-model:value="formState.limitedPrice"
               :breakPrice="formState.breakPrice"
               :formOption="{ name: 'limitedPrice', label: '限价' }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
-              :quote="quote"
-            >
-            </Price>
+              :quote="quote"></BreakLimit>
           </a-col>
           <a-col :span="12">
             <StopLossProfit
@@ -221,6 +217,7 @@ import Volume from "./components/Volume.vue";
 import StopLossProfit from "./components/StopLossProfit.vue";
 import Term from "./components/Term.vue";
 import Price from "./components/Price.vue";
+import BreakLimit from "./components/BreakLimit.vue";
 
 /** 弹窗处理 */
 import { useDialog } from "@/store/modules/dialog";
@@ -522,11 +519,18 @@ const addPendingOrders = debounce(async () => {
         type: ORDERMAP[formState.orderType],
         volume: +formState.volume * 100,
         order_price: +formState.orderPrice,
-        trigger_price: +formState.limitedPrice,
-        sl: +formState.stopLoss,
-        tp: +formState.stopProfit,
         time_expiration: +formState.dueDate,
       };
+      if (["buyStopLimit", "sellStopLimit"].includes(formState.orderType)) {
+        updata.trigger_price = +formState.limitedPrice;
+        updata.order_price = +formState.breakPrice;
+      }
+      if (formState.stopLoss !== "") {
+        updata.sl = +formState.stopLoss;
+      }
+      if (formState.stopProfit !== "") {
+        updata.tp = +formState.stopProfit;
+      }
       const res = await pendingOrdersAdd(updata);
       if (res.data.action_success) {
         message.success("下单成功");
