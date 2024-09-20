@@ -24,7 +24,7 @@
       <span>{{ $t("order.TotalProfit") }}: </span>
       <span>{{ profit }}</span>
     </div>
-    <div class="item" style="border: none">
+    <div class="item" style="border: none; flex: 0; width: 108px;">
       <a-dropdown v-model:open="visible" placement="top" :trigger="[ 'click' ]">
         <div :class="[+currentDelay > 500 ? 'redWord delay' : 'greenWord delay']">
           <i class="iconfont">&#xe602;</i>
