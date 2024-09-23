@@ -53,10 +53,8 @@
           :mainChart="id === 'chart_1'"
           :loading="props.loading || chartInitStore.singleChartLoading[id]"
           :datafeed="datafeed(id)"
-          :symbol="state.symbol"
+          :symbol="symbol || state.symbol"
           :disabledFeatures="id === state.activeKey ? state.disabledFeatures : ['left_toolbar', ...state.disabledFeatures]"
-          :compareSymbols="compareSymbols"
-          @initChart="initChart"
         >
         </TVChart>
       </div>
@@ -65,21 +63,18 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watchEffect } from "vue";
+import { reactive, computed, onMounted, watchEffect, watch } from "vue";
 import { HolderOutlined } from "@ant-design/icons-vue";
 import Sortable from "sortablejs";
 
 import { useChartInit } from "@/store/modules/chartInit";
-import { useChartSub } from "@/store/modules/chartSub";
 import { useOrder } from "@/store/modules/order";
 
 import { datafeed } from "@/config/chartConfig";
-import * as types from "@/types/chart/index";
 
 import FastAddOrder from "./components/FastAddOrder.vue";
 
 const chartInitStore = useChartInit();
-const chartSubStore = useChartSub();
 const orderStore = useOrder();
 
 interface Props {
@@ -99,17 +94,6 @@ watchEffect(() => {
   chartInitStore.activeChartId = state.activeKey;
 });
 
-const compareSymbols = computed(() => {
-  if (chartSubStore.symbols) {
-    return chartSubStore.symbols.map((item: types.SessionSymbolInfo) => {
-      return {
-        symbol: item.symbol,
-        title: item.symbol,
-      };
-    });
-  }
-});
-
 const chartList = computed(() => {
   return chartInitStore.chartWidgetList;
 });
@@ -117,13 +101,6 @@ const chartList = computed(() => {
 const chartType = computed(() => {
   return chartInitStore.chartLayoutType;
 });
-
-// widget初始化回调
-const initChart = (e: any) => {
-  // 监听点击报价加号按钮
-  // chartSubStore.subscribePlusBtn();
-  // chartSubStore.subscribeMouseDown();
-};
 
 onMounted(() => {
   const dragArea = document.querySelector(".charts_container");
@@ -162,6 +139,16 @@ const tabAdd = async () => {
   });
   state.activeKey = `chart_${len + 1}`;
 };
+
+watch(
+  () => chartInitStore.activeChartId,
+  (id) => {
+    if (id !== state.activeKey) {
+      state.activeKey = id;
+    }
+  },
+);
+
 </script>
 
 <style lang="scss" scoped>

@@ -17,9 +17,9 @@
 
 <script setup lang="ts">
 import { CloseOutlined } from "@ant-design/icons-vue";
-import { inject } from "vue";
+import { inject, Ref, ref } from "vue";
 
-const model = inject<string>("model", '');
+const model = inject<Ref<string>>("model", ref(""));
 
 interface Props {
   tab?: string;
@@ -33,11 +33,10 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(["tabClick", "itemDel"]);
 
 const tabClick = () => {
-  // @ts-ignore
   model.value = props.activeKey;
+  emit("tabClick", model.value);
 };
 const handleDelete = () => {
-  // @ts-ignore
   emit("itemDel", model.value);
 };
 </script>

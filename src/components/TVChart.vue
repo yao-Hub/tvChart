@@ -204,6 +204,10 @@ const initonReady = () => {
 
       chartSubStore.subscribeKeydown(widget);
 
+      widget.subscribe("mouse_down", () => {
+        chartInitStore.activeChartId = props.chartId;
+      })
+
       emit("initChart", { id: props.chartId });
     });
   });
