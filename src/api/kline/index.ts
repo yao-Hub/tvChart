@@ -30,6 +30,7 @@ export const klineHistory = (data: ReqLineInfo) => {
   return request<ResLineInfo[]>({
     url: Api.klineHistory,
     method: "post",
+    noNeedToken: true,
     data,
   });
 };

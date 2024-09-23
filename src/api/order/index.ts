@@ -218,7 +218,7 @@ export const marketOrdersAdd = (data: ReqOrderAdd) => {
     url: Api.MarketOrdersAdd,
     method: "post",
     data,
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -227,7 +227,7 @@ export const openningOrders = () => {
   return request<resOrders[]>({
     url: Api.OpenningOrders,
     method: "post",
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -237,7 +237,7 @@ export const editopenningOrders = (data: reqEditOpeningOrders) => {
     url: Api.EditPendingOrders,
     method: "post",
     data,
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -247,7 +247,7 @@ export const marketOrdersClose = (data: reqMarketClose) => {
     url: Api.MarketOrdersAddClose,
     method: "post",
     data,
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -257,7 +257,7 @@ export const pendingOrdersAdd = (data: reqPendingOrdersAdd) => {
     url: Api.PendingOrdersAdd,
     method: "post",
     data,
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -266,7 +266,7 @@ export const pendingOrders = () => {
   return request<resPendingOrders[]>({
     url: Api.PendingOrders,
     method: "post",
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -276,7 +276,7 @@ export const invalidPendingOrders = (data: reqHistoryPendingOrders) => {
     url: Api.HistoryPendingOrders,
     method: "post",
     data,
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -286,7 +286,7 @@ export const delPendingOrders = (data: reqDelPendingOrders) => {
     url: Api.DelPendingOrders,
     method: "post",
     data,
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -296,6 +296,6 @@ export const historyOrders = (data: reqHistoryOrders) => {
     url: Api.HistoryOrders,
     method: "post",
     data,
-    needToken: true,
+    needLogin: true,
   });
 };

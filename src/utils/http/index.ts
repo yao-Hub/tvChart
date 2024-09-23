@@ -12,14 +12,14 @@ import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
 
 type reqConfig = InternalAxiosRequestConfig<any> & {
-  needToken?: boolean;
+  noNeedToken?: boolean;
   noNeedServer?: boolean;
   action?: string;
   urlType?: string;
   needLogin?: boolean;
 };
 type resConfig = AxiosRequestConfig<any> & {
-  needToken?: boolean;
+  noNeedToken?: boolean;
   noNeedServer?: boolean;
   action?: string;
   urlType?: string;
@@ -70,9 +70,8 @@ service.interceptors.request.use(
     if (!config.data.server && !config.noNeedServer) {
       config.data.server = userStore.account.server;
     }
-    if (config.needToken) {
+    if (!config.noNeedToken) {
       config.data.token = userStore.token || userStore.getToken();
-      config.data.login = userStore.account.login;
     }
     if (config.needLogin) {
       config.data.login = userStore.account.login;

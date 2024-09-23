@@ -87,6 +87,7 @@ export const Login = (data: reqLogin) => {
     url: Api.Login,
     method: "post",
     data,
+    noNeedToken: true,
   });
 };
 
@@ -105,6 +106,7 @@ export const register = (data: reqRegister) => {
     url: Api.Register,
     method: "post",
     data,
+    noNeedToken: true,
     urlType: "admin",
   });
 };
@@ -122,6 +124,7 @@ export const emailPasswordUpdate = (data: reqPasswordUpdate) => {
     url: Api.EmailPasswordUpdate,
     method: "post",
     data,
+    noNeedToken: true,
     urlType: "admin",
   });
 };
@@ -132,6 +135,7 @@ export const virtualLine = () => {
     url: Api.VirtualLine,
     method: "post",
     urlType: "admin",
+    noNeedToken: true,
     noNeedServer: true,
   });
 };
@@ -144,7 +148,7 @@ export const getLoginInfo = (data: reqLoginInfo) => {
     url: Api.LoginInfo,
     method: "post",
     data,
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -158,7 +162,7 @@ export const passwordReset = (data: reqPasswordReset) => {
     url: Api.PasswordReset,
     method: "post",
     data,
-    needToken: true,
+    needLogin: true,
   });
 };
 
@@ -182,6 +186,7 @@ export const queryTradeLine = (data: reqQueryTradeLine) => {
     method: "post",
     data,
     noNeedServer: true,
+    noNeedToken: true,
     urlType: "admin",
   });
 };
@@ -203,6 +208,7 @@ export const queryNode = (data: { lineCode: string }) => {
     method: "post",
     data,
     urlType: "admin",
+    noNeedToken: true,
     noNeedServer: true,
   });
 };

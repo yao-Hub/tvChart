@@ -6,7 +6,7 @@
 
   <a-modal v-model:open="open" :title="$t('feedback')">
     <a-textarea
-      v-model:value="value"
+      v-model:value="remark"
       :placeholder="$t('feedback')"
       :auto-size="{ minRows: 5, maxRows: 5 }"
       show-count
@@ -15,7 +15,7 @@
 
     <a-upload
       v-model:file-list="fileList"
-      action=""
+      :action="action"
       list-type="picture-card"
       @preview="handlePreview"
     >
@@ -45,20 +45,14 @@
 
 <script setup lang="ts">
 import { MailOutlined } from "@ant-design/icons-vue";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 const open = ref<boolean>(false);
-const value = ref<string>("");
+const remark = ref<string>("");
 const showModal = () => {
   open.value = true;
 };
 
-const handleOk = (e: MouseEvent) => {
-  open.value = false;
-};
-
 import { PlusOutlined } from "@ant-design/icons-vue";
-import type { UploadProps } from "ant-design-vue";
-
 function getBase64(file: File) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -71,9 +65,6 @@ function getBase64(file: File) {
 const previewVisible = ref(false);
 const previewImage = ref("");
 const previewTitle = ref("");
-
-const fileList = ref<UploadProps["fileList"]>([]);
-
 const handleCancel = () => {
   previewVisible.value = false;
   previewTitle.value = "";
@@ -90,6 +81,28 @@ const handlePreview = async (file: any) => {
 
 import MyFeedBack from "./MyFeedBack.vue";
 const myFeedBackOpen = ref(false);
+
+import type { UploadProps, UploadFile } from "ant-design-vue";
+const fileList = ref<UploadProps["fileList"]>([]);
+const action = computed(() => {
+  // return import.meta.env.VITE_HTTP_URL_admin;
+  return "http://192.168.0.198:8666/common/sysFile/upload"
+});
+import { saveFeedback } from "api/feedback";
+import { useNetwork } from "@/store/modules/network";
+const networkStore = useNetwork();
+const handleOk = async () => {
+  const feedbackFileIds = fileList.value?.map((item: UploadFile) => item.response.data.fileId) as string[];
+  const updata = {
+    platform: "web",
+    brokerName: networkStore.currentLine!.brokerName,
+    lineName: networkStore.currentLine!.lineName,
+    remark: remark.value,
+    feedbackFileIds,
+  };
+  await saveFeedback(updata);
+  open.value = false;
+};
 </script>
 
 <style lang="scss" scoped>

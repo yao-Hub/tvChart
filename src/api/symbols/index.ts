@@ -36,6 +36,7 @@ export interface ResSymbolsInfo {
 export const allSymbols = () => {
   return request<ResSymbolsInfo>({
     url: Api.allSymbols,
+    noNeedToken: true,
     method: "post",
   });
 };
@@ -52,6 +53,7 @@ export interface ResQuote {
 export const allSymbolQuotes = () => {
   return request<ResQuote[]>({
     url: Api.allSymbolsQuotes,
+    noNeedToken: true,
     method: "post",
   });
 };
@@ -66,6 +68,7 @@ export const symbolAllPath = () => {
     url: Api.SymbolAllPath,
     method: "post",
     noNeedServer: true,
+    noNeedToken: true,
     urlType: "admin",
   });
 };
