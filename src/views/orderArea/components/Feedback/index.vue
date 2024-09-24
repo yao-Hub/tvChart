@@ -85,8 +85,7 @@ const myFeedBackOpen = ref(false);
 import type { UploadProps, UploadFile } from "ant-design-vue";
 const fileList = ref<UploadProps["fileList"]>([]);
 const action = computed(() => {
-  // return import.meta.env.VITE_HTTP_URL_admin;
-  return "http://192.168.0.198:8666/common/sysFile/upload"
+  return import.meta.env.VITE_HTTP_URL_admin + "/common/sysFile/upload";
 });
 import { saveFeedback } from "api/feedback";
 import { useNetwork } from "@/store/modules/network";

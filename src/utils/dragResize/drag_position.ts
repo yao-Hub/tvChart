@@ -13,139 +13,54 @@ const moving = {
 
 const minWidht = 200;
 const minHeight = 150;
-const lineWidth = 8;
-const marginTop = 8;
+const lineWidth = 5;
+const marginTop = 5;
 const lineColor = "#7cb305";
-const dragItemNum = 2;
 
 // 水平线初始拉伸位置
 let startY: number;
 
-// Sortable实例化集合
-let dragList: Record<string, any> = {};
-
-const dragOption = {
-  group: "dragItem",
-  animation: 150,
-  handle: ".handle",
-  swapThreshold: 0.65,
-  onEnd: () => dragOnEnd(true),
-  onStart: (evt: any) => dragOnStart(evt),
-};
-
-// 增加拖拽区域
-function createDragAreaItem(parentDom: Element, position: "down" | "up") {
-  // 查找数字，如[0, 2]找到1，如[0, 1]找到2，递增div的grag_id
-  function findMissingNumber(nums: number[]) {
-    const arr = nums.sort();
-    let expectedNum = 1;
-    for (let i = 0; i < arr.length; i++) {
-      if (arr[i] === expectedNum) {
-        expectedNum++;
-      } else if (arr[i] > expectedNum) {
-        return expectedNum;
-      }
-    }
-    return expectedNum;
-  }
-
-  // 根据grag_id属性递增增加类为dragArea_item的div（保证id有序方便与vuex对应上）
-  const items = document.querySelectorAll(".dragArea_item");
-  const dragIds = Array.from(items).map((item) => {
-    const dragId = item.getAttribute("grag_id");
-    const num = dragId?.split("_")[1];
-    return num ? +num : 0;
-  });
-  const targetDragId = findMissingNumber(dragIds);
-  const dragIdName = `grag_${targetDragId}`;
-
-  const drag = document.createElement("div");
-  drag.className = "dragArea_item";
-  drag.style.position = "relative";
-  drag.style.width = "100%";
-  drag.style.boxSizing = "border-box";
-  drag.setAttribute("grag_id", dragIdName);
-
-  // 根据是向上拖拽还是向下拖拽判断是在div的上面还是下面增加div
-  if (position === "down") {
-    parentDom.parentNode?.insertBefore(drag, parentDom.nextSibling);
-  }
-  if (position === "up") {
-    parentDom.parentNode?.insertBefore(drag, parentDom.parentNode.firstChild);
-  }
-  if (!dragList.hasOwnProperty(dragIdName)) {
-    dragList[dragIdName] = new Sortable(drag, dragOption);
-  }
-  dragList[dragIdName].option("disabled", false);
-  resizeUpdate();
-  return drag;
-}
-
-// 拖拽增加拖拽区域
-function dragOnStart(evt: any) {
-  // const demosNum = document.querySelectorAll(".demo").length;
-  const fromDom = evt.from as Element;
-  const fromDomTop = fromDom.getBoundingClientRect().y;
-  const fromDomBottom = fromDom.getBoundingClientRect().bottom;
-  // const fromDomDemos = fromDom.querySelectorAll(".demo").length;
-
-  // 判断是否增加多层拖拽区域
-  evt.item.ondrag = (e: MouseEvent) => {
-    const itemsNum = document.querySelectorAll(".dragArea_item").length;
-    if (dragItemNum === itemsNum) {
-      return;
-    }
-    // if (demosNum === itemsNum || fromDomDemos <= 1) {
-    //   return;
-    // }
-    // 鼠标位置
-    const y = e.clientY;
-    if (y > (fromDomBottom + fromDomTop) / 2) {
-      createDragAreaItem(fromDom, "down");
-    }
-    if (y < fromDomTop) {
-      createDragAreaItem(fromDom, "up");
-    }
-  };
-}
-
-function dragOnEnd(refreshChart?:boolean) {
-  const dragArea_items = document.querySelectorAll(
-    ".dragArea_item"
-  ) as NodeListOf<Element>;
-  const emptyChildItems = Array.from(dragArea_items).filter(
-    (item) => item.querySelectorAll(".demo").length === 0
-  );
-
-  // 没有demo的拖拽区域移除
-  emptyChildItems.forEach((item) => {
-    const gragId = item.getAttribute("grag_id");
-    if (gragId) {
-      dragList[gragId].option("disabled", true);
-      delete dragList[gragId];
-    }
-    item.remove();
-  });
-  resizeUpdate();
-
-  if (refreshChart) {
-    // 图表区域会因为拖拽重新初始化，需要重新更新图表最新的状态
-    setTimeout(() => chartInitStore.syncSetChart(), 200);
-  }
-}
-
 // 初始化拖拽实例
 function initDragArea() {
-  const dragItem = [].slice.call(document.querySelectorAll(".dragArea_item"));
-  for (var i = 0; i < dragItem.length; i++) {
-    const item = dragItem[i] as HTMLElement;
-    item.setAttribute("grag_id", `grag_${i}`);
-    dragList[`grag_${i}`] = new Sortable(dragItem[i], dragOption);
+  const nestedSortables = [].slice.call(
+    document.querySelectorAll(".nested-sortable")
+  );
+  for (let i = 0; i < nestedSortables.length; i++) {
+    new Sortable(nestedSortables[i], {
+      group: "nested",
+      animation: 150,
+      fallbackOnBody: true,
+      swapThreshold: 1,
+      handle: ".handle",
+      onStart: () => {
+        const dragArea_items = document.querySelectorAll(".dragArea_item") as NodeListOf<Element>;
+        const emptyChildItems = Array.from(dragArea_items).filter(
+          (item) => item.querySelectorAll(".demo").length === 0
+        );
+        if (emptyChildItems.length) {
+          dragArea_items.forEach(item => {
+            const element = item as HTMLElement;
+            const height = item.getBoundingClientRect().height;
+            if (height === 0) {
+              element.style.height = "300px";
+            } else {
+              element.style.height = `${height - 300}px`;
+            }
+          })
+        }
+      },
+      onEnd: () => {
+        setTimeout(() => {
+          chartInitStore.syncSetChart();
+          resizeUpdate();
+        }, 200);
+      }
+    });
   }
 }
 
 // 拖拽区域大小
-function setDragAreaSize(hideEmptyDemoArea?:boolean) {
+function setDragAreaSize() {
   function setSize(arr: NodeListOf<Element> | Element[]) {
     const dragArea = document.querySelector(".dragArea") as HTMLElement;
     arr.forEach((item, index, arr) => {
@@ -156,21 +71,17 @@ function setDragAreaSize(hideEmptyDemoArea?:boolean) {
     });
   }
   const dragArea_items = document.querySelectorAll(".dragArea_item") as NodeListOf<Element>;
-  if (hideEmptyDemoArea) {
-    const haveChildItems = Array.from(dragArea_items).filter(
-      (item) => item.querySelectorAll(".demo").length !== 0
-    );
-    const emptyChildItems = Array.from(dragArea_items).filter(
-      (item) => item.querySelectorAll(".demo").length === 0
-    );
-    emptyChildItems.forEach((item) => {
-      const element = item as HTMLElement;
-      element.style.height = "0";
-    });
-    setSize(emptyChildItems.length > 0 ? haveChildItems : dragArea_items);
-  } else {
-    setSize(dragArea_items);
-  }
+  const haveChildItems = Array.from(dragArea_items).filter(
+    (item) => item.querySelectorAll(".demo").length !== 0
+  );
+  const emptyChildItems = Array.from(dragArea_items).filter(
+    (item) => item.querySelectorAll(".demo").length === 0
+  );
+  emptyChildItems.forEach((item) => {
+    const element = item as HTMLElement;
+    element.style.height = "0";
+  });
+  setSize(emptyChildItems.length > 0 ? haveChildItems : dragArea_items);
 }
 
 // 设置demo的位置
@@ -524,10 +435,8 @@ const debounceUpdateLayout = debounce(() => {
   operaVertLine();
 }, 20);
 
-export const resizeUpdate = debounce((params?: {
-  hideEmptyDemoArea?: boolean
-}) => {
-  setDragAreaSize(params?.hideEmptyDemoArea);
+export const resizeUpdate = debounce(() => {
+  setDragAreaSize();
   setDemoPosition();
   operaHoriLine();
   operaVertLine();

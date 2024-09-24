@@ -33,12 +33,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
+import { ref } from "vue";
 import { LayoutOutlined, DownOutlined } from "@ant-design/icons-vue";
-import {
-  hideNoChildDragAreaItem,
-  showNoChildDragAreaItem,
-} from "@/utils/dragResize/drag";
+import { resizeUpdate } from "@/utils/dragResize/drag_position";
 
 import { useLayout } from "@/store/modules/layout";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -49,16 +46,12 @@ const visible = ref(false);
 const layoutStore = useLayout();
 
 const checkboxChange = async (e: any, type: string) => {
-  const checked = e.target.checked;
-  await nextTick();
-  if (type === "chartList" && checked) {
-    setTimeout(() => chartInitStore.syncSetChart(), 200);
-  }
-  if (checked) {
-    showNoChildDragAreaItem();
-  } else {
-    hideNoChildDragAreaItem();
-  }
+  setTimeout(() => {
+    if (type === "chartList") {
+      chartInitStore.syncSetChart();
+    }
+    resizeUpdate();
+  }, 200);
 };
 </script>
 
