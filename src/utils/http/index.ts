@@ -6,7 +6,6 @@ import axios, {
 import { remove } from "lodash";
 import type { CustomResponseType } from "#/axios";
 import { encrypt, decrypt } from "utils/DES/JS";
-import { aes_decrypt, aes_encrypt } from "utils/DES/Node";
 import { notification, Modal } from "ant-design-vue";
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
@@ -45,7 +44,6 @@ if (storageId) {
 }
 
 const ifLocal = import.meta.env.MODE === "development";
-const jsUrl = "120.79.186.23";
 
 const service = axios.create({
   timeout: 30 * 1000,
@@ -53,10 +51,10 @@ const service = axios.create({
   withCredentials: false,
   headers: {
     "Content-Type": "application/json",
-    // "x-u-app-version": "1.0.0",
-    // version: "1.0.0",
-    // "x-u-device-id": uuid,
-    // "x-u-platform": "web",
+    "x-u-app-version": "1.0.0",
+    "version": "1.0.0",
+    "x-u-device-id": uuid,
+    "x-u-platform": "web",
   },
 });
 
@@ -103,24 +101,9 @@ service.interceptors.request.use(
         break;
     }
     config.url = baseURL + config.url;
-    let d;
-    if (
-      (baseURL && baseURL.includes(jsUrl)) ||
-      (webApi && webApi.includes(jsUrl) && config.urlType !== "admin")
-    ) {
-      // js加密
-      d = encrypt(JSON.stringify(config.data));
-    } else {
-      config.headers["x-u-platform"] = "web";
-      config.headers["x-u-app-version"] = "1.0.0";
-      config.headers["version"] = "1.0.0";
-      config.headers["x-u-device-id"] = uuid;
-      // Node加密
-      d = aes_encrypt(action, JSON.stringify(config.data));
-    }
     const p = {
       action,
-      d,
+      d: encrypt(JSON.stringify(config.data)),
     };
     console.log("request----", {
       currentNode: networkStore.currentNode,
@@ -143,20 +126,7 @@ service.interceptors.response.use(
     if (data.err === 0) {
       remove(tokenErrorList, (url) => config.url === url);
       if (data.data) {
-        const networkStore = useNetwork();
-        const webApi = networkStore.currentNode?.webApi;
-        if (
-          (config.url && config.url.includes(jsUrl)) ||
-          // @ts-ignorets
-          (webApi && webApi.includes(jsUrl) && config.urlType !== "admin")
-        ) {
-          // js解密
-          data.data = JSON.parse(decrypt(data.data));
-        } else {
-          // Node解密
-          const action = JSON.parse(config.data).action;
-          data.data = JSON.parse(aes_decrypt(action, data.data));
-        }
+        data.data = JSON.parse(decrypt(data.data));
       }
       console.log("response....", { url: response.config.url, data });
       return response;
