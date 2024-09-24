@@ -26,19 +26,23 @@ function initDragArea() {
     document.querySelectorAll(".nested-sortable")
   );
   for (let i = 0; i < nestedSortables.length; i++) {
-    new Sortable(nestedSortables[i], {
+    const item = nestedSortables[i] as HTMLElement;
+    const itemId = item.getAttribute("data-id");
+    new Sortable(item, {
       group: "nested",
       animation: 150,
       fallbackOnBody: true,
       swapThreshold: 1,
       handle: ".handle",
       onStart: () => {
-        const dragArea_items = document.querySelectorAll(".dragArea_item") as NodeListOf<Element>;
+        const dragArea_items = document.querySelectorAll(
+          ".dragArea_item"
+        ) as NodeListOf<Element>;
         const emptyChildItems = Array.from(dragArea_items).filter(
           (item) => item.querySelectorAll(".demo").length === 0
         );
         if (emptyChildItems.length) {
-          dragArea_items.forEach(item => {
+          dragArea_items.forEach((item) => {
             const element = item as HTMLElement;
             const height = item.getBoundingClientRect().height;
             if (height === 0) {
@@ -46,15 +50,27 @@ function initDragArea() {
             } else {
               element.style.height = `${height - 300}px`;
             }
-          })
+          });
         }
       },
       onEnd: () => {
         setTimeout(() => {
-          chartInitStore.syncSetChart();
           resizeUpdate();
+          chartInitStore.syncSetChart();
         }, 200);
-      }
+      },
+      store: {
+        // get: function () {
+        //   const order = localStorage.getItem(itemId);
+        //   return order ? order.split("|") : [];
+        // },
+        set: function (sortable: any) {
+          const order = sortable.toArray();
+          if (itemId) {
+            localStorage.setItem(itemId, order.join("|"));
+          }
+        },
+      },
     });
   }
 }
@@ -66,11 +82,16 @@ function setDragAreaSize() {
     arr.forEach((item, index, arr) => {
       const element = item as HTMLElement;
       // 整个区域的高度 / dragArea_item的数量 - 拉伸线的高度 * 水平拉伸线的数量（dragArea_item的数量 - 1）
-      element.style.height = dragArea.getBoundingClientRect().height / arr.length - lineWidth * (arr.length - 1) + "px";
-      element.style.marginTop = marginTop + 'px';
+      element.style.height =
+        dragArea.getBoundingClientRect().height / arr.length -
+        lineWidth * (arr.length - 1) +
+        "px";
+      element.style.marginTop = marginTop + "px";
     });
   }
-  const dragArea_items = document.querySelectorAll(".dragArea_item") as NodeListOf<Element>;
+  const dragArea_items = document.querySelectorAll(
+    ".dragArea_item"
+  ) as NodeListOf<Element>;
   const haveChildItems = Array.from(dragArea_items).filter(
     (item) => item.querySelectorAll(".demo").length !== 0
   );
@@ -88,20 +109,19 @@ function setDragAreaSize() {
 function setDemoPosition() {
   const dragArea = document.querySelector(".dragArea") as HTMLElement;
   const dw = dragArea.getBoundingClientRect().width;
-  const dragArea_items = document.querySelectorAll(
-    ".dragArea_item"
-  ) as NodeListOf<Element>;
+  const dragArea_items = document.querySelectorAll(".dragArea_item");
   dragArea_items.forEach((item) => {
-    const demos = item.querySelectorAll(".demo") as NodeListOf<HTMLElement>;
+    const demos = item.querySelectorAll(".demo");
     demos.forEach((demo, index) => {
       const element = demo as HTMLElement;
-      element.style.width = dw / demos.length - (lineWidth / 2) * (demos.length - 1) + "px";
+      element.style.width =
+        dw / demos.length - (lineWidth / 2) * (demos.length - 1) + "px";
       element.style.height = item.getBoundingClientRect().height + "px";
       element.style.top = "0";
       if (index === 0) {
         element.style.left = "0";
       } else {
-        element.style.left = (dw / demos.length) * index + (lineWidth / 2) + "px";
+        element.style.left = (dw / demos.length) * index + lineWidth / 2 + "px";
       }
     });
   });
@@ -113,7 +133,7 @@ function createHoriLine(addNum: number) {
     const line = document.createElement("div");
     line.className = "resize_handler_vertical";
     line.style.position = "absolute";
-    line.style.height = lineWidth + 'px';
+    line.style.height = lineWidth + "px";
     line.style.cursor = "ns-resize";
     line.style.left = "0";
     line.style.top = "0";
@@ -151,7 +171,8 @@ function createHoriLine(addNum: number) {
 
 // 水平线位置
 function updateHoriLine() {
-  const headerHight = document.querySelector('.header')?.getBoundingClientRect().height || 48;
+  const headerHight =
+    document.querySelector(".header")?.getBoundingClientRect().height || 48;
   let count = 0;
   const dragArea_items = document.querySelectorAll(
     ".dragArea_item"
@@ -214,7 +235,8 @@ const resizeVertical = (event: MouseEvent) => {
   }
   const result_0_height = result[0].getBoundingClientRect().height;
   const result_1_height = result[1].getBoundingClientRect().height;
-  const headerHight = document.querySelector('.header')?.getBoundingClientRect().height || 48;
+  const headerHight =
+    document.querySelector(".header")?.getBoundingClientRect().height || 48;
   function resize(e: MouseEvent) {
     let mouseY = e.clientY - headerHight;
     const offset = e.pageY - startY;
@@ -285,7 +307,7 @@ function createVertLine(addNum: number) {
     const line = document.createElement("div");
     line.className = "resize_handler_horizontal";
     line.style.position = "absolute";
-    line.style.width = lineWidth + 'px';
+    line.style.width = lineWidth + "px";
     line.style.cursor = "ew-resize";
     line.addEventListener("mouseover", function () {
       line.style.backgroundColor = lineColor;
@@ -322,14 +344,13 @@ function delVertLine(delNum: number) {
 
 // 更新竖直线的位置
 function updateVertLine() {
-  const headerHight = document.querySelector('.header')?.getBoundingClientRect().height || 48;
+  const headerHight =
+    document.querySelector(".header")?.getBoundingClientRect().height || 48;
   let count = 0;
   const vertLines = document.querySelectorAll(
     ".resize_handler_horizontal"
   ) as NodeListOf<HTMLElement>;
-  const dragArea_items = document.querySelectorAll(
-    ".dragArea_item"
-  ) as NodeListOf<Element>;
+  const dragArea_items = document.querySelectorAll(".dragArea_item");
   const haveChildItems = Array.from(dragArea_items).filter(
     (item) => item.querySelectorAll(".demo").length !== 0
   );
@@ -429,12 +450,6 @@ function resizeHorizontal(event: MouseEvent) {
   document.addEventListener("mouseup", stopResize);
 }
 
-const debounceUpdateLayout = debounce(() => {
-  setDemoPosition();
-  operaHoriLine();
-  operaVertLine();
-}, 20);
-
 export const resizeUpdate = debounce(() => {
   setDragAreaSize();
   setDemoPosition();
@@ -450,24 +465,40 @@ function observerDom() {
     attributes: false, // 观察属性变动
     subtree: false, // 观察后代节点，默认为 false
   };
-  function callback(
-    mutationList: MutationRecord[],
-    observer: MutationObserver
-  ) {
+  const callback = debounce((mutationList: MutationRecord[]) => {
     mutationList.forEach((mutation) => {
       if (mutation.type === "childList") {
-        debounceUpdateLayout();
+        setDemoPosition();
+        operaHoriLine();
+        operaVertLine();
       }
     });
-  }
+  }, 20);
   targetNodes.forEach((node) => {
     const observer = new MutationObserver(callback);
     observer.observe(node, observerOptions);
   });
 }
 
+// 根据缓存恢复demo位置
+function setDemosByStorage() {
+  const dragArea_items = document.querySelectorAll(".dragArea_item");
+  dragArea_items.forEach((item) => {
+    const itemId = item.getAttribute("data-id") as string;
+    const childId = item.getAttribute("data-child");
+    const stoIds = localStorage.getItem(itemId);
+    const resultIds = stoIds || childId;
+    const ids = resultIds!.split("|");
+    ids.forEach(id => {
+      const target = document.querySelector(`.demo[data-id="${id}"]`);
+      target && item.appendChild(target);
+    });
+  });
+}
+
 // 初始化上下拖拽区域位置
 export function initDragResizeArea() {
+  setDemosByStorage();
   initDragArea();
   setDragAreaSize();
   setDemoPosition();

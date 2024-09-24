@@ -1,48 +1,22 @@
 <template>
   <div class="dragArea">
-    <div class="dragArea_item nested-sortable" data-id="item_1">
+    <div class="dragArea_item nested-sortable" data-id="item_1" data-child="demo_1 | demo_2">
       <!-- demo_1 -->
-      <div
-        class="demo nested-1"
-        data-id="demo_1"
-        data-minWidth="350"
-        v-if="layoutStore.chartsVisable"
-      >
-        <HolderOutlined
-          class="handle"
-          style="float: left"
-          v-show="chartType === 'single'"
-        />
-        <ChartList
-          v-if="!chartInitStore.loading"
-          class="container_item"
-          :loading="chartSubStore.chartsLoading"
-        ></ChartList>
+      <div class="demo nested-1" data-id="demo_1" data-minWidth="350" v-if="layoutStore.chartsVisable">
+        <HolderOutlined class="handle" style="float: left" v-show="chartType === 'single'" />
+        <ChartList v-if="!chartInitStore.loading" class="container_item" :loading="chartSubStore.chartsLoading"></ChartList>
       </div>
       <!-- demo_2 -->
-      <div
-        class="demo nested-1"
-        data-id="demo_2"
-        data-minWidth="345"
-        v-if="layoutStore.symbolsVisable"
-      >
+      <div class="demo nested-1" data-id="demo_2" data-minWidth="345" v-if="layoutStore.symbolsVisable">
         <HolderOutlined class="handle" v-show="chartType === 'single'" />
         <SymbolList class="container_item"></SymbolList>
       </div>
     </div>
-    <div class="dragArea_item nested-sortable" data-id="item_2">
+    <div class="dragArea_item nested-sortable" data-id="item_2" data-child="demo_3">
       <!-- demo_3 -->
-      <div
-        class="demo nested-2"
-        data-id="demo_3"
-        data-minWidth="445"
-        v-if="layoutStore.orderAreaVisable"
-      >
+      <div class="demo nested-2" data-id="demo_3" data-minWidth="445" v-if="layoutStore.orderAreaVisable">
         <HolderOutlined class="handle" v-show="chartType === 'single'" />
-        <OrderArea
-          v-if="!chartInitStore.loading"
-          class="container_item"
-        ></OrderArea>
+        <OrderArea v-if="!chartInitStore.loading" class="container_item"></OrderArea>
       </div>
     </div>
   </div>

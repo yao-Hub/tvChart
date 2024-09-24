@@ -28,8 +28,10 @@ export const useSocket = defineStore("socket", {
         const wsUriList = networkStore.nodeList.map(item => item.webWebsocket);
         this.instance = new SingletonSocket();
         this.socket = this.instance.getInstance(mainUri);
-        this.instance.getSocketDelay(wsUriList);
-        this.pollingDelay(wsUriList);
+        setTimeout(() => {
+          this.instance.getSocketDelay(wsUriList);
+        }, 1000)
+        // this.pollingDelay(wsUriList);
       }
     },
 
