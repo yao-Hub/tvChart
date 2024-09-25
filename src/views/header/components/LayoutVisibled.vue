@@ -40,10 +40,17 @@ import { resizeUpdate } from "@/utils/dragResize/drag_position";
 import { useLayout } from "@/store/modules/layout";
 import { useChartInit } from "@/store/modules/chartInit";
 const chartInitStore = useChartInit();
-
 const visible = ref(false);
-
 const layoutStore = useLayout();
+
+const stoLayout = localStorage.getItem("layout");
+if (stoLayout) {
+  const layout = JSON.parse(stoLayout);
+  const { chartsVisable, symbolsVisable, orderAreaVisable } = layout;
+  layoutStore.chartsVisable = chartsVisable;
+  layoutStore.symbolsVisable = symbolsVisable;
+  layoutStore.orderAreaVisable = orderAreaVisable;
+}
 
 const checkboxChange = async (e: any, type: string) => {
   setTimeout(() => {
@@ -52,6 +59,16 @@ const checkboxChange = async (e: any, type: string) => {
     }
     resizeUpdate();
   }, 200);
+  rememberLayout();
+};
+
+const rememberLayout = () => {
+  const obj = {
+    chartsVisable: layoutStore.chartsVisable,
+    symbolsVisable: layoutStore.symbolsVisable,
+    orderAreaVisable: layoutStore.orderAreaVisable,
+  };
+  localStorage.setItem("layout", JSON.stringify(obj));
 };
 </script>
 

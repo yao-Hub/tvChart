@@ -56,6 +56,7 @@ function initDragArea() {
       onEnd: () => {
         setTimeout(() => {
           resizeUpdate();
+          rememberAttr();
           chartInitStore.syncSetChart();
         }, 200);
       },
@@ -73,25 +74,43 @@ function initDragArea() {
       },
     });
   }
+  // 还原缓存的item样式
+  const inw = window.innerWidth;
+  const inh = window.innerHeight;
+  const stoAttr = localStorage.getItem("attr");
+  let targetAttr = null;
+  if (stoAttr) {
+    const attr = JSON.parse(stoAttr);
+    if (attr.inw === inw && attr.inh === inh) {
+      targetAttr = attr;
+    }
+  }
+  const dragArea_items = document.querySelectorAll(".dragArea_item");
+  if (targetAttr) {
+    const itemStyles = targetAttr.itemStyles;
+    dragArea_items.forEach((item) => {
+      const itemId = item.getAttribute("data-id") as string;
+      const style = itemStyles[itemId];
+      item.setAttribute("style", style);
+    });
+  } else {
+    setDragAreaSize();
+  }
 }
 
 // 拖拽区域大小
 function setDragAreaSize() {
   function setSize(arr: NodeListOf<Element> | Element[]) {
     const dragArea = document.querySelector(".dragArea") as HTMLElement;
-    arr.forEach((item, index, arr) => {
+    const dh = dragArea.getBoundingClientRect().height;
+    arr.forEach((item) => {
       const element = item as HTMLElement;
       // 整个区域的高度 / dragArea_item的数量 - 拉伸线的高度 * 水平拉伸线的数量（dragArea_item的数量 - 1）
-      element.style.height =
-        dragArea.getBoundingClientRect().height / arr.length -
-        lineWidth * (arr.length - 1) +
-        "px";
+      element.style.height = dh / arr.length - lineWidth * (arr.length - 1) + "px";
       element.style.marginTop = marginTop + "px";
     });
   }
-  const dragArea_items = document.querySelectorAll(
-    ".dragArea_item"
-  ) as NodeListOf<Element>;
+  const dragArea_items = document.querySelectorAll(".dragArea_item");
   const haveChildItems = Array.from(dragArea_items).filter(
     (item) => item.querySelectorAll(".demo").length !== 0
   );
@@ -105,7 +124,32 @@ function setDragAreaSize() {
   setSize(emptyChildItems.length > 0 ? haveChildItems : dragArea_items);
 }
 
-// 设置demo的位置
+function initDemosPosition() {
+  // 还原缓存的item样式
+  const inw = window.innerWidth;
+  const inh = window.innerHeight;
+  const stoAttr = localStorage.getItem("attr");
+  let targetAttr = null;
+  if (stoAttr) {
+    const attr = JSON.parse(stoAttr);
+    if (attr.inw === inw && attr.inh === inh) {
+      targetAttr = attr;
+    }
+  }
+  const demos = document.querySelectorAll(".demo");
+  if (targetAttr) {
+    const demoStyles = targetAttr.demoStyles;
+    demos.forEach((item) => {
+      const itemId = item.getAttribute("data-id") as string;
+      const style = demoStyles[itemId];
+      item.setAttribute("style", style);
+    });
+  } else {
+    setDemoPosition();
+  }
+}
+
+// 定位demo的具体位置
 function setDemoPosition() {
   const dragArea = document.querySelector(".dragArea") as HTMLElement;
   const dw = dragArea.getBoundingClientRect().width;
@@ -114,10 +158,10 @@ function setDemoPosition() {
     const demos = item.querySelectorAll(".demo");
     demos.forEach((demo, index) => {
       const element = demo as HTMLElement;
-      element.style.width =
-        dw / demos.length - (lineWidth / 2) * (demos.length - 1) + "px";
       element.style.height = item.getBoundingClientRect().height + "px";
       element.style.top = "0";
+      element.style.width =
+        dw / demos.length - (lineWidth / 2) * (demos.length - 1) + "px";
       if (index === 0) {
         element.style.left = "0";
       } else {
@@ -203,9 +247,7 @@ const resizeVertical = (event: MouseEvent) => {
 
   const lineTarget = event.target as HTMLDivElement;
   const lineX = lineTarget.getBoundingClientRect().x;
-  const dragArea_items = document.querySelectorAll(
-    ".dragArea_item"
-  ) as NodeListOf<Element>;
+  const dragArea_items = document.querySelectorAll(".dragArea_item");
   const haveChildItems = Array.from(dragArea_items).filter(
     (item) => item.querySelectorAll(".demo").length !== 0
   );
@@ -237,6 +279,7 @@ const resizeVertical = (event: MouseEvent) => {
   const result_1_height = result[1].getBoundingClientRect().height;
   const headerHight =
     document.querySelector(".header")?.getBoundingClientRect().height || 48;
+
   function resize(e: MouseEvent) {
     let mouseY = e.clientY - headerHight;
     const offset = e.pageY - startY;
@@ -259,12 +302,15 @@ const resizeVertical = (event: MouseEvent) => {
         (item) => ((item as HTMLElement).style.height = `${downHeight}px`)
       );
   }
+
   function stopResize() {
     chartSubStore.chartsLoading = false;
     updateVertLine();
+    rememberAttr();
     document.removeEventListener("mousemove", resize);
     document.removeEventListener("mouseup", stopResize);
   }
+
   document.addEventListener("mousemove", resize);
   document.addEventListener("mouseup", stopResize);
 };
@@ -445,6 +491,7 @@ function resizeHorizontal(event: MouseEvent) {
     chartSubStore.chartsLoading = false;
     document.removeEventListener("mousemove", resize);
     document.removeEventListener("mouseup", stopResize);
+    rememberAttr();
   }
   document.addEventListener("mousemove", resize);
   document.addEventListener("mouseup", stopResize);
@@ -456,6 +503,38 @@ export const resizeUpdate = debounce(() => {
   operaHoriLine();
   operaVertLine();
 }, 20);
+
+// 记住拉伸的样式
+function rememberAttr() {
+  const inw = window.innerWidth;
+  const inh = window.innerHeight;
+  const itemStyles: Record<string, any> = {};
+  // 记住上下区域的高度
+  const dragAreaItem = document.querySelectorAll(".dragArea_item");
+  dragAreaItem.forEach((item) => {
+    const dataId = item.getAttribute("data-id");
+    const style = item.getAttribute("style");
+    if (style && dataId) {
+      itemStyles[dataId] = style;
+    }
+  });
+  const demoStyles: Record<string, any> = {};
+  const demos = document.querySelectorAll(".demo");
+  demos.forEach((demo) => {
+    const dataId = demo.getAttribute("data-id");
+    const style = demo.getAttribute("style");
+    if (style && dataId) {
+      demoStyles[dataId] = style;
+    }
+  });
+  const result = {
+    inw,
+    inh,
+    itemStyles,
+    demoStyles,
+  };
+  localStorage.setItem("attr", JSON.stringify(result));
+}
 
 // 监听元素变化
 function observerDom() {
@@ -471,6 +550,7 @@ function observerDom() {
         setDemoPosition();
         operaHoriLine();
         operaVertLine();
+        setTimeout(() => rememberAttr(), 1000)
       }
     });
   }, 20);
@@ -480,16 +560,16 @@ function observerDom() {
   });
 }
 
-// 根据缓存恢复demo位置
-function setDemosByStorage() {
+// 根据缓存排列demo顺序
+function sortDemosByStorage() {
   const dragArea_items = document.querySelectorAll(".dragArea_item");
   dragArea_items.forEach((item) => {
     const itemId = item.getAttribute("data-id") as string;
     const childId = item.getAttribute("data-child");
     const stoIds = localStorage.getItem(itemId);
-    const resultIds = stoIds || childId;
+    const resultIds = stoIds === null ? childId : stoIds;
     const ids = resultIds!.split("|");
-    ids.forEach(id => {
+    ids.forEach((id) => {
       const target = document.querySelector(`.demo[data-id="${id}"]`);
       target && item.appendChild(target);
     });
@@ -498,12 +578,17 @@ function setDemosByStorage() {
 
 // 初始化上下拖拽区域位置
 export function initDragResizeArea() {
-  setDemosByStorage();
+  sortDemosByStorage();
   initDragArea();
-  setDragAreaSize();
-  setDemoPosition();
+  initDemosPosition();
   operaHoriLine();
   operaVertLine();
   observerDom();
-  window.addEventListener("resize", () => resizeUpdate());
+  window.addEventListener(
+    "resize",
+    debounce(() => {
+      resizeUpdate();
+      rememberAttr();
+    }, 200)
+  );
 }
