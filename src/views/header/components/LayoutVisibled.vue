@@ -51,9 +51,6 @@ onMounted(() => {
     layoutStore.chartsVisable = chartsVisable;
     layoutStore.symbolsVisable = symbolsVisable;
     layoutStore.orderAreaVisable = orderAreaVisable;
-    setTimeout(() => {
-      resizeUpdate();
-    }, 200);
   }
 });
 
