@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 import { LayoutOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { resizeUpdate } from "@/utils/dragResize/drag_position";
 
@@ -43,14 +43,19 @@ const chartInitStore = useChartInit();
 const visible = ref(false);
 const layoutStore = useLayout();
 
-const stoLayout = localStorage.getItem("layout");
-if (stoLayout) {
-  const layout = JSON.parse(stoLayout);
-  const { chartsVisable, symbolsVisable, orderAreaVisable } = layout;
-  layoutStore.chartsVisable = chartsVisable;
-  layoutStore.symbolsVisable = symbolsVisable;
-  layoutStore.orderAreaVisable = orderAreaVisable;
-}
+onMounted(() => {
+  const stoLayout = localStorage.getItem("layout");
+  if (stoLayout) {
+    const layout = JSON.parse(stoLayout);
+    const { chartsVisable, symbolsVisable, orderAreaVisable } = layout;
+    layoutStore.chartsVisable = chartsVisable;
+    layoutStore.symbolsVisable = symbolsVisable;
+    layoutStore.orderAreaVisable = orderAreaVisable;
+    setTimeout(() => {
+      resizeUpdate();
+    }, 200);
+  }
+});
 
 const checkboxChange = async (e: any, type: string) => {
   setTimeout(() => {
