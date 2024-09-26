@@ -23,10 +23,6 @@
             :class="[layoutType === 'single' ? 'single single_active' : 'single single_noactive']"
             @click="() => chartInitStore.setLayoutType('single')"
           ></div>
-          <!-- <BorderOutlined
-            :class="[ layoutType === 'single' ? 'active' : 'single']"
-            @click="() => chartInitStore.setLayoutType('single')"
-          /> -->
         </a-tooltip>
         <!-- 多图 -->
         <a-tooltip :title="$t('MultiGrapMode')">

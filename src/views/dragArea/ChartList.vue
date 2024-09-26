@@ -55,6 +55,7 @@
           :datafeed="datafeed(id)"
           :symbol="symbol || state.symbol"
           :disabledFeatures="id === state.activeKey ? state.disabledFeatures : ['left_toolbar', ...state.disabledFeatures]"
+          @initChart="initChart"
         >
         </TVChart>
       </div>
@@ -148,6 +149,12 @@ watch(
     }
   },
 );
+
+import { useTheme } from "@/store/modules/theme";
+const themeStore = useTheme();
+const initChart = () => {
+  themeStore.setUpDownTheme();
+};
 
 </script>
 

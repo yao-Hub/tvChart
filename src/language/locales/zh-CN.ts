@@ -16,7 +16,9 @@ export default {
   chartList: "图表列表",
   symbolList: "品种列表",
   orderList: "订单列表",
-
+  updownColor: "涨跌颜色",
+  upRedDownGreen: "红涨绿跌",
+  upGreenDownRed: "绿涨红跌",
   user: {
     login: "账户",
     password: "密码",

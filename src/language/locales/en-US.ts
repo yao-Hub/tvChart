@@ -16,7 +16,9 @@ export default {
   chartList: "chart List",
   symbolList: "symbol List",
   orderList: "order List",
-
+  updownColor: "updownColor",
+  upRedDownGreen: "upRed DownGreen",
+  upGreenDownRed: "upGreen DownRed",
   user: {
     login: "user",
     password: "password",

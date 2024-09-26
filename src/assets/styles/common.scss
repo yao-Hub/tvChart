@@ -170,6 +170,16 @@ body {
   @include background_color('background');
   @include font_color('word');
 }
+.icon {
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  fill: currentColor;
+  overflow: hidden;
+}
+.checkIcon {
+  @include font_color('primary');
+}
 .iconfont {
   cursor: pointer;
 }

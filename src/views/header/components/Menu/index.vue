@@ -18,6 +18,9 @@
         <a-sub-menu key="sub2" :expandIcon="() => h(NowLocale)">
           <Language></Language>
         </a-sub-menu>
+        <a-sub-menu key="sub3" :expandIcon="() => h(NowColor)">
+          <upDowncolor></upDowncolor>
+        </a-sub-menu>
         <a-menu-divider />
         <a-menu-item>
           <aboutUs></aboutUs>
@@ -39,6 +42,8 @@ import Theme from "./theme.vue";
 import Language from "./Language/index.vue";
 import NowLocale from "./Language/NowLocale.vue";
 import aboutUs from "./aboutUs.vue";
+import UpDowncolor from "./UpDowncolor/index.vue";
+import NowColor from "./UpDowncolor/NowColor.vue";
 </script>
 
 <style lang="scss" scoped>

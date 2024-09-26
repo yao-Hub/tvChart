@@ -2,7 +2,7 @@
   <a-menu-item v-for="(value, key) in localeList" :key="key">
     <div class="item" @click="changeLocale(key)">
       <span>{{ value.nowLocale }}</span>
-      <CheckOutlined v-if="curentLocale === key" />
+      <CheckOutlined v-if="curentLocale === key" class="checkIcon"/>
     </div>
   </a-menu-item>
 </template>
