@@ -88,9 +88,11 @@ function initDragArea() {
   if (targetAttr) {
     const itemStyles = targetAttr.itemStyles;
     dragArea_items.forEach((item) => {
-      const itemId = item.getAttribute("data-id") as string;
-      const style = itemStyles[itemId];
-      item.setAttribute("style", style);
+      const itemId = item.getAttribute("data-id");
+      if (itemId) {
+        const style = itemStyles[itemId];
+        item.setAttribute("style", style);
+      }
     });
   } else {
     setDragAreaSize();
@@ -139,9 +141,11 @@ function initDemosPosition() {
   if (targetAttr) {
     const demoStyles = targetAttr.demoStyles;
     demos.forEach((item) => {
-      const itemId = item.getAttribute("data-id") as string;
-      const style = demoStyles[itemId];
-      item.setAttribute("style", style);
+      const itemId = item.getAttribute("data-id");
+      if (itemId) {
+        const style = demoStyles[itemId];
+        item.setAttribute("style", style);
+      }
     });
   } else {
     setDemoPosition();
@@ -564,15 +568,17 @@ function observerDom() {
 function sortDemosByStorage() {
   const dragArea_items = document.querySelectorAll(".dragArea_item");
   dragArea_items.forEach((item) => {
-    const itemId = item.getAttribute("data-id") as string;
+    const itemId = item.getAttribute("data-id");
     const childId = item.getAttribute("data-child");
-    const stoIds = localStorage.getItem(itemId);
-    const resultIds = stoIds === null ? childId : stoIds;
-    const ids = resultIds!.split("|");
-    ids.forEach((id) => {
-      const target = document.querySelector(`.demo[data-id="${id}"]`);
-      target && item.appendChild(target);
-    });
+    if (itemId) {
+      const stoIds = localStorage.getItem(itemId);
+      const resultIds = stoIds === null ? childId : stoIds;
+      const ids = resultIds!.split("|");
+      ids.forEach((id) => {
+        const target = document.querySelector(`.demo[data-id="${id}"]`);
+        target && item.appendChild(target);
+      });
+    }
   });
 }
 
