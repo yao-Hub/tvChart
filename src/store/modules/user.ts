@@ -124,7 +124,7 @@ export const useUser = defineStore("user", {
       }
     },
 
-    async login(updata: reqLogin & { token?: string }) {
+    async login(updata: reqLogin) {
       const networkStore = useNetwork();
       const socketStore = useSocket();
       await networkStore.getNodes(updata.server);
@@ -141,13 +141,9 @@ export const useUser = defineStore("user", {
           networkStore.nodeName = item.nodeName;
           // socket地址确定
           socketStore.initSocket();
-          let token = null;
-          if (updata.token) {
-            token = updata.token;
-          } else {
-            const res = await Login(updata);
-            token = res.data.token;
-          }
+          const res = await Login(updata);
+          console.log("login", res)
+          const token = res.data.token;
           // 缓存token 发送登录状态
           this.setToken(token);
           socketStore.sendToken(updata.login, token);
@@ -157,7 +153,9 @@ export const useUser = defineStore("user", {
             queryNode: item.nodeName,
             token,
           });
+          return Promise.resolve();
         } catch (error) {
+          console.log(error)
           errorCount++;
           continue;
         }

@@ -56,7 +56,6 @@ function initDragArea() {
       onEnd: () => {
         setTimeout(() => {
           resizeUpdate();
-          rememberAttr();
           chartInitStore.syncSetChart();
         }, 200);
       },
@@ -502,6 +501,7 @@ export const resizeUpdate = debounce(() => {
   setDemoPosition();
   operaHoriLine();
   operaVertLine();
+  rememberAttr();
 }, 20);
 
 // 记住拉伸的样式
@@ -586,9 +586,8 @@ export function initDragResizeArea() {
   observerDom();
   window.addEventListener(
     "resize",
-    debounce(() => {
+    () => {
       resizeUpdate();
-      rememberAttr();
-    }, 200)
+    },
   );
 }

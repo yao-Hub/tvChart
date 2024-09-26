@@ -66,7 +66,7 @@ export default defineConfig((mode: ConfigEnv) => {
           target: "http://120.79.80.70:8098",
           changeOrigin: true,
           rewrite: path => {
-            return path.replace(new RegExp('^' + '/client-api-39-108-122-78-8098'), '')
+            return path.replace(new RegExp('^' + '/client-api-120-79-80-70-8098'), '')
           }
         },
         "/client-api": {
