@@ -22,7 +22,7 @@ export const useChartInit = defineStore("chartInit", {
       chartWidgetList: [{ id: "chart_1" }],
       loading: true,
       mainId: "chart_1",
-      chartLayoutType: "multiple",
+      chartLayoutType: "single",
       singleChartLoading: {},
       activeChartId: "chart_1",
       chartFlexDirection: "row",

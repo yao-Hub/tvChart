@@ -267,7 +267,9 @@ const changeSymbol = (e: any) => {
 .list {
   width: 100%;
   position: relative;
-  height: calc(100% - 60px);
+  height: calc(100% - 69px);
+  box-sizing: border-box;
+  padding: 5px;
 }
 
 .search {
