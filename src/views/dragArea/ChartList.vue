@@ -50,13 +50,14 @@
           :id="id"
         ></FastAddOrder>
         <TVChart
-          style="height: 100%"
+          style="height: calc(100% - 24px)"
           :key="state.activeKey === id"
           :chartId="id"
           :mainChart="id === 'chart_1'"
           :loading="props.loading || chartInitStore.singleChartLoading[id]"
           :datafeed="datafeed(id)"
           :symbol="symbol || state.symbol"
+          :theme="themeStore.systemTheme"
           :disabledFeatures="id === state.activeKey ? state.disabledFeatures : ['left_toolbar', ...state.disabledFeatures]"
           @initChart="initChart"
         >
@@ -73,6 +74,7 @@ import Sortable from "sortablejs";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
+import { useTheme } from "@/store/modules/theme";
 
 import { datafeed } from "@/config/chartConfig";
 
@@ -80,6 +82,7 @@ import FastAddOrder from "./components/FastAddOrder.vue";
 
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
+const themeStore = useTheme();
 
 interface Props {
   loading?: boolean;
@@ -153,8 +156,6 @@ watch(
   },
 );
 
-import { useTheme } from "@/store/modules/theme";
-const themeStore = useTheme();
 const initChart = () => {
   themeStore.setUpDownTheme();
 };
@@ -172,7 +173,7 @@ const initChart = () => {
     flex-wrap: wrap;
     gap: 5px;
     box-sizing: border-box;
-    height: calc(100% - 26px);
+    height: 100%;
     &_item {
       flex: 1;
       min-width: 316px;

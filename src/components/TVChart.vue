@@ -156,7 +156,7 @@ const initonReady = () => {
     charts_storage_api_version:
       props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
     client_id: props.clientId,
-    theme: (window.localStorage.getItem("systemTheme") || props.theme) as library.ThemeName,
+    theme: props.theme as library.ThemeName,
     enabled_features:
       props.enabledFeatures as library.ChartingLibraryFeatureset[],
     disabled_features:
@@ -206,8 +206,18 @@ const initonReady = () => {
 
       widget.subscribe("mouse_down", () => {
         chartInitStore.activeChartId = props.chartId;
+        widget.save((e) => {
+          const chartInfo = JSON.stringify(e);
+          sessionStorage.setItem(`${props.chartId}_drawing`, chartInfo);
+        });
       })
-
+      const storageDrawing = sessionStorage.getItem(`${props.chartId}_drawing`);
+      if (storageDrawing) {
+        const drawing = JSON.parse(storageDrawing);
+        setTimeout(() => {
+          widget.load(drawing);
+        }, 1000);
+      }
       emit("initChart", { id: props.chartId });
     });
   });
