@@ -19,6 +19,7 @@ export default {
   updownColor: "涨跌颜色",
   upRedDownGreen: "红涨绿跌",
   upGreenDownRed: "绿涨红跌",
+  refresh: "刷新",
   user: {
     login: "账户",
     password: "密码",

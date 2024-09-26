@@ -32,6 +32,12 @@
         </div>
         <template #overlay>
           <a-menu @click="handleMenuClick">
+            <div class="operaItem" @click="refreshDelay">
+              <ReloadOutlined class="refreshIcon" v-if="!delayLoading"/>
+              <LoadingOutlined v-else/>
+              <span>{{ $t("refresh") }}</span>
+            </div>
+            <a-menu-divider />
             <a-menu-item v-for="node in networkStore.nodeList" :key="node.nodeName">
               <a-flex justify="space-between" align="center" class="delayItem">
                 <a-flex gap="5">
@@ -49,6 +55,7 @@
 </template>
 
 <script setup lang="ts">
+import { ReloadOutlined, LoadingOutlined } from '@ant-design/icons-vue';
 import { computed } from "vue";
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
@@ -131,6 +138,10 @@ const networkStore = useNetwork();
 const visible = ref(false);
 const handleMenuClick: MenuProps['onClick'] = e => {
   const name = e.key as string;
+  const currentNodeName = networkStore.currentNode?.nodeName;
+  if (name === currentNodeName) {
+    return;
+  }
   networkStore.changeNode(name);
   window.location.reload();
 };
@@ -147,6 +158,15 @@ const currentDelay = computed(() => {
 const getDelay = (uri: string) => {
   const delay = get(socketStore.delayMap, uri) || '-';
   return delay;
+};
+const delayLoading = ref(false);
+const refreshDelay = () => {
+  if (delayLoading.value) {
+    return;
+  }
+  socketStore.getDelay((e: any) => {
+    delayLoading.value = !e.ending;
+  });
 };
 </script>
 
@@ -188,8 +208,22 @@ const getDelay = (uri: string) => {
 .delay:hover {
   @include font_color("primary");
 }
+.refreshIcon {
+  font-size: 12px;
+}
+.refreshIcon:hover {
+  @include font_color("primary");
+}
 .checkIcon {
   @include font_color("primary");
+}
+.operaItem {
+  height: 30px;
+  padding: 0 15px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  cursor: pointer;
 }
 .delayItem {
   min-width: 300px;

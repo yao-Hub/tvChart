@@ -25,13 +25,11 @@ export const useSocket = defineStore("socket", {
       const networkStore = useNetwork();
       const mainUri = networkStore.currentNode?.webWebsocket;
       if (mainUri) {
-        const wsUriList = networkStore.nodeList.map(item => item.webWebsocket);
         this.instance = new SingletonSocket();
         this.socket = this.instance.getInstance(mainUri);
         setTimeout(() => {
-          this.instance.getSocketDelay(wsUriList);
+          this.getDelay();
         }, 1000)
-        // this.pollingDelay(wsUriList);
       }
     },
 
@@ -131,6 +129,15 @@ export const useSocket = defineStore("socket", {
       });
     },
 
+    getDelay(callback?:Function) {
+      const networkStore = useNetwork();
+      const wsUriList = networkStore.nodeList.map(item => item.webWebsocket);
+      this.instance.getSocketDelay(wsUriList, (e: any) => {
+        if (callback) {
+          callback(e);
+        }
+      });
+    },
     pollingDelay(uriList: string[]) {
       const pollingInterval = 30 * 1000;
       if (this.instance) {

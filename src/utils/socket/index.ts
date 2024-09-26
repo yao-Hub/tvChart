@@ -38,10 +38,16 @@ class SingletonSocket {
     }
   }
 
-  getSocketDelay(uriList: string[]) {
+  getSocketDelay(uriList: string[], callback?:Function) {
     const startTimeMap: Record<string, number> = {};
+    let count = 0;
     uriList.forEach(uri => {
       startTimeMap[uri] = new Date().getTime();
+      if (callback) {
+        callback({
+          ending: false
+        });
+      }
       const IO = io(uri, {
         transports: ["websocket"],
         reconnection: true, // 开启重连功能
@@ -53,6 +59,12 @@ class SingletonSocket {
         const connectionTime = endTime - startTimeMap[uri];
         const socketStore = useSocket();
         socketStore.delayMap[uri] = connectionTime;
+        count++;
+        if (callback && count === uriList.length) {
+          callback({
+            ending: true
+          });
+        }
         console.log(`${uri} Connection established in ${connectionTime} milliseconds`);
         IO.disconnect();
       });

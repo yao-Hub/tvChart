@@ -19,6 +19,7 @@ export default {
   updownColor: "updownColor",
   upRedDownGreen: "upRed DownGreen",
   upGreenDownRed: "upGreen DownRed",
+  refresh: "refresh",
   user: {
     login: "user",
     password: "password",
