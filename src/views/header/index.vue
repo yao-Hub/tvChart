@@ -117,7 +117,7 @@ const flexDirection = computed(() => chartInitStore.chartFlexDirection);
   @include background_color("primary");
 }
 .single_noactive {
-  background: #333333;
+  background: #d1d4dc;
 }
 .single {
   width: 12px;

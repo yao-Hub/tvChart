@@ -42,7 +42,10 @@
         <FastAddOrder
           v-if="symbol && !props.loading && !chartInitStore.singleChartLoading[id] && orderStore.ifQuick"
           class="fastAddOrder"
-          :style="{left: state.activeKey === id ? '60px' : '8px'}"
+          :style="{
+            left: state.activeKey === id ? '60px' : '8px',
+            top: chartType === 'single' ? '92px' : '116px'
+          }"
           :symbol="symbol"
           :id="id"
         ></FastAddOrder>
@@ -176,7 +179,6 @@ const initChart = () => {
       position: relative;
       .fastAddOrder {
         position: absolute;
-        top: 92px;
       }
     }
   }
