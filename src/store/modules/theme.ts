@@ -67,12 +67,12 @@ export const useTheme = defineStore("theme", {
       );
       localStorage.setItem("upDownTheme", this.upDownTheme);
       const chartInitStore = useChartInit();
-      const downColor= type === "upRedDownGreen" ? "#089981" : "#F23645";
-      const upColor= type === "upRedDownGreen" ? "#F23645" : "#089981";
-      const upLightColor= type === "upRedDownGreen" ? "rgba(8, 153, 129, 0.5)" : "rgba(242, 54, 69, 0.5)";
-      const downLightColor = type === "upRedDownGreen" ? "rgba(8, 153, 129, 0.5)" : "rgba(242, 54, 69, 0.5)";
-      const upProjectionColor = type === "upRedDownGreen" ? "#a9dcc3" : "#f5a6ae";
-      const downProjectionColor = type === "upRedDownGreen" ? "#f5a6ae" : "#a9dcc3";
+      const downColor= this.upDownTheme === "upRedDownGreen" ? "#089981" : "#F23645";
+      const upColor= this.upDownTheme === "upRedDownGreen" ? "#F23645" : "#089981";
+      const upLightColor= this.upDownTheme === "upRedDownGreen" ? "rgba(8, 153, 129, 0.5)" : "rgba(242, 54, 69, 0.5)";
+      const downLightColor = this.upDownTheme === "upRedDownGreen" ? "rgba(8, 153, 129, 0.5)" : "rgba(242, 54, 69, 0.5)";
+      const upProjectionColor = this.upDownTheme === "upRedDownGreen" ? "#a9dcc3" : "#f5a6ae";
+      const downProjectionColor = this.upDownTheme === "upRedDownGreen" ? "#f5a6ae" : "#a9dcc3";
 
       chartInitStore.chartWidgetList.forEach((item) => {
         item.widget?.applyOverrides({
@@ -114,7 +114,7 @@ export const useTheme = defineStore("theme", {
           "mainSeriesProperties.pnfStyle.downColor": downColor,
           "mainSeriesProperties.renkoStyle.upColorProjection": upProjectionColor,
           "mainSeriesProperties.renkoStyle.downColorProjection": downProjectionColor,
-        	"mainSeriesProperties.renkoStyle.borderUpColorProjection": upProjectionColor,
+          "mainSeriesProperties.renkoStyle.borderUpColorProjection": upProjectionColor,
           "mainSeriesProperties.renkoStyle.borderDownColorProjection": downProjectionColor,
           "mainSeriesProperties.pbStyle.upColorProjection": upProjectionColor,
           "mainSeriesProperties.pbStyle.downColorProjection": downProjectionColor,

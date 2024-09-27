@@ -184,6 +184,9 @@ const initonReady = () => {
           interval: props.interval as library.ResolutionString,
         });
       }
+      
+      // 快捷键监听
+      chartSubStore.subscribeKeydown(widget);
 
       // 监听品种变化
       widget
@@ -202,22 +205,17 @@ const initonReady = () => {
           chartInitStore.setChartWidgetListSymbolInterval({ interval, id: props.chartId });
         })
 
-      chartSubStore.subscribeKeydown(widget);
-
       widget.subscribe("mouse_down", () => {
         chartInitStore.activeChartId = props.chartId;
-        widget.save((e) => {
-          const chartInfo = JSON.stringify(e);
-          sessionStorage.setItem(`${props.chartId}_drawing`, chartInfo);
-        });
-      })
-      const storageDrawing = sessionStorage.getItem(`${props.chartId}_drawing`);
-      if (storageDrawing) {
-        const drawing = JSON.parse(storageDrawing);
-        setTimeout(() => {
-          widget.load(drawing);
-        }, 1000);
-      }
+      });
+
+      // widget.subscribe("drawing_event", () => {
+      //   widget.save((e) => {
+      //     const chartInfo = JSON.stringify(e);
+      //     localStorage.setItem(`drawing`, chartInfo);
+      //   });
+      // });
+
       emit("initChart", { id: props.chartId });
     });
   });

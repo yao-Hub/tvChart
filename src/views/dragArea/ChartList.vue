@@ -28,7 +28,7 @@
           <HolderOutlined class="handle" />
           <baseTabs
             v-model:activeKey="state.activeKey"
-            :addable="state.activeKey === id"
+            addable
             @handleAdd="tabAdd"
           >
             <TabItem
@@ -40,7 +40,7 @@
           </baseTabs>
         </div>
         <FastAddOrder
-          v-if="symbol && !props.loading && !chartInitStore.singleChartLoading[id] && orderStore.ifQuick"
+          v-if="symbol && !props.loading && !chartInitStore.chartLoading[id] && orderStore.ifQuick"
           class="fastAddOrder"
           :style="{
             left: state.activeKey === id ? '60px' : '8px',
@@ -54,7 +54,7 @@
           :key="state.activeKey === id"
           :chartId="id"
           :mainChart="id === 'chart_1'"
-          :loading="props.loading || chartInitStore.singleChartLoading[id]"
+          :loading="props.loading || chartInitStore.chartLoading[id]"
           :datafeed="datafeed(id)"
           :symbol="symbol || state.symbol"
           :theme="themeStore.systemTheme"
@@ -94,7 +94,7 @@ const props = withDefaults(defineProps<Props>(), {
 const state = reactive({
   symbol: "XAU",
   activeKey: "chart_1",
-  disabledFeatures: ["header_compare", "header_saveload", "timeframes_toolbar"],
+  disabledFeatures: ["header_compare", "header_saveload", "timeframes_toolbar", "save_chart_properties_to_local_storage", "use_localstorage_for_settings"],
 });
 
 watchEffect(() => {
@@ -109,6 +109,13 @@ const chartType = computed(() => {
   return chartInitStore.chartLayoutType;
 });
 
+const initChart = () => {
+  // 画画历史
+  // chartInitStore.drawingHistory();
+  // 涨跌颜色
+  themeStore.setUpDownTheme();
+};
+
 onMounted(() => {
   const dragArea = document.querySelector(".charts_container");
   new Sortable(dragArea, {
@@ -116,17 +123,10 @@ onMounted(() => {
     swapThreshold: 1,
     handle: ".handle",
     onEnd: function (evt: any) {
-      setTimeout(() => chartInitStore.syncSetChart(), 200);
-      if (dragArea) {
-        const conItems = Array.from(
-          dragArea.querySelectorAll(".charts_container_item")
-        );
-        const chartIdList = conItems.map((item) => {
-          const id = item.getAttribute("id");
-          return id;
-        });
-        chartInitStore.sortChartList(chartIdList as string[]);
-      }
+      setTimeout(() => {
+        chartInitStore.syncSetChart();
+        // chartInitStore.drawingHistory();
+      }, 500);
     },
   });
 });
@@ -153,12 +153,9 @@ watch(
     if (id !== state.activeKey) {
       state.activeKey = id;
     }
+    // id && fillChart();
   },
 );
-
-const initChart = () => {
-  themeStore.setUpDownTheme();
-};
 
 </script>
 

@@ -112,14 +112,17 @@ export const datafeed = (id: string) => {
       // 提升订单报价
       orderStore.currentQuotes[d.symbol] = d;
 
-      const currentSymbol = chartInitStore.getChartWidgetListSymbol(id);
+      const currentSymbol = subscribed[id].symbolInfo?.name;
       if (!subscribed[id].symbolInfo || !new_one[id]) {
         //图表没初始化
         return;
       }
+      if (chartInitStore.chartLoading[id]) {
+        return;
+      }
       //报价更新 最新一条柱子 实时 上下 跳动
       //报价为图表当前品种的报价
-      if (d.symbol === currentSymbol) {
+      if (currentSymbol && d.symbol === currentSymbol) {
         //报价为图表当前品种的报价
         if (new_one[id].high < d.bid) {
           new_one[id].high = d.bid;
@@ -148,9 +151,12 @@ export const datafeed = (id: string) => {
         // 图表没初始化
         return;
       }
-      const currentSymbol = chartInitStore.getChartWidgetListSymbol(id);
+      if (chartInitStore.chartLoading[id]) {
+        return;
+      }
+      const currentSymbol = subscribed[id].symbolInfo?.name;
 
-      const condition = d.symbol === currentSymbol && subscribed[id].resolution == d.period_type;
+      const condition = currentSymbol && d.symbol === currentSymbol && subscribed[id].resolution == d.period_type;
       //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1},{"ctm":1715408400,"date_time":"2024-05-11 14:20:00","open":60940,"high":60956,"low":60940,"close":60956,"volume":6}]}
       if (condition) {
         d.klines = d.klines.reverse();

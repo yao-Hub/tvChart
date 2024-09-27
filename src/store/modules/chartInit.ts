@@ -11,7 +11,7 @@ interface State {
   loading: Boolean;
   mainId: string;
   chartLayoutType: "single" | "multiple";
-  singleChartLoading: Record<string, boolean>;
+  chartLoading: Record<string, boolean>;
   activeChartId: string;
   chartFlexDirection: "row" | "column"
 }
@@ -23,7 +23,7 @@ export const useChartInit = defineStore("chartInit", {
       loading: true,
       mainId: "chart_1",
       chartLayoutType: "single",
-      singleChartLoading: {},
+      chartLoading: {},
       activeChartId: "chart_1",
       chartFlexDirection: "row",
     };
@@ -99,7 +99,7 @@ export const useChartInit = defineStore("chartInit", {
     // 图表的品种跟list的品种或者周期不匹配时，令图表的品种和周期更改为list的品种和周期
     syncSetChart() {
       this.chartWidgetList.forEach((item) => {
-        this.singleChartLoading[item.id] = true;
+        this.chartLoading[item.id] = true;
         const widget = item.widget;
         const itemSymbol = item.symbol;
         const itemInterval = item.interval;
@@ -115,19 +115,19 @@ export const useChartInit = defineStore("chartInit", {
             }
           });
         });
-        this.singleChartLoading[item.id] = false;
+        this.chartLoading[item.id] = false;
       });
     },
 
-    sortChartList(sortArr: Array<string>) {
-      const indexMap = {} as Record<string, number>;
-      sortArr.forEach((value, index) => {
-        indexMap[value] = index;
-      });
-      this.chartWidgetList.sort((obj1, obj2) => {
-        return indexMap[obj1.id] - indexMap[obj2.id];
-      });
-    },
+    // sortChartList(sortArr: Array<string>) {
+    //   const indexMap = {} as Record<string, number>;
+    //   sortArr.forEach((value, index) => {
+    //     indexMap[value] = index;
+    //   });
+    //   this.chartWidgetList.sort((obj1, obj2) => {
+    //     return indexMap[obj1.id] - indexMap[obj2.id];
+    //   });
+    // },
 
     intLayoutType() {
       const type = window.localStorage.getItem('chartLayoutType') as State["chartLayoutType"];
@@ -148,6 +148,15 @@ export const useChartInit = defineStore("chartInit", {
     setChartFlexDirection(type: State["chartFlexDirection"]) {
       this.chartFlexDirection = type;
       window.localStorage.setItem('chartFlexDirection', type)
+    },
+    drawingHistory() {
+      this.chartWidgetList.forEach(item => {
+        const storageDrawing = localStorage.getItem(`drawing`);
+        if (storageDrawing) {
+          const drawing = JSON.parse(storageDrawing);
+          item.widget?.load(drawing);
+        }
+      });
     }
   },
 });
