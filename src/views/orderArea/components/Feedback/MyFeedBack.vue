@@ -5,9 +5,13 @@
     @cancel="modal = false"
     :bodyStyle="{
       padding: '29px 0',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItem: 'center'
     }"
   >
-    <div class="commentList">
+    <a-spin v-if="loading"/>
+    <div class="commentList" v-else>
       <div v-for="item in commentList">
         <div class="comment">
           <div class="avatar">
@@ -16,23 +20,26 @@
           <div class="detail">
             <span class="word">{{ item.remark }}</span>
             <div class="images">
-              <a-image
-                v-for="src in item.feedbackFileId"
-                :key="src"
-                :width="56"
-                placeholder
-                :src="src"
-                :fallback="fallback"
-              />
+              <a-image-preview-group>
+                <a-image
+                  v-for="src in item.feedbackFileIds"
+                  :key="src"
+                  :width="56"
+                  :height="56"
+                  placeholder
+                  :src="src"
+                  :fallback="fallback"
+                />
+              </a-image-preview-group>
             </div>
             <div class="other">
               <span class="grayWord">{{ item.createTime }}</span>
-              <span class="expand" @click="item.ifExpand = !item.ifExpand">{{
+              <span class="expand" v-if="item.handleOpinion" @click="item.ifExpand = !item.ifExpand">{{
                 item.ifExpand ? "收起" : "展开回复"
               }}</span>
             </div>
 
-            <div class="reply" v-show="item.ifExpand">
+            <div class="reply" v-show="item.ifExpand && item.handleOpinion">
               <img src="@/assets/icons/logo@3x.png" class="reply_avatar" />
               <div class="reply_detail">
                 <span class="grayWord">平台答复：</span>
@@ -65,16 +72,19 @@ type commentList = resFeedback & {
   ifExpand: boolean;
 }
 const commentList = ref<Array<commentList>>([]);
+const loading = ref(false);
 watch(
   () => modal.value,
   async (val) => {
     if (val) {
+      loading.value = true;
       const res = await myfeedback();
+      loading.value = false;
       commentList.value = res.data.map(item => {
         return {
           ...item,
           avatar: "",
-          ifExpand: false,
+          ifExpand: true,
         }
       });
     }
@@ -134,7 +144,6 @@ watch(
       .expand {
         @include font_color("primary");
         cursor: pointer;
-        moz-user-select: -moz-none;
         -moz-user-select: none;
         -o-user-select: none;
         -khtml-user-select: none;

@@ -25,7 +25,7 @@ export const saveFeedback = (data: reqSaveFeedback) => {
 export interface resFeedback {
   login: number; //	登录名
   remark: string; //	反馈内容
-  feedbackFileId: string[]; // 反馈图片
+  feedbackFileIds: string[]; // 反馈图片
   handleOpinion: string; //	处理意见（回复）
   handleTime: string; //	处理时间
   createTime: string; //	创建时间

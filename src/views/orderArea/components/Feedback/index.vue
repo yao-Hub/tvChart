@@ -50,6 +50,8 @@ const open = ref<boolean>(false);
 const remark = ref<string>("");
 const showModal = () => {
   open.value = true;
+  remark.value = "";
+  fileList.value = [];
 };
 
 import { PlusOutlined } from "@ant-design/icons-vue";
@@ -89,6 +91,7 @@ const action = computed(() => {
 });
 import { saveFeedback } from "api/feedback";
 import { useNetwork } from "@/store/modules/network";
+import { message } from "ant-design-vue";
 const networkStore = useNetwork();
 const handleOk = async () => {
   const feedbackFileIds = fileList.value?.map((item: UploadFile) => item.response.data.fileId) as string[];
@@ -99,7 +102,8 @@ const handleOk = async () => {
     remark: remark.value,
     feedbackFileIds,
   };
-  await saveFeedback(updata);
+  const res = await saveFeedback(updata);
+  message.success(res.errmsg);
   open.value = false;
 };
 </script>
