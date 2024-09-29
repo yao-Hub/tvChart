@@ -10,6 +10,7 @@
       :mask="false"
       :maskClosable="false"
       :key="open"
+      :zIndex="1"
     >
       <a-form
         ref="orderFormRef"
@@ -189,6 +190,8 @@
       @cancel="handleConfirmOrderCancle"
       title="下单确认"
       :width="400"
+      centered
+      :zIndex="2"
     >
       <a-flex wrap="wrap">
         <div

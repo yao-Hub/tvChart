@@ -2,9 +2,11 @@ import { debounce } from "lodash";
 import Sortable from "sortablejs";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useChartInit } from "@/store/modules/chartInit";
+import { useTheme } from "@/store/modules/theme";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
+const themeStore = useTheme();
 
 const moving = {
   horizontalLine: false,
@@ -15,7 +17,7 @@ const minWidht = 200;
 const minHeight = 150;
 const lineWidth = 5;
 const marginTop = 5;
-const lineColor = "#7cb305";
+const lineColor = "#CECDD1";
 
 // 水平线初始拉伸位置
 let startY: number;
@@ -57,6 +59,7 @@ function initDragArea() {
         setTimeout(() => {
           resizeUpdate();
           chartInitStore.syncSetChart();
+          themeStore.setChartTheme();
         }, 200);
       },
       store: {

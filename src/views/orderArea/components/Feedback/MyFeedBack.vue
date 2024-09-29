@@ -11,7 +11,7 @@
     }"
   >
     <a-spin v-if="loading"/>
-    <div class="commentList" v-else>
+    <div class="scrollList" v-else>
       <div v-for="item in commentList">
         <div class="comment">
           <div class="avatar">
@@ -98,26 +98,11 @@ watch(
 .grayWord {
   @include font_color("word-gray");
 }
-.commentList {
+.scrollList {
   padding: 0 16px;
   max-height: 500px;
   overflow-y: scroll;
-  &::-webkit-scrollbar {
-    width: 5px; /*  设置纵轴（y轴）轴滚动条 */
-    height: 100%; /*  设置横轴（x轴）轴滚动条 */
-  }
-  // 滑块颜色
-  &::-webkit-scrollbar-thumb {
-    border-radius: 10px;
-    box-shadow: inset 0 0 5px #dee2e9;
-    background: #dee2e9;
-  }
-  // 滚动条背景色
-  &::-webkit-scrollbar-track {
-    border-radius: 0;
-    box-shadow: inset 0 0 5px #fff;
-    background: #fff;
-  }
+  overflow-x: hidden;
 }
 .comment {
   display: flex;

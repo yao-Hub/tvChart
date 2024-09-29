@@ -1,6 +1,6 @@
 import { resOrders, resPendingOrders, resHistoryOrders } from "api/order/index";
 
-export const tableColumns = {
+export const tableColumns: any = {
   position: [
     {
       title: "交易品种",

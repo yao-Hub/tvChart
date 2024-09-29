@@ -82,6 +82,8 @@
         :pagination="false"
         :loading="state.loadingList[activeKey]"
         :scroll="{ y: tableY }"
+        bordered
+        @resizeColumn="handleResizeColumn"
       >
         <template #bodyCell="{ record, column, text }">
           <div @dblclick="handleRowDoubleClick(record)">
@@ -136,6 +138,7 @@
                   :icon="h(CloseOutlined)"
                   size="small"
                   @click="orderClose(record)"
+                  type="text"
                 ></a-button>
               </a-tooltip>
             </template>
@@ -199,7 +202,15 @@ interface Menu {
   label: string;
   key: orderTypes.TableDataKey;
 }
-
+const columns: any = {};
+for (const i in tableColumns) {
+  columns[i] = tableColumns[i].map((item: any) => {
+    return {
+      ...item,
+      resizable: true,
+    }
+  });
+}
 const state = reactive({
   menu: [
     { label: "持仓", key: "position" },
@@ -207,7 +218,7 @@ const state = reactive({
     { label: "历史持仓", key: "transactionHistory" },
     { label: "历史挂单", key: "orderHistory" },
   ] as Menu[],
-  columns: tableColumns,
+  columns: columns,
   dataSource: {
     position: [],
     order: [],
@@ -251,6 +262,9 @@ const state = reactive({
     transactionHistory: false,
   },
 });
+function handleResizeColumn(w: any, col: any) {
+  col.width = w;
+};
 
 const activeKey = ref<orderTypes.TableDataKey>("position");
 const getCellClass = (num: number) => {
@@ -403,6 +417,12 @@ const getOrders = async () => {
   try {
     state.loadingList.position = true;
     const res = await orders.openningOrders();
+    res.data = res.data.map((item, index) => {
+      return {
+        ...item,
+        key: index
+      }
+    });
     state.dataSource.position = cloneDeep(res.data);
     orderStore.tableData.position = cloneDeep(res.data);
   } finally {
@@ -415,6 +435,12 @@ const getPendingOrders = async () => {
   try {
     state.loadingList.order = true;
     const res = await orders.pendingOrders();
+    res.data = res.data.map((item, index) => {
+      return {
+        ...item,
+        key: index
+      }
+    });
     state.dataSource.order = cloneDeep(res.data);
     orderStore.tableData.order = cloneDeep(res.data);
   } finally {
@@ -431,6 +457,12 @@ const getOrderHistory = async () => {
     updata.begin_time = begin_time;
     updata.end_time = end_time;
     const res = await orders.invalidPendingOrders(updata);
+    res.data = res.data.map((item, index) => {
+      return {
+        ...item,
+        key: index
+      }
+    });
     state.dataSource.orderHistory = res.data;
   } finally {
     state.loadingList.orderHistory = false;
@@ -450,6 +482,12 @@ const getTradingHistory = async () => {
     updata.close_begin_time = close_begin_time;
     updata.close_end_time = close_end_time;
     const res = await orders.historyOrders(updata || {});
+    res.data = res.data.map((item, index) => {
+      return {
+        ...item,
+        key: index
+      }
+    });
     state.dataSource.transactionHistory = res.data;
   } finally {
     state.loadingList.transactionHistory = false;
@@ -684,15 +722,14 @@ onMounted(async () => {
 <style lang="scss" scoped>
 @import "@/assets/styles/_handle.scss";
 
-.ant-table-wrapper {
-  @include border_color("border");
-  border: 1px solid;
+:deep .ant-table-wrapper .ant-table-tbody > tr > td {
+  border-inline-end: none !important;
 }
 
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;
-  max-width: calc(100% - 16px);
+  width: calc(100% - 16px);
   float: right;
 
   &_header {

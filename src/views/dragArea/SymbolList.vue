@@ -75,14 +75,14 @@ const columns = [
     title: t("order.symbol"),
     dataIndex: "symbol",
     key: "symbol",
-    width: 100,
+    width: 80,
     sorter: (a: DataSource, b: DataSource) => a.symbol.localeCompare(b.symbol),
   },
   {
     title: t("order.sellPrice"),
     dataIndex: "bid",
     key: "bid",
-    width: 130,
+    width: 80,
     sorter: (a: DataSource, b: DataSource) => {
       const bidA = typeof a.bid === 'number' ? a.bid : -Infinity;
       const bidB = typeof b.bid === 'number' ? b.bid : -Infinity;
@@ -93,7 +93,7 @@ const columns = [
     title: t("order.buyPrice"),
     dataIndex: "ask",
     key: "ask",
-    width: 130,
+    width: 80,
     sorter: (a: DataSource, b: DataSource) => {
       const askA = typeof a.ask === 'number' ? a.ask : -Infinity;
       const askB = typeof b.ask === 'number' ? b.ask : -Infinity;
@@ -104,7 +104,7 @@ const columns = [
     title: t("order.diurnalVariation"),
     dataIndex: "variation",
     key: "variation",
-    width: 130,
+    width: 90,
     sorter: (a: DataSource, b: DataSource) => {
       const variationA = typeof a.variation === 'number' ? a.variation : -Infinity;
       const variationB = typeof b.variation === 'number' ? b.variation : -Infinity;
@@ -267,20 +267,34 @@ const changeSymbol = (e: any) => {
 .list {
   width: 100%;
   position: relative;
-  height: calc(100% - 69px);
+  height: calc(100% - 24px);
   box-sizing: border-box;
-  padding: 5px;
+  padding-bottom: 5px;
 }
 
 .search {
   box-sizing: border-box;
-  padding: 4px 16px;
   border-top: 1px solid;
   border-bottom: 1px solid;
   @include border_color("border");
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
 
   .closeBtn:hover {
     @include font_color("primary");
   }
+}
+:deep .ant-input-affix-wrapper {
+  height: 28px;
+  font-size: 12px;
+}
+:deep .ant-table-wrapper .ant-table {
+  border-radius: 0;
+}
+:deep .ant-table-wrapper .ant-table:not(.ant-table-bordered) .ant-table-tbody >tr >td  {
+  border: none;
 }
 </style>
