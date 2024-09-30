@@ -148,6 +148,7 @@
                   :icon="h(CloseOutlined)"
                   size="small"
                   @click="delOrders(record)"
+                  type="text"
                 ></a-button>
               </a-tooltip>
             </template>
@@ -746,7 +747,7 @@ onMounted(async () => {
   .container {
     box-sizing: border-box;
     padding-right: 16px;
-    height: calc(100% - 25px - 24px);
+    height: calc(100% - 24px);
 
     .filter {
       height: 40px;

@@ -111,6 +111,7 @@ export const tableColumns: any = {
       key: "orderAction",
       fixed: "right",
       width: 100,
+      align: "right"
     },
   ],
   // 历史挂单

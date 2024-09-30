@@ -10,6 +10,8 @@ enum Api {
   HistoryOrders = "/login/get_history_orders",
   DelPendingOrders = "/login/delete_pending_orders",
   EditPendingOrders = "/login/modify_openning_orders",
+  MarketOrdersReverse = "/login/market_orders_reverse",
+  MarketOrdersDouble = "/login/market_orders_double",
 }
 
 export interface ReqOrderAdd {
@@ -294,6 +296,31 @@ export const delPendingOrders = (data: reqDelPendingOrders) => {
 export const historyOrders = (data: reqHistoryOrders) => {
   return request<resHistoryOrders[]>({
     url: Api.HistoryOrders,
+    method: "post",
+    data,
+    needLogin: true,
+  });
+};
+
+// 市价持仓反向
+interface resMarketOrders {
+  action_success: boolean; //	是否操作成功
+  login: number;
+  id: number;
+}
+
+export const marketOrdersReverse = (data: { id: number }) => {
+  return request<resMarketOrders>({
+    url: Api.MarketOrdersReverse,
+    method: "post",
+    data,
+    needLogin: true,
+  });
+};
+
+export const MarketOrdersDouble = (data: { id: number }) => {
+  return request<resMarketOrders>({
+    url: Api.MarketOrdersDouble,
     method: "post",
     data,
     needLogin: true,

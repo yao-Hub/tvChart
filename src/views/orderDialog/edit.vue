@@ -290,23 +290,40 @@ const closeOrder = async () => {
     });
   }
 };
-// 双倍持仓 （增加一个单）
+// 双倍持仓
 const doubleHoldingsConfirm = debounce(() => {
   confirmType.value = "double";
   confirmOpen.value = true;
 }, 200);
-import { marketOrdersAdd } from "api/order/index";
+import { MarketOrdersDouble } from "api/order/index";
 const doubleHoldings = async (reverse?: boolean) => {
-  const { symbol, sl_price, tp_price, volume, type } = props.orderInfo;
-  const realType = reverse ? +!type : type;
-  const updata = {
-    sl: sl_price,
-    tp: tp_price,
-    volume,
-    symbol,
-    type: realType,
-  };
-  const res = await marketOrdersAdd(updata);
+  const { symbol, volume, type, id } = props.orderInfo;
+  const res = await MarketOrdersDouble({ id });
+  if (res.data.action_success) {
+    notification.success({
+      message: "下单成功",
+      description: `${
+        type ? "卖出" : "买入"
+      }${volume / 100}手${symbol}的订单已提交。`,
+    });
+    handleCancel();
+    confirmCancel();
+  } else {
+    notification.error({
+      message: "下单失败",
+    });
+  }
+};
+// 反向持仓
+import { marketOrdersReverse } from "api/order/index";
+const reversePositionConfirm = debounce(() => {
+  confirmType.value = "reverse";
+  confirmOpen.value = true;
+}, 200);
+const reversePosition = async () => {
+  const { symbol, volume, type, id } = props.orderInfo;
+  const realType = +!type;
+  const res = await marketOrdersReverse({ id });
   if (res.data.action_success) {
     notification.success({
       message: "下单成功",
@@ -319,19 +336,8 @@ const doubleHoldings = async (reverse?: boolean) => {
   } else {
     notification.error({
       message: "下单失败",
-      description: `${res.data.err_text}`,
     });
   }
-};
-// 反向持仓（先删除在反向下单）
-const reversePositionConfirm = debounce(() => {
-  confirmType.value = "reverse";
-  confirmOpen.value = true;
-}, 200);
-const reversePosition = async () => {
-  const { symbol, id, volume } = props.orderInfo;
-  await marketOrdersClose({ id, symbol, volume });
-  await doubleHoldings(true);
 };
 const okCancel = debounce(async () => {
   try {
