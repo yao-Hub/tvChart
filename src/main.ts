@@ -10,12 +10,12 @@ import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import "./styles/common.scss";
 import "./assets/icons/iconfont/iconfont.css";
 
-import "element-plus/dist/index.css";
+// import "element-plus/dist/index.css";
 
 // import "./styles/element/dark/css-vars.scss";
 // import "./styles/element/dark/index.scss";
 
-import "./styles/element/index.scss";
+// import "./styles/element/index.scss";
 
 const bootstrap = () => {
   const app = createApp(App);
