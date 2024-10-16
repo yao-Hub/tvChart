@@ -1,4 +1,4 @@
-import { resOrders, resPendingOrders, resHistoryOrders } from "api/order/index";
+// import { resOrders, resPendingOrders, resHistoryOrders } from "api/order/index";
 
 export const tableColumns: any = {
   position: [

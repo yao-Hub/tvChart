@@ -19,6 +19,7 @@
             :model="closeFormState"
             class="closeForm"
             label-position="top"
+            :rules="closeRules"
           >
             <el-form-item prop="symbol" label="交易品种">
               <el-input disabled :value="props.orderInfo.symbol"></el-input>
@@ -29,31 +30,17 @@
                 :value="$t(`order.${transactionType}`)"
               ></el-input>
             </el-form-item>
-            <el-form-item
-              prop="volume"
-              label="平仓量"
-              :rules="[
-                {
-                  required: true,
-                  validator: validateVolume,
-                  trigger: 'change',
-                },
-              ]"
-            >
+            <el-form-item prop="volume" label="平仓量">
               <div style="display: flex; width: 100%; gap: 16px">
                 <StepNumInput
                   :step="step"
                   v-model:value="closeFormState.volume"
                 ></StepNumInput>
                 <el-tooltip content="反向持仓" placement="top-start">
-                  <el-button :icon="Back" @click="reversePositionConfirm" />
+                  <el-button :icon="Back" @click="handleConfirm('reverse', closeFormRef)" />
                 </el-tooltip>
-                <el-tooltip
-                  content="双倍持仓"
-                  @click="doubleHoldingsConfirm"
-                  placement="top-start"
-                >
-                  <el-button @click="reversePositionConfirm">
+                <el-tooltip content="双倍持仓" placement="top-start">
+                  <el-button @click="handleConfirm('double', closeFormRef)">
                     <i class="iconfont icon-icon_2times"></i>
                   </el-button>
                 </el-tooltip>
@@ -74,7 +61,7 @@
                 <el-button
                   type="primary"
                   class="closeBtn"
-                  @click="closeOrderConfirm(closeFormRef)"
+                  @click="handleConfirm('close', closeFormRef)"
                   >按市价平仓</el-button
                 >
               </el-col>
@@ -173,8 +160,8 @@ const symbolInfo = computed(() => {
   return subStore.symbols.find((e) => e.symbol === props.orderInfo.symbol);
 });
 
-import type { FormInstance } from "element-plus";
 // 平仓表单
+import type { FormInstance, FormRules } from "element-plus";
 interface CloseFormState {
   volume: string | number;
 }
@@ -182,7 +169,7 @@ const closeFormRef = ref<FormInstance>();
 const closeFormState = reactive<CloseFormState>({
   volume: "",
 });
-const validateVolume = async (rule: any, value: any, callback: any) => {
+const validateVolume = (rule: any, value: any, callback: any) => {
   if (value === "") {
     return callback(new Error("请输入手数"));
   } else if (+value > props.orderInfo.volume / 100 || +value <= 0) {
@@ -191,6 +178,9 @@ const validateVolume = async (rule: any, value: any, callback: any) => {
     callback();
   }
 };
+const closeRules = reactive<FormRules<typeof closeFormState>>({
+  volume: [{ validator: validateVolume, trigger: "blur" }],
+});
 
 // 止盈止损表单
 const stopFormState = reactive({
@@ -250,18 +240,19 @@ const confirmLoading = ref(false);
 const confirmCancel = () => {
   confirmOpen.value = false;
 };
-const confirmType = ref<"close" | "reverse" | "double">("close");
-// 平仓操作
-const closeOrderConfirm = (formEl: FormInstance | undefined) => {
+type ConfirmType = "close" | "reverse" | "double";
+const confirmType = ref<ConfirmType>("close");
+const handleConfirm = debounce((type: ConfirmType, formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.validate((valid) => {
-    console.log(valid);
     if (valid) {
-      confirmType.value = "close";
+      confirmType.value = type;
       confirmOpen.value = true;
     }
   });
-};
+}, 200);
+
+// 平仓操作
 const orderStore = useOrder();
 const closeOrder = async () => {
   const { id, symbol } = props.orderInfo;
@@ -285,11 +276,8 @@ const closeOrder = async () => {
     });
   }
 };
+
 // 双倍持仓
-const doubleHoldingsConfirm = debounce(() => {
-  confirmType.value = "double";
-  confirmOpen.value = true;
-}, 200);
 import { MarketOrdersDouble } from "api/order/index";
 const doubleHoldings = async (reverse?: boolean) => {
   const { symbol, volume, type, id } = props.orderInfo;
@@ -312,10 +300,6 @@ const doubleHoldings = async (reverse?: boolean) => {
 };
 // 反向持仓
 import { marketOrdersReverse } from "api/order/index";
-const reversePositionConfirm = debounce(() => {
-  confirmType.value = "reverse";
-  confirmOpen.value = true;
-}, 200);
 const reversePosition = async () => {
   const { symbol, volume, type, id } = props.orderInfo;
   const realType = +!type;
