@@ -1,8 +1,7 @@
 import { defineStore } from "pinia";
 // import { createApp } from "vue";
 import { useRouter } from "vue-router";
-import { Modal } from "ant-design-vue";
-
+import { ElMessageBox } from "element-plus";
 import { useDialog } from "./dialog";
 import { useChartAction } from "./chartAction";
 import { useUser } from "./user";
@@ -43,22 +42,22 @@ export const useOrder = defineStore("order", {
       const dialogStore = useDialog();
       const userStore = useUser();
       if (!userStore.getToken()) {
-        Modal.confirm({
-          title: "未登录",
-          okText: "去登录",
-          onOk() {
-            const router = useRouter();
-            const chartActionStore = useChartAction();
-            chartActionStore.setCacheAction("createOrder");
-            router.replace({ name: 'login' });
-          }
-        })
+        ElMessageBox.confirm("", "未登录", {
+          confirmButtonText: "去登录",
+          cancelButtonText: "取消",
+          type: "warning",
+        }).then(() => {
+          const router = useRouter();
+          const chartActionStore = useChartAction();
+          chartActionStore.setCacheAction("createOrder");
+          router.replace({ name: "login" });
+        });
         return;
       }
       if (userStore.loginInfo?.trade_rights !== 1) {
-        Modal.error({
-          title: "无权限",
-          content: "当前账户禁止交易",
+        ElMessageBox.alert("当前账户禁止交易", "无权限", {
+          confirmButtonText: "确认",
+          type: "error",
         });
         return;
       }
@@ -80,7 +79,8 @@ export const useOrder = defineStore("order", {
 
     // 获取快捷交易状态
     getQuickTrans() {
-      const result = window.localStorage.getItem("ifQuick") || JSON.stringify(false);
+      const result =
+        window.localStorage.getItem("ifQuick") || JSON.stringify(false);
       this.ifQuick = JSON.parse(result);
     },
   },

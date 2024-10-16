@@ -6,7 +6,7 @@ import axios, {
 import { remove } from "lodash";
 import type { CustomResponseType } from "#/axios";
 import { encrypt, decrypt } from "utils/DES/JS";
-import { notification, Modal } from "ant-design-vue";
+import { ElNotification, ElMessageBox } from "element-plus";
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
 
@@ -52,7 +52,7 @@ const service = axios.create({
   headers: {
     "Content-Type": "application/json",
     "x-u-app-version": "1.0.0",
-    "version": "1.0.0",
+    version: "1.0.0",
     "x-u-device-id": uuid,
     "x-u-platform": "web",
   },
@@ -106,10 +106,8 @@ service.interceptors.request.use(
       d: encrypt(JSON.stringify(config.data)),
     };
     console.log("request----", {
-      currentNode: networkStore.currentNode,
       url: config.url,
       data: config.data,
-      p,
     });
     config.data = JSON.stringify(p);
     return config;
@@ -128,7 +126,7 @@ service.interceptors.response.use(
       if (data.data) {
         data.data = JSON.parse(decrypt(data.data));
       }
-      console.log("response....", { url: response.config.url, data });
+      console.log("response....", { url: config.url, data });
       return response;
     }
     if (
@@ -141,40 +139,41 @@ service.interceptors.response.use(
         tokenErrorList.push(config.url);
       }
       if (tokenErrorList.length === 1) {
-        Modal.confirm({
-          title: "error",
-          content: data.errmsg,
-          okText: "重新登陆",
-          onOk() {
-            const userStore = useUser();
-            userStore.clearToken();
-            userStore.loginInfo = null;
-            remove(tokenErrorList);
-            window.location.replace(window.location.origin + "/login");
-          },
+        ElMessageBox.confirm(data.errmsg, "error", {
+          confirmButtonText: "重新登陆",
+          cancelButtonText: "取消",
+        }).then(() => {
+          const userStore = useUser();
+          userStore.clearToken();
+          userStore.loginInfo = null;
+          remove(tokenErrorList);
+          window.location.replace(window.location.origin + "/login");
         });
       }
       return Promise.reject(data);
     }
-    notification["error"]({
-      message: "error",
-      description: data.errmsg || data.err || "response error",
+    ElNotification({
+      title: "Error",
+      message: data.errmsg || data.err || "response error",
+      type: "error",
     });
     return Promise.reject(data);
   },
   (err) => {
     const res = err.response;
     if (res && res.data) {
-      notification["error"]({
-        message: "request error",
-        description: res.data.errmsg || err.message || "something error",
+      ElNotification({
+        title: "request Error",
+        message: res.data.errmsg || err.message || "something error",
+        type: "error",
       });
       return Promise.reject(err);
     }
     if (res && res.status) {
-      notification["error"]({
-        message: err.name || "request error",
-        description: err.message || `statusCode: ${res.status}`,
+      ElNotification({
+        title: err.name || "request error",
+        message: err.message || `statusCode: ${res.status}`,
+        type: "error",
       });
       return Promise.reject(err);
     }

@@ -1,14 +1,14 @@
 <template>
-  <a-form-item
-    :name="props.formOption.name"
+  <el-form-item
+    label-position="top"
+    :prop="props.formOption.name"
     :label="props.formOption.label"
     :rules="[
       { required: true, trigger: ['change', 'blur'], validator: validator },
     ]"
-    validateFirst
   >
     <StepNumInput v-model:value="price" :step="step"></StepNumInput>
-  </a-form-item>
+  </el-form-item>
 </template>
 
 <script setup lang="ts">
@@ -83,13 +83,14 @@ watch(
 );
 
 // 检查价格是否合法
-const validator = () => {
+const validator = (rule: any, value: any, callback: any) => {
   const type = props.orderType.toLocaleLowerCase();
   if ([undefined, ""].includes(price.value)) {
-    return Promise.reject(`请输入${props.formOption.label}`);
+    // return Promise.reject(`请输入${props.formOption.label}`);
+    return callback(new Error(`请输入${props.formOption.label}`));
   }
   let size = "";
-  let value: string | number = "";
+  let val: string | number = "";
   let result = false;
   const leed = getLeed();
   if (leed) {
@@ -98,28 +99,28 @@ const validator = () => {
       if (["buyLimit", "sellLimit"].includes(props.orderType)) {
         result = +price.value <= +result_1;
         size = "≤";
-        value = result_1;
+        val = result_1;
       } else {
         result = +price.value >= +result_2;
         size = "≥";
-        value = result_2;
+        val = result_2;
       }
     }
     if (type.includes("sell")) {
       if (["buyLimit", "sellLimit"].includes(props.orderType)) {
         result = +price.value >= +result_2;
         size = "≥";
-        value = result_2;
+        val = result_2;
       } else {
         result = +price.value <= +result_1;
         size = "≤";
-        value = result_1;
+        val = result_1;
       }
     }
   }
   if (!result) {
-    return Promise.reject(`${props.formOption.label}需${size}${value}`);
+    return callback(new Error(`${props.formOption.label}需${size}${val}`));
   }
-  return Promise.resolve();
+  callback();
 };
 </script>

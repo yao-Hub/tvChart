@@ -1,14 +1,14 @@
 <template>
-  <a-menu-item v-for="i in 5" :key="i">
+  <!-- <a-menu-item v-for="i in 5" :key="i">
     <div class="item">
       <span>交易订单</span>
       <CheckOutlined />
     </div>
-  </a-menu-item>
+  </a-menu-item> -->
 </template>
 
 <script setup lang="ts">
-import { CheckOutlined } from "@ant-design/icons-vue";
+// import { CheckOutlined } from "@ant-design/icons-vue";
 </script>
 
 <style lang="scss" scoped>

@@ -93,7 +93,7 @@ const chartType = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .dragArea {
   height: calc(100vh - 30px - 48px);

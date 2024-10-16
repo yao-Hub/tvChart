@@ -1,38 +1,49 @@
 <template>
-  <a-menu-item v-for="(value, key) in localeList" :key="key">
-    <div class="item" @click="changeLocale(key)">
-      <span>{{ value.nowLocale }}</span>
-      <CheckOutlined v-if="curentLocale === key" class="checkIcon"/>
+  <el-dropdown trigger="hover" placement="right-start">
+    <div class="expandIcon">
+      <div class="expandIcon_left">
+        <TranslationOutlined />
+        <span>{{ $t("lauguage") }}</span>
+      </div>
+      <div class="expandIcon_right">
+        <span>{{ nowLocale }}</span>
+        <RightOutlined style="font-size: 12px" />
+      </div>
     </div>
-  </a-menu-item>
+    <template #dropdown>
+      <Locales></Locales>
+    </template>
+  </el-dropdown>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { CheckOutlined } from "@ant-design/icons-vue";
-import i18n from "@/language/index";
+import { RightOutlined, TranslationOutlined } from "@ant-design/icons-vue";
+import Locales from "./Locales.vue";
 import { useI18n } from "vue-i18n";
-const { locale } = useI18n();
-
-const localeList = i18n.global.messages.value;
-const curentLocale = computed(() => {
-  return locale.value;
+const I18n = useI18n();
+const nowLocale = computed(() => {
+  const { locale, messages } = I18n;
+  const localeList = messages.value;
+  const curentLocale = locale.value;
+  return localeList[curentLocale].nowLocale;
 });
-
-const changeLocale = (value: string) => {
-  locale.value = value;
-  window.localStorage.setItem("language", value);
-  window.location.reload();
-};
 </script>
 
 <style lang="scss" scoped>
-.item {
-  width: 150px;
+.expandIcon {
+  width: 200px;
   display: flex;
   justify-content: space-between;
+  height: 32px;
   align-items: center;
-  padding: 0 5px;
-  box-sizing: border-box;
+  &_left {
+    display: flex;
+    gap: 5px;
+  }
+  &_right {
+    display: flex;
+    gap: 5px;
+  }
 }
 </style>

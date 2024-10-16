@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { message } from "ant-design-vue";
+import { ElMessage } from "element-plus";
 import { pick, assign } from "lodash";
 import CryptoJS from "utils/AES";
 import { getLoginInfo, UserInfo, Login, reqLogin } from "api/account/index";
@@ -130,7 +130,7 @@ export const useUser = defineStore("user", {
       await networkStore.getNodes(updata.server);
       const nodeList = networkStore.nodeList;
       if (nodeList.length === 0) {
-        message.info("找不到网络节点");
+        ElMessage.info("找不到网络节点");
         return Promise.reject();
       }
       let errorCount = 0;
@@ -142,7 +142,7 @@ export const useUser = defineStore("user", {
           // socket地址确定
           socketStore.initSocket();
           const res = await Login(updata);
-          console.log("login", res)
+          console.log("login", res);
           const token = res.data.token;
           // 缓存token 发送登录状态
           this.setToken(token);
@@ -155,7 +155,7 @@ export const useUser = defineStore("user", {
           });
           return Promise.resolve();
         } catch (error) {
-          console.log(error)
+          console.log(error);
           errorCount++;
           continue;
         }

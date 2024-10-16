@@ -1,88 +1,109 @@
 <template>
-  <a-dropdown :trigger="['click']" v-model:open="visible">
+  <el-dropdown trigger="click">
     <div class="info">
       <span
-        >{{ networkStore.currentNode?.nodeName }},
-        {{ userStore.loginInfo?.total_name || userStore.account.login }}</span
+        >{{ networkStore.currentNode?.nodeName }},{{
+          userStore.loginInfo?.total_name || userStore.account.login
+        }}</span
       >
-      <a-flex justify="space-between" class="blance" @click="visible = true">
+      <div class="blance">
         <span>{{ userStore.loginInfo?.balance }}</span>
         <CaretDownOutlined />
-      </a-flex>
+      </div>
     </div>
-    <template #overlay>
-      <a-menu @click="handleMenuClick">
-        <div
-          v-for="item in userStore.accountList"
-          :key="item.login"
-          class="item"
-        >
-          <a-menu-item :key="item.login">
-            <a-flex align="center" :gap="5">
-              <GlobalOutlined />
-              <span class="menuItem">{{ item.server }}</span>
-              <a-divider type="vertical" />
-              <span class="menuItem">{{ item.login }}</span>
-              <a-divider type="vertical" />
-              <span>{{ item.blance }}</span>
-              <CheckOutlined v-show="item.login === userStore.account.login" style="margin-left: auto;"/>
-            </a-flex>
-          </a-menu-item>
-          <a-menu-divider />
-        </div>
-        <a-menu-item>
-          <a-flex justify="space-between" align="center" :gap="5">
-            <span class="btn" @click="showModal">个人信息</span>
-            <a-divider type="vertical" />
-            <span class="btn" @click="resetPasswordOpen = true">更改密码</span>
-            <a-divider type="vertical" />
-            <span class="btn" @click="$router.push({ name: 'login' })"
-              >添加账号</span
-            >
-            <a-divider type="vertical" />
-            <span class="btn logout" @click="logout">退出登录</span>
-          </a-flex>
-        </a-menu-item>
-      </a-menu>
+    <template #dropdown>
+      <el-dropdown-menu>
+        <el-dropdown-item v-for="item in userStore.accountList">
+          <div
+            :class="[
+              item.login === userStore.account.login
+                ? 'item item_active'
+                : 'item',
+            ]"
+            @click="changeLogin(item.login)"
+          >
+            <!-- <GlobalOutlined class="icon" /> -->
+            <img class="icon" src="@/assets/icons/logo@3x.png" />
+            <span class="word">{{ item.server }}</span>
+            <span class="divider">|</span>
+            <span class="word">{{ item.login }}</span>
+            <span class="divider">|</span>
+            <span>{{ item.blance }}</span>
+          </div>
+        </el-dropdown-item>
+      </el-dropdown-menu>
+      <div class="account">
+        <span @click="modalOpen = true">个人信息</span>
+        <el-divider direction="vertical" />
+        <span @click="resetPasswordOpen = true">更改密码</span>
+        <el-divider direction="vertical" />
+        <span @click="$router.push({ name: 'login' })">添加账号</span>
+        <el-divider direction="vertical" />
+        <span @click="logout">退出登录</span>
+      </div>
     </template>
-  </a-dropdown>
+  </el-dropdown>
 
-  <a-modal v-model:open="modalOpen" title="个人信息" @ok="handleOk">
-    <div class="personalInfo">
-      <p>经纪商名称: {{ networkStore.currentLine?.brokerName }}</p>
-      <p>线路名称: {{ networkStore.nodeName }}</p>
-      <p>登录id:</p>
-      <p>服务器: {{ networkStore.currentNode?.ip }}</p>
-      <p>已连接节点: {{ networkStore.currentNode?.nodeName }}</p>
-      <p>邮箱地址:</p>
-    </div>
-  </a-modal>
+  <el-dialog v-model="modalOpen" width="486" :zIndex="10" destroy-on-close>
+    <template #header>
+      <span class="header">个人信息</span>
+    </template>
+    <el-row>
+      <el-col :span="24">
+        <span class="label">经纪商名称：</span>
+        <span class="value">{{ networkStore.currentLine?.brokerName }}</span>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="12">
+        <span class="label">线路名称：</span>
+        <span class="value">{{ networkStore.nodeName }}</span>
+      </el-col>
+      <el-col :span="12">
+        <span class="label">登录id：</span>
+        <span class="value"></span>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="12">
+        <span class="label">服务器：</span>
+        <span class="value">{{ networkStore.currentNode?.ip }}</span>
+      </el-col>
+      <el-col :span="12">
+        <span class="label">已连接节点：</span>
+        <span class="value">{{ networkStore.currentNode?.nodeName }}</span>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <span class="label">邮箱地址：</span>
+        <span class="value"></span>
+      </el-col>
+    </el-row>
+  </el-dialog>
 
   <ResetPassword v-model:open="resetPasswordOpen"></ResetPassword>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { CaretDownOutlined, GlobalOutlined, CheckOutlined } from "@ant-design/icons-vue";
-import type { MenuProps } from "ant-design-vue";
+import { CaretDownOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
 
-import ResetPassword from "@/views/login/components/ResetPassword.vue"
+import ResetPassword from "@/views/login/components/ResetPassword.vue";
 const resetPasswordOpen = ref(false);
 
 const networkStore = useNetwork();
 const userStore = useUser();
 const router = useRouter();
 
-const visible = ref(false);
-const handleMenuClick: MenuProps["onClick"] = async (e) => {
-  visible.value = false;
-  if (e.key === userStore.account.login) {
+const changeLogin = async (login: string) => {
+  if (login === userStore.account.login) {
     return;
   }
-  const account = userStore.accountList.find((item) => item.login === e.key);
+  const account = userStore.accountList.find((item) => item.login === login);
   if (account) {
     const { login, password, server } = account;
     await userStore.login({
@@ -100,16 +121,10 @@ const logout = () => {
 };
 
 const modalOpen = ref<boolean>(false);
-const showModal = () => {
-  modalOpen.value = true;
-};
-const handleOk = () => {
-  modalOpen.value = false;
-};
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .info {
   height: 100%;
@@ -118,40 +133,91 @@ const handleOk = () => {
   flex-direction: column;
   justify-content: space-evenly;
   font-size: 12px;
-}
-.item {
-  border-radius: 4px;
-  &:active {
-    @include background_color("primary");
-  }
+  gap: 6px;
 }
 .blance {
-  cursor: pointer;
-  &:hover {
-    @include font_color("primary");
-  }
-}
-.menuItem {
-  max-width: 70px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.btn {
-  cursor: pointer;
-  &:hover {
-    @include font_color("primary");
-  }
-}
-.logout {
-  color: #dc1d43;
-}
-.personalInfo {
   display: flex;
-  flex-wrap: wrap;
-  gap: 14px;
-  p {
-    width: calc(50% - 15px);
+  justify-content: space-between;
+  cursor: pointer;
+  &:hover {
+    @include font_color("primary");
   }
+}
+.item {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  border-radius: 4px;
+  width: 324px;
+  height: 40px;
+  padding: 0 16px;
+  &_active {
+    @include background_color("primary");
+  }
+  .icon {
+    margin-right: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+  }
+  .word {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    @include font_color("word");
+  }
+  .divider {
+    margin: 0 10px;
+  }
+}
+.account {
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 5px;
+  margin-top: 24px;
+  border-top: 1px solid;
+  padding: 0 16px;
+  @include font_color("word-gray");
+  @include border_color("border");
+  span {
+    cursor: pointer;
+    &:hover {
+      @include font_color("primary");
+    }
+    &:last-child {
+      color: #dc1d43;
+    }
+  }
+}
+
+.header {
+  font-weight: bold;
+  font-size: 16px;
+  @include font_color("word");
+}
+.label {
+  @include font_color("word-gray");
+  font-weight: 400;
+  font-size: 14px;
+}
+.value {
+  @include font_color("word");
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.el-row {
+  margin-bottom: 16px;
+}
+.el-row:first-child {
+  margin-top: 20px;
+}
+:deep(.el-dropdown-menu__item) {
+  margin: 0 8px;
+  border-radius: 4px;
+  padding: 0;
 }
 </style>

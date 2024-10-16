@@ -1,15 +1,12 @@
 <template>
   <div class="timeSelect">
-    <span style="font-size: 12px;">
+    <span style="font-size: 12px">
       <slot></slot>
     </span>
-    <a-range-picker
-      style="max-width: 300px;"
-      v-model:value="timeRange"
-      :format="dateFormat"
-      :disabledDate="disabledDate"
-      :show-time="{ defaultValue: dayjs('00:00:00', 'HH:mm:ss') }"
-      :presets="rangePresets"
+    <el-date-picker
+      v-model="timeRange"
+      type="datetimerange"
+      :shortcuts="shortcuts"
       v-bind="props.pickerOption"
       @change="timeChange"
     />
@@ -18,11 +15,30 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+
+const shortcuts = [
+  {
+    text: "本周",
+    value: () => {
+      return [dayjs().startOf("week"), dayjs()];
+    },
+  },
+  {
+    text: "本月",
+    value: () => {
+      return [dayjs().startOf("month"), dayjs()];
+    },
+  },
+  {
+    text: "今年",
+    value: () => {
+      return [dayjs().startOf("year"), dayjs()];
+    },
+  },
+];
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
-
-const dateFormat = "YYYY-MM-DD HH:mm:ss";
 
 interface Props {
   initFill?: boolean;
@@ -31,23 +47,16 @@ interface Props {
 
 const props = defineProps<Props>();
 
-const model = defineModel();
-
-type RangeValue = [Dayjs, Dayjs];
-const timeRange = ref<RangeValue>();
-const rangePresets = ref([
-  { label: '本周', value: [ dayjs().startOf('week'), dayjs() ] },
-  { label: '本月', value: [ dayjs().startOf('month'), dayjs() ] },
-  { label: '今年', value: [ dayjs().startOf('year'), dayjs() ] },
-]);
+const dateFormat = "YYYY-MM-DD HH:mm:ss";
+const timeRange = ref<string[]>([]);
+const model = defineModel<any[]>("value");
 
 const initializeTimeRange = async () => {
   if (props.initFill) {
-    const monday = dayjs().startOf("week").startOf("day"); // 当前周一的日期
-    const today = dayjs();
-    timeRange.value = [monday, today];
+    const monday = dayjs().startOf("week").startOf("day").format(dateFormat); // 当前周一的日期
+    const today = dayjs().format(dateFormat);
     model.value = [monday, today];
-    emit("timeRange", [monday, today]);
+    timeRange.value = [monday, today];
   }
 };
 onMounted(() => {
@@ -56,21 +65,22 @@ onMounted(() => {
 
 const emit = defineEmits(["timeRange"]);
 
-const timeChange = (date: Dayjs | string, dateString: string[]) => {
-  emit("timeRange", dateString);
-  model.value = dateString;
-};
-const disabledDate = (current: Dayjs) => {
-  return current && current > dayjs().endOf("day");
+const timeChange = (value: any) => {
+  if (value !== null) {
+    const [st, et] = value;
+    const startDate = dayjs(st).format(dateFormat);
+    const endDate = dayjs(et).format(dateFormat);
+    model.value = [startDate, endDate];
+  } else {
+    model.value = [];
+  }
+  emit("timeRange");
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
-.ant-picker-range {
-  border: none;
-}
 .timeSelect {
   border-radius: 4px;
   border: 1px solid;
@@ -79,5 +89,16 @@ const disabledDate = (current: Dayjs) => {
   &:hover {
     @include border_color("primary");
   }
+}
+:deep(.el-date-editor.el-input__wrapper) {
+  box-shadow: 0 0 0 0;
+  padding: 0;
+  width: 320px;
+}
+:deep(.el-icon:first-child) {
+  width: 0;
+}
+:deep(.el-date-editor .el-range-input) {
+  width: 50%;
 }
 </style>

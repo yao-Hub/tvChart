@@ -7,7 +7,7 @@
     <div class="input">
       <UpOutlined class="icon" @click="addNum" />
       <input type="text" v-model="volume" />
-      <DownOutlined class="icon" @click="reduceNum"/>
+      <DownOutlined class="icon" @click="reduceNum" />
     </div>
     <div class="area">
       <div class="btn buybtn" @click="creatOrder('buy')">BUY</div>
@@ -32,12 +32,13 @@ const chartInitStore = useChartInit();
 const dialogStore = useDialog();
 
 import { useOrder } from "@/store/modules/order";
-import { message } from "ant-design-vue";
+import { ElMessage } from "element-plus";
+
 const orderStore = useOrder();
 
 interface Props {
   symbol: string;
-  id: string
+  id: string;
 }
 const props = defineProps<Props>();
 
@@ -64,9 +65,9 @@ const getQuotes = (type: "bid" | "ask", symbol: string) => {
 // 下单手数
 const volume = ref<string>();
 // 单笔最小手数
-const minVolume = ref<string>('0');
+const minVolume = ref<string>("0");
 // 单笔最大手数
-const maxVolume = ref<string>('0');
+const maxVolume = ref<string>("0");
 
 // 当前品种
 const symbolInfo = ref<SessionSymbolInfo>();
@@ -95,24 +96,24 @@ const regex = /^-?\d+(\.\d+)?$/;
 const valid = () => {
   const value = volume.value;
   if (value === undefined) {
-    message.error("请输入手数");
+    ElMessage.error("请输入手数");
     return false;
   }
   if (!regex.test(value)) {
-    message.error("请输入正确的数字格式");
+    ElMessage.error("请输入正确的数字格式");
     return false;
   }
   if (value < minVolume.value) {
-    message.error(`不能小于单笔最小手数${minVolume.value}`);
+    ElMessage.error(`不能小于单笔最小手数${minVolume.value}`);
     return false;
   }
   if (value > maxVolume.value) {
-    message.error(`不能大于单笔最大手数${maxVolume.value}`);
+    ElMessage.error(`不能大于单笔最大手数${maxVolume.value}`);
     return false;
   }
   return true;
 };
-const creatOrder = async (type: 'sell' | 'buy') => {
+const creatOrder = async (type: "sell" | "buy") => {
   const ifOne = orderStore.getOneTrans();
   if (ifOne === null) {
     dialogStore.disclaimers = true;
@@ -131,16 +132,16 @@ const creatOrder = async (type: 'sell' | 'buy') => {
     };
     const res = await marketOrdersAdd(updata);
     if (res.data.action_success) {
-      message.success("下单成功");
+      ElMessage.success("下单成功");
       return;
     }
-    message.error(`下单失败：${res.data.err_text}`);
+    ElMessage.error(`下单失败：${res.data.err_text}`);
   }
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .orderBtn {
   display: flex;
@@ -151,7 +152,8 @@ const creatOrder = async (type: 'sell' | 'buy') => {
     display: flex;
   }
 }
-.price, .btn {
+.price,
+.btn {
   color: #fff;
   font-size: 12px;
   height: 18px;
@@ -166,17 +168,17 @@ const creatOrder = async (type: 'sell' | 'buy') => {
   cursor: pointer;
 }
 .sellword {
-  @include background_color('upHover');
+  @include background_color("upHover");
 }
 .sellBtn {
-  @include background_color('up');
+  @include background_color("up");
 }
 .buybtn {
-  @include background_color('down');
+  @include background_color("down");
 }
 .buyword {
-  @include background_color('downHover');
-} 
+  @include background_color("downHover");
+}
 .input {
   display: flex;
   border: 1px solid;
@@ -186,7 +188,7 @@ const creatOrder = async (type: 'sell' | 'buy') => {
   box-sizing: border-box;
   flex: 1;
   height: 100%;
-  @include background_color('background-component');
+  @include background_color("background-component");
 }
 .icon {
   font-size: 12px;

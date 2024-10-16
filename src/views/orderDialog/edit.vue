@@ -1,159 +1,152 @@
 <template>
-  <div ref="editRef">
-    <a-modal
-      wrapClassName="editModal"
-      centered
-      :getContainer="() => editRef"
-      :width="464"
-      :open="props.visible"
-      @cancel="handleCancel"
+  <div>
+    <el-dialog
+      align-center
+      width="464"
+      v-model="props.visible"
+      @close="handleCancel"
+      :z-index="13"
+      destroy-on-close
+      append-to-body
     >
-      <template #title>
-        <div class="title">
-          <span>ID: {{ props.orderInfo.id }}</span>
-        </div>
+      <template #header>
+        <span class="dialog_header">ID: {{ props.orderInfo.id }}</span>
       </template>
       <div class="container">
         <div class="container_top">
-          <a-form
+          <el-form
             ref="closeFormRef"
             :model="closeFormState"
             class="closeForm"
-            layout="vertical"
-            size="large"
+            label-position="top"
           >
-            <a-row :gutter="24">
-              <a-col :span="24">
-                <a-form-item name="symbol" label="交易品种">
-                  <a-input
-                    disabled
-                    v-model:value="props.orderInfo.symbol"
-                  ></a-input>
-                </a-form-item>
-              </a-col>
-              <a-col :span="24">
-                <a-form-item name="transactionType" label="订单类型">
-                  <a-input disabled :value="$t(`order.${transactionType}`)"></a-input>
-                </a-form-item>
-              </a-col>
-              <a-col :span="24">
-                <a-form-item
-                  name="volume"
-                  label="平仓量"
-                  :rules="[
-                    {
-                      required: true,
-                      validator: validateVolume,
-                      trigger: 'change',
-                    },
-                  ]"
+            <el-form-item prop="symbol" label="交易品种">
+              <el-input disabled :value="props.orderInfo.symbol"></el-input>
+            </el-form-item>
+            <el-form-item prop="transactionType" label="订单类型">
+              <el-input
+                disabled
+                :value="$t(`order.${transactionType}`)"
+              ></el-input>
+            </el-form-item>
+            <el-form-item
+              prop="volume"
+              label="平仓量"
+              :rules="[
+                {
+                  required: true,
+                  validator: validateVolume,
+                  trigger: 'change',
+                },
+              ]"
+            >
+              <div style="display: flex; width: 100%; gap: 16px">
+                <StepNumInput
+                  :step="step"
+                  v-model:value="closeFormState.volume"
+                ></StepNumInput>
+                <el-tooltip content="反向持仓" placement="top-start">
+                  <el-button :icon="Back" @click="reversePositionConfirm" />
+                </el-tooltip>
+                <el-tooltip
+                  content="双倍持仓"
+                  @click="doubleHoldingsConfirm"
+                  placement="top-start"
                 >
-                  <a-flex style="width: 100%" gap="16">
-                    <StepNumInput
-                      :step="step"
-                      v-model:value="closeFormState.volume"
-                    ></StepNumInput>
-                    <a-tooltip title="反向持仓">
-                      <a-button class="iconbtn" @click="reversePositionConfirm">
-                        <template #icon>
-                          <RollbackOutlined />
-                        </template>
-                      </a-button>
-                    </a-tooltip>
-                    <a-tooltip title="双倍持仓">
-                      <a-button class="iconbtn" @click="doubleHoldingsConfirm">
-                        <template #icon>
-                          <i class="iconfont icon-icon_2times"></i>
-                        </template>
-                      </a-button>
-                    </a-tooltip>
-                  </a-flex>
-                </a-form-item>
-              </a-col>
-              <a-col :span="15" style="margin-top: 10px">
-                <a-form-item>
-                  <a-flex gap="16" justify="flex-start">
-                    <span class="sellWord">卖价: {{ props.quote.bid }}</span>
-                    <span class="buyWord">买价: {{ props.quote.ask }}</span>
-                  </a-flex>
-                </a-form-item>
-              </a-col>
-              <a-col :span="7" style="margin-top: 10px">
-                <a-form-item>
-                  <a-button
-                    type="primary"
-                    class="closeBtn"
-                    @click="closeOrderConfirm"
-                    >按市价平仓</a-button
+                  <el-button @click="reversePositionConfirm">
+                    <i class="iconfont icon-icon_2times"></i>
+                  </el-button>
+                </el-tooltip>
+              </div>
+            </el-form-item>
+            <el-form-item>
+              <el-col :span="15">
+                <div style="display: flex; gap: 16px; width: 100%">
+                  <span class="sellWord" style="width: 50%"
+                    >卖价: {{ props.quote.bid }}</span
                   >
-                </a-form-item>
-              </a-col>
-            </a-row>
-          </a-form>
+                  <span class="buyWord" style="width: 50%"
+                    >买价: {{ props.quote.ask }}</span
+                  >
+                </div>
+              </el-col>
+              <el-col :span="7">
+                <el-button
+                  type="primary"
+                  class="closeBtn"
+                  @click="closeOrderConfirm(closeFormRef)"
+                  >按市价平仓</el-button
+                >
+              </el-col>
+            </el-form-item>
+          </el-form>
         </div>
-        <a-form
-          ref="stopFormRef"
-          :model="stopFormState"
-          class="stopForm"
-          layout="vertical"
-        >
-          <a-row :gutter="24">
-            <a-col :span="12">
+        <el-form ref="stopFormRef" :model="stopFormState" class="stopForm">
+          <el-row :gutter="24">
+            <el-col :span="12">
               <StopLossProfit
                 type="stopLoss"
-                v-model:point="stopFormState.stopLoss"
+                v-model:price="stopFormState.stopLoss"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
                 :orderType="combinationType"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
-            </a-col>
-            <a-col :span="12">
+            </el-col>
+            <el-col :span="12">
               <StopLossProfit
                 type="stopProfit"
-                v-model:point="stopFormState.stopProfit"
+                v-model:price="stopFormState.stopProfit"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
                 :orderType="combinationType"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
-            </a-col>
-          </a-row>
-        </a-form>
+            </el-col>
+          </el-row>
+        </el-form>
       </div>
       <template #footer>
-        <a-button
+        <el-button
           type="primary"
           class="btn"
           :loading="modifyLoading"
+          :disabled="!stopFormState.stopLoss && !stopFormState.stopProfit"
           @click="modify"
-          >确认修改</a-button
+          >确认修改</el-button
         >
       </template>
-    </a-modal>
+    </el-dialog>
 
-    <a-modal
-      :width="464"
-      :open="confirmOpen"
-      okText="确认"
-      @ok="okCancel"
-      @cancel="confirmCancel"
-      :confirmLoading="confirmLoading"
-    >
-      <template #title>
+    <el-dialog :width="464" v-model="confirmOpen" align-center :z-index="14">
+      <template #header>
         <span v-if="confirmType === 'close'">平仓确认</span>
         <span v-if="confirmType === 'reverse'">反向持仓</span>
         <span v-if="confirmType === 'double'">确定对当前持仓加倍吗</span>
       </template>
-      <a-row :gutter="24" style="gap: 16px; flex-wrap: wrap; margin-top: 24px">
-        <a-col :span="9">订单ID：{{ props.orderInfo.id }}</a-col>
-        <a-col :span="9">交易品种：{{ props.orderInfo.symbol }}</a-col>
-        <a-col :span="9">订单类型：{{ $t(`order.${confirmType === 'reverse' ? reverseType : transactionType}`) }}</a-col>
-        <a-col :span="9">交易量：{{ closeFormState.volume }}</a-col>
-      </a-row>
-    </a-modal>
+      <el-row :gutter="24" style="gap: 16px; flex-wrap: wrap; margin-top: 24px">
+        <el-col :span="9">订单ID：{{ props.orderInfo.id }}</el-col>
+        <el-col :span="9">交易品种：{{ props.orderInfo.symbol }}</el-col>
+        <el-col :span="9"
+          >订单类型：{{
+            $t(
+              `order.${
+                confirmType === "reverse" ? reverseType : transactionType
+              }`
+            )
+          }}</el-col
+        >
+        <el-col :span="9">交易量：{{ closeFormState.volume }}</el-col>
+      </el-row>
+      <template #footer>
+        <el-button @click="confirmCancel">取消</el-button>
+        <el-button type="primary" @click="okCancel" :loading="confirmLoading"
+          >确认</el-button
+        >
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -161,14 +154,13 @@
 import { ref, reactive, computed, watch, nextTick } from "vue";
 import { resOrders } from "api/order/index";
 import { Quote } from "#/chart/index";
-import { RollbackOutlined } from "@ant-design/icons-vue";
+import { Back } from "@element-plus/icons-vue";
 interface Props {
   visible: boolean;
   orderInfo: resOrders;
   quote: Quote;
 }
 const props = defineProps<Props>();
-const editRef = ref();
 const emit = defineEmits();
 const handleCancel = () => {
   emit("update:visible", false);
@@ -181,35 +173,31 @@ const symbolInfo = computed(() => {
   return subStore.symbols.find((e) => e.symbol === props.orderInfo.symbol);
 });
 
+import type { FormInstance } from "element-plus";
 // 平仓表单
 interface CloseFormState {
   volume: string | number;
 }
-const closeFormRef = ref();
+const closeFormRef = ref<FormInstance>();
 const closeFormState = reactive<CloseFormState>({
   volume: "",
 });
-const validateVolume = async () => {
-  const value = closeFormState.volume;
+const validateVolume = async (rule: any, value: any, callback: any) => {
   if (value === "") {
-    return Promise.reject("请输入手数");
+    return callback(new Error("请输入手数"));
   } else if (+value > props.orderInfo.volume / 100 || +value <= 0) {
-    return Promise.reject("请输入合适范围的手数");
+    return callback(new Error("请输入合适范围的手数"));
   } else {
-    return Promise.resolve();
+    callback();
   }
 };
 
 // 止盈止损表单
-interface StopFormState {
-  stopLoss: string;
-  stopProfit: string;
-}
-const stopFormState = reactive<StopFormState>({
+const stopFormState = reactive({
   stopLoss: "",
   stopProfit: "",
 });
-const stopFormRef = ref();
+const stopFormRef = ref<FormInstance>();
 import StopLossProfit from "./components/StopLossProfit.vue";
 import { getTradingDirection, getOrderType } from "utils/order/index";
 // buy or sell
@@ -224,7 +212,7 @@ const combinationType = computed(() => {
   return `${transactionType.value}${orderType.value}`;
 });
 const reverseType = computed(() => {
-  return transactionType.value === 'sell' ? 'buy' : 'sell';
+  return transactionType.value === "sell" ? "buy" : "sell";
 });
 
 import { getDecimalPlaces } from "utils/common/index";
@@ -240,21 +228,22 @@ const step = computed(() => {
 watch(
   () => props.visible,
   async (val) => {
-    if (val) {
-      await nextTick();
-      await closeFormRef.value.resetFields();
-      await stopFormRef.value.resetFields();
-      closeFormState.volume = String(props.orderInfo.volume / 100);
-      stopFormState.stopLoss = props.orderInfo.sl_price.toString();
-      stopFormState.stopProfit = props.orderInfo.tp_price.toString();
+    await nextTick();
+    if (val && closeFormRef.value && stopFormRef.value) {
+      closeFormRef.value.resetFields();
+      stopFormRef.value.resetFields();
+      setTimeout(() => {
+        closeFormState.volume = String(props.orderInfo.volume / 100);
+        stopFormState.stopLoss = props.orderInfo.sl_price.toString();
+        stopFormState.stopProfit = props.orderInfo.tp_price.toString();
+      });
     }
-  },
-  { deep: true }
+  }
 );
 
 import { marketOrdersClose } from "api/order/index";
 import { useOrder } from "@/store/modules/order";
-import { message, notification } from "ant-design-vue";
+import { ElNotification, ElMessage } from "element-plus";
 import { debounce } from "lodash";
 const confirmOpen = ref(false);
 const confirmLoading = ref(false);
@@ -263,10 +252,15 @@ const confirmCancel = () => {
 };
 const confirmType = ref<"close" | "reverse" | "double">("close");
 // 平仓操作
-const closeOrderConfirm = async () => {
-  await closeFormRef.value?.validateFields();
-  confirmType.value = "close";
-  confirmOpen.value = true;
+const closeOrderConfirm = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate((valid) => {
+    console.log(valid);
+    if (valid) {
+      confirmType.value = "close";
+      confirmOpen.value = true;
+    }
+  });
 };
 const orderStore = useOrder();
 const closeOrder = async () => {
@@ -277,16 +271,17 @@ const closeOrder = async () => {
     volume: +closeFormState.volume * 100,
   });
   if (res.data.action_success) {
-    notification.success({
-      message: "仓位关闭成功",
-      description: `${closeFormState.volume}手${symbol}的订单已关闭。`,
+    ElNotification({
+      title: "仓位关闭成功",
+      type: "success",
+      message: `${closeFormState.volume}手${symbol}的订单已关闭。`,
     });
     handleCancel();
     confirmCancel();
   } else {
-    notification.error({
-      message: "仓位关闭失败",
-      description: `${res.data.err_text}`,
+    ElNotification.error({
+      title: "仓位关闭失败",
+      message: `${closeFormState.volume}手${symbol}的订单已关闭。`,
     });
   }
 };
@@ -300,16 +295,17 @@ const doubleHoldings = async (reverse?: boolean) => {
   const { symbol, volume, type, id } = props.orderInfo;
   const res = await MarketOrdersDouble({ id });
   if (res.data.action_success) {
-    notification.success({
-      message: "下单成功",
-      description: `${
-        type ? "卖出" : "买入"
-      }${volume / 100}手${symbol}的订单已提交。`,
+    ElNotification({
+      title: "下单成功",
+      type: "success",
+      message: `${type ? "卖出" : "买入"}${
+        volume / 100
+      }手${symbol}的订单已提交。`,
     });
     handleCancel();
     confirmCancel();
   } else {
-    notification.error({
+    ElNotification.error({
       message: "下单失败",
     });
   }
@@ -325,16 +321,17 @@ const reversePosition = async () => {
   const realType = +!type;
   const res = await marketOrdersReverse({ id });
   if (res.data.action_success) {
-    notification.success({
-      message: "下单成功",
-      description: `${
-        realType ? "卖出" : "买入"
-      }${volume / 100}手${symbol}的订单已提交。`,
+    ElNotification.success({
+      title: "下单成功",
+      message: `${realType ? "卖出" : "买入"}${
+        volume / 100
+      }手${symbol}的订单已提交。`,
+      type: "success",
     });
     handleCancel();
     confirmCancel();
   } else {
-    notification.error({
+    ElNotification.error({
       message: "下单失败",
     });
   }
@@ -365,38 +362,36 @@ const okCancel = debounce(async () => {
 import { editopenningOrders, reqEditOpeningOrders } from "api/order/index";
 const modifyLoading = ref(false);
 const modify = debounce(async () => {
-  await stopFormRef.value?.validateFields();
   const { stopLoss, stopProfit } = stopFormState;
-  if (stopLoss === "" && stopProfit === "") {
-    return;
-  }
-  const { id, symbol } = props.orderInfo;
-  const updata: reqEditOpeningOrders = { symbol, id };
-  if (stopProfit !== "") {
-    updata.tp = +stopProfit;
-  }
-  if (stopLoss !== "") {
-    updata.sl = +stopLoss;
-  }
-  modifyLoading.value = true;
-  const res = await editopenningOrders(updata);
-  modifyLoading.value = false;
-  if (res.data.action_success) {
-    message.success("修改成功");
-    handleCancel();
-    orderStore.refreshOrderArea = true;
-  } else {
-    message.error(res.data.err_text || "修改失败");
+  try {
+    if (stopLoss === "" && stopProfit === "") {
+      return;
+    }
+    const { id, symbol } = props.orderInfo;
+    const updata: reqEditOpeningOrders = { symbol, id };
+    if (stopProfit !== "") {
+      updata.tp = +stopProfit;
+    }
+    if (stopLoss !== "") {
+      updata.sl = +stopLoss;
+    }
+    modifyLoading.value = true;
+    const res = await editopenningOrders(updata);
+    if (res.data.action_success) {
+      ElMessage.success("修改成功");
+      handleCancel();
+      orderStore.refreshOrderArea = true;
+    } else {
+      ElMessage.error(res.data.err_text || "修改失败");
+    }
+  } finally {
+    modifyLoading.value = false;
   }
 }, 200);
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
-:deep(.ant-modal-content) {
-  padding: 0;
-  border-radius: 8px;
-}
+@import "@/styles/_handle.scss";
 .title {
   width: 100%;
   height: 56px;
@@ -404,7 +399,7 @@ const modify = debounce(async () => {
     margin-left: 32px;
     margin-top: 24px;
     display: inline-block;
-    font-weight: 500;
+    font-weight: bold;
     font-size: 18px;
   }
 }
@@ -417,7 +412,6 @@ const modify = debounce(async () => {
   &_top {
     box-sizing: border-box;
     width: 100%;
-    min-height: 340px;
     border: 1px solid;
     @include border_color("border");
     border-radius: 8px;

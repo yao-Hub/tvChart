@@ -1,13 +1,13 @@
 <template>
   <div>
-    <a-input v-model:value="model" type="number" @blur="inputBlur">
+    <el-input v-model="model" type="number" @blur="inputBlur">
       <template #prefix>
         <span class="btn" @click="handleSubtract">-</span>
       </template>
       <template #suffix>
         <span class="btn" @click="handleAdd">+</span>
       </template>
-    </a-input>
+    </el-input>
   </div>
 </template>
 

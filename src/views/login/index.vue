@@ -51,7 +51,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .login {
   width: 100vw;
@@ -66,7 +66,7 @@ onMounted(() => {
     left: 18%;
     top: 216px;
     font-size: 40px;
-    font-weight: 500;
+    font-weight: bold;
   }
   .main {
     position: absolute;

@@ -1,16 +1,24 @@
 <template>
-  <a-form-item
-    :name="props.type"
+  <el-form-item
+    label-position="top"
+    :prop="props.type"
     :label="titleMap[props.type]"
-    :help="helpMap[props.type]"
-    :validate-status="helpMap[props.type] ? 'error' : ''"
   >
     <StepNumInput v-model:value="price"></StepNumInput>
-    <a-form-item no-style>
-      <span class="tip" v-if="props.symbolInfo && price === ''">至少远离市价{{ props.symbolInfo?.stops_level }}点</span>
-      <span class="tip" v-if="props.symbolInfo && price !== ''">预计{{ tipWordType }}: {{ profit }}</span>
-    </a-form-item>
-  </a-form-item>
+    <el-form-item>
+      <el-text type="danger" v-if="helpMap[props.type]">{{
+        helpMap[props.type]
+      }}</el-text>
+      <span class="tip" v-if="props.symbolInfo && price === ''"
+        >至少远离市价{{ props.symbolInfo?.stops_level }}点</span
+      >
+      <span
+        class="tip"
+        v-if="props.symbolInfo && price !== '' && !helpMap[props.type]"
+        >预计{{ tipWordType }}: {{ profit }}</span
+      >
+    </el-form-item>
+  </el-form-item>
 </template>
 
 <script setup lang="ts">
@@ -82,7 +90,7 @@ const setStopLossHelp = () => {
     const leed = getLead("buy");
     if (leed) {
       const { result_1 } = leed;
-      if (ifBuy.value && +stopLoss > +result_1) {
+      if (+stopLoss > +result_1) {
         helpMap.stopLoss = `止损价不能大于${result_1}`;
         return;
       }
@@ -92,7 +100,7 @@ const setStopLossHelp = () => {
     const leed = getLead("sell");
     if (leed) {
       const { result_2 } = leed;
-      if (ifBuy.value && +stopLoss < +result_2) {
+      if (+stopLoss < +result_2) {
         helpMap.stopLoss = `止损价不能小于${result_2}`;
         return;
       }
@@ -130,16 +138,17 @@ const setStopProfitHelp = () => {
 };
 
 watch(
-  () => [ props.symbolInfo, props.quote ],
+  () => [props.symbolInfo, props.quote, price.value],
   () => {
-    setStopLossHelp();
-    setStopProfitHelp();
+    if (price.value) {
+      setStopLossHelp();
+      setStopProfitHelp();
+    }
   },
   {
-    deep: true
+    deep: true,
   }
 );
-
 
 const profit = computed(() => {
   let result: string | number = "";
@@ -167,7 +176,7 @@ const profit = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .tip {
   @include font_color("word-gray");

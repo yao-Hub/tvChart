@@ -16,16 +16,24 @@
         @itemDel="tabDelete"
       ></TabItem>
     </baseTabs>
-    <div class="charts_container" :style="{flexDirection: chartInitStore.chartFlexDirection}">
+    <div
+      class="charts_container"
+      :style="{ flexDirection: chartInitStore.chartFlexDirection }"
+    >
       <div
         class="charts_container_item"
         v-for="{ id, symbol } in chartList"
         :key="id"
         :id="id"
-        v-show="(state.activeKey === id && chartType === 'single') || chartType === 'multiple'"
+        v-show="
+          (state.activeKey === id && chartType === 'single') ||
+          chartType === 'multiple'
+        "
       >
         <div v-if="chartType === 'multiple'" style="display: flex">
-          <HolderOutlined class="handle" />
+          <!-- <HolderOutlined class="handle" /> -->
+          <img class="handle" src="@/assets/icons/move.png" />
+
           <baseTabs
             v-model:activeKey="state.activeKey"
             addable
@@ -40,11 +48,16 @@
           </baseTabs>
         </div>
         <FastAddOrder
-          v-if="symbol && !props.loading && !chartInitStore.chartLoading[id] && orderStore.ifQuick"
+          v-if="
+            symbol &&
+            !props.loading &&
+            !chartInitStore.chartLoading[id] &&
+            orderStore.ifQuick
+          "
           class="fastAddOrder"
           :style="{
             left: state.activeKey === id ? '60px' : '8px',
-            top: chartType === 'single' ? '92px' : '116px'
+            top: chartType === 'single' ? '92px' : '116px',
           }"
           :symbol="symbol"
           :id="id"
@@ -58,7 +71,11 @@
           :datafeed="datafeed(id)"
           :symbol="symbol || state.symbol"
           :theme="themeStore.systemTheme"
-          :disabledFeatures="id === state.activeKey ? state.disabledFeatures : ['left_toolbar', ...state.disabledFeatures]"
+          :disabledFeatures="
+            id === state.activeKey
+              ? state.disabledFeatures
+              : ['left_toolbar', ...state.disabledFeatures]
+          "
           @initChart="initChart"
         >
         </TVChart>
@@ -69,7 +86,6 @@
 
 <script setup lang="ts">
 import { reactive, computed, onMounted, watchEffect, watch } from "vue";
-import { HolderOutlined } from "@ant-design/icons-vue";
 import Sortable from "sortablejs";
 
 import { useChartInit } from "@/store/modules/chartInit";
@@ -94,7 +110,13 @@ const props = withDefaults(defineProps<Props>(), {
 const state = reactive({
   symbol: "XAU",
   activeKey: "chart_1",
-  disabledFeatures: ["header_compare", "header_saveload", "timeframes_toolbar", "save_chart_properties_to_local_storage", "use_localstorage_for_settings"],
+  disabledFeatures: [
+    "header_compare",
+    "header_saveload",
+    "timeframes_toolbar",
+    "save_chart_properties_to_local_storage",
+    "use_localstorage_for_settings",
+  ],
 });
 
 watchEffect(() => {
@@ -154,13 +176,12 @@ watch(
       state.activeKey = id;
     }
     // id && fillChart();
-  },
+  }
 );
-
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .charts {
   box-sizing: border-box;

@@ -1,11 +1,8 @@
 <template>
-  <div class="chart">
+  <div class="chart" v-loading.fullscreen.lock="chartInitStore.loading">
     <WPHeader></WPHeader>
     <dragArea></dragArea>
     <FooterInfo></FooterInfo>
-  </div>
-  <div v-if="chartInitStore.loading" class="loading">
-    <Spin></Spin>
   </div>
 
   <FloatMenu></FloatMenu>
@@ -61,11 +58,11 @@ async function init() {
   socketStore.initSocket();
   getSymbols();
   userStore.getLoginInfo({ emitSocket: true });
-};
+}
 onMounted(async () => {
   try {
     await init();
-    
+
     // 记忆动作
     const rootStore = useRoot();
     if (rootStore.cacheAction) {
@@ -79,21 +76,11 @@ onMounted(async () => {
 </script>
 
 <style scoped lang="scss">
-@import "@/assets/styles/_handle.scss";
 .chart {
   height: 100vh;
   display: flex;
   flex-direction: column;
   position: relative;
   overflow: auto;
-}
-.loading {
-  height: 100vh;
-  width: 100vw;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 9999;
-  @include background_color("background");
 }
 </style>

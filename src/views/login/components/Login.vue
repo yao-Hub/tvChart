@@ -1,94 +1,86 @@
 <template>
-  <div class="container">
+  <div class="Login">
     <span class="plogin">登录您的账号</span>
     <span class="padd">已有交易账号，可直接登录，如没有，可开模</span>
-    <a-form
-      size="large"
+    <el-form
+      ref="ruleFormRef"
       :model="formState"
-      layout="vertical"
-      name="normal_login"
+      label-position="top"
       class="login-form"
       :rules="rules"
-      @finish="onFinish"
+      size="large"
     >
-      <a-form-item name="server" :label="$t('order.tradingRoute')">
-        <a-select
-          show-search
-          v-model:value="formState.server"
-          :options="networkStore.queryTradeLines"
-          :filter-option="filterOption"
-          :field-names="{ label: 'lineName', value: 'lineName' }"
+      <el-form-item prop="server" :label="$t('order.tradingRoute')">
+        <el-select
+          v-model="formState.server"
+          filterable
+          default-first-option
+          :suffix-icon="Search"
         >
-          <template #suffixIcon
-            ><SearchOutlined style="font-size: 18px"
-          /></template>
-        </a-select>
-      </a-form-item>
+          <el-option
+            v-for="item in networkStore.queryTradeLines"
+            :key="item.lineName"
+            :label="item.lineName"
+            :value="item.lineName"
+          />
+        </el-select>
+      </el-form-item>
 
-      <a-form-item :label="$t('user.login')" name="login">
-        <a-input v-model:value="formState.login">
-          <template #prefix>
-            <UserOutlined class="site-form-item-icon" />
-          </template>
-        </a-input>
-      </a-form-item>
+      <el-form-item :label="$t('user.login')" prop="login">
+        <el-input v-model="formState.login" placeholder="Please input login" />
+      </el-form-item>
 
-      <a-form-item :label="$t('user.password')" name="password">
-        <a-input-password v-model:value="formState.password">
-          <template #prefix>
-            <LockOutlined class="site-form-item-icon" />
-          </template>
-        </a-input-password>
-      </a-form-item>
+      <el-form-item :label="$t('user.password')" prop="password">
+        <el-input
+          v-model="formState.password"
+          type="password"
+          placeholder="Please input password"
+          show-password
+        />
+      </el-form-item>
 
-      <a-form-item>
+      <el-form-item>
         <div class="login-form-remember">
-          <a-form-item name="remember" no-style>
-            <a-checkbox v-model:checked="formState.remember">{{
-              $t("account.rememberMe")
-            }}</a-checkbox>
-          </a-form-item>
-          <a-form-item name="forgetPassword" no-style>
-            <span class="link" @click="emit('forgetPassword')">{{
-              $t("account.forgetPassword")
-            }}</span>
-          </a-form-item>
+          <el-checkbox
+            v-model="formState.remember"
+            :label="$t('account.rememberMe')"
+          />
+          <span class="link" @click="emit('forgetPassword')">{{
+            $t("account.forgetPassword")
+          }}</span>
         </div>
-      </a-form-item>
+      </el-form-item>
 
-      <a-form-item>
-        <a-button
-          :disabled="disabled"
+      <el-form-item>
+        <el-button
+          style="width: 100%"
           type="primary"
-          html-type="submit"
-          class="login-form-button"
+          :disabled="disabled"
           :loading="formState.logging"
+          @click="happyStart"
+          >{{ $t("account.login") }}</el-button
         >
-          {{ $t("account.login") }}
-        </a-button>
-      </a-form-item>
-      <a-form-item>
+      </el-form-item>
+      <el-form-item>
         <div class="login-form-account">
           <span> {{ $t("account.noAccount") }}</span>
           <span class="link" @click="emit('register')">{{
             $t("account.createAccount")
           }}</span>
         </div>
-      </a-form-item>
-    </a-form>
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed } from "vue";
-import {
-  UserOutlined,
-  LockOutlined,
-  SearchOutlined,
-} from "@ant-design/icons-vue";
-import { message } from "ant-design-vue";
-import type { Rule } from "ant-design-vue/es/form";
-import { pick } from 'lodash'
+import { reactive, computed, ref } from "vue";
+import { Search } from "@element-plus/icons-vue";
+
+import { ElMessage } from "element-plus";
+import type { FormInstance, FormRules } from "element-plus";
+
+import { pick } from "lodash";
 import CryptoJS from "utils/AES";
 import { useUser } from "@/store/modules/user";
 import { useRouter } from "vue-router";
@@ -97,7 +89,22 @@ const userStore = useUser();
 const router = useRouter();
 const { t } = useI18n();
 
-const rules: Record<string, Rule[]> = {
+interface FormState {
+  login: string;
+  password: string;
+  remember: boolean;
+  server: string;
+  logging: boolean;
+}
+const formState = reactive<FormState>({
+  server: "",
+  login: "",
+  password: "",
+  remember: true,
+  logging: false,
+});
+const ruleFormRef = ref<FormInstance>();
+const rules = reactive<FormRules<typeof formState>>({
   server: [
     {
       required: true,
@@ -119,29 +126,14 @@ const rules: Record<string, Rule[]> = {
       trigger: "change",
     },
   ],
-};
-
-interface FormState {
-  login: string;
-  password: string;
-  remember: boolean;
-  server: string;
-  logging: boolean;
-}
-const formState = reactive<FormState>({
-  server: "",
-  login: "",
-  password: "",
-  remember: true,
-  logging: false,
 });
 
 // 获取网络节点
 import { useNetwork } from "@/store/modules/network";
 const networkStore = useNetwork();
 
-(async function () {
-  await networkStore.getLines();
+(function () {
+  networkStore.getLines();
   // 记住密码自动填充
   const ifRemember = window.localStorage.getItem("remember");
   if (ifRemember) {
@@ -159,18 +151,13 @@ const networkStore = useNetwork();
   }
 })();
 
-const filterOption = (input: string, option: any) => {
-  const regex = new RegExp(input.split("").join(".*"), "i");
-  return regex.test(option.lineName);
-};
-
-const onFinish = async (values: any) => {
+const happyStart = async () => {
   try {
     formState.logging = true;
-    const data = pick(values, ['login', 'password', 'queryNode', 'server']);
+    const data = pick(formState, ["login", "password", "server"]);
     await userStore.login(data);
-    window.localStorage.setItem("remember", JSON.stringify(values.remember));
-    message.success(t("tip.succeed", { type: t("account.login") }));
+    window.localStorage.setItem("remember", JSON.stringify(formState.remember));
+    ElMessage.success(t("tip.succeed", { type: t("account.login") }));
     router.push({ path: "/" });
   } finally {
     formState.logging = false;
@@ -184,29 +171,28 @@ const disabled = computed(() => {
 const emit = defineEmits(["register", "forgetPassword"]);
 </script>
 
-<style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
-
-.container {
-  position: relative;
+<style scoped lang="scss">
+@import "@/styles/_handle.scss";
+.Login {
   width: 512px;
   height: 648px;
   border-radius: 8px;
   box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
   @include background_color("background-component");
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
   box-sizing: border-box;
   padding: 56px;
   .plogin {
-    font-weight: 500;
+    font-weight: bold;
     font-size: 28px;
     height: 40px;
+    line-height: 40px;
+    display: block;
   }
   .padd {
     font-weight: 400;
     font-size: 14px;
+    line-height: 20px;
+    display: block;
     @include font_color("word-gray");
   }
 }
@@ -216,11 +202,13 @@ const emit = defineEmits(["register", "forgetPassword"]);
   width: 100%;
   font-size: 16px !important;
   &-remember {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
   &-account {
+    width: 100%;
     display: flex;
     justify-content: center;
   }

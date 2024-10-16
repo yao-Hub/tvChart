@@ -1,76 +1,79 @@
 <template>
-  <a-modal v-model:open="modalOpen" title="更改密码" :footer="null">
-    <div class="container">
-      <div class="container_title">
+  <el-dialog
+    v-model="modalOpen"
+    width="486"
+    :zIndex="10"
+    destroy-on-close
+    append-to-body
+  >
+    <template #header>
+      <span class="header">更改密码</span>
+    </template>
+    <div class="Reset">
+      <div class="Reset_title">
         <img src="@/assets/icons/logo@3x.png" />
-        <div class="container_title_right">
+        <div class="Reset_title_right">
           <span class="up">{{ networkStore.currentLine?.lineName }}</span>
           <span class="down">{{ networkStore.currentLine?.brokerName }}</span>
         </div>
       </div>
-      <a-form
-        ref="formRef"
-        name="form"
-        layout="vertical"
+
+      <el-form
+        label-width="auto"
         :model="formState"
-        :labelCol="{ span: 10 }"
         :rules="rules"
-        @finish="onFinish"
+        ref="formRef"
       >
-        <a-form-item
-          has-feedback
-          name="oldpass"
+        <el-form-item
           :label="$t('user.nowPassword')"
+          label-position="top"
+          prop="oldpass"
         >
-          <a-input
-            v-model:value="formState.oldpass"
-            type="password"
+          <el-input
+            v-model="formState.oldpass"
             autocomplete="off"
             placeholder="enter old password"
           />
-        </a-form-item>
-
-        <a-form-item has-feedback name="pass" :labelCol="{ span: 24 }">
+        </el-form-item>
+        <el-form-item prop="pass" label-position="top">
           <template #label>
             {{ $t("user.newPassword") }} ({{ $t("tip.resetPassword") }})
           </template>
-          <a-input
-            v-model:value="formState.pass"
+          <el-input
+            v-model="formState.pass"
             type="password"
             autocomplete="off"
             placeholder="enter new password"
           />
-        </a-form-item>
+        </el-form-item>
 
-        <a-form-item has-feedback name="checkPass">
-          <a-input
-            v-model:value="formState.checkPass"
+        <el-form-item prop="checkPass">
+          <el-input
+            v-model="formState.checkPass"
             type="password"
             autocomplete="off"
             placeholder="confirm new password"
           />
-        </a-form-item>
+        </el-form-item>
 
-        <a-form-item>
-          <a-button
+        <el-form-item>
+          <el-button
             type="primary"
-            html-type="submit"
             style="width: 72px; height: 40px"
-            >确认更改</a-button
+            @click="sumit(formRef)"
+            >确认更改</el-button
           >
-        </a-form-item>
-      </a-form>
+        </el-form-item>
+      </el-form>
     </div>
-  </a-modal>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, nextTick, watch } from "vue";
-import type { Rule } from "ant-design-vue/es/form";
-import type { FormInstance } from "ant-design-vue";
-import { message } from "ant-design-vue";
-import { passwordReset } from "api/account/index";
+import { ref, reactive, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import type { FormInstance, FormRules } from "element-plus";
+import { passwordReset } from "api/account/index";
 import { useNetwork } from "@/store/modules/network";
 
 const networkStore = useNetwork();
@@ -92,61 +95,73 @@ const formState = reactive<FormState>({
 const formRef = ref<FormInstance>();
 watch(
   () => modalOpen.value,
-  async (val) => {
-    if (val && formRef.value) {
-      await nextTick();
-      formRef.value.resetFields();
-    }
-  },
+  () => {
+    formRef.value && formRef.value.resetFields();
+  }
 );
-const validatePass = async (_rule: Rule, value: string) => {
+const validatePass = (rule: any, value: any, callback: any) => {
   if (value === "") {
-    return Promise.reject("Please input the password");
+    callback(new Error("Please input the password"));
   } else {
     // 匹配6-24位数字和字母组合，不能包含空格
     const regex = /^[a-zA-Z0-9]{6,24}$/;
     if (regex.test(value)) {
-      Promise.resolve();
+      callback();
     } else {
-      return Promise.reject("must be 6-24 digits and letters, without spaces");
+      callback(new Error("must be 6-24 digits and letters, without spaces"));
+      return;
     }
     if (formState.checkPass !== "") {
-      formRef.value?.validateFields("checkPass");
+      formRef.value?.validateField("checkPass");
     }
-    return Promise.resolve();
+    callback();
   }
 };
-const validatePass2 = async (_rule: Rule, value: string) => {
+const validatePass2 = (rule: any, value: any, callback: any) => {
   if (value === "") {
-    return Promise.reject("Please input the password again");
+    callback(new Error("Please input the password again"));
   } else if (value !== formState.pass) {
-    return Promise.reject("Two inputs don't match!");
+    callback(new Error("Two inputs don't match!"));
   } else {
-    return Promise.resolve();
+    callback();
   }
 };
-
-const rules: Record<string, Rule[]> = {
+const rules = reactive<FormRules<typeof formState>>({
   oldpass: [{ required: true, trigger: "change" }],
   pass: [{ required: true, validator: validatePass, trigger: "change" }],
   checkPass: [{ required: true, validator: validatePass2, trigger: "change" }],
-};
+});
 
-const onFinish = async (values: any) => {
-  const { pass, oldpass } = values;
-  await passwordReset({
-    old_password: oldpass,
-    new_password: pass,
+import { ElMessage } from "element-plus";
+const sumit = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate(async (valid) => {
+    if (valid) {
+      const { pass, oldpass } = formState;
+      await passwordReset({
+        old_password: oldpass,
+        new_password: pass,
+      });
+      ElMessage({
+        message: t("tip.succeed", { type: t("account.resetPassword") }),
+        type: "success",
+      });
+      modalOpen.value = false;
+    }
   });
-  message.success(t("tip.succeed", { type: t("account.resetPassword") }));
-  modalOpen.value = false;
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
-.container {
+.header {
+  font-weight: bold;
+  font-size: 16px;
+  @include font_color("word");
+}
+
+.Reset {
   padding: 32px 56px;
   width: 100%;
   box-sizing: border-box;
@@ -158,6 +173,7 @@ const onFinish = async (values: any) => {
       width: 64px;
       height: 64px;
       margin-right: 16px;
+      border-radius: 50%;
     }
     &_right {
       display: flex;

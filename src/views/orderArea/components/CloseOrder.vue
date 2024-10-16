@@ -1,41 +1,58 @@
 <template>
-  <a-dropdown-button @click="handleButtonClick" v-model:open="visible" type="primary" size="small">
-    <a-tooltip :title="state.toolTip">
+  <el-dropdown
+    split-button
+    type="primary"
+    @click="handleButtonClick"
+    :hide-on-click="false"
+    size="small"
+    trigger="click"
+  >
+    <el-tooltip :content="state.toolTip" placement="top">
       <span class="title">{{ state.title }}</span>
-    </a-tooltip>
-    <template #overlay>
-      <a-menu>
-        <a-menu-item key="all">
-          <a-checkbox v-model:checked="state.checkAll" @change="onCheckAllChange" :indeterminate="state.indeterminate">全部</a-checkbox>
-        </a-menu-item>
-        <a-menu-divider />
-        <a-menu-item key="direction">
-          <a-checkbox-group v-model:value="state.direction" :options="directionOptions" />
-        </a-menu-item>
-        <a-menu-divider />
-        <a-menu-item key="pol">
-          <a-checkbox-group v-model:value="state.pol" :options="polOptions" />
-        </a-menu-item>
-      </a-menu>
+    </el-tooltip>
+    <template #dropdown>
+      <el-dropdown-menu>
+        <el-dropdown-item>
+          <el-checkbox
+            v-model="state.checkAll"
+            :indeterminate="state.indeterminate"
+            @change="onCheckAllChange"
+          >
+            全部
+          </el-checkbox>
+        </el-dropdown-item>
+        <el-dropdown-item>
+          <el-checkbox-group v-model="state.direction">
+            <el-checkbox
+              v-for="item in directionOptions"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-checkbox-group>
+        </el-dropdown-item>
+        <el-dropdown-item>
+          <el-checkbox-group v-model="state.pol">
+            <el-checkbox
+              v-for="item in polOptions"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-checkbox-group>
+        </el-dropdown-item>
+      </el-dropdown-menu>
     </template>
-    <template #icon>
-      <CaretDownOutlined />
-    </template>
-  </a-dropdown-button>
+  </el-dropdown>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch } from "vue";
-import { CaretDownOutlined } from "@ant-design/icons-vue";
-import { throttle } from 'lodash';
+import { reactive, computed, watch } from "vue";
+import { throttle } from "lodash";
 import { getTradingDirection } from "utils/order/index";
 import { resOrders } from "api/order/index";
 import { useOrder } from "@/store/modules/order";
 import { TableDataKey } from "#/order";
 
 const orderStore = useOrder();
-
-const visible = ref(false);
 
 interface Props {
   orderType: TableDataKey;
@@ -131,16 +148,16 @@ const getTitleTooltip = throttle((data: resOrders[]) => {
     return;
   }
 
-  const orders = data.filter(item => {
+  const orders = data.filter((item) => {
     const formatDec = getTradingDirection(item.type);
     const rightDec = state.direction.includes(formatDec);
     let profit = false;
     let loss = false;
 
-    if (state.pol.includes('profit')) {
+    if (state.pol.includes("profit")) {
       profit = item.profit > 0;
     }
-    if (state.pol.includes('loss')) {
+    if (state.pol.includes("loss")) {
       loss = item.profit < 0;
     }
     return rightDec && (profit || loss);
@@ -148,9 +165,11 @@ const getTitleTooltip = throttle((data: resOrders[]) => {
 
   state.closeOrders = orders;
 
-  const result = checkList.value.map((item) => {
-    return options.find((e) => e.value === item)?.label;
-  }).join(",");
+  const result = checkList.value
+    .map((item) => {
+      return options.find((e) => e.value === item)?.label;
+    })
+    .join(",");
 
   if (orders.length === 0) {
     state.title = title_1;
@@ -164,8 +183,7 @@ getTitleTooltip([]);
 
 const emit = defineEmits(["closeClick"]);
 
-const onCheckAllChange = (e: any) => {
-  const checked = e.target.checked;
+const onCheckAllChange = (checked: any) => {
   state.direction = checked ? directionOptions.map((item) => item.value) : [];
   state.pol = checked ? polOptions.map((item) => item.value) : [];
 };
@@ -176,10 +194,6 @@ const handleButtonClick = (e: Event) => {
 </script>
 
 <style lang="scss" scoped>
-.ant-checkbox-group {
-  display: flex;
-  flex-direction: column;
-}
 .title {
   overflow: hidden;
   text-overflow: ellipsis;

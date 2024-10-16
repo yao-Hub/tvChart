@@ -3,13 +3,16 @@ import i18n from "@/language/index";
 import App from "./App.vue";
 import { setupRouter } from "./router";
 import { setupStore } from "./store";
-import "./assets/styles/common.scss";
-import "./assets/icons/iconfont/iconfont.css";
-import 'animate.css';
 
-/**
- * 定义启动初始化函数
- */
+import ElementPlus from "element-plus";
+import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+
+import "./styles/common.scss";
+import "./assets/icons/iconfont/iconfont.css";
+import "./styles/element/dark-var.scss";
+import "./styles/element/dark.scss";
+import "./styles/element/index.scss";
+
 const bootstrap = () => {
   const app = createApp(App);
   // 安装初始化store
@@ -18,7 +21,13 @@ const bootstrap = () => {
   // 安装初始化路由
   setupRouter(app);
 
+  app.use(ElementPlus);
+
   app.use(i18n);
+
+  for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+    app.component(key, component);
+  }
 
   app.mount("#app");
 };

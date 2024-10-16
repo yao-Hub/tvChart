@@ -1,10 +1,10 @@
 <template>
-  <div class="symbolList">
-    <div class="search">
-      <a-input
-        v-model:value="input"
+  <div>
+    <div class="searchInput">
+      <el-input
+        v-model="input"
         placeholder="搜索交易品种"
-        @click="inputClick"
+        @click="ifSearch = true"
       >
         <template #prefix>
           <SearchOutlined />
@@ -16,132 +16,130 @@
             v-show="ifSearch"
           />
         </template>
-      </a-input>
+      </el-input>
     </div>
-    <div class="list" ref="list">
-      <a-table
-        :dataSource="dataSource"
-        :columns="columns"
-        :pagination="false"
-        v-if="!ifSearch"
-        :scroll="{ y: tableY }"
-      >
-        <template #bodyCell="{ record, column, text }">
-          <div @click="changeSymbol(record)" style="cursor: pointer;">
-            <template v-if="column.dataIndex === 'bid'">
-              <span :class="[quotesClass[record.symbol].bid]">
-                {{ getQuotes("bid", record) }}
-              </span>
+    <div class="container">
+      <el-auto-resizer v-if="!ifSearch">
+        <template #default="{ height, width }">
+          <el-table-v2
+            v-loading="tableLoading"
+            header-class="tableHeader"
+            row-class="tableRow"
+            :row-height="24"
+            :header-height="24"
+            :columns="columns"
+            :data="dataSource"
+            :width="width"
+            :height="height"
+            :row-props="rowProps"
+            v-model:sort-state="sortState"
+            @column-sort="onSort"
+            fixed
+          >
+            <template #cell="{ column, rowData }">
+              <template v-if="column.dataKey === 'bid'">
+                <span :class="[quotesClass[rowData.symbol].bid]">
+                  {{ getQuotes("bid", rowData) }}
+                </span>
+              </template>
+              <template v-else-if="column.dataKey === 'ask'">
+                <span :class="[quotesClass[rowData.symbol].ask]">
+                  {{ getQuotes("ask", rowData) }}
+                </span>
+              </template>
+              <template v-else-if="column.dataKey === 'variation'">
+                <span :class="[rowData.variation > 0 ? 'buyWord' : 'sellWord']">
+                  {{ getLines(rowData) }}
+                </span>
+              </template>
+              <template v-else>
+                {{
+                  [null, undefined, ""].includes(rowData[column.dataKey])
+                    ? "-"
+                    : rowData[column.dataKey]
+                }}
+              </template>
             </template>
-            <template v-else-if="column.dataIndex === 'ask'">
-              <span :class="[quotesClass[record.symbol].ask]">
-                {{ getQuotes("ask", record) }}
-              </span>
-            </template>
-            <template v-else-if="column.dataIndex === 'variation'">
-              <span :class="[ record.variation > 0 ? 'buyWord' : 'sellWord' ]">
-                {{ getLines(record) }}
-              </span>
-            </template>
-            <template v-else>
-              {{ [null, undefined, ""].includes(text) ? "-" : text }}
-            </template>
-          </div>
+          </el-table-v2>
         </template>
-      </a-table>
+      </el-auto-resizer>
 
-      <div v-if="ifSearch" :style="{height: listH}">
-        <Search :input="input"></Search>
-      </div>
+      <Search :input="input" v-if="ifSearch"></Search>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch } from "vue";
 import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
+import type { Column, SortBy, SortState } from "element-plus";
+import { TableV2SortOrder } from "element-plus";
 import { useI18n } from "vue-i18n";
 import Search from "./components/search/index.vue";
-
 const { t } = useI18n();
+
 interface DataSource {
   symbol: string;
   bid?: string | number;
   ask?: string | number;
   variation?: string | number;
 }
-const columns = [
+const columns: Column<any>[] = [
   {
     title: t("order.symbol"),
-    dataIndex: "symbol",
+    dataKey: "symbol",
     key: "symbol",
-    width: 80,
-    sorter: (a: DataSource, b: DataSource) => a.symbol.localeCompare(b.symbol),
+    width: 100,
+    sortable: true,
   },
   {
     title: t("order.sellPrice"),
-    dataIndex: "bid",
+    dataKey: "bid",
     key: "bid",
-    width: 80,
-    sorter: (a: DataSource, b: DataSource) => {
-      const bidA = typeof a.bid === 'number' ? a.bid : -Infinity;
-      const bidB = typeof b.bid === 'number' ? b.bid : -Infinity;
-      return bidA - bidB;
-    }
+    width: 100,
+    sortable: true,
   },
   {
     title: t("order.buyPrice"),
-    dataIndex: "ask",
+    dataKey: "ask",
     key: "ask",
-    width: 80,
-    sorter: (a: DataSource, b: DataSource) => {
-      const askA = typeof a.ask === 'number' ? a.ask : -Infinity;
-      const askB = typeof b.ask === 'number' ? b.ask : -Infinity;
-      return askA - askB;
-    },
+    width: 100,
+    sortable: true,
   },
   {
     title: t("order.diurnalVariation"),
-    dataIndex: "variation",
+    dataKey: "variation",
     key: "variation",
     width: 90,
-    sorter: (a: DataSource, b: DataSource) => {
-      const variationA = typeof a.variation === 'number' ? a.variation : -Infinity;
-      const variationB = typeof b.variation === 'number' ? b.variation : -Infinity;
-      return variationA - variationB;
-    },
+    sortable: true,
   },
 ];
-const list = ref();
-const tableY = ref("");
-const listH = ref("");
-let observer: ResizeObserver | null = null;
-onMounted(() => {
-  observer = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const { height } = entry.contentRect;
-      tableY.value = `${height - 50}px`;
-    }
-  });
-  observer.observe(list.value);
 
-  const h = document.querySelector(".list")?.getBoundingClientRect().height;
-  if (h) {
-    listH.value = `${h}px`
-  }
+import { orderBy } from "lodash";
+const sortState = ref<SortState>({
+  symbol: TableV2SortOrder.DESC,
+  bid: TableV2SortOrder.ASC,
+  ask: TableV2SortOrder.ASC,
+  variation: TableV2SortOrder.ASC,
 });
+const onSort = ({ key, order }: SortBy) => {
+  sortState.value[key] = order;
+  dataSource.value = orderBy(dataSource.value, [key], [order]);
+};
 
 import { optionalQuery } from "api/symbols/index";
 import { useUser } from "@/store/modules/user";
-
 const userStore = useUser();
 const dataSource = ref<DataSource[]>([]);
+const tableLoading = ref(false);
 const getQuery = async () => {
+  tableLoading.value = true;
   const queryRes = await optionalQuery();
   dataSource.value = queryRes.data.map((item) => {
     quotesClass.value[item] = { ask: "", bid: "" };
     return { symbol: item };
   });
+  tableLoading.value = false;
 };
 
 watch(
@@ -156,9 +154,6 @@ watch(
 
 const ifSearch = ref(false);
 const input = ref("");
-const inputClick = () => {
-  ifSearch.value = true;
-};
 const closeSearch = () => {
   ifSearch.value = false;
   input.value = "";
@@ -247,7 +242,7 @@ const getLines = (e: DataSource) => {
     const { close, open } = orderStore.currentKline[e.symbol];
     const calc = round(((close - open) / open) * 100, 3);
     e.variation = calc;
-    result = calc + '%';
+    result = calc + "%";
   }
   return result;
 };
@@ -257,22 +252,21 @@ const chartInitStore = useChartInit();
 const changeSymbol = (e: any) => {
   const symbol = e.symbol;
   const chartId = chartInitStore.activeChartId;
-  chartInitStore.changeChartWidgetSymbol({ id: chartId, symbol })
+  chartInitStore.changeChartWidgetSymbol({ id: chartId, symbol });
+};
+const rowProps = ({ rowData }: any) => {
+  return {
+    onMousedown: () => {
+      changeSymbol(rowData);
+    },
+  };
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
-.list {
-  width: 100%;
-  position: relative;
-  height: calc(100% - 24px);
-  box-sizing: border-box;
-  padding-bottom: 5px;
-}
-
-.search {
+.searchInput {
   box-sizing: border-box;
   border-top: 1px solid;
   border-bottom: 1px solid;
@@ -287,14 +281,24 @@ const changeSymbol = (e: any) => {
     @include font_color("primary");
   }
 }
-:deep .ant-input-affix-wrapper {
-  height: 28px;
+
+.container {
+  width: 100%;
+  position: relative;
+  height: calc(100% - 24px - 38px);
+  box-sizing: border-box;
+  padding-bottom: 5px;
+}
+
+:deep(.tableHeader) {
+  background: #f6f8fa;
   font-size: 12px;
 }
-:deep .ant-table-wrapper .ant-table {
-  border-radius: 0;
+:deep(.el-table-v2__header-cell) {
+  background: #f6f8fa;
 }
-:deep .ant-table-wrapper .ant-table:not(.ant-table-bordered) .ant-table-tbody >tr >td  {
+:deep(.el-table-v2__row) {
   border: none;
+  font-size: 12px;
 }
 </style>

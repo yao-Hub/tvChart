@@ -14,6 +14,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
+    "jsxImportSource": "vue",
 
     /* Linting */
     "strict": true,
@@ -28,7 +29,7 @@
       "api/*": ["src/api/*"],
       "public/*": ["./public/*"]
     },
-    "types": ["vite/client", "node"]
+    "types": ["vite/client", "node", "element-plus/global"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
   "references": [{ "path": "./tsconfig.node.json" }]

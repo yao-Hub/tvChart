@@ -1,14 +1,15 @@
 <template>
-  <a-form-item
-    :name="props.formOption.name"
+  <el-form-item
+    label-position="top"
+    :prop="props.formOption.name"
     :label="props.formOption.label"
     :rules="[{ required: true, trigger: ['change', 'blur'] }]"
   >
     <StepNumInput v-model:value="price" :step="step"></StepNumInput>
-    <a-form-item no-style>
+    <el-form-item>
       <span class="tip" v-if="props.symbolInfo">{{ tip }}</span>
-    </a-form-item>
-  </a-form-item>
+    </el-form-item>
+  </el-form-item>
 </template>
 
 <script setup lang="ts">
@@ -118,7 +119,7 @@ const tip = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .tip {
   @include font_color("word-gray");

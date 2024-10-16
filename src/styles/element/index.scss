@@ -1,0 +1,14 @@
+// styles/element/index.scss
+@forward "element-plus/theme-chalk/src/common/var.scss" with (
+  $colors: (
+    "primary": (
+      "base": #f4b201,
+      "light-9": #eff0f1,
+    ),
+  ),
+  $dropdown: (
+    "menuItem-hover-color": #606266,
+  )
+);
+// 如果你想导入所有样式:
+@use "element-plus/theme-chalk/src/index.scss" as *;

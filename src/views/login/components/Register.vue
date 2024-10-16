@@ -1,66 +1,59 @@
 <template>
-  <div class="container">
-    <div class="container_header">
-      <div class="container_header_goback" @click="back">
+  <div class="Register">
+    <div class="Register_header">
+      <div class="Register_header_goback" @click="back">
         <LeftOutlined />
         <span>返回</span>
       </div>
     </div>
-    <div class="container_main" v-if="!ifSuccess">
-      <div class="container_main_title">
+    <div class="Register_main" v-if="!ifSuccess">
+      <div class="Register_main_title">
         <img src="@/assets/icons/logo@3x.png" />
-        <div class="container_main_title_right">
+        <div class="Register_main_title_right">
           <span class="up">{{ props.lineInfo.lineName }}</span>
           <span class="down">{{ props.lineInfo.brokerName }}</span>
         </div>
       </div>
-      <a-form
-        size="large"
-        name="basic"
-        layout="vertical"
+      <el-form
         :model="formState"
-        :labelCol="{ span: 6 }"
+        label-position="top"
         :rules="rules"
-        @finish="onFinish"
+        ref="formRef"
       >
-        <a-form-item :label="$t('user.email')" name="email">
-          <a-auto-complete
-            v-model:value="formState.email"
-            placeholder="email"
-            :options="emailOptions"
-            @search="handleSearch"
-          >
-            <template #option="{ value: val }">
-              {{ val.split("@")[0] }} @
-              <span style="font-weight: bold">{{ val.split("@")[1] }}</span>
-            </template>
-          </a-auto-complete>
-        </a-form-item>
+        <el-form-item prop="email" :label="$t('user.email')">
+          <el-autocomplete
+            v-model="formState.email"
+            :fetch-suggestions="querySearch"
+            :trigger-on-focus="false"
+            clearable
+            placeholder="input email"
+          />
+        </el-form-item>
 
-        <a-form-item :label="$t('account.verificationCode')" name="code">
-          <a-input v-model:value="formState.code" placeholder="Basic usage">
+        <el-form-item :label="$t('account.verificationCode')" prop="code">
+          <el-input v-model="formState.code" placeholder="Basic usage">
             <template #suffix>
               <span class="link">{{ $t("account.sendCode") }}</span>
             </template>
-          </a-input>
-        </a-form-item>
+          </el-input>
+        </el-form-item>
 
-        <a-form-item name="agree" no-style>
-          <a-checkbox v-model:checked="formState.agree">{{
+        <el-form-item prop="agree">
+          <el-checkbox v-model="formState.agree">{{
             $t("tip.agree")
-          }}</a-checkbox>
-        </a-form-item>
+          }}</el-checkbox>
+        </el-form-item>
 
-        <a-form-item no-style>
-          <a-button
+        <el-form-item>
+          <el-button
             type="primary"
-            html-type="submit"
             class="submit-button"
             :disabled="!btnDisabled"
-            >{{ $t("account.register") }}</a-button
+            @click="submit(formRef)"
+            >{{ $t("account.register") }}</el-button
           >
-        </a-form-item>
-      </a-form>
+        </el-form-item>
+      </el-form>
     </div>
 
     <div class="success-card" v-else>
@@ -74,8 +67,8 @@
         <span @click="copy" class="copy">复制</span>
       </div>
       <span class="success-card_word">请妥善保存好您的帐户和密码</span>
-      <a-button type="primary" class="success-card_btn" @click="emit('goBack')"
-        >开始使用模拟账号</a-button
+      <el-button type="primary" class="success-card_btn" @click="emit('goBack')"
+        >开始使用模拟账号</el-button
       >
     </div>
   </div>
@@ -84,9 +77,9 @@
 <script setup lang="ts">
 import { LeftOutlined, CheckCircleFilled } from "@ant-design/icons-vue";
 import { ref, reactive, computed } from "vue";
-import { message } from "ant-design-vue";
 import { register, resQueryTradeLine } from "api/account/index";
-import type { Rule } from "ant-design-vue/es/form";
+import type { FormInstance, FormRules } from "element-plus";
+import { ElMessage } from "element-plus";
 
 interface Props {
   lineInfo: resQueryTradeLine;
@@ -105,11 +98,12 @@ const formState = reactive<FormState>({
   email: "",
   agree: false,
 });
-const rules: Record<string, Rule[]> = {
+const formRef = ref<FormInstance>();
+const rules = reactive<FormRules<typeof formState>>({
   email: [
     {
       required: true,
-      trigger: "change",
+      trigger: "blur",
       message: "Please input your email!",
     },
   ],
@@ -117,21 +111,21 @@ const rules: Record<string, Rule[]> = {
     {
       required: true,
       message: "Please input your code!",
-      trigger: "change",
+      trigger: "blur",
     },
   ],
-};
-const emailOptions = ref<{ value: string }[]>([]);
-const handleSearch = (val: string) => {
+});
+
+const querySearch = (queryString: string, cb: any) => {
   let res: { value: string }[];
-  if (!val || val.indexOf("@") >= 0) {
+  if (!queryString || queryString.indexOf("@") >= 0) {
     res = [];
   } else {
     res = ["gmail.com", "163.com", "qq.com", "126.com", "souhu.com"].map(
-      (domain) => ({ value: `${val}@${domain}` })
+      (domain) => ({ value: `${queryString}@${domain}` })
     );
   }
-  emailOptions.value = res;
+  cb(res);
 };
 const btnDisabled = computed(() => {
   return Object.values(formState).every((value) => Boolean(value));
@@ -141,20 +135,21 @@ const account = reactive({
   name: "",
   pass: "",
 });
-const onFinish = async (values: any) => {
-  const { agree, code, email } = values;
-  if (!agree) {
-    message.warning("请同意条款");
-    return;
-  }
-  const res = await register({
-    server: props.lineInfo.lineName,
-    email,
-    verify_code: code,
+const submit = (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  formEl.validate(async (valid) => {
+    if (valid) {
+      const { code, email } = formState;
+      const res = await register({
+        server: props.lineInfo.lineName,
+        email,
+        verify_code: code,
+      });
+      account.name = res.data.login;
+      account.pass = res.data.password;
+      ifSuccess.value = true;
+    }
   });
-  account.name = res.data.login;
-  account.pass = res.data.password;
-  ifSuccess.value = true;
 };
 
 const back = () => {
@@ -170,17 +165,17 @@ const { toClipboard } = useClipboard();
 const copy = async () => {
   try {
     await toClipboard(`账号：${account.name};密码：${account.pass}`);
-    message.success("复制成功");
+    ElMessage.success("复制成功");
   } catch (e) {
-    message.error("复制失败");
+    ElMessage.error("复制失败");
   }
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
-.container {
+.Register {
   position: relative;
   width: 512px;
   height: 648px;
@@ -213,6 +208,7 @@ const copy = async () => {
         width: 64px;
         height: 64px;
         margin-right: 16px;
+        border-radius: 50%;
       }
       &_right {
         display: flex;
@@ -232,7 +228,6 @@ const copy = async () => {
     width: 400px;
     height: 48px;
     border-radius: 8px;
-    margin-top: 32px;
   }
   .success-card {
     margin-top: 84px;

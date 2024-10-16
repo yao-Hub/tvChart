@@ -1,89 +1,79 @@
 <template>
-  <div class="container">
-    <div class="container_header">
-      <div class="container_header_goback" @click="emit('goBack')">
+  <div class="forget">
+    <div class="forget_header">
+      <div class="forget_header_goback" @click="emit('goBack')">
         <LeftOutlined />
         <span>返回</span>
       </div>
     </div>
-    <div class="container_main">
-      <div class="container_main_title">
+    <div class="forget_main">
+      <div class="forget_main_title">
         <img src="@/assets/icons/logo@3x.png" />
-        <div class="container_main_title_right">
+        <div class="forget_main_title_right">
           <span class="up">{{ props.lineInfo.lineName }}</span>
           <span class="down">{{ props.lineInfo.brokerName }}</span>
         </div>
       </div>
-      <a-form
+      <el-form
         ref="formRef"
-        size="large"
-        name="form"
-        layout="vertical"
         :model="formState"
-        :labelCol="{ span: 10 }"
         :rules="rules"
-        @finish="onFinish"
+        label-position="top"
       >
-        <a-form-item name="email" :label="$t('user.email')">
-          <a-auto-complete
-            v-model:value="formState.email"
+        <el-form-item prop="email" :label="$t('user.email')">
+          <el-autocomplete
+            v-model="formState.email"
+            :fetch-suggestions="querySearch"
+            :trigger-on-focus="false"
+            clearable
             placeholder="input email"
-            :options="options"
-            @search="handleSearch"
-          >
-            <template #option="{ value: val }">
-              {{ val.split("@")[0] }} @
-              <span style="font-weight: bold">{{ val.split("@")[1] }}</span>
-            </template>
-          </a-auto-complete>
-        </a-form-item>
+          />
+        </el-form-item>
 
-        <a-form-item name="code" :label="$t('account.verificationCode')">
-          <a-input v-model:value="formState.code" placeholder="code">
+        <el-form-item prop="code" :label="$t('account.verificationCode')">
+          <el-input v-model="formState.code" placeholder="code">
             <template #suffix>
               <span class="link">{{ $t("account.sendCode") }}</span>
             </template>
-          </a-input>
-        </a-form-item>
+          </el-input>
+        </el-form-item>
 
-        <a-form-item has-feedback :label="$t('user.newPassword')" name="pass">
-          <a-input
-            v-model:value="formState.pass"
+        <el-form-item :label="$t('user.newPassword')" prop="pass">
+          <el-input
+            v-model="formState.pass"
             type="password"
-            autocomplete="off"
             placeholder="enter new password"
           />
-        </a-form-item>
+        </el-form-item>
 
-        <a-form-item has-feedback name="checkPass">
-          <a-input
-            v-model:value="formState.checkPass"
+        <el-form-item prop="checkPass">
+          <el-input
+            v-model="formState.checkPass"
             type="password"
-            autocomplete="off"
             placeholder="confirm new password"
           />
-        </a-form-item>
+        </el-form-item>
 
-        <a-form-item>
-          <a-button
+        <el-form-item>
+          <el-button
             type="primary"
-            html-type="submit"
             class="submit-button"
             :disabled="!isFormValid"
-            >{{ $t("account.resetPassword") }}</a-button
+            @click="resetPwd"
+            >{{ $t("account.resetPassword") }}</el-button
           >
-        </a-form-item>
-      </a-form>
+        </el-form-item>
+      </el-form>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, watch } from "vue";
-import type { Rule } from "ant-design-vue/es/form";
-import { message, type FormInstance } from "ant-design-vue";
+import type { FormInstance, FormRules } from "element-plus";
 import { LeftOutlined } from "@ant-design/icons-vue";
 import { emailPasswordUpdate, resQueryTradeLine } from "api/account/index";
+import { ElMessage } from "element-plus";
 
 interface Props {
   lineInfo: resQueryTradeLine;
@@ -91,18 +81,17 @@ interface Props {
 const props = defineProps<Props>();
 
 const emit = defineEmits(["goBack"]);
-const options = ref<{ value: string }[]>([]);
 
-const handleSearch = (val: string) => {
+const querySearch = (queryString: string, cb: any) => {
   let res: { value: string }[];
-  if (!val || val.indexOf("@") >= 0) {
+  if (!queryString || queryString.indexOf("@") >= 0) {
     res = [];
   } else {
     res = ["gmail.com", "163.com", "qq.com", "126.com", "souhu.com"].map(
-      (domain) => ({ value: `${val}@${domain}` })
+      (domain) => ({ value: `${queryString}@${domain}` })
     );
   }
-  options.value = res;
+  cb(res);
 };
 
 interface FormState {
@@ -119,56 +108,55 @@ const formState = reactive<FormState>({
   checkPass: "",
 });
 const formRef = ref<FormInstance>();
-const validatePass = async (_rule: Rule, value: string) => {
+const validatePass = (rule: any, value: any, callback: any) => {
   if (value === "") {
-    return Promise.reject("Please input the password");
+    callback(new Error("Please input the password"));
   } else {
     // 匹配6-24位数字和字母组合，不能包含空格
     const regex = /^[a-zA-Z0-9]{6,24}$/;
     if (regex.test(value)) {
-      Promise.resolve();
+      callback();
     } else {
-      return Promise.reject("must be 6-24 digits and letters, without spaces");
+      callback(new Error("must be 6-24 digits and letters"));
     }
     if (formState.checkPass !== "") {
-      formRef.value?.validateFields("checkPass");
+      formRef.value?.validateField("checkPass");
     }
-    return Promise.resolve();
+    callback();
   }
 };
-const validatePass2 = async (_rule: Rule, value: string) => {
+const validatePass2 = (rule: any, value: any, callback: any) => {
   if (value === "") {
-    return Promise.reject("Please input the password again");
+    callback(new Error("Please input the password again"));
   } else if (value !== formState.pass) {
-    return Promise.reject("Two inputs don't match!");
+    callback(new Error("Two inputs don't match!"));
   } else {
-    return Promise.resolve();
+    callback();
   }
 };
 
-const rules: Record<string, Rule[]> = {
-  email: [{ required: true, message: "Please input your email!" }],
-  code: [{ required: true, message: "Please input your code!" }],
-  pass: [{ required: true, validator: validatePass, trigger: "change" }],
-  checkPass: [{ required: true, validator: validatePass2, trigger: "change" }],
-};
+const rules = reactive<FormRules<typeof formState>>({
+  email: [
+    { required: true, message: "Please input your email!", trigger: "blur" },
+  ],
+  code: [
+    { required: true, message: "Please input your code!", trigger: "blur" },
+  ],
+  pass: [{ required: true, validator: validatePass, trigger: "blur" }],
+  checkPass: [{ required: true, validator: validatePass2, trigger: "blur" }],
+});
 
 const isFormValid = ref(false);
 
 const validateForm = () => {
-  formRef.value
-    ?.validateFields()
-    .then(() => {
-      isFormValid.value = true;
-    })
-    .catch(() => {
-      isFormValid.value = false;
-    });
+  formRef.value?.validate((valid: any) => {
+    isFormValid.value = valid;
+  });
 };
 
 watch(() => formState, validateForm, { deep: true });
 
-const onFinish = async (values: any) => {
+const resetPwd = async (values: any) => {
   const { code, email, pass, checkPass } = values;
   await emailPasswordUpdate({
     server: props.lineInfo.lineName,
@@ -177,16 +165,15 @@ const onFinish = async (values: any) => {
     new_password: pass,
     confirm_password: checkPass,
   });
-  message.success('reset success');
-  emit('goBack');
+  ElMessage.success("reset success");
+  emit("goBack");
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
-.container {
-  position: relative;
+.forget {
   width: 512px;
   height: 648px;
   border-radius: 16px;
@@ -217,6 +204,7 @@ const onFinish = async (values: any) => {
         width: 64px;
         height: 64px;
         margin-right: 16px;
+        border-radius: 50%;
       }
       &_right {
         display: flex;
@@ -236,7 +224,6 @@ const onFinish = async (values: any) => {
     width: 400px;
     height: 56px;
     border-radius: 8px;
-    margin-top: 28px;
   }
 }
 

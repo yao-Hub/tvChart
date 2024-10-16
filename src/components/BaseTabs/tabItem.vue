@@ -3,15 +3,18 @@
     :class="[
       model === props.activeKey || model === props.tab
         ? 'baseTabs_item baseTabs_active'
-        : 'baseTabs_item'
+        : 'baseTabs_item',
     ]"
+    @click="tabClick"
   >
-    <span class="tab" @click="tabClick">
-      <slot name="tab">
-        {{ props.tab || "" }}
-      </slot>
-    </span>
-    <CloseOutlined class="close" v-show="props.closable" @click="handleDelete" />
+    <slot name="tab">
+      <span>{{ props.tab || "" }}</span>
+    </slot>
+    <CloseOutlined
+      class="close"
+      v-show="props.closable"
+      @click="handleDelete"
+    />
   </div>
 </template>
 
@@ -42,8 +45,9 @@ const handleDelete = () => {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 .baseTabs_item {
+  font-size: 12px;
   height: 100%;
   min-width: 88px;
   display: flex;
@@ -53,6 +57,11 @@ const handleDelete = () => {
   border-right: 1px solid;
   @include border_color("border");
   padding: 0 8px;
+  cursor: pointer;
+  &:hover {
+    background: #eff0f1;
+    @include font_color("primary");
+  }
 }
 .close {
   width: 8px;
@@ -66,9 +75,5 @@ const handleDelete = () => {
   @include background_color("tabActive");
   border-bottom: 2px solid;
   @include border_color_bottom("primary");
-}
-.tab:hover {
-  @include font_color("primary");
-  cursor: pointer;
 }
 </style>

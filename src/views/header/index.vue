@@ -3,36 +3,25 @@
     <div class="header__left">
       <!-- 菜单 -->
       <Menu></Menu>
-      <a-divider type="vertical" class="divider" />
+      <el-divider direction="vertical" class="divider"/>
       <!-- 订单 -->
-      <a-tooltip :title="`${$t('shortcutkey')}: F9`">
-        <a-button
-          @click="orderStore.createOrder()"
-          class="header__left_orderBtn"
-          >{{ $t("order.new") }}</a-button
-        >
-      </a-tooltip>
-      <a-flex :gap="16" align="center">
-        <!-- 布局显隐 -->
+      <el-button @click="orderStore.createOrder()" class="header__left_orderBtn">{{ $t("order.new") }}</el-button>
+      <div class="toolList">
         <LayoutVisibled></LayoutVisibled>
-        <!-- 快速交易 -->
         <FastTransation></FastTransation>
-        <!-- 单图 -->
-        <a-tooltip :title="$t('SingleImageMode')">
+        <el-tooltip :content="$t('SingleImageMode')">
           <div
             :class="[layoutType === 'single' ? 'single single_active' : 'single single_noactive']"
             @click="() => chartInitStore.setLayoutType('single')"
           ></div>
-        </a-tooltip>
-        <!-- 多图 -->
-        <a-tooltip :title="$t('MultiGrapMode')">
+        </el-tooltip>
+        <el-tooltip :content="$t('MultiGrapMode')">
           <AppstoreFilled
             :class="[layoutType === 'multiple' ? 'active' : '']"
             @click="() => chartInitStore.setLayoutType('multiple')"
           />
-        </a-tooltip>
-        <!-- 纵向布局 -->
-        <a-tooltip title="纵向布局">
+        </el-tooltip>
+        <el-tooltip content="纵向布局">
           <i
             :class="[
               flexDirection === 'column' ? 'iconfont active' : 'iconfont',
@@ -41,17 +30,16 @@
             @click="chartInitStore.setChartFlexDirection('column')"
             >&#xe601;</i
           >
-        </a-tooltip>
-        <!-- 横向布局 -->
-        <a-tooltip title="横向布局">
+        </el-tooltip>
+        <el-tooltip content="横向布局">
           <i
             :class="[flexDirection === 'row' ? 'iconfont active' : 'iconfont']"
             style="font-size: 12px"
             @click="chartInitStore.setChartFlexDirection('row')"
             >&#xe600;</i
           >
-        </a-tooltip>
-      </a-flex>
+        </el-tooltip>
+      </div>
     </div>
     <Account></Account>
   </div>
@@ -76,7 +64,7 @@ const flexDirection = computed(() => chartInitStore.chartFlexDirection);
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .header {
   display: flex;
@@ -95,6 +83,12 @@ const flexDirection = computed(() => chartInitStore.chartFlexDirection);
     .divider {
       height: 32px;
       @include background_color("border");
+    }
+
+    .toolList {
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
 
     &_orderBtn {

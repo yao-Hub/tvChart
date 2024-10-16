@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import { theme } from "ant-design-vue";
 import { useChartInit } from "./chartInit";
+import { useDark, useToggle } from "@vueuse/core";
 
 interface State {
   systemTheme: string; // 系统主题
@@ -14,33 +14,26 @@ export const useTheme = defineStore("theme", {
       upDownTheme: "upRedDownGreen",
     };
   },
-  getters: {
-    antDTheme: (state) => {
+  actions: {
+    initTheme() {
+      const stoTheme = localStorage.getItem("systemTheme") || "light";
+      const isDark = useDark();
+      if (stoTheme === "light" && isDark.value) {
+        useToggle(isDark)();
+      }
+      if (stoTheme === "dark" && !isDark.value) {
+        useToggle(isDark)();
+      }
+      this.systemTheme = stoTheme;
       window.document.documentElement.setAttribute(
         "data-theme",
-        state.systemTheme
+        this.systemTheme
       );
-      if (state.systemTheme === "dark") {
-        return {
-          algorithm: theme.darkAlgorithm,
-        };
-      }
-      return {
-        algorithm: theme.compactAlgorithm,
-      };
     },
-  },
-  actions: {
-    getSystemTheme() {
-      const type = localStorage.getItem("systemTheme");
-      if (type) {
-        this.systemTheme = type;
-      }
-      return this.systemTheme;
-    },
-    setSystemTheme(type: string) {
-      this.systemTheme = type;
-      localStorage.setItem("systemTheme", type);
+    changeSystemTheme() {
+      const theme = this.systemTheme === "dark" ? "light" : "dark";
+      localStorage.setItem("systemTheme", theme);
+      this.initTheme();
     },
     setChartTheme() {
       const chartInitStore = useChartInit();
@@ -49,9 +42,7 @@ export const useTheme = defineStore("theme", {
       });
     },
     getUpDownTheme() {
-      const type = localStorage.getItem(
-        "upDownTheme"
-      ) as State["upDownTheme"];
+      const type = localStorage.getItem("upDownTheme") as State["upDownTheme"];
       if (type) {
         this.upDownTheme = type;
       }
@@ -61,18 +52,25 @@ export const useTheme = defineStore("theme", {
       if (type) {
         this.upDownTheme = type;
       }
-      document.documentElement.setAttribute(
-        "upDown-theme",
-        this.upDownTheme
-      );
+      document.documentElement.setAttribute("upDown-theme", this.upDownTheme);
       localStorage.setItem("upDownTheme", this.upDownTheme);
       const chartInitStore = useChartInit();
-      const downColor= this.upDownTheme === "upRedDownGreen" ? "#089981" : "#F23645";
-      const upColor= this.upDownTheme === "upRedDownGreen" ? "#F23645" : "#089981";
-      const upLightColor= this.upDownTheme === "upRedDownGreen" ? "rgba(8, 153, 129, 0.5)" : "rgba(242, 54, 69, 0.5)";
-      const downLightColor = this.upDownTheme === "upRedDownGreen" ? "rgba(8, 153, 129, 0.5)" : "rgba(242, 54, 69, 0.5)";
-      const upProjectionColor = this.upDownTheme === "upRedDownGreen" ? "#a9dcc3" : "#f5a6ae";
-      const downProjectionColor = this.upDownTheme === "upRedDownGreen" ? "#f5a6ae" : "#a9dcc3";
+      const downColor =
+        this.upDownTheme === "upRedDownGreen" ? "#089981" : "#F23645";
+      const upColor =
+        this.upDownTheme === "upRedDownGreen" ? "#F23645" : "#089981";
+      const upLightColor =
+        this.upDownTheme === "upRedDownGreen"
+          ? "rgba(8, 153, 129, 0.5)"
+          : "rgba(242, 54, 69, 0.5)";
+      const downLightColor =
+        this.upDownTheme === "upRedDownGreen"
+          ? "rgba(8, 153, 129, 0.5)"
+          : "rgba(242, 54, 69, 0.5)";
+      const upProjectionColor =
+        this.upDownTheme === "upRedDownGreen" ? "#a9dcc3" : "#f5a6ae";
+      const downProjectionColor =
+        this.upDownTheme === "upRedDownGreen" ? "#f5a6ae" : "#a9dcc3";
 
       chartInitStore.chartWidgetList.forEach((item) => {
         item.widget?.applyOverrides({
@@ -112,18 +110,27 @@ export const useTheme = defineStore("theme", {
           "mainSeriesProperties.kagiStyle.downColor": downColor,
           "mainSeriesProperties.pnfStyle.upColor": upColor,
           "mainSeriesProperties.pnfStyle.downColor": downColor,
-          "mainSeriesProperties.renkoStyle.upColorProjection": upProjectionColor,
-          "mainSeriesProperties.renkoStyle.downColorProjection": downProjectionColor,
-          "mainSeriesProperties.renkoStyle.borderUpColorProjection": upProjectionColor,
-          "mainSeriesProperties.renkoStyle.borderDownColorProjection": downProjectionColor,
+          "mainSeriesProperties.renkoStyle.upColorProjection":
+            upProjectionColor,
+          "mainSeriesProperties.renkoStyle.downColorProjection":
+            downProjectionColor,
+          "mainSeriesProperties.renkoStyle.borderUpColorProjection":
+            upProjectionColor,
+          "mainSeriesProperties.renkoStyle.borderDownColorProjection":
+            downProjectionColor,
           "mainSeriesProperties.pbStyle.upColorProjection": upProjectionColor,
-          "mainSeriesProperties.pbStyle.downColorProjection": downProjectionColor,
-          "mainSeriesProperties.pbStyle.borderUpColorProjection": upProjectionColor,
-          "mainSeriesProperties.pbStyle.borderDownColorProjection": downProjectionColor,
+          "mainSeriesProperties.pbStyle.downColorProjection":
+            downProjectionColor,
+          "mainSeriesProperties.pbStyle.borderUpColorProjection":
+            upProjectionColor,
+          "mainSeriesProperties.pbStyle.borderDownColorProjection":
+            downProjectionColor,
           "mainSeriesProperties.kagiStyle.upColorProjection": upProjectionColor,
-          "mainSeriesProperties.kagiStyle.downColorProjection": downProjectionColor,
+          "mainSeriesProperties.kagiStyle.downColorProjection":
+            downProjectionColor,
           "mainSeriesProperties.pnfStyle.upColorProjection": upProjectionColor,
-          "mainSeriesProperties.pnfStyle.downColorProjection": downProjectionColor,
+          "mainSeriesProperties.pnfStyle.downColorProjection":
+            downProjectionColor,
         });
       });
     },

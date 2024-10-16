@@ -31,7 +31,7 @@ export default {
   },
 
   account: {
-    rememberMe: "记住我",
+    rememberMe: "记住账号",
     login: "登录",
     logout: "登出",
     submit: "提交",

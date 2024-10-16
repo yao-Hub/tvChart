@@ -1,6 +1,6 @@
 <template>
-  <div v-if="!listState.loading" class="searchList">
-    <div v-if="!input && !showSymbols" class="detail">
+  <div v-loading="listState.loading" class="searchList">
+    <div v-if="!input && !showSymbols" class="detail scrollList">
       <Block
         v-for="item in listState.menu"
         :title="item.value"
@@ -11,7 +11,7 @@
       ></Block>
     </div>
 
-    <div v-if="!input && showSymbols" class="detail">
+    <div v-if="!input && showSymbols" class="detail scrollList">
       <Block class="back">
         <template #title>
           <div class="back_title" @click="() => showSymbols = false">
@@ -31,7 +31,7 @@
       </Block>
     </div>
 
-    <div v-if="input" class="detail">
+    <div v-if="input" class="detail scrollList">
       <Block
         v-for="item in filterSymbols"
         :title="item.symbol"
@@ -43,13 +43,11 @@
       </Block>
     </div>
   </div>
-
-  <LoadingOutlined v-if="listState.loading" class="loading"/>
 </template>
 
 <script setup lang="ts">
 import { reactive, computed, watch, ref } from "vue";
-import { LeftOutlined, LoadingOutlined } from "@ant-design/icons-vue";
+import { LeftOutlined } from "@ant-design/icons-vue";
 
 import Block from "./Block.vue";
 
@@ -161,7 +159,7 @@ const getCheckType = (type: string) => {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 .searchList {
   height: 100%;
 }
@@ -176,15 +174,11 @@ const getCheckType = (type: string) => {
   &_title {
     display: flex;
     gap: 5px;
+    font-size: 14px;
     &:hover {
       cursor: pointer;
       @include font_color("primary");
     }
   }
-}
-.loading {
-  position: absolute;
-  left: 50%;
-  top: 50%;
 }
 </style>

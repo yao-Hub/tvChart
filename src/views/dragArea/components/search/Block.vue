@@ -4,30 +4,31 @@
     @click="emit('blockClick')"
     :style="{ cursor: type === 'count' ? 'pointer' : 'default' }"
   >
-    <a-flex vertical justify="center" :gap="5">
+    <div class="label">
       <slot name="title">
         <span class="title">{{ title }}</span>
         <span class="describe">{{ describe }}</span>
       </slot>
-    </a-flex>
+    </div>
 
-    <a-flex align="center" v-if="type === 'radio' && !loading">
+    <div v-if="type === 'radio'" class="opera">
+      <LoadingOutlined v-if="loading" />
       <PlusCircleOutlined
-        class="btn"
-        v-if="!ifChecked"
+        class="plusBtn btn"
+        v-else-if="!ifChecked"
         @click="emit('btnClick', 'add')"
       />
       <CheckCircleOutlined
         class="checkBtn btn"
-        v-else
+        v-else-if="ifChecked"
         @click="emit('btnClick', 'cancel')"
       />
-    </a-flex>
-    <a-flex align="center" v-if="type === 'count' && !loading">
-      <span>{{ count }}/{{ total }}</span>
-    </a-flex>
+    </div>
+    <div class="count" v-if="type === 'count'">
+      <LoadingOutlined v-if="loading" />
+      <span v-else>{{ count }}/{{ total }}</span>
+    </div>
 
-    <LoadingOutlined v-if="loading" />
   </div>
 </template>
 
@@ -54,7 +55,7 @@ const emit = defineEmits(["blockClick", "btnClick"]);
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .Block {
   width: 100%;
@@ -68,13 +69,25 @@ const emit = defineEmits(["blockClick", "btnClick"]);
     @include background_color("background");
   }
 
-  .title {
-    font-size: 14px;
-    @include font_color("word");
+  .label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    .title {
+      font-size: 14px;
+      @include font_color("word");
+    }
+  
+    .describe {
+      font-size: 12px;
+      @include font_color("word-gray");
+    }
   }
 
-  .describe {
-    font-size: 12px;
+  .opera, .count {
+    display: flex;
+    align-items: center;
     @include font_color("word-gray");
   }
 
@@ -89,6 +102,10 @@ const emit = defineEmits(["blockClick", "btnClick"]);
 
   .checkBtn {
     @include font_color("word-gray");
+  }
+
+  .plusBtn {
+    @include font_color("word");
   }
 }
 </style>

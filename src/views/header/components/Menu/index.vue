@@ -1,49 +1,40 @@
 <template>
-  <a-dropdown :trigger="['click']">
+  <el-dropdown trigger="click">
     <div class="menu">
       <MenuOutlined @click.prevent />
     </div>
-    <template #overlay>
-      <a-menu>
-        <a-menu-item>
+    <template #dropdown>
+      <el-dropdown-menu>
+        <el-dropdown-item>
           <OneTransactions></OneTransactions>
-        </a-menu-item>
-        <a-menu-divider />
-        <!-- <a-sub-menu :icon="h(SlidersOutlined)" title="图表设置" key="sub1">
-          <TableSetting></TableSetting>
-        </a-sub-menu> -->
-        <a-menu-item>
+        </el-dropdown-item>
+        <el-dropdown-item divided>
           <Theme></Theme>
-        </a-menu-item>
-        <a-sub-menu key="sub2" :expandIcon="() => h(NowLocale)">
+        </el-dropdown-item>
+        <el-dropdown-item>
           <Language></Language>
-        </a-sub-menu>
-        <a-sub-menu key="sub3" :expandIcon="() => h(NowColor)">
+        </el-dropdown-item>
+        <el-dropdown-item>
           <upDowncolor></upDowncolor>
-        </a-sub-menu>
-        <a-menu-divider />
-        <a-menu-item>
+        </el-dropdown-item>
+        <el-dropdown-item divided>
           <aboutUs></aboutUs>
-        </a-menu-item>
-      </a-menu>
+        </el-dropdown-item>
+      </el-dropdown-menu>
     </template>
-  </a-dropdown>
+  </el-dropdown>
 </template>
 
 <script setup lang="ts">
 import {
   MenuOutlined,
-  // SlidersOutlined,
 } from "@ant-design/icons-vue";
-import { h } from "vue";
 import OneTransactions from "./oneTransactions.vue";
 // import TableSetting from './tableSetting.vue';
 import Theme from "./theme.vue";
 import Language from "./Language/index.vue";
-import NowLocale from "./Language/NowLocale.vue";
 import aboutUs from "./aboutUs.vue";
 import UpDowncolor from "./UpDowncolor/index.vue";
-import NowColor from "./UpDowncolor/NowColor.vue";
 </script>
 
 <style lang="scss" scoped>

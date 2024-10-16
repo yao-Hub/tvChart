@@ -1,49 +1,23 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { LANGUAGE_LIST } from "@/constants/common";
+import { ElConfigProvider } from "element-plus";
 import { useI18n } from "vue-i18n";
-import dayjs from "dayjs";
-import "dayjs/locale/zh-cn";
-import { LANGUAGE_LIST, LOCALE_LIST } from "@/constants/common";
 import { useTheme } from "@/store/modules/theme";
-
 const themeStore = useTheme();
-themeStore.getSystemTheme();
-const upDownTheme = themeStore.getUpDownTheme();
-themeStore.setUpDownTheme(upDownTheme);
-const theme = computed(() => {
-  return {
-    ...themeStore.antDTheme,
-    token: {
-      colorPrimary: '#F4B201',
-      colorBgContainerDisabled: '#BEC2C9'
-    },
-  };
+
+const I18n = useI18n();
+const locale = computed(() => {
+  return LANGUAGE_LIST[I18n.locale.value];
 });
 
-// ant-design 国际化
-const I18n = useI18n();
-let { locale } = I18n;
-const usedLocale = computed(() => {
-  return LANGUAGE_LIST[locale.value as keyof typeof LANGUAGE_LIST];
-});
-dayjs.locale(LOCALE_LIST[locale.value as keyof typeof LOCALE_LIST]);
-const getPopupContainer = (el: Element, dialogContext: any) => {
-  if (dialogContext) {
-    return dialogContext.getDialogWrap();
-  } else {
-    return document.body;
-  }
-};
+themeStore.initTheme();
 </script>
 
 <template>
-  <a-config-provider
-    :getPopupContainer="getPopupContainer"
-    :locale="usedLocale"
-    :theme="theme"
-  >
+  <el-config-provider :locale="locale">
     <router-view></router-view>
-  </a-config-provider>
+  </el-config-provider>
 </template>
 
 <style scoped></style>

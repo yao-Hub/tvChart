@@ -1,48 +1,57 @@
 <template>
   <div>
-    <a-modal
-      wrapClassName="orderDialog"
-      :width="464"
-      :open="open"
-      @cancel="handleCancel"
-      centered
-      :footer="null"
-      :mask="false"
-      :maskClosable="false"
-      :key="open"
-      :zIndex="1"
+    <el-dialog
+      v-model="dialogStore.orderDialogVisible"
+      width="464"
+      draggable
+      overflow
+      align-center
+      :zIndex="10"
+      destroy-on-close
+      :close-on-click-modal="false"
+      @close="handleCancel"
     >
-      <a-form
-        ref="orderFormRef"
-        :model="formState"
-        :rules="rules"
-        layout="vertical"
-        size="large"
-      >
-        <a-row :gutter="24">
-          <a-col :span="12">
-            <a-form-item name="symbol" label="交易品种" validateFirst>
+      <template #header>
+        <span class="dialog_header">下单</span>
+      </template>
+      <el-form :model="formState" :rules="rules" ref="orderFormRef">
+        <el-row :gutter="24">
+          <el-col :span="12">
+            <el-form-item prop="symbol" label="交易品种" label-position="top">
               <SymbolSelect
                 style="width: 100%"
                 v-model="formState.symbol"
-                :selectOption="{ allowClear: true }"
+                :selectOption="{ clearable: true }"
               ></SymbolSelect>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item name="orderType" label="订单类型">
-              <a-select
-                v-model:value="formState.orderType"
-                show-search
-                placeholder="orderType"
-                :options="orderTypeOptions"
-                :filter-option="orderTypeFilterOption"
-              ></a-select>
-            </a-form-item>
-          </a-col>
-          <a-col
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item
+              prop="orderType"
+              label="订单类型"
+              label-position="top"
+            >
+              <el-select
+                v-model="formState.orderType"
+                filterable
+                placeholder="订单类型"
+              >
+                <el-option
+                  v-for="item in orderTypeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col
             :span="12"
-            v-if="['buyLimit', 'sellLimit', 'buyStop', 'sellStop'].includes(formState.orderType)"
+            v-if="
+              ['buyLimit', 'sellLimit', 'buyStop', 'sellStop'].includes(
+                formState.orderType
+              )
+            "
           >
             <Price
               v-model:value="formState.orderPrice"
@@ -52,32 +61,43 @@
               :quote="quote"
             >
             </Price>
-          </a-col>
-          <a-col
-            :span="['', 'price', 'buyStopLimit', 'sellStopLimit'].includes(formState.orderType) ? 24 : 12"
+          </el-col>
+          <el-col
+            :span="
+              ['', 'price', 'buyStopLimit', 'sellStopLimit'].includes(
+                formState.orderType
+              )
+                ? 24
+                : 12
+            "
           >
-            <a-form-item name="volume" label="交易量">
+            <el-form-item prop="volume" label="交易量" label-position="top">
               <Volume
                 v-model:volume="formState.volume"
                 :symbolInfo="symbolInfo"
                 :quote="quote"
               ></Volume>
-            </a-form-item>
-          </a-col>
-          <a-col
+            </el-form-item>
+          </el-col>
+          <el-col
             :span="12"
-            v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)"
+            v-if="
+              ['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)
+            "
           >
             <BreakLimit
               v-model:value="formState.breakPrice"
               :formOption="{ name: 'breakPrice', label: '突破价' }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
-              :quote="quote"></BreakLimit>
-          </a-col>
-          <a-col
+              :quote="quote"
+            ></BreakLimit>
+          </el-col>
+          <el-col
             :span="12"
-            v-if="['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)"
+            v-if="
+              ['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)
+            "
           >
             <BreakLimit
               v-model:value="formState.limitedPrice"
@@ -85,9 +105,10 @@
               :formOption="{ name: 'limitedPrice', label: '限价' }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
-              :quote="quote"></BreakLimit>
-          </a-col>
-          <a-col :span="12">
+              :quote="quote"
+            ></BreakLimit>
+          </el-col>
+          <el-col :span="12">
             <StopLossProfit
               type="stopLoss"
               v-model:price="formState.stopLoss"
@@ -101,8 +122,8 @@
                   : formState.orderType
               "
             ></StopLossProfit>
-          </a-col>
-          <a-col :span="12">
+          </el-col>
+          <el-col :span="12">
             <StopLossProfit
               type="stopProfit"
               v-model:price="formState.stopProfit"
@@ -116,175 +137,115 @@
                   : formState.orderType
               "
             ></StopLossProfit>
-          </a-col>
-          <a-col :span="24" v-if="!['', 'price'].includes(formState.orderType)">
-            <a-form-item name="dueDate" label="期限">
+          </el-col>
+          <el-col
+            :span="24"
+            v-if="!['', 'price'].includes(formState.orderType)"
+          >
+            <el-form-item name="dueDate" label="期限">
               <Term v-model:term="formState.dueDate"></Term>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item>
-              <a-flex gap="16">
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item>
+              <div style="display: flex; flex-wrap: nowrap; width: 100%">
                 <span class="sellWord" style="width: 50%"
                   >卖价: {{ formState.symbol ? quote.bid : "" }}</span
                 >
                 <span class="buyWord" style="width: 50%"
                   >买价: {{ formState.symbol ? quote.ask : "" }}</span
                 >
-              </a-flex>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-            <a-form-item>
-              <a-flex justify="space-evenly">
-                <a-button
+              </div>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
+            <el-form-item>
+              <div style="display: flex; justify-content: space-evenly">
+                <el-button
                   class="sellBtn"
-                  type="primary"
                   :disabled="!ifCreateSell"
                   :loading="priceBtnLoading"
                   @click="showConfirmModal('sell')"
-                  >卖出</a-button
+                  >卖出</el-button
                 >
-                <a-button
+                <el-button
                   class="buyBtn"
-                  type="primary"
                   :disabled="!ifCreateBuy"
                   :loading="priceBtnLoading"
                   @click="showConfirmModal('buy')"
-                  >买入</a-button
+                  >买入</el-button
                 >
-              </a-flex>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12" v-if="!['', 'price'].includes(formState.orderType)">
-            <a-form-item>
-              <a-flex justify="flex-end">
-                <a-button
+              </div>
+            </el-form-item>
+          </el-col>
+          <el-col
+            :span="12"
+            v-if="!['', 'price'].includes(formState.orderType)"
+          >
+            <el-form-item>
+              <div style="display: flex; justify-content: flex-end">
+                <el-button
                   :class="[
                     formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
                   ]"
-                  type="primary"
                   :loading="pendingBtnLoading"
                   @click="addPendingOrders"
-                  >下单</a-button
+                  >下单</el-button
                 >
-              </a-flex>
-            </a-form-item>
-          </a-col>
-        </a-row>
-      </a-form>
-
-      <template #title>
-        <div ref="modalTitleRef" style="width: 100%; cursor: move">下单</div>
-      </template>
-      <template #modalRender="{ originVNode }">
-        <div :style="transformStyle">
-          <component :is="originVNode" />
-        </div>
-      </template>
-    </a-modal>
+              </div>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </el-dialog>
 
     <!-- 下单确认 -->
-    <a-modal
-      :open="confirmOrderOpen"
+    <el-dialog
+      v-model="confirmOrderOpen"
       @cancel="handleConfirmOrderCancle"
-      title="下单确认"
       :width="400"
-      centered
-      :zIndex="2"
+      align-center
+      :zIndex="12"
     >
-      <a-flex wrap="wrap">
-        <div
-          style="width: 45%; margin: 8px 0"
-          v-for="(value, key) in formState"
-          v-show="!!value"
-        >
-          <span v-if="key === 'orderType'"
-            >{{ formMap[key] }}: {{ directionType }}</span
-          >
-          <span v-else> {{ formMap[key] }}: {{ value }} </span>
-        </div>
-      </a-flex>
-      <template #footer>
-        <a-button @click="handleConfirmOrderCancle">修改</a-button>
-        <a-button type="primary" @click="createPriceOrder">确认</a-button>
+      <template #header>
+        <span class="dialog_header">下单确认</span>
       </template>
-    </a-modal>
+      <el-row>
+        <el-col :span="12" v-for="(value, key) in formState" v-show="!!value">
+          <span class="label"> {{ formMap[key] }}： </span>
+          <span class="value">
+            {{ key === "orderType" ? directionType : value }}
+          </span>
+        </el-col>
+      </el-row>
+      <template #footer>
+        <el-button @click="handleConfirmOrderCancle">修改</el-button>
+        <el-button type="primary" @click="createPriceOrder">确认</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, watch, watchEffect, nextTick } from "vue";
+import { ref, computed, reactive, watch, nextTick } from "vue";
 import { debounce } from "lodash";
 import Volume from "./components/Volume.vue";
 import StopLossProfit from "./components/StopLossProfit.vue";
 import Term from "./components/Term.vue";
 import Price from "./components/Price.vue";
 import BreakLimit from "./components/BreakLimit.vue";
+import { useOrder } from "@/store/modules/order";
+const orderStore = useOrder();
 
 /** 弹窗处理 */
 import { useDialog } from "@/store/modules/dialog";
 const dialogStore = useDialog();
-const open = computed(() => {
-  return dialogStore.orderDialogVisible;
-});
 const handleCancel = () => {
   dialogStore.closeOrderDialog();
 };
-// 弹窗拖拽
-import { CSSProperties } from "vue";
-import { useDraggable } from "@vueuse/core";
-const modalTitleRef = ref<HTMLElement>();
-const { x, y, isDragging } = useDraggable(modalTitleRef);
-const startX = ref<number>(0);
-const startY = ref<number>(0);
-const startedDrag = ref(false);
-const transformX = ref(0);
-const transformY = ref(0);
-const preTransformX = ref(0);
-const preTransformY = ref(0);
-const dragRect = ref({ left: 0, right: 0, top: 0, bottom: 0 });
-watch([x, y], () => {
-  if (!startedDrag.value) {
-    startX.value = x.value;
-    startY.value = y.value;
-    const bodyRect = document.body.getBoundingClientRect();
-    if (modalTitleRef.value) {
-      const titleRect = modalTitleRef.value.getBoundingClientRect();
-      dragRect.value.right = bodyRect.width - titleRect.width;
-      dragRect.value.bottom = bodyRect.height - titleRect.height;
-      preTransformX.value = transformX.value;
-      preTransformY.value = transformY.value;
-    }
-  }
-  startedDrag.value = true;
-});
-watch(isDragging, () => {
-  if (!isDragging) {
-    startedDrag.value = false;
-  }
-});
-watchEffect(() => {
-  if (startedDrag.value) {
-    transformX.value =
-      preTransformX.value +
-      Math.min(Math.max(dragRect.value.left, x.value), dragRect.value.right) -
-      startX.value;
-    transformY.value =
-      preTransformY.value +
-      Math.min(Math.max(dragRect.value.top, y.value), dragRect.value.bottom) -
-      startY.value;
-  }
-});
-const transformStyle = computed<CSSProperties>(() => {
-  return {
-    transform: `translate(${transformX.value}px, ${transformY.value}px)`,
-  };
-});
 
 /** 表单处理 */
-import type { FormInstance, SelectProps } from "ant-design-vue";
-import type { Rule } from "ant-design-vue/es/form";
+import type { FormInstance, FormRules } from "element-plus";
 const orderFormRef = ref<FormInstance>();
 interface FormState {
   symbol: string;
@@ -321,7 +282,7 @@ const formState = reactive<FormState>({
 });
 // 重置表单 自动填充
 watch(
-  () => open.value,
+  () => dialogStore.orderDialogVisible,
   async (val) => {
     if (val) {
       await nextTick();
@@ -329,11 +290,10 @@ watch(
       formState.symbol = orderStore.currentSymbol;
       formState.orderType = "price";
     }
-  },
-  { flush: "post" }
+  }
 );
 // 订单类型
-const orderTypeOptions = ref<SelectProps["options"]>([
+const orderTypeOptions = [
   { value: "price", label: "市价" },
   { value: "buyLimit", label: "buy limit" },
   { value: "sellLimit", label: "sell limit" },
@@ -341,10 +301,7 @@ const orderTypeOptions = ref<SelectProps["options"]>([
   { value: "sellStop", label: "sell stop" },
   { value: "buyStopLimit", label: "buy stop limit" },
   { value: "sellStopLimit", label: "sell stop limit" },
-]);
-const orderTypeFilterOption = (input: string, option: any) => {
-  return option.label.includes(input);
-};
+];
 // 是否可以市价下单
 const ifCreateSell = computed(() => {
   const stopLoss = formState.stopLoss;
@@ -392,18 +349,17 @@ const ifCreateBuy = computed(() => {
 });
 // 期限规则
 import dayjs from "dayjs";
-const validDate = () => {
-  const term = +formState.dueDate;
-  if (!term) {
-    return Promise.reject(`请选择期限`);
+const validDate = (rule: any, value: any, callback: any) => {
+  if (!value) {
+    return callback(new Error("请选择期限"));
   }
-  const distanceFromNow = dayjs.unix(term).fromNow();
+  const distanceFromNow = dayjs.unix(value).fromNow();
   if (distanceFromNow.includes("ago") || distanceFromNow.includes("前")) {
-    return Promise.reject(`时间不能小于当前时间`);
+    return callback(new Error("时间不能小于当前时间"));
   }
-  return Promise.resolve();
+  callback();
 };
-const rules: Record<string, Rule[]> = {
+const rules: FormRules<typeof formState> = {
   symbol: [{ required: true, trigger: "change", message: "请输入品种" }],
   orderType: [{ required: true, trigger: "change", message: "请选择订单类型" }],
   volume: [{ required: true, trigger: "change", message: "请输入交易量" }],
@@ -429,8 +385,6 @@ const quote = ref<Quote>({
   symbol: "",
   server: "",
 });
-import { useOrder } from "@/store/modules/order";
-const orderStore = useOrder();
 watch(
   () => [orderStore.currentQuotes, formState.symbol],
   () => {
@@ -449,10 +403,10 @@ const handleConfirmOrderCancle = () => {
   confirmOrderOpen.value = false;
 };
 const valids = async () => {
-  let result: any = false;
+  let result: boolean = false;
   if (orderFormRef.value) {
     result = await orderFormRef.value
-      .validateFields()
+      .validateField()
       .then((res) => res)
       .catch((e) => false);
   }
@@ -468,7 +422,7 @@ const showConfirmModal = debounce(async (type: "sell" | "buy") => {
   }
 }, 200);
 // 市价单下单
-import { notification } from "ant-design-vue";
+import { ElNotification } from "element-plus";
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 const createPriceOrder = debounce(async () => {
   try {
@@ -486,20 +440,20 @@ const createPriceOrder = debounce(async () => {
     }
     const res = await marketOrdersAdd(updata);
     if (res.data.action_success) {
-      notification.success({
-        message: "下单成功",
-        description: `${directionType.value !== "buy" ? "卖出" : "买入"}${
+      ElNotification({
+        title: "下单成功",
+        message: `${directionType.value !== "buy" ? "卖出" : "买入"}${
           formState.volume
         }手${formState.symbol}的订单已提交。`,
-        // icon: () => h(SmileOutlined, { style: 'color: #108ee9' }),
+        type: "success",
       });
       handleConfirmOrderCancle();
       handleCancel();
       orderStore.refreshOrderArea = true;
     } else {
-      notification.error({
-        message: "下单失败",
-        description: `${res.data.err_text}`,
+      ElNotification.error({
+        title: "下单失败",
+        message: `${res.data.err_text}`,
       });
     }
   } finally {
@@ -508,7 +462,7 @@ const createPriceOrder = debounce(async () => {
 }, 200);
 // 挂单下单
 import { pendingOrdersAdd, reqPendingOrdersAdd } from "api/order/index";
-import { message } from "ant-design-vue";
+import { ElMessage } from "element-plus";
 import { ORDERMAP } from "@/constants/common";
 
 const pendingBtnLoading = ref(false);
@@ -536,10 +490,10 @@ const addPendingOrders = debounce(async () => {
       }
       const res = await pendingOrdersAdd(updata);
       if (res.data.action_success) {
-        message.success("下单成功");
+        ElMessage.success(`下单成功`);
         handleCancel();
       } else {
-        message.error(`下单失败：${res.data.err_text}`);
+        ElMessage.error(`下单失败：${res.data.err_text}`);
       }
     }
   } finally {
@@ -548,18 +502,38 @@ const addPendingOrders = debounce(async () => {
 }, 200);
 </script>
 
-<style lang="scss">
-.orderDialog {
-  pointer-events: none;
-}
-</style>
+<style lang="scss"></style>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .sellBtn,
 .buyBtn {
   border-radius: 4px;
   @include font_color("background-component");
+}
+:deep(.el-overlay) {
+  background-color: transparent;
+  pointer-events: none;
+}
+:deep(.el-dialog) {
+  pointer-events: auto;
+}
+:deep(.el-col) {
+  margin-bottom: 14px;
+}
+:deep(.el-row) {
+  margin-top: 14px;
+}
+.dialog_header {
+  font-weight: bold;
+  font-size: 18px;
+  @include font_color("word");
+}
+.label {
+  @include font_color("word-gray");
+}
+.value {
+  @include font_color("word");
 }
 </style>

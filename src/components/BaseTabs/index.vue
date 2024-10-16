@@ -8,11 +8,11 @@
 </template>
 
 <script setup lang="ts">
-import { PlusOutlined } from '@ant-design/icons-vue';
-import { provide } from 'vue';
+import { PlusOutlined } from "@ant-design/icons-vue";
+import { provide } from "vue";
 
-const model = defineModel<string>("activeKey",{ required: true });
-provide('model', model);
+const model = defineModel<string>("activeKey", { required: true });
+provide("model", model);
 
 interface Props {
   addable?: boolean;
@@ -24,14 +24,13 @@ const emit = defineEmits(["handleAdd"]);
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .baseTabs {
   height: 24px;
-  box-sizing: border-box;
+  // box-sizing: border-box;
   border-bottom: 1px solid;
   display: flex;
-  font-size: 12px;
   @include border_color("border");
   @include background_color("background-component");
   &_add {

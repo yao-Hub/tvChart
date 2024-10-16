@@ -1,8 +1,14 @@
 <template>
-  <StepNumInput v-model:value="model" :step="step" :min="min" :max="max" @blur="checkVolume"></StepNumInput>
-  <a-form-item no-style>
+  <div style="display: flex; flex-direction: column">
+    <StepNumInput
+      v-model:value="model"
+      :step="step"
+      :min="min"
+      :max="max"
+      @blur="checkVolume"
+    ></StepNumInput>
     <span class="tip">参考预付款：{{ Margin }}</span>
-  </a-form-item>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -85,4 +91,9 @@ watch(
 );
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+@import "@/styles/_handle.scss";
+.tip {
+  @include font_color("word-gray");
+}
+</style>

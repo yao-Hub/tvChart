@@ -1,64 +1,53 @@
 <template>
-  <a-dropdown v-model:open="visible">
-    <div class="layoutVisibled">
-      <LayoutOutlined class="layoutVisibled_left" />
-      <DownOutlined class="layoutVisibled_right" />
+  <el-dropdown trigger="click">
+    <div class="icons">
+      <LayoutOutlined class="icons_left" />
+      <DownOutlined class="icons_right" />
     </div>
-    <template #overlay>
-      <a-menu>
-        <a-menu-item>
-          <a-checkbox
-            v-model:checked="layoutStore.chartsVisable"
-            @change="(e: any) => checkboxChange(e, 'chartList')"
-            >{{ $t("chartList") }}</a-checkbox
-          >
-        </a-menu-item>
-        <a-menu-item>
-          <a-checkbox
-            v-model:checked="layoutStore.symbolsVisable"
-            @change="checkboxChange"
-            >{{ $t("symbolList") }}</a-checkbox
-          >
-        </a-menu-item>
-        <a-menu-item>
-          <a-checkbox
-            v-model:checked="layoutStore.orderAreaVisable"
-            @change="checkboxChange"
-            >{{ $t("orderList") }}</a-checkbox
-          >
-        </a-menu-item>
-      </a-menu>
+    <template #dropdown>
+      <el-dropdown-menu>
+        <el-dropdown-item>
+          <div class="item" @click="() => layoutChange('symbolsVisable')">
+            <el-icon><Select v-if="layoutStore.symbolsVisable" /></el-icon>
+            <span>活跃交易品种面板</span>
+          </div>
+        </el-dropdown-item>
+
+        <el-dropdown-item>
+          <div class="item" @click="() => layoutChange('orderAreaVisable')">
+            <el-icon><Select v-if="layoutStore.orderAreaVisable" /></el-icon>
+            <span>交易看板</span>
+          </div>
+        </el-dropdown-item>
+      </el-dropdown-menu>
     </template>
-  </a-dropdown>
+  </el-dropdown>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
 import { LayoutOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { resizeUpdate } from "@/utils/dragResize/drag_position";
 
 import { useLayout } from "@/store/modules/layout";
-import { useChartInit } from "@/store/modules/chartInit";
-const chartInitStore = useChartInit();
-const visible = ref(false);
 const layoutStore = useLayout();
 
 onMounted(() => {
   const stoLayout = localStorage.getItem("layout");
   if (stoLayout) {
     const layout = JSON.parse(stoLayout);
-    const { chartsVisable, symbolsVisable, orderAreaVisable } = layout;
-    layoutStore.chartsVisable = chartsVisable;
+    const { symbolsVisable, orderAreaVisable } = layout;
     layoutStore.symbolsVisable = symbolsVisable;
     layoutStore.orderAreaVisable = orderAreaVisable;
   }
 });
 
-const checkboxChange = async (e: any, type: string) => {
+const layoutChange = (type: 'symbolsVisable' | 'orderAreaVisable') => {
+  layoutStore[type] = !layoutStore[type];
   setTimeout(() => {
-    if (type === "chartList") {
-      chartInitStore.syncSetChart();
-    }
+  //   if (type === "chartList") {
+  //     chartInitStore.syncSetChart();
+  //   }
     resizeUpdate();
   }, 200);
   rememberLayout();
@@ -66,7 +55,7 @@ const checkboxChange = async (e: any, type: string) => {
 
 const rememberLayout = () => {
   const obj = {
-    chartsVisable: layoutStore.chartsVisable,
+    // chartsVisable: layoutStore.chartsVisable,
     symbolsVisable: layoutStore.symbolsVisable,
     orderAreaVisable: layoutStore.orderAreaVisable,
   };
@@ -75,18 +64,41 @@ const rememberLayout = () => {
 </script>
 
 <style lang="scss" scoped>
-.layoutVisibled {
+@import "@/styles/_handle.scss";
+
+.icons {
   display: flex;
   align-items: center;
-
+  justify-content: center;
+  cursor: pointer;
+  width: 36px;
+  height: 24px;
+  border-radius: 4px;
+  &:hover {
+    @include background_color("background-hover");
+  }
   &_left {
-    width: 16px;
-    height: 16px;
+    width: 12px;
+    height: 12px;
+    margin-right: 3px;
   }
 
   &_right {
-    width: 4px;
-    height: 2px;
+    width: 12px;
+    height: 12px;
+    transform: scale(0.4, 0.4) !important;
   }
+}
+.item {
+  width: 180px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  @include font_color("word");
+  box-sizing: border-box;
+}
+:deep(.el-dropdown-menu__item) {
+  margin: 0 8px;
+  border-radius: 4px;
 }
 </style>

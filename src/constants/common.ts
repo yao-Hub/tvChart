@@ -1,10 +1,10 @@
-import enUS from "ant-design-vue/es/locale/en_US";
-import zhCN from "ant-design-vue/es/locale/zh_CN";
+import zhCn from 'element-plus/es/locale/lang/zh-cn'
+import en from 'element-plus/es/locale/lang/en'
 
 export const LANGUAGE_LIST = {
-  zh: zhCN,
-  en: enUS,
-};
+  zh: zhCn,
+  en: en,
+} as Record<string, any>;
 
 // 单选语言切换
 export const LOCALE_SINGLE_LIST = {

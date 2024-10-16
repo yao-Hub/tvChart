@@ -1,12 +1,10 @@
 <template>
-  <a-tooltip title="快捷交易">
-    <ThunderboltFilled
-      class="checked"
-      v-if="orderStore.ifQuick"
-      @click="() => handleClick(false)"
-    />
-    <ThunderboltOutlined v-else @click="() => handleClick(true)" />
-  </a-tooltip>
+  <ThunderboltFilled
+    class="icon checked"
+    v-if="orderStore.ifQuick"
+    @click="() => handleClick(false)"
+  />
+  <ThunderboltOutlined class="icon" v-else @click="() => handleClick(true)" />
 </template>
 
 <script setup lang="ts">
@@ -21,12 +19,14 @@ const handleClick = (e: boolean) => {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
-
-span {
-  cursor: pointer;
-}
+@import "@/styles/_handle.scss";
 .checked {
   @include font_color('primary');
+}
+.icon {
+  font-size: 12px;
+  cursor: pointer;
+  color: #333333;
+  margin-top: 2px;
 }
 </style>

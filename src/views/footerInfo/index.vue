@@ -1,61 +1,85 @@
 <template>
   <div class="footerInfo">
     <div class="item">
-      <span>{{ $t("order.balance") }}: </span>
+      <span>{{ $t("order.balance") }}：</span>
       <span>{{ loginInfo?.balance }}</span>
     </div>
+    <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.equity") }}: </span>
+      <span>{{ $t("order.equity") }}：</span>
       <span>{{ equity }}</span>
     </div>
+    <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.Margin") }}: </span>
+      <span>{{ $t("order.Margin") }}：</span>
       <span>{{ Margin }}</span>
     </div>
+    <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.marginFree") }}: </span>
+      <span>{{ $t("order.marginFree") }}：</span>
       <span>{{ margin_free }}</span>
     </div>
+    <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.marginLevel") }}: </span>
+      <span>{{ $t("order.marginLevel") }}：</span>
       <span>{{ margin_level }}</span>
     </div>
+    <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.TotalProfit") }}: </span>
-      <span>{{ profit }}</span>
+      <span>{{ $t("order.TotalProfit") }}：</span>
+      <span :class="[+profit > 0 ? 'redWord' : 'greenWord']">{{ profit }}</span>
     </div>
-    <div class="item" style="border: none; flex: 0; width: 108px;">
-      <a-dropdown v-model:open="visible" placement="top" :trigger="[ 'click' ]">
-        <div :class="[+currentDelay > 500 ? 'redWord delay' : 'greenWord delay']">
+    <el-divider direction="vertical" />
+    <div class="item_delay">
+      <el-dropdown trigger="click" placement="top-start">
+        <div
+          :class="[+currentDelay > 500 ? 'redWord delay' : 'greenWord delay']"
+        >
           <i class="iconfont">&#xe602;</i>
           <span>{{ currentDelay }}ms</span>
         </div>
-        <template #overlay>
-          <a-menu @click="handleMenuClick">
-            <div class="operaItem" @click="refreshDelay">
-              <ReloadOutlined class="refreshIcon" v-if="!delayLoading"/>
-              <LoadingOutlined v-else/>
-              <span>{{ $t("refresh") }}</span>
-            </div>
-            <a-menu-divider />
-            <a-menu-item v-for="node in networkStore.nodeList" :key="node.nodeName">
-              <a-flex justify="space-between" align="center" class="delayItem">
-                <a-flex gap="5">
-                  <CheckOutlined v-show="node.nodeName === networkStore.currentNode?.nodeName" class="checkIcon"/>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item @click="refreshDelay">
+              <div class="operaItem">
+                <ReloadOutlined v-if="!delayLoading" />
+                <LoadingOutlined v-else />
+                <span>{{ $t("refresh") }}</span>
+              </div>
+            </el-dropdown-item>
+            <el-dropdown-item
+              v-for="node in networkStore.nodeList"
+              :key="node.nodeName"
+            >
+              <div class="delayItem" @click="changeNode(node.nodeName)">
+                <div style="display: flex; gap: 5px; align-items: center">
+                  <CheckOutlined
+                    v-show="
+                      node.nodeName === networkStore.currentNode?.nodeName
+                    "
+                    class="checkIcon"
+                  />
                   <span class="nodeName"> {{ node.nodeName }} </span>
-                </a-flex>
-                <span :class="[+getDelay(node.webWebsocket) > 500 ? 'redWord' : 'greenWord']">{{ getDelay(node.webWebsocket) }}ms</span>
-              </a-flex>
-            </a-menu-item>
-          </a-menu>
+                </div>
+                <span
+                  :class="[
+                    +getDelay(node.webWebsocket) > 500
+                      ? 'redWord'
+                      : 'greenWord',
+                  ]"
+                  >{{ getDelay(node.webWebsocket) }}ms</span
+                >
+              </div>
+            </el-dropdown-item>
+          </el-dropdown-menu>
         </template>
-      </a-dropdown>
+      </el-dropdown>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ReloadOutlined, LoadingOutlined } from '@ant-design/icons-vue';
+import { ReloadOutlined, LoadingOutlined } from "@ant-design/icons-vue";
 import { computed } from "vue";
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
@@ -129,15 +153,11 @@ const profit = computed(() => {
   }
 });
 
-
-import { ref } from 'vue';
-import type { MenuProps } from 'ant-design-vue';
+import { ref } from "vue";
 import { useNetwork } from "@/store/modules/network";
 const networkStore = useNetwork();
 
-const visible = ref(false);
-const handleMenuClick: MenuProps['onClick'] = e => {
-  const name = e.key as string;
+const changeNode = (name: string) => {
   const currentNodeName = networkStore.currentNode?.nodeName;
   if (name === currentNodeName) {
     return;
@@ -148,15 +168,15 @@ const handleMenuClick: MenuProps['onClick'] = e => {
 
 import { get } from "lodash";
 import { useSocket } from "@/store/modules/socket";
-import { CheckOutlined } from '@ant-design/icons-vue';
+import { CheckOutlined } from "@ant-design/icons-vue";
 const socketStore = useSocket();
 const currentDelay = computed(() => {
-  const currentWsUri = networkStore.currentNode?.webWebsocket || '';
-  const delay = get(socketStore.delayMap, currentWsUri) || '-';
+  const currentWsUri = networkStore.currentNode?.webWebsocket || "";
+  const delay = get(socketStore.delayMap, currentWsUri) || "-";
   return delay;
 });
 const getDelay = (uri: string) => {
-  const delay = get(socketStore.delayMap, uri) || '-';
+  const delay = get(socketStore.delayMap, uri) || "-";
   return delay;
 };
 const delayLoading = ref(false);
@@ -171,7 +191,7 @@ const refreshDelay = () => {
 </script>
 
 <style lang="scss" scoped>
-@import "@/assets/styles/_handle.scss";
+@import "@/styles/_handle.scss";
 
 .footerInfo {
   width: 100vw;
@@ -184,17 +204,27 @@ const refreshDelay = () => {
   right: 0;
   overflow: auto;
   display: flex;
+  align-items: center;
 
   .item {
     flex: 1;
     min-width: 100px;
-    border-right: 1px solid;
-    @include border_color("border");
-    height: 30px;
-    line-height: 30px;
-    padding: 0 20px;
+    // border-right: 1px solid;
+    // @include border_color("border");
     overflow: auto;
-    text-align: center;
+    font-size: 12px;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+    & span:first-child {
+      @include font_color("word-gray");
+    }
+    &_delay {
+      border: none;
+      width: 108px;
+      text-align: center;
+    }
   }
 }
 
@@ -204,30 +234,33 @@ const refreshDelay = () => {
   font-size: 12px;
   gap: 5px;
   justify-content: center;
-}
-.delay:hover {
-  @include font_color("primary");
-}
-.refreshIcon {
+  align-items: center;
+  height: 30px;
   font-size: 12px;
 }
-.refreshIcon:hover {
+.delay:hover {
   @include font_color("primary");
 }
 .checkIcon {
   @include font_color("primary");
 }
 .operaItem {
-  height: 30px;
-  padding: 0 15px;
   display: flex;
   gap: 5px;
   align-items: center;
+  font-size: 12px;
   cursor: pointer;
+  width: 100%;
+}
+.operaItem:hover {
+  @include font_color("primary");
 }
 .delayItem {
   min-width: 300px;
   font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   .nodeName {
     max-width: 200px;
     overflow: hidden;
@@ -236,9 +269,9 @@ const refreshDelay = () => {
   }
 }
 .redWord {
-  color: #FF4A61;
+  color: #ff4a61;
 }
 .greenWord {
-  color: #00C673;
+  color: #00c673;
 }
 </style>
