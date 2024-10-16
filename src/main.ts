@@ -12,7 +12,7 @@ import "./assets/icons/iconfont/iconfont.css";
 
 import "element-plus/dist/index.css";
 
-import "./styles/element/dark/css-vars.scss";
+// import "./styles/element/dark/css-vars.scss";
 import "./styles/element/dark/index.scss";
 
 import "./styles/element/index.scss";
