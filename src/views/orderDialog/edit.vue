@@ -37,7 +37,10 @@
                   v-model:value="closeFormState.volume"
                 ></StepNumInput>
                 <el-tooltip content="反向持仓" placement="top-start">
-                  <el-button :icon="Back" @click="handleConfirm('reverse', closeFormRef)" />
+                  <el-button
+                    :icon="Back"
+                    @click="handleConfirm('reverse', closeFormRef)"
+                  />
                 </el-tooltip>
                 <el-tooltip content="双倍持仓" placement="top-start">
                   <el-button @click="handleConfirm('double', closeFormRef)">
@@ -242,15 +245,18 @@ const confirmCancel = () => {
 };
 type ConfirmType = "close" | "reverse" | "double";
 const confirmType = ref<ConfirmType>("close");
-const handleConfirm = debounce((type: ConfirmType, formEl: FormInstance | undefined) => {
-  if (!formEl) return;
-  formEl.validate((valid) => {
-    if (valid) {
-      confirmType.value = type;
-      confirmOpen.value = true;
-    }
-  });
-}, 200);
+const handleConfirm = debounce(
+  (type: ConfirmType, formEl: FormInstance | undefined) => {
+    if (!formEl) return;
+    formEl.validate((valid) => {
+      if (valid) {
+        confirmType.value = type;
+        confirmOpen.value = true;
+      }
+    });
+  },
+  20
+);
 
 // 平仓操作
 const orderStore = useOrder();
@@ -340,7 +346,7 @@ const okCancel = debounce(async () => {
   } catch (error) {
     confirmLoading.value = false;
   }
-}, 200);
+}, 20);
 
 // 修改止盈止损
 import { editopenningOrders, reqEditOpeningOrders } from "api/order/index";
@@ -371,7 +377,7 @@ const modify = debounce(async () => {
   } finally {
     modifyLoading.value = false;
   }
-}, 200);
+}, 20);
 </script>
 
 <style lang="scss" scoped>

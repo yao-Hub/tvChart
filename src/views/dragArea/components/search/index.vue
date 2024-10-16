@@ -14,7 +14,7 @@
     <div v-if="!input && showSymbols" class="detail scrollList">
       <Block class="back">
         <template #title>
-          <div class="back_title" @click="() => showSymbols = false">
+          <div class="back_title" @click="() => (showSymbols = false)">
             <LeftOutlined />
             <span>{{ currentPath }}</span>
           </div>
@@ -152,7 +152,7 @@ const btnClick = debounce(async (type: string, item: SymbolListItem) => {
   }
   await getQuery();
   item.loading = false;
-}, 200);
+}, 20);
 const getCheckType = (type: string) => {
   return listState.query.includes(type);
 };

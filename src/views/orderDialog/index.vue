@@ -420,7 +420,7 @@ const showConfirmModal = debounce(async (type: "sell" | "buy") => {
   if (values) {
     confirmOrderOpen.value = true;
   }
-}, 200);
+}, 20);
 // 市价单下单
 import { ElNotification } from "element-plus";
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
@@ -459,7 +459,7 @@ const createPriceOrder = debounce(async () => {
   } finally {
     priceBtnLoading.value = false;
   }
-}, 200);
+}, 20);
 // 挂单下单
 import { pendingOrdersAdd, reqPendingOrdersAdd } from "api/order/index";
 import { ElMessage } from "element-plus";
@@ -499,7 +499,7 @@ const addPendingOrders = debounce(async () => {
   } finally {
     pendingBtnLoading.value = false;
   }
-}, 200);
+}, 20);
 </script>
 
 <style lang="scss"></style>

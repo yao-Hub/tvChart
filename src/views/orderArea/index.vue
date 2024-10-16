@@ -526,10 +526,10 @@ const getTradingHistory = async () => {
   }
 };
 
-const debouncedGetOrders = debounce(() => getOrders(), 200);
-const debouncedGetPendingOrders = debounce(() => getPendingOrders(), 200);
-const debouncedGetOrderHistory = debounce(() => getOrderHistory(), 200);
-const debouncedGetTradingHistory = debounce(() => getTradingHistory(), 200);
+const debouncedGetOrders = debounce(() => getOrders(), 20);
+const debouncedGetPendingOrders = debounce(() => getPendingOrders(), 20);
+const debouncedGetOrderHistory = debounce(() => getOrderHistory(), 20);
+const debouncedGetTradingHistory = debounce(() => getTradingHistory(), 20);
 
 // 市价单平仓
 const orderClose = async (record: orders.resOrders) => {
