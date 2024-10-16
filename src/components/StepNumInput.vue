@@ -47,7 +47,7 @@ const handleAdd = () => {
   -ms-user-select: none;
   user-select: none;
 }
-:deep input {
+:deep(input) {
   text-align: center;
 }
 </style>
