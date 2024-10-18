@@ -10,7 +10,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
 import { CheckOutlined } from "@ant-design/icons-vue";
 
 const sizeList = ["small", "medium", "large"];
