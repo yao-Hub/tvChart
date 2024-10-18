@@ -32,14 +32,20 @@
             </div>
             <div class="other">
               <span class="grayWord">{{ item.createTime }}</span>
-              <span class="expand" v-if="item.handleOpinion" @click="item.ifExpand = !item.ifExpand">{{
-                item.ifExpand ? "收起" : "展开回复"
-              }}</span>
+              <span
+                class="expand"
+                v-if="item.handleOpinion"
+                @click="item.ifExpand = !item.ifExpand"
+                >{{ item.ifExpand ? "收起" : "展开回复" }}</span
+              >
             </div>
 
             <div class="reply" v-show="item.ifExpand && item.handleOpinion">
               <div class="replay_avatar">
-                <img style="height: 24px; width: 24px; border-radius: 50%;" src="@/assets/icons/logo@3x.png"/>
+                <img
+                  style="height: 24px; width: 24px; border-radius: 50%"
+                  src="@/assets/icons/logo@3x.png"
+                />
                 <span class="grayWord">平台答复：</span>
               </div>
               <span class="reply_word">{{ item.handleOpinion }}</span>
@@ -49,7 +55,7 @@
         </div>
         <el-divider style="margin: 24px 0" />
       </div>
-      <el-empty v-if="commentList.length === 0"/>
+      <el-empty v-if="commentList.length === 0" />
     </div>
   </el-dialog>
 </template>
@@ -62,7 +68,7 @@ import { myfeedback, resFeedback } from "api/feedback";
 type commentList = resFeedback & {
   avatar: string;
   ifExpand: boolean;
-}
+};
 const commentList = ref<Array<commentList>>([]);
 const loading = ref(false);
 watch(
@@ -72,17 +78,16 @@ watch(
       loading.value = true;
       const res = await myfeedback();
       loading.value = false;
-      commentList.value = res.data.map(item => {
+      commentList.value = res.data.map((item) => {
         return {
           ...item,
           avatar: "",
           ifExpand: true,
-        }
+        };
       });
     }
-  },
+  }
 );
-
 </script>
 
 <style lang="scss" scoped>
@@ -105,6 +110,7 @@ watch(
 }
 .comment {
   display: flex;
+  font-size: var(--font-size);
   gap: 8px;
   .avatar {
     width: 40px;
@@ -115,7 +121,6 @@ watch(
     flex-direction: column;
     gap: 8px;
     .word {
-      font-size: 14px;
       line-height: 20px;
       @include font_color("word");
     }
@@ -152,10 +157,10 @@ watch(
     .reply_word {
       margin-left: 32px;
     }
-.reply_time {
-  margin-left: 32px;
-  margin-top: 10px;
-}
+    .reply_time {
+      margin-left: 32px;
+      margin-top: 10px;
+    }
   }
 }
 </style>

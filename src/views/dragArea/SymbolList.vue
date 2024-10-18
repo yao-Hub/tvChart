@@ -24,7 +24,6 @@
           <el-table-v2
             v-loading="tableLoading"
             header-class="tableHeader"
-            row-class="tableRow"
             :row-height="24"
             :header-height="24"
             :columns="columns"
@@ -48,7 +47,12 @@
                 </span>
               </template>
               <template v-else-if="column.dataKey === 'variation'">
-                <span :class="[rowData.variation > 0 ? 'buyWord' : 'sellWord']">
+                <span
+                  :class="[
+                    rowData.variation > 0 ? ' buyWord' : ' sellWord',
+                    'variation',
+                  ]"
+                >
                   {{ getLines(rowData) }}
                 </span>
               </template>
@@ -88,28 +92,21 @@ const columns: Column<any>[] = [
   {
     title: t("order.symbol"),
     dataKey: "symbol",
-    key: "symbol",
     width: 100,
-    sortable: true,
   },
   {
     title: t("order.sellPrice"),
     dataKey: "bid",
-    key: "bid",
     width: 100,
-    sortable: true,
   },
   {
     title: t("order.buyPrice"),
     dataKey: "ask",
-    key: "ask",
-    width: 100,
-    sortable: true,
+    width: 70,
   },
   {
     title: t("order.diurnalVariation"),
     dataKey: "variation",
-    key: "variation",
     width: 90,
     sortable: true,
   },
@@ -117,9 +114,6 @@ const columns: Column<any>[] = [
 
 import { orderBy } from "lodash";
 const sortState = ref<SortState>({
-  symbol: TableV2SortOrder.DESC,
-  bid: TableV2SortOrder.ASC,
-  ask: TableV2SortOrder.ASC,
   variation: TableV2SortOrder.ASC,
 });
 const onSort = ({ key, order }: SortBy) => {
@@ -290,15 +284,28 @@ const rowProps = ({ rowData }: any) => {
   padding-bottom: 5px;
 }
 
+.variation {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+}
+
 :deep(.tableHeader) {
   background: #f6f8fa;
-  font-size: 12px;
+  font-size: var(--font-size);
 }
 :deep(.el-table-v2__header-cell) {
   background: #f6f8fa;
+  display: flex;
+  justify-content: flex-start;
+}
+:deep(.el-table-v2__header-cell[data-key="variation"]) {
+  display: flex;
+  justify-content: flex-end;
 }
 :deep(.el-table-v2__row) {
   border: none;
-  font-size: 12px;
+  width: 100%;
+  font-size: var(--font-size);
 }
 </style>

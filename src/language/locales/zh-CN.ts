@@ -94,4 +94,11 @@ export default {
     agree: "我同意开设账户和数据保护政策的条款和条件",
     resetPassword: "需由6-24位数字和字母组合",
   },
+
+  font: {
+    fontSize: "字号",
+    small: "小号",
+    medium: "中号",
+    large: "大号",
+  },
 };

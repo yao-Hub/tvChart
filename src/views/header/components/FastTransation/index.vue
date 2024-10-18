@@ -1,3 +1,4 @@
+<!-- 快捷交易 -->
 <template>
   <ThunderboltFilled
     class="icon checked"
@@ -15,16 +16,16 @@ const orderStore = useOrder();
 const handleClick = (e: boolean) => {
   orderStore.ifQuick = e;
   window.localStorage.setItem("ifQuick", JSON.stringify(e));
-}
+};
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 .checked {
-  @include font_color('primary');
+  @include font_color("primary");
 }
 .icon {
-  font-size: 12px;
+  font-size: var(--font-size);
   cursor: pointer;
   color: #333333;
   margin-top: 2px;

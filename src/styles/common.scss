@@ -1,4 +1,4 @@
-@import '@/styles/_handle.scss';
+@import "@/styles/_handle.scss";
 
 html,
 body,
@@ -156,11 +156,12 @@ img {
 }
 
 input {
+  font-size: var(--font-size) !important;
   outline: none;
 }
 
 input:disabled {
-  @include background_color('inputDisabled');
+  @include background_color("inputDisabled");
 }
 
 input::-webkit-outer-spin-button,
@@ -175,8 +176,13 @@ button {
 }
 
 body {
-  @include background_color('background');
-  @include font_color('word');
+  @include background_color("background");
+  @include font_color("word");
+}
+
+.el-select__wrapper,
+.el-tag {
+  font-size: var(--font-size) !important;
 }
 
 .icon {
@@ -188,7 +194,7 @@ body {
 }
 
 .checkIcon {
-  @include font_color('primary');
+  @include font_color("primary");
 }
 
 .iconfont {
@@ -196,43 +202,43 @@ body {
 }
 
 .sellWord {
-  @include font_color('down');
+  @include font_color("down");
 }
 
 .buyWord {
-  @include font_color('up');
+  @include font_color("up");
 }
 
 .sellBtn {
-  @include background_color('down');
+  @include background_color("down");
 }
 
 .sellBtn:hover {
-  @include background_color('downHover');
+  @include background_color("downHover");
 }
 
 .sellBtn:active {
-  @include background_color('downActive');
+  @include background_color("downActive");
 }
 
 .buyBtn {
-  @include background_color('up');
+  @include background_color("up");
 }
 
 .buyBtn:hover {
-  @include background_color('upHover');
+  @include background_color("upHover");
 }
 
 .buyBtn:active {
-  @include background_color('upActive');
+  @include background_color("upActive");
 }
 
 .buyBtn[disabled] {
-  @include background_color('btnDisabled');
+  @include background_color("btnDisabled");
 }
 
 .sellBtn[disabled] {
-  @include background_color('btnDisabled');
+  @include background_color("btnDisabled");
 }
 
 .scrollList {

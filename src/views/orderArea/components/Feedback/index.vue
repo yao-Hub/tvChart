@@ -89,7 +89,7 @@ const myFeedBackOpen = ref(false);
 
 import { saveFeedback } from "api/feedback";
 import { useNetwork } from "@/store/modules/network";
-import { ElMessage } from 'element-plus'
+import { ElMessage } from "element-plus";
 const networkStore = useNetwork();
 const handleOk = async () => {
   const feedbackFileIds = fileList.value?.map(
@@ -105,8 +105,8 @@ const handleOk = async () => {
   const res = await saveFeedback(updata);
   ElMessage({
     message: res.errmsg,
-    type: 'success',
-  })
+    type: "success",
+  });
   open.value = false;
 };
 </script>
@@ -117,7 +117,7 @@ const handleOk = async () => {
 .item {
   display: flex;
   gap: 5px;
-  font-size: 12px;
+  font-size: var(--font-size);
   @include font_color("word-gray");
   cursor: pointer;
   min-width: 70px;

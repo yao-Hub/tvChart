@@ -47,7 +47,7 @@ const handleDelete = () => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 .baseTabs_item {
-  font-size: 12px;
+  font-size: var(--font-size);
   height: 100%;
   min-width: 88px;
   display: flex;

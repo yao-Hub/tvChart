@@ -527,7 +527,7 @@ const addPendingOrders = debounce(async () => {
 }
 .dialog_header {
   font-weight: bold;
-  font-size: 18px;
+  font-size: 16px;
   @include font_color("word");
 }
 .label {

@@ -1,15 +1,20 @@
 <template>
   <div class="transaction">
     <div class="transaction_left">
-      <el-icon><WalletFilled /></el-icon>
+      <DollarCircleOutlined />
       <span>{{ $t("QuickTransactions") }}</span>
     </div>
-    <el-switch v-model="orderStore.ifOne" :before-change="beforeChange" size="small" />
+    <el-switch
+      v-model="orderStore.ifOne"
+      :before-change="beforeChange"
+      size="small"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { WalletFilled } from "@element-plus/icons-vue";
+import { DollarCircleOutlined } from "@ant-design/icons-vue";
+
 import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
 

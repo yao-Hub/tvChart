@@ -1,7 +1,7 @@
 <template>
   <div class="transaction">
     <div class="transaction_left">
-      <el-icon><WalletFilled /></el-icon>
+      <el-icon><Sunny /></el-icon>
       <span>{{ $t("lightTheme") }}</span>
     </div>
     <el-switch v-model="checked" @change="handleChange" size="small" />
@@ -9,7 +9,7 @@
 </template>
 
 <script setup lang="ts">
-import { WalletFilled } from "@element-plus/icons-vue";
+import { Sunny } from "@element-plus/icons-vue";
 
 import { ref } from "vue";
 import { useTheme } from "@/store/modules/theme";

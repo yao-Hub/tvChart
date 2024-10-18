@@ -155,7 +155,7 @@ const creatOrder = async (type: "sell" | "buy") => {
 .price,
 .btn {
   color: #fff;
-  font-size: 12px;
+  font-size: var(--font-size);
   height: 18px;
   text-align: center;
   line-height: 18px;
@@ -191,7 +191,7 @@ const creatOrder = async (type: "sell" | "buy") => {
   @include background_color("background-component");
 }
 .icon {
-  font-size: 12px;
+  font-size: var(--font-size);
   scale: 0.5;
   width: 12px;
   height: 12px;

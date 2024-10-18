@@ -96,4 +96,11 @@ export default {
       "I agree to the terms and conditions of the account opening and data protection policy",
     resetPassword: "Must consist of a combination of 6-24 digits and letters",
   },
+
+  font: {
+    fontSize: "fontSize",
+    small: "small",
+    medium: "medium",
+    large: "large",
+  },
 };

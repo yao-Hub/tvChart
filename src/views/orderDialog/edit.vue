@@ -382,17 +382,13 @@ const modify = debounce(async () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-.title {
-  width: 100%;
-  height: 56px;
-  span {
-    margin-left: 32px;
-    margin-top: 24px;
-    display: inline-block;
-    font-weight: bold;
-    font-size: 18px;
-  }
+
+.dialog_header {
+  font-weight: bold;
+  font-size: 16px;
+  @include font_color("word");
 }
+
 .container {
   display: flex;
   flex-direction: column;
@@ -425,6 +421,7 @@ const modify = debounce(async () => {
 .closeBtn {
   height: 40px;
   border-radius: 4px;
-  font-size: 14px;
+  font-size: var(--font-size);
+  width: 88px;
 }
 </style>

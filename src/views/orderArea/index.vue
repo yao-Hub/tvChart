@@ -162,22 +162,16 @@
                 }}</template>
                 <template v-else-if="column.dataKey === 'positionAction'">
                   <el-tooltip content="平仓" placement="top">
-                    <el-button
-                      text
-                      :icon="CloseBold"
-                      size="small"
-                      @click="orderClose(rowData)"
-                    ></el-button>
+                    <el-icon class="iconfont" @click="orderClose(rowData)"
+                      ><CloseBold
+                    /></el-icon>
                   </el-tooltip>
                 </template>
                 <template v-else-if="column.dataKey === 'orderAction'">
                   <el-tooltip content="撤销" placement="top">
-                    <el-button
-                      :icon="CloseBold"
-                      text
-                      size="small"
-                      @click="delOrders(rowData)"
-                    ></el-button>
+                    <el-icon class="iconfont" @click="delOrders(rowData)"
+                      ><CloseBold
+                    /></el-icon>
                   </el-tooltip>
                 </template>
                 <template v-else>
@@ -744,13 +738,13 @@ onMounted(async () => {
 
 :deep(.tableHeader) {
   background: #eef2f6;
-  font-size: 12px;
+  font-size: var(--font-size);
 }
 :deep(.el-table-v2__header-cell) {
   background: #eef2f6;
 }
 :deep(.el-table-v2__row) {
-  font-size: 12px;
+  font-size: var(--font-size);
 }
 .tableBox {
   border: 1px solid;

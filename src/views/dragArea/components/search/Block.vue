@@ -28,7 +28,6 @@
       <LoadingOutlined v-if="loading" />
       <span v-else>{{ count }}/{{ total }}</span>
     </div>
-
   </div>
 </template>
 
@@ -74,20 +73,20 @@ const emit = defineEmits(["blockClick", "btnClick"]);
     flex-direction: column;
     justify-content: center;
     gap: 5px;
+    font-size: var(--font-size);
     .title {
-      font-size: 14px;
       @include font_color("word");
     }
-  
     .describe {
-      font-size: 12px;
       @include font_color("word-gray");
     }
   }
 
-  .opera, .count {
+  .opera,
+  .count {
     display: flex;
     align-items: center;
+    font-size: var(--font-size);
     @include font_color("word-gray");
   }
 

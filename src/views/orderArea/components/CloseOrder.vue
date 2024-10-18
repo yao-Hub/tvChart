@@ -199,6 +199,6 @@ const handleButtonClick = (e: Event) => {
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100px;
-  font-size: 12px;
+  font-size: var(--font-size);
 }
 </style>

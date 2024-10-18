@@ -22,7 +22,6 @@
             ]"
             @click="changeLogin(item.login)"
           >
-            <!-- <GlobalOutlined class="icon" /> -->
             <img class="icon" src="@/assets/icons/logo@3x.png" />
             <span class="word">{{ item.server }}</span>
             <span class="divider">|</span>
@@ -132,7 +131,7 @@ const modalOpen = ref<boolean>(false);
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
-  font-size: 12px;
+  font-size: var(--font-size);
   gap: 6px;
 }
 .blance {
@@ -164,7 +163,7 @@ const modalOpen = ref<boolean>(false);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    font-size: 14px;
+    font-size: var(--font-size);
     @include font_color("word");
   }
   .divider {
@@ -180,6 +179,7 @@ const modalOpen = ref<boolean>(false);
   margin-top: 24px;
   border-top: 1px solid;
   padding: 0 16px;
+  font-size: var(--font-size);
   @include font_color("word-gray");
   @include border_color("border");
   span {
@@ -201,12 +201,12 @@ const modalOpen = ref<boolean>(false);
 .label {
   @include font_color("word-gray");
   font-weight: 400;
-  font-size: 14px;
+  font-size: var(--font-size);
 }
 .value {
   @include font_color("word");
   font-weight: 400;
-  font-size: 14px;
+  font-size: var(--font-size);
 }
 
 .el-row {

@@ -214,7 +214,7 @@ const resetPwd = async (values: any) => {
           font-size: 16px;
         }
         .down {
-          font-size: 12px;
+          font-size: var(--font-size);
           @include font_color("word-gray");
         }
       }
@@ -229,7 +229,7 @@ const resetPwd = async (values: any) => {
 
 .link {
   @include font_color("word-gray");
-  font-size: 12px;
+  font-size: var(--font-size);
   cursor: pointer;
   &:hover {
     @include font_color("primary");

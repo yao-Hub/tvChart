@@ -17,6 +17,9 @@
         <el-dropdown-item>
           <upDowncolor></upDowncolor>
         </el-dropdown-item>
+        <el-dropdown-item>
+          <FontSize></FontSize>
+        </el-dropdown-item>
         <el-dropdown-item divided>
           <aboutUs></aboutUs>
         </el-dropdown-item>
@@ -26,15 +29,14 @@
 </template>
 
 <script setup lang="ts">
-import {
-  MenuOutlined,
-} from "@ant-design/icons-vue";
+import { MenuOutlined } from "@ant-design/icons-vue";
 import OneTransactions from "./oneTransactions.vue";
 // import TableSetting from './tableSetting.vue';
 import Theme from "./theme.vue";
 import Language from "./Language/index.vue";
 import aboutUs from "./aboutUs.vue";
 import UpDowncolor from "./UpDowncolor/index.vue";
+import FontSize from "./FontSize/index.vue";
 </script>
 
 <style lang="scss" scoped>

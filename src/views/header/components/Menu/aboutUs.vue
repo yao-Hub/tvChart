@@ -4,7 +4,13 @@
     <span>{{ $t("aboutUs") }}</span>
   </div>
 
-  <el-dialog v-model="open" width="486" :zIndex="10" destroy-on-close append-to-body>
+  <el-dialog
+    v-model="open"
+    width="486"
+    :zIndex="10"
+    destroy-on-close
+    append-to-body
+  >
     <template #header>
       <span class="header">{{ $t("aboutUs") }}</span>
     </template>
@@ -35,14 +41,12 @@
       </el-col>
     </el-row>
   </el-dialog>
-
 </template>
 
 <script setup lang="ts">
 import { TeamOutlined } from "@ant-design/icons-vue";
 import { ref } from "vue";
 const open = ref<boolean>(false);
-
 </script>
 
 <style lang="scss" scoped>
@@ -67,11 +71,11 @@ const open = ref<boolean>(false);
 .label {
   @include font_color("word-gray");
   font-weight: 400;
-  font-size: 14px;
+  font-size: var(--font-size);
 }
 .value {
   @include font_color("word");
   font-weight: 400;
-  font-size: 14px;
+  font-size: var(--font-size);
 }
 </style>

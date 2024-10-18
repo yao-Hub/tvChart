@@ -25,10 +25,7 @@ export const useTheme = defineStore("theme", {
         useToggle(isDark)();
       }
       this.systemTheme = stoTheme;
-      window.document.documentElement.setAttribute(
-        "data-theme",
-        this.systemTheme
-      );
+      document.documentElement.setAttribute("data-theme", this.systemTheme);
     },
     changeSystemTheme() {
       const theme = this.systemTheme === "dark" ? "light" : "dark";

@@ -219,7 +219,7 @@ const emit = defineEmits(["register", "forgetPassword"]);
 
 .link {
   @include font_color("word-gray");
-  font-size: 12px;
+  font-size: var(--font-size);
   cursor: pointer;
   &:hover {
     @include font_color("primary");

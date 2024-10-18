@@ -1,4 +1,18 @@
 @import "./themes";
+:root {
+  --font-size: 12px;
+}
+[data-size="small"] {
+  --font-size: 12px;
+}
+
+[data-size="medium"] {
+  --font-size: 14px;
+}
+
+[data-size="large"] {
+  --font-size: 16px;
+}
 
 @mixin themeify {
   @each $theme-name, $theme-map in $systemThemes {
@@ -27,27 +41,27 @@
 // 字体颜色
 @mixin font_color($color) {
   @include themeify {
-    color: themed($color) !important;
+    color: themed($color);
   }
 }
 
 // 边框颜色
 @mixin border_color($color) {
   @include themeify {
-    border-color: themed($color) !important;
+    border-color: themed($color);
   }
 }
 
 // 边框颜色
 @mixin border_color_bottom($color) {
   @include themeify {
-    border-bottom-color: themed($color) !important;
+    border-bottom-color: themed($color);
   }
 }
 
 // 背景颜色
 @mixin background_color($color) {
   @include themeify {
-    background-color: themed($color) !important;
+    background-color: themed($color);
   }
 }

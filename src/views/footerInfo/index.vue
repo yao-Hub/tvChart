@@ -209,10 +209,8 @@ const refreshDelay = () => {
   .item {
     flex: 1;
     min-width: 100px;
-    // border-right: 1px solid;
-    // @include border_color("border");
     overflow: auto;
-    font-size: 12px;
+    font-size: var(--font-size);
     display: flex;
     height: 100%;
     justify-content: center;
@@ -231,12 +229,11 @@ const refreshDelay = () => {
 .delay {
   display: flex;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--font-size);
   gap: 5px;
   justify-content: center;
   align-items: center;
   height: 30px;
-  font-size: 12px;
 }
 .delay:hover {
   @include font_color("primary");
@@ -248,7 +245,7 @@ const refreshDelay = () => {
   display: flex;
   gap: 5px;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--font-size);
   cursor: pointer;
   width: 100%;
 }
@@ -257,7 +254,7 @@ const refreshDelay = () => {
 }
 .delayItem {
   min-width: 300px;
-  font-size: 14px;
+  font-size: var(--font-size);
   display: flex;
   justify-content: space-between;
   align-items: center;

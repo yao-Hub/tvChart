@@ -174,7 +174,7 @@ const getCheckType = (type: string) => {
   &_title {
     display: flex;
     gap: 5px;
-    font-size: 14px;
+    font-size: var(--font-size);
     &:hover {
       cursor: pointer;
       @include font_color("primary");
