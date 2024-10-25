@@ -1,5 +1,5 @@
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
-import en from 'element-plus/es/locale/lang/en'
+import zhCn from "element-plus/es/locale/lang/zh-cn";
+import en from "element-plus/es/locale/lang/en";
 
 export const LANGUAGE_LIST = {
   zh: zhCn,
@@ -50,7 +50,7 @@ export const ORDER_TYPE: OrderType = {
     buy: 6,
     sell: 7,
   },
-} as Record<string, {buy: number, sell: number}>;
+} as Record<string, { buy: number; sell: number }>;
 
 export const ORDERMAP = {
   buyLimit: 2,
@@ -63,9 +63,10 @@ export const ORDERMAP = {
 
 export const CLOSE_TYPE: Record<number, string> = {
   0: "手动",
-  1: "sl",
-  2: "tp",
-  3: "强平",
+  1: "止盈",
+  2: "止损",
+  3: "强平(预付款不足)",
+  4: "反向建仓",
 };
 
 export const RESOLUTES: Record<string, string> = {

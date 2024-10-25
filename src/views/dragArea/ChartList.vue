@@ -31,9 +31,7 @@
         "
       >
         <div v-if="chartType === 'multiple'" style="display: flex">
-          <!-- <HolderOutlined class="handle" /> -->
           <img class="handle" src="@/assets/icons/move.png" />
-
           <baseTabs
             v-model:activeKey="state.activeKey"
             addable
@@ -47,21 +45,6 @@
             ></TabItem>
           </baseTabs>
         </div>
-        <FastAddOrder
-          v-if="
-            symbol &&
-            !props.loading &&
-            !chartInitStore.chartLoading[id] &&
-            orderStore.ifQuick
-          "
-          class="fastAddOrder"
-          :style="{
-            left: state.activeKey === id ? '60px' : '8px',
-            top: chartType === 'single' ? '92px' : '116px',
-          }"
-          :symbol="symbol"
-          :id="id"
-        ></FastAddOrder>
         <TVChart
           style="height: calc(100% - 24px)"
           :key="state.activeKey === id"
@@ -89,15 +72,13 @@ import { reactive, computed, onMounted, watchEffect, watch } from "vue";
 import Sortable from "sortablejs";
 
 import { useChartInit } from "@/store/modules/chartInit";
-import { useOrder } from "@/store/modules/order";
+import { useChartAction } from "@/store/modules/chartAction";
 import { useTheme } from "@/store/modules/theme";
 
 import { datafeed } from "@/config/chartConfig";
 
-import FastAddOrder from "./components/FastAddOrder.vue";
-
 const chartInitStore = useChartInit();
-const orderStore = useOrder();
+const chartActionStore = useChartAction();
 const themeStore = useTheme();
 
 interface Props {
@@ -131,11 +112,10 @@ const chartType = computed(() => {
   return chartInitStore.chartLayoutType;
 });
 
-const initChart = () => {
-  // 画画历史
-  // chartInitStore.drawingHistory();
+const initChart = ({ id }: any) => {
   // 涨跌颜色
   themeStore.setUpDownTheme();
+  chartActionStore.addOrderBtn(id);
 };
 
 onMounted(() => {
@@ -147,7 +127,6 @@ onMounted(() => {
     onEnd: function (evt: any) {
       setTimeout(() => {
         chartInitStore.syncSetChart();
-        // chartInitStore.drawingHistory();
       }, 500);
     },
   });
@@ -156,8 +135,9 @@ onMounted(() => {
 const tabDelete = (targetKey: string) => {
   chartInitStore.removeChartWidget(targetKey);
   if (targetKey === state.activeKey) {
-    const lastChart = chartInitStore.chartWidgetList.slice(-1);
-    state.activeKey = lastChart[0].id;
+    chartInitStore.chartWidgetList.slice(-1);
+    const len = chartInitStore.chartWidgetList.length;
+    state.activeKey = chartInitStore.chartWidgetList[len - 1].id;
   }
 };
 
@@ -196,14 +176,7 @@ watch(
       flex: 1;
       min-width: 316px;
       position: relative;
-      .fastAddOrder {
-        position: absolute;
-      }
     }
-  }
-  &_tabs {
-    overflow-x: auto;
-    overflow-y: hidden;
   }
 }
 .handle {

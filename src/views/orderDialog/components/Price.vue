@@ -1,5 +1,6 @@
 <template>
   <el-form-item
+    ref="priceItem"
     label-position="top"
     :prop="props.formOption.name"
     :label="props.formOption.label"
@@ -12,7 +13,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, watch, ref } from "vue";
 import { SessionSymbolInfo, Quote } from "#/chart/index";
 import { round } from "utils/common/index";
 
@@ -30,9 +31,23 @@ const props = defineProps<Props>();
 
 const price = defineModel<string>("value", { default: "" });
 
+const priceItem = ref();
+
+watch(
+  () => props.quote,
+  () => {
+    if (priceItem.value) {
+      if (price.value) {
+        priceItem.value.validate();
+      } else {
+        priceItem.value.clearValidate();
+      }
+    }
+  }
+);
 // 步长
 const step = computed(() => {
-  return props.symbolInfo ? 1 / Math.pow(10, props.symbolInfo.digits) : 1;
+  return props.symbolInfo ? props.symbolInfo.volume_step / 100 : 1;
 });
 
 const getLeed = () => {
@@ -42,8 +57,8 @@ const getLeed = () => {
       : props.quote.bid;
     const stopsLevel = props.symbolInfo.stops_level;
     const digits = props.symbolInfo.digits;
-    const result_1 = price - (1 / Math.pow(10, digits)) * stopsLevel;
-    const result_2 = price + (1 / Math.pow(10, digits)) * stopsLevel;
+    const result_1 = price - stopsLevel / Math.pow(10, digits);
+    const result_2 = price + stopsLevel / Math.pow(10, digits);
     return {
       result_1: round(result_1, digits),
       result_2: round(result_2, digits),
@@ -86,7 +101,6 @@ watch(
 const validator = (rule: any, value: any, callback: any) => {
   const type = props.orderType.toLocaleLowerCase();
   if ([undefined, ""].includes(price.value)) {
-    // return Promise.reject(`请输入${props.formOption.label}`);
     return callback(new Error(`请输入${props.formOption.label}`));
   }
   let size = "";

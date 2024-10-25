@@ -2,10 +2,10 @@
   <div>
     <el-input v-model="model" type="number" @blur="inputBlur">
       <template #prefix>
-        <span class="btn" @click="handleSubtract">-</span>
+        <span class="btn" @click="handleSubtract()">-</span>
       </template>
       <template #suffix>
-        <span class="btn" @click="handleAdd">+</span>
+        <span class="btn" @click="handleAdd()">+</span>
       </template>
     </el-input>
   </div>
@@ -16,6 +16,8 @@ import Decimal from "decimal.js";
 
 interface Props {
   step?: string | number;
+  customAdd?: () => string | void;
+  customSub?: () => void | string;
 }
 const props = withDefaults(defineProps<Props>(), {
   step: 1,
@@ -28,10 +30,20 @@ const inputBlur = () => {
 };
 
 const handleSubtract = () => {
-  model.value = Decimal.sub(model.value || 0, +props.step).toString();
+  let result = Decimal.sub(model.value || 0, +props.step).toString();
+  if (props.customSub) {
+    const value = props.customSub();
+    result = value || result;
+  }
+  model.value = result;
 };
 const handleAdd = () => {
-  model.value = new Decimal(+props.step).plus(model.value || 0).toString();
+  let result = new Decimal(+props.step).plus(model.value || 0).toString();
+  if (props.customAdd) {
+    const value = props.customAdd();
+    result = value || result;
+  }
+  model.value = result;
 };
 </script>
 

@@ -8,7 +8,7 @@
     trigger="click"
   >
     <el-tooltip :content="state.toolTip" placement="top">
-      <span class="title">{{ state.title }}</span>
+      <span class="title textEllipsis">{{ state.title }}</span>
     </el-tooltip>
     <template #dropdown>
       <el-dropdown-menu>
@@ -195,9 +195,6 @@ const handleButtonClick = (e: Event) => {
 
 <style lang="scss" scoped>
 .title {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   width: 100px;
   font-size: var(--font-size);
 }

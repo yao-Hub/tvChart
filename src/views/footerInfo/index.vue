@@ -59,7 +59,9 @@
                     "
                     class="checkIcon"
                   />
-                  <span class="nodeName"> {{ node.nodeName }} </span>
+                  <span class="nodeName textEllipsis">
+                    {{ node.nodeName }}
+                  </span>
                 </div>
                 <span
                   :class="[
@@ -96,7 +98,7 @@ const equity = computed(() => {
     if (!loginInfo.value) {
       return "-";
     }
-    const currentPosition = orderStore.tableData.position;
+    const currentPosition = orderStore.tableData.marketOrder;
     const sum = currentPosition?.reduce((accumulator, currentValue) => {
       return accumulator + currentValue.profit;
     }, 0);
@@ -143,7 +145,7 @@ const profit = computed(() => {
     if (!loginInfo.value) {
       return "-";
     }
-    const currentPosition = orderStore.tableData.position;
+    const currentPosition = orderStore.tableData.marketOrder;
     const sum = currentPosition?.reduce((accumulator, currentValue) => {
       return accumulator + Number(currentValue.profit);
     }, 0);
@@ -260,9 +262,6 @@ const refreshDelay = () => {
   align-items: center;
   .nodeName {
     max-width: 200px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
   }
 }
 .redWord {

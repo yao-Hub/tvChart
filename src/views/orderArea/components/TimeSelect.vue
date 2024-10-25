@@ -4,6 +4,7 @@
       <slot></slot>
     </span>
     <el-date-picker
+      size="small"
       v-model="timeRange"
       type="datetimerange"
       :shortcuts="shortcuts"
@@ -57,6 +58,7 @@ const initializeTimeRange = async () => {
     const today = dayjs().format(dateFormat);
     model.value = [monday, today];
     timeRange.value = [monday, today];
+    emit("timeRange");
   }
 };
 onMounted(() => {

@@ -1,26 +1,19 @@
 <template>
   <div
-    :class="[
-      model === props.activeKey || model === props.tab
-        ? 'baseTabs_item baseTabs_active'
-        : 'baseTabs_item',
-    ]"
+    :class="[active ? 'baseTabs_item baseTabs_active' : 'baseTabs_item']"
     @click="tabClick"
   >
     <slot name="tab">
       <span>{{ props.tab || "" }}</span>
     </slot>
-    <CloseOutlined
-      class="close"
-      v-show="props.closable"
-      @click="handleDelete"
-    />
+    <el-icon v-show="props.closable" @click="handleDelete" class="close"
+      ><Close
+    /></el-icon>
   </div>
 </template>
 
 <script setup lang="ts">
-import { CloseOutlined } from "@ant-design/icons-vue";
-import { inject, Ref, ref } from "vue";
+import { inject, Ref, ref, computed } from "vue";
 
 const model = inject<Ref<string>>("model", ref(""));
 
@@ -35,6 +28,9 @@ const props = withDefaults(defineProps<Props>(), {
 });
 const emit = defineEmits(["tabClick", "itemDel"]);
 
+const active = computed(() => {
+  return model.value === props.activeKey || model.value === props.tab;
+});
 const tabClick = () => {
   model.value = props.activeKey;
   emit("tabClick", model.value);
@@ -48,15 +44,16 @@ const handleDelete = () => {
 @import "@/styles/_handle.scss";
 .baseTabs_item {
   font-size: var(--font-size);
-  height: 100%;
+  height: 24px;
   min-width: 88px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
+  border-bottom: 1px solid;
   border-right: 1px solid;
-  @include border_color("border");
   padding: 0 8px;
+  @include border_color("border");
   cursor: pointer;
   &:hover {
     background: #eff0f1;
@@ -64,16 +61,12 @@ const handleDelete = () => {
   }
 }
 .close {
-  width: 8px;
-  height: 8px;
   margin-left: 6px;
-  margin-top: 1px;
-  @include font_color("closeBtn");
   cursor: pointer;
 }
 .baseTabs_active {
-  @include background_color("tabActive");
   border-bottom: 2px solid;
+  @include background_color("tabActive");
   @include border_color_bottom("primary");
 }
 </style>

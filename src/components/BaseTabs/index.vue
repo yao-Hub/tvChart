@@ -1,8 +1,10 @@
 <template>
   <div class="baseTabs">
     <slot></slot>
-    <div class="baseTabs_add" v-if="props.addable">
-      <PlusOutlined class="baseTabs_add_icon" @click="emit('handleAdd')" />
+    <div class="opera">
+      <div class="add" v-if="props.addable">
+        <PlusOutlined class="baseTabs_add_icon" @click="emit('handleAdd')" />
+      </div>
     </div>
   </div>
 </template>
@@ -28,21 +30,25 @@ const emit = defineEmits(["handleAdd"]);
 
 .baseTabs {
   height: 24px;
-  // box-sizing: border-box;
-  border-bottom: 1px solid;
+  box-sizing: border-box;
   display: flex;
-  @include border_color("border");
   @include background_color("background-component");
-  &_add {
-    width: 24px;
-    height: 24px;
-    border: 1px solid;
-    border-left: none;
+  .opera {
+    flex: 1;
+    border-bottom: 1px solid;
     @include border_color("border");
+  }
+  .add {
+    width: 24px;
+    box-sizing: border-box;
+    height: 100%;
+    border-right: 1px solid;
     display: flex;
     justify-content: center;
     align-items: center;
+    @include border_color("border");
   }
+
   .baseTabs_add_icon:hover {
     @include font_color("primary");
     cursor: pointer;

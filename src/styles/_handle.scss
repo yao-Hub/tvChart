@@ -41,7 +41,7 @@
 // 字体颜色
 @mixin font_color($color) {
   @include themeify {
-    color: themed($color);
+    color: themed($color) !important;
   }
 }
 

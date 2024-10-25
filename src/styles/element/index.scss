@@ -11,3 +11,10 @@
 );
 // 如果你想导入所有样式:
 @use "element-plus/theme-chalk/src/index.scss" as *;
+html {
+  .el-button {
+    font-size: var(--font-size);
+    --el-button-hover-text-color: #081021;
+    --el-button-hover-bg-color: #e28602;
+  }
+}

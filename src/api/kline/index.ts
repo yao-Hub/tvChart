@@ -13,7 +13,6 @@ interface ReqLineInfo {
 
 interface ResLineInfo {
   ctm: number; // 时间
-  date_time: string; // 格式化后的时间
   open: number; // 开盘价
   high: number; // 最高价
   low: number; // 最低价

@@ -3,15 +3,23 @@
     <div class="header__left">
       <!-- 菜单 -->
       <Menu></Menu>
-      <el-divider direction="vertical" class="divider"/>
+      <el-divider direction="vertical" class="divider" />
       <!-- 订单 -->
-      <el-button @click="orderStore.createOrder()" class="header__left_orderBtn">{{ $t("order.new") }}</el-button>
+      <el-button
+        @click="orderStore.createOrder()"
+        class="header__left_orderBtn"
+        >{{ $t("order.new") }}</el-button
+      >
       <div class="toolList">
         <LayoutVisibled></LayoutVisibled>
         <FastTransation></FastTransation>
         <el-tooltip :content="$t('SingleImageMode')">
           <div
-            :class="[layoutType === 'single' ? 'single single_active' : 'single single_noactive']"
+            :class="[
+              layoutType === 'single'
+                ? 'single single_active'
+                : 'single single_noactive',
+            ]"
             @click="() => chartInitStore.setLayoutType('single')"
           ></div>
         </el-tooltip>

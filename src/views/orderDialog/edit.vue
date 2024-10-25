@@ -79,9 +79,10 @@
                 v-model:price="stopFormState.stopLoss"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
-                :orderType="combinationType"
+                orderType="price"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
+                :priceOrderType="transactionType"
               ></StopLossProfit>
             </el-col>
             <el-col :span="12">
@@ -90,9 +91,10 @@
                 v-model:price="stopFormState.stopProfit"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
-                :orderType="combinationType"
+                orderType="price"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
+                :priceOrderType="transactionType"
               ></StopLossProfit>
             </el-col>
           </el-row>
@@ -192,17 +194,10 @@ const stopFormState = reactive({
 });
 const stopFormRef = ref<FormInstance>();
 import StopLossProfit from "./components/StopLossProfit.vue";
-import { getTradingDirection, getOrderType } from "utils/order/index";
+import { getTradingDirection } from "utils/order/index";
 // buy or sell
 const transactionType = computed(() => {
   return getTradingDirection(props.orderInfo.type);
-});
-// price or limit or stop or stopLimit
-const orderType = computed(() => {
-  return getOrderType(props.orderInfo.type);
-});
-const combinationType = computed(() => {
-  return `${transactionType.value}${orderType.value}`;
 });
 const reverseType = computed(() => {
   return transactionType.value === "sell" ? "buy" : "sell";
@@ -235,7 +230,6 @@ watch(
 );
 
 import { marketOrdersClose } from "api/order/index";
-import { useOrder } from "@/store/modules/order";
 import { ElNotification, ElMessage } from "element-plus";
 import { debounce } from "lodash";
 const confirmOpen = ref(false);
@@ -259,7 +253,6 @@ const handleConfirm = debounce(
 );
 
 // 平仓操作
-const orderStore = useOrder();
 const closeOrder = async () => {
   const { id, symbol } = props.orderInfo;
   const res = await marketOrdersClose({
@@ -284,10 +277,10 @@ const closeOrder = async () => {
 };
 
 // 双倍持仓
-import { MarketOrdersDouble } from "api/order/index";
+import { marketOrdersDouble } from "api/order/index";
 const doubleHoldings = async (reverse?: boolean) => {
   const { symbol, volume, type, id } = props.orderInfo;
-  const res = await MarketOrdersDouble({ id });
+  const res = await marketOrdersDouble({ id });
   if (res.data.action_success) {
     ElNotification({
       title: "下单成功",
@@ -370,7 +363,6 @@ const modify = debounce(async () => {
     if (res.data.action_success) {
       ElMessage.success("修改成功");
       handleCancel();
-      orderStore.refreshOrderArea = true;
     } else {
       ElMessage.error(res.data.err_text || "修改失败");
     }

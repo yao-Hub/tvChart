@@ -63,10 +63,6 @@ function initDragArea() {
         }, 200);
       },
       store: {
-        // get: function () {
-        //   const order = localStorage.getItem(itemId);
-        //   return order ? order.split("|") : [];
-        // },
         set: function (sortable: any) {
           const order = sortable.toArray();
           if (itemId) {
@@ -110,7 +106,8 @@ function setDragAreaSize() {
     arr.forEach((item) => {
       const element = item as HTMLElement;
       // 整个区域的高度 / dragArea_item的数量 - 拉伸线的高度 * 水平拉伸线的数量（dragArea_item的数量 - 1）
-      element.style.height = dh / arr.length - lineWidth * (arr.length - 1) + "px";
+      element.style.height =
+        dh / arr.length - lineWidth * (arr.length - 1) + "px";
       element.style.marginTop = marginTop + "px";
     });
   }
@@ -128,8 +125,9 @@ function setDragAreaSize() {
   setSize(emptyChildItems.length > 0 ? haveChildItems : dragArea_items);
 }
 
+// 初始化demo宽高
 function initDemosPosition() {
-  // 还原缓存的item样式
+  // 还原缓存的demo样式
   const inw = window.innerWidth;
   const inh = window.innerHeight;
   const stoAttr = localStorage.getItem("attr");
@@ -557,7 +555,7 @@ function observerDom() {
         setDemoPosition();
         operaHoriLine();
         operaVertLine();
-        setTimeout(() => rememberAttr(), 1000)
+        setTimeout(() => rememberAttr(), 1000);
       }
     });
   }, 20);
@@ -593,10 +591,7 @@ export function initDragResizeArea() {
   operaHoriLine();
   operaVertLine();
   observerDom();
-  window.addEventListener(
-    "resize",
-    () => {
-      resizeUpdate();
-    },
-  );
+  window.addEventListener("resize", () => {
+    resizeUpdate();
+  });
 }

@@ -4,25 +4,25 @@
     :prop="props.type"
     :label="titleMap[props.type]"
   >
-    <StepNumInput v-model:value="price"></StepNumInput>
+    <StepNumInput
+      v-model:value="price"
+      :customSub="initPrice"
+      :customAdd="initPrice"
+    ></StepNumInput>
     <el-form-item>
-      <el-text type="danger" v-if="helpMap[props.type]">{{
-        helpMap[props.type]
-      }}</el-text>
+      <el-text type="danger" v-if="rangeTip">{{ rangeTip }}</el-text>
       <span class="tip" v-if="props.symbolInfo && price === ''"
-        >至少远离市价{{ props.symbolInfo?.stops_level }}点</span
+        >至少远离市价{{ minDisPoint }}点</span
       >
-      <span
-        class="tip"
-        v-if="props.symbolInfo && price !== '' && !helpMap[props.type]"
-        >预计{{ tipWordType }}: {{ profit }}</span
+      <span class="tip" v-if="props.symbolInfo && price !== '' && !rangeTip"
+        >预计{{ $t(`order.${props.type}`) }}: {{ profit }}</span
       >
     </el-form-item>
   </el-form-item>
 </template>
 
 <script setup lang="ts">
-import { computed, reactive, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { SessionSymbolInfo, Quote } from "#/chart/index";
 import { round } from "utils/common/index";
 
@@ -37,114 +37,119 @@ interface Props {
   orderType: string;
   orderPrice: string | number;
   volume: string | number;
+  limitedPrice?: string | number;
+  priceOrderType?: string;
 }
 const props = defineProps<Props>();
 const price = defineModel("price", { type: String, default: "" });
 
-const tipWordType = computed(() => {
-  if (props.type === "stopLoss") {
-    return "亏损";
-  }
-  if (props.type === "stopProfit") {
-    return "盈利";
-  }
-  return "盈亏";
-});
-
 // 止盈止损验证规则
-const ifBuy = computed(() =>
-  props.orderType.toLocaleLowerCase().includes("buy")
-);
-const ifSell = computed(() =>
-  props.orderType.toLocaleLowerCase().includes("sell")
-);
-const getLead = (type: "sell" | "buy") => {
+
+// 至少远离市价点数
+const minDisPoint = computed(() => {
+  let result = 0;
   if (props.symbolInfo) {
     const digits = props.symbolInfo.digits;
     const stopsLevel = props.symbolInfo.stops_level;
-    const priceVal = type === "buy" ? props.quote.ask : props.quote.bid;
-    const lead = props.orderType.toLocaleLowerCase().includes("price")
-      ? priceVal
-      : +props.orderPrice;
-    const result_1 = lead - (1 / Math.pow(10, +digits)) * stopsLevel;
-    const result_2 = lead + (1 / Math.pow(10, +digits)) * stopsLevel;
-    return {
-      result_1: round(result_1, +digits),
-      result_2: round(result_2, +digits),
-    };
+    result = stopsLevel / Math.pow(10, +digits);
   }
-};
-
-const helpMap = reactive({
-  stopLoss: "",
-  stopProfit: "",
+  return result;
 });
 
-const setStopLossHelp = () => {
-  const stopLoss = price.value;
-  if (stopLoss === "") {
-    helpMap.stopLoss = "";
-    return;
+// 获取止盈止损范围
+const getRange = () => {
+  const leadOption: Record<string, any> = {
+    price: props.quote.ask,
+    buyLimit: +props.orderPrice,
+    sellLimit: +props.orderPrice,
+    buyStop: +props.orderPrice,
+    sellStop: +props.orderPrice,
+    buyStopLimit: props.limitedPrice || 0,
+    sellStopLimit: props.limitedPrice || 0,
+  };
+  if (props.symbolInfo) {
+    const digits = props.symbolInfo.digits;
+    const lead = +leadOption[props.orderType] || 0;
+    const down = +round(lead - minDisPoint.value, digits);
+    const up = +round(lead + minDisPoint.value, digits);
+    return [down, up];
   }
-  if (ifBuy.value) {
-    const leed = getLead("buy");
-    if (leed) {
-      const { result_1 } = leed;
-      if (+stopLoss > +result_1) {
-        helpMap.stopLoss = `止损价不能大于${result_1}`;
-        return;
-      }
-    }
-  }
-  if (ifSell.value) {
-    const leed = getLead("sell");
-    if (leed) {
-      const { result_2 } = leed;
-      if (+stopLoss < +result_2) {
-        helpMap.stopLoss = `止损价不能小于${result_2}`;
-        return;
-      }
-    }
-  }
-  helpMap.stopLoss = "";
+  return [0, 0];
 };
-const setStopProfitHelp = () => {
-  const stopProfit = price.value;
-  if (stopProfit === "") {
-    helpMap.stopProfit = "";
+
+const initPrice = () => {
+  if (price.value === "") {
+    const [down, up] = getRange();
+    if (props.type === "stopLoss") {
+      return String(down);
+    }
+    if (props.type === "stopProfit") {
+      return String(up);
+    }
+  }
+  return false;
+};
+
+const rangeTip = ref("");
+
+const setHelp = () => {
+  const value = price.value;
+  if (value === "") {
+    rangeTip.value = "";
     return;
   }
-  if (ifBuy.value) {
-    const leed = getLead("buy");
-    if (leed) {
-      const { result_2 } = leed;
-      if (ifBuy.value && +stopProfit < +result_2) {
-        helpMap.stopProfit = `止盈价不能小于${result_2}`;
-        return;
+  const orderType = props.orderType;
+  const [down, up] = getRange();
+  const ifLoss = props.type === "stopLoss";
+  let result = "";
+  switch (orderType) {
+    case "price":
+      if (props.priceOrderType === "buy") {
+        if (ifLoss && +value > down) {
+          result = `止损价 ≤ ${down}`;
+        }
+        if (!ifLoss && +value < up) {
+          result = `止盈价 ≥ ${up}`;
+        }
       }
-    }
-  }
-  if (ifSell.value) {
-    const leed = getLead("sell");
-    if (leed) {
-      const { result_1 } = leed;
-      if (ifBuy.value && +stopProfit < +result_1) {
-        helpMap.stopProfit = `止盈价不能大于${result_1}`;
-        return;
+      if (props.priceOrderType === "sell") {
+        if (ifLoss && +value < up) {
+          result = `止损价 ≥ ${up}`;
+        }
+        if (!ifLoss && +value > down) {
+          result = `止盈价 ≤ ${down}`;
+        }
       }
-    }
+      break;
+    case "buyLimit":
+    case "buyStop":
+    case "buy stop limit":
+      if (ifLoss && +value > down) {
+        result = `止损价 ≤ ${down}`;
+      }
+      if (!ifLoss && +value < up) {
+        result = `止盈价 ≥ ${up}`;
+      }
+      break;
+    case "sellLimit":
+    case "sellStop":
+    case "sellStopLimit":
+      if (ifLoss && +value < down) {
+        result = `止损价 ≥ ${down}`;
+      }
+      if (!ifLoss && +value > up) {
+        result = `止盈价 ≤ ${up}`;
+      }
+      break;
+    default:
+      break;
   }
-  helpMap.stopProfit = "";
+  rangeTip.value = result;
 };
 
 watch(
   () => [props.symbolInfo, props.quote, price.value],
-  () => {
-    if (price.value) {
-      setStopLossHelp();
-      setStopProfitHelp();
-    }
-  },
+  () => setHelp(),
   {
     deep: true,
   }
@@ -154,7 +159,8 @@ const profit = computed(() => {
   let result: string | number = "";
   const ask = props.quote.ask;
   const bid = props.quote.bid;
-  const openPrice = ifBuy.value ? ask : bid;
+  const openPrice =
+    props.orderType === "price" || props.orderType.includes("buy") ? ask : bid;
   // profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
   // 建仓合约价值 = open_price X contract_size X volume / 100
   // 平仓合约价值 = close_price X contract_size X volume / 100

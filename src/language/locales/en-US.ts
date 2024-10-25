@@ -58,6 +58,8 @@ export default {
   },
 
   order: {
+    stopLoss: "stopLoss",
+    stopProfit: "stopProfit",
     symbol: "symbol",
     sellPrice: "sell price",
     buyPrice: "buy price",

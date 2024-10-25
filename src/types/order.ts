@@ -1,10 +1,11 @@
 import { resOrders } from "api/order/index";
 
 export type TableDataKey =
-  | "position"
-  | "order"
-  | "orderHistory"
-  | "transactionHistory";
+  | "marketOrder"
+  | "pendingOrder"
+  | "pendingOrderHistory"
+  | "marketOrderHistory"
+  | "blanceRecord";
 export type TableData = {
   [K in TableDataKey]?: resOrders[];
 };

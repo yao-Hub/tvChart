@@ -1,5 +1,5 @@
 <template>
-  <div style="display: flex; flex-direction: column">
+  <div style="display: flex; flex-direction: column; width: 100%">
     <StepNumInput
       v-model:value="model"
       :step="step"
@@ -25,7 +25,7 @@ const model = defineModel<string>("volume", { default: "" });
 
 // 步长
 const step = computed(() => {
-  return props.symbolInfo ? props.symbolInfo.volume_step : 1;
+  return props.symbolInfo ? props.symbolInfo.volume_step / 100 : 1;
 });
 
 // 单笔最小手数

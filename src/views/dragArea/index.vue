@@ -29,7 +29,7 @@
       <div
         class="demo nested-1"
         data-id="demo_2"
-        data-minWidth="345"
+        data-minWidth="381"
         v-if="layoutStore.symbolsVisable"
       >
         <img

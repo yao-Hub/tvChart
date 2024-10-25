@@ -11,11 +11,15 @@
 <script setup lang="ts">
 import { ThunderboltOutlined, ThunderboltFilled } from "@ant-design/icons-vue";
 import { useOrder } from "@/store/modules/order";
+import { useChartAction } from "@/store/modules/chartAction";
+const chartActionStore = useChartAction();
+
 const orderStore = useOrder();
 
 const handleClick = (e: boolean) => {
   orderStore.ifQuick = e;
   window.localStorage.setItem("ifQuick", JSON.stringify(e));
+  chartActionStore.toggleOrderBtn(e);
 };
 </script>
 

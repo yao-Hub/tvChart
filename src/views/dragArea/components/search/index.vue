@@ -85,7 +85,7 @@ const listState = reactive({
 });
 const getQuery = async () => {
   const queryRes = await optionalQuery();
-  listState.query = queryRes.data;
+  listState.query = queryRes.data.map((item) => item.symbols);
 };
 (async function () {
   listState.loading = true;

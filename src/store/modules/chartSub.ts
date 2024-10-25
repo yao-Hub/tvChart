@@ -46,6 +46,7 @@ export const useChartSub = defineStore("chartSub", {
       const resQuotes = await allSymbolQuotes();
       resQuotes.data.forEach((item) => {
         orderStore.currentQuotes[item.symbol] = item;
+        orderStore.currentKline[item.symbol] = item;
       });
     },
     // 设置必须监听品种

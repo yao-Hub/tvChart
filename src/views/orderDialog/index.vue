@@ -21,7 +21,6 @@
               <SymbolSelect
                 style="width: 100%"
                 v-model="formState.symbol"
-                :selectOption="{ clearable: true }"
               ></SymbolSelect>
             </el-form-item>
           </el-col>
@@ -47,15 +46,16 @@
           </el-col>
           <el-col
             :span="12"
-            v-if="
-              ['buyLimit', 'sellLimit', 'buyStop', 'sellStop'].includes(
-                formState.orderType
-              )
-            "
+            v-if="domVisableOption.orderPrice.includes(formState.orderType)"
           >
             <Price
               v-model:value="formState.orderPrice"
-              :formOption="{ name: 'orderPrice', label: '下单价' }"
+              :formOption="{
+                name: 'orderPrice',
+                label: `${
+                  formState.orderType.includes('Stop') ? '突破价' : '限价'
+                }`,
+              }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
               :quote="quote"
@@ -64,11 +64,7 @@
           </el-col>
           <el-col
             :span="
-              ['', 'price', 'buyStopLimit', 'sellStopLimit'].includes(
-                formState.orderType
-              )
-                ? 24
-                : 12
+              domVisableOption.volume.includes(formState.orderType) ? 24 : 12
             "
           >
             <el-form-item prop="volume" label="交易量" label-position="top">
@@ -81,9 +77,7 @@
           </el-col>
           <el-col
             :span="12"
-            v-if="
-              ['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)
-            "
+            v-if="domVisableOption.breakPrice.includes(formState.orderType)"
           >
             <BreakLimit
               v-model:value="formState.breakPrice"
@@ -95,9 +89,7 @@
           </el-col>
           <el-col
             :span="12"
-            v-if="
-              ['buyStopLimit', 'sellStopLimit'].includes(formState.orderType)
-            "
+            v-if="domVisableOption.limitedPrice.includes(formState.orderType)"
           >
             <BreakLimit
               v-model:value="formState.limitedPrice"
@@ -116,11 +108,8 @@
               :symbolInfo="symbolInfo"
               :quote="quote"
               :orderPrice="formState.orderPrice"
-              :orderType="
-                formState.orderType === 'price'
-                  ? `${ifCreateSell ? 'sell' : 'buy'}Price`
-                  : formState.orderType
-              "
+              :orderType="formState.orderType"
+              :limitedPrice="formState.limitedPrice"
             ></StopLossProfit>
           </el-col>
           <el-col :span="12">
@@ -131,16 +120,13 @@
               :symbolInfo="symbolInfo"
               :quote="quote"
               :orderPrice="formState.orderPrice"
-              :orderType="
-                formState.orderType === 'price'
-                  ? `${ifCreateSell ? 'sell' : 'buy'}Price`
-                  : formState.orderType
-              "
+              :orderType="formState.orderType"
+              :limitedPrice="formState.limitedPrice"
             ></StopLossProfit>
           </el-col>
           <el-col
             :span="24"
-            v-if="!['', 'price'].includes(formState.orderType)"
+            v-if="domVisableOption.dueDate.includes(formState.orderType)"
           >
             <el-form-item name="dueDate" label="期限">
               <Term v-model:term="formState.dueDate"></Term>
@@ -163,14 +149,12 @@
               <div style="display: flex; justify-content: space-evenly">
                 <el-button
                   class="sellBtn"
-                  :disabled="!ifCreateSell"
                   :loading="priceBtnLoading"
                   @click="showConfirmModal('sell')"
                   >卖出</el-button
                 >
                 <el-button
                   class="buyBtn"
-                  :disabled="!ifCreateBuy"
                   :loading="priceBtnLoading"
                   @click="showConfirmModal('buy')"
                   >买入</el-button
@@ -212,10 +196,15 @@
       </template>
       <el-row>
         <el-col :span="12" v-for="(value, key) in formState" v-show="!!value">
-          <span class="label"> {{ formMap[key] }}： </span>
-          <span class="value">
-            {{ key === "orderType" ? directionType : value }}
-          </span>
+          <div
+            style="display: flex"
+            v-if="domVisableOption[key].includes(formState.orderType)"
+          >
+            <span class="label"> {{ formMap[key] }}： </span>
+            <span class="value">
+              {{ key === "orderType" ? directionType : value }}
+            </span>
+          </div>
         </el-col>
       </el-row>
       <template #footer>
@@ -280,6 +269,34 @@ const formState = reactive<FormState>({
   breakPrice: "",
   limitedPrice: "",
 });
+const domVisableOption = {
+  orderPrice: ["buyLimit", "sellLimit", "buyStop", "sellStop"],
+  volume: ["", "price", "buyStopLimit", "sellStopLimit"],
+  breakPrice: ["buyStopLimit", "sellStopLimit"],
+  limitedPrice: ["buyStopLimit", "sellStopLimit"],
+  dueDate: [
+    "buyLimit",
+    "sellLimit",
+    "buyStop",
+    "sellStop",
+    "buyStopLimit",
+    "sellStopLimit",
+  ],
+} as Record<string, string[]>;
+for (const i in formState) {
+  if (!domVisableOption[i]) {
+    domVisableOption[i] = [
+      "",
+      "price",
+      "buyLimit",
+      "sellLimit",
+      "buyStop",
+      "sellStop",
+      "buyStopLimit",
+      "sellStopLimit",
+    ];
+  }
+}
 // 重置表单 自动填充
 watch(
   () => dialogStore.orderDialogVisible,
@@ -302,51 +319,6 @@ const orderTypeOptions = [
   { value: "buyStopLimit", label: "buy stop limit" },
   { value: "sellStopLimit", label: "sell stop limit" },
 ];
-// 是否可以市价下单
-const ifCreateSell = computed(() => {
-  const stopLoss = formState.stopLoss;
-  const stopProfit = formState.stopProfit;
-  if (stopLoss === "" && stopProfit === "") {
-    return true;
-  }
-  const ask = quote.value.ask;
-  const bid = quote.value.bid;
-  const checkAsk = ask && +stopLoss > ask;
-  const checkBid = bid && +stopProfit < bid;
-  if (stopLoss && stopProfit) {
-    if (checkAsk && checkBid) {
-      return true;
-    }
-  } else if (stopLoss && checkAsk) {
-    return true;
-  } else if (stopProfit && checkBid) {
-    return true;
-  }
-  return false;
-});
-const ifCreateBuy = computed(() => {
-  const stopLoss = formState.stopLoss;
-  const stopProfit = formState.stopProfit;
-  if (stopLoss === "" && stopProfit === "") {
-    return true;
-  }
-  const ask = quote.value.ask;
-  const bid = quote.value.bid;
-  const checkAsk = ask && +stopProfit > ask;
-  const checkBid = bid && +stopLoss < bid;
-  if (stopLoss && stopProfit) {
-    if (checkAsk && checkBid) {
-      return true;
-    }
-  }
-  if (stopLoss && checkBid) {
-    return true;
-  }
-  if (stopProfit && checkAsk) {
-    return true;
-  }
-  return false;
-});
 // 期限规则
 import dayjs from "dayjs";
 const validDate = (rule: any, value: any, callback: any) => {
@@ -449,7 +421,6 @@ const createPriceOrder = debounce(async () => {
       });
       handleConfirmOrderCancle();
       handleCancel();
-      orderStore.refreshOrderArea = true;
     } else {
       ElNotification.error({
         title: "下单失败",
@@ -532,8 +503,12 @@ const addPendingOrders = debounce(async () => {
 }
 .label {
   @include font_color("word-gray");
+  display: block;
+  min-width: 75px;
+  text-align: left;
 }
 .value {
   @include font_color("word");
+  display: block;
 }
 </style>

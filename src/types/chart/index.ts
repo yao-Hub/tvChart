@@ -4,7 +4,6 @@ export interface ChartData {
   low: number;
   close: number;
   timestamp?: number;
-  date_time?: string | number;
   ctm?: number;
   volume?: number;
 }
@@ -21,7 +20,6 @@ export interface Quote {
 export interface Line {
   close: number;
   ctm: number;
-  date_time: string;
   high: number;
   low: number;
   open: number;

@@ -26,7 +26,7 @@ type resConfig = AxiosRequestConfig<any> & {
 };
 
 const tokenErrorList: string[] = [];
-
+const ErrorList = [];
 function generateUUID() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0,
@@ -152,10 +152,16 @@ service.interceptors.response.use(
       }
       return Promise.reject(data);
     }
-    ElNotification({
-      title: "Error",
-      message: data.errmsg || data.err || "response error",
-      type: "error",
+
+    if (ErrorList.length === 0) {
+      ElNotification({
+        message: data.errmsg || data.err || "response error",
+        type: "error",
+      });
+    }
+    ErrorList.push({
+      url: config.url,
+      err: data.errmsg || data.err || "response error",
     });
     return Promise.reject(data);
   },
@@ -163,7 +169,6 @@ service.interceptors.response.use(
     const res = err.response;
     if (res && res.data) {
       ElNotification({
-        title: "request Error",
         message: res.data.errmsg || err.message || "something error",
         type: "error",
       });
@@ -171,7 +176,6 @@ service.interceptors.response.use(
     }
     if (res && res.status) {
       ElNotification({
-        title: err.name || "request error",
         message: err.message || `statusCode: ${res.status}`,
         type: "error",
       });

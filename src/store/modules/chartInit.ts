@@ -1,5 +1,8 @@
 import { defineStore } from "pinia";
-import { IChartingLibraryWidget, ResolutionString } from "public/charting_library";
+import {
+  IChartingLibraryWidget,
+  ResolutionString,
+} from "public/charting_library";
 
 interface State {
   chartWidgetList: {
@@ -13,7 +16,7 @@ interface State {
   chartLayoutType: "single" | "multiple";
   chartLoading: Record<string, boolean>;
   activeChartId: string;
-  chartFlexDirection: "row" | "column"
+  chartFlexDirection: "row" | "column";
 }
 
 export const useChartInit = defineStore("chartInit", {
@@ -71,7 +74,11 @@ export const useChartInit = defineStore("chartInit", {
       return this.chartWidgetList.find((e) => e.id === findId)?.symbol;
     },
 
-    setChartWidgetListSymbolInterval(params: { id: string; symbol?: string, interval?: ResolutionString }) {
+    setChartWidgetListSymbolInterval(params: {
+      id: string;
+      symbol?: string;
+      interval?: ResolutionString;
+    }) {
       const { id, symbol, interval } = params;
       const targetItem = this.chartWidgetList.find((e) => e.id === id);
       if (targetItem && symbol) {
@@ -103,18 +110,19 @@ export const useChartInit = defineStore("chartInit", {
         const widget = item.widget;
         const itemSymbol = item.symbol;
         const itemInterval = item.interval;
-        itemSymbol && widget?.onChartReady(() => {
-          widget.headerReady().then(() => {
-            const nowSymbol = widget.symbolInterval().symbol;
-            const nowInterval = widget.symbolInterval().interval;
-            if (nowSymbol !== itemSymbol) {
-              widget.activeChart().setSymbol(itemSymbol);
-            }
-            if (itemInterval && nowInterval !== itemInterval) {
-              widget.activeChart().setResolution(itemInterval);
-            }
+        itemSymbol &&
+          widget?.onChartReady(() => {
+            widget.headerReady().then(() => {
+              const nowSymbol = widget.symbolInterval().symbol;
+              const nowInterval = widget.symbolInterval().interval;
+              if (nowSymbol !== itemSymbol) {
+                widget.activeChart().setSymbol(itemSymbol);
+              }
+              if (itemInterval && nowInterval !== itemInterval) {
+                widget.activeChart().setResolution(itemInterval);
+              }
+            });
           });
-        });
         this.chartLoading[item.id] = false;
       });
     },
@@ -130,33 +138,28 @@ export const useChartInit = defineStore("chartInit", {
     // },
 
     intLayoutType() {
-      const type = window.localStorage.getItem('chartLayoutType') as State["chartLayoutType"];
+      const type = window.localStorage.getItem(
+        "chartLayoutType"
+      ) as State["chartLayoutType"];
       if (type) {
         this.chartLayoutType = type;
       }
     },
     setLayoutType(type: State["chartLayoutType"]) {
       this.chartLayoutType = type;
-      window.localStorage.setItem('chartLayoutType', type)
+      window.localStorage.setItem("chartLayoutType", type);
     },
     intChartFlexDirection() {
-      const type = window.localStorage.getItem('chartFlexDirection') as State["chartFlexDirection"];
+      const type = window.localStorage.getItem(
+        "chartFlexDirection"
+      ) as State["chartFlexDirection"];
       if (type) {
         this.chartFlexDirection = type;
       }
     },
     setChartFlexDirection(type: State["chartFlexDirection"]) {
       this.chartFlexDirection = type;
-      window.localStorage.setItem('chartFlexDirection', type)
+      window.localStorage.setItem("chartFlexDirection", type);
     },
-    drawingHistory() {
-      this.chartWidgetList.forEach(item => {
-        const storageDrawing = localStorage.getItem(`drawing`);
-        if (storageDrawing) {
-          const drawing = JSON.parse(storageDrawing);
-          item.widget?.load(drawing);
-        }
-      });
-    }
   },
 });

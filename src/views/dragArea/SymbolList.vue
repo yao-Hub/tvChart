@@ -1,83 +1,102 @@
 <template>
-  <div>
-    <div class="searchInput">
-      <el-input
-        v-model="input"
-        placeholder="搜索交易品种"
-        @click="ifSearch = true"
+  <el-auto-resizer style="margin-top: -24px">
+    <template #default="{ height, width }">
+      <div class="searchInput" :style="{ width: `${width - 12}px` }">
+        <el-input
+          v-model="input"
+          placeholder="搜索交易品种"
+          @click="ifSearch = true"
+          size="small"
+          style="width: 98%"
+        >
+          <template #prefix>
+            <SearchOutlined />
+          </template>
+          <template #suffix>
+            <CloseOutlined
+              class="closeBtn"
+              @click="closeSearch"
+              v-show="ifSearch"
+            />
+          </template>
+        </el-input>
+      </div>
+      <div
+        :style="{
+          width: `${width}px`,
+          height: `${height - 24 - 5}px`,
+        }"
       >
-        <template #prefix>
-          <SearchOutlined />
-        </template>
-        <template #suffix>
-          <CloseOutlined
-            class="closeBtn"
-            @click="closeSearch"
-            v-show="ifSearch"
-          />
-        </template>
-      </el-input>
-    </div>
-    <div class="container">
-      <el-auto-resizer v-if="!ifSearch">
-        <template #default="{ height, width }">
-          <el-table-v2
-            v-loading="tableLoading"
-            header-class="tableHeader"
-            :row-height="24"
-            :header-height="24"
-            :columns="columns"
-            :data="dataSource"
-            :width="width"
-            :height="height"
-            :row-props="rowProps"
-            v-model:sort-state="sortState"
-            @column-sort="onSort"
-            fixed
-          >
-            <template #cell="{ column, rowData }">
-              <template v-if="column.dataKey === 'bid'">
-                <span :class="[quotesClass[rowData.symbol].bid]">
-                  {{ getQuotes("bid", rowData) }}
-                </span>
-              </template>
-              <template v-else-if="column.dataKey === 'ask'">
-                <span :class="[quotesClass[rowData.symbol].ask]">
-                  {{ getQuotes("ask", rowData) }}
-                </span>
-              </template>
-              <template v-else-if="column.dataKey === 'variation'">
-                <span
-                  :class="[
-                    rowData.variation > 0 ? ' buyWord' : ' sellWord',
-                    'variation',
-                  ]"
-                >
-                  {{ getLines(rowData) }}
-                </span>
-              </template>
-              <template v-else>
-                {{
-                  [null, undefined, ""].includes(rowData[column.dataKey])
-                    ? "-"
-                    : rowData[column.dataKey]
-                }}
-              </template>
-            </template>
-          </el-table-v2>
-        </template>
-      </el-auto-resizer>
+        <el-auto-resizer v-if="!ifSearch">
+          <template #default="{ height, width }">
+            <el-table
+              :data="dataSource"
+              :style="{ width: width + 'px', height: height + 'px' }"
+              :row-style="{
+                height: '24px',
+              }"
+              header-cell-class-name="header-cell"
+              cell-class-name="body-cell"
+              @row-click="rowClick"
+              @sort-change="sortChange"
+            >
+              <el-table-column
+                prop="symbol"
+                :label="$t('order.symbol')"
+                min-width="90"
+              />
+              <el-table-column
+                prop="bid"
+                :label="t('order.sellPrice')"
+                min-width="80"
+              >
+                <template #default="scope">
+                  <span :class="[quotesClass[scope.row.symbol].bid]">
+                    {{ getQuotes("bid", scope.row) }}
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="ask"
+                :label="t('order.buyPrice')"
+                min-width="80"
+              >
+                <template #default="scope">
+                  <span :class="[quotesClass[scope.row.symbol].ask]">
+                    {{ getQuotes("ask", scope.row) }}
+                  </span>
+                </template>
+              </el-table-column>
+              <el-table-column
+                prop="variation"
+                :label="t('order.diurnalVariation')"
+                sortable="custom"
+                min-width="90"
+              >
+                <template #default="scope">
+                  <span
+                    style="text-align: right"
+                    :class="[
+                      scope.row.variation > 0 ? ' buyWord' : ' sellWord',
+                    ]"
+                  >
+                    {{ getLines(scope.row) }}
+                  </span>
+                </template>
+              </el-table-column>
+            </el-table>
+          </template>
+        </el-auto-resizer>
 
-      <Search :input="input" v-if="ifSearch"></Search>
-    </div>
-  </div>
+        <Search :input="input" v-if="ifSearch"></Search>
+      </div>
+    </template>
+  </el-auto-resizer>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
-import type { Column, SortBy, SortState } from "element-plus";
-import { TableV2SortOrder } from "element-plus";
 import { useI18n } from "vue-i18n";
 import Search from "./components/search/index.vue";
 const { t } = useI18n();
@@ -88,53 +107,38 @@ interface DataSource {
   ask?: string | number;
   variation?: string | number;
 }
-const columns: Column<any>[] = [
-  {
-    title: t("order.symbol"),
-    dataKey: "symbol",
-    width: 100,
-  },
-  {
-    title: t("order.sellPrice"),
-    dataKey: "bid",
-    width: 100,
-  },
-  {
-    title: t("order.buyPrice"),
-    dataKey: "ask",
-    width: 70,
-  },
-  {
-    title: t("order.diurnalVariation"),
-    dataKey: "variation",
-    width: 90,
-    sortable: true,
-  },
-];
-
-import { orderBy } from "lodash";
-const sortState = ref<SortState>({
-  variation: TableV2SortOrder.ASC,
-});
-const onSort = ({ key, order }: SortBy) => {
-  sortState.value[key] = order;
-  dataSource.value = orderBy(dataSource.value, [key], [order]);
-};
+const dataSource = ref<DataSource[]>([]);
+const originSource = ref<DataSource[]>([]);
 
 import { optionalQuery } from "api/symbols/index";
 import { useUser } from "@/store/modules/user";
 const userStore = useUser();
-const dataSource = ref<DataSource[]>([]);
 const tableLoading = ref(false);
 const getQuery = async () => {
   tableLoading.value = true;
   const queryRes = await optionalQuery();
   dataSource.value = queryRes.data.map((item) => {
-    quotesClass.value[item] = { ask: "", bid: "" };
-    return { symbol: item };
+    quotesClass.value[item.symbols] = { ask: "", bid: "" };
+    return { symbol: item.symbols };
   });
+  originSource.value = dataSource.value;
   tableLoading.value = false;
 };
+
+import Sortable from "sortablejs";
+const sortBox = ref();
+const createSortable = () => {
+  const tbody = document.querySelector(".el-table__body tbody");
+  if (tbody) {
+    sortBox.value = new Sortable(tbody, {
+      animation: 150,
+      swapThreshold: 1,
+    });
+  }
+};
+onMounted(() => {
+  createSortable();
+});
 
 watch(
   () => userStore.account.login,
@@ -205,38 +209,13 @@ watch(
 );
 
 import { round } from "utils/common/index";
-import { klineHistory } from "api/kline/index";
-import { useNetwork } from "@/store/modules/network";
-const networkStore = useNetwork();
-watch(
-  () => networkStore.currentNode,
-  (val) => {
-    val && getKlines();
-  }
-);
-const getKlines = async () => {
-  const lineRes = await Promise.all(
-    dataSource.value.map((item) => {
-      return klineHistory({
-        period_type: 1,
-        symbol: item.symbol,
-        count: 1,
-        limit_ctm: new Date().getTime(),
-      });
-    })
-  );
-  dataSource.value.forEach((item, index) => {
-    orderStore.currentKline[item.symbol] = lineRes[index].data[0];
-  });
-};
-
 const getLines = (e: DataSource) => {
   let result = "-";
   if (orderStore.currentKline[e.symbol]) {
     const { close, open } = orderStore.currentKline[e.symbol];
-    const calc = round(((close - open) / open) * 100, 3);
+    const calc = round(((close - open) / open) * 100, 2);
     e.variation = calc;
-    result = calc + "%";
+    result = calc.includes("-") ? `${calc}%` : `\u00A0${calc}%`;
   }
   return result;
 };
@@ -248,12 +227,26 @@ const changeSymbol = (e: any) => {
   const chartId = chartInitStore.activeChartId;
   chartInitStore.changeChartWidgetSymbol({ id: chartId, symbol });
 };
-const rowProps = ({ rowData }: any) => {
-  return {
-    onMousedown: () => {
-      changeSymbol(rowData);
-    },
-  };
+const rowClick = (row: any) => {
+  changeSymbol(row);
+};
+
+import { orderBy } from "lodash";
+const sortChange = ({ order, prop }: any) => {
+  let result: any;
+  if (order === "ascending") {
+    result = orderBy(dataSource.value, [prop], ["asc"]);
+  }
+  if (order === "descending") {
+    result = orderBy(dataSource.value, [prop], ["desc"]);
+  }
+  if (order === null) {
+    result = originSource.value;
+  }
+  // const tbody = document.querySelector(".el-table__body tbody");
+  // tbody?.removeEventListener("ondrag", () => {});
+  sortBox.value.options.sort = !order;
+  dataSource.value = result;
 };
 </script>
 
@@ -261,51 +254,29 @@ const rowProps = ({ rowData }: any) => {
 @import "@/styles/_handle.scss";
 
 .searchInput {
+  height: 24px;
+  margin-bottom: 5px;
+  padding-left: 30px;
   box-sizing: border-box;
-  border-top: 1px solid;
-  border-bottom: 1px solid;
-  @include border_color("border");
-  height: 38px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-
   .closeBtn:hover {
     @include font_color("primary");
   }
 }
 
-.container {
-  width: 100%;
-  position: relative;
-  height: calc(100% - 24px - 38px);
-  box-sizing: border-box;
-  padding-bottom: 5px;
-}
-
 .variation {
   display: flex;
   justify-content: flex-end;
-  width: 100%;
 }
 
-:deep(.tableHeader) {
-  background: #f6f8fa;
-  font-size: var(--font-size);
+:deep(.header-cell) {
+  background: #f6f8fa !important;
+  font-size: var(--font-size) !important;
+  padding: 0 !important;
+  height: 24px !important;
 }
-:deep(.el-table-v2__header-cell) {
-  background: #f6f8fa;
-  display: flex;
-  justify-content: flex-start;
-}
-:deep(.el-table-v2__header-cell[data-key="variation"]) {
-  display: flex;
-  justify-content: flex-end;
-}
-:deep(.el-table-v2__row) {
-  border: none;
-  width: 100%;
-  font-size: var(--font-size);
+:deep(.body-cell) {
+  padding: 0 !important;
+  height: 24px !important;
+  border: none !important;
 }
 </style>

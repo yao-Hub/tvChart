@@ -13,87 +13,131 @@
       <Feedback></Feedback>
     </div>
     <div class="container" ref="container">
-      <div class="filter">
-        <SymbolSelect
-          style="width: 190px"
-          v-model="state.updata[activeKey].symbol"
-          :selectOption="{
-            multiple: true,
-            collapseTags: true,
-            collapseTagsTooltip: true,
-            filterable: true,
-            clearable: true,
-            size: 'small',
-          }"
-        >
-        </SymbolSelect>
-        <el-select
-          size="small"
-          style="width: 130px"
-          v-show="activeKey === 'position'"
-          v-model="state.updata[activeKey].direction"
-          clearable
-          placeholder="方向"
-        >
-          <el-option value="buy" :label="$t('order.buy')"></el-option>
-          <el-option value="sell" :label="$t('order.sell')"></el-option>
-        </el-select>
-        <el-select
-          size="small"
-          style="width: 130px"
-          v-show="activeKey === 'position'"
-          v-model="state.updata[activeKey].pol"
-          clearable
-          placeholder="盈亏"
-        >
-          <el-option value="profit" label="盈利"></el-option>
-          <el-option value="loss" label="亏损"></el-option>
-        </el-select>
-        <TimeSelect
-          v-show="activeKey === 'orderHistory'"
-          v-model:value="state.updata[activeKey].createTime"
-          :pickerOption="{
-            startPlaceholder: '创建开始时间',
-            endPlaceholder: '创建结束时间',
-          }"
-          @timeRange="getTableDate(activeKey)"
-          >创建时间：</TimeSelect
-        >
-        <TimeSelect
-          v-show="activeKey === 'transactionHistory'"
-          v-model:value="state.updata[activeKey].addTime"
-          :pickerOption="{
-            startPlaceholder: '建仓开始时间',
-            endPlaceholder: '建仓结束时间',
-          }"
-          @timeRange="getTableDate(activeKey)"
-          >建仓时间：</TimeSelect
-        >
-        <TimeSelect
-          v-show="activeKey === 'transactionHistory'"
-          initFill
-          v-model:value="state.updata[activeKey].closeTime"
-          :pickerOption="{
-            startPlaceholder: '平仓开始时间',
-            endPlaceholder: '平仓结束时间',
-          }"
-          @timeRange="getTableDate(activeKey)"
-          >平仓时间：</TimeSelect
-        >
-        <CloseOrder
-          class="closeBtn"
-          v-show="['position'].includes(activeKey)"
-          :orderType="activeKey"
-          @closeClick="closeOrders"
-        ></CloseOrder>
-        <el-button
-          class="closeBtn"
-          type="primary"
-          v-show="activeKey === 'order'"
-          @click="closeOrders(orderStore.tableData['order'] || [], 'order')"
-          >全部撤单</el-button
-        >
-      </div>
+      <el-scrollbar style="height: 40px">
+        <div class="filter">
+          <SymbolSelect
+            v-if="activeKey !== 'blanceRecord'"
+            style="width: 190px; flex-shrink: 0"
+            v-model="state.updata[activeKey].symbol"
+            :selectOption="{
+              multiple: true,
+              collapseTags: true,
+              collapseTagsTooltip: true,
+              filterable: true,
+              clearable: true,
+              size: 'small',
+            }"
+          >
+          </SymbolSelect>
+          <el-select
+            size="small"
+            style="width: 130px; flex-shrink: 0"
+            v-if="activeKey === 'marketOrder'"
+            v-model="state.updata[activeKey].direction"
+            clearable
+            placeholder="方向"
+          >
+            <el-option value="buy" :label="$t('order.buy')"></el-option>
+            <el-option value="sell" :label="$t('order.sell')"></el-option>
+          </el-select>
+          <el-select
+            size="small"
+            style="width: 130px; flex-shrink: 0"
+            v-if="activeKey === 'marketOrder'"
+            v-model="state.updata[activeKey].pol"
+            clearable
+            placeholder="盈亏"
+          >
+            <el-option value="profit" label="盈利"></el-option>
+            <el-option value="loss" label="亏损"></el-option>
+          </el-select>
+          <TimeSelect
+            v-show="activeKey === 'pendingOrderHistory'"
+            v-model:value="state.updata[activeKey].createTime"
+            style="width: 380px; flex-shrink: 0"
+            :pickerOption="{
+              startPlaceholder: '创建开始时间',
+              endPlaceholder: '创建结束时间',
+            }"
+            @timeRange="getTableDate(activeKey)"
+            >创建时间：</TimeSelect
+          >
+          <TimeSelect
+            v-show="['marketOrderHistory'].includes(activeKey)"
+            style="width: 380px; flex-shrink: 0"
+            v-model:value="state.updata[activeKey].addTime"
+            :pickerOption="{
+              startPlaceholder: '建仓开始时间',
+              endPlaceholder: '建仓结束时间',
+            }"
+            @timeRange="getTableDate(activeKey)"
+            >建仓时间：</TimeSelect
+          >
+          <TimeSelect
+            v-show="['marketOrderHistory'].includes(activeKey)"
+            initFill
+            style="width: 380px; flex-shrink: 0"
+            v-model:value="state.updata[activeKey].closeTime"
+            :pickerOption="{
+              startPlaceholder: '平仓开始时间',
+              endPlaceholder: '平仓结束时间',
+            }"
+            @timeRange="getTableDate(activeKey)"
+            >平仓时间：</TimeSelect
+          >
+          <TimeSelect
+            v-show="['blanceRecord'].includes(activeKey)"
+            style="width: 380px; flex-shrink: 0"
+            v-model:value="state.updata[activeKey].createTime"
+            :pickerOption="{
+              startPlaceholder: '开始时间',
+              endPlaceholder: '结束时间',
+            }"
+            @timeRange="getTableDate(activeKey)"
+            >时间：</TimeSelect
+          >
+          <el-select
+            size="small"
+            style="width: 130px; flex-shrink: 0"
+            v-if="activeKey === 'blanceRecord'"
+            v-model="state.updata[activeKey].pol"
+            clearable
+            placeholder="类型"
+          >
+            <el-option value="profit" label="入金"></el-option>
+            <el-option value="loss" label="出金"></el-option>
+          </el-select>
+          <el-dropdown
+            class="rightOpera"
+            trigger="click"
+            v-if="['marketOrder'].includes(activeKey)"
+            @command="closeMarketOrders"
+          >
+            <div class="delList">
+              <span>批量删除</span>
+              <el-icon>
+                <arrow-down />
+              </el-icon>
+            </div>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item :command="1">所有持仓平仓</el-dropdown-item>
+                <el-dropdown-item :command="2">所有多单平仓</el-dropdown-item>
+                <el-dropdown-item :command="3">所有空单平仓</el-dropdown-item>
+                <el-dropdown-item :command="4">盈利持仓平仓</el-dropdown-item>
+                <el-dropdown-item :command="5">亏损持仓平仓</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+          <el-button
+            class="rightOpera"
+            type="primary"
+            v-show="activeKey === 'pendingOrder'"
+            @click="closePendingOrders(state.dataSource.pendingOrder)"
+            >全部撤单</el-button
+          >
+        </div>
+      </el-scrollbar>
 
       <div class="tableBox" :style="{ height: boxH }">
         <el-auto-resizer>
@@ -107,7 +151,11 @@
               :header-height="24"
               :width="width"
               :height="height"
+              :footer-height="
+                pageLoading || activeKey === 'blanceRecord' ? 24 : 0
+              "
               :row-props="rowProps"
+              @end-reached="endReached"
               fixed
             >
               <template #cell="{ column, rowData }">
@@ -134,12 +182,17 @@
                 }}</template>
                 <template v-else-if="column.dataKey === 'profit'">
                   <span :class="[getCellClass(rowData.profit)]">
-                    {{
-                      activeKey === "position"
-                        ? getProfit(rowData)
-                        : rowData.profit
-                    }}
+                    <span v-if="activeKey === 'marketOrder'">{{
+                      getProfit(rowData)
+                    }}</span>
+                    <span v-else-if="activeKey === 'blanceRecord'">{{
+                      rowData.profit > 0 ? `+${rowData.profit}` : rowData.profit
+                    }}</span>
+                    <span v-else>{{ rowData.profit }}</span>
                   </span>
+                </template>
+                <template v-else-if="column.dataKey === 'blanceType'">
+                  <span>{{ rowData.profit > 0 ? "入金" : "出金" }}</span>
                 </template>
                 <template v-else-if="column.dataKey === 'storage'">
                   <span :class="[getCellClass(rowData.storage)]">{{
@@ -162,16 +215,19 @@
                 }}</template>
                 <template v-else-if="column.dataKey === 'positionAction'">
                   <el-tooltip content="平仓" placement="top">
-                    <el-icon class="iconfont" @click="orderClose(rowData)"
-                      ><CloseBold
-                    /></el-icon>
+                    <el-icon
+                      class="iconfont"
+                      @click="closeMarketOrder(rowData)"
+                    >
+                      <CloseBold />
+                    </el-icon>
                   </el-tooltip>
                 </template>
                 <template v-else-if="column.dataKey === 'orderAction'">
                   <el-tooltip content="撤销" placement="top">
-                    <el-icon class="iconfont" @click="delOrders(rowData)"
-                      ><CloseBold
-                    /></el-icon>
+                    <el-icon class="iconfont" @click="delPendingOrder(rowData)">
+                      <CloseBold />
+                    </el-icon>
                   </el-tooltip>
                 </template>
                 <template v-else>
@@ -182,22 +238,50 @@
                   }}
                 </template>
               </template>
+              <template #footer>
+                <el-scrollbar style="height: 24px">
+                  <div class="tableFooter" v-if="pageLoading"></div>
+                  <div
+                    class="tableFooter"
+                    v-if="!pageLoading && activeKey === 'blanceRecord'"
+                  >
+                    <span class="item">
+                      <span class="label">净入金：</span>
+                      <span class="value">{{ netDeposit }}</span>
+                    </span>
+                    <span class="item">
+                      <span class="label"
+                        >累计入金（{{ accDeposit.len }}笔）：</span
+                      >
+                      <span class="value">{{ accDeposit.sum }}</span>
+                    </span>
+                    <span class="item">
+                      <span class="label"
+                        >累计出金（{{ accWithdrawal.len }}笔）：</span
+                      >
+                      <span class="value">{{ accWithdrawal.sum }}</span>
+                    </span>
+                  </div>
+                </el-scrollbar>
+              </template>
             </el-table-v2>
           </template>
         </el-auto-resizer>
       </div>
     </div>
-    <EditOrderDialog
-      v-model:visible="state.closeDialogVisible"
-      :orderInfo="state.orderInfo"
-      :quote="getQuote()"
-    >
-    </EditOrderDialog>
+    <div v-if="state.closeDialogVisible">
+      <EditOrderDialog
+        v-model:visible="state.closeDialogVisible"
+        :orderInfo="state.orderInfo"
+        :quote="getQuote()"
+      >
+      </EditOrderDialog>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, watchEffect, ref, onMounted, watch } from "vue";
+import { reactive, ref, onMounted, watch, computed } from "vue";
 import { cloneDeep, debounce, throttle, set } from "lodash";
 import { CloseBold } from "@element-plus/icons-vue";
 import { ElMessageBox, ElMessage } from "element-plus";
@@ -219,7 +303,6 @@ import { useSocket } from "@/store/modules/socket";
 
 import EditOrderDialog from "../orderDialog/edit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
-import CloseOrder from "./components/CloseOrder.vue";
 import Feedback from "./components/Feedback/index.vue";
 
 const userStore = useUser();
@@ -227,37 +310,26 @@ const orderStore = useOrder();
 const dialogStore = useDialog();
 const socketStore = useSocket();
 
-interface Menu {
-  label: string;
-  key: orderTypes.TableDataKey;
-}
-const columns: any = {};
-for (const i in tableColumns) {
-  columns[i] = tableColumns[i].map((item: any) => {
-    return {
-      ...item,
-      resizable: true,
-    };
-  });
-}
 const state = reactive({
   menu: [
-    { label: "持仓", key: "position" },
-    { label: "挂单", key: "order" },
-    { label: "历史持仓", key: "transactionHistory" },
-    { label: "历史挂单", key: "orderHistory" },
-  ] as Menu[],
-  columns: columns,
+    { label: "持仓", key: "marketOrder" },
+    { label: "挂单", key: "pendingOrder" },
+    { label: "历史持仓", key: "marketOrderHistory" },
+    { label: "历史挂单", key: "pendingOrderHistory" },
+    { label: "出入金记录", key: "blanceRecord" },
+  ],
+  columns: tableColumns,
   dataSource: {
-    position: [],
-    order: [],
-    orderHistory: [],
-    transactionHistory: [],
+    marketOrder: [],
+    pendingOrder: [],
+    pendingOrderHistory: [],
+    marketOrderHistory: [],
+    blanceRecord: [],
   } as Record<orderTypes.TableDataKey, orders.resOrders[]>,
   closeDialogVisible: false,
   orderInfo: {} as orders.resOrders,
   updata: {
-    position: {
+    marketOrder: {
       symbol: [],
       direction: null,
       pol: null,
@@ -265,34 +337,72 @@ const state = reactive({
       addTime: [],
       closeTime: [],
     },
-    order: {
+    pendingOrder: {
       symbol: [],
       createTime: [],
       addTime: [],
       closeTime: [],
     },
-    orderHistory: {
+    pendingOrderHistory: {
       symbol: [],
       createTime: [],
       addTime: [],
       closeTime: [],
     },
-    transactionHistory: {
+    marketOrderHistory: {
       symbol: [],
       createTime: [],
       addTime: [],
       closeTime: [],
+    },
+    blanceRecord: {
+      createTime: [],
+      pol: null,
     },
   } as Record<orderTypes.TableDataKey, any>,
   loadingList: {
-    position: false,
-    order: false,
-    orderHistory: false,
-    transactionHistory: false,
+    marketOrder: false,
+    pendingOrder: false,
+    pendingOrderHistory: false,
+    marketOrderHistory: false,
+    blanceRecord: false,
   },
 });
 
-const activeKey = ref<orderTypes.TableDataKey>("position");
+import { accAdd } from "utils/arithmetic";
+const profits = computed(() => {
+  return (orderStore.tableData.blanceRecord || []).map((item) => item.profit);
+});
+// 净入金：
+const netDeposit = computed(() => {
+  return profits.value.reduce((pre, next) => {
+    return accAdd(pre, next);
+  }, 0);
+});
+// 累计入金：
+const accDeposit = computed(() => {
+  const list = profits.value.filter((item) => +item > 0);
+  const sum = list.reduce((pre, next) => {
+    return accAdd(pre, next);
+  }, 0);
+  return {
+    len: list.length,
+    sum,
+  };
+});
+// 累计出金（笔）：
+const accWithdrawal = computed(() => {
+  const list = profits.value.filter((item) => +item < 0);
+  const sum = list.reduce((pre, next) => {
+    return accAdd(pre, next);
+  }, 0);
+  return {
+    len: list.length,
+    sum,
+  };
+});
+
+const activeKey = ref<orderTypes.TableDataKey>("marketOrder");
 const getCellClass = (num: number) => {
   if (!num) {
     return "";
@@ -303,7 +413,7 @@ const getCellClass = (num: number) => {
 const filterData = () => {
   const active = activeKey.value;
   const originData = cloneDeep(orderStore.tableData[active]);
-  const selectSymbols = state.updata[active].symbol;
+  const selectSymbols = state.updata[active].symbol || [];
   const direction = state.updata[active].direction;
   const pol = state.updata[active].pol;
   if (originData) {
@@ -349,7 +459,7 @@ const getDistance = (e: orders.resOrders) => {
 const getCloseType = (e: orders.resHistoryOrders) => {
   const { close_type } = e;
   if (close_type !== undefined) {
-    return CLOSE_TYPE[close_type];
+    return CLOSE_TYPE[close_type] || close_type;
   }
 };
 
@@ -423,25 +533,10 @@ const getDays = (e: orders.resHistoryOrders) => {
   return +daysDifference;
 };
 
-// 下单时触发
-watchEffect(async () => {
-  if (orderStore.refreshOrderArea) {
-    await Promise.all([
-      debouncedGetOrders(),
-      debouncedGetPendingOrders(),
-      debouncedGetTradingHistory(),
-      debouncedGetOrderHistory(),
-      userStore.getLoginInfo(),
-    ]);
-    orderStore.refreshOrderArea = false;
-    filterData();
-  }
-});
-
 // 查询持仓
-const getOrders = async () => {
+const getMarketOrders = async () => {
   try {
-    state.loadingList.position = true;
+    state.loadingList.marketOrder = true;
     const res = await orders.openningOrders();
     res.data = res.data.map((item, index) => {
       return {
@@ -449,17 +544,17 @@ const getOrders = async () => {
         key: index,
       };
     });
-    state.dataSource.position = cloneDeep(res.data);
-    orderStore.tableData.position = cloneDeep(res.data);
+    state.dataSource.marketOrder = cloneDeep(res.data);
+    orderStore.tableData.marketOrder = cloneDeep(res.data);
   } finally {
-    state.loadingList.position = false;
+    state.loadingList.marketOrder = false;
   }
 };
 
 // 查询挂单（有效）
 const getPendingOrders = async () => {
   try {
-    state.loadingList.order = true;
+    state.loadingList.pendingOrder = true;
     const res = await orders.pendingOrders();
     res.data = res.data.map((item, index) => {
       return {
@@ -467,19 +562,22 @@ const getPendingOrders = async () => {
         key: index,
       };
     });
-    state.dataSource.order = cloneDeep(res.data);
-    orderStore.tableData.order = cloneDeep(res.data);
+    state.dataSource.pendingOrder = cloneDeep(res.data);
+    orderStore.tableData.pendingOrder = cloneDeep(res.data);
   } finally {
-    state.loadingList.order = false;
+    state.loadingList.pendingOrder = false;
   }
 };
 
 // 查询挂单历史（失效）
-const getOrderHistory = async () => {
+const getPendingOrderHistory = async (limit_id?: number) => {
   try {
-    state.loadingList.orderHistory = true;
-    const [begin_time, end_time] = state.updata.orderHistory.createTime;
-    const updata: any = {};
+    state.loadingList.pendingOrderHistory = true;
+    const [begin_time, end_time] = state.updata.pendingOrderHistory.createTime;
+    const updata: any = {
+      count: 200,
+      limit_id,
+    };
     updata.begin_time = begin_time;
     updata.end_time = end_time;
     const res = await orders.invalidPendingOrders(updata);
@@ -489,20 +587,23 @@ const getOrderHistory = async () => {
         key: index,
       };
     });
-    state.dataSource.orderHistory = res.data;
+    state.dataSource.pendingOrderHistory = res.data;
   } finally {
-    state.loadingList.orderHistory = false;
+    state.loadingList.pendingOrderHistory = false;
   }
 };
 
 // 查询交易历史
-const getTradingHistory = async () => {
+const getMarketOrderHistory = async (limit_id?: number) => {
   try {
-    state.loadingList.transactionHistory = true;
-    const { addTime, closeTime } = state.updata.transactionHistory;
+    state.loadingList.marketOrderHistory = true;
+    const { addTime, closeTime } = state.updata.marketOrderHistory;
     const [open_begin_time, open_end_time] = addTime;
     const [close_begin_time, close_end_time] = closeTime;
-    const updata: any = {};
+    const updata: any = {
+      count: 200,
+      limit_id,
+    };
     updata.open_begin_time = open_begin_time;
     updata.open_end_time = open_end_time;
     updata.close_begin_time = close_begin_time;
@@ -514,19 +615,51 @@ const getTradingHistory = async () => {
         key: index,
       };
     });
-    state.dataSource.transactionHistory = res.data;
+    state.dataSource.marketOrderHistory = res.data;
   } finally {
-    state.loadingList.transactionHistory = false;
+    state.loadingList.marketOrderHistory = false;
   }
 };
 
-const debouncedGetOrders = debounce(() => getOrders(), 20);
-const debouncedGetPendingOrders = debounce(() => getPendingOrders(), 20);
-const debouncedGetOrderHistory = debounce(() => getOrderHistory(), 20);
-const debouncedGetTradingHistory = debounce(() => getTradingHistory(), 20);
+// 查询出入金记录
+const getBlanceRecord = async () => {
+  try {
+    state.loadingList.blanceRecord = true;
+    const { createTime } = state.updata.blanceRecord;
+    const [setup_begin_time, setup_end_time] = createTime;
+    const updata: any = {
+      types: [18],
+      setup_begin_time,
+      setup_end_time,
+    };
+    const res = await orders.historyOrders(updata);
+    res.data = res.data.map((item, index) => {
+      return {
+        ...item,
+        key: index,
+      };
+    });
+    state.dataSource.blanceRecord = res.data;
+    orderStore.tableData.blanceRecord = cloneDeep(res.data);
+  } finally {
+    state.loadingList.blanceRecord = false;
+  }
+};
 
-// 市价单平仓
-const orderClose = async (record: orders.resOrders) => {
+const debouncedGetMarketOrders = debounce(() => getMarketOrders(), 200);
+const debouncedGetPendingOrders = debounce(() => getPendingOrders(), 200);
+const debouncedGetPendingOrderHistory = debounce(
+  () => getPendingOrderHistory(),
+  200
+);
+const debouncedGetMarketOrderHistory = debounce(
+  () => getMarketOrderHistory(),
+  200
+);
+const debouncedGetBlanceRecord = debounce(() => getBlanceRecord(), 200);
+
+// 市价单 单个平仓
+const closeMarketOrder = async (record: orders.resOrders) => {
   async function foo() {
     const res = await orders.marketOrdersClose({
       symbol: record.symbol,
@@ -535,8 +668,8 @@ const orderClose = async (record: orders.resOrders) => {
     });
     if (res.data.action_success) {
       ElMessage.success("平仓成功");
-      getOrders();
-      getTradingHistory();
+      debouncedGetMarketOrders();
+      debouncedGetMarketOrderHistory();
       userStore.getLoginInfo();
     }
   }
@@ -552,61 +685,39 @@ const orderClose = async (record: orders.resOrders) => {
   }
 };
 
-// 批量平仓撤单
-const closeOrders = (
-  data: orders.resOrders[],
-  type: orderTypes.TableDataKey
-) => {
+const closeMarketOrders = (command: number) => {
+  ElMessageBox.confirm("确定平仓").then(async () => {
+    await orders.marketOrdersCloseMulti({ multi_type: command });
+    ElMessage.success("平仓成功");
+  });
+};
+
+// 批量撤单
+const closePendingOrders = (data: orders.resOrders[]) => {
   if (data.length === 0) {
     return;
   }
-  const closeTipMap: Record<string, string> = {
-    position: "平仓",
-    order: "撤销",
-  };
-  const preTipMap: Record<string, string> = {
-    position: "头寸",
-    order: "挂单",
-  };
   ElMessageBox.confirm(
-    `您将${closeTipMap[type]}以下选定的${data.length}个${preTipMap[type]}，您想要继续吗？`,
-    `${closeTipMap[type]}${preTipMap[type]}`
+    `您将撤销以下选定的${data.length}个挂单，您想要继续吗？`,
+    `撤销挂单`
   ).then(async () => {
-    if (type === "position") {
-      const list = data.map((item) => {
-        return orders.marketOrdersClose({
-          symbol: item.symbol,
-          id: item.id,
-          volume: item.volume,
-        });
+    const list = data.map((item) => {
+      return orders.delPendingOrders({
+        symbol: item.symbol,
+        id: item.id,
       });
-      const res = await Promise.all(list);
-      if (res[0].data.action_success) {
-        ElMessage.success("平仓成功");
-        getOrders();
-        getTradingHistory();
-        userStore.getLoginInfo();
-      }
-    }
-    if (type === "order") {
-      const list = data.map((item) => {
-        return orders.delPendingOrders({
-          symbol: item.symbol,
-          id: item.id,
-        });
-      });
-      const res = await Promise.all(list);
-      if (res[0].data.action_success) {
-        ElMessage.success("撤销挂单成功");
-        getPendingOrders();
-        getOrderHistory();
-      }
+    });
+    const res = await Promise.all(list);
+    if (res[0].data.action_success) {
+      ElMessage.success("撤销挂单成功");
+      debouncedGetPendingOrders();
+      debouncedGetPendingOrderHistory();
     }
   });
 };
 
-// 删除挂单
-const delOrders = async (record: orders.resOrders) => {
+// 删除单个挂单
+const delPendingOrder = async (record: orders.resOrders) => {
   async function foo() {
     const res = await orders.delPendingOrders({
       id: record.id,
@@ -614,8 +725,8 @@ const delOrders = async (record: orders.resOrders) => {
     });
     if (res.data.action_success) {
       ElMessage.success("撤销挂单成功");
-      getPendingOrders();
-      getOrderHistory();
+      debouncedGetPendingOrders();
+      debouncedGetPendingOrderHistory();
       return;
     }
     ElMessage.error(res.data.err_text);
@@ -637,40 +748,40 @@ const delOrders = async (record: orders.resOrders) => {
 const rowProps = ({ rowData }: any) => {
   return {
     ondblclick: () => {
-      if (activeKey.value === "position") {
+      if (activeKey.value === "marketOrder") {
         state.orderInfo = rowData;
         state.closeDialogVisible = true;
       }
     },
   };
 };
+
+// 到底触发(持仓历史，挂单历史，出入金分页)
+const pageLoading = ref(false);
+const endReached = () => {
+  // pageLoading.value = true;
+};
+
 const getQuote = () => {
-  if (state.orderInfo.symbol) {
-    return orderStore.currentQuotes[state.orderInfo.symbol];
-  }
-  return {
-    ask: 0,
-    bid: 0,
-    ctm: 0,
-    ctm_ms: 0,
-    server: "",
-    symbol: "",
-  };
+  return orderStore.currentQuotes[state.orderInfo.symbol];
 };
 
 const getTableDate = (type: string) => {
   switch (type) {
-    case "position":
-      debouncedGetOrders();
+    case "marketOrder":
+      debouncedGetMarketOrders();
       break;
-    case "order":
+    case "pendingOrder":
       debouncedGetPendingOrders();
       break;
-    case "orderHistory":
-      debouncedGetOrderHistory();
+    case "pendingOrderHistory":
+      debouncedGetPendingOrderHistory();
       break;
-    case "transactionHistory":
-      debouncedGetTradingHistory();
+    case "marketOrderHistory":
+      debouncedGetMarketOrderHistory();
+      break;
+    case "blanceRecord":
+      debouncedGetBlanceRecord();
       break;
     default:
       break;
@@ -688,48 +799,63 @@ onMounted(async () => {
     }
   });
   observer.observe(container.value);
+
   await Promise.all([
-    debouncedGetOrders(),
+    debouncedGetMarketOrders(),
     debouncedGetPendingOrders(),
-    debouncedGetTradingHistory(),
-    debouncedGetOrderHistory(),
+    debouncedGetMarketOrderHistory(),
+    debouncedGetPendingOrderHistory(),
+    debouncedGetBlanceRecord(),
   ]);
+  filterData();
+
   socketStore.orderChanges(async (type: string) => {
     switch (type) {
       case "order_opened":
-        await getOrders();
-        await userStore.getLoginInfo();
+        await Promise.all([
+          debouncedGetMarketOrders(),
+          userStore.getLoginInfo(),
+        ]);
         break;
       case "order_closed":
-        await getOrders();
-        await getTradingHistory();
-        await userStore.getLoginInfo();
+        await Promise.all([
+          debouncedGetMarketOrders(),
+          debouncedGetMarketOrderHistory(),
+          debouncedGetBlanceRecord(),
+          userStore.getLoginInfo(),
+        ]);
         break;
       case "order_modified":
-        await getOrders();
+        await debouncedGetMarketOrders();
         break;
       case "pending_order_opened":
       case "pending_order_modified":
-        await getPendingOrders();
+        await debouncedGetPendingOrders();
         break;
       case "pending_order_deleted":
-        await getPendingOrders();
-        await getOrderHistory();
+        await Promise.all([
+          debouncedGetPendingOrders(),
+          debouncedGetPendingOrderHistory(),
+        ]);
         break;
       case "pending_order_dealt":
-        await getOrders();
-        await getPendingOrders();
-        await userStore.getLoginInfo();
+        await Promise.all([
+          debouncedGetMarketOrders(),
+          debouncedGetPendingOrders(),
+          userStore.getLoginInfo(),
+        ]);
         break;
       case "balance_order_added":
-        await userStore.getLoginInfo();
+        await Promise.all([
+          debouncedGetBlanceRecord(),
+          userStore.getLoginInfo(),
+        ]);
         break;
       default:
         break;
     }
     filterData();
   });
-  filterData();
 });
 </script>
 
@@ -740,16 +866,43 @@ onMounted(async () => {
   background: #eef2f6;
   font-size: var(--font-size);
 }
+
 :deep(.el-table-v2__header-cell) {
   background: #eef2f6;
 }
+
 :deep(.el-table-v2__row) {
   font-size: var(--font-size);
 }
+
 .tableBox {
   border: 1px solid;
   @include border_color("border");
 }
+
+.tableFooter {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  .item {
+    padding: 0 15px;
+    min-width: 150px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    border-right: 2px solid;
+    @include border_color("border");
+    .label {
+      @include font_color("word-gray");
+      font-size: var(--font-size);
+    }
+    .value {
+      @include font_color("word");
+      font-size: var(--font-size);
+    }
+  }
+}
+
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;
@@ -779,9 +932,16 @@ onMounted(async () => {
       box-sizing: border-box;
       align-items: center;
 
-      .closeBtn {
+      .rightOpera {
         margin-left: auto;
         height: 24px;
+
+        .delList {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          cursor: pointer;
+        }
       }
     }
   }

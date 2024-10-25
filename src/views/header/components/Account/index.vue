@@ -23,9 +23,9 @@
             @click="changeLogin(item.login)"
           >
             <img class="icon" src="@/assets/icons/logo@3x.png" />
-            <span class="word">{{ item.server }}</span>
+            <span class="word textEllipsis">{{ item.server }}</span>
             <span class="divider">|</span>
-            <span class="word">{{ item.login }}</span>
+            <span class="word textEllipsis">{{ item.login }}</span>
             <span class="divider">|</span>
             <span>{{ item.blance }}</span>
           </div>
@@ -160,9 +160,6 @@ const modalOpen = ref<boolean>(false);
     border-radius: 50%;
   }
   .word {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     font-size: var(--font-size);
     @include font_color("word");
   }
@@ -184,6 +181,7 @@ const modalOpen = ref<boolean>(false);
   @include border_color("border");
   span {
     cursor: pointer;
+    white-space: nowrap;
     &:hover {
       @include font_color("primary");
     }

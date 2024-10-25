@@ -58,6 +58,8 @@ export default {
   },
 
   order: {
+    stopLoss: "亏损",
+    stopProfit: "盈利",
     symbol: "品种",
     sellPrice: "卖价",
     buyPrice: "买价",

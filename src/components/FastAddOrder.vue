@@ -1,17 +1,29 @@
 <template>
-  <div class="orderBtn">
-    <div class="area">
-      <div class="price sellword">{{ bid }}</div>
-      <div class="btn sellBtn" @click="creatOrder('sell')">SELL</div>
+  <div :style="styles.orderBtn">
+    <div :style="styles.area">
+      <div :style="wordStyle('sell')">
+        {{ bid }}
+      </div>
+      <div :style="btnStyle('sell')" @click="creatOrder('sell')">
+        {{ $t("order.sell") }}
+      </div>
     </div>
-    <div class="input">
-      <UpOutlined class="icon" @click="addNum" />
-      <input type="text" v-model="volume" />
-      <DownOutlined class="icon" @click="reduceNum" />
+    <div :style="{ ...inputAreaStyle, boxSizing: 'border-box' }">
+      <UpOutlined :style="styles.icon" @click="addNum" />
+      <input
+        :style="{ ...styles.input, textAlign: 'center' }"
+        type="text"
+        v-model="volume"
+      />
+      <DownOutlined :style="styles.icon" @click="reduceNum" />
     </div>
-    <div class="area">
-      <div class="btn buybtn" @click="creatOrder('buy')">BUY</div>
-      <div class="price buyword">{{ ask }}</div>
+    <div :style="styles.area">
+      <div :style="btnStyle('buy')" @click="creatOrder('buy')">
+        {{ $t("order.buy") }}
+      </div>
+      <div :style="wordStyle('buy')">
+        {{ ask }}
+      </div>
     </div>
   </div>
 </template>
@@ -20,21 +32,96 @@
 import { computed, ref, watchEffect } from "vue";
 import { UpOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { useChartSub } from "@/store/modules/chartSub";
-import { round } from "utils/common/index";
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ORDER_TYPE } from "@/constants/common";
 import { SessionSymbolInfo } from "@/types/chart/index";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useDialog } from "@/store/modules/dialog";
+import { useOrder } from "@/store/modules/order";
+import { useTheme } from "@/store/modules/theme";
+import { ElMessage } from "element-plus";
 
 const subStore = useChartSub();
 const chartInitStore = useChartInit();
 const dialogStore = useDialog();
-
-import { useOrder } from "@/store/modules/order";
-import { ElMessage } from "element-plus";
-
 const orderStore = useOrder();
+const themeStore = useTheme();
+
+// 样式
+const styles = {
+  orderBtn: {
+    display: "flex",
+    height: "18px",
+    width: "267px",
+    justifyContent: "space-between",
+  },
+  area: {
+    display: "flex",
+  },
+  inputArea: {
+    display: "flex",
+    border: "1px solid",
+    alignItems: "center",
+    justifyContent: "space-between",
+    flex: 1,
+    height: "18px",
+  },
+  input: {
+    border: "none",
+    width: "50px",
+    height: "14px",
+  },
+  icon: {
+    fontSize: "12px",
+    scale: "0.5",
+    width: "12px",
+    height: "12px",
+    cursor: "pointer",
+  },
+  btn: {
+    height: "18px",
+    padding: "0 5px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+};
+const downColor = computed(() => {
+  return themeStore.upDownTheme === "upRedDownGreen" ? "#009355" : "#DC1D43";
+});
+const upColor = computed(() => {
+  return themeStore.upDownTheme === "upRedDownGreen" ? "#DC1D43" : "#009355";
+});
+const wordStyle = (type: "sell" | "buy") => {
+  return {
+    ...styles.btn,
+    width: "51px",
+    backgroundColor: type === "sell" ? downColor.value : upColor.value,
+    color: "#fff",
+  };
+};
+const btnStyle = (type: "sell" | "buy") => {
+  return {
+    ...styles.btn,
+    backgroundColor: type === "sell" ? downColor.value : upColor.value,
+    opacity: 0.8,
+    cursor: "pointer",
+    color: "#fff",
+  };
+};
+const inputAreaStyle = computed(() => {
+  const color = themeStore.systemTheme === "light" ? "#081021" : "#d1d4dc";
+  const borderColor =
+    themeStore.systemTheme === "light" ? "#dee2e9" : "#434651";
+  const backgroundColor =
+    themeStore.systemTheme === "light" ? "#fff" : "#525252";
+  return {
+    ...styles.inputArea,
+    color,
+    backgroundColor,
+    borderColor,
+  };
+});
 
 interface Props {
   symbol: string;
@@ -63,7 +150,7 @@ const getQuotes = (type: "bid" | "ask", symbol: string) => {
 };
 
 // 下单手数
-const volume = ref<string>();
+const volume = ref<string>("");
 // 单笔最小手数
 const minVolume = ref<string>("0");
 // 单笔最大手数
@@ -82,14 +169,19 @@ watchEffect(() => {
 });
 
 const step = computed(() => {
-  return symbolInfo.value ? symbolInfo.value.volume_step : 1;
+  return symbolInfo.value ? symbolInfo.value.volume_step / 100 : 1;
 });
 
+import { accAdd, accSub } from "utils/arithmetic";
 const addNum = () => {
-  volume.value = String(round(+(volume.value || 0) + step.value, 2));
+  volume.value = accAdd(+volume.value, step.value).toString();
 };
 const reduceNum = () => {
-  volume.value = String(round(+(volume.value || 0) - step.value, 2));
+  const result = accSub(+volume.value, step.value);
+  if (+result <= 0) {
+    return;
+  }
+  volume.value = result.toString();
 };
 
 const regex = /^-?\d+(\.\d+)?$/;
@@ -139,67 +231,3 @@ const creatOrder = async (type: "sell" | "buy") => {
   }
 };
 </script>
-
-<style lang="scss" scoped>
-@import "@/styles/_handle.scss";
-
-.orderBtn {
-  display: flex;
-  height: 18px;
-  width: 267px;
-  justify-content: space-between;
-  .area {
-    display: flex;
-  }
-}
-.price,
-.btn {
-  color: #fff;
-  font-size: var(--font-size);
-  height: 18px;
-  text-align: center;
-  line-height: 18px;
-  padding: 0 5px;
-}
-.price {
-  width: 51px;
-}
-.btn {
-  cursor: pointer;
-}
-.sellword {
-  @include background_color("upHover");
-}
-.sellBtn {
-  @include background_color("up");
-}
-.buybtn {
-  @include background_color("down");
-}
-.buyword {
-  @include background_color("downHover");
-}
-.input {
-  display: flex;
-  border: 1px solid;
-  @include border_color("border");
-  align-items: center;
-  justify-content: space-between;
-  box-sizing: border-box;
-  flex: 1;
-  height: 100%;
-  @include background_color("background-component");
-}
-.icon {
-  font-size: var(--font-size);
-  scale: 0.5;
-  width: 12px;
-  height: 12px;
-}
-input {
-  border: none;
-  width: 50px;
-  height: 14px;
-  text-align: center;
-}
-</style>

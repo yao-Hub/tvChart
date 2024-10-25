@@ -171,10 +171,11 @@ const initonReady = () => {
   }
   widget.onChartReady(() => {
     widget.headerReady().then(() => {
-
       chartInitStore.setChartWidget(props.chartId, widget);
 
-      const chartSymbol = chartInitStore.getChartWidgetListSymbol(props.chartId);
+      const chartSymbol = chartInitStore.getChartWidgetListSymbol(
+        props.chartId
+      );
       if (chartSymbol) {
         chartInitStore.syncSetChart();
       } else {
@@ -184,7 +185,7 @@ const initonReady = () => {
           interval: props.interval as library.ResolutionString,
         });
       }
-      
+
       // 快捷键监听
       chartSubStore.subscribeKeydown(widget);
 
@@ -195,28 +196,31 @@ const initonReady = () => {
         // @ts-ignore
         .subscribe(null, (e) => {
           orderStore.currentSymbol = e.name;
-          chartInitStore.setChartWidgetListSymbolInterval({ symbol: e.name, id: props.chartId });
+          chartInitStore.setChartWidgetListSymbolInterval({
+            symbol: e.name,
+            id: props.chartId,
+          });
         });
 
+      // 监听周期变化
       widget
         .activeChart()
         .onIntervalChanged()
         .subscribe(null, (interval) => {
-          chartInitStore.setChartWidgetListSymbolInterval({ interval, id: props.chartId });
-        })
+          chartInitStore.setChartWidgetListSymbolInterval({
+            interval,
+            id: props.chartId,
+          });
+        });
 
+      // 监听鼠标按下
       widget.subscribe("mouse_down", () => {
         chartInitStore.activeChartId = props.chartId;
       });
 
-      // widget.subscribe("drawing_event", () => {
-      //   widget.save((e) => {
-      //     const chartInfo = JSON.stringify(e);
-      //     localStorage.setItem(`drawing`, chartInfo);
-      //   });
-      // });
-
-      emit("initChart", { id: props.chartId });
+      setTimeout(() => {
+        emit("initChart", { id: props.chartId });
+      }, 200);
     });
   });
 };

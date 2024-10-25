@@ -49,6 +49,18 @@ export interface ResQuote {
   ask: number; //	买价
   bid: number; //	卖价
   server: string; //	经济商交易线路编码
+  open: number; //	最新一个交易日的开盘价
+  high: number; //	最新一个交易日的最高价
+  low: number; //	最新一个交易日的最低价
+  close: number; //	最新一个交易日的收盘价
+  volume: number; //	最新一个交易日的交易量
+  // one_min_klines	list	最新的720条1分钟k线数据
+}
+
+interface reqOptionalQuery {
+  symbols: string; //	品种
+  sort: number; //	排序
+  topSort: number; //	置顶排序
 }
 export const allSymbolQuotes = () => {
   return request<ResQuote[]>({
@@ -75,32 +87,32 @@ export const symbolAllPath = () => {
 
 // 查询自选
 export const optionalQuery = () => {
-  return request<string[]>({
+  return request<reqOptionalQuery[]>({
     url: Api.MySymbols,
     method: "post",
     urlType: "admin",
-    needLogin: true
+    needLogin: true,
   });
 };
 
 // 删除自选
-export const delOptionalQuery = (data: {symbols: string[]}) => {
+export const delOptionalQuery = (data: { symbols: string[] }) => {
   return request({
     url: Api.DelMySymbols,
     method: "post",
     urlType: "admin",
     needLogin: true,
-    data
+    data,
   });
 };
 
 // 添加自选
-export const addOptionalQuery = (data: {symbols: string[]}) => {
+export const addOptionalQuery = (data: { symbols: string[] }) => {
   return request({
     url: Api.AddMySymbols,
     method: "post",
     urlType: "admin",
     needLogin: true,
-    data
+    data,
   });
 };

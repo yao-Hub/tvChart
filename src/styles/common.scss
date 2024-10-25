@@ -262,3 +262,9 @@ body {
     // box-shadow: inset 0 0 5px #fff;
   }
 }
+
+.textEllipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

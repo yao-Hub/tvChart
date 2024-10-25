@@ -74,7 +74,7 @@ const initPrice = () => {
   if (name === "breakPrice") {
     price.value = breakPrice();
   }
-  if (name === "limitedPrice" && price.value) {
+  if (name === "limitedPrice") {
     price.value = limitPrice();
   }
 };

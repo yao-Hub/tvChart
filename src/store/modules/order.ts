@@ -16,7 +16,6 @@ interface State {
   currentQuotes: Record<string, types.Quote>;
   currentSymbol: string;
   currentKline: Record<string, types.Line>;
-  refreshOrderArea: boolean;
   tableData: orderTypes.TableData;
   selectedMenuKey: orderTypes.OrderType;
   ifOne: boolean;
@@ -29,7 +28,6 @@ export const useOrder = defineStore("order", {
       currentQuotes: {},
       currentSymbol: "",
       currentKline: {},
-      refreshOrderArea: false,
       tableData: {},
       selectedMenuKey: "price",
       ifOne: false, // 一键交易
@@ -82,6 +80,7 @@ export const useOrder = defineStore("order", {
       const result =
         window.localStorage.getItem("ifQuick") || JSON.stringify(false);
       this.ifQuick = JSON.parse(result);
+      return this.ifQuick;
     },
   },
 });

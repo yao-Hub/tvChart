@@ -142,7 +142,6 @@ export const useUser = defineStore("user", {
           // socket地址确定
           socketStore.initSocket();
           const res = await Login(updata);
-          console.log("login", res);
           const token = res.data.token;
           // 缓存token 发送登录状态
           this.setToken(token);

@@ -1,5 +1,5 @@
 <template>
-  <div class="item" @click="showModal">
+  <div class="item textEllipsis" @click="showModal">
     <MailOutlined />
     <span>{{ $t("feedback") }}</span>
   </div>
@@ -120,10 +120,7 @@ const handleOk = async () => {
   font-size: var(--font-size);
   @include font_color("word-gray");
   cursor: pointer;
-  min-width: 70px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  width: 80px;
   justify-content: flex-end;
 }
 

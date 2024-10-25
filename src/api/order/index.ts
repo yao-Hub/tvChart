@@ -12,6 +12,7 @@ enum Api {
   EditPendingOrders = "/login/modify_openning_orders",
   MarketOrdersReverse = "/login/market_orders_reverse",
   MarketOrdersDouble = "/login/market_orders_double",
+  MarketOrdersCloseMulti = "/login/market_orders_close_multi",
 }
 
 export interface ReqOrderAdd {
@@ -151,8 +152,9 @@ export interface reqHistoryOrders {
   open_end_time?: string; //	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
   close_begin_time?: string; //	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
   close_end_time?: string; //	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
-  count?: number; //	最大200
+  count?: number; //	最大2000
   symbol?: string; //	品种
+  types?: number[]; // 类型筛选，默认 [0,1]
 }
 export interface resHistoryOrders {
   id: number; //	订单ID
@@ -292,7 +294,7 @@ export const delPendingOrders = (data: reqDelPendingOrders) => {
   });
 };
 
-// 查询交易历史（已平仓）
+// 查询交易历史（已平仓）、出入金记录
 export const historyOrders = (data: reqHistoryOrders) => {
   return request<resHistoryOrders[]>({
     url: Api.HistoryOrders,
@@ -302,13 +304,13 @@ export const historyOrders = (data: reqHistoryOrders) => {
   });
 };
 
-// 市价持仓反向
 interface resMarketOrders {
   action_success: boolean; //	是否操作成功
   login: number;
   id: number;
 }
 
+// 市价持仓反向
 export const marketOrdersReverse = (data: { id: number }) => {
   return request<resMarketOrders>({
     url: Api.MarketOrdersReverse,
@@ -318,9 +320,24 @@ export const marketOrdersReverse = (data: { id: number }) => {
   });
 };
 
-export const MarketOrdersDouble = (data: { id: number }) => {
+// 双倍持仓
+export const marketOrdersDouble = (data: { id: number }) => {
   return request<resMarketOrders>({
     url: Api.MarketOrdersDouble,
+    method: "post",
+    data,
+    needLogin: true,
+  });
+};
+
+// 市价按模式平仓;
+export const marketOrdersCloseMulti = (data: { multi_type: number }) => {
+  return request<{
+    login: number;
+    multi_type: number;
+    closed_ids: number[];
+  }>({
+    url: Api.MarketOrdersCloseMulti,
     method: "post",
     data,
     needLogin: true,
