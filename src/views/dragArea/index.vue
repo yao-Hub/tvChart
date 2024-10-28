@@ -36,6 +36,7 @@
           src="@/assets/icons/move.png"
           class="handle"
           v-show="chartType === 'single'"
+          style="float: left"
         />
         <SymbolList class="container_item"></SymbolList>
       </div>

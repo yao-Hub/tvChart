@@ -113,8 +113,8 @@ export const datafeed = (id: string) => {
       orderStore.currentQuotes[d.symbol] = d;
 
       if (
-        !subscribed[d.symbol] ||
-        !subscribed[d.symbol].symbolInfo ||
+        !subscribed[`${id}@${d.symbol}`] ||
+        !subscribed[`${id}@${d.symbol}`].symbolInfo ||
         !new_one[d.symbol]
       ) {
         //图表没初始化
@@ -125,7 +125,7 @@ export const datafeed = (id: string) => {
       }
       //报价更新 最新一条柱子 实时 上下 跳动
       //报价为图表当前品种的报价
-      const currentSymbol = subscribed[d.symbol].symbolInfo?.name;
+      const currentSymbol = subscribed[`${id}@${d.symbol}`].symbolInfo?.name;
       if (currentSymbol && d.symbol === currentSymbol) {
         //报价为图表当前品种的报价
         if (new_one[d.symbol].high < d.bid) {
@@ -142,7 +142,7 @@ export const datafeed = (id: string) => {
           open: new_one[d.symbol].open,
           volume: new_one[d.symbol].volume + 1,
         };
-        subscribed[d.symbol].onRealtimeCallback(newlastbar); //更新K线
+        subscribed[`${id}@${d.symbol}`].onRealtimeCallback(newlastbar); //更新K线
       }
     });
     // 监听k线
@@ -153,8 +153,8 @@ export const datafeed = (id: string) => {
 
       // 图表没初始化
       if (
-        !subscribed[d.symbol] ||
-        !subscribed[d.symbol].symbolInfo ||
+        !subscribed[`${id}@${d.symbol}`] ||
+        !subscribed[`${id}@${d.symbol}`].symbolInfo ||
         !new_one[d.symbol]
       ) {
         return;
@@ -162,12 +162,12 @@ export const datafeed = (id: string) => {
       if (chartInitStore.chartLoading[id]) {
         return;
       }
-      const currentSymbol = subscribed[d.symbol].symbolInfo?.name;
+      const currentSymbol = subscribed[`${id}@${d.symbol}`].symbolInfo?.name;
 
       const condition =
         currentSymbol &&
         d.symbol === currentSymbol &&
-        subscribed[d.symbol].resolution == d.period_type;
+        subscribed[`${id}@${d.symbol}`].resolution == d.period_type;
       //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1},{"ctm":1715408400,"date_time":"2024-05-11 14:20:00","open":60940,"high":60956,"low":60940,"close":60956,"volume":6}]}
       if (condition) {
         d.klines = d.klines.reverse();
@@ -184,7 +184,7 @@ export const datafeed = (id: string) => {
             new_one[d.symbol] = JSON.parse(JSON.stringify(newlastbar));
           }
           newlastbar.time = newlastbar.time * 1000;
-          subscribed[d.symbol].onRealtimeCallback(newlastbar); //更新K线
+          subscribed[`${id}@${d.symbol}`].onRealtimeCallback(newlastbar); //更新K线
         }
       }
     });
@@ -192,7 +192,6 @@ export const datafeed = (id: string) => {
 
   return {
     onReady: (callback: Function) => {
-      // subscribed[id] = {};
       infoCache[id] = {};
       setTimeout(() => {
         callback(config);
@@ -206,8 +205,8 @@ export const datafeed = (id: string) => {
       onSymbolResolvedCallback: Function,
       onResolveErrorCallback: Function
     ) => {
-      if (!subscribed[symbolName]) {
-        subscribed[symbolName] = {};
+      if (!subscribed[`${id}@${symbolName}`]) {
+        subscribed[`${id}@${symbolName}`] = {};
       }
       orderStore.currentSymbol = symbolName;
       // 获取session
@@ -291,8 +290,8 @@ export const datafeed = (id: string) => {
       const symbol = symbolInfo.name;
       infoCache[id].temResolution = resolution;
       infoCache[id].temSymbol = symbol;
-      subscribed[symbol].onHistoryCallback = onHistoryCallback;
-      subscribed[symbol].onErrorCallback = onErrorCallback;
+      subscribed[`${id}@${symbol}`].onHistoryCallback = onHistoryCallback;
+      subscribed[`${id}@${symbol}`].onErrorCallback = onErrorCallback;
       const bar: types.LineData[] = [];
       let count = periodParams.countBack;
       // 第一次请求会出现数据请求长度不够导致数据缺失
@@ -320,10 +319,10 @@ export const datafeed = (id: string) => {
       getCacheBars(updata, id)
         .then((res: any) => {
           if (res.length === 0) {
-            subscribed[symbol].onHistoryCallback([]);
+            subscribed[`${id}@${symbol}`].onHistoryCallback([]);
             return;
           }
-          const preSymbol = get(subscribed, `${symbol}.symbolInfo.name`) || "";
+          const preSymbol = get(subscribed, `${id}@${symbol}.symbolInfo.name`);
           const reverse_data = orderBy(res, "ctm");
           const data_cache = reverse_data.map((item) => {
             const { ctm, open, high, low, close, volume } = item;
@@ -348,11 +347,11 @@ export const datafeed = (id: string) => {
             bar.push(barValue);
           });
           setTimeout(() => {
-            subscribed[symbol].onHistoryCallback(bar);
+            subscribed[`${id}@${symbol}`].onHistoryCallback(bar);
           });
         })
         .catch(() => {
-          subscribed[symbol].onErrorCallback(bar);
+          subscribed[`${id}@${symbol}`].onErrorCallback(bar);
         });
     },
 
@@ -365,7 +364,7 @@ export const datafeed = (id: string) => {
       onResetCacheNeededCallback: Function
     ) => {
       const symbol = symbolInfo.name;
-      subscribed[symbol] = {
+      subscribed[`${id}@${symbol}`] = {
         symbolInfo,
         resolution,
         onRealtimeCallback,

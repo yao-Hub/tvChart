@@ -1,5 +1,5 @@
 <template>
-  <el-auto-resizer style="margin-top: -24px">
+  <el-auto-resizer>
     <template #default="{ height, width }">
       <div class="searchInput" :style="{ width: `${width - 12}px` }">
         <el-input
