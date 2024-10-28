@@ -3,15 +3,14 @@
     <baseTabs
       class="charts_tabs"
       addable
-      v-model:activeKey="state.activeKey"
+      v-model:activeKey="chartInitStore.activeChartId"
       v-if="chartType === 'single'"
       @handleAdd="tabAdd"
     >
       <TabItem
         v-for="chart in chartList"
         :tab="chart.symbol"
-        :activeKey="chart.id"
-        :key="chart.id"
+        :value="chart.id"
         :closable="chart.id !== 'chart_1'"
         @itemDel="tabDelete"
       ></TabItem>
@@ -24,30 +23,26 @@
         class="charts_container_item"
         v-for="{ id, symbol } in chartList"
         :key="id"
-        :id="id"
-        v-show="
-          (state.activeKey === id && chartType === 'single') ||
-          chartType === 'multiple'
-        "
+        v-show="chartInitStore.activeChartId === id || chartType === 'multiple'"
       >
         <div v-if="chartType === 'multiple'" style="display: flex">
           <img class="handle" src="@/assets/icons/move.png" />
           <baseTabs
-            v-model:activeKey="state.activeKey"
+            v-model:activeKey="chartInitStore.activeChartId"
             addable
             @handleAdd="tabAdd"
           >
             <TabItem
               :tab="symbol"
               :closable="chartList.length > 1"
-              :activeKey="id"
+              :value="id"
               @itemDel="tabDelete"
             ></TabItem>
           </baseTabs>
         </div>
         <TVChart
           style="height: calc(100% - 24px)"
-          :key="state.activeKey === id"
+          :key="chartType === 'single' || chartList.length === 1"
           :chartId="id"
           :mainChart="id === 'chart_1'"
           :loading="props.loading || chartInitStore.chartLoading[id]"
@@ -55,7 +50,7 @@
           :symbol="symbol || state.symbol"
           :theme="themeStore.systemTheme"
           :disabledFeatures="
-            id === state.activeKey
+            chartType === 'single' || chartList.length === 1
               ? state.disabledFeatures
               : ['left_toolbar', ...state.disabledFeatures]
           "
@@ -68,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, watchEffect, watch } from "vue";
+import { reactive, computed, onMounted } from "vue";
 import Sortable from "sortablejs";
 
 import { useChartInit } from "@/store/modules/chartInit";
@@ -90,7 +85,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const state = reactive({
   symbol: "XAU",
-  activeKey: "chart_1",
   disabledFeatures: [
     "header_compare",
     "header_saveload",
@@ -98,10 +92,6 @@ const state = reactive({
     "save_chart_properties_to_local_storage",
     "use_localstorage_for_settings",
   ],
-});
-
-watchEffect(() => {
-  chartInitStore.activeChartId = state.activeKey;
 });
 
 const chartList = computed(() => {
@@ -134,30 +124,22 @@ onMounted(() => {
 
 const tabDelete = (targetKey: string) => {
   chartInitStore.removeChartWidget(targetKey);
-  if (targetKey === state.activeKey) {
-    chartInitStore.chartWidgetList.slice(-1);
-    const len = chartInitStore.chartWidgetList.length;
-    state.activeKey = chartInitStore.chartWidgetList[len - 1].id;
-  }
+  console.log(chartInitStore.chartWidgetList);
 };
 
-const tabAdd = async () => {
-  const len = chartInitStore.chartWidgetList.length;
-  chartInitStore.chartWidgetList.push({
-    id: `chart_${len + 1}`,
-  });
-  state.activeKey = `chart_${len + 1}`;
+const tabAdd = () => {
+  const ids = chartList.value.map((item) => +item.id.split("_")[1]);
+  const minId = Math.min(...ids) as number;
+  const maxId = Math.max(...ids) as number;
+  const fullRange = new Set(
+    [...Array(maxId - minId + 1).keys()].map((i) => i + minId)
+  );
+  const arrSet = new Set(ids);
+  const missingIds = [...fullRange].filter((num) => !arrSet.has(num));
+  const addId = missingIds.length ? missingIds[0] : maxId + 1;
+  chartInitStore.chartWidgetList.push({ id: `chart_${addId}` });
+  console.log(chartInitStore.chartWidgetList);
 };
-
-watch(
-  () => chartInitStore.activeChartId,
-  (id) => {
-    if (id !== state.activeKey) {
-      state.activeKey = id;
-    }
-    // id && fillChart();
-  }
-);
 </script>
 
 <style lang="scss" scoped>

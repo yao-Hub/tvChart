@@ -19,7 +19,7 @@ const model = inject<Ref<string>>("model", ref(""));
 
 interface Props {
   tab?: string;
-  activeKey: string;
+  value: string;
   closable?: boolean;
 }
 
@@ -29,14 +29,14 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(["tabClick", "itemDel"]);
 
 const active = computed(() => {
-  return model.value === props.activeKey || model.value === props.tab;
+  return model.value === props.value || model.value === props.tab;
 });
 const tabClick = () => {
-  model.value = props.activeKey;
-  emit("tabClick", model.value);
+  model.value = props.value;
+  emit("tabClick", props.value || props.tab);
 };
 const handleDelete = () => {
-  emit("itemDel", model.value);
+  emit("itemDel", props.value || props.tab);
 };
 </script>
 

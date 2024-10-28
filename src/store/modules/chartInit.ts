@@ -32,19 +32,19 @@ export const useChartInit = defineStore("chartInit", {
     };
   },
   actions: {
-    // 设置图表实例
-    setChartWidget(id: string, widget: IChartingLibraryWidget) {
-      const foundChart = this.chartWidgetList.find((e) => e.id === id);
-      if (!foundChart) {
-        this.chartWidgetList.push({
-          widget,
-          id,
-          symbol: widget.symbolInterval().symbol,
-          interval: widget.symbolInterval().interval,
-        });
-      }
-      if (foundChart) {
-        foundChart.widget = widget;
+    // 创建图表实例
+    createChartWidget(id: string, widget: IChartingLibraryWidget) {
+      const index = this.chartWidgetList.findIndex((e) => e.id === id);
+      const obj = {
+        widget,
+        id,
+        symbol: widget.symbolInterval().symbol,
+        interval: widget.symbolInterval().interval,
+      };
+      if (index === -1) {
+        this.chartWidgetList.push(obj);
+      } else {
+        this.chartWidgetList[index] = obj;
       }
     },
 
@@ -61,7 +61,11 @@ export const useChartInit = defineStore("chartInit", {
     removeChartWidget(id: string) {
       const index = this.chartWidgetList.findIndex((e) => e.id === id);
       if (index > -1) {
+        this.chartWidgetList[index].widget = undefined;
         this.chartWidgetList.splice(index, 1);
+        if (id === this.activeChartId) {
+          this.activeChartId = this.mainId;
+        }
       }
     },
 
@@ -112,7 +116,7 @@ export const useChartInit = defineStore("chartInit", {
         const itemInterval = item.interval;
         itemSymbol &&
           widget?.onChartReady(() => {
-            widget.headerReady().then(() => {
+            widget?.headerReady().then(() => {
               const nowSymbol = widget.symbolInterval().symbol;
               const nowInterval = widget.symbolInterval().interval;
               if (nowSymbol !== itemSymbol) {

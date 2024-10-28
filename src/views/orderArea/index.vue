@@ -4,8 +4,7 @@
       <baseTabs v-model:activeKey="activeKey">
         <TabItem
           v-for="item in state.menu"
-          :key="item.key"
-          :activeKey="item.key"
+          :value="item.key"
           :tab="item.label"
         >
         </TabItem>
@@ -13,7 +12,7 @@
       <Feedback></Feedback>
     </div>
     <div class="container" ref="container">
-      <el-scrollbar style="height: 40px">
+      <HorizontalScrolling>
         <div class="filter">
           <SymbolSelect
             v-if="activeKey !== 'blanceRecord'"
@@ -107,37 +106,38 @@
             <el-option value="profit" label="入金"></el-option>
             <el-option value="loss" label="出金"></el-option>
           </el-select>
-          <el-dropdown
-            class="rightOpera"
-            trigger="click"
-            v-if="['marketOrder'].includes(activeKey)"
-            @command="closeMarketOrders"
-          >
-            <div class="delList">
-              <span>批量删除</span>
-              <el-icon>
-                <arrow-down />
-              </el-icon>
-            </div>
-            <template #dropdown>
-              <el-dropdown-menu>
-                <el-dropdown-item :command="1">所有持仓平仓</el-dropdown-item>
-                <el-dropdown-item :command="2">所有多单平仓</el-dropdown-item>
-                <el-dropdown-item :command="3">所有空单平仓</el-dropdown-item>
-                <el-dropdown-item :command="4">盈利持仓平仓</el-dropdown-item>
-                <el-dropdown-item :command="5">亏损持仓平仓</el-dropdown-item>
-              </el-dropdown-menu>
-            </template>
-          </el-dropdown>
-          <el-button
-            class="rightOpera"
-            type="primary"
-            v-show="activeKey === 'pendingOrder'"
-            @click="closePendingOrders(state.dataSource.pendingOrder)"
-            >全部撤单</el-button
-          >
+          <div class="rightOpera">
+            <el-dropdown
+              trigger="click"
+              v-if="['marketOrder'].includes(activeKey)"
+              @command="closeMarketOrders"
+            >
+              <div class="delList">
+                <span>批量删除</span>
+                <el-icon>
+                  <arrow-down />
+                </el-icon>
+              </div>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item :command="1">所有持仓平仓</el-dropdown-item>
+                  <el-dropdown-item :command="2">所有多单平仓</el-dropdown-item>
+                  <el-dropdown-item :command="3">所有空单平仓</el-dropdown-item>
+                  <el-dropdown-item :command="4">盈利持仓平仓</el-dropdown-item>
+                  <el-dropdown-item :command="5">亏损持仓平仓</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+            <el-button
+              size="small"
+              type="primary"
+              v-show="activeKey === 'pendingOrder'"
+              @click="closePendingOrders(state.dataSource.pendingOrder)"
+              >全部撤单</el-button
+            >
+          </div>
         </div>
-      </el-scrollbar>
+      </HorizontalScrolling>
 
       <div class="tableBox" :style="{ height: boxH }">
         <el-auto-resizer>
@@ -933,14 +933,16 @@ onMounted(async () => {
       align-items: center;
 
       .rightOpera {
-        margin-left: auto;
-        height: 24px;
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
 
         .delList {
           display: flex;
           align-items: center;
           gap: 5px;
           cursor: pointer;
+          width: 75px;
         }
       }
     }

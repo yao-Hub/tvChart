@@ -110,6 +110,8 @@ interface DataSource {
 const dataSource = ref<DataSource[]>([]);
 const originSource = ref<DataSource[]>([]);
 
+// 获取自选品种
+import { orderBy } from "lodash";
 import { optionalQuery } from "api/symbols/index";
 import { useUser } from "@/store/modules/user";
 const userStore = useUser();
@@ -117,7 +119,7 @@ const tableLoading = ref(false);
 const getQuery = async () => {
   tableLoading.value = true;
   const queryRes = await optionalQuery();
-  dataSource.value = queryRes.data.map((item) => {
+  dataSource.value = orderBy(queryRes.data, ["sort"]).map((item) => {
     quotesClass.value[item.symbols] = { ask: "", bid: "" };
     return { symbol: item.symbols };
   });
@@ -125,6 +127,12 @@ const getQuery = async () => {
   tableLoading.value = false;
 };
 
+// 编辑自选品种
+const editQuery = () => {
+  console.log(dataSource.value);
+};
+
+// 可拖拽行
 import Sortable from "sortablejs";
 const sortBox = ref();
 const createSortable = () => {
@@ -133,6 +141,13 @@ const createSortable = () => {
     sortBox.value = new Sortable(tbody, {
       animation: 150,
       swapThreshold: 1,
+      store: {
+        set: function (sortable: any) {
+          var order = sortable.toArray();
+          console.log(order, sortable);
+        },
+      },
+      onEnd: () => editQuery(),
     });
   }
 };
@@ -145,11 +160,10 @@ watch(
   (val) => {
     val && getQuery();
   },
-  {
-    immediate: true,
-  }
+  { immediate: true }
 );
 
+// 显示分类
 const ifSearch = ref(false);
 const input = ref("");
 const closeSearch = () => {
@@ -171,6 +185,7 @@ const getQuotes = (type: "bid" | "ask", e: DataSource) => {
   return result;
 };
 
+// 报价样式
 import { Quote } from "#/chart/index";
 import { eq, cloneDeep } from "lodash";
 const temQuotes = ref<Record<string, Quote>>({});
@@ -208,6 +223,7 @@ watch(
   }
 );
 
+// 日变化获取
 import { round } from "utils/common/index";
 const getLines = (e: DataSource) => {
   let result = "-";
@@ -220,6 +236,7 @@ const getLines = (e: DataSource) => {
   return result;
 };
 
+// 点击行更改图表品种
 import { useChartInit } from "@/store/modules/chartInit";
 const chartInitStore = useChartInit();
 const changeSymbol = (e: any) => {
@@ -231,7 +248,7 @@ const rowClick = (row: any) => {
   changeSymbol(row);
 };
 
-import { orderBy } from "lodash";
+// 排序日变化
 const sortChange = ({ order, prop }: any) => {
   let result: any;
   if (order === "ascending") {
@@ -242,10 +259,12 @@ const sortChange = ({ order, prop }: any) => {
   }
   if (order === null) {
     result = originSource.value;
+    createSortable();
   }
-  // const tbody = document.querySelector(".el-table__body tbody");
-  // tbody?.removeEventListener("ondrag", () => {});
-  sortBox.value.options.sort = !order;
+  if (order && sortBox.value) {
+    sortBox.value.destroy();
+    sortBox.value = null;
+  }
   dataSource.value = result;
 };
 </script>

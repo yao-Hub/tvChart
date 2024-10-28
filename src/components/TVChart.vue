@@ -169,9 +169,9 @@ const initonReady = () => {
   if (props.mainChart) {
     chartInitStore.mainId = props.chartId;
   }
-  widget.onChartReady(() => {
-    widget.headerReady().then(() => {
-      chartInitStore.setChartWidget(props.chartId, widget);
+  widget?.onChartReady(() => {
+    widget?.headerReady().then(() => {
+      chartInitStore.createChartWidget(props.chartId, widget);
 
       const chartSymbol = chartInitStore.getChartWidgetListSymbol(
         props.chartId
