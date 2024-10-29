@@ -168,7 +168,7 @@ export const datafeed = (id: string) => {
         currentSymbol &&
         d.symbol === currentSymbol &&
         subscribed[`${id}@${d.symbol}`].resolution == d.period_type;
-      //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1},{"ctm":1715408400,"date_time":"2024-05-11 14:20:00","open":60940,"high":60956,"low":60940,"close":60956,"volume":6}]}
+      //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1}]}
       if (condition) {
         d.klines = d.klines.reverse();
         for (let i in d.klines) {

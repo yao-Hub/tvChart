@@ -41,7 +41,7 @@
               @sort-change="sortChange"
             >
               <el-table-column
-                prop="symbol"
+                prop="symbols"
                 :label="$t('order.symbol')"
                 min-width="90"
               />
@@ -51,7 +51,7 @@
                 min-width="80"
               >
                 <template #default="scope">
-                  <span :class="[quotesClass[scope.row.symbol].bid]">
+                  <span :class="[quotesClass[scope.row.symbols].bid]">
                     {{ getQuotes("bid", scope.row) }}
                   </span>
                 </template>
@@ -62,7 +62,7 @@
                 min-width="80"
               >
                 <template #default="scope">
-                  <span :class="[quotesClass[scope.row.symbol].ask]">
+                  <span :class="[quotesClass[scope.row.symbols].ask]">
                     {{ getQuotes("ask", scope.row) }}
                   </span>
                 </template>
@@ -88,30 +88,31 @@
           </template>
         </el-auto-resizer>
 
-        <Search :input="input" v-if="ifSearch"></Search>
+        <Search :input="input" v-if="ifSearch" :mySymbols="dataSource"></Search>
       </div>
     </template>
   </el-auto-resizer>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, nextTick } from "vue";
 import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
 import { useI18n } from "vue-i18n";
 import Search from "./components/search/index.vue";
 const { t } = useI18n();
 
 interface DataSource {
-  symbol: string;
+  symbols: string;
   bid?: string | number;
   ask?: string | number;
   variation?: string | number;
+  topSort?: string | number;
 }
 const dataSource = ref<DataSource[]>([]);
 const originSource = ref<DataSource[]>([]);
 
 // 获取自选品种
-import { orderBy } from "lodash";
+import { orderBy, cloneDeep } from "lodash";
 import { optionalQuery } from "api/symbols/index";
 import { useUser } from "@/store/modules/user";
 const userStore = useUser();
@@ -121,19 +122,21 @@ const getQuery = async () => {
   const queryRes = await optionalQuery();
   dataSource.value = orderBy(queryRes.data, ["sort"]).map((item) => {
     quotesClass.value[item.symbols] = { ask: "", bid: "" };
-    return { symbol: item.symbols };
+    return item;
   });
-  originSource.value = dataSource.value;
+  originSource.value = cloneDeep(dataSource.value);
   tableLoading.value = false;
-};
+  await nextTick();
 
-// 编辑自选品种
-const editQuery = () => {
-  console.log(dataSource.value);
+  const trs = document.querySelectorAll(".el-table__body tbody tr");
+  trs.forEach((tr, index) => {
+    tr.setAttribute("data-id", `${dataSource.value[index].symbols}`);
+  });
 };
 
 // 可拖拽行
 import Sortable from "sortablejs";
+import { addOptionalQuery } from "api/symbols/index";
 const sortBox = ref();
 const createSortable = () => {
   const tbody = document.querySelector(".el-table__body tbody");
@@ -141,13 +144,23 @@ const createSortable = () => {
     sortBox.value = new Sortable(tbody, {
       animation: 150,
       swapThreshold: 1,
+      dataIdAttr: "data-id",
       store: {
         set: function (sortable: any) {
-          var order = sortable.toArray();
-          console.log(order, sortable);
+          const order = sortable.toArray();
+          const symbols = order.map((item: string, index: number) => {
+            const topSort = dataSource.value.find(
+              (e) => e.symbols === item
+            )?.topSort;
+            return {
+              symbol: item,
+              sort: index,
+              topSort,
+            };
+          });
+          addOptionalQuery({ symbols });
         },
       },
-      onEnd: () => editQuery(),
     });
   }
 };
@@ -176,10 +189,10 @@ const closeSearch = () => {
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
 const getQuotes = (type: "bid" | "ask", e: DataSource) => {
-  if (!e.symbol) {
+  if (!e.symbols) {
     return "-";
   }
-  const quote = orderStore.currentQuotes[e.symbol];
+  const quote = orderStore.currentQuotes[e.symbols];
   const result = quote ? quote[type] : "-";
   e[type] = result;
   return result;
@@ -187,7 +200,7 @@ const getQuotes = (type: "bid" | "ask", e: DataSource) => {
 
 // 报价样式
 import { Quote } from "#/chart/index";
-import { eq, cloneDeep } from "lodash";
+import { eq } from "lodash";
 const temQuotes = ref<Record<string, Quote>>({});
 const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
 watch(
@@ -227,8 +240,8 @@ watch(
 import { round } from "utils/common/index";
 const getLines = (e: DataSource) => {
   let result = "-";
-  if (orderStore.currentKline[e.symbol]) {
-    const { close, open } = orderStore.currentKline[e.symbol];
+  if (orderStore.currentKline[e.symbols]) {
+    const { close, open } = orderStore.currentKline[e.symbols];
     const calc = round(((close - open) / open) * 100, 2);
     e.variation = calc;
     result = calc.includes("-") ? `${calc}%` : `\u00A0${calc}%`;
@@ -240,7 +253,7 @@ const getLines = (e: DataSource) => {
 import { useChartInit } from "@/store/modules/chartInit";
 const chartInitStore = useChartInit();
 const changeSymbol = (e: any) => {
-  const symbol = e.symbol;
+  const symbol = e.symbols;
   const chartId = chartInitStore.activeChartId;
   chartInitStore.changeChartWidgetSymbol({ id: chartId, symbol });
 };

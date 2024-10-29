@@ -46,12 +46,16 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, watch, ref } from "vue";
+import { reactive, computed, watch, ref, onMounted } from "vue";
 import { LeftOutlined } from "@ant-design/icons-vue";
 
 import Block from "./Block.vue";
 
-const props = defineProps<{ input: string }>();
+interface Props {
+  input: string;
+  mySymbols: any[];
+}
+const props = defineProps<Props>();
 
 // 所有品种
 import { useChartSub } from "@/store/modules/chartSub";
@@ -87,13 +91,13 @@ const getQuery = async () => {
   const queryRes = await optionalQuery();
   listState.query = queryRes.data.map((item) => item.symbols);
 };
-(async function () {
+onMounted(async () => {
   listState.loading = true;
   const allPathRes = await symbolAllPath();
   listState.menu = allPathRes.data;
   await getQuery();
   listState.loading = false;
-})();
+});
 watch(
   () => [allSymbols.value, listState.menu],
   ([symbols, menu]) => {
@@ -126,7 +130,7 @@ const getCount = (type: string) => {
   return 0;
 };
 
-import { debounce } from "lodash";
+import { debounce, cloneDeep } from "lodash";
 import { SessionSymbolInfo } from "@/types/chart/index";
 import { delOptionalQuery, addOptionalQuery } from "api/symbols/index";
 type SymbolListItem = SessionSymbolInfo & { loading: boolean };
@@ -138,20 +142,36 @@ const getSymbols = (type: string) => {
   symbolList.value = listState.pathMap[type];
   showSymbols.value = true;
 };
-const btnClick = debounce(async (type: string, item: SymbolListItem) => {
-  item.loading = true;
-  switch (type) {
-    case "cancel":
-      await delOptionalQuery({ symbols: [item.symbol] });
-      break;
-    case "add":
-      await addOptionalQuery({ symbols: [item.symbol] });
-      break;
-    default:
-      break;
+const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
+  try {
+    listItem.loading = true;
+    switch (type) {
+      case "cancel":
+        await delOptionalQuery({ symbols: [listItem.symbol] });
+        break;
+      case "add":
+        const mySymbols = cloneDeep(props.mySymbols);
+        mySymbols.unshift({
+          symbols: listItem.symbol,
+        });
+        const symbols = mySymbols.map((item, index) => {
+          return {
+            symbol: item.symbols,
+            sort: index,
+            topSort: item.topSort || "",
+          };
+        });
+        await addOptionalQuery({ symbols });
+        break;
+      default:
+        break;
+    }
+    await getQuery();
+  } catch (error) {
+    listItem.loading = false;
+  } finally {
+    listItem.loading = false;
   }
-  await getQuery();
-  item.loading = false;
 }, 20);
 const getCheckType = (type: string) => {
   return listState.query.includes(type);

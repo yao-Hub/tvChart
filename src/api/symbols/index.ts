@@ -107,7 +107,14 @@ export const delOptionalQuery = (data: { symbols: string[] }) => {
 };
 
 // 添加自选
-export const addOptionalQuery = (data: { symbols: string[] }) => {
+interface reqAddOptionalQuery {
+  symbols: {
+    symbol: string;
+    sort: string | number;
+    topSort: string | number;
+  }[];
+}
+export const addOptionalQuery = (data: reqAddOptionalQuery) => {
   return request({
     url: Api.AddMySymbols,
     method: "post",
