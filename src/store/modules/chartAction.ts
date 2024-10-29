@@ -31,7 +31,7 @@ export const useChartAction = defineStore("chartAction", {
       id,
       resolution,
     }: {
-      id?: string;
+      id: string;
       resolution: ResolutionString;
     }) {
       const chartInitStore = useChartInit();
