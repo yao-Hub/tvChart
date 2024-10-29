@@ -106,13 +106,13 @@ const tip = computed(() => {
     const contrastVal = breakPrice();
     // const vaild = type.includes("buy") ? +price.value >= +contrastVal : +price.value <= +contrastVal;
     const size = type.includes("buy") ? "≥" : "≤";
-    return `${label}需${size}${contrastVal}`;
+    return `${label} ${size} ${contrastVal}`;
   }
   if (name === "limitedPrice" && props.breakPrice) {
     const contrastVal = limitPrice();
     // const vaild = type.includes("buy") ? +price.value <= +contrastVal : +price.value >= +contrastVal;
     const size = type.includes("buy") ? "≤" : "≥";
-    return `${label}需${size}${contrastVal}`;
+    return `${label} ${size} ${contrastVal}`;
   }
   return "";
 });

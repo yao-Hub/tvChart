@@ -1,15 +1,13 @@
 <template>
   <div class="orderArea">
-    <div class="orderArea_header">
+    <div class="header">
       <baseTabs v-model:activeKey="activeKey">
-        <TabItem
-          v-for="item in state.menu"
-          :value="item.key"
-          :tab="item.label"
-        >
+        <TabItem v-for="item in state.menu" :value="item.key" :tab="item.label">
         </TabItem>
       </baseTabs>
-      <Feedback></Feedback>
+      <div class="header_right">
+        <Feedback></Feedback>
+      </div>
     </div>
     <div class="container" ref="container">
       <HorizontalScrolling>
@@ -909,15 +907,22 @@ onMounted(async () => {
   width: calc(100% - 16px);
   float: right;
 
-  &_header {
+  .header {
     display: flex;
-    border-bottom: 1px solid;
-    @include border_color("border");
     box-sizing: border-box;
     width: 100%;
-    justify-content: space-between;
     padding-right: 16px;
-    align-items: center;
+    height: 24px;
+    &_right {
+      flex: 1;
+      border-bottom: 1px solid;
+      @include border_color("border");
+      height: 100%;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
   }
 
   .container {
