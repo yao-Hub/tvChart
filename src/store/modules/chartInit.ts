@@ -12,7 +12,6 @@ interface State {
     interval?: ResolutionString;
   }[];
   loading: Boolean;
-  mainId: string;
   chartLayoutType: "single" | "multiple";
   chartLoading: Record<string, boolean>;
   activeChartId: string;
@@ -24,7 +23,6 @@ export const useChartInit = defineStore("chartInit", {
     return {
       chartWidgetList: [{ id: "chart_1" }],
       loading: true,
-      mainId: "chart_1",
       chartLayoutType: "single",
       chartLoading: {},
       activeChartId: "chart_1",
@@ -49,33 +47,28 @@ export const useChartInit = defineStore("chartInit", {
     },
 
     // 获取图表实例
-    getChartWidget(id?: string) {
+    getChartWidget(id: string) {
       if (this.chartWidgetList.length === 0) {
         throw new Error("chartWidget is null");
       }
-      const findId = id || this.mainId;
-      return this.chartWidgetList.find((e) => e.id === findId)?.widget;
+      return this.chartWidgetList.find((e) => e.id === id)?.widget;
     },
 
     // 移除chart实例
     removeChartWidget(id: string) {
       const index = this.chartWidgetList.findIndex((e) => e.id === id);
-      if (index > -1) {
-        this.chartWidgetList[index].widget = undefined;
-        this.chartWidgetList.splice(index, 1);
-        if (id === this.activeChartId) {
-          this.activeChartId = this.mainId;
-        }
+      this.chartWidgetList.splice(index, 1);
+      if (id === this.activeChartId) {
+        this.activeChartId = this.chartWidgetList[0].id;
       }
     },
 
     // 获取chartWidgetList的symbol字段
-    getChartWidgetListSymbol(id?: string) {
+    getChartWidgetListSymbol(id: string) {
       if (this.chartWidgetList.length === 0) {
         throw new Error("chartWidget is null");
       }
-      const findId = id || this.mainId;
-      return this.chartWidgetList.find((e) => e.id === findId)?.symbol;
+      return this.chartWidgetList.find((e) => e.id === id)?.symbol;
     },
 
     setChartWidgetListSymbolInterval(params: {

@@ -93,7 +93,7 @@ export const useChartSub = defineStore("chartSub", {
       });
     },
     // 监听鼠标按下动作 （隐藏加号菜单）
-    subscribeMouseDown(id?: string) {
+    subscribeMouseDown(id: string) {
       const dialogStore = useDialog();
       const chartInitStore = useChartInit();
       const widget = chartInitStore.getChartWidget(id);

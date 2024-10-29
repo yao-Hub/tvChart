@@ -1,17 +1,17 @@
 <template>
   <div class="charts">
     <baseTabs
+      v-if="chartType === 'single'"
+      v-model:activeKey="chartInitStore.activeChartId"
       class="charts_tabs"
       addable
-      v-model:activeKey="chartInitStore.activeChartId"
-      v-if="chartType === 'single'"
       @handleAdd="tabAdd"
     >
       <TabItem
-        v-for="chart in chartList"
+        v-for="(chart, index) in chartInitStore.chartWidgetList"
         :tab="chart.symbol"
         :value="chart.id"
-        :closable="chart.id !== 'chart_1'"
+        :closable="index !== 0"
         @itemDel="tabDelete"
       ></TabItem>
     </baseTabs>
@@ -21,7 +21,7 @@
     >
       <div
         class="charts_container_item"
-        v-for="{ id, symbol } in chartList"
+        v-for="{ id, symbol } in chartInitStore.chartWidgetList"
         :key="id"
         v-show="chartInitStore.activeChartId === id || chartType === 'multiple'"
       >
@@ -34,7 +34,7 @@
           >
             <TabItem
               :tab="symbol"
-              :closable="chartList.length > 1"
+              :closable="chartInitStore.chartWidgetList.length > 1"
               :value="id"
               @itemDel="tabDelete"
             ></TabItem>
@@ -42,15 +42,18 @@
         </div>
         <TVChart
           style="height: calc(100% - 24px)"
-          :key="chartType === 'single' || chartList.length === 1"
+          :key="
+            chartType === 'single' ||
+            chartInitStore.chartWidgetList.length === 1
+          "
           :chartId="id"
-          :mainChart="id === 'chart_1'"
           :loading="props.loading || chartInitStore.chartLoading[id]"
           :datafeed="datafeed(id)"
           :symbol="symbol || state.symbol"
           :theme="themeStore.systemTheme"
           :disabledFeatures="
-            chartType === 'single' || chartList.length === 1
+            chartType === 'single' ||
+            chartInitStore.chartWidgetList.length === 1
               ? state.disabledFeatures
               : ['left_toolbar', ...state.disabledFeatures]
           "
@@ -94,10 +97,6 @@ const state = reactive({
   ],
 });
 
-const chartList = computed(() => {
-  return chartInitStore.chartWidgetList;
-});
-
 const chartType = computed(() => {
   return chartInitStore.chartLayoutType;
 });
@@ -114,7 +113,7 @@ onMounted(() => {
     animation: 150,
     swapThreshold: 1,
     handle: ".handle",
-    onEnd: function (evt: any) {
+    onEnd: function () {
       setTimeout(() => {
         chartInitStore.syncSetChart();
       }, 500);
@@ -124,11 +123,12 @@ onMounted(() => {
 
 const tabDelete = (targetKey: string) => {
   chartInitStore.removeChartWidget(targetKey);
-  console.log(chartInitStore.chartWidgetList);
 };
 
 const tabAdd = () => {
-  const ids = chartList.value.map((item) => +item.id.split("_")[1]);
+  const ids = chartInitStore.chartWidgetList.map(
+    (item) => +item.id.split("_")[1]
+  );
   const minId = Math.min(...ids) as number;
   const maxId = Math.max(...ids) as number;
   const fullRange = new Set(
@@ -138,7 +138,6 @@ const tabAdd = () => {
   const missingIds = [...fullRange].filter((num) => !arrSet.has(num));
   const addId = missingIds.length ? missingIds[0] : maxId + 1;
   chartInitStore.chartWidgetList.push({ id: `chart_${addId}` });
-  console.log(chartInitStore.chartWidgetList);
 };
 </script>
 

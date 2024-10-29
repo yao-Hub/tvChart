@@ -19,9 +19,7 @@ provide("model", model);
 interface Props {
   addable?: boolean;
 }
-const props = withDefaults(defineProps<Props>(), {
-  addable: false,
-});
+const props = defineProps<Props>();
 const emit = defineEmits(["handleAdd"]);
 </script>
 

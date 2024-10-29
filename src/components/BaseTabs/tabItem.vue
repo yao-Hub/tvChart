@@ -6,7 +6,7 @@
     <slot name="tab">
       <span>{{ props.tab || "" }}</span>
     </slot>
-    <el-icon v-show="props.closable" @click="handleDelete" class="close"
+    <el-icon v-show="props.closable" @click.stop="handleDelete" class="close"
       ><Close
     /></el-icon>
   </div>

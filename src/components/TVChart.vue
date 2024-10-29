@@ -22,10 +22,6 @@ const props = defineProps({
     default: "",
     type: String,
   },
-  mainChart: {
-    default: false,
-    type: Boolean,
-  },
   loading: {
     default: false,
     type: Boolean,
@@ -166,9 +162,6 @@ const initonReady = () => {
   };
   const widget = new library.widget(widgetOptions);
 
-  if (props.mainChart) {
-    chartInitStore.mainId = props.chartId;
-  }
   widget?.onChartReady(() => {
     widget?.headerReady().then(() => {
       chartInitStore.createChartWidget(props.chartId, widget);
