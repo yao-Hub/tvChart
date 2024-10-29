@@ -6,9 +6,6 @@ const routes: RouteRecordRaw[] = [
     path: "/chart",
     name: "chart",
     component: () => import("@/views/home/index.vue"),
-    meta: {
-      passGuard: true,
-    },
   },
   // {
   //   path: "/test",
