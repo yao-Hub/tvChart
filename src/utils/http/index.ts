@@ -154,7 +154,7 @@ service.interceptors.response.use(
     }
 
     ElNotification({
-      message: data.errmsg || data.err || "response error",
+      message: i18n.global.t(data.errmsg || data.err || "response error"),
       type: "error",
     });
     return Promise.reject(data);
