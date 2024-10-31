@@ -9,6 +9,7 @@ import { encrypt, decrypt } from "utils/DES/JS";
 import { ElNotification, ElMessageBox } from "element-plus";
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
+import i18n from "@/language/index";
 
 type reqConfig = InternalAxiosRequestConfig<any> & {
   noNeedToken?: boolean;
@@ -138,7 +139,7 @@ service.interceptors.response.use(
         tokenErrorList.push(config.url);
       }
       if (tokenErrorList.length === 1) {
-        ElMessageBox.confirm(data.errmsg, "error", {
+        ElMessageBox.confirm(i18n.global.t(data.errmsg), "error", {
           confirmButtonText: "重新登陆",
           cancelButtonText: "取消",
         }).then(() => {
@@ -162,14 +163,16 @@ service.interceptors.response.use(
     const res = err.response;
     if (res && res.data) {
       ElNotification({
-        message: res.data.errmsg || err.message || "something error",
+        message: i18n.global.t(
+          res.data.errmsg || err.message || "something error"
+        ),
         type: "error",
       });
       return Promise.reject(err);
     }
     if (res && res.status) {
       ElNotification({
-        message: err.message || `statusCode: ${res.status}`,
+        message: i18n.global.t(err.message || `statusCode: ${res.status}`),
         type: "error",
       });
       return Promise.reject(err);

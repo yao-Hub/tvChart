@@ -47,7 +47,7 @@
               />
               <el-table-column
                 prop="bid"
-                :label="t('order.sellPrice')"
+                :label="$t('order.sellPrice')"
                 min-width="90"
               >
                 <template #default="scope">
@@ -58,7 +58,7 @@
               </el-table-column>
               <el-table-column
                 prop="ask"
-                :label="t('order.buyPrice')"
+                :label="$t('order.buyPrice')"
                 min-width="90"
               >
                 <template #default="scope">
@@ -69,7 +69,7 @@
               </el-table-column>
               <el-table-column
                 prop="variation"
-                :label="t('order.diurnalVariation')"
+                :label="$t('order.diurnalVariation')"
                 sortable="custom"
                 min-width="90"
               >
@@ -97,9 +97,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, nextTick } from "vue";
 import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
-import { useI18n } from "vue-i18n";
 import Search from "./components/search/index.vue";
-const { t } = useI18n();
 
 interface DataSource {
   symbols: string;
