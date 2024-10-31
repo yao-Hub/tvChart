@@ -2,6 +2,7 @@ import { flattenDeep, groupBy, orderBy, get, last } from "lodash";
 import moment from "moment";
 import { klineHistory } from "api/kline/index";
 import * as types from "@/types/chart/index";
+import { round } from "utils/common/index";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useOrder } from "@/store/modules/order";
@@ -109,7 +110,14 @@ export const datafeed = (id: string) => {
   function socketOpera() {
     // 监听报价
     socketStore.socket.on("quote", function (d: any) {
-      // 提升订单报价
+      const symbolInfo = chartSubStore.symbols.find(
+        (e) => e.symbol === d.symbol
+      );
+      if (symbolInfo) {
+        const digits = symbolInfo.digits;
+        d.ask = round(d.ask, digits);
+        d.bid = round(d.bid, digits);
+      }
       orderStore.currentQuotes[d.symbol] = d;
 
       if (

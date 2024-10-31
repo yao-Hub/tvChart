@@ -206,6 +206,9 @@ const initonReady = () => {
           });
         });
 
+      widget.activeChart().createStudy("MACD");
+      widget.activeChart().createStudy("Moving Average Double");
+
       // 监听鼠标按下
       widget.subscribe("mouse_down", () => {
         chartInitStore.activeChartId = props.chartId;
