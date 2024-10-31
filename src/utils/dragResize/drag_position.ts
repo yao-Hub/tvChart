@@ -13,7 +13,7 @@ const moving = {
   verticalLine: false,
 };
 
-const minWidht = 200;
+const minWidth = 200;
 const minHeight = 150;
 const lineWidth = 5;
 const marginTop = 5;
@@ -57,10 +57,10 @@ function initDragArea() {
       },
       onEnd: () => {
         setTimeout(() => {
-          resizeUpdate();
+          resizeUpdate(); // fix：拖拽完剩一个拖拽层时样式不对
           chartInitStore.syncSetChart();
           themeStore.setChartTheme();
-        }, 200);
+        }, 20);
       },
       store: {
         set: function (sortable: any) {
@@ -98,31 +98,94 @@ function initDragArea() {
   }
 }
 
-// 拖拽区域大小
+// 拖拽区域大小 (dragArea_item高度)
 function setDragAreaSize() {
-  function setSize(arr: NodeListOf<Element> | Element[]) {
-    const dragArea = document.querySelector(".dragArea") as HTMLElement;
-    const dh = dragArea.getBoundingClientRect().height;
-    arr.forEach((item) => {
-      const element = item as HTMLElement;
-      // 整个区域的高度 / dragArea_item的数量 - 拉伸线的高度 * 水平拉伸线的数量（dragArea_item的数量 - 1）
-      element.style.height =
-        dh / arr.length - lineWidth * (arr.length - 1) + "px";
-      element.style.marginTop = marginTop + "px";
-    });
-  }
-  const dragArea_items = document.querySelectorAll(".dragArea_item");
-  const haveChildItems = Array.from(dragArea_items).filter(
-    (item) => item.querySelectorAll(".demo").length !== 0
-  );
-  const emptyChildItems = Array.from(dragArea_items).filter(
+  const dragArea = document.querySelector(".dragArea") as HTMLElement;
+  const dh = dragArea.getBoundingClientRect().height;
+
+  const innerWidth = window.innerWidth;
+
+  const dragItems = document.querySelectorAll(".dragArea_item");
+
+  // 没内容的item高度设为0，即隐藏
+  const emptyChildItems = Array.from(dragItems).filter(
     (item) => item.querySelectorAll(".demo").length === 0
   );
   emptyChildItems.forEach((item) => {
     const element = item as HTMLElement;
     element.style.height = "0";
   });
-  setSize(emptyChildItems.length > 0 ? haveChildItems : dragArea_items);
+
+  /**
+   * 有内容的item：
+   *  1.当只有一个item有内容时，铺满；
+   *  2.当有多个包含内容的item时：
+   *    a.包含"data-initH"属性的item的高度为"data-initH"值
+   *    b.如果全部都有"data-initH"，则按照比例设置高度
+   *    c.没有"data-initH"的则平均分配剩余空间
+   *    d."data-initH"的和大于dw的高度时，根据item之间的比例缩小
+   *    e."data-initH"的和小于dw的高度时，需要考虑initH的dom数与item的个数关系
+   *    f. b、d和e的情况目前不需要，先不实现
+   * */
+  const haveChildItems = Array.from(dragItems).filter(
+    (item) => item.querySelectorAll(".demo").length !== 0
+  );
+  const havChiLen = haveChildItems.length;
+  if (havChiLen === 1) {
+    haveChildItems[0].setAttribute(
+      "style",
+      `height: ${dh}px; margin-top: ${marginTop}px`
+    );
+    return;
+  }
+  if (havChiLen > 1) {
+    const initHItem = haveChildItems.filter((item) =>
+      item.getAttribute("data-initH")
+    );
+    const initHSum = initHItem.reduce((pre, next) => {
+      const nextInitH = next.getAttribute("data-initH") || 0;
+      return pre + Number(nextInitH);
+    }, 0);
+
+    const leftItemLen = dragItems.length - initHItem.length;
+
+    // if (initHSum > dh) {
+    //   let totalRadio = 1;
+    //   haveChildItems.forEach((item) => {
+    //     const h = item.getAttribute("data-initH");
+    //     if (h) {
+    //       const radio = +h / initHSum;
+    //       totalRadio -= radio;
+    //       const rh = radio * dh;
+    //       item.setAttribute(
+    //         "style",
+    //         `height:${rh}px; margin-top: ${marginTop}px`
+    //       );
+    //     }
+    //   });
+    //   const leftHeight = dh * totalRadio;
+    //   haveChildItems.forEach((item) => {
+    //     const h = item.getAttribute("data-initH");
+    //     if (h === null) {
+    //       const rh = leftHeight / leftItemLen - marginTop;
+    //       item.setAttribute(
+    //         "style",
+    //         `height:${rh}px; margin-top: ${marginTop}px`
+    //       );
+    //     }
+    //   });
+    // } else {
+    const leftHeight = dh - initHSum;
+    haveChildItems.forEach((item) => {
+      const h = item.getAttribute("data-initH");
+      let rh = h ? +h - marginTop : leftHeight / leftItemLen - marginTop;
+      item.setAttribute(
+        "style",
+        `height:${rh}px; margin-top: ${marginTop}px; width: ${innerWidth}px;`
+      );
+    });
+    // }
+  }
 }
 
 // 初始化demo宽高
@@ -153,25 +216,42 @@ function initDemosPosition() {
   }
 }
 
-// 定位demo的具体位置
+// 定位demo的具体位置(widht, left) 原理与设置item的原理类似，特殊情况还待完善
 function setDemoPosition() {
-  const dragArea = document.querySelector(".dragArea") as HTMLElement;
-  const dw = dragArea.getBoundingClientRect().width;
   const dragArea_items = document.querySelectorAll(".dragArea_item");
   dragArea_items.forEach((item) => {
     const demos = item.querySelectorAll(".demo");
-    demos.forEach((demo, index) => {
-      const element = demo as HTMLElement;
-      element.style.height = item.getBoundingClientRect().height + "px";
-      element.style.top = "0";
-      element.style.width =
-        dw / demos.length - (lineWidth / 2) * (demos.length - 1) + "px";
-      if (index === 0) {
-        element.style.left = "0";
-      } else {
-        element.style.left = (dw / demos.length) * index + lineWidth / 2 + "px";
+    const ih = item.getBoundingClientRect().height;
+    const iw = item.getBoundingClientRect().width;
+    if (demos.length === 1) {
+      demos[0].setAttribute(
+        "style",
+        `width: 100%; height: ${ih}px; left: 0; top: 0;`
+      );
+    } else {
+      const initWDemos = Array.from(demos).filter((demo) =>
+        demo.getAttribute("data-initW")
+      );
+      const initWSum = initWDemos.reduce((pre, next) => {
+        const nextInitW = next.getAttribute("data-initW") || 0;
+        return pre + Number(nextInitW);
+      }, 0);
+      const noInitWLen = demos.length - initWDemos.length;
+      if (initWSum < iw) {
+        const leftW = iw - initWSum;
+        demos.forEach((demo, index) => {
+          const initW = demo.getAttribute("data-initW");
+          const width = initW || leftW / noInitWLen;
+          const left = index
+            ? demos[index - 1].getBoundingClientRect().right + lineWidth
+            : 0;
+          demo.setAttribute(
+            "style",
+            `width: ${width}px; height: ${ih}px; top: 0; left: ${left}px`
+          );
+        });
       }
-    });
+    }
   });
 }
 
@@ -482,7 +562,7 @@ function resizeHorizontal(event: MouseEvent) {
     let lineLeft = clientX;
     let leftWidht = clientX - result[0].getBoundingClientRect().left;
     let rightWidht = result[1].getBoundingClientRect().right - clientX;
-    if (leftWidht < minWidht || rightWidht < minWidht) {
+    if (leftWidht < minWidth || rightWidht < minWidth) {
       return;
     }
     result[0].style.width = `${leftWidht}px`;
@@ -501,9 +581,55 @@ function resizeHorizontal(event: MouseEvent) {
   document.addEventListener("mouseup", stopResize);
 }
 
+// 根据当前比例进行缩放 dragitem
+function resizeSetItem() {
+  const dragArea = document.querySelector(".dragArea");
+  const dragItems = document.querySelectorAll(".dragArea_item");
+  const dw = dragArea!.getBoundingClientRect().width;
+  const dh = dragArea!.getBoundingClientRect().height - marginTop * dragItems.length;
+
+  // 获取高度比例
+  const heights = Array.from(dragItems).map((item) => item.getBoundingClientRect().height);
+  const totalHeight = heights.reduce((a, b) => a + b, 0);
+  const heightRatios = heights.map((height) => height / totalHeight);
+  
+  dragItems.forEach((item, index) => {
+    const element = item as HTMLElement;
+    element.style.height = `${dh * heightRatios[index]}px`;
+    element.style.width = `${dw}px`;
+  });
+};
+
+// 根据当前比例进行缩放 demo
+function resizeSetDemo() {
+  const dragItems = document.querySelectorAll(".dragArea_item");
+  dragItems.forEach(item => {
+    const itemW = item.getBoundingClientRect().width;
+    const itemH = item.getBoundingClientRect().height;
+    const demos = item.querySelectorAll(".demo");
+
+    const widths = Array.from(demos).map(
+      (item) => item.getBoundingClientRect().width
+    );
+    const totalWidth = widths.reduce((a, b) => a + b, 0);
+    const widthRatios = widths.map((width) => width / totalWidth);
+    demos.forEach((demo, index) => {
+      const element = demo as HTMLElement;
+      element.style.width = `${widthRatios[index] * itemW}px`;
+      element.style.height = `${itemH}px`;
+      const left = index
+        ? demos[index - 1].getBoundingClientRect().right + lineWidth
+        : 0;
+      element.style.left = `${left}px`;
+    });
+  });
+};
+
 export const resizeUpdate = debounce(() => {
-  setDragAreaSize();
-  setDemoPosition();
+  resizeSetItem();
+  resizeSetDemo();
+  // resizeSetDemo();
+  // setDemoPosition();
   operaHoriLine();
   operaVertLine();
   rememberAttr();
@@ -549,6 +675,7 @@ function observerDom() {
     attributes: false, // 观察属性变动
     subtree: false, // 观察后代节点，默认为 false
   };
+  // 优化在拖拽的时候（moving）拖拽区域样式问题
   const callback = debounce((mutationList: MutationRecord[]) => {
     mutationList.forEach((mutation) => {
       if (mutation.type === "childList") {
