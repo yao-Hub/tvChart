@@ -153,10 +153,13 @@ const tabAdd = () => {
     gap: 5px;
     box-sizing: border-box;
     height: 100%;
+    @include background_color("background");
+
     &_item {
       flex: 1;
       min-width: 316px;
       position: relative;
+      @include background_color("background-component");
     }
   }
 }

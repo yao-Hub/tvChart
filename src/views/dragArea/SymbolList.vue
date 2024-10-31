@@ -48,7 +48,7 @@
               <el-table-column
                 prop="bid"
                 :label="t('order.sellPrice')"
-                min-width="80"
+                min-width="90"
               >
                 <template #default="scope">
                   <span :class="[quotesClass[scope.row.symbols].bid]">
@@ -59,7 +59,7 @@
               <el-table-column
                 prop="ask"
                 :label="t('order.buyPrice')"
-                min-width="80"
+                min-width="90"
               >
                 <template #default="scope">
                   <span :class="[quotesClass[scope.row.symbols].ask]">

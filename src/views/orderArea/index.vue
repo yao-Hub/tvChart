@@ -1,6 +1,7 @@
 <template>
   <div class="orderArea">
-    <div class="header">
+    <HorizontalScrolling>
+      <div class="header">
       <baseTabs v-model:activeKey="activeKey">
         <TabItem v-for="item in state.menu" :value="item.key" :tab="item.label">
         </TabItem>
@@ -9,6 +10,7 @@
         <Feedback></Feedback>
       </div>
     </div>
+    </HorizontalScrolling>
     <div class="container" ref="container">
       <HorizontalScrolling>
         <div class="filter">
@@ -111,7 +113,7 @@
               @command="closeMarketOrders"
             >
               <div class="delList">
-                <span>批量删除</span>
+                <span>批量平仓</span>
                 <el-icon>
                   <arrow-down />
                 </el-icon>
