@@ -20,6 +20,9 @@ export default {
   upRedDownGreen: "红涨绿跌",
   upGreenDownRed: "绿涨红跌",
   refresh: "刷新",
+  error: "错误",
+  cancel: "取消",
+  reLogin: "重新登陆",
   user: {
     login: "账户",
     password: "密码",
@@ -104,7 +107,7 @@ export default {
     large: "大号",
   },
 
-  "invalid login": "无效的账户",
+  "invalid token": "无效的账户",
   "invalid server": "无效的服务商",
   "system database error": "系统数据库异常",
   "system busy": "系统繁忙",

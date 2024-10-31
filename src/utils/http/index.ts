@@ -139,9 +139,10 @@ service.interceptors.response.use(
         tokenErrorList.push(config.url);
       }
       if (tokenErrorList.length === 1) {
-        ElMessageBox.confirm(i18n.global.t(data.errmsg), "error", {
-          confirmButtonText: "重新登陆",
-          cancelButtonText: "取消",
+        ElMessageBox.confirm(i18n.global.t(data.errmsg), "", {
+          type: "warning",
+          confirmButtonText: i18n.global.t("reLogin"),
+          cancelButtonText: i18n.global.t("cancel"),
         }).then(() => {
           const userStore = useUser();
           userStore.clearToken();

@@ -2,14 +2,18 @@
   <div class="orderArea">
     <HorizontalScrolling>
       <div class="header">
-      <baseTabs v-model:activeKey="activeKey">
-        <TabItem v-for="item in state.menu" :value="item.key" :tab="item.label">
-        </TabItem>
-      </baseTabs>
-      <div class="header_right">
-        <Feedback></Feedback>
+        <baseTabs v-model:activeKey="activeKey">
+          <TabItem
+            v-for="item in state.menu"
+            :value="item.key"
+            :tab="item.label"
+          >
+          </TabItem>
+        </baseTabs>
+        <div class="header_right">
+          <Feedback></Feedback>
+        </div>
       </div>
-    </div>
     </HorizontalScrolling>
     <div class="container" ref="container">
       <HorizontalScrolling>
@@ -143,6 +147,7 @@
         <el-auto-resizer>
           <template #default="{ height, width }">
             <el-table-v2
+              :key="activeKey"
               header-class="tableHeader"
               v-loading="state.loadingList[activeKey]"
               :columns="state.columns[activeKey]"
@@ -150,7 +155,7 @@
               :row-height="24"
               :header-height="24"
               :width="width"
-              :height="height"
+              :height="parseInt(height)"
               :footer-height="
                 pageLoading || activeKey === 'blanceRecord' ? 24 : 0
               "
@@ -240,7 +245,9 @@
               </template>
               <template #footer>
                 <el-scrollbar style="height: 24px">
-                  <div class="tableFooter" v-if="pageLoading"></div>
+                  <div class="loadingFooter" v-if="pageLoading">
+                    <el-icon class="loading"><Loading /></el-icon>
+                  </div>
                   <div
                     class="tableFooter"
                     v-if="!pageLoading && activeKey === 'blanceRecord'"
@@ -282,7 +289,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted, watch, computed } from "vue";
-import { cloneDeep, debounce, throttle, set } from "lodash";
+import { cloneDeep, debounce, throttle, set, minBy } from "lodash";
 import { CloseBold } from "@element-plus/icons-vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 
@@ -361,6 +368,13 @@ const state = reactive({
     },
   } as Record<orderTypes.TableDataKey, any>,
   loadingList: {
+    marketOrder: false,
+    pendingOrder: false,
+    pendingOrderHistory: false,
+    marketOrderHistory: false,
+    blanceRecord: false,
+  },
+  ending: {
     marketOrder: false,
     pendingOrder: false,
     pendingOrderHistory: false,
@@ -587,7 +601,12 @@ const getPendingOrderHistory = async (limit_id?: number) => {
         key: index,
       };
     });
-    state.dataSource.pendingOrderHistory = res.data;
+    if (limit_id) {
+      state.dataSource.pendingOrderHistory.push(...res.data);
+    } else {
+      state.dataSource.pendingOrderHistory = res.data;
+    }
+    state.ending.pendingOrderHistory = !res.data.length;
   } finally {
     state.loadingList.pendingOrderHistory = false;
   }
@@ -615,14 +634,19 @@ const getMarketOrderHistory = async (limit_id?: number) => {
         key: index,
       };
     });
-    state.dataSource.marketOrderHistory = res.data;
+    if (limit_id) {
+      state.dataSource.marketOrderHistory.push(...res.data);
+    } else {
+      state.dataSource.marketOrderHistory = res.data;
+    }
+    state.ending.marketOrderHistory = !res.data.length;
   } finally {
     state.loadingList.marketOrderHistory = false;
   }
 };
 
 // 查询出入金记录
-const getBlanceRecord = async () => {
+const getBlanceRecord = async (limit_id?: number) => {
   try {
     state.loadingList.blanceRecord = true;
     const { createTime } = state.updata.blanceRecord;
@@ -631,6 +655,8 @@ const getBlanceRecord = async () => {
       types: [18],
       setup_begin_time,
       setup_end_time,
+      count: 200,
+      limit_id,
     };
     const res = await orders.historyOrders(updata);
     res.data = res.data.map((item, index) => {
@@ -639,8 +665,15 @@ const getBlanceRecord = async () => {
         key: index,
       };
     });
-    state.dataSource.blanceRecord = res.data;
-    orderStore.tableData.blanceRecord = cloneDeep(res.data);
+    if (limit_id) {
+      state.dataSource.blanceRecord.push(...res.data);
+    } else {
+      state.dataSource.blanceRecord = res.data;
+    }
+    state.ending.blanceRecord = !res.data.length;
+    orderStore.tableData.blanceRecord = cloneDeep(
+      state.dataSource.blanceRecord
+    );
   } finally {
     state.loadingList.blanceRecord = false;
   }
@@ -649,14 +682,17 @@ const getBlanceRecord = async () => {
 const debouncedGetMarketOrders = debounce(() => getMarketOrders(), 200);
 const debouncedGetPendingOrders = debounce(() => getPendingOrders(), 200);
 const debouncedGetPendingOrderHistory = debounce(
-  () => getPendingOrderHistory(),
+  (limit_id?: number) => getPendingOrderHistory(limit_id),
   200
 );
 const debouncedGetMarketOrderHistory = debounce(
-  () => getMarketOrderHistory(),
+  (limit_id?: number) => getMarketOrderHistory(limit_id),
   200
 );
-const debouncedGetBlanceRecord = debounce(() => getBlanceRecord(), 200);
+const debouncedGetBlanceRecord = debounce(
+  (limit_id?: number) => getBlanceRecord(limit_id),
+  200
+);
 
 // 市价单 单个平仓
 const closeMarketOrder = async (record: orders.resOrders) => {
@@ -758,8 +794,35 @@ const rowProps = ({ rowData }: any) => {
 
 // 到底触发(持仓历史，挂单历史，出入金分页)
 const pageLoading = ref(false);
-const endReached = () => {
-  // pageLoading.value = true;
+const endReached = async () => {
+  const nowData = state.dataSource[activeKey.value];
+  const minId = minBy(nowData, "id")?.id;
+  if (
+    !minId ||
+    state.ending[activeKey.value] ||
+    !["marketOrderHistory", "pendingOrderHistory", "blanceRecord"].includes(
+      activeKey.value
+    )
+  ) {
+    return;
+  }
+  pageLoading.value = true;
+  try {
+    switch (activeKey.value) {
+      case "marketOrderHistory":
+        await debouncedGetMarketOrderHistory(minId);
+        break;
+      case "pendingOrderHistory":
+        await debouncedGetPendingOrderHistory(minId);
+        break;
+      case "blanceRecord":
+        await debouncedGetBlanceRecord(minId);
+        break;
+    }
+    pageLoading.value = false;
+  } catch (e) {
+    pageLoading.value = false;
+  }
 };
 
 const getQuote = () => {
@@ -879,7 +942,23 @@ onMounted(async () => {
   border: 1px solid;
   @include border_color("border");
 }
-
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.loadingFooter {
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  .loading {
+    animation: rotate 1s linear infinite;
+  }
+}
 .tableFooter {
   height: 24px;
   display: flex;
