@@ -28,9 +28,11 @@ const container = ref();
 function updateScrollButtons() {
   const tabs = container.value;
   // showScrollLeft.value = tabs.scrollLeft > 0;
-  showScrollLeft.value = tabs.scrollWidth && tabs.scrollWidth > tabs.clientWidth;
-  // showScrollRight.value = tabs.scrollLeft < tabs.scrollWidth - tabs.clientWidth;
-  showScrollRight.value = tabs.scrollWidth && tabs.scrollWidth > tabs.clientWidth;
+  if (tabs) {
+    showScrollLeft.value = tabs.scrollWidth > tabs.clientWidth;
+    // showScrollRight.value = tabs.scrollLeft < tabs.scrollWidth - tabs.clientWidth;
+    showScrollRight.value = tabs.scrollWidth > tabs.clientWidth;
+  }
 }
 
 const scrollLeft = () => {
@@ -64,9 +66,11 @@ onMounted(() => {
   window.addEventListener("resize", updateScrollButtons);
   container.value.addEventListener("wheel", tabsMouseWheel);
 
-  const resizeObserver = new ResizeObserver(debounce(() => {
-    updateScrollButtons();
-  }, 20));
+  const resizeObserver = new ResizeObserver(
+    debounce(() => {
+      updateScrollButtons();
+    }, 20)
+  );
   resizeObserver.observe(container.value);
 });
 
