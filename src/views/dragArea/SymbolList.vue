@@ -27,66 +27,68 @@
           height: `${height - 24 - 5}px`,
         }"
       >
-        <el-auto-resizer v-if="!ifSearch">
-          <template #default="{ height, width }">
-            <el-table
-              :data="dataSource"
-              :style="{ width: width + 'px', height: height + 'px' }"
-              :row-style="{
-                height: '24px',
-              }"
-              header-cell-class-name="header-cell"
-              cell-class-name="body-cell"
-              @row-click="rowClick"
-              @sort-change="sortChange"
-            >
-              <el-table-column
-                prop="symbols"
-                :label="$t('order.symbol')"
-                min-width="90"
-              />
-              <el-table-column
-                prop="bid"
-                :label="$t('order.sellPrice')"
-                min-width="90"
+        <el-table
+          v-if="!ifSearch"
+          ref="table"
+          :data="dataSource"
+          :style="{ width: '100%', height: '100%' }"
+          :row-style="{
+            height: '24px',
+          }"
+          header-cell-class-name="header-cell"
+          cell-class-name="body-cell"
+          row-key="sort"
+          @row-click="rowClick"
+          @sort-change="sortChange"
+        >
+          <el-table-column type="expand" width="20">
+            <template #default>
+              <Deep></Deep>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="symbols"
+            :label="$t('order.symbol')"
+            min-width="90"
+          />
+          <el-table-column
+            prop="bid"
+            :label="$t('order.sellPrice')"
+            min-width="90"
+          >
+            <template #default="scope">
+              <span :class="[quotesClass[scope.row.symbols].bid]">
+                {{ getQuotes("bid", scope.row) }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="ask"
+            :label="$t('order.buyPrice')"
+            min-width="90"
+          >
+            <template #default="scope">
+              <span :class="[quotesClass[scope.row.symbols].ask]">
+                {{ getQuotes("ask", scope.row) }}
+              </span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="variation"
+            :label="$t('order.diurnalVariation')"
+            sortable="custom"
+            min-width="90"
+          >
+            <template #default="scope">
+              <span
+                style="text-align: right"
+                :class="[scope.row.variation > 0 ? ' buyWord' : ' sellWord']"
               >
-                <template #default="scope">
-                  <span :class="[quotesClass[scope.row.symbols].bid]">
-                    {{ getQuotes("bid", scope.row) }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="ask"
-                :label="$t('order.buyPrice')"
-                min-width="90"
-              >
-                <template #default="scope">
-                  <span :class="[quotesClass[scope.row.symbols].ask]">
-                    {{ getQuotes("ask", scope.row) }}
-                  </span>
-                </template>
-              </el-table-column>
-              <el-table-column
-                prop="variation"
-                :label="$t('order.diurnalVariation')"
-                sortable="custom"
-                min-width="90"
-              >
-                <template #default="scope">
-                  <span
-                    style="text-align: right"
-                    :class="[
-                      scope.row.variation > 0 ? ' buyWord' : ' sellWord',
-                    ]"
-                  >
-                    {{ getLines(scope.row) }}
-                  </span>
-                </template>
-              </el-table-column>
-            </el-table>
-          </template>
-        </el-auto-resizer>
+                {{ getLines(scope.row) }}
+              </span>
+            </template>
+          </el-table-column>
+        </el-table>
 
         <Search :input="input" v-if="ifSearch" :mySymbols="dataSource"></Search>
       </div>
@@ -95,9 +97,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from "vue";
+import { ref, watch, nextTick, shallowRef } from "vue";
 import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
 import Search from "./components/search/index.vue";
+import Deep from "./components/deep/index.vue";
 
 interface DataSource {
   symbols: string;
@@ -106,7 +109,7 @@ interface DataSource {
   variation?: string | number;
   topSort?: string | number;
 }
-const dataSource = ref<DataSource[]>([]);
+const dataSource = shallowRef<DataSource[]>([]);
 const originSource = ref<DataSource[]>([]);
 
 // 获取自选品种
@@ -126,16 +129,19 @@ const getQuery = async () => {
   tableLoading.value = false;
   await nextTick();
 
-  const trs = document.querySelectorAll(".el-table__body tbody tr");
+  const trs = document.querySelectorAll(".el-table__body tbody .el-table__row");
   trs.forEach((tr, index) => {
     tr.setAttribute("data-id", `${dataSource.value[index].symbols}`);
   });
+
+  createSortable();
 };
 
 // 可拖拽行
 import Sortable from "sortablejs";
-import { addOptionalQuery } from "api/symbols/index";
+import { editOptionalQuery } from "api/symbols/index";
 const sortBox = ref();
+const table = ref();
 const createSortable = () => {
   const tbody = document.querySelector(".el-table__body tbody");
   if (tbody) {
@@ -143,6 +149,21 @@ const createSortable = () => {
       animation: 150,
       swapThreshold: 1,
       dataIdAttr: "data-id",
+      draggable: ".el-table__row",
+      // 优化：拖拽时如果展开太丑
+      onStart: (evt: any) => {
+        table.value.toggleRowExpansion(
+          dataSource.value[evt.oldDraggableIndex],
+          false
+        );
+      },
+      // 解决拖拽后数据对不上导致行错位问题
+      onEnd: (evt: any) => {
+        const arr = cloneDeep(dataSource.value);
+        const movedItem = arr.splice(evt.oldDraggableIndex, 1)[0];
+        arr.splice(evt.newDraggableIndex, 0, movedItem);
+        dataSource.value = arr;
+      },
       store: {
         set: function (sortable: any) {
           const order = sortable.toArray();
@@ -156,15 +177,12 @@ const createSortable = () => {
               topSort,
             };
           });
-          addOptionalQuery({ symbols });
+          editOptionalQuery({ symbols });
         },
       },
     });
   }
 };
-onMounted(() => {
-  createSortable();
-});
 
 watch(
   () => userStore.account.login,
@@ -304,9 +322,13 @@ const sortChange = ({ order, prop }: any) => {
   padding: 0 !important;
   height: 24px !important;
 }
+:deep(.cell) {
+  padding: 0;
+}
 :deep(.body-cell) {
   padding: 0 !important;
-  height: 24px !important;
-  border: none !important;
+  height: 24px;
+  border: none;
+  font-size: var(--font-size) !important;
 }
 </style>
