@@ -276,14 +276,12 @@
         </el-auto-resizer>
       </div>
     </div>
-    <div v-if="state.closeDialogVisible">
-      <EditOrderDialog
-        v-model:visible="state.closeDialogVisible"
-        :orderInfo="state.orderInfo"
-        :quote="getQuote()"
-      >
-      </EditOrderDialog>
-    </div>
+    <EditOrderDialog
+      v-model:visible="state.closeDialogVisible"
+      :orderInfo="state.orderInfo"
+      :quote="getQuote()"
+    >
+    </EditOrderDialog>
   </div>
 </template>
 
@@ -826,7 +824,7 @@ const endReached = async () => {
 };
 
 const getQuote = () => {
-  return orderStore.currentQuotes[state.orderInfo.symbol];
+  return orderStore.currentQuotes[state.orderInfo.symbol] || {};
 };
 
 const getTableDate = (type: string) => {
