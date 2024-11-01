@@ -36,6 +36,7 @@ export const useSocket = defineStore("socket", {
     subscribeSocket({ resolution, symbol }: ChartProps) {
       const userStore = useUser();
       const updata = {
+        "platform": "web",
         "server": userStore.account.server,
         "symbol_period_type": [
           {
