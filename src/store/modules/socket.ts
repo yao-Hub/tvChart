@@ -35,19 +35,21 @@ export const useSocket = defineStore("socket", {
 
     subscribeSocket({ resolution, symbol }: ChartProps) {
       const userStore = useUser();
-      this.socket?.emit("subscribe_kline", {
-        server: userStore.account.server,
-        symbol_period_type: [
+      const updata = {
+        "server": userStore.account.server,
+        "symbol_period_type": [
           {
-            symbol,
+            symbol: symbol,
             period_type: resolution,
           },
         ],
-      });
+      };
+      console.log("subscribe_kline", updata);
+      this.socket?.emit("subscribe_kline", updata);
 
       this.socket?.emit("subscribe_quote", {
-        server: userStore.account.server,
-        symbols: [symbol],
+        "server": userStore.account.server,
+        "symbols": [symbol],
       });
     },
 

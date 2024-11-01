@@ -8,7 +8,7 @@
         </ChartList>
       </div>
       <!-- demo_2 -->
-      <div class="demo nested-1" data-id="demo_2" data-minWidth="360" v-if="layoutStore.symbolsVisable" data-initW="360">
+      <div class="demo nested-1" data-id="demo_2" data-minWidth="360" v-if="layoutStore.symbolsVisable" data-initW="424">
         <img src="@/assets/icons/move.png" style="float: left" class="handle" v-show="chartType === 'single'"  />
         <SymbolList class="container_item"></SymbolList>
       </div>

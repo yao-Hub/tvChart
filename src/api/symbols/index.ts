@@ -7,6 +7,7 @@ enum Api {
   MySymbols = "/my/optional_query",
   DelMySymbols = "/my/optional_delete",
   AddMySymbols = "/my/optional_add",
+  EditMySymbols = "/my/optional_update",
 }
 
 // 获取交易商线路的所有交易品种
@@ -117,6 +118,24 @@ interface reqAddOptionalQuery {
 export const addOptionalQuery = (data: reqAddOptionalQuery) => {
   return request({
     url: Api.AddMySymbols,
+    method: "post",
+    urlType: "admin",
+    needLogin: true,
+    data,
+  });
+};
+
+// 编辑自选
+interface reqAddOptionalQuery {
+  symbols: {
+    symbol: string;
+    sort: string | number;
+    topSort: string | number;
+  }[];
+}
+export const editOptionalQuery = (data: reqAddOptionalQuery) => {
+  return request({
+    url: Api.EditMySymbols,
     method: "post",
     urlType: "admin",
     needLogin: true,

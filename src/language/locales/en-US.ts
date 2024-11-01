@@ -84,7 +84,7 @@ export default {
     },
     tradingRoute: "trading route",
     queryNode: "query node",
-    diurnalVariation: "diurnal variation",
+    diurnalVariation: "vol",
   },
 
   tip: {

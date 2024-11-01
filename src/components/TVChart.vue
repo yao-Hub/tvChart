@@ -159,9 +159,9 @@ const initonReady = () => {
       props.disabledFeatures as library.ChartingLibraryFeatureset[],
     compare_symbols: props.compareSymbols as library.CompareSymbol[],
     context_menu: props.contextMenu,
+    custom_css_url: "/charting_library/static/tvcss.css",
   };
   const widget = new library.widget(widgetOptions);
-
   widget?.onChartReady(() => {
     widget?.headerReady().then(() => {
       chartInitStore.createChartWidget(props.chartId, widget);
