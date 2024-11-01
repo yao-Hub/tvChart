@@ -42,14 +42,14 @@ onMounted(() => {
   }
 });
 
-const layoutChange = (type: 'symbolsVisable' | 'orderAreaVisable') => {
+const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
   layoutStore[type] = !layoutStore[type];
   setTimeout(() => {
-  //   if (type === "chartList") {
-  //     chartInitStore.syncSetChart();
-  //   }
+    //   if (type === "chartList") {
+    //     chartInitStore.syncSetChart();
+    //   }
     resizeUpdate();
-  }, 200);
+  }, 20);
   rememberLayout();
 };
 

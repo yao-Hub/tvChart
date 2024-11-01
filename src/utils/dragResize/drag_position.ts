@@ -13,7 +13,7 @@ const moving = {
   verticalLine: false,
 };
 
-const minWidth = 200;
+const minWidth = 300;
 const minHeight = 150;
 const lineWidth = 5;
 const marginTop = 5;
@@ -37,9 +37,7 @@ function initDragArea() {
       swapThreshold: 1,
       handle: ".handle",
       onStart: () => {
-        const dragArea_items = document.querySelectorAll(
-          ".dragArea_item"
-        ) as NodeListOf<Element>;
+        const dragArea_items = document.querySelectorAll(".dragArea_item");
         const emptyChildItems = Array.from(dragArea_items).filter(
           (item) => item.querySelectorAll(".demo").length === 0
         );
@@ -55,12 +53,15 @@ function initDragArea() {
           });
         }
       },
+      onMove: () => {
+        resizeUpdate();
+      },
       onEnd: () => {
         setTimeout(() => {
           resizeUpdate(); // fix：拖拽完剩一个拖拽层时样式不对
           chartInitStore.syncSetChart();
           themeStore.setChartTheme();
-        }, 20);
+        }, 200);
       },
       store: {
         set: function (sortable: any) {
@@ -241,7 +242,10 @@ function setDemoPosition() {
         const leftW = iw - initWSum;
         demos.forEach((demo, index) => {
           const initW = demo.getAttribute("data-initW");
-          const width = initW || leftW / noInitWLen;
+          const width =
+            initW ||
+            leftW / noInitWLen -
+              lineWidth * (noInitWLen > 1 ? noInitWLen - 1 : 1);
           const left = index
             ? demos[index - 1].getBoundingClientRect().right + lineWidth
             : 0;
@@ -585,51 +589,81 @@ function resizeHorizontal(event: MouseEvent) {
 function resizeSetItem() {
   const dragArea = document.querySelector(".dragArea");
   const dragItems = document.querySelectorAll(".dragArea_item");
+  const dh =
+    dragArea!.getBoundingClientRect().height - marginTop * dragItems.length;
   const dw = dragArea!.getBoundingClientRect().width;
-  const dh = dragArea!.getBoundingClientRect().height - marginTop * dragItems.length;
-
   // 获取高度比例
-  const heights = Array.from(dragItems).map((item) => item.getBoundingClientRect().height);
+  const heights = Array.from(dragItems).map((item) => {
+    const demos = item.querySelectorAll(".demo");
+    let height = minHeight;
+    const ele = item as HTMLElement;
+    const styleH = ele.style.height;
+    if (styleH) {
+      height = +styleH.replace("px", "");
+    } else {
+      height = item.getBoundingClientRect().height;
+    }
+    if (demos.length > 0 && height === 0) {
+      const iniH = item.getAttribute("data-initH");
+      height = iniH ? +iniH : minHeight;
+    }
+    if (demos.length === 0) {
+      height = 0;
+    }
+    return height;
+  });
   const totalHeight = heights.reduce((a, b) => a + b, 0);
+
   const heightRatios = heights.map((height) => height / totalHeight);
-  
+
   dragItems.forEach((item, index) => {
     const element = item as HTMLElement;
     element.style.height = `${dh * heightRatios[index]}px`;
     element.style.width = `${dw}px`;
+    element.style.marginTop = `${marginTop}px`;
   });
-};
+}
 
 // 根据当前比例进行缩放 demo
 function resizeSetDemo() {
   const dragItems = document.querySelectorAll(".dragArea_item");
-  dragItems.forEach(item => {
-    const itemW = item.getBoundingClientRect().width;
-    const itemH = item.getBoundingClientRect().height;
+  dragItems.forEach((item) => {
+    const ele = item as HTMLElement;
+    const itemW = +ele.style.width.replace("px", "");
+    const itemH = ele.style.height;
     const demos = item.querySelectorAll(".demo");
-
-    const widths = Array.from(demos).map(
-      (item) => item.getBoundingClientRect().width
-    );
+    const widths = Array.from(demos).map((demo) => {
+      let width = minWidth;
+      const ele = demo as HTMLElement;
+      const styleW = ele.style.width;
+      if (styleW) {
+        width = +styleW.replace("px", "");
+      } else {
+        const initW = demo.getAttribute("data-initW");
+        width = initW ? +initW : minWidth;
+      }
+      return width;
+    });
     const totalWidth = widths.reduce((a, b) => a + b, 0);
-    const widthRatios = widths.map((width) => width / totalWidth);
+    const widthRatios = widths.map((width) => {
+      const r = width / totalWidth;
+      return parseFloat(String(r));
+    });
     demos.forEach((demo, index) => {
       const element = demo as HTMLElement;
       element.style.width = `${widthRatios[index] * itemW}px`;
-      element.style.height = `${itemH}px`;
+      element.style.height = itemH;
       const left = index
         ? demos[index - 1].getBoundingClientRect().right + lineWidth
         : 0;
       element.style.left = `${left}px`;
     });
   });
-};
+}
 
 export const resizeUpdate = debounce(() => {
   resizeSetItem();
   resizeSetDemo();
-  // resizeSetDemo();
-  // setDemoPosition();
   operaHoriLine();
   operaVertLine();
   rememberAttr();
@@ -667,31 +701,6 @@ function rememberAttr() {
   localStorage.setItem("attr", JSON.stringify(result));
 }
 
-// 监听元素变化
-function observerDom() {
-  const targetNodes = document.querySelectorAll(".dragArea_item");
-  const observerOptions = {
-    childList: true, // 观察目标子节点的变化，是否有添加或者删除
-    attributes: false, // 观察属性变动
-    subtree: false, // 观察后代节点，默认为 false
-  };
-  // 优化在拖拽的时候（moving）拖拽区域样式问题
-  const callback = debounce((mutationList: MutationRecord[]) => {
-    mutationList.forEach((mutation) => {
-      if (mutation.type === "childList") {
-        setDemoPosition();
-        operaHoriLine();
-        operaVertLine();
-        setTimeout(() => rememberAttr(), 1000);
-      }
-    });
-  }, 20);
-  targetNodes.forEach((node) => {
-    const observer = new MutationObserver(callback);
-    observer.observe(node, observerOptions);
-  });
-}
-
 // 根据缓存排列demo顺序
 function sortDemosByStorage() {
   const dragArea_items = document.querySelectorAll(".dragArea_item");
@@ -717,7 +726,6 @@ export function initDragResizeArea() {
   initDemosPosition();
   operaHoriLine();
   operaVertLine();
-  observerDom();
   window.addEventListener("resize", () => {
     resizeUpdate();
   });
