@@ -13,6 +13,7 @@ enum Api {
   MarketOrdersReverse = "/login/market_orders_reverse",
   MarketOrdersDouble = "/login/market_orders_double",
   MarketOrdersCloseMulti = "/login/market_orders_close_multi",
+  ModifyPendingOrders = "/login/modify_pending_orders",
 }
 
 export interface ReqOrderAdd {
@@ -338,6 +339,17 @@ export const marketOrdersCloseMulti = (data: { multi_type: number }) => {
     closed_ids: number[];
   }>({
     url: Api.MarketOrdersCloseMulti,
+    method: "post",
+    data,
+    needLogin: true,
+  });
+};
+
+export const editPendingOrders = (
+  data: reqPendingOrdersAdd & { id: string | number }
+) => {
+  return request<resPendingOrdersAdd>({
+    url: Api.ModifyPendingOrders,
     method: "post",
     data,
     needLogin: true,

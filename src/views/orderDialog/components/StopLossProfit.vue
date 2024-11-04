@@ -41,7 +41,7 @@ interface Props {
   priceOrderType?: string;
 }
 const props = defineProps<Props>();
-const price = defineModel("price", { type: String, default: "" });
+const price = defineModel<string | number>("price");
 
 // 止盈止损验证规则
 
@@ -94,7 +94,7 @@ const rangeTip = ref("");
 
 const setHelp = () => {
   const value = price.value;
-  if (value === "") {
+  if (value === "" || value === null || value === undefined) {
     rangeTip.value = "";
     return;
   }
@@ -123,7 +123,7 @@ const setHelp = () => {
       break;
     case "buyLimit":
     case "buyStop":
-    case "buy stop limit":
+    case "buyStopLimit":
       if (ifLoss && +value > down) {
         result = `止损价 ≤ ${down}`;
       }
@@ -156,6 +156,9 @@ watch(
 );
 
 const profit = computed(() => {
+  if (price.value === null || price.value === undefined) {
+    return;
+  }
   let result: string | number = "";
   const ask = props.quote.ask;
   const bid = props.quote.bid;

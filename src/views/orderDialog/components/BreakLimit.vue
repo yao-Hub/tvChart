@@ -18,6 +18,7 @@ import { SessionSymbolInfo, Quote } from "#/chart/index";
 import { round } from "utils/common/index";
 
 interface Props {
+  edit?: boolean;
   symbolInfo?: SessionSymbolInfo;
   orderType: string;
   quote: Quote;
@@ -25,11 +26,11 @@ interface Props {
     name: string;
     label: string;
   };
-  breakPrice?: string;
+  breakPrice?: string | number;
 }
 const props = defineProps<Props>();
 
-const price = defineModel<string>("value", { default: "" });
+const price = defineModel<string | number>("value", { default: "" });
 
 // 步长
 const step = computed(() => {
@@ -81,7 +82,7 @@ const initPrice = () => {
 watch(
   () => [props.symbolInfo, props.orderType],
   () => {
-    props.symbolInfo && props.orderType && initPrice();
+    props.symbolInfo && props.orderType && !props.edit && initPrice();
   },
   {
     deep: true,

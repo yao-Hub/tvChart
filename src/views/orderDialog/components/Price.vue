@@ -18,6 +18,7 @@ import { SessionSymbolInfo, Quote } from "#/chart/index";
 import { round } from "utils/common/index";
 
 interface Props {
+  edit?: boolean;
   symbolInfo?: SessionSymbolInfo;
   orderType: string;
   quote: Quote;
@@ -29,7 +30,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const price = defineModel<string>("value", { default: "" });
+const price = defineModel<string | number>("value");
 
 const priceItem = ref();
 
@@ -87,20 +88,16 @@ const initPrice = async () => {
 watch(
   () => [props.symbolInfo, props.orderType],
   () => {
-    if (props.symbolInfo && props.orderType) {
+    if (props.symbolInfo && props.orderType && !props.edit) {
       initPrice();
     }
-  },
-  {
-    deep: true,
-    immediate: true,
   }
 );
 
 // 检查价格是否合法
 const validator = (rule: any, value: any, callback: any) => {
   const type = props.orderType.toLocaleLowerCase();
-  if ([undefined, ""].includes(price.value)) {
+  if (price.value === undefined || price.value === "") {
     return callback(new Error(`请输入${props.formOption.label}`));
   }
   let size = "";

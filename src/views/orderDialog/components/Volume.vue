@@ -21,7 +21,7 @@ interface Props {
   quote: Quote;
 }
 const props = defineProps<Props>();
-const model = defineModel<string>("volume", { default: "" });
+const model = defineModel<string | number>("volume", { default: "" });
 
 // 步长
 const step = computed(() => {

@@ -276,12 +276,19 @@
         </el-auto-resizer>
       </div>
     </div>
-    <EditOrderDialog
-      v-model:visible="state.closeDialogVisible"
+    <MarketOrderEdit
+      v-model:visible="state.marketDialogVisible"
       :orderInfo="state.orderInfo"
       :quote="getQuote()"
     >
-    </EditOrderDialog>
+    </MarketOrderEdit>
+
+    <PendingOrderEdit
+      v-model:visible="state.pendingDialogVisible"
+      :orderInfo="state.orderInfo"
+      :quote="getQuote()"
+    >
+    </PendingOrderEdit>
   </div>
 </template>
 
@@ -306,7 +313,9 @@ import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
 import { useSocket } from "@/store/modules/socket";
 
-import EditOrderDialog from "../orderDialog/edit.vue";
+import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
+import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
+
 import TimeSelect from "./components/TimeSelect.vue";
 import Feedback from "./components/Feedback/index.vue";
 
@@ -331,7 +340,8 @@ const state = reactive({
     marketOrderHistory: [],
     blanceRecord: [],
   } as Record<orderTypes.TableDataKey, orders.resOrders[]>,
-  closeDialogVisible: false,
+  marketDialogVisible: false,
+  pendingDialogVisible: false,
   orderInfo: {} as orders.resOrders,
   updata: {
     marketOrder: {
@@ -782,9 +792,12 @@ const delPendingOrder = async (record: orders.resOrders) => {
 const rowProps = ({ rowData }: any) => {
   return {
     ondblclick: () => {
+      state.orderInfo = rowData;
       if (activeKey.value === "marketOrder") {
-        state.orderInfo = rowData;
-        state.closeDialogVisible = true;
+        state.marketDialogVisible = true;
+      }
+      if (activeKey.value === "pendingOrder") {
+        state.pendingDialogVisible = true;
       }
     },
   };
