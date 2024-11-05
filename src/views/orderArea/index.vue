@@ -244,7 +244,7 @@
                 </template>
               </template>
               <template #footer>
-                <el-scrollbar style="height: 24px">
+                <el-scrollbar>
                   <div class="loadingFooter" v-if="pageLoading">
                     <el-icon class="loading"><Loading /></el-icon>
                   </div>

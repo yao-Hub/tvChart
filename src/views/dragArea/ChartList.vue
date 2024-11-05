@@ -42,21 +42,12 @@
         </div>
         <TVChart
           style="height: calc(100% - 24px)"
-          :key="
-            chartType === 'single' ||
-            chartInitStore.chartWidgetList.length === 1
-          "
           :chartId="id"
           :loading="props.loading || chartInitStore.chartLoading[id]"
           :datafeed="datafeed(id)"
           :symbol="symbol || state.symbol"
           :theme="themeStore.systemTheme"
-          :disabledFeatures="
-            chartType === 'single' ||
-            chartInitStore.chartWidgetList.length === 1
-              ? state.disabledFeatures
-              : ['left_toolbar', ...state.disabledFeatures]
-          "
+          :disabledFeatures="state.disabledFeatures"
           @initChart="initChart"
         >
         </TVChart>
@@ -92,8 +83,11 @@ const state = reactive({
     "header_compare",
     "header_saveload",
     "timeframes_toolbar",
-    "save_chart_properties_to_local_storage",
-    "use_localstorage_for_settings",
+    "header_symbol_search",
+    "symbol_search_hot_key",
+    "header_resolutions",
+    // "save_chart_properties_to_local_storage",
+    // "use_localstorage_for_settings",
   ],
 });
 
@@ -101,10 +95,28 @@ const chartType = computed(() => {
   return chartInitStore.chartLayoutType;
 });
 
-const initChart = ({ id }: any) => {
+const initChart = ({ id, widget }: any) => {
+  // widget.chart().createShape(
+  //   { time: 1730771118, price: 2737 },
+  //   {
+  //     shape: "icon",
+  //     icon: 0xf0d8,
+  //     lock: true,
+  //     disableSelection: true,
+  //     zOrder: "top",
+  //     overrides: {
+  //       color: "red",
+  //       size: 12,
+  //     },
+  //   }
+  // );
+  // if (chartType.value === "multiple") {
+  //   widget.activeChart().executeActionById("drawingToolbarAction");
+  // }
   // 涨跌颜色
   themeStore.setUpDownTheme();
   chartActionStore.addOrderBtn(id);
+  // chartActionStore.createOrderLine(id);
 };
 
 onMounted(() => {

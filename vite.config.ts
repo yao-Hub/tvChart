@@ -77,6 +77,16 @@ export default defineConfig((mode: ConfigEnv) => {
             );
           },
         },
+        "/client-api-103-75-0-197-17556": {
+          target: "http://103.75.0.197:17556",
+          changeOrigin: true,
+          rewrite: (path) => {
+            return path.replace(
+              new RegExp("^" + "/client-api-103-75-0-197-17556"),
+              ""
+            );
+          },
+        },
         "/client-api": {
           target: "http://120.79.186.23:13556",
           changeOrigin: true,

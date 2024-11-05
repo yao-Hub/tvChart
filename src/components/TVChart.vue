@@ -215,7 +215,7 @@ const initonReady = () => {
       });
 
       setTimeout(() => {
-        emit("initChart", { id: props.chartId });
+        emit("initChart", { id: props.chartId, widget });
       }, 200);
     });
   });

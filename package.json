@@ -24,6 +24,7 @@
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.11",
     "decimal.js": "^10.4.3",
+    "echarts": "^5.5.1",
     "element-plus": "^2.8.4",
     "moment": "^2.30.1",
     "pinia": "^2.1.7",

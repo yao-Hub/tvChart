@@ -41,7 +41,7 @@ export const useChartSub = defineStore("chartSub", {
 
       this.symbols = list;
       list.forEach((item) => {
-        socketStore.subscribeSocket({ resolution: "1", symbol: item.symbol });
+        socketStore.subKlineQuote({ resolution: "1", symbol: item.symbol });
       });
       const resQuotes = await allSymbolQuotes();
       resQuotes.data.forEach((item) => {
@@ -59,26 +59,26 @@ export const useChartSub = defineStore("chartSub", {
       const nowsubList = uniq([...this.mustSubscribeList, ...barsCacheSymbols]);
       const subList = difference(sources, nowsubList);
       subList.forEach((item) => {
-        socketStore.subscribeSocket({ resolution: "1", symbol: item });
+        socketStore.subKlineQuote({ resolution: "1", symbol: item });
       });
       this.mustSubscribeList = uniq([...this.mustSubscribeList, ...sources]);
     },
 
     // k线图监听k线和报价
-    subscribeKline(args: TurnSocket) {
+    subKlineQuote(args: TurnSocket) {
       const socketStore = useSocket();
       const { subscriberUID, symbolInfo, resolution } = args;
       this.barsCache.set(subscriberUID, {
         ...symbolInfo,
         resolution,
       });
-      socketStore.subscribeSocket({ resolution, symbol: symbolInfo.name });
+      socketStore.subKlineQuote({ resolution, symbol: symbolInfo.name });
     },
     // k线图取消监听k线和报价
-    unsubscribeKline(subscriberUID: string) {
+    unsubKlineQuote(subscriberUID: string) {
       const socketStore = useSocket();
       const { resolution, name } = this.barsCache.get(subscriberUID);
-      socketStore.unsubscribeSocket({ resolution, symbol: name });
+      socketStore.unsubKlineQuote({ resolution, symbol: name });
       this.barsCache.delete(subscriberUID);
     },
     // 监听点击报价加号按钮（显示加号菜单）

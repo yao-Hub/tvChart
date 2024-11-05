@@ -9,7 +9,7 @@
     <template #header>
       <span class="header">我的反馈</span>
     </template>
-    <div class="scrollList" v-loading="loading">
+    <el-scrollbar v-loading="loading" class="commentList">
       <div v-for="item in commentList">
         <div class="comment">
           <div class="avatar">
@@ -56,7 +56,7 @@
         <el-divider style="margin: 24px 0" />
       </div>
       <el-empty v-if="commentList.length === 0" />
-    </div>
+    </el-scrollbar>
   </el-dialog>
 </template>
 
@@ -102,11 +102,9 @@ watch(
 .grayWord {
   @include font_color("word-gray");
 }
-.scrollList {
+.commentList {
   padding: 0 16px;
   height: 500px;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 .comment {
   display: flex;
@@ -123,6 +121,8 @@ watch(
     .word {
       line-height: 20px;
       @include font_color("word");
+      word-break: break-all;
+      word-wrap: break-word;
     }
     .images {
       display: flex;

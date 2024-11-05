@@ -254,7 +254,6 @@ for (const i in formState) {
 watch(
   () => props.visible,
   (val) => {
-    console.log(props.orderInfo);
     if (val) {
       const orderType = findKey(ORDERMAP, (o) => o === props.orderInfo.type);
       if (orderType) {

@@ -378,7 +378,7 @@ export const datafeed = (id: string) => {
         onRealtimeCallback,
         onResetCacheNeededCallback,
       };
-      chartSubStore.subscribeKline({
+      chartSubStore.subKlineQuote({
         subscriberUID,
         symbolInfo,
         resolution,
@@ -387,7 +387,7 @@ export const datafeed = (id: string) => {
 
     //取消订阅,撤销掉某条线的实时更新
     unsubscribeBars: (subscriberUID: string) => {
-      // chartSubStore.unsubscribeKline(subscriberUID);
+      // chartSubStore.unsubKlineQuote(subscriberUID);
     },
 
     // 查找品种（商品）

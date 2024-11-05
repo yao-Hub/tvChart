@@ -1,6 +1,6 @@
 <template>
   <div v-loading="listState.loading" class="searchList">
-    <div v-if="!input && !showSymbols" class="detail scrollList">
+    <el-scrollbar v-if="!input && !showSymbols">
       <Block
         v-for="item in listState.menu"
         :title="item.value"
@@ -9,9 +9,9 @@
         :count="getCount(item.type)"
         @blockClick="getSymbols(item.type)"
       ></Block>
-    </div>
+    </el-scrollbar>
 
-    <div v-if="!input && showSymbols" class="detail scrollList">
+    <el-scrollbar v-if="!input && showSymbols">
       <Block class="back">
         <template #title>
           <div class="back_title" @click="() => (showSymbols = false)">
@@ -29,9 +29,9 @@
         @btnClick="(e) => btnClick(e, item)"
       >
       </Block>
-    </div>
+    </el-scrollbar>
 
-    <div v-if="input" class="detail scrollList">
+    <el-scrollbar v-if="input">
       <Block
         v-for="item in filterSymbols"
         :title="item.symbol"
@@ -41,7 +41,7 @@
         @btnClick="(e) => btnClick(e, item)"
       >
       </Block>
-    </div>
+    </el-scrollbar>
   </div>
 </template>
 
@@ -182,10 +182,6 @@ const getCheckType = (type: string) => {
 @import "@/styles/_handle.scss";
 .searchList {
   height: 100%;
-}
-.detail {
-  height: 100%;
-  overflow: auto;
 }
 .back {
   @include background_color("background-component");

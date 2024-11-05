@@ -38,12 +38,14 @@
           header-cell-class-name="header-cell"
           cell-class-name="body-cell"
           row-key="sort"
+          :expand-row-keys="expandRowKeys"
           @row-click="rowClick"
           @sort-change="sortChange"
+          @expand-change="expandChange"
         >
           <el-table-column type="expand" width="20">
-            <template #default>
-              <Deep></Deep>
+            <template #default="{ row }">
+              <Deep :symbol="row.symbols"></Deep>
             </template>
           </el-table-column>
           <el-table-column
@@ -116,6 +118,8 @@ const originSource = ref<DataSource[]>([]);
 import { orderBy, cloneDeep } from "lodash";
 import { optionalQuery } from "api/symbols/index";
 import { useUser } from "@/store/modules/user";
+import { useSocket } from "@/store/modules/socket";
+const socketStore = useSocket();
 const userStore = useUser();
 const tableLoading = ref(false);
 const getQuery = async () => {
@@ -129,13 +133,29 @@ const getQuery = async () => {
   tableLoading.value = false;
   await nextTick();
 
+  // 拖拽
   const trs = document.querySelectorAll(".el-table__body tbody .el-table__row");
   trs.forEach((tr, index) => {
     tr.setAttribute("data-id", `${dataSource.value[index].symbols}`);
   });
-
   createSortable();
 };
+
+const getData = async () => {
+  await getQuery();
+  // 订阅市场深度
+  const symbols = dataSource.value.map((item) => item.symbols);
+  socketStore.subQuoteDepth(symbols);
+  socketStore.getQuoteDepth();
+};
+
+watch(
+  () => userStore.account.login,
+  (val) => {
+    val && getData();
+  },
+  { immediate: true }
+);
 
 // 可拖拽行
 import Sortable from "sortablejs";
@@ -184,21 +204,13 @@ const createSortable = () => {
   }
 };
 
-watch(
-  () => userStore.account.login,
-  (val) => {
-    val && getQuery();
-  },
-  { immediate: true }
-);
-
 // 显示分类
 const ifSearch = ref(false);
 const input = ref("");
 const closeSearch = () => {
   ifSearch.value = false;
   input.value = "";
-  getQuery();
+  getData();
 };
 
 // 实时报价
@@ -295,6 +307,12 @@ const sortChange = ({ order, prop }: any) => {
     sortBox.value = null;
   }
   dataSource.value = result;
+};
+
+// 只一个展开
+const expandRowKeys = ref<any[]>([]);
+const expandChange = (row: any, expandedRows: any[]) => {
+  expandRowKeys.value = expandedRows.length ? [row.sort] : [];
 };
 </script>
 

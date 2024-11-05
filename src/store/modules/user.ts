@@ -84,7 +84,10 @@ export const useUser = defineStore("user", {
         });
         this.loginInfo = res.data;
         if (params && params.emitSocket) {
-          socketStore.sendToken(res.data.login, this.getToken());
+          socketStore.sendToken({
+            login: res.data.login,
+            token: this.getToken(),
+          });
         }
       } finally {
         this.setAccountList();
@@ -145,7 +148,7 @@ export const useUser = defineStore("user", {
           const token = res.data.token;
           // 缓存token 发送登录状态
           this.setToken(token);
-          socketStore.sendToken(updata.login, token);
+          socketStore.sendToken({ login: updata.login, token });
           // 缓存登录信息
           this.setStorageAccount({
             ...updata,
