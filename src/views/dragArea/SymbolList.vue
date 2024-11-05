@@ -172,10 +172,7 @@ const createSortable = () => {
       draggable: ".el-table__row",
       // 优化：拖拽时如果展开太丑
       onStart: (evt: any) => {
-        table.value.toggleRowExpansion(
-          dataSource.value[evt.oldDraggableIndex],
-          false
-        );
+        expandRowKeys.value = [];
       },
       // 解决拖拽后数据对不上导致行错位问题
       onEnd: (evt: any) => {
