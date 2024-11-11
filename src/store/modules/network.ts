@@ -1,12 +1,10 @@
 import { defineStore } from "pinia";
-import CryptoJS from "utils/AES";
 import {
   queryTradeLine,
   resQueryTradeLine,
   resQueryNode,
   queryNode,
 } from "api/account/index";
-import { useStorage } from "./storage";
 import { useUser } from "./user";
 
 interface State {
