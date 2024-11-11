@@ -11,6 +11,8 @@
 
 <script setup lang="ts">
 import { CheckOutlined } from "@ant-design/icons-vue";
+import { useStorage } from "@/store/modules/storage";
+const storageStore = useStorage();
 
 const sizeList = ["small", "medium", "large"];
 
@@ -23,7 +25,7 @@ const emit = defineEmits(["changeSize"]);
 
 const changeSize = (size: string) => {
   document.documentElement.setAttribute("data-size", size);
-  localStorage.setItem("fontSize", size);
+  storageStore.setItem("fontSize", size);
   emit("changeSize", size);
 };
 </script>

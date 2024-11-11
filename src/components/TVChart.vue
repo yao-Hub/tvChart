@@ -98,8 +98,12 @@ const props = defineProps({
     default: "1.1",
     type: String,
   },
-  clientId: {
-    default: "tradingview.com",
+  client_id: {
+    default: "client_id",
+    type: String,
+  },
+  user_id: {
+    default: "user_id",
     type: String,
   },
   theme: {
@@ -151,7 +155,8 @@ const initonReady = () => {
     charts_storage_url: props.chartsStorageUrl,
     charts_storage_api_version:
       props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
-    client_id: props.clientId,
+    client_id: props.client_id,
+    user_id: props.user_id,
     theme: props.theme as library.ThemeName,
     enabled_features:
       props.enabledFeatures as library.ChartingLibraryFeatureset[],
@@ -166,19 +171,6 @@ const initonReady = () => {
     widget?.headerReady().then(() => {
       chartInitStore.createChartWidget(props.chartId, widget);
 
-      const chartSymbol = chartInitStore.getChartWidgetListSymbol(
-        props.chartId
-      );
-      if (chartSymbol) {
-        chartInitStore.syncSetChart();
-      } else {
-        chartInitStore.setChartWidgetListSymbolInterval({
-          id: props.chartId,
-          symbol: props.symbol,
-          interval: props.interval as library.ResolutionString,
-        });
-      }
-
       // 快捷键监听
       chartSubStore.subscribeKeydown(widget);
 
@@ -189,7 +181,7 @@ const initonReady = () => {
         // @ts-ignore
         .subscribe(null, (e) => {
           orderStore.currentSymbol = e.name;
-          chartInitStore.setChartWidgetListSymbolInterval({
+          chartInitStore.setChartMapSymbolInterval({
             symbol: e.name,
             id: props.chartId,
           });
@@ -200,19 +192,19 @@ const initonReady = () => {
         .activeChart()
         .onIntervalChanged()
         .subscribe(null, (interval) => {
-          chartInitStore.setChartWidgetListSymbolInterval({
+          chartInitStore.setChartMapSymbolInterval({
             interval,
             id: props.chartId,
           });
         });
 
-      widget.activeChart().createStudy("MACD");
-      widget.activeChart().createStudy("Moving Average Double");
-
       // 监听鼠标按下
       widget.subscribe("mouse_down", () => {
         chartInitStore.activeChartId = props.chartId;
       });
+
+      widget.activeChart().createStudy("MACD");
+      widget.activeChart().createStudy("Moving Average Double");
 
       setTimeout(() => {
         emit("initChart", { id: props.chartId, widget });

@@ -6,6 +6,8 @@ import {
   resQueryNode,
   queryNode,
 } from "api/account/index";
+import { useStorage } from "./storage";
+import { useUser } from "./user";
 
 interface State {
   server: string;
@@ -35,11 +37,10 @@ export const useNetwork = defineStore("network", {
 
   actions: {
     async initNode() {
-      const account = window.localStorage.getItem("account");
-      if (account) {
-        const parseAccount = JSON.parse(account);
-        const queryNode = CryptoJS.decrypt(parseAccount.queryNode);
-        const server = CryptoJS.decrypt(parseAccount.server);
+      const userStore = useUser();
+      if (userStore.account) {
+        const queryNode = userStore.account.queryNode;
+        const server = userStore.account.server;
         this.server = server;
         this.nodeName = queryNode;
         await this.getNodes(server);
@@ -53,9 +54,11 @@ export const useNetwork = defineStore("network", {
     },
 
     // 网络节点
-    async getNodes(lineName: string) {
+    async getNodes(server: string) {
       try {
-        const lineCode = this.queryTradeLines.find(e => e.lineName === lineName)?.lineCode;
+        const lineCode = this.queryTradeLines.find(
+          (e) => e.lineName === server
+        )?.lineCode;
         if (lineCode) {
           const res = await queryNode({
             lineCode,
@@ -71,13 +74,12 @@ export const useNetwork = defineStore("network", {
 
     changeNode(nodeName: string) {
       this.nodeName = nodeName;
-      const account = window.localStorage.getItem("account");
+      const userStore = useUser();
+      const account = userStore.account;
       if (account) {
-        const parseAccount = JSON.parse(account);
-        const enNode = CryptoJS.encrypt(nodeName);
-        parseAccount.queryNode = enNode;
-        window.localStorage.setItem("account", JSON.stringify(parseAccount));
+        account.queryNode = nodeName;
+        userStore.handleAccount(account);
       }
-    }
+    },
   },
 });

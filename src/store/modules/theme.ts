@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { useChartInit } from "./chartInit";
 import { useDark, useToggle } from "@vueuse/core";
+import { useStorage } from "./storage";
 
 interface State {
   systemTheme: string; // 系统主题
@@ -16,7 +17,8 @@ export const useTheme = defineStore("theme", {
   },
   actions: {
     initTheme() {
-      const stoTheme = localStorage.getItem("systemTheme") || "light";
+      const storageStore = useStorage();
+      const stoTheme = storageStore.getItem("systemTheme") || "light";
       const isDark = useDark();
       if (stoTheme === "light" && isDark.value) {
         useToggle(isDark)();
@@ -28,8 +30,9 @@ export const useTheme = defineStore("theme", {
       document.documentElement.setAttribute("data-theme", this.systemTheme);
     },
     changeSystemTheme() {
+      const storageStore = useStorage();
       const theme = this.systemTheme === "dark" ? "light" : "dark";
-      localStorage.setItem("systemTheme", theme);
+      storageStore.setItem("systemTheme", theme);
       this.initTheme();
     },
     setChartTheme() {
@@ -39,7 +42,8 @@ export const useTheme = defineStore("theme", {
       });
     },
     getUpDownTheme() {
-      const type = localStorage.getItem("upDownTheme") as State["upDownTheme"];
+      const storageStore = useStorage();
+      const type = storageStore.getItem("upDownTheme") as State["upDownTheme"];
       if (type) {
         this.upDownTheme = type;
       }
@@ -49,8 +53,9 @@ export const useTheme = defineStore("theme", {
       if (type) {
         this.upDownTheme = type;
       }
+      const storageStore = useStorage();
       document.documentElement.setAttribute("upDown-theme", this.upDownTheme);
-      localStorage.setItem("upDownTheme", this.upDownTheme);
+      storageStore.setItem("upDownTheme", this.upDownTheme);
       const chartInitStore = useChartInit();
       const downColor =
         this.upDownTheme === "upRedDownGreen" ? "#089981" : "#F23645";

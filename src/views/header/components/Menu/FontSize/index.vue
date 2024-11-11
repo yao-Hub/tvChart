@@ -20,9 +20,11 @@
 import { RightOutlined, FontSizeOutlined } from "@ant-design/icons-vue";
 import Sizes from "./Sizes.vue";
 import { ref } from "vue";
+import { useStorage } from "@/store/modules/storage";
+const storageStore = useStorage();
 
 const nowSize = ref("small");
-nowSize.value = localStorage.getItem("fontSize") || "small";
+nowSize.value = storageStore.getItem("fontSize") || "small";
 document.documentElement.setAttribute("data-size", nowSize.value);
 
 const setFontSize = (size: string) => {

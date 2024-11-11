@@ -1,53 +1,50 @@
 <template>
   <div class="charts">
-    <baseTabs
-      v-if="chartType === 'single'"
-      v-model:activeKey="chartInitStore.activeChartId"
-      class="charts_tabs"
-      addable
-      @handleAdd="tabAdd"
-    >
-      <TabItem
-        v-for="(chart, index) in chartInitStore.chartWidgetList"
-        :tab="chart.symbol"
-        :value="chart.id"
-        :closable="index !== 0"
-        @itemDel="tabDelete"
-      ></TabItem>
-    </baseTabs>
+    <HorizontalScrolling v-if="chartType === 'single'">
+      <div class="tabs">
+        <chartTab
+          v-for="chart in chartInitStore.chartWidgetList"
+          :active="activedId === chart.id"
+          :symbol="chart.symbol"
+          :interval="chart.interval"
+          :id="chart.id"
+          @tabClick="chartTabClick($event, chart.symbol)"
+          @symbolCommand="symbolCommand"
+          @resolutionCommand="resolutionCommand"
+          @tabClose="tabClose"
+        ></chartTab>
+      </div>
+    </HorizontalScrolling>
     <div
       class="charts_container"
       :style="{ flexDirection: chartInitStore.chartFlexDirection }"
     >
       <div
         class="charts_container_item"
-        v-for="{ id, symbol } in chartInitStore.chartWidgetList"
-        :key="id"
-        v-show="chartInitStore.activeChartId === id || chartType === 'multiple'"
+        v-for="{ id, symbol, interval } in chartInitStore.chartWidgetList"
+        v-show="activedId === id || chartType === 'multiple'"
       >
-        <div v-if="chartType === 'multiple'" style="display: flex">
-          <img class="handle" src="@/assets/icons/move.png" />
-          <baseTabs
-            v-model:activeKey="chartInitStore.activeChartId"
-            addable
-            @handleAdd="tabAdd"
-          >
-            <TabItem
-              :tab="symbol"
-              :closable="chartInitStore.chartWidgetList.length > 1"
-              :value="id"
-              @itemDel="tabDelete"
-            ></TabItem>
-          </baseTabs>
-        </div>
+        <chartTab
+          v-if="chartType === 'multiple'"
+          :active="activedId === id"
+          :symbol="symbol"
+          :interval="interval"
+          :id="id"
+          @tabClick="chartTabClick($event, symbol)"
+          @symbolCommand="symbolCommand"
+          @resolutionCommand="resolutionCommand"
+          @tabClose="tabClose"
+        ></chartTab>
         <TVChart
-          style="height: calc(100% - 24px)"
+          style="height: calc(100% - 40px)"
           :chartId="id"
-          :loading="props.loading || chartInitStore.chartLoading[id]"
+          :loading="
+            chartSubStore.chartsLoading || chartInitStore.chartLoading[id]
+          "
           :datafeed="datafeed(id)"
-          :symbol="symbol || state.symbol"
+          :symbol="symbol"
           :theme="themeStore.systemTheme"
-          :disabledFeatures="state.disabledFeatures"
+          :disabledFeatures="disabledFeatures"
           @initChart="initChart"
         >
         </TVChart>
@@ -57,42 +54,40 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import Sortable from "sortablejs";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartAction } from "@/store/modules/chartAction";
 import { useTheme } from "@/store/modules/theme";
+import { useChartSub } from "@/store/modules/chartSub";
+import { useOrder } from "@/store/modules/order";
 
 import { datafeed } from "@/config/chartConfig";
+
+import chartTab from "./components/chartTab/index.vue";
 
 const chartInitStore = useChartInit();
 const chartActionStore = useChartAction();
 const themeStore = useTheme();
+const chartSubStore = useChartSub();
+const orderStore = useOrder();
 
-interface Props {
-  loading?: boolean;
-}
-const props = withDefaults(defineProps<Props>(), {
-  loading: false,
-});
-
-const state = reactive({
-  symbol: "XAU",
-  disabledFeatures: [
-    "header_compare",
-    "header_saveload",
-    "timeframes_toolbar",
-    "header_symbol_search",
-    "symbol_search_hot_key",
-    "header_resolutions",
-    // "save_chart_properties_to_local_storage",
-    // "use_localstorage_for_settings",
-  ],
-});
+const disabledFeatures = [
+  "header_compare",
+  "header_saveload",
+  "timeframes_toolbar",
+  "header_symbol_search",
+  "symbol_search_hot_key",
+  "header_resolutions",
+];
 
 const chartType = computed(() => {
   return chartInitStore.chartLayoutType;
+});
+
+const activedId = computed(() => {
+  return chartInitStore.activeChartId;
 });
 
 const initChart = ({ id, widget }: any) => {
@@ -113,9 +108,35 @@ const initChart = ({ id, widget }: any) => {
   // if (chartType.value === "multiple") {
   //   widget.activeChart().executeActionById("drawingToolbarAction");
   // }
+  // const from = Date.now() / 1000 - 15 * 60 * 60; // 5 days ago
+  // const to = Date.now() / 1000;
+  // widget.activeChart().createMultipointShape(
+  //   [
+  //     { time: from, price: 2710 },
+  //     { time: to, price: 2710 },
+  //   ],
+  //   {
+  //     shape: "trend_line",
+  //     lock: false,
+  //     disableSelection: true,
+  //     disableSave: true,
+  //     disableUndo: true,
+  //     text: "texttexttexttexttexttexttexttext",
+  //   }
+  // );
+  // widget.chart().createAnchoredShape(
+  //   { x: 0.1, y: 0.9 },
+  //   {
+  //     shape: "anchored_text",
+  //     text: "Hello, charts!",
+  //     overrides: { color: "green" },
+  //   }
+  // );
+
   // 涨跌颜色
   themeStore.setUpDownTheme();
   chartActionStore.addOrderBtn(id);
+  chartInitStore.loadCharts();
   // chartActionStore.createOrderLine(id);
 };
 
@@ -125,31 +146,44 @@ onMounted(() => {
     animation: 150,
     swapThreshold: 1,
     handle: ".handle",
+    onStart: () => {
+      chartInitStore.saveCharts();
+    },
     onEnd: function () {
       setTimeout(() => {
-        chartInitStore.syncSetChart();
+        chartInitStore.loadCharts();
       }, 500);
     },
   });
+
+  const tabs = document.querySelector(".tabs");
+  if (tabs) {
+    new Sortable(tabs, {
+      animation: 150,
+      swapThreshold: 0.65,
+      handle: ".moveIcon",
+    });
+  }
+
+  window.addEventListener("beforeunload", () => {
+    chartInitStore.saveCharts();
+  });
 });
 
-const tabDelete = (targetKey: string) => {
-  chartInitStore.removeChartWidget(targetKey);
+const chartTabClick = (id: string, symbol?: string) => {
+  chartInitStore.activeChartId = id;
+  if (symbol) {
+    orderStore.currentSymbol = symbol;
+  }
 };
-
-const tabAdd = () => {
-  const ids = chartInitStore.chartWidgetList.map(
-    (item) => +item.id.split("_")[1]
-  );
-  const minId = Math.min(...ids) as number;
-  const maxId = Math.max(...ids) as number;
-  const fullRange = new Set(
-    [...Array(maxId - minId + 1).keys()].map((i) => i + minId)
-  );
-  const arrSet = new Set(ids);
-  const missingIds = [...fullRange].filter((num) => !arrSet.has(num));
-  const addId = missingIds.length ? missingIds[0] : maxId + 1;
-  chartInitStore.chartWidgetList.push({ id: `chart_${addId}` });
+const symbolCommand = (symbol: string, id: string) => {
+  chartInitStore.changeChartSymbol({ symbol, id });
+};
+const resolutionCommand = (resolution: any, id: string) => {
+  chartInitStore.changeChartInterval({ resolution, id });
+};
+const tabClose = (id: string) => {
+  chartInitStore.removeChartWidget(id);
 };
 </script>
 
@@ -158,7 +192,12 @@ const tabAdd = () => {
 
 .charts {
   box-sizing: border-box;
-  border-radius: 5px;
+
+  .tabs {
+    display: flex;
+    gap: 4px;
+  }
+
   &_container {
     display: flex;
     flex-wrap: wrap;
@@ -175,6 +214,7 @@ const tabAdd = () => {
     }
   }
 }
+
 .handle {
   cursor: grab;
   height: 24px;

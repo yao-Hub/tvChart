@@ -12,13 +12,16 @@
 import { ThunderboltOutlined, ThunderboltFilled } from "@ant-design/icons-vue";
 import { useOrder } from "@/store/modules/order";
 import { useChartAction } from "@/store/modules/chartAction";
+import { useStorage } from "@/store/modules/storage";
+const storageStore = useStorage();
+
 const chartActionStore = useChartAction();
 
 const orderStore = useOrder();
 
 const handleClick = (e: boolean) => {
   orderStore.ifQuick = e;
-  window.localStorage.setItem("ifQuick", JSON.stringify(e));
+  storageStore.setItem("ifQuick", e);
   chartActionStore.toggleOrderBtn(e);
 };
 </script>

@@ -1,135 +1,132 @@
 import { defineStore } from "pinia";
 import { ElMessage } from "element-plus";
-import { pick, assign } from "lodash";
+import { assign } from "lodash";
 import CryptoJS from "utils/AES";
-import { getLoginInfo, UserInfo, Login, reqLogin } from "api/account/index";
+import { loginInfo, UserInfo, Login } from "api/account/index";
 import { useSocket } from "@/store/modules/socket";
 import { useNetwork } from "@/store/modules/network";
+import { useStorage } from "./storage";
 
 type Account = Pick<UserInfo, "login" | "password"> & {
   server: string;
+  token: "";
 };
 type AccountListItem = Account & {
-  blance: string;
+  blance: number | string;
   token: string;
+  ifLogin: boolean;
+  queryNode: string;
 };
 interface State {
-  account: Account;
   accountList: Array<AccountListItem>;
   loginInfo: UserInfo | null;
-  token: string;
 }
 
 export const useUser = defineStore("user", {
   state: (): State => ({
     accountList: [],
-    account: {
-      login: "",
-      password: "",
-      server: "",
-    },
     loginInfo: null,
-    token: "",
   }),
+  getters: {
+    account(state) {
+      let result = {
+        login: "",
+        password: "",
+        server: "",
+        token: "",
+        queryNode: "",
+      };
+      const found = state.accountList.find((e) => e.ifLogin);
+      if (found) {
+        result = found;
+      } else if (state.accountList.length > 0) {
+        result = state.accountList[0];
+      }
+      return result;
+    },
+  },
   actions: {
-    deAccount(params: Record<string, string>) {
-      const result: any = {};
-      for (const i in params) {
-        result[i] = CryptoJS.decrypt(params[i]);
-      }
-      return result;
-    },
-    enAccount(params: Record<string, string>) {
-      const result: any = {};
-      for (const i in params) {
-        result[i] = CryptoJS.encrypt(params[i]);
-      }
-      return result;
-    },
-    initUser() {
-      if (!this.token) {
-        this.getToken();
-      }
-      const account = window.localStorage.getItem("account");
-      if (account) {
-        const parseAccount = JSON.parse(account);
-        this.account = this.deAccount(parseAccount);
-      }
-    },
     getToken() {
-      let result = "";
-      const storageToken = window.localStorage.getItem("token");
-      if (storageToken) {
-        const parseToken = JSON.parse(storageToken);
-        result = CryptoJS.decrypt(parseToken);
+      const storageStore = useStorage();
+      const list = storageStore.getItem("accountList");
+      const found = list?.find((e: any) => e.ifLogin);
+      if (found) {
+        return found.token;
       }
-      this.token = result;
-      return result;
-    },
-    setToken(token: string) {
-      const enToken = CryptoJS.encrypt(token);
-      this.token = token;
-      window.localStorage.setItem("token", JSON.stringify(enToken));
+      return "";
     },
     clearToken() {
-      window.localStorage.removeItem("token");
-      this.token = "";
+      const data = {
+        ...this.account,
+        token: "",
+        ifLogin: false,
+      };
+      this.handleAccount(data);
     },
     async getLoginInfo(params?: { emitSocket?: boolean }) {
-      try {
-        this.loginInfo = null;
+      this.loginInfo = null;
+      const res = await loginInfo({
+        login: this.account!.login,
+      });
+      this.loginInfo = res.data;
+      this.setbalance();
+      if (params && params.emitSocket) {
         const socketStore = useSocket();
-        const res = await getLoginInfo({
-          login: this.account.login,
+        socketStore.sendToken({
+          login: res.data.login,
+          token: this.account.token,
         });
-        this.loginInfo = res.data;
-        if (params && params.emitSocket) {
-          socketStore.sendToken({
-            login: res.data.login,
-            token: this.getToken(),
-          });
-        }
-      } finally {
-        this.setAccountList();
-      }
-    },
-    setStorageAccount(data: any) {
-      this.account = pick(data, ["login", "password", "server", "token"]);
-      window.localStorage.setItem(
-        "account",
-        JSON.stringify(this.enAccount(data))
-      );
-    },
-    setAccountList() {
-      const accountList = window.localStorage.getItem("accountList");
-      const list: Array<AccountListItem> = accountList
-        ? JSON.parse(accountList)
-        : [];
-      if (this.account.login) {
-        // 解密
-        const deList = list.map((item) => this.deAccount(item));
-        // 赋值
-        const found = deList.find((e) => e.login === this.account.login);
-        const deItem = {
-          ...this.account,
-          token: this.token,
-          blance: this.loginInfo ? this.loginInfo.balance.toString() : "-",
-        };
-        if (!found) {
-          deList.push(deItem);
-        } else {
-          assign(found, deItem);
-        }
-        this.accountList = deList;
-        // 加密缓存
-        const storageList = deList.map((item) => this.enAccount(item));
-        window.localStorage.setItem("accountList", JSON.stringify(storageList));
       }
     },
 
-    async login(updata: reqLogin) {
+    storageAccount() {
+      const storageStore = useStorage();
+      const storageList = this.accountList.map((item) => {
+        return {
+          ...item,
+          password: CryptoJS.encrypt(item.password),
+          token: CryptoJS.encrypt(item.token),
+        };
+      });
+      storageStore.setItem("accountList", storageList);
+    },
+
+    handleAccount(data?: any) {
+      const storageStore = useStorage();
+      let list = storageStore.getItem("accountList") || [];
+      if (list.length > 0) {
+        list = list.map((item: any) => {
+          return {
+            ...item,
+            password: CryptoJS.decrypt(item.password),
+            token: CryptoJS.decrypt(item.token),
+          };
+        });
+      }
+      if (data) {
+        const login = data.login;
+        let found = list.find((e: any) => e.login === login);
+        if (!found) {
+          list.push(data);
+        } else {
+          assign(found, data);
+        }
+      }
+      this.accountList = list;
+      this.storageAccount();
+    },
+    setbalance() {
+      const found = this.accountList.find((e) => e.ifLogin);
+      if (found) {
+        found.blance = this.loginInfo?.balance || "-";
+      }
+      this.storageAccount();
+    },
+
+    async login(updata: any) {
       const networkStore = useNetwork();
       const socketStore = useSocket();
+      networkStore.server = updata.server;
       await networkStore.getNodes(updata.server);
       const nodeList = networkStore.nodeList;
       if (nodeList.length === 0) {
@@ -146,15 +143,15 @@ export const useUser = defineStore("user", {
           socketStore.initSocket();
           const res = await Login(updata);
           const token = res.data.token;
-          // 缓存token 发送登录状态
-          this.setToken(token);
-          socketStore.sendToken({ login: updata.login, token });
           // 缓存登录信息
-          this.setStorageAccount({
+          this.handleAccount({
             ...updata,
             queryNode: item.nodeName,
             token,
+            ifLogin: true,
           });
+          // 缓存token 发送登录状态
+          socketStore.sendToken({ login: updata.login, token });
           return Promise.resolve();
         } catch (error) {
           console.log(error);

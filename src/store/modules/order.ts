@@ -1,16 +1,13 @@
 import { defineStore } from "pinia";
-// import { createApp } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessageBox } from "element-plus";
 import { useDialog } from "./dialog";
 import { useChartAction } from "./chartAction";
 import { useUser } from "./user";
-// import { useChartInit } from "./chartInit";
+import { useStorage } from "./storage";
 
 import * as types from "#/chart/index";
 import * as orderTypes from "#/order";
-
-// import FastAddOrder from "@/components/FastAddOrder.vue";
 
 interface State {
   currentQuotes: Record<string, types.Quote>;
@@ -39,7 +36,7 @@ export const useOrder = defineStore("order", {
     createOrder() {
       const dialogStore = useDialog();
       const userStore = useUser();
-      if (!userStore.getToken()) {
+      if (!userStore.account.token) {
         ElMessageBox.confirm("", "未登录", {
           confirmButtonText: "去登录",
           cancelButtonText: "取消",
@@ -64,22 +61,22 @@ export const useOrder = defineStore("order", {
 
     // 设置一键交易状态
     setOneTrans(result: boolean) {
+      const storageStore = useStorage();
       this.ifOne = result;
-      window.localStorage.setItem("ifOne", JSON.stringify(result));
+      storageStore.setItem("ifOne", result);
     },
 
     // 获取一键交易状态
     getOneTrans() {
-      const result = window.localStorage.getItem("ifOne");
-      this.ifOne = JSON.parse(result || JSON.stringify(false));
-      return result;
+      const storageStore = useStorage();
+      this.ifOne = !!storageStore.getItem("ifOne");
+      return this.ifOne;
     },
 
     // 获取快捷交易状态
     getQuickTrans() {
-      const result =
-        window.localStorage.getItem("ifQuick") || JSON.stringify(false);
-      this.ifQuick = JSON.parse(result);
+      const storageStore = useStorage();
+      this.ifQuick = !!storageStore.getItem("ifQuick");
       return this.ifQuick;
     },
   },

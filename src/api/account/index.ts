@@ -143,7 +143,7 @@ export const virtualLine = () => {
 /**
  * 登录信息
  */
-export const getLoginInfo = (data: reqLoginInfo) => {
+export const loginInfo = (data: reqLoginInfo) => {
   return request<UserInfo>({
     url: Api.LoginInfo,
     method: "post",

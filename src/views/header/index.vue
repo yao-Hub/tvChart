@@ -5,47 +5,34 @@
       <Menu></Menu>
       <el-divider direction="vertical" class="divider" />
       <!-- 订单 -->
-      <el-button
-        @click="orderStore.createOrder()"
-        class="header__left_orderBtn"
-        >{{ $t("order.new") }}</el-button
-      >
+      <el-button @click="orderStore.createOrder()" class="header__left_orderBtn">{{ $t("order.new") }}</el-button>
       <div class="toolList">
         <LayoutVisibled></LayoutVisibled>
         <FastTransation></FastTransation>
         <el-tooltip :content="$t('SingleImageMode')">
-          <div
-            :class="[
-              layoutType === 'single'
-                ? 'single single_active'
-                : 'single single_noactive',
-            ]"
-            @click="() => chartInitStore.setLayoutType('single')"
-          ></div>
+          <div :class="[
+            layoutType === 'single'
+              ? 'single single_active'
+              : 'single single_noactive',
+          ]" @click="() => chartInitStore.setLayoutType('single')"></div>
         </el-tooltip>
         <el-tooltip :content="$t('MultiGrapMode')">
-          <AppstoreFilled
-            :class="[layoutType === 'multiple' ? 'active' : '']"
-            @click="() => chartInitStore.setLayoutType('multiple')"
-          />
+          <AppstoreFilled :class="[layoutType === 'multiple' ? 'active' : '']"
+            @click="() => chartInitStore.setLayoutType('multiple')" />
         </el-tooltip>
         <el-tooltip content="纵向布局">
-          <i
-            :class="[
-              flexDirection === 'column' ? 'iconfont active' : 'iconfont',
-            ]"
-            style="font-size: 12px"
-            @click="chartInitStore.setChartFlexDirection('column')"
-            >&#xe601;</i
-          >
+          <i :class="[
+            flexDirection === 'column' ? 'iconfont active' : 'iconfont',
+          ]" style="font-size: 12px" @click="chartInitStore.setChartFlexDirection('column')">&#xe601;</i>
         </el-tooltip>
         <el-tooltip content="横向布局">
-          <i
-            :class="[flexDirection === 'row' ? 'iconfont active' : 'iconfont']"
-            style="font-size: 12px"
-            @click="chartInitStore.setChartFlexDirection('row')"
-            >&#xe600;</i
-          >
+          <i :class="[flexDirection === 'row' ? 'iconfont active' : 'iconfont']" style="font-size: 12px"
+            @click="chartInitStore.setChartFlexDirection('row')">&#xe600;</i>
+        </el-tooltip>
+        <el-tooltip content="增加图表">
+          <el-icon class="iconfont" @click="chartInitStore.addChart()">
+            <Plus />
+          </el-icon>
         </el-tooltip>
       </div>
     </div>
@@ -115,12 +102,15 @@ const flexDirection = computed(() => chartInitStore.chartFlexDirection);
 .active {
   @include font_color("primary");
 }
+
 .single_active {
   @include background_color("primary");
 }
+
 .single_noactive {
   background: #d1d4dc;
 }
+
 .single {
   width: 12px;
   height: 12px;

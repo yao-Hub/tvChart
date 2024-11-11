@@ -35,12 +35,12 @@ function generateUUID() {
   });
 }
 let uuid;
-const storageId = window.localStorage.getItem("uuid");
+const storageId = localStorage.getItem("uuid");
 if (storageId) {
   uuid = storageId;
 } else {
   uuid = generateUUID();
-  window.localStorage.setItem("uuid", uuid);
+  localStorage.setItem("uuid", uuid);
 }
 
 const ifLocal = import.meta.env.MODE === "development";
@@ -66,13 +66,13 @@ service.interceptors.request.use(
       ...config.data,
     };
     if (!config.data.server && !config.noNeedServer) {
-      config.data.server = userStore.account.server;
+      config.data.server = userStore.account!.server;
     }
     if (!config.noNeedToken) {
-      config.data.token = userStore.token || userStore.getToken();
+      config.data.token = userStore.account!.token;
     }
     if (config.needLogin) {
-      config.data.login = userStore.account.login;
+      config.data.login = userStore.account!.login;
     }
     let action = config.action || config.url || "";
     if (action.startsWith("/")) {
@@ -145,7 +145,6 @@ service.interceptors.response.use(
           cancelButtonText: i18n.global.t("cancel"),
         }).then(() => {
           const userStore = useUser();
-          userStore.clearToken();
           userStore.loginInfo = null;
           remove(tokenErrorList);
           window.location.replace(window.location.origin + "/login");

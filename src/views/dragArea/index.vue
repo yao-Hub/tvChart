@@ -3,20 +3,21 @@
     <div class="dragArea_item nested-sortable" data-id="item_1" data-child="demo_1 | demo_2">
       <!-- demo_1 -->
       <div class="demo nested-1" data-id="demo_1" data-minWidth="350" v-if="layoutStore.chartsVisable">
-        <img src="@/assets/icons/move.png" style="float: left" class="handle" v-show="chartType === 'single'" />
-        <ChartList v-if="!chartInitStore.loading" class="container_item" :loading="chartSubStore.chartsLoading">
+        <img src="@/assets/icons/move.png" style="float: left" class="handle" />
+        <ChartList v-if="!chartInitStore.loading" class="container_item">
         </ChartList>
       </div>
       <!-- demo_2 -->
-      <div class="demo nested-1" data-id="demo_2" data-minWidth="360" v-if="layoutStore.symbolsVisable" data-initW="424">
-        <img src="@/assets/icons/move.png" style="float: left" class="handle" v-show="chartType === 'single'"  />
+      <div class="demo nested-1" data-id="demo_2" data-minWidth="360" data-initW="424"
+        v-if="layoutStore.symbolsVisable">
+        <img src="@/assets/icons/move.png" style="float: left" class="handle" />
         <SymbolList class="container_item"></SymbolList>
       </div>
     </div>
     <div class="dragArea_item nested-sortable" data-id="item_2" data-child="demo_3" data-initH="248">
       <!-- demo_3 -->
       <div class="demo nested-2" data-id="demo_3" data-minWidth="445" v-if="layoutStore.orderAreaVisable">
-        <img src="@/assets/icons/move.png" class="handle" v-show="chartType === 'single'" />
+        <img src="@/assets/icons/move.png" class="handle" />
         <OrderArea v-if="!chartInitStore.loading" class="container_item"></OrderArea>
       </div>
     </div>
@@ -24,10 +25,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { onMounted } from "vue";
 
 import { useLayout } from "@/store/modules/layout";
-import { useChartSub } from "@/store/modules/chartSub";
 import { useChartInit } from "@/store/modules/chartInit";
 
 import OrderArea from "../orderArea/index.vue";
@@ -37,15 +37,10 @@ import ChartList from "./ChartList.vue";
 import { initDragResizeArea } from "utils/dragResize/drag_position";
 
 const chartInitStore = useChartInit();
-const chartSubStore = useChartSub();
 const layoutStore = useLayout();
 
 onMounted(() => {
   initDragResizeArea();
-});
-
-const chartType = computed(() => {
-  return chartInitStore.chartLayoutType;
 });
 </script>
 

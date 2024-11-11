@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, onMounted } from "vue";
+import { onMounted } from "vue";
 
 import { useSocket } from "@/store/modules/socket";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -36,27 +36,23 @@ const orderStore = useOrder();
 const networkStore = useNetwork();
 const socketStore = useSocket();
 
-const state = reactive({
-  symbol: "XAU",
-});
-
 // 获取所有商品(品种)
 const getSymbols = async () => {
   const res: any = await allSymbols();
   chartSubStore.setSymbols(res.data);
-  state.symbol = res.data[0]?.symbol;
 };
 
 async function init() {
   chartInitStore.loading = true;
+  userStore.handleAccount();
+  await networkStore.getLines();
+  await networkStore.initNode();
+  await getSymbols();
   chartInitStore.intChartFlexDirection();
   chartInitStore.intLayoutType();
   orderStore.getQuickTrans();
-  userStore.initUser();
-  await networkStore.getLines();
-  await networkStore.initNode();
   socketStore.initSocket();
-  getSymbols();
+  chartInitStore.loadChartList();
   userStore.getLoginInfo({ emitSocket: true });
 }
 onMounted(async () => {
@@ -72,6 +68,12 @@ onMounted(async () => {
   } finally {
     chartInitStore.loading = false;
   }
+});
+
+import { onBeforeRouteLeave } from "vue-router";
+onBeforeRouteLeave((to, from, next) => {
+  chartInitStore.saveCharts();
+  next();
 });
 </script>
 

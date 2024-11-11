@@ -56,7 +56,7 @@
           style="width: 100%"
           type="primary"
           :disabled="disabled"
-          :loading="formState.logging"
+          :loading="loading"
           @click="happyStart"
           >{{ $t("account.login") }}</el-button
         >
@@ -80,13 +80,17 @@ import { Search } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
 
-import { pick } from "lodash";
 import CryptoJS from "utils/AES";
+
 import { useUser } from "@/store/modules/user";
+import { useStorage } from "@/store/modules/storage";
+
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
+
 const userStore = useUser();
 const router = useRouter();
+
 const { t } = useI18n();
 
 interface FormState {
@@ -94,15 +98,14 @@ interface FormState {
   password: string;
   remember: boolean;
   server: string;
-  logging: boolean;
 }
 const formState = reactive<FormState>({
   server: "",
   login: "",
   password: "",
   remember: true,
-  logging: false,
 });
+const loading = ref(false);
 const ruleFormRef = ref<FormInstance>();
 const rules = reactive<FormRules<typeof formState>>({
   server: [
@@ -131,36 +134,35 @@ const rules = reactive<FormRules<typeof formState>>({
 // 获取网络节点
 import { useNetwork } from "@/store/modules/network";
 const networkStore = useNetwork();
+const storageStore = useStorage();
 
 (function () {
   networkStore.getLines();
   // 记住密码自动填充
-  const ifRemember = window.localStorage.getItem("remember");
-  if (ifRemember) {
-    const account = window.localStorage.getItem("account");
-    const parseAccount = account ? JSON.parse(account) : {};
-    if (parseAccount.server) {
-      formState.server = CryptoJS.decrypt(parseAccount.server);
+  const accounts = storageStore.getAllAccount();
+  const fistRemAcc = accounts[0];
+  if (fistRemAcc) {
+    if (fistRemAcc.server) {
+      formState.server = fistRemAcc.server;
     }
-    if (parseAccount.login) {
-      formState.login = CryptoJS.decrypt(parseAccount.login);
+    if (fistRemAcc.login) {
+      formState.login = fistRemAcc.login;
     }
-    if (parseAccount.password) {
-      formState.password = CryptoJS.decrypt(parseAccount.password);
+    if (fistRemAcc.password) {
+      formState.password = CryptoJS.decrypt(fistRemAcc.password);
     }
   }
 })();
 
 const happyStart = async () => {
   try {
-    formState.logging = true;
-    const data = pick(formState, ["login", "password", "server"]);
-    await userStore.login(data);
-    window.localStorage.setItem("remember", JSON.stringify(formState.remember));
+    loading.value = true;
+    await userStore.login(formState);
+    loading.value = false;
     ElMessage.success(t("tip.succeed", { type: t("account.login") }));
-    router.push({ path: "/" });
-  } finally {
-    formState.logging = false;
+    router.push({ path: "/chart" });
+  } catch (e) {
+    loading.value = false;
   }
 };
 

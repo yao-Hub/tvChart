@@ -46,6 +46,7 @@ export const tableColumns: any = {
       key: "positionAction",
       width: 30,
       align: "center",
+      minWidth: 30,
     },
   ],
   pendingOrder: [
@@ -97,6 +98,7 @@ export const tableColumns: any = {
       key: "orderAction",
       width: 30,
       align: "center",
+      minWidth: 30,
     },
   ],
   // 挂单历史

@@ -30,12 +30,13 @@ import { LayoutOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { resizeUpdate } from "@/utils/dragResize/drag_position";
 
 import { useLayout } from "@/store/modules/layout";
+import { useStorage } from "@/store/modules/storage";
 const layoutStore = useLayout();
+const storageStore = useStorage();
 
 onMounted(() => {
-  const stoLayout = localStorage.getItem("layout");
-  if (stoLayout) {
-    const layout = JSON.parse(stoLayout);
+  const layout = storageStore.getItem("layout");
+  if (layout) {
     const { symbolsVisable, orderAreaVisable } = layout;
     layoutStore.symbolsVisable = symbolsVisable;
     layoutStore.orderAreaVisable = orderAreaVisable;
@@ -45,9 +46,6 @@ onMounted(() => {
 const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
   layoutStore[type] = !layoutStore[type];
   setTimeout(() => {
-    //   if (type === "chartList") {
-    //     chartInitStore.syncSetChart();
-    //   }
     resizeUpdate();
   }, 20);
   rememberLayout();
@@ -55,11 +53,10 @@ const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
 
 const rememberLayout = () => {
   const obj = {
-    // chartsVisable: layoutStore.chartsVisable,
     symbolsVisable: layoutStore.symbolsVisable,
     orderAreaVisable: layoutStore.orderAreaVisable,
   };
-  localStorage.setItem("layout", JSON.stringify(obj));
+  storageStore.setItem("layout", obj);
 };
 </script>
 

@@ -22,7 +22,7 @@ import ForgetPassword from "./components/ForgetPassword.vue";
 
 import { useUser } from "@/store/modules/user";
 const userStore = useUser();
-userStore.initUser();
+userStore.handleAccount();
 
 const state = reactive({
   componentMap: {

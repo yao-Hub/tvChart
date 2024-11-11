@@ -107,6 +107,14 @@ export default {
     large: "大号",
   },
 
+  resolute: {
+    days: "日",
+    weeks: "周",
+    months: "月",
+    hours: "时",
+    minutes: "分",
+  },
+
   "invalid token": "登录过期",
   "invalid login": "无效的账户",
   "invalid server": "无效的服务商",

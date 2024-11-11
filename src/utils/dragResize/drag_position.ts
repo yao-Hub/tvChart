@@ -3,10 +3,12 @@ import Sortable from "sortablejs";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useTheme } from "@/store/modules/theme";
+import { useStorage } from "@/store/modules/storage";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const themeStore = useTheme();
+const storageStore = useStorage();
 
 const moving = {
   horizontalLine: false,
@@ -37,6 +39,7 @@ function initDragArea() {
       swapThreshold: 1,
       handle: ".handle",
       onStart: () => {
+        chartInitStore.saveCharts();
         const dragArea_items = document.querySelectorAll(".dragArea_item");
         const emptyChildItems = Array.from(dragArea_items).filter(
           (item) => item.querySelectorAll(".demo").length === 0
@@ -59,7 +62,7 @@ function initDragArea() {
       onEnd: () => {
         setTimeout(() => {
           resizeUpdate(); // fix：拖拽完剩一个拖拽层时样式不对
-          chartInitStore.syncSetChart();
+          chartInitStore.loadCharts();
           themeStore.setChartTheme();
         }, 200);
       },
@@ -67,7 +70,7 @@ function initDragArea() {
         set: function (sortable: any) {
           const order = sortable.toArray();
           if (itemId) {
-            localStorage.setItem(itemId, order.join("|"));
+            storageStore.setItem(itemId, order.join("|"));
           }
         },
       },
@@ -76,10 +79,9 @@ function initDragArea() {
   // 还原缓存的item样式
   const inw = window.innerWidth;
   const inh = window.innerHeight;
-  const stoAttr = localStorage.getItem("attr");
+  const attr = storageStore.getItem("attr");
   let targetAttr = null;
-  if (stoAttr) {
-    const attr = JSON.parse(stoAttr);
+  if (attr) {
     if (attr.inw === inw && attr.inh === inh) {
       targetAttr = attr;
     }
@@ -194,10 +196,9 @@ function initDemosPosition() {
   // 还原缓存的demo样式
   const inw = window.innerWidth;
   const inh = window.innerHeight;
-  const stoAttr = localStorage.getItem("attr");
+  const attr = storageStore.getItem("attr");
   let targetAttr = null;
-  if (stoAttr) {
-    const attr = JSON.parse(stoAttr);
+  if (attr) {
     if (attr.inw === inw && attr.inh === inh) {
       targetAttr = attr;
     }
@@ -698,7 +699,7 @@ function rememberAttr() {
     itemStyles,
     demoStyles,
   };
-  localStorage.setItem("attr", JSON.stringify(result));
+  storageStore.setItem("attr", result);
 }
 
 // 根据缓存排列demo顺序
@@ -708,10 +709,10 @@ function sortDemosByStorage() {
     const itemId = item.getAttribute("data-id");
     const childId = item.getAttribute("data-child");
     if (itemId) {
-      const stoIds = localStorage.getItem(itemId);
-      const resultIds = stoIds === null ? childId : stoIds;
+      const stoIds = storageStore.getItem(itemId);
+      const resultIds = stoIds || childId;
       const ids = resultIds!.split("|");
-      ids.forEach((id) => {
+      ids.forEach((id: any) => {
         const target = document.querySelector(`.demo[data-id="${id}"]`);
         target && item.appendChild(target);
       });

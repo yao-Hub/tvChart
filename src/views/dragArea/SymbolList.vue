@@ -170,7 +170,7 @@ const createSortable = () => {
       swapThreshold: 1,
       dataIdAttr: "data-id",
       draggable: ".el-table__row",
-      // 优化：拖拽时如果展开太丑
+      // 优化：拖拽时不收起会出现深度跟行分开情况
       onStart: (evt: any) => {
         expandRowKeys.value = [];
       },
@@ -280,7 +280,7 @@ const chartInitStore = useChartInit();
 const changeSymbol = (e: any) => {
   const symbol = e.symbols;
   const chartId = chartInitStore.activeChartId;
-  chartInitStore.changeChartWidgetSymbol({ id: chartId, symbol });
+  chartInitStore.changeChartSymbol({ id: chartId, symbol });
 };
 const rowClick = (row: any) => {
   changeSymbol(row);
@@ -344,6 +344,18 @@ const expandChange = (row: any, expandedRows: any[]) => {
   padding: 0 !important;
   height: 24px;
   border: none;
-  font-size: var(--font-size) !important;
+  font-size: var(--font-size);
+}
+
+:deep(.el-table__expand-icon > .el-icon) {
+  display: none;
+}
+
+:deep(.el-table__expand-icon) {
+  content: url("src/assets/icons/CaretRight.svg");
+  transform: scale(0.7);
+}
+:deep(.el-table__expand-icon--expanded) {
+  transform: scale(0.7) rotate(90deg);
 }
 </style>

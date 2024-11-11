@@ -1,8 +1,9 @@
 <template>
   <div class="scrolling">
     <el-button
+      class="btn"
       :icon="ArrowLeft"
-      size="small"
+      size="large"
       v-if="showScrollLeft"
       @click="scrollLeft"
     />
@@ -10,8 +11,9 @@
       <slot></slot>
     </div>
     <el-button
+      class="btn"
       :icon="ArrowRight"
-      size="small"
+      size="large"
       v-if="showScrollRight"
       @click="scrollRight"
     />
@@ -97,5 +99,9 @@ onUpdated(() => {
     width: 0;
     display: none;
   }
+}
+.btn {
+  padding: 0;
+  width: 20px;
 }
 </style>

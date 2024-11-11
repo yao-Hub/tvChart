@@ -34,11 +34,16 @@ export const useChartSub = defineStore("chartSub", {
       chartsLoading: false,
     };
   },
+  getters: {
+    tradeAllowSymbols(state) {
+      return state.symbols.filter((e) => e.trade_allow === 1);
+    },
+  },
   actions: {
     async setSymbols(list: SessionSymbolInfo[]) {
       const orderStore = useOrder();
       const socketStore = useSocket();
-
+      orderStore.currentSymbol = list[0].symbol;
       this.symbols = list;
       list.forEach((item) => {
         socketStore.subKlineQuote({ resolution: "1", symbol: item.symbol });

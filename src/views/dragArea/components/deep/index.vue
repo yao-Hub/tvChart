@@ -1,13 +1,13 @@
 <template>
   <div class="deep">
     <span class="title">市场深度</span>
-    <div class="container">
+    <div class="container" v-if="quotes.length">
       <div class="box">
         <div class="item" v-for="item in quotes">
           <span class="pre-value">{{ item.ask_size }}</span>
           <span class="last-value">{{ item.ask }}</span>
           <div
-            class="ask"
+            class="ask buyBtn"
             :style="{ width: getWidth(item.ask_size, 'ask') }"
           ></div>
         </div>
@@ -18,12 +18,13 @@
           <span class="pre-value">{{ item.bid }}</span>
           <span class="last-value">{{ item.bid_size }}</span>
           <div
-            class="bid"
+            class="bid sellBtn"
             :style="{ width: getWidth(item.bid_size, 'bid') }"
           ></div>
         </div>
       </div>
     </div>
+    <el-empty v-if="!quotes.length"></el-empty>
   </div>
 </template>
 
@@ -38,14 +39,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-interface Quote {
-  ask: number;
-  ask_size: number;
-  bid: number;
-  bid_size: number;
-}
-
-const quotes = computed<Quote[]>(() => {
+const quotes = computed(() => {
   return socketStore.depthMap[props.symbol] || [];
 });
 
@@ -118,7 +112,7 @@ const getWidth = (value: number, type: string) => {
 }
 .ask {
   position: absolute;
-  background-color: #ff4a61;
+  // background-color: #ff4a61;
   right: 0;
   top: 0;
   height: 100%;
@@ -127,7 +121,7 @@ const getWidth = (value: number, type: string) => {
 }
 .bid {
   position: absolute;
-  background-color: #00c673;
+  // background-color: #00c673;
   top: 0;
   left: 0;
   height: 100%;

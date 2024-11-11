@@ -3,6 +3,8 @@ import {
   IChartingLibraryWidget,
   ResolutionString,
 } from "public/charting_library";
+import { useOrder } from "./order";
+import { useStorage } from "./storage";
 
 interface State {
   chartWidgetList: {
@@ -21,7 +23,7 @@ interface State {
 export const useChartInit = defineStore("chartInit", {
   state: (): State => {
     return {
-      chartWidgetList: [{ id: "chart_1" }],
+      chartWidgetList: [],
       loading: true,
       chartLayoutType: "single",
       chartLoading: {},
@@ -56,11 +58,31 @@ export const useChartInit = defineStore("chartInit", {
 
     // 移除chart实例
     removeChartWidget(id: string) {
+      if (this.chartWidgetList.length === 1) {
+        return;
+      }
       const index = this.chartWidgetList.findIndex((e) => e.id === id);
       this.chartWidgetList.splice(index, 1);
       if (id === this.activeChartId) {
         this.activeChartId = this.chartWidgetList[0].id;
       }
+    },
+
+    addChart() {
+      const orderStore = useOrder();
+      const ids = this.chartWidgetList.map((item) => +item.id.split("_")[1]);
+      const minId = Math.min(...ids) as number;
+      const maxId = Math.max(...ids) as number;
+      const fullRange = new Set(
+        [...Array(maxId - minId + 1).keys()].map((i) => i + minId)
+      );
+      const arrSet = new Set(ids);
+      const missingIds = [...fullRange].filter((num) => !arrSet.has(num));
+      const addId = missingIds.length ? missingIds[0] : maxId + 1;
+      this.chartWidgetList.push({
+        id: `chart_${addId}`,
+        symbol: orderStore.currentSymbol,
+      });
     },
 
     // 获取chartWidgetList的symbol字段
@@ -71,7 +93,7 @@ export const useChartInit = defineStore("chartInit", {
       return this.chartWidgetList.find((e) => e.id === id)?.symbol;
     },
 
-    setChartWidgetListSymbolInterval(params: {
+    setChartMapSymbolInterval(params: {
       id: string;
       symbol?: string;
       interval?: ResolutionString;
@@ -87,7 +109,7 @@ export const useChartInit = defineStore("chartInit", {
     },
 
     // 设置图表品种
-    changeChartWidgetSymbol(params: { id: string; symbol: string }) {
+    changeChartSymbol(params: { id: string; symbol: string }) {
       const { id, symbol } = params;
       const target = this.chartWidgetList.find((e) => e.id === id);
       if (target) {
@@ -100,29 +122,43 @@ export const useChartInit = defineStore("chartInit", {
       }
     },
 
-    // 图表的品种跟list的品种或者周期不匹配时，令图表的品种和周期更改为list的品种和周期
-    syncSetChart() {
-      this.chartWidgetList.forEach((item) => {
-        this.chartLoading[item.id] = true;
-        const widget = item.widget;
-        const itemSymbol = item.symbol;
-        const itemInterval = item.interval;
-        itemSymbol &&
-          widget?.onChartReady(() => {
-            widget?.headerReady().then(() => {
-              const nowSymbol = widget.symbolInterval().symbol;
-              const nowInterval = widget.symbolInterval().interval;
-              if (nowSymbol !== itemSymbol) {
-                widget.activeChart().setSymbol(itemSymbol);
-              }
-              if (itemInterval && nowInterval !== itemInterval) {
-                widget.activeChart().setResolution(itemInterval);
-              }
-            });
+    // 设置图表品种
+    changeChartInterval(params: { id: string; resolution: ResolutionString }) {
+      const { id, resolution } = params;
+      const target = this.chartWidgetList.find((e) => e.id === id);
+      if (target) {
+        target.interval = resolution;
+        target.widget?.onChartReady(() => {
+          target.widget?.headerReady().then(() => {
+            target.widget?.activeChart()?.setResolution(resolution);
           });
-        this.chartLoading[item.id] = false;
-      });
+        });
+      }
     },
+
+    // 图表的品种跟list的品种或者周期不匹配时，令图表的品种和周期更改为list的品种和周期
+    // syncSetChart() {
+    //   this.chartWidgetList.forEach((item) => {
+    //     this.chartLoading[item.id] = true;
+    //     const widget = item.widget;
+    //     const itemSymbol = item.symbol;
+    //     const itemInterval = item.interval;
+    //     itemSymbol &&
+    //       widget?.onChartReady(() => {
+    //         widget?.headerReady().then(() => {
+    //           const nowSymbol = widget.symbolInterval().symbol;
+    //           const nowInterval = widget.symbolInterval().interval;
+    //           if (nowSymbol !== itemSymbol) {
+    //             widget.activeChart().setSymbol(itemSymbol);
+    //           }
+    //           if (itemInterval && nowInterval !== itemInterval) {
+    //             widget.activeChart().setResolution(itemInterval);
+    //           }
+    //         });
+    //       });
+    //     this.chartLoading[item.id] = false;
+    //   });
+    // },
 
     // sortChartList(sortArr: Array<string>) {
     //   const indexMap = {} as Record<string, number>;
@@ -135,7 +171,8 @@ export const useChartInit = defineStore("chartInit", {
     // },
 
     intLayoutType() {
-      const type = window.localStorage.getItem(
+      const storageStore = useStorage();
+      const type = storageStore.getItem(
         "chartLayoutType"
       ) as State["chartLayoutType"];
       if (type) {
@@ -143,11 +180,13 @@ export const useChartInit = defineStore("chartInit", {
       }
     },
     setLayoutType(type: State["chartLayoutType"]) {
+      const storageStore = useStorage();
       this.chartLayoutType = type;
-      window.localStorage.setItem("chartLayoutType", type);
+      storageStore.setItem("chartLayoutType", type);
     },
     intChartFlexDirection() {
-      const type = window.localStorage.getItem(
+      const storageStore = useStorage();
+      const type = storageStore.getItem(
         "chartFlexDirection"
       ) as State["chartFlexDirection"];
       if (type) {
@@ -155,8 +194,43 @@ export const useChartInit = defineStore("chartInit", {
       }
     },
     setChartFlexDirection(type: State["chartFlexDirection"]) {
+      const storageStore = useStorage();
       this.chartFlexDirection = type;
-      window.localStorage.setItem("chartFlexDirection", type);
+      storageStore.setItem("chartFlexDirection", type);
+    },
+
+    saveCharts() {
+      const storageStore = useStorage();
+      const saveMap: Record<string, any> = {};
+      this.chartWidgetList.forEach((item) => {
+        item.widget?.save((state) => {
+          saveMap[item.id] = state;
+        });
+      });
+      storageStore.setItem("chartList", this.chartWidgetList);
+      storageStore.setItem("chartInfoMap", saveMap);
+    },
+
+    loadChartList() {
+      const storageStore = useStorage();
+      const orderStore = useOrder();
+      let result = [{ id: "chart_1", symbol: orderStore.currentSymbol }];
+      const wList = storageStore.getItem("chartList");
+      if (wList.length) {
+        result = wList;
+      }
+      this.chartWidgetList = result;
+    },
+    loadCharts() {
+      const storageStore = useStorage();
+      const sMap = storageStore.getItem("chartInfoMap");
+      if (sMap) {
+        this.chartWidgetList.forEach((item) => {
+          if (sMap[item.id]) {
+            item.widget?.load(sMap[item.id]);
+          }
+        });
+      }
     },
   },
 });

@@ -163,6 +163,21 @@
               @end-reached="endReached"
               fixed
             >
+              <template #header-cell="{ column }">
+                <div
+                  class="header-box"
+                  @dragenter="(e: Event) => e.preventDefault()"
+                  @dragover="(e: Event) => e.preventDefault()"
+                >
+                  <div>{{ column.title }}</div>
+                  <div
+                    class="drag-line"
+                    :draggable="true"
+                    @dragstart="(e: Event) => dragStart(e)"
+                    @dragend="(e: Event) => dragEnd(e, column.dataKey)"
+                  ></div>
+                </div>
+              </template>
               <template #cell="{ column, rowData }">
                 <template v-if="column.dataKey === 'time_setup'">{{
                   formatTime(rowData.time_setup)
@@ -390,6 +405,25 @@ const state = reactive({
     blanceRecord: false,
   },
 });
+const activeKey = ref<orderTypes.TableDataKey>("marketOrder");
+
+// 拖动改变列宽相关逻辑
+let startX: number;
+const columnRefresh = (x: any, fileKey: string) => {
+  const columnItem =
+    state.columns[activeKey.value].find(
+      (item: any) => item.dataKey === fileKey
+    ) || {};
+  const result = columnItem.width + x;
+  columnItem.width = Math.max(result, columnItem.minWidth || 80);
+};
+const dragStart = (e: any) => {
+  startX = e.x;
+};
+const dragEnd = (e: any, key: string) => {
+  const x = e.x - startX;
+  columnRefresh(x, key);
+};
 
 import { accAdd } from "utils/arithmetic";
 const profits = computed(() => {
@@ -424,7 +458,6 @@ const accWithdrawal = computed(() => {
   };
 });
 
-const activeKey = ref<orderTypes.TableDataKey>("marketOrder");
 const getCellClass = (num: number) => {
   if (!num) {
     return "";
@@ -937,16 +970,35 @@ onMounted(async () => {
 @import "@/styles/_handle.scss";
 
 :deep(.tableHeader) {
-  background: #eef2f6;
   font-size: var(--font-size);
 }
 
 :deep(.el-table-v2__header-cell) {
-  background: #eef2f6;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 :deep(.el-table-v2__row) {
   font-size: var(--font-size);
+}
+
+.header-box {
+  position: relative;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 100%;
+  .drag-line {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    cursor: ew-resize;
+    padding: 0 2px;
+    border-right: 1px solid;
+    @include border_color("border");
+  }
 }
 
 .tableBox {

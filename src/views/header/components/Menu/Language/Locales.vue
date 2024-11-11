@@ -23,7 +23,7 @@ const curentLocale = computed(() => {
 
 const changeLocale = (value: string) => {
   locale.value = value;
-  window.localStorage.setItem("language", value);
+  localStorage.setItem("language", value);
   window.location.reload();
 };
 </script>
