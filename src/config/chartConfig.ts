@@ -118,8 +118,15 @@ export const datafeed = (id: string) => {
         d.ask = round(d.ask, digits);
         d.bid = round(d.bid, digits);
       }
-      orderStore.currentQuotes[d.symbol] = d;
-
+      const oldQuote = orderStore.currentQuotes[d.symbol];
+      const open = oldQuote?.open || d?.open;
+      const result = {
+        ...d,
+      };
+      if (open) {
+        result.open = open;
+      }
+      orderStore.currentQuotes[d.symbol] = result;
       if (
         !subscribed[`${id}@${d.symbol}`] ||
         !subscribed[`${id}@${d.symbol}`].symbolInfo ||

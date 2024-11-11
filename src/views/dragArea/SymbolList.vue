@@ -84,9 +84,9 @@
             <template #default="scope">
               <span
                 style="text-align: right"
-                :class="[scope.row.variation > 0 ? ' buyWord' : ' sellWord']"
+                :class="[+scope.row.variation > 0 ? ' buyWord' : ' sellWord']"
               >
-                {{ getLines(scope.row) }}
+                {{ scope.row.variation }}
               </span>
             </template>
           </el-table-column>
@@ -171,7 +171,7 @@ const createSortable = () => {
       dataIdAttr: "data-id",
       draggable: ".el-table__row",
       // 优化：拖拽时不收起会出现深度跟行分开情况
-      onStart: (evt: any) => {
+      onStart: () => {
         expandRowKeys.value = [];
       },
       // 解决拖拽后数据对不上导致行错位问题
@@ -226,53 +226,65 @@ const getQuotes = (type: "bid" | "ask", e: DataSource) => {
 // 报价样式
 import { Quote } from "#/chart/index";
 import { eq } from "lodash";
+import { round } from "utils/common/index";
 const temQuotes = ref<Record<string, Quote>>({});
 const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
+
+const temVar = ref<Record<string, Quote & { variation: string }>>({});
 watch(
   () => orderStore.currentQuotes,
   (quotes) => {
     for (const i in quotes) {
       const newQuote = cloneDeep(quotes[i]);
       const oldQuote = temQuotes.value[i];
-      if (!newQuote) {
-        break;
-      }
-      if (!oldQuote) {
-        temQuotes.value[i] = newQuote;
-        break;
-      }
       const ifEq = eq(newQuote, oldQuote);
       if (ifEq) {
         break;
       }
-      if (quotesClass.value[i]) {
-        const nowBid = newQuote.bid;
-        const nowAsk = newQuote.ask;
+      const nowBid = newQuote.bid;
+      const nowAsk = newQuote.ask;
+      if (oldQuote && quotesClass.value[i]) {
         const oldBid = oldQuote.bid;
         const oldAsk = oldQuote.ask;
         quotesClass.value[i].ask = oldAsk > nowAsk ? "sellWord" : "buyWord";
         quotesClass.value[i].bid = oldBid > nowBid ? "sellWord" : "buyWord";
       }
       temQuotes.value[i] = newQuote;
+
+      // 日变化
+      const oldVar = temVar.value[i];
+      const result = {
+        ...newQuote,
+        variation: "",
+      };
+      if (!oldVar) {
+        const close = newQuote.close;
+        const open = newQuote.open;
+        if (close && open) {
+          const variation = round(((close - open) / open) * 100, 2);
+          result.variation = variation;
+        }
+      } else {
+        const open = oldVar.open;
+        const close = newQuote.bid;
+        if (close && open) {
+          const variation = round(((close - open) / open) * 100, 2);
+          result.open = open;
+          result.variation = variation;
+        }
+      }
+      temVar.value[i] = result;
+      const found = dataSource.value.find((e) => e.symbols === i);
+      if (found) {
+        found.variation = result.variation;
+      }
     }
   },
   {
     deep: true,
+    immediate: true,
   }
 );
-
-// 日变化获取
-import { round } from "utils/common/index";
-const getLines = (e: DataSource) => {
-  let result = "-";
-  if (orderStore.currentKline[e.symbols]) {
-    const { close, open } = orderStore.currentKline[e.symbols];
-    const calc = round(((close - open) / open) * 100, 2);
-    e.variation = calc;
-    result = calc.includes("-") ? `${calc}%` : `\u00A0${calc}%`;
-  }
-  return result;
-};
 
 // 点击行更改图表品种
 import { useChartInit } from "@/store/modules/chartInit";

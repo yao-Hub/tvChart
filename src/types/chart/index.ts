@@ -15,6 +15,10 @@ export interface Quote {
   ctm_ms: number;
   server: string;
   symbol: string;
+  close?: number;
+  open?: number;
+  high?: number;
+  low?: number;
 }
 
 export interface Line {
