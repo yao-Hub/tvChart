@@ -5,7 +5,8 @@ interface State {
 }
 export const useVersion = defineStore("version", {
   state: (): State => ({
-    version: "1.0.1",
+    // @ts-ignore
+    version: _VERSION_,
   }),
   actions: {
     checkVersion() {

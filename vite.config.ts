@@ -46,6 +46,9 @@ export default defineConfig((mode: ConfigEnv) => {
         public: resolve("./public"),
       },
     },
+    define: {
+      _VERSION_: JSON.stringify(require("./package.json").version),
+    },
     server: {
       host: "0.0.0.0",
       disableHostCheck: true,
