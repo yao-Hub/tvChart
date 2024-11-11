@@ -216,7 +216,7 @@ export const useChartInit = defineStore("chartInit", {
       const orderStore = useOrder();
       let result = [{ id: "chart_1", symbol: orderStore.currentSymbol }];
       const wList = storageStore.getItem("chartList");
-      if (wList.length) {
+      if (wList && wList.length) {
         result = wList;
       }
       this.chartWidgetList = result;
