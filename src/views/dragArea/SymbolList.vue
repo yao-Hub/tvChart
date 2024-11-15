@@ -37,7 +37,7 @@
           }"
           header-cell-class-name="header-cell"
           cell-class-name="body-cell"
-          row-key="sort"
+          row-key="symbols"
           :expand-row-keys="expandRowKeys"
           @row-click="rowClick"
           @sort-change="sortChange"
@@ -125,9 +125,9 @@ const tableLoading = ref(false);
 const getQuery = async () => {
   tableLoading.value = true;
   const queryRes = await optionalQuery();
-  dataSource.value = orderBy(queryRes.data, ["sort"]).map((item) => {
+  dataSource.value = orderBy(queryRes.data, ["sort"]);
+  dataSource.value.forEach((item) => {
     quotesClass.value[item.symbols] = { ask: "", bid: "" };
-    return item;
   });
   originSource.value = cloneDeep(dataSource.value);
   tableLoading.value = false;
@@ -321,7 +321,8 @@ const sortChange = ({ order, prop }: any) => {
 // 只一个展开
 const expandRowKeys = ref<any[]>([]);
 const expandChange = (row: any, expandedRows: any[]) => {
-  expandRowKeys.value = expandedRows.length ? [row.sort] : [];
+  console.log(row);
+  expandRowKeys.value = expandedRows.length ? [row.symbols] : [];
 };
 </script>
 
