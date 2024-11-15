@@ -121,8 +121,15 @@ const delAccount = (account: any) => {
 };
 
 const changeLogin = async (account: any) => {
-  const { login, password, server, ifLogin } = account;
+  const { login, password, server, ifLogin, remember } = account;
   if (ifLogin) {
+    return;
+  }
+  if (!remember) {
+    router.push({
+      path: "/login",
+      query: { login, server },
+    });
     return;
   }
   userStore.accountList.forEach((item) => {

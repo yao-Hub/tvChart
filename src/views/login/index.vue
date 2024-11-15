@@ -16,7 +16,7 @@
 
 <script setup lang="ts">
 import { reactive, markRaw, ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { virtualLine } from "api/account/index";
 
 import Login from "./components/Login.vue";
@@ -28,8 +28,9 @@ import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
 
 const networkStore = useNetwork();
-const router = useRouter();
 const userStore = useUser();
+const router = useRouter();
+const route = useRoute();
 
 const state = reactive({
   componentMap: {
@@ -43,9 +44,13 @@ const state = reactive({
 });
 
 userStore.initAccount();
-if (userStore.accountList.length) {
+
+if (Object.keys(route.query).length) {
+  state.props = route.query;
+} else if (userStore.accountList.length) {
   state.currentComponent = "accounts";
 }
+
 const lineInfo = ref({
   lineName: "", // 交易线路名称
   brokerName: "", // 经纪商名称
