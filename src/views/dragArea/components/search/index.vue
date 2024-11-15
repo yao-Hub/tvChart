@@ -15,7 +15,9 @@
       <Block class="back">
         <template #title>
           <div class="back_title" @click="() => (showSymbols = false)">
-            <LeftOutlined />
+            <el-icon>
+              <img src="@/assets/icons/turnleft.svg" />
+            </el-icon>
             <span>{{ currentPath }}</span>
           </div>
         </template>
@@ -47,7 +49,6 @@
 
 <script setup lang="ts">
 import { reactive, computed, watch, ref, onMounted } from "vue";
-import { LeftOutlined } from "@ant-design/icons-vue";
 
 import Block from "./Block.vue";
 

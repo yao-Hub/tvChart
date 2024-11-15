@@ -25,38 +25,18 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { nextTick } from "vue";
 import { LayoutOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { resizeUpdate } from "@/utils/dragResize/drag_position";
 
 import { useLayout } from "@/store/modules/layout";
-import { useStorage } from "@/store/modules/storage";
 const layoutStore = useLayout();
-const storageStore = useStorage();
-
-onMounted(() => {
-  const layout = storageStore.getItem("layout");
-  if (layout) {
-    const { symbolsVisable, orderAreaVisable } = layout;
-    layoutStore.symbolsVisable = symbolsVisable;
-    layoutStore.orderAreaVisable = orderAreaVisable;
-  }
-});
 
 const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
   layoutStore[type] = !layoutStore[type];
-  setTimeout(() => {
-    resizeUpdate();
-  }, 20);
-  rememberLayout();
-};
-
-const rememberLayout = () => {
-  const obj = {
-    symbolsVisable: layoutStore.symbolsVisable,
-    orderAreaVisable: layoutStore.orderAreaVisable,
-  };
-  storageStore.setItem("layout", obj);
+  await nextTick();
+  resizeUpdate();
+  layoutStore.rememberLayout();
 };
 </script>
 

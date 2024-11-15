@@ -136,40 +136,6 @@ export const useChartInit = defineStore("chartInit", {
       }
     },
 
-    // 图表的品种跟list的品种或者周期不匹配时，令图表的品种和周期更改为list的品种和周期
-    // syncSetChart() {
-    //   this.chartWidgetList.forEach((item) => {
-    //     this.chartLoading[item.id] = true;
-    //     const widget = item.widget;
-    //     const itemSymbol = item.symbol;
-    //     const itemInterval = item.interval;
-    //     itemSymbol &&
-    //       widget?.onChartReady(() => {
-    //         widget?.headerReady().then(() => {
-    //           const nowSymbol = widget.symbolInterval().symbol;
-    //           const nowInterval = widget.symbolInterval().interval;
-    //           if (nowSymbol !== itemSymbol) {
-    //             widget.activeChart().setSymbol(itemSymbol);
-    //           }
-    //           if (itemInterval && nowInterval !== itemInterval) {
-    //             widget.activeChart().setResolution(itemInterval);
-    //           }
-    //         });
-    //       });
-    //     this.chartLoading[item.id] = false;
-    //   });
-    // },
-
-    // sortChartList(sortArr: Array<string>) {
-    //   const indexMap = {} as Record<string, number>;
-    //   sortArr.forEach((value, index) => {
-    //     indexMap[value] = index;
-    //   });
-    //   this.chartWidgetList.sort((obj1, obj2) => {
-    //     return indexMap[obj1.id] - indexMap[obj2.id];
-    //   });
-    // },
-
     intLayoutType() {
       const storageStore = useStorage();
       const type = storageStore.getItem(
@@ -221,10 +187,15 @@ export const useChartInit = defineStore("chartInit", {
       }
       this.chartWidgetList = result;
     },
-    loadCharts() {
+    loadCharts(id?: string) {
       const storageStore = useStorage();
       const sMap = storageStore.getItem("chartInfoMap");
       if (sMap) {
+        if (id) {
+          const found = this.chartWidgetList.find((e) => e.id === id);
+          if (found) found.widget?.load(sMap[id]);
+          return;
+        }
         this.chartWidgetList.forEach((item) => {
           if (sMap[item.id]) {
             item.widget?.load(sMap[item.id]);

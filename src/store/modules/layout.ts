@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useStorage } from "./storage";
 
 interface State {
   chartsVisable: boolean;
@@ -13,5 +14,24 @@ export const useLayout = defineStore("layout", {
       symbolsVisable: true,
       orderAreaVisable: true,
     };
+  },
+
+  actions: {
+    initLayout() {
+      const storageStore = useStorage();
+      const layout = storageStore.getItem("layout");
+      if (layout) {
+        this.symbolsVisable = layout.symbolsVisable;
+        this.orderAreaVisable = layout.orderAreaVisable;
+      }
+    },
+    rememberLayout() {
+      const storageStore = useStorage();
+      const obj = {
+        symbolsVisable: this.symbolsVisable,
+        orderAreaVisable: this.orderAreaVisable,
+      };
+      storageStore.setItem("layout", obj);
+    },
   },
 });

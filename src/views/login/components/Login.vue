@@ -1,5 +1,11 @@
 <template>
   <div class="Login">
+    <div class="back" @click="emit('goCom', 'accounts')" v-if="props.needBack">
+      <el-icon>
+        <img src="@/assets/icons/turnleft.svg" />
+      </el-icon>
+      <span>返回</span>
+    </div>
     <span class="plogin">登录您的账号</span>
     <span class="padd">已有交易账号，可直接登录，如没有，可开模</span>
     <el-form
@@ -45,7 +51,7 @@
             v-model="formState.remember"
             :label="$t('account.rememberMe')"
           />
-          <span class="link" @click="emit('forgetPassword')">{{
+          <span class="link" @click="emit('goCom', 'forgetPassword')">{{
             $t("account.forgetPassword")
           }}</span>
         </div>
@@ -64,7 +70,7 @@
       <el-form-item>
         <div class="login-form-account">
           <span> {{ $t("account.noAccount") }}</span>
-          <span class="link" @click="emit('register')">{{
+          <span class="link" @click="emit('goCom', 'register')">{{
             $t("account.createAccount")
           }}</span>
         </div>
@@ -76,22 +82,20 @@
 <script setup lang="ts">
 import { reactive, computed, ref } from "vue";
 import { Search } from "@element-plus/icons-vue";
-
-import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
-
-import CryptoJS from "utils/AES";
-
 import { useUser } from "@/store/modules/user";
-import { useStorage } from "@/store/modules/storage";
+import { useNetwork } from "@/store/modules/network";
 
-import { useRouter } from "vue-router";
-import { useI18n } from "vue-i18n";
-
+const networkStore = useNetwork();
 const userStore = useUser();
-const router = useRouter();
 
-const { t } = useI18n();
+interface Props {
+  login?: number | string;
+  server?: string;
+  needBack?: boolean;
+}
+const props = defineProps<Props>();
+const emit = defineEmits(["goCom", "goHome"]);
 
 interface FormState {
   login: string;
@@ -131,36 +135,21 @@ const rules = reactive<FormRules<typeof formState>>({
   ],
 });
 
-// 获取网络节点
-import { useNetwork } from "@/store/modules/network";
-const networkStore = useNetwork();
-const storageStore = useStorage();
-
-(function () {
-  networkStore.getLines();
-  // 记住密码自动填充
-  const accounts = storageStore.getAllAccount();
-  const fistRemAcc = accounts[0];
-  if (fistRemAcc) {
-    if (fistRemAcc.server) {
-      formState.server = fistRemAcc.server;
-    }
-    if (fistRemAcc.login) {
-      formState.login = fistRemAcc.login;
-    }
-    if (fistRemAcc.password) {
-      formState.password = CryptoJS.decrypt(fistRemAcc.password);
-    }
-  }
-})();
+// 记住密码自动填充
+if (props.login) {
+  formState.login = String(props.login);
+  formState.remember = false;
+}
+if (props.server) {
+  formState.server = String(props.server);
+}
 
 const happyStart = async () => {
   try {
-    loading.value = true;
-    await userStore.login(formState);
-    loading.value = false;
-    ElMessage.success(t("tip.succeed", { type: t("account.login") }));
-    router.push({ path: "/chart" });
+    await userStore.login(formState, ({ ending }) => {
+      loading.value = !ending;
+    });
+    emit("goHome");
   } catch (e) {
     loading.value = false;
   }
@@ -169,20 +158,16 @@ const happyStart = async () => {
 const disabled = computed(() => {
   return !(formState.login && formState.password);
 });
-
-const emit = defineEmits(["register", "forgetPassword"]);
 </script>
 
 <style scoped lang="scss">
 @import "@/styles/_handle.scss";
 .Login {
-  width: 512px;
-  height: 648px;
   border-radius: 8px;
   box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
   @include background_color("background-component");
   box-sizing: border-box;
-  padding: 56px;
+  padding: 56px 32px;
   .plogin {
     font-weight: bold;
     font-size: 28px;
@@ -196,6 +181,14 @@ const emit = defineEmits(["register", "forgetPassword"]);
     line-height: 20px;
     display: block;
     @include font_color("word-gray");
+  }
+  .back {
+    display: flex;
+    position: absolute;
+    top: 18px;
+    gap: 4px;
+    left: 32px;
+    cursor: pointer;
   }
 }
 

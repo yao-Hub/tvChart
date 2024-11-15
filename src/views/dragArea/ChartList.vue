@@ -136,7 +136,7 @@ const initChart = ({ id, widget }: any) => {
   // 涨跌颜色
   themeStore.setUpDownTheme();
   chartActionStore.addOrderBtn(id);
-  chartInitStore.loadCharts();
+  chartInitStore.loadCharts(id);
   // chartActionStore.createOrderLine(id);
 };
 
@@ -145,7 +145,7 @@ onMounted(() => {
   new Sortable(dragArea, {
     animation: 150,
     swapThreshold: 1,
-    handle: ".handle",
+    handle: ".moveIcon",
     onStart: () => {
       chartInitStore.saveCharts();
     },

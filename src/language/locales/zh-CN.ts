@@ -23,6 +23,7 @@ export default {
   error: "错误",
   cancel: "取消",
   reLogin: "重新登陆",
+  "login succeeded": "登录成功",
   user: {
     login: "账户",
     password: "密码",
@@ -34,7 +35,10 @@ export default {
   },
 
   account: {
-    rememberMe: "记住账号",
+    accountNumber: "账号",
+    password: "密码",
+    copy: "复制",
+    rememberMe: "记住密码",
     login: "登录",
     logout: "登出",
     submit: "提交",
@@ -42,11 +46,13 @@ export default {
     noAccount: "没有账号？",
     createAccount: "创建模拟账号",
     registerAccount: "注册账号",
-    register: "注册",
+    register: "创建模拟账号",
     verificationCode: "验证码",
     sendCode: "发送验证码",
     resetPassword: "重置密码",
     retrievePassword: "找回密码",
+    registerSucceed: "模拟账号创建成功",
+    startUse: "开始使用模拟账号",
   },
 
   axios: {
@@ -98,6 +104,7 @@ export default {
     ifHasAcount: "已有交易账号，可直接登录，如没有，可开模拟账号",
     agree: "我同意开设账户和数据保护政策的条款和条件",
     resetPassword: "需由6-24位数字和字母组合",
+    keepPasswordSave: "请妥善保存好您的帐户和密码",
   },
 
   font: {

@@ -44,6 +44,8 @@ export default {
     sendCode: "send Code",
     resetPassword: "reset Password",
     retrievePassword: "retrieve Password",
+    registerSucceed: "Simulated account created successfully",
+    startUse: "Start using a simulated account",
   },
 
   axios: {
@@ -97,6 +99,7 @@ export default {
     agree:
       "I agree to the terms and conditions of the account opening and data protection policy",
     resetPassword: "Must consist of a combination of 6-24 digits and letters",
+    keepPasswordSave: "Please keep your account and password safe",
   },
 
   font: {

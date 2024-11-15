@@ -2,7 +2,9 @@
   <div class="forget">
     <div class="forget_header">
       <div class="forget_header_goback" @click="emit('goBack')">
-        <LeftOutlined />
+        <el-icon>
+          <img src="@/assets/icons/turnleft.svg" />
+        </el-icon>
         <span>返回</span>
       </div>
     </div>
@@ -54,15 +56,13 @@
           />
         </el-form-item>
 
-        <el-form-item>
-          <el-button
-            type="primary"
-            class="submit-button"
-            :disabled="!isFormValid"
-            @click="resetPwd"
-            >{{ $t("account.resetPassword") }}</el-button
-          >
-        </el-form-item>
+        <el-button
+          type="primary"
+          class="submit-button"
+          :disabled="!isFormValid"
+          @click="resetPwd"
+          >{{ $t("account.resetPassword") }}</el-button
+        >
       </el-form>
     </div>
   </div>
@@ -71,7 +71,6 @@
 <script setup lang="ts">
 import { ref, reactive, watch } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
-import { LeftOutlined } from "@ant-design/icons-vue";
 import { emailPasswordUpdate, resQueryTradeLine } from "api/account/index";
 import { ElMessage } from "element-plus";
 
@@ -184,7 +183,7 @@ const resetPwd = async (values: any) => {
   box-sizing: border-box;
   &_header {
     width: 100%;
-    height: 64px;
+    height: 56px;
     display: flex;
     align-items: center;
     margin-left: 32px;
@@ -195,7 +194,7 @@ const resetPwd = async (values: any) => {
     }
   }
   &_main {
-    padding: 32px 56px;
+    padding: 24px 32px;
     &_title {
       display: flex;
       height: 68px;
@@ -221,9 +220,11 @@ const resetPwd = async (values: any) => {
     }
   }
   .submit-button {
-    width: 400px;
-    height: 56px;
+    width: 100%;
+    height: 48px;
     border-radius: 8px;
+    font-weight: 400;
+    font-size: 16px;
   }
 }
 

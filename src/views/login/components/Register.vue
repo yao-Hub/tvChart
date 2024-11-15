@@ -2,7 +2,9 @@
   <div class="Register">
     <div class="Register_header">
       <div class="Register_header_goback" @click="back">
-        <LeftOutlined />
+        <el-icon>
+          <img src="@/assets/icons/turnleft.svg" />
+        </el-icon>
         <span>返回</span>
       </div>
     </div>
@@ -44,38 +46,39 @@
           }}</el-checkbox>
         </el-form-item>
 
-        <el-form-item>
-          <el-button
-            type="primary"
-            class="submit-button"
-            :disabled="!btnDisabled"
-            @click="submit(formRef)"
-            >{{ $t("account.register") }}</el-button
-          >
-        </el-form-item>
+        <el-button
+          type="primary"
+          class="submit-button"
+          :disabled="!btnDisabled"
+          @click="submit(formRef)"
+          >{{ $t("account.register") }}</el-button
+        >
       </el-form>
     </div>
 
     <div class="success-card" v-else>
-      <div class="success-card_tip">
-        <CheckCircleFilled style="color: #f4b201; font-size: 40px" />
-        <span style="font-size: 24px">创建模拟账号成功</span>
+      <img class="typeIcon" src="@/assets/icons/icon_success.svg" />
+      <span class="tipSuc">{{ $t("account.registerSucceed") }}</span>
+      <span class="tipSav">{{ $t("tip.keepPasswordSave") }}</span>
+      <div class="copyBox">
+        <div class="item">
+          <span class="label">{{ $t("account.accountNumber") }}： </span>
+          <span class="value">{{ account.name }}</span>
+        </div>
+        <div class="item">
+          <span class="label">{{ $t("account.password") }}：</span>
+          <span class="value"> {{ account.pass }}</span>
+        </div>
+        <span class="copyBtn" @click="copy">{{ $t("account.copy") }}</span>
       </div>
-      <div class="success-card_account">
-        <span>账号： {{ account.name }}</span>
-        <span>密码： {{ account.pass }}</span>
-        <span @click="copy" class="copy">复制</span>
-      </div>
-      <span class="success-card_word">请妥善保存好您的帐户和密码</span>
-      <el-button type="primary" class="success-card_btn" @click="emit('goBack')"
-        >开始使用模拟账号</el-button
-      >
+      <el-button class="startUseBtn" type="primary" @click="emit('goBack')">{{
+        $t("account.startUse")
+      }}</el-button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { LeftOutlined, CheckCircleFilled } from "@ant-design/icons-vue";
 import { ref, reactive, computed } from "vue";
 import { register, resQueryTradeLine } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
@@ -185,7 +188,7 @@ const copy = async () => {
   box-sizing: border-box;
   &_header {
     width: 100%;
-    height: 64px;
+    height: 56px;
     display: flex;
     align-items: center;
     padding-left: 32px;
@@ -197,7 +200,7 @@ const copy = async () => {
     }
   }
   &_main {
-    padding: 32px 56px;
+    padding: 40px 32px;
     width: 100%;
     box-sizing: border-box;
     &_title {
@@ -225,45 +228,67 @@ const copy = async () => {
     }
   }
   .submit-button {
-    width: 400px;
+    width: 100%;
     height: 48px;
     border-radius: 8px;
+    font-weight: 400;
+    margin-top: 40px;
+    font-size: 16px;
   }
   .success-card {
-    margin-top: 84px;
-    &_tip {
-      padding-left: 56px;
-      box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    padding: 48px 32px;
+    box-sizing: border-box;
+    .typeIcon {
+      width: 64px;
+      height: 64px;
+    }
+    .tipSuc {
+      font-weight: 500;
+      font-size: 18px;
+      margin-top: 16px;
+    }
+    .tipSav {
+      font-weight: 400;
+      margin-top: 8px;
+      @include font_color("word-gray");
+      font-size: 14px;
+    }
+    .copyBox {
+      height: 56px;
+      width: 100%;
+      border-radius: 4px;
+      border: 1px solid;
+      @include border_color("border");
       display: flex;
       align-items: center;
-      gap: 16px;
-    }
-    &_account {
-      display: flex;
+      margin-top: 24px;
       gap: 24px;
-      padding-left: 115px;
-      font-size: 16px;
-      margin-top: 16px;
-      .copy {
+      justify-content: space-around;
+      .item {
+        font-weight: 400;
         font-size: 16px;
-        color: #f4b201;
+      }
+      .label {
+        @include font_color("word-gray");
+      }
+      .copyBtn {
         @include font_color("primary");
         cursor: pointer;
       }
     }
-    &_word {
-      padding-left: 115px;
-      display: block;
-      font-size: 16px;
-      margin-top: 32px;
-    }
-    &_btn {
-      width: 400px;
-      height: 48px;
-      border-radius: 8px;
-      margin: 158px 56px;
-    }
   }
+}
+
+.startUseBtn {
+  height: 56px;
+  width: 100%;
+  font-weight: 400;
+  font-size: 16px;
+  margin-top: 24px;
 }
 
 .link {

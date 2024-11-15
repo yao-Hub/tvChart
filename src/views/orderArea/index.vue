@@ -593,14 +593,16 @@ const getMarketOrders = async () => {
   try {
     state.loadingList.marketOrder = true;
     const res = await orders.openningOrders();
-    res.data = res.data.map((item, index) => {
-      return {
-        ...item,
-        key: index,
-      };
-    });
-    state.dataSource.marketOrder = cloneDeep(res.data);
-    orderStore.tableData.marketOrder = cloneDeep(res.data);
+    if (res.data) {
+      res.data = res.data.map((item, index) => {
+        return {
+          ...item,
+          key: index,
+        };
+      });
+      state.dataSource.marketOrder = cloneDeep(res.data);
+      orderStore.tableData.marketOrder = cloneDeep(res.data);
+    }
   } finally {
     state.loadingList.marketOrder = false;
   }
@@ -611,14 +613,16 @@ const getPendingOrders = async () => {
   try {
     state.loadingList.pendingOrder = true;
     const res = await orders.pendingOrders();
-    res.data = res.data.map((item, index) => {
-      return {
-        ...item,
-        key: index,
-      };
-    });
-    state.dataSource.pendingOrder = cloneDeep(res.data);
-    orderStore.tableData.pendingOrder = cloneDeep(res.data);
+    if (res.data) {
+      res.data = res.data.map((item, index) => {
+        return {
+          ...item,
+          key: index,
+        };
+      });
+      state.dataSource.pendingOrder = cloneDeep(res.data);
+      orderStore.tableData.pendingOrder = cloneDeep(res.data);
+    }
   } finally {
     state.loadingList.pendingOrder = false;
   }

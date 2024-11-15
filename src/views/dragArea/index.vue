@@ -25,8 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-
 import { useLayout } from "@/store/modules/layout";
 import { useChartInit } from "@/store/modules/chartInit";
 
@@ -34,14 +32,8 @@ import OrderArea from "../orderArea/index.vue";
 import SymbolList from "./SymbolList.vue";
 import ChartList from "./ChartList.vue";
 
-import { initDragResizeArea } from "utils/dragResize/drag_position";
-
 const chartInitStore = useChartInit();
 const layoutStore = useLayout();
-
-onMounted(() => {
-  initDragResizeArea();
-});
 </script>
 
 <style lang="scss" scoped>

@@ -27,21 +27,6 @@ type resConfig = AxiosRequestConfig<any> & {
 };
 
 const tokenErrorList: string[] = [];
-function generateUUID() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0,
-      v = c == "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-let uuid;
-const storageId = localStorage.getItem("uuid");
-if (storageId) {
-  uuid = storageId;
-} else {
-  uuid = generateUUID();
-  localStorage.setItem("uuid", uuid);
-}
 
 const ifLocal = import.meta.env.MODE === "development";
 
@@ -51,10 +36,15 @@ const service = axios.create({
   withCredentials: false,
   headers: {
     "Content-Type": "application/json",
-    "x-u-app-version": "1.0.0",
-    version: "1.0.0",
-    "x-u-device-id": uuid,
     "x-u-platform": "web",
+    // @ts-ignore
+    "x-u-app-version": _VERSION_,
+    // @ts-ignore
+    "x-u-device-id": _OS_HOSTNAME_,
+    // @ts-ignore
+    "x-u-device-type": __OS_PLATFORM__,
+    // @ts-ignore
+    "x-u-device-info": _OS_RELEASE_,
   },
 });
 

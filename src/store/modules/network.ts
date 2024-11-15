@@ -69,15 +69,5 @@ export const useNetwork = defineStore("network", {
         this.nodeList = [];
       }
     },
-
-    changeNode(nodeName: string) {
-      this.nodeName = nodeName;
-      const userStore = useUser();
-      const account = userStore.account;
-      if (account) {
-        account.queryNode = nodeName;
-        userStore.handleAccount(account);
-      }
-    },
   },
 });

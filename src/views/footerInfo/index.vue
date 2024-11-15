@@ -164,7 +164,9 @@ const changeNode = (name: string) => {
   if (name === currentNodeName) {
     return;
   }
-  networkStore.changeNode(name);
+  userStore.changeCurrentAccountOption({
+    queryNode: name,
+  });
   window.location.reload();
 };
 

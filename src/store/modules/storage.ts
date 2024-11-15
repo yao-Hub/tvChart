@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { useNetwork } from "./network";
 import { useUser } from "./user";
-import { get, set, findKey } from "lodash";
+import { get, set } from "lodash";
 
 export const useStorage = defineStore("storage", {
   actions: {
@@ -19,16 +19,9 @@ export const useStorage = defineStore("storage", {
       const login = userStore.account?.login;
       const server = networkStore.server;
       const storageMap = this.getUtrader();
-      const hasLoginKey = findKey(storageMap, (e) => {
-        return e.accountList.findIndex((list: any) => list.ifLogin) > -1;
-      });
       let ls;
       if (login && server) {
         ls = `${login}_${server}`;
-      } else if (hasLoginKey) {
-        ls = hasLoginKey;
-      }
-      if (ls) {
         return get(storageMap, [ls, key]);
       }
       const winVal = localStorage.getItem(key);
@@ -68,17 +61,6 @@ export const useStorage = defineStore("storage", {
     },
     saveMap(value: any) {
       localStorage.setItem("utrader", JSON.stringify(value));
-    },
-    getAllAccount() {
-      const accounts = [];
-      const storageMap = this.getUtrader();
-      for (const i in storageMap) {
-        const item = storageMap[i];
-        if (item && item.accountList) {
-          accounts.push(...item.accountList);
-        }
-      }
-      return accounts;
     },
   },
 });

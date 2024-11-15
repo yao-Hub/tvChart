@@ -1,4 +1,13 @@
-import { flattenDeep, groupBy, orderBy, get, last } from "lodash";
+import {
+  flattenDeep,
+  groupBy,
+  orderBy,
+  get,
+  last,
+  cloneDeep,
+  maxBy,
+} from "lodash";
+import dayjs from "dayjs";
 import moment from "moment";
 import { klineHistory } from "api/kline/index";
 import * as types from "@/types/chart/index";
@@ -106,10 +115,14 @@ function getCacheBars(data: any, id: string) {
 }
 
 export const datafeed = (id: string) => {
+  let kLineLoading = false;
   // 报价和k线图的socket监听
   function socketOpera() {
     // 监听报价
     socketStore.socket.on("quote", function (d: any) {
+      if (kLineLoading) {
+        return;
+      }
       const symbolInfo = chartSubStore.symbols.find(
         (e) => e.symbol === d.symbol
       );
@@ -157,6 +170,7 @@ export const datafeed = (id: string) => {
           open: new_one[d.symbol].open,
           volume: new_one[d.symbol].volume + 1,
         };
+        new_one[d.symbol].volume = newlastbar.volume;
         subscribed[`${id}@${d.symbol}`].onRealtimeCallback(newlastbar); //更新K线
       }
     });
@@ -185,7 +199,8 @@ export const datafeed = (id: string) => {
         subscribed[`${id}@${d.symbol}`].resolution == d.period_type;
       //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1}]}
       if (condition) {
-        d.klines = d.klines.reverse();
+        kLineLoading = true;
+        d.klines = orderBy(d.klines, ["ctm"]);
         for (let i in d.klines) {
           let newlastbar = {
             time: d.klines[i].ctm,
@@ -195,12 +210,11 @@ export const datafeed = (id: string) => {
             open: d.klines[i].open,
             volume: d.klines[i].volume,
           };
-          if (newlastbar.time > new_one[d.symbol].time) {
-            new_one[d.symbol] = JSON.parse(JSON.stringify(newlastbar));
-          }
+          new_one[d.symbol] = cloneDeep(newlastbar);
           newlastbar.time = newlastbar.time * 1000;
           subscribed[`${id}@${d.symbol}`].onRealtimeCallback(newlastbar); //更新K线
         }
+        kLineLoading = false;
       }
     });
   }
@@ -348,7 +362,7 @@ export const datafeed = (id: string) => {
               ctm > new_one[symbol].time ||
               (symbolInfo.name !== preSymbol && preSymbol)
             ) {
-              new_one[symbol] = JSON.parse(JSON.stringify(tone));
+              new_one[symbol] = cloneDeep(tone);
             }
             return tone;
           });

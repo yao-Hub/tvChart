@@ -91,7 +91,7 @@ const props = defineProps({
     type: Array,
   },
   chartsStorageUrl: {
-    default: "https://saveload.tradingview.com",
+    default: "",
     type: String,
   },
   chartsStorageApiVersion: {

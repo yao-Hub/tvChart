@@ -12,25 +12,28 @@
       </div>
     </div>
     <template #dropdown>
-      <el-dropdown-menu>
-        <el-dropdown-item v-for="item in userStore.accountList">
+      <div class="aList">
+        <div
+          class="aItem"
+          v-for="item in accounts"
+          :class="{ aItemActive: item.ifLogin }"
+          @click="changeLogin(item)"
+          @mouseover="item.hover = true"
+          @mouseleave="item.hover = false"
+        >
+          <img class="icon" src="@/assets/icons/logo@3x.png" />
+          <span>{{ item.server }}</span>
+          <span>|</span>
+          <span>{{ item.login }}</span>
+          <span>|</span>
+          <span>{{ item.blance }}</span>
           <div
-            :class="[
-              item.login === userStore.account.login
-                ? 'item item_active'
-                : 'item',
-            ]"
-            @click="changeLogin(item.login)"
-          >
-            <img class="icon" src="@/assets/icons/logo@3x.png" />
-            <span class="word textEllipsis">{{ item.server }}</span>
-            <span class="divider">|</span>
-            <span class="word textEllipsis">{{ item.login }}</span>
-            <span class="divider">|</span>
-            <span>{{ item.blance }}</span>
-          </div>
-        </el-dropdown-item>
-      </el-dropdown-menu>
+            class="delIcon"
+            v-if="item.hover && !item.ifLogin"
+            @click.stop="delAccount(item)"
+          ></div>
+        </div>
+      </div>
       <div class="account">
         <span @click="modalOpen = true">个人信息</span>
         <el-divider direction="vertical" />
@@ -85,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { CaretDownOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
 import { useUser } from "@/store/modules/user";
@@ -98,24 +101,43 @@ const networkStore = useNetwork();
 const userStore = useUser();
 const router = useRouter();
 
-const changeLogin = async (login: string) => {
-  if (login === userStore.account.login) {
+const accounts = ref<any[]>([]);
+watch(
+  () => userStore.accountList,
+  (list) => {
+    if (list) {
+      accounts.value = userStore.accountList.map((item) => {
+        return {
+          ...item,
+          hover: false,
+        };
+      });
+    }
+  },
+  { deep: true }
+);
+const delAccount = (account: any) => {
+  userStore.removeAccount(account);
+};
+
+const changeLogin = async (account: any) => {
+  const { login, password, server, ifLogin } = account;
+  if (ifLogin) {
     return;
   }
-  const account = userStore.accountList.find((item) => item.login === login);
-  if (account) {
-    const { login, password, server } = account;
-    await userStore.login({
-      login,
-      password,
-      server,
-    });
-    window.location.reload();
-  }
+  userStore.accountList.forEach((item) => {
+    item.ifLogin = item.login === login && item.server === server;
+  });
+  await userStore.login({
+    login,
+    password,
+    server,
+  });
+  window.location.reload();
 };
 
 const logout = () => {
-  userStore.clearToken();
+  userStore.logoutCurrentAccount();
   router.replace({ name: "login" });
 };
 
@@ -142,41 +164,61 @@ const modalOpen = ref<boolean>(false);
     @include font_color("primary");
   }
 }
-.item {
+
+.aList {
   display: flex;
-  gap: 2px;
-  align-items: center;
-  border-radius: 4px;
-  width: 324px;
-  height: 40px;
-  padding: 0 16px;
-  &_active {
-    @include background_color("primary");
-  }
-  .icon {
-    margin-right: 5px;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-  }
-  .word {
+  flex-direction: column;
+  padding-bottom: 16px;
+  @include background_color("background-dialog");
+
+  .aItem {
+    width: 384px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    box-sizing: border-box;
+    gap: 4px;
     font-size: var(--font-size);
-    @include font_color("word");
+    cursor: pointer;
+    &:hover {
+      @include background_color("background-hover");
+    }
+    &:active {
+      @include background_color("background-active");
+    }
+    .icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 44px;
+    }
+    .delIcon {
+      width: 18px;
+      height: 18px;
+      margin-left: auto;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-image: url("@/assets/icons/delete.svg");
+      &:hover {
+        background-image: url("@/assets/icons/deleteHover.svg");
+      }
+    }
   }
-  .divider {
-    margin: 0 10px;
+  .aItemActive {
+    @include background_color("background-active");
   }
 }
+
 .account {
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: space-evenly;
   gap: 5px;
-  margin-top: 24px;
   border-top: 1px solid;
   padding: 0 16px;
   font-size: var(--font-size);
+  @include background_color("background-dialog");
   @include font_color("word-gray");
   @include border_color("border");
   span {

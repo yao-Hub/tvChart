@@ -6,6 +6,8 @@ import Components from "unplugin-vue-components/vite";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { visualizer } from "rollup-plugin-visualizer";
 
+import os from "os";
+
 export default defineConfig((mode: ConfigEnv) => {
   console.log("mode", mode);
   const env = loadEnv(mode.mode, process.cwd());
@@ -48,6 +50,9 @@ export default defineConfig((mode: ConfigEnv) => {
     },
     define: {
       _VERSION_: JSON.stringify(require("./package.json").version),
+      __OS_PLATFORM__: JSON.stringify(os.platform()),
+      _OS_RELEASE_: JSON.stringify(os.release()),
+      _OS_HOSTNAME_: JSON.stringify(os.hostname()),
     },
     server: {
       host: "0.0.0.0",
