@@ -99,7 +99,7 @@ const handleOk = async () => {
     platform: "web",
     brokerName: networkStore.currentLine!.brokerName,
     lineName: networkStore.currentLine!.lineName,
-    remark: remark.value,
+    feedbackContent: remark.value,
     feedbackFileIds,
   };
   const res = await saveFeedback(updata);

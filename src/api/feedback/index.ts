@@ -7,7 +7,7 @@ interface reqSaveFeedback {
   platform: string; // 平台
   brokerName: string; // 经纪商
   lineName: string; // 交易线路
-  remark: string; // 反馈内容
+  feedbackContent: string; // 反馈内容
   feedbackFileIds?: string[]; //	反馈图片
 }
 // 提交反馈
