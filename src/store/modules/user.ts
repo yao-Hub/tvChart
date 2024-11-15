@@ -168,6 +168,9 @@ export const useUser = defineStore("user", {
           // 缓存token 发送登录状态
           socketStore.sendToken({ login: updata.login, token });
           ElMessage.success(i18n.global.t("login succeeded"));
+          if (callback) {
+            callback({ ending: true });
+          }
           return Promise.resolve();
         } catch (error) {
           errorCount++;
@@ -175,10 +178,10 @@ export const useUser = defineStore("user", {
         }
       }
       if (errorCount === nodeList.length) {
+        if (callback) {
+          callback({ ending: true });
+        }
         return Promise.reject();
-      }
-      if (callback) {
-        callback({ ending: true });
       }
     },
   },

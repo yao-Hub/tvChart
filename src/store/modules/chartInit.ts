@@ -18,6 +18,7 @@ interface State {
   chartLoading: Record<string, boolean>;
   activeChartId: string;
   chartFlexDirection: "row" | "column";
+  globalRefresh: boolean;
 }
 
 export const useChartInit = defineStore("chartInit", {
@@ -29,6 +30,7 @@ export const useChartInit = defineStore("chartInit", {
       chartLoading: {},
       activeChartId: "chart_1",
       chartFlexDirection: "row",
+      globalRefresh: false,
     };
   },
   actions: {
@@ -166,15 +168,27 @@ export const useChartInit = defineStore("chartInit", {
     },
 
     saveCharts() {
-      const storageStore = useStorage();
-      const saveMap: Record<string, any> = {};
-      this.chartWidgetList.forEach((item) => {
-        item.widget?.save((state) => {
-          saveMap[item.id] = state;
+      try {
+        const storageStore = useStorage();
+        const saveMap: Record<string, any> = {};
+        this.chartWidgetList.forEach((item) => {
+          item.widget?.save((state) => {
+            saveMap[item.id] = state;
+          });
         });
-      });
-      storageStore.setItem("chartList", this.chartWidgetList);
-      storageStore.setItem("chartInfoMap", saveMap);
+        const saveChatList = this.chartWidgetList.map((item) => {
+          const { id, symbol, interval } = item;
+          return {
+            id,
+            symbol,
+            interval,
+          };
+        });
+        storageStore.setItem("chartList", saveChatList);
+        storageStore.setItem("chartInfoMap", saveMap);
+      } catch (error) {
+        console.log("saveCharts", error);
+      }
     },
 
     loadChartList() {

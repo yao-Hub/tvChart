@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, watch } from "vue";
 
 import { useSocket } from "@/store/modules/socket";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -48,29 +48,25 @@ const getSymbols = async () => {
 
 // 初始化 注意调用顺序
 async function init() {
-  chartInitStore.loading = true;
-  // 1.先拿到 交易线路
-  await networkStore.getLines();
-  // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址
-  userStore.initAccount();
-  await networkStore.initNode();
-  await getSymbols();
-  socketStore.initSocket();
-  // 3.拿到缓存信息才能确定历史页面布局
-  layoutStore.initLayout();
-  chartInitStore.intChartFlexDirection();
-  chartInitStore.intLayoutType();
-  // 4.确定了布局才去初始化各个模块位置
-  initDragResizeArea();
-  // 其余操作 都要基于拿到缓存信息才操作
-  orderStore.getQuickTrans();
-  chartInitStore.loadChartList();
-  userStore.getLoginInfo({ emitSocket: true });
-}
-onMounted(async () => {
   try {
-    await init();
-
+    chartInitStore.loading = true;
+    // 1.先拿到 交易线路
+    await networkStore.getLines();
+    // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址
+    userStore.initAccount();
+    await networkStore.initNode();
+    await getSymbols();
+    socketStore.initSocket();
+    // 3.拿到缓存信息才能确定历史页面布局
+    layoutStore.initLayout();
+    chartInitStore.intChartFlexDirection();
+    chartInitStore.intLayoutType();
+    // 4.确定了布局才去初始化各个模块位置
+    initDragResizeArea();
+    // 其余操作 都要基于拿到缓存信息才操作
+    orderStore.getQuickTrans();
+    chartInitStore.loadChartList();
+    userStore.getLoginInfo({ emitSocket: true });
     // 记忆动作（没什么用(>^ω^<)喵）
     const rootStore = useRoot();
     if (rootStore.cacheAction) {
@@ -79,8 +75,19 @@ onMounted(async () => {
     }
   } finally {
     chartInitStore.loading = false;
+    chartInitStore.globalRefresh = false;
   }
+}
+onMounted(() => {
+  init();
 });
+
+watch(
+  () => chartInitStore.globalRefresh,
+  (val) => {
+    val && init();
+  }
+);
 
 import { onBeforeRouteLeave } from "vue-router";
 onBeforeRouteLeave((to, from, next) => {

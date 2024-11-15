@@ -93,11 +93,13 @@ import { CaretDownOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
+import { useChartInit } from "@/store/modules/chartInit";
 
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
 const resetPasswordOpen = ref(false);
 
 const networkStore = useNetwork();
+const chartInitStore = useChartInit();
 const userStore = useUser();
 const router = useRouter();
 
@@ -120,7 +122,7 @@ const delAccount = (account: any) => {
   userStore.removeAccount(account);
 };
 
-const changeLogin = async (account: any) => {
+const changeLogin = (account: any) => {
   const { login, password, server, ifLogin, remember } = account;
   if (ifLogin) {
     return;
@@ -132,15 +134,18 @@ const changeLogin = async (account: any) => {
     });
     return;
   }
-  userStore.accountList.forEach((item) => {
-    item.ifLogin = item.login === login && item.server === server;
-  });
-  await userStore.login({
-    login,
-    password,
-    server,
-  });
-  window.location.reload();
+  chartInitStore.saveCharts();
+  setTimeout(async () => {
+    userStore.accountList.forEach((item) => {
+      item.ifLogin = item.login === login && item.server === server;
+    });
+    await userStore.login({
+      login,
+      password,
+      server,
+    });
+    chartInitStore.globalRefresh = true;
+  }, 200);
 };
 
 const logout = () => {
