@@ -1,13 +1,4 @@
-import {
-  flattenDeep,
-  groupBy,
-  orderBy,
-  get,
-  last,
-  cloneDeep,
-  maxBy,
-} from "lodash";
-import dayjs from "dayjs";
+import { flattenDeep, groupBy, orderBy, get, last, cloneDeep } from "lodash";
 import moment from "moment";
 import { klineHistory } from "api/kline/index";
 import * as types from "@/types/chart/index";
