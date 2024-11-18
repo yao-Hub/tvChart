@@ -166,6 +166,10 @@ const initonReady = () => {
     context_menu: props.contextMenu,
     custom_css_url: "/charting_library/static/tvcss.css",
   };
+  const savedData = chartInitStore.getChartSavedData(props.chartId);
+  if (savedData) {
+    widgetOptions.saved_data = savedData;
+  }
   const widget = new library.widget(widgetOptions);
   widget?.onChartReady(() => {
     widget?.headerReady().then(() => {
@@ -203,8 +207,10 @@ const initonReady = () => {
         chartInitStore.activeChartId = props.chartId;
       });
 
-      widget.activeChart().createStudy("MACD");
-      widget.activeChart().createStudy("Moving Average Double");
+      if (!savedData) {
+        widget.activeChart().createStudy("MACD");
+        widget.activeChart().createStudy("Moving Average Double");
+      }
 
       setTimeout(() => {
         emit("initChart", { id: props.chartId, widget });

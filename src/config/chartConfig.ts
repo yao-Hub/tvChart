@@ -271,7 +271,7 @@ export const datafeed = (id: string) => {
         name: symbolName,
         description: "",
         visible_plots_set: false,
-        minmov: 1,
+        minmov: 1, // 纵坐标比例
         minmov2: 0,
         pricescale: 100,
         session,

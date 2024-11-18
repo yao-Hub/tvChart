@@ -56,6 +56,7 @@ async function init() {
     userStore.initAccount();
     await networkStore.initNode();
     await getSymbols();
+  } finally {
     socketStore.initSocket();
     // 3.拿到缓存信息才能确定历史页面布局
     layoutStore.initLayout();
@@ -73,7 +74,6 @@ async function init() {
       rootStore[rootStore.cacheAction]();
       rootStore.clearCacheAction();
     }
-  } finally {
     chartInitStore.loading = false;
   }
 }

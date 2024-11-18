@@ -136,7 +136,6 @@ const initChart = ({ id, widget }: any) => {
   // 涨跌颜色
   themeStore.setUpDownTheme();
   chartActionStore.addOrderBtn(id);
-  chartInitStore.loadCharts(id);
   // chartActionStore.createOrderLine(id);
 };
 

@@ -216,6 +216,13 @@ export const useChartInit = defineStore("chartInit", {
       }
       this.chartWidgetList = result;
     },
+    getChartSavedData(id: string) {
+      const storageStore = useStorage();
+      const sMap = storageStore.getItem("chartInfoMap");
+      if (sMap) {
+        return sMap[id];
+      }
+    },
     // 加载图表最后的操作形态
     loadCharts(id?: string) {
       const storageStore = useStorage();
