@@ -3,12 +3,17 @@ import axios, {
   AxiosError,
   InternalAxiosRequestConfig,
 } from "axios";
-import { remove } from "lodash";
 import type { CustomResponseType } from "#/axios";
+
+import { debounce } from "lodash";
 import { encrypt, decrypt } from "utils/DES/JS";
-import { ElNotification, ElMessageBox } from "element-plus";
+
+import { ElNotification, ElMessageBox, ElMessage } from "element-plus";
+
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
+import { useChartInit } from "@/store/modules/chartInit";
+
 import i18n from "@/language/index";
 
 type reqConfig = InternalAxiosRequestConfig<any> & {
@@ -26,9 +31,46 @@ type resConfig = AxiosRequestConfig<any> & {
   needLogin?: boolean;
 };
 
-const tokenErrorList: string[] = [];
+let reLogin = false;
+let logging = false;
+
+const showTokenConfirm = () => {
+  ElMessageBox.confirm(i18n.global.t("invalid token"), "", {
+    type: "warning",
+    confirmButtonText: i18n.global.t("reLogin"),
+    cancelButtonText: i18n.global.t("cancel"),
+  }).then(() => {
+    reLogin = false;
+    window.location.replace(window.location.origin + "/login");
+  });
+};
+
+const handleTokenErr = debounce(async () => {
+  if (reLogin) {
+    showTokenConfirm();
+    return;
+  }
+  const userStore = useUser();
+  const { login, password, server } = userStore.account;
+  reLogin = true;
+  try {
+    logging = true;
+    await userStore.login({
+      login,
+      password,
+      server,
+    });
+    useChartInit().refresh();
+  } catch (e) {
+    showTokenConfirm();
+  } finally {
+    logging = false;
+  }
+}, 20);
 
 const ifLocal = import.meta.env.MODE === "development";
+
+const controller = new AbortController();
 
 const service = axios.create({
   timeout: 30 * 1000,
@@ -51,18 +93,21 @@ const service = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   (config: reqConfig) => {
+    if (logging) {
+      controller.abort();
+    }
     const userStore = useUser();
     config.data = {
       ...config.data,
     };
     if (!config.data.server && !config.noNeedServer) {
-      config.data.server = userStore.account!.server;
+      config.data.server = userStore.account.server;
     }
-    if (!config.noNeedToken) {
-      config.data.token = userStore.account!.token;
+    if (!config.data.token && !config.noNeedToken) {
+      config.data.token = userStore.account.token;
     }
-    if (config.needLogin) {
-      config.data.login = userStore.account!.login;
+    if (!config.data.login && config.needLogin) {
+      config.data.login = userStore.account.login;
     }
     let action = config.action || config.url || "";
     if (action.startsWith("/")) {
@@ -112,7 +157,6 @@ service.interceptors.response.use(
   (response) => {
     const { data, config } = response;
     if (data.err === 0) {
-      remove(tokenErrorList, (url) => config.url === url);
       if (data.data) {
         data.data = JSON.parse(decrypt(data.data));
       }
@@ -125,44 +169,36 @@ service.interceptors.response.use(
       typeof data.errmsg === "string" &&
       data.errmsg.includes("invalid token")
     ) {
-      if (config.url) {
-        tokenErrorList.push(config.url);
-      }
-      if (tokenErrorList.length === 1) {
-        ElMessageBox.confirm(i18n.global.t(data.errmsg), "", {
-          type: "warning",
-          confirmButtonText: i18n.global.t("reLogin"),
-          cancelButtonText: i18n.global.t("cancel"),
-        }).then(() => {
-          const userStore = useUser();
-          userStore.loginInfo = null;
-          remove(tokenErrorList);
-          window.location.replace(window.location.origin + "/login");
-        });
-      }
+      config.url && handleTokenErr();
       return Promise.reject(data);
     }
 
     ElNotification({
-      message: i18n.global.t(data.errmsg || data.err || "response error"),
+      message: i18n.global.t(data.errmsg || "error"),
       type: "error",
     });
     return Promise.reject(data);
   },
   (err) => {
     const res = err.response;
+    if (err.code === "ECONNABORTED") {
+      ElMessage.error("request timeout");
+      return Promise.reject(err);
+    }
     if (res && res.data) {
+      if (res.data.errmsg.includes("invalid token")) {
+        handleTokenErr();
+        return Promise.reject(err);
+      }
       ElNotification({
-        message: i18n.global.t(
-          res.data.errmsg || err.message || "something error"
-        ),
+        message: i18n.global.t(res.data.errmsg || "error"),
         type: "error",
       });
       return Promise.reject(err);
     }
     if (res && res.status) {
       ElNotification({
-        message: i18n.global.t(err.message || `statusCode: ${res.status}`),
+        message: `statusCode: ${res.status}`,
         type: "error",
       });
       return Promise.reject(err);

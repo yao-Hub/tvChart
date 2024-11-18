@@ -144,7 +144,7 @@ const changeLogin = (account: any) => {
       password,
       server,
     });
-    chartInitStore.globalRefresh = true;
+    chartInitStore.refresh();
   }, 200);
 };
 

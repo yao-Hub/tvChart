@@ -172,10 +172,11 @@
                   <div>{{ column.title }}</div>
                   <div
                     class="drag-line"
-                    :draggable="true"
-                    @dragstart="(e: Event) => dragStart(e)"
-                    @dragend="(e: Event) => dragEnd(e, column.dataKey)"
-                  ></div>
+                    @mousedown="mousedown"
+                    @mousemove="(e: Event) => mousemove(e, column.dataKey)"
+                  >
+                    |
+                  </div>
                 </div>
               </template>
               <template #cell="{ column, rowData }">
@@ -195,10 +196,15 @@
                   $t(`order.${getTradingDirection(rowData.type)}`)
                 }}</template>
                 <template v-else-if="column.dataKey === 'orderType'">{{
-                  $t(`order.type.${getOrderType(rowData.type)}`)
+                  getOrderType(rowData.type)
                 }}</template>
                 <template v-else-if="column.dataKey === 'now_price'">{{
                   getNowPrice(rowData)
+                }}</template>
+                <template v-else-if="column.dataKey === 'order_price'">{{
+                  rowData.order_price_time
+                    ? rowData.trigger_price
+                    : rowData.order_price
                 }}</template>
                 <template v-else-if="column.dataKey === 'profit'">
                   <span :class="[getCellClass(rowData.profit)]">
@@ -309,7 +315,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted, watch, computed } from "vue";
-import { cloneDeep, debounce, throttle, set, minBy } from "lodash";
+import { cloneDeep, debounce, set, minBy } from "lodash";
 import { CloseBold } from "@element-plus/icons-vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 
@@ -408,22 +414,45 @@ const state = reactive({
 const activeKey = ref<orderTypes.TableDataKey>("marketOrder");
 
 // 拖动改变列宽相关逻辑
-let startX: number;
 const columnRefresh = (x: any, fileKey: string) => {
-  const columnItem =
-    state.columns[activeKey.value].find(
-      (item: any) => item.dataKey === fileKey
-    ) || {};
-  const result = columnItem.width + x;
-  columnItem.width = Math.max(result, columnItem.minWidth || 80);
+  const index = state.columns[activeKey.value].findIndex(
+    (item: any) => item.dataKey === fileKey
+  );
+  const nextIndex = index + 1;
+  const nowCol = state.columns[activeKey.value][index];
+  const nextCol = state.columns[activeKey.value][nextIndex];
+  const minNowW = nowCol.minWidth || 80;
+  const minNextW = nextCol.minWidth || 80;
+  // 向左
+  if (x < 0 && nowCol.width <= minNowW) {
+    return;
+  }
+  // 向右
+  if (x > 0 && nextCol.width <= minNextW) {
+    return;
+  }
+  const nowW = nowCol.width + x;
+  const nextW = nextCol.width - x;
+  nowCol.width = Math.max(nowW, minNowW);
+  nextCol.width = Math.max(nextW, minNextW);
 };
-const dragStart = (e: any) => {
-  startX = e.x;
+
+let isResizing = false;
+let lastX = 0;
+const mousedown = (e: any) => {
+  isResizing = true;
+  lastX = e.clientX;
 };
-const dragEnd = (e: any, key: string) => {
-  const x = e.x - startX;
-  columnRefresh(x, key);
+const mousemove = (e: any, dataKey: string) => {
+  if (isResizing) {
+    const offsetX = e.clientX - lastX;
+    columnRefresh(offsetX, dataKey);
+    lastX = e.clientX;
+  }
 };
+document.addEventListener("mouseup", () => {
+  isResizing = false;
+});
 
 import { accAdd } from "utils/arithmetic";
 const profits = computed(() => {
@@ -498,7 +527,7 @@ watch(
     state.updata[activeKey.value].direction,
     state.updata[activeKey.value].pol,
   ],
-  throttle(() => filterData(), 100, { trailing: true })
+  debounce(() => filterData(), 100)
 );
 
 // 挂单价距离
@@ -999,9 +1028,9 @@ onMounted(async () => {
     right: 0;
     bottom: 0;
     cursor: ew-resize;
-    padding: 0 2px;
-    border-right: 1px solid;
-    @include border_color("border");
+    padding: 0 5px;
+    box-sizing: border-box;
+    @include font_color("border");
   }
 }
 

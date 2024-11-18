@@ -58,8 +58,8 @@ const getLeed = () => {
       : props.quote.bid;
     const stopsLevel = props.symbolInfo.stops_level;
     const digits = props.symbolInfo.digits;
-    const result_1 = price - stopsLevel / Math.pow(10, digits);
-    const result_2 = price + stopsLevel / Math.pow(10, digits);
+    const result_1 = +price - stopsLevel / Math.pow(10, digits);
+    const result_2 = +price + stopsLevel / Math.pow(10, digits);
     return {
       result_1: round(result_1, digits),
       result_2: round(result_2, digits),
@@ -73,30 +73,35 @@ const initPrice = async () => {
   const leed = getLeed();
   if (leed) {
     const { result_1, result_2 } = leed;
-    if (orderType.includes("buy")) {
-      price.value = orderType.includes("Limit")
+    const lowCase = orderType.toLowerCase();
+    if (lowCase.includes("buy")) {
+      price.value = lowCase.includes("limit")
         ? String(result_1)
         : String(result_2);
     }
-    if (orderType.includes("sell")) {
-      price.value = orderType.includes("Limit")
+    if (lowCase.includes("sell")) {
+      price.value = lowCase.includes("limit")
         ? String(result_2)
         : String(result_1);
     }
   }
 };
 watch(
-  () => [props.symbolInfo, props.orderType],
+  () => [props.symbolInfo, props.orderType, props.edit],
   () => {
     if (props.symbolInfo && props.orderType && !props.edit) {
       initPrice();
     }
+  },
+  {
+    deep: true,
+    immediate: true,
   }
 );
 
 // 检查价格是否合法
 const validator = (rule: any, value: any, callback: any) => {
-  const type = props.orderType.toLocaleLowerCase();
+  const type = props.orderType.toLowerCase();
   if (price.value === undefined || price.value === "") {
     return callback(new Error(`请输入${props.formOption.label}`));
   }
@@ -107,7 +112,7 @@ const validator = (rule: any, value: any, callback: any) => {
   if (leed) {
     const { result_1, result_2 } = leed;
     if (type.includes("buy")) {
-      if (["buyLimit", "sellLimit"].includes(props.orderType)) {
+      if (["buylimit", "selllimit"].includes(type)) {
         result = +price.value <= +result_1;
         size = "≤";
         val = result_1;
@@ -118,7 +123,7 @@ const validator = (rule: any, value: any, callback: any) => {
       }
     }
     if (type.includes("sell")) {
-      if (["buyLimit", "sellLimit"].includes(props.orderType)) {
+      if (["buylimit", "selllimit"].includes(type)) {
         result = +price.value >= +result_2;
         size = "≥";
         val = result_2;

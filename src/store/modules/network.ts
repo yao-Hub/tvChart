@@ -53,21 +53,17 @@ export const useNetwork = defineStore("network", {
 
     // 网络节点
     async getNodes(server: string) {
-      try {
-        const lineCode = this.queryTradeLines.find(
-          (e) => e.lineName === server
-        )?.lineCode;
-        if (lineCode) {
-          const res = await queryNode({
-            lineCode,
-          });
-          this.nodeList = res.data;
-          return;
-        }
-        this.nodeList = [];
-      } catch (error) {
-        this.nodeList = [];
+      const lineCode = this.queryTradeLines.find(
+        (e) => e.lineName === server
+      )?.lineCode;
+      if (lineCode) {
+        const res = await queryNode({
+          lineCode,
+        });
+        this.nodeList = res.data;
+        return this.nodeList;
       }
+      return [];
     },
   },
 });

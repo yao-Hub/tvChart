@@ -34,6 +34,13 @@ export const useChartInit = defineStore("chartInit", {
     };
   },
   actions: {
+    // 刷新
+    refresh() {
+      this.globalRefresh = true;
+      setTimeout(() => {
+        this.globalRefresh = false;
+      }, 1000);
+    },
     // 创建图表实例
     createChartWidget(id: string, widget: IChartingLibraryWidget) {
       const index = this.chartWidgetList.findIndex((e) => e.id === id);
@@ -70,6 +77,7 @@ export const useChartInit = defineStore("chartInit", {
       }
     },
 
+    // 增加一个图表
     addChart() {
       const orderStore = useOrder();
       const ids = this.chartWidgetList.map((item) => +item.id.split("_")[1]);
@@ -95,6 +103,7 @@ export const useChartInit = defineStore("chartInit", {
       return this.chartWidgetList.find((e) => e.id === id)?.symbol;
     },
 
+    // 设置chartWidgetList对象的品种 周期字段
     setChartMapSymbolInterval(params: {
       id: string;
       symbol?: string;
@@ -110,7 +119,7 @@ export const useChartInit = defineStore("chartInit", {
       }
     },
 
-    // 设置图表品种
+    // 设置图表显示品种
     changeChartSymbol(params: { id: string; symbol: string }) {
       const { id, symbol } = params;
       const target = this.chartWidgetList.find((e) => e.id === id);
@@ -124,7 +133,7 @@ export const useChartInit = defineStore("chartInit", {
       }
     },
 
-    // 设置图表品种
+    // 设置图表显示周期
     changeChartInterval(params: { id: string; resolution: ResolutionString }) {
       const { id, resolution } = params;
       const target = this.chartWidgetList.find((e) => e.id === id);
@@ -138,6 +147,7 @@ export const useChartInit = defineStore("chartInit", {
       }
     },
 
+    // 初始化图表布局（单个多个）
     intLayoutType() {
       const storageStore = useStorage();
       const type = storageStore.getItem(
@@ -147,11 +157,13 @@ export const useChartInit = defineStore("chartInit", {
         this.chartLayoutType = type;
       }
     },
+    // 设置图表布局（单个多个）
     setLayoutType(type: State["chartLayoutType"]) {
       const storageStore = useStorage();
       this.chartLayoutType = type;
       storageStore.setItem("chartLayoutType", type);
     },
+    // 初始化图表布局方向（row or column）
     intChartFlexDirection() {
       const storageStore = useStorage();
       const type = storageStore.getItem(
@@ -161,12 +173,14 @@ export const useChartInit = defineStore("chartInit", {
         this.chartFlexDirection = type;
       }
     },
+    // 设置图表布局方向（row or column）
     setChartFlexDirection(type: State["chartFlexDirection"]) {
       const storageStore = useStorage();
       this.chartFlexDirection = type;
       storageStore.setItem("chartFlexDirection", type);
     },
 
+    // 保存图标形态
     saveCharts() {
       try {
         const storageStore = useStorage();
@@ -191,6 +205,7 @@ export const useChartInit = defineStore("chartInit", {
       }
     },
 
+    // 加载图表个数
     loadChartList() {
       const storageStore = useStorage();
       const orderStore = useOrder();
@@ -201,6 +216,7 @@ export const useChartInit = defineStore("chartInit", {
       }
       this.chartWidgetList = result;
     },
+    // 加载图表最后的操作形态
     loadCharts(id?: string) {
       const storageStore = useStorage();
       const sMap = storageStore.getItem("chartInfoMap");

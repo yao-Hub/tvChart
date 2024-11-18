@@ -75,7 +75,6 @@ async function init() {
     }
   } finally {
     chartInitStore.loading = false;
-    chartInitStore.globalRefresh = false;
   }
 }
 onMounted(() => {

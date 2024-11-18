@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<Props>(), {
   step: 1,
 });
 const model = defineModel<string | number>("value");
-const emit = defineEmits(["blur"]);
+const emit = defineEmits(["blur", "sub", "plus"]);
 
 const inputBlur = () => {
   emit("blur", model.value);
@@ -36,6 +36,7 @@ const handleSubtract = () => {
     result = value || result;
   }
   model.value = result;
+  emit("sub", result);
 };
 const handleAdd = () => {
   let result = new Decimal(+props.step).plus(model.value || 0).toString();
@@ -44,6 +45,7 @@ const handleAdd = () => {
     result = value || result;
   }
   model.value = result;
+  emit("plus", result);
 };
 </script>
 

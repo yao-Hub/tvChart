@@ -7,7 +7,6 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AccountList: typeof import('./src/components/AccountList.vue')['default']
     BaseTabs: typeof import('./src/components/BaseTabs/index.vue')['default']
     Disclaimers: typeof import('./src/components/Disclaimers.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']

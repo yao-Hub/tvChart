@@ -134,16 +134,21 @@ export const useUser = defineStore("user", {
 
     async login(
       updata: any,
-      callback?: ({ ending }: { ending: boolean }) => void
+      callback?: ({
+        ending,
+        success,
+      }: {
+        ending: boolean;
+        success: boolean;
+      }) => void
     ) {
       if (callback) {
-        callback({ ending: false });
+        callback({ ending: false, success: false });
       }
       const networkStore = useNetwork();
       const socketStore = useSocket();
       networkStore.server = updata.server;
-      await networkStore.getNodes(updata.server);
-      const nodeList = networkStore.nodeList;
+      const nodeList = await networkStore.getNodes(updata.server);
       if (nodeList.length === 0) {
         ElMessage.info("找不到网络节点");
         return Promise.reject();
@@ -169,7 +174,7 @@ export const useUser = defineStore("user", {
           socketStore.sendToken({ login: updata.login, token });
           ElMessage.success(i18n.global.t("login succeeded"));
           if (callback) {
-            callback({ ending: true });
+            callback({ ending: true, success: true });
           }
           return Promise.resolve();
         } catch (error) {
@@ -179,7 +184,7 @@ export const useUser = defineStore("user", {
       }
       if (errorCount === nodeList.length) {
         if (callback) {
-          callback({ ending: true });
+          callback({ ending: true, success: false });
         }
         return Promise.reject();
       }

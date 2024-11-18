@@ -1,6 +1,5 @@
-import { ORDER_TYPE } from "@/constants/common";
+import { ORDER_TYPE, ORDERMAP } from "@/constants/common";
 import { findKey } from "lodash";
-import { OrderType } from "@/types/chart/index";
 
 // 获取交易方向 buy or sell
 export const getTradingDirection = (e: string | number) => {
@@ -12,10 +11,10 @@ export const getTradingDirection = (e: string | number) => {
       }
     }
   }
-  return '';
+  return "";
 };
 
 // 获取订单类型
 export const getOrderType = (e: number) => {
-  return findKey(ORDER_TYPE, (o) => o.buy === e || o.sell === e) as OrderType;
+  return findKey(ORDERMAP, (o) => o === e);
 };
