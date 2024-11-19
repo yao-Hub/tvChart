@@ -1,7 +1,7 @@
 <template>
   <div class="login">
     <span class="welcome">欢迎使用UTrader</span>
-
+    <img class="title" src="@/assets/icons/title.png" />
     <component
       class="main"
       :lineInfo="lineInfo"
@@ -95,6 +95,13 @@ const goHome = () => {
     font-size: 40px;
     font-weight: bold;
     height: 648px;
+  }
+  .title {
+    position: absolute;
+    left: 72px;
+    top: 32px;
+    width: 176px;
+    height: 36px;
   }
   .main {
     position: absolute;

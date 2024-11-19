@@ -1,39 +1,26 @@
 <template>
   <div class="header">
-    <div class="header__left">
+    <div class="left">
       <!-- 菜单 -->
       <Menu></Menu>
-      <el-divider direction="vertical" class="divider" />
+      <div class="menu_divider"></div>
       <!-- 订单 -->
-      <el-button @click="orderStore.createOrder()" class="header__left_orderBtn">{{ $t("order.new") }}</el-button>
-      <div class="toolList">
-        <LayoutVisibled></LayoutVisibled>
-        <FastTransation></FastTransation>
-        <el-tooltip :content="$t('SingleImageMode')">
-          <div :class="[
-            layoutType === 'single'
-              ? 'single single_active'
-              : 'single single_noactive',
-          ]" @click="() => chartInitStore.setLayoutType('single')"></div>
-        </el-tooltip>
-        <el-tooltip :content="$t('MultiGrapMode')">
-          <AppstoreFilled :class="[layoutType === 'multiple' ? 'active' : '']"
-            @click="() => chartInitStore.setLayoutType('multiple')" />
-        </el-tooltip>
-        <el-tooltip content="纵向布局">
-          <i :class="[
-            flexDirection === 'column' ? 'iconfont active' : 'iconfont',
-          ]" style="font-size: 12px" @click="chartInitStore.setChartFlexDirection('column')">&#xe601;</i>
-        </el-tooltip>
-        <el-tooltip content="横向布局">
-          <i :class="[flexDirection === 'row' ? 'iconfont active' : 'iconfont']" style="font-size: 12px"
-            @click="chartInitStore.setChartFlexDirection('row')">&#xe600;</i>
-        </el-tooltip>
-        <el-tooltip content="增加图表">
-          <el-icon class="iconfont" @click="chartInitStore.addChart()">
-            <Plus />
-          </el-icon>
-        </el-tooltip>
+      <el-button @click="orderStore.createOrder()" class="orderBtn">
+        {{ $t("order.new") }}
+      </el-button>
+      <div class="tools">
+        <div class="tools_1">
+          <LayoutVisibled></LayoutVisibled>
+          <FastTransation></FastTransation>
+        </div>
+        <div class="tool_divider"></div>
+        <div class="tools_2">
+          <SingleLayout></SingleLayout>
+          <MultipleLayout></MultipleLayout>
+          <HorizontalLayout></HorizontalLayout>
+          <VerticalLayout></VerticalLayout>
+          <CreateChart></CreateChart>
+        </div>
       </div>
     </div>
     <Account></Account>
@@ -41,23 +28,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { AppstoreFilled } from "@ant-design/icons-vue";
-
 import LayoutVisibled from "./components/LayoutVisibled.vue";
 import Menu from "./components/Menu/index.vue";
-import Account from "./components/Account/index.vue";
-import FastTransation from "./components/FastTransation/index.vue";
+import Account from "./components/Account.vue";
+import FastTransation from "./components/FastTransation.vue";
+import SingleLayout from "./components/ChartLayout/Single.vue";
+import MultipleLayout from "./components/ChartLayout/Multiple.vue";
+import HorizontalLayout from "./components/DirectionalLayout/Horizonta.vue";
+import VerticalLayout from "./components/DirectionalLayout/Vertical.vue";
+import CreateChart from "./components/CreateChart.vue";
 
-import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
-const chartInitStore = useChartInit();
 const orderStore = useOrder();
-
-const layoutType = computed(() => chartInitStore.chartLayoutType);
-const flexDirection = computed(() => chartInitStore.chartFlexDirection);
 </script>
 
+<style>
+.iconbox {
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  padding: 2px;
+  cursor: pointer;
+  box-sizing: border-box;
+  background-repeat: no-repeat;
+  background-size: 24px 24px;
+  background-position: center;
+}
+</style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
@@ -69,27 +66,45 @@ const flexDirection = computed(() => chartInitStore.chartFlexDirection);
   box-sizing: border-box;
   @include background_color("background-component");
 
-  .header__left {
+  .left {
     box-sizing: border-box;
     height: 100%;
     display: flex;
     align-items: center;
 
-    .divider {
+    .orderBtn {
+      width: 72px;
       height: 32px;
+      margin-left: 16px;
+    }
+
+    .menu_divider {
+      height: 32px;
+      width: 1px;
       @include background_color("border");
     }
 
-    .toolList {
+    .tools {
       display: flex;
-      gap: 8px;
       align-items: center;
-    }
+      margin-left: 16px;
 
-    &_orderBtn {
-      width: 72px;
-      height: 32px;
-      margin: 0 16px;
+      .tools_1 {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .tools_2 {
+        display: flex;
+        align-items: center;
+      }
+
+      .tool_divider {
+        width: 1px;
+        height: 18px;
+        @include background_color("border");
+        margin: 0 8px;
+      }
     }
   }
 
@@ -97,24 +112,5 @@ const flexDirection = computed(() => chartInitStore.chartFlexDirection);
     display: flex;
     gap: 8px;
   }
-}
-
-.active {
-  @include font_color("primary");
-}
-
-.single_active {
-  @include background_color("primary");
-}
-
-.single_noactive {
-  background: #d1d4dc;
-}
-
-.single {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  cursor: pointer;
 }
 </style>

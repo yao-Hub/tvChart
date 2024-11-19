@@ -1,7 +1,7 @@
 <template>
-  <el-dropdown trigger="click">
+  <el-dropdown trigger="click" @visible-change="visible = $event">
     <div class="menu">
-      <MenuOutlined @click.prevent />
+      <div class="menuIcon" :class="{ menuIcon_active: visible }"></div>
     </div>
     <template #dropdown>
       <el-dropdown-menu>
@@ -29,7 +29,7 @@
 </template>
 
 <script setup lang="ts">
-import { MenuOutlined } from "@ant-design/icons-vue";
+import { ref } from "vue";
 import OneTransactions from "./oneTransactions.vue";
 // import TableSetting from './tableSetting.vue';
 import Theme from "./theme.vue";
@@ -37,14 +37,34 @@ import Language from "./Language/index.vue";
 import aboutUs from "./aboutUs.vue";
 import UpDowncolor from "./UpDowncolor/index.vue";
 import FontSize from "./FontSize/index.vue";
+
+const visible = ref(false);
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/_handle.scss";
+
 .menu {
   width: 48px;
   height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
+  padding: 8px;
+  .menuIcon {
+    background-image: url("@/assets/icons/menu.svg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    &:hover {
+      @include background_color("background-hover");
+    }
+    &_active {
+      background-image: url("@/assets/icons/menuactive.svg");
+    }
+  }
 }
 </style>

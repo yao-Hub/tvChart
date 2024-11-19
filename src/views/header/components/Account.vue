@@ -1,15 +1,15 @@
 <template>
   <el-dropdown trigger="click">
     <div class="info">
-      <span
-        >{{ networkStore.currentNode?.nodeName }},{{
-          userStore.loginInfo?.total_name || userStore.account.login
-        }}</span
-      >
-      <div class="blance">
-        <span>{{ userStore.loginInfo?.balance }}</span>
-        <CaretDownOutlined />
+      <div class="left">
+        <div class="top">
+          <span>{{ networkStore.currentNode?.nodeName }}</span>
+          <div class="divider"></div>
+          <span>{{ userStore.account.login }}</span>
+        </div>
+        <span class="balance">{{ userStore.loginInfo?.balance }}</span>
       </div>
+      <img class="icondown" src="@/assets/icons/caretDown.svg" />
     </div>
     <template #dropdown>
       <div class="aList">
@@ -89,7 +89,6 @@
 
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { CaretDownOutlined } from "@ant-design/icons-vue";
 import { useRouter } from "vue-router";
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
@@ -160,20 +159,39 @@ const modalOpen = ref<boolean>(false);
 @import "@/styles/_handle.scss";
 
 .info {
-  height: 100%;
-  margin-right: 13px;
   display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  font-size: var(--font-size);
-  gap: 6px;
-}
-.blance {
-  display: flex;
+  height: 38px;
+  margin-right: 8px;
+  align-items: center;
   justify-content: space-between;
+  font-size: var(--font-size);
+  padding: 5px 0;
+  box-sizing: border-box;
   cursor: pointer;
-  &:hover {
-    @include font_color("primary");
+
+  .icondown {
+    width: 8px;
+    height: 4px;
+    margin-left: 9px;
+  }
+  .left {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    .top {
+      display: flex;
+      align-items: center;
+    }
+    .balance {
+      @include font_color("primary");
+    }
+  }
+  .divider {
+    margin: 0 4px;
+    width: 1px;
+    height: 12px;
+    @include background_color("border");
   }
 }
 

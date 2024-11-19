@@ -1,9 +1,6 @@
 <template>
-  <el-dropdown trigger="click">
-    <div class="icons">
-      <LayoutOutlined class="icons_left" />
-      <DownOutlined class="icons_right" />
-    </div>
+  <el-dropdown trigger="hover">
+    <div class="iconbox"></div>
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item>
@@ -26,7 +23,6 @@
 
 <script setup lang="ts">
 import { nextTick } from "vue";
-import { LayoutOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { resizeUpdate } from "@/utils/dragResize/drag_position";
 
 import { useLayout } from "@/store/modules/layout";
@@ -43,27 +39,10 @@ const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
-.icons {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  width: 36px;
-  height: 24px;
-  border-radius: 4px;
+.iconbox {
+  background-image: url("@/assets/icons/icon_1.svg");
   &:hover {
     @include background_color("background-hover");
-  }
-  &_left {
-    width: 12px;
-    height: 12px;
-    margin-right: 3px;
-  }
-
-  &_right {
-    width: 12px;
-    height: 12px;
-    transform: scale(0.4, 0.4) !important;
   }
 }
 .item {
