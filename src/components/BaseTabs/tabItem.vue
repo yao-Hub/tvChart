@@ -1,14 +1,12 @@
 <template>
   <div
-    :class="[active ? 'baseTabs_item baseTabs_active' : 'baseTabs_item']"
+    class="baseTabs_item"
+    :class="{ baseTabs_active: active }"
     @click="tabClick"
   >
     <slot name="tab">
       <span>{{ props.tab || "" }}</span>
     </slot>
-    <el-icon v-show="props.closable" @click.stop="handleDelete" class="close"
-      ><Close
-    /></el-icon>
   </div>
 </template>
 
@@ -26,7 +24,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   closable: false,
 });
-const emit = defineEmits(["tabClick", "itemDel"]);
+const emit = defineEmits(["tabClick"]);
 
 const active = computed(() => {
   return model.value === props.value || model.value === props.tab;
@@ -35,24 +33,21 @@ const tabClick = () => {
   model.value = props.value;
   emit("tabClick", props.value || props.tab);
 };
-const handleDelete = () => {
-  emit("itemDel", props.value || props.tab);
-};
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 .baseTabs_item {
   font-size: var(--font-size);
-  height: 24px;
+  height: 100%;
+  font-weight: 500;
   min-width: 88px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-sizing: border-box;
-  border-bottom: 1px solid;
-  border-right: 1px solid;
-  padding: 0 8px;
+  border: 1px solid;
+  border-bottom: none;
   @include border_color("border");
   cursor: pointer;
   &:hover {
@@ -60,13 +55,8 @@ const handleDelete = () => {
     @include font_color("primary");
   }
 }
-.close {
-  margin-left: 6px;
-  cursor: pointer;
-}
 .baseTabs_active {
-  border-bottom: 2px solid;
   @include background_color("tabActive");
-  @include border_color_bottom("primary");
+  border: none;
 }
 </style>

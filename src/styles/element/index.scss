@@ -7,10 +7,14 @@
   ),
   $dropdown: (
     "menuItem-hover-color": #606266,
+  ),
+  $table: (
+    "header-bg-color": #f1f3f6,
   )
 );
 // 如果你想导入所有样式:
 @use "element-plus/theme-chalk/src/index.scss" as *;
+
 html {
   .el-button {
     font-size: var(--font-size);

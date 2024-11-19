@@ -1,106 +1,97 @@
 <template>
-  <el-auto-resizer>
-    <template #default="{ height, width }">
-      <div class="searchInput" :style="{ width: `${width - 12}px` }">
-        <el-input
-          v-model="input"
-          placeholder="搜索交易品种"
-          @click="ifSearch = true"
-          size="small"
-          style="width: 98%"
-        >
-          <template #prefix>
-            <SearchOutlined />
-          </template>
-          <template #suffix>
-            <CloseOutlined
-              class="closeBtn"
-              @click="closeSearch"
-              v-show="ifSearch"
-            />
-          </template>
-        </el-input>
-      </div>
-      <div
-        :style="{
-          width: `${width}px`,
-          height: `${height - 24 - 5}px`,
-        }"
-      >
-        <el-table
-          v-if="!ifSearch"
-          ref="table"
-          :data="dataSource"
-          :style="{ width: '100%', height: '100%' }"
-          :row-style="{
-            height: '24px',
-          }"
-          header-cell-class-name="header-cell"
-          cell-class-name="body-cell"
-          row-key="symbols"
-          :expand-row-keys="expandRowKeys"
-          @row-click="rowClick"
-          @sort-change="sortChange"
-          @expand-change="expandChange"
-        >
-          <el-table-column type="expand" width="20">
-            <template #default="{ row }">
-              <Deep :symbol="row.symbols"></Deep>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="symbols"
-            :label="$t('order.symbol')"
-            min-width="90"
-          />
-          <el-table-column
-            prop="bid"
-            :label="$t('order.sellPrice')"
-            min-width="90"
-          >
-            <template #default="scope">
-              <span :class="[quotesClass[scope.row.symbols].bid]">
-                {{ getQuotes("bid", scope.row) }}
-              </span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="ask"
-            :label="$t('order.buyPrice')"
-            min-width="90"
-          >
-            <template #default="scope">
-              <span :class="[quotesClass[scope.row.symbols].ask]">
-                {{ getQuotes("ask", scope.row) }}
-              </span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            prop="variation"
-            :label="$t('order.diurnalVariation')"
-            sortable="custom"
-            min-width="90"
-          >
-            <template #default="scope">
-              <span
-                style="text-align: right"
-                :class="[+scope.row.variation > 0 ? ' buyWord' : ' sellWord']"
-              >
-                {{ scope.row.variation }}
-              </span>
-            </template>
-          </el-table-column>
-        </el-table>
+  <div class="symbolList">
+    <el-input
+      v-model="input"
+      placeholder="搜索交易品种"
+      @click="ifSearch = true"
+      class="input"
+    >
+      <template #prefix>
+        <img class="searchIcon" src="@/assets/icons/icon_search.svg" />
+      </template>
+      <template #suffix>
+        <img
+          class="closeIcon"
+          src="@/assets/icons/icon_close.svg"
+          @click="closeSearch"
+          v-show="ifSearch"
+        />
+      </template>
+    </el-input>
 
-        <Search :input="input" v-if="ifSearch" :mySymbols="dataSource"></Search>
-      </div>
-    </template>
-  </el-auto-resizer>
+    <div style="width: 100%; height: calc(100% - 35px - 4px); margin-top: 8px">
+      <el-table
+        v-if="!ifSearch"
+        ref="table"
+        :data="dataSource"
+        :style="{ width: '100%', height: '100%' }"
+        :row-style="{
+          height: '24px',
+        }"
+        header-cell-class-name="header-cell"
+        cell-class-name="body-cell"
+        row-key="symbols"
+        :expand-row-keys="expandRowKeys"
+        @row-click="rowClick"
+        @sort-change="sortChange"
+        @expand-change="expandChange"
+      >
+        <el-table-column type="expand" width="20">
+          <template #default="{ row }">
+            <Deep :symbol="row.symbols"></Deep>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="symbols"
+          :label="$t('order.symbol')"
+          min-width="90"
+        />
+        <el-table-column
+          prop="bid"
+          :label="$t('order.sellPrice')"
+          min-width="90"
+        >
+          <template #default="scope">
+            <span :class="[quotesClass[scope.row.symbols].bid]">
+              {{ getQuotes("bid", scope.row) }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="ask"
+          :label="$t('order.buyPrice')"
+          min-width="90"
+        >
+          <template #default="scope">
+            <span :class="[quotesClass[scope.row.symbols].ask]">
+              {{ getQuotes("ask", scope.row) }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="variation"
+          :label="$t('order.diurnalVariation')"
+          sortable="custom"
+          min-width="90"
+        >
+          <template #default="scope">
+            <span
+              style="text-align: right"
+              :class="[+scope.row.variation > 0 ? ' buyWord' : ' sellWord']"
+            >
+              {{ scope.row.variation }}
+            </span>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <Search :input="input" v-if="ifSearch" :mySymbols="dataSource"></Search>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, nextTick, shallowRef } from "vue";
-import { SearchOutlined, CloseOutlined } from "@ant-design/icons-vue";
 import Search from "./components/search/index.vue";
 import Deep from "./components/deep/index.vue";
 
@@ -321,7 +312,6 @@ const sortChange = ({ order, prop }: any) => {
 // 只一个展开
 const expandRowKeys = ref<any[]>([]);
 const expandChange = (row: any, expandedRows: any[]) => {
-  console.log(row);
   expandRowKeys.value = expandedRows.length ? [row.symbols] : [];
 };
 </script>
@@ -329,13 +319,23 @@ const expandChange = (row: any, expandedRows: any[]) => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
-.searchInput {
-  height: 24px;
-  margin-bottom: 5px;
-  padding-left: 30px;
+.symbolList {
+  width: 100%;
+  @include background_color("background");
   box-sizing: border-box;
-  .closeBtn:hover {
-    @include font_color("primary");
+  padding: 4px;
+}
+.input {
+  width: calc(100% - 16px);
+  height: 32px;
+  .searchIcon {
+    width: 18px;
+    height: 18px;
+  }
+  .closeIcon {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
   }
 }
 

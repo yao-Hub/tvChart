@@ -17,7 +17,10 @@
     </HorizontalScrolling>
     <div
       class="charts_container"
-      :style="{ flexDirection: chartInitStore.chartFlexDirection }"
+      :style="{
+        flexDirection: chartInitStore.chartFlexDirection,
+        height: chartType === 'single' ? 'calc(100% - 40px)' : '100%',
+      }"
     >
       <div
         class="charts_container_item"
@@ -36,7 +39,9 @@
           @tabClose="tabClose"
         ></chartTab>
         <TVChart
-          style="height: calc(100% - 40px)"
+          :style="{
+            height: chartType === 'single' ? '100%' : 'calc(100% - 40px)',
+          }"
           :chartId="id"
           :loading="
             chartSubStore.chartsLoading || chartInitStore.chartLoading[id]
@@ -200,9 +205,9 @@ const tabClose = (id: string) => {
   &_container {
     display: flex;
     flex-wrap: wrap;
-    gap: 5px;
+    gap: 4px;
     box-sizing: border-box;
-    height: 100%;
+    padding: 4px;
     @include background_color("background");
 
     &_item {

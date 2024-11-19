@@ -20,7 +20,7 @@
         <div class="filter">
           <SymbolSelect
             v-if="activeKey !== 'blanceRecord'"
-            style="width: 190px; flex-shrink: 0"
+            style="width: 190px; flex-shrink: 0; height: 32px"
             v-model="state.updata[activeKey].symbol"
             :selectOption="{
               multiple: true,
@@ -28,13 +28,11 @@
               collapseTagsTooltip: true,
               filterable: true,
               clearable: true,
-              size: 'small',
             }"
           >
           </SymbolSelect>
           <el-select
-            size="small"
-            style="width: 130px; flex-shrink: 0"
+            style="width: 130px; flex-shrink: 0; height: 32px"
             v-if="activeKey === 'marketOrder'"
             v-model="state.updata[activeKey].direction"
             clearable
@@ -44,8 +42,7 @@
             <el-option value="sell" :label="$t('order.sell')"></el-option>
           </el-select>
           <el-select
-            size="small"
-            style="width: 130px; flex-shrink: 0"
+            style="width: 130px; flex-shrink: 0; height: 32px"
             v-if="activeKey === 'marketOrder'"
             v-model="state.updata[activeKey].pol"
             clearable
@@ -57,7 +54,7 @@
           <TimeSelect
             v-show="activeKey === 'pendingOrderHistory'"
             v-model:value="state.updata[activeKey].createTime"
-            style="width: 380px; flex-shrink: 0"
+            style="width: 380px; flex-shrink: 0; height: 32px"
             :pickerOption="{
               startPlaceholder: '创建开始时间',
               endPlaceholder: '创建结束时间',
@@ -67,7 +64,7 @@
           >
           <TimeSelect
             v-show="['marketOrderHistory'].includes(activeKey)"
-            style="width: 380px; flex-shrink: 0"
+            style="width: 380px; flex-shrink: 0; height: 32px"
             v-model:value="state.updata[activeKey].addTime"
             :pickerOption="{
               startPlaceholder: '建仓开始时间',
@@ -79,7 +76,7 @@
           <TimeSelect
             v-show="['marketOrderHistory'].includes(activeKey)"
             initFill
-            style="width: 380px; flex-shrink: 0"
+            style="width: 380px; flex-shrink: 0; height: 32px"
             v-model:value="state.updata[activeKey].closeTime"
             :pickerOption="{
               startPlaceholder: '平仓开始时间',
@@ -90,7 +87,7 @@
           >
           <TimeSelect
             v-show="['blanceRecord'].includes(activeKey)"
-            style="width: 380px; flex-shrink: 0"
+            style="width: 380px; flex-shrink: 0; height: 32px"
             v-model:value="state.updata[activeKey].createTime"
             :pickerOption="{
               startPlaceholder: '开始时间',
@@ -100,8 +97,7 @@
             >时间：</TimeSelect
           >
           <el-select
-            size="small"
-            style="width: 130px; flex-shrink: 0"
+            style="width: 130px; flex-shrink: 0; height: 32px"
             v-if="activeKey === 'blanceRecord'"
             v-model="state.updata[activeKey].pol"
             clearable
@@ -143,159 +139,154 @@
         </div>
       </HorizontalScrolling>
 
-      <div class="tableBox" :style="{ height: boxH }">
-        <el-auto-resizer>
-          <template #default="{ height, width }">
-            <el-table-v2
-              :key="activeKey"
-              header-class="tableHeader"
-              v-loading="state.loadingList[activeKey]"
-              :columns="state.columns[activeKey]"
-              :data="state.dataSource[activeKey]"
-              :row-height="24"
-              :header-height="24"
-              :width="width"
-              :height="parseInt(height)"
-              :footer-height="
-                pageLoading || activeKey === 'blanceRecord' ? 24 : 0
-              "
-              :row-props="rowProps"
-              @end-reached="endReached"
-              fixed
-            >
-              <template #header-cell="{ column }">
+      <el-auto-resizer :style="{ height: boxH }">
+        <template #default="{ height, width }">
+          <el-table-v2
+            :key="activeKey"
+            header-class="tableHeader"
+            v-loading="state.loadingList[activeKey]"
+            :columns="state.columns[activeKey]"
+            :data="state.dataSource[activeKey]"
+            :row-height="32"
+            :header-height="32"
+            :width="width"
+            :height="parseInt(height)"
+            :footer-height="
+              pageLoading || activeKey === 'blanceRecord' ? 32 : 0
+            "
+            :row-props="rowProps"
+            @end-reached="endReached"
+            fixed
+          >
+            <template #header-cell="{ column }">
+              <div
+                class="header-box"
+                @dragenter="(e: Event) => e.preventDefault()"
+                @dragover="(e: Event) => e.preventDefault()"
+              >
+                <div>{{ column.title || "" }}</div>
                 <div
-                  class="header-box"
-                  @dragenter="(e: Event) => e.preventDefault()"
-                  @dragover="(e: Event) => e.preventDefault()"
+                  class="drag-line"
+                  @mousedown="mousedown"
+                  @mousemove="(e: Event) => mousemove(e, column.dataKey)"
                 >
-                  <div>{{ column.title }}</div>
-                  <div
-                    class="drag-line"
-                    @mousedown="mousedown"
-                    @mousemove="(e: Event) => mousemove(e, column.dataKey)"
-                  >
-                    |
-                  </div>
+                  |
                 </div>
+              </div>
+            </template>
+            <template #cell="{ column, rowData }">
+              <template v-if="column.dataKey === 'time_setup'">{{
+                formatTime(rowData.time_setup)
+              }}</template>
+              <template v-else-if="column.dataKey === 'time_expiration'">{{
+                formatTime(rowData.time_expiration)
+              }}</template>
+              <template v-else-if="column.dataKey === 'time_done'">{{
+                formatTime(rowData.time_done)
+              }}</template>
+              <template v-else-if="column.dataKey === 'volume'"
+                >{{ rowData.volume / 100 }}手</template
+              >
+              <template v-else-if="column.dataKey === 'type'">{{
+                $t(`order.${getTradingDirection(rowData.type)}`)
+              }}</template>
+              <template v-else-if="column.dataKey === 'orderType'">{{
+                getOrderType(rowData.type)
+              }}</template>
+              <template v-else-if="column.dataKey === 'now_price'">{{
+                getNowPrice(rowData)
+              }}</template>
+              <template v-else-if="column.dataKey === 'order_price'">{{
+                rowData.order_price_time
+                  ? rowData.trigger_price
+                  : rowData.order_price
+              }}</template>
+              <template v-else-if="column.dataKey === 'profit'">
+                <span :class="[getCellClass(rowData.profit)]">
+                  <span v-if="activeKey === 'marketOrder'">{{
+                    getProfit(rowData)
+                  }}</span>
+                  <span v-else-if="activeKey === 'blanceRecord'">{{
+                    rowData.profit > 0 ? `+${rowData.profit}` : rowData.profit
+                  }}</span>
+                  <span v-else>{{ rowData.profit }}</span>
+                </span>
               </template>
-              <template #cell="{ column, rowData }">
-                <template v-if="column.dataKey === 'time_setup'">{{
-                  formatTime(rowData.time_setup)
-                }}</template>
-                <template v-else-if="column.dataKey === 'time_expiration'">{{
-                  formatTime(rowData.time_expiration)
-                }}</template>
-                <template v-else-if="column.dataKey === 'time_done'">{{
-                  formatTime(rowData.time_done)
-                }}</template>
-                <template v-else-if="column.dataKey === 'volume'"
-                  >{{ rowData.volume / 100 }}手</template
+              <template v-else-if="column.dataKey === 'blanceType'">
+                <span>{{ rowData.profit > 0 ? "入金" : "出金" }}</span>
+              </template>
+              <template v-else-if="column.dataKey === 'storage'">
+                <span :class="[getCellClass(rowData.storage)]">{{
+                  rowData.storage
+                }}</span>
+              </template>
+              <template v-else-if="column.dataKey === 'fee'">
+                <span :class="[getCellClass(rowData.fee)]">{{
+                  rowData.fee
+                }}</span>
+              </template>
+              <template v-else-if="column.dataKey === 'distance'">{{
+                getDistance(rowData)
+              }}</template>
+              <template v-else-if="column.dataKey === 'close_type'">{{
+                getCloseType(rowData)
+              }}</template>
+              <template v-else-if="column.dataKey === 'days'">{{
+                getDays(rowData)
+              }}</template>
+              <template v-else-if="column.dataKey === 'positionAction'">
+                <el-tooltip content="平仓" placement="top">
+                  <el-icon class="iconfont" @click="closeMarketOrder(rowData)">
+                    <CloseBold />
+                  </el-icon>
+                </el-tooltip>
+              </template>
+              <template v-else-if="column.dataKey === 'orderAction'">
+                <el-tooltip content="撤销" placement="top">
+                  <el-icon class="iconfont" @click="delPendingOrder(rowData)">
+                    <CloseBold />
+                  </el-icon>
+                </el-tooltip>
+              </template>
+              <template v-else>
+                {{
+                  [null, undefined, ""].includes(rowData[column.dataKey])
+                    ? "-"
+                    : rowData[column.dataKey]
+                }}
+              </template>
+            </template>
+            <template #footer>
+              <el-scrollbar>
+                <div class="loadingFooter" v-if="pageLoading">
+                  <el-icon class="loading"><Loading /></el-icon>
+                </div>
+                <div
+                  class="tableFooter"
+                  v-if="!pageLoading && activeKey === 'blanceRecord'"
                 >
-                <template v-else-if="column.dataKey === 'type'">{{
-                  $t(`order.${getTradingDirection(rowData.type)}`)
-                }}</template>
-                <template v-else-if="column.dataKey === 'orderType'">{{
-                  getOrderType(rowData.type)
-                }}</template>
-                <template v-else-if="column.dataKey === 'now_price'">{{
-                  getNowPrice(rowData)
-                }}</template>
-                <template v-else-if="column.dataKey === 'order_price'">{{
-                  rowData.order_price_time
-                    ? rowData.trigger_price
-                    : rowData.order_price
-                }}</template>
-                <template v-else-if="column.dataKey === 'profit'">
-                  <span :class="[getCellClass(rowData.profit)]">
-                    <span v-if="activeKey === 'marketOrder'">{{
-                      getProfit(rowData)
-                    }}</span>
-                    <span v-else-if="activeKey === 'blanceRecord'">{{
-                      rowData.profit > 0 ? `+${rowData.profit}` : rowData.profit
-                    }}</span>
-                    <span v-else>{{ rowData.profit }}</span>
+                  <span class="item">
+                    <span class="label">净入金：</span>
+                    <span class="value">{{ netDeposit }}</span>
                   </span>
-                </template>
-                <template v-else-if="column.dataKey === 'blanceType'">
-                  <span>{{ rowData.profit > 0 ? "入金" : "出金" }}</span>
-                </template>
-                <template v-else-if="column.dataKey === 'storage'">
-                  <span :class="[getCellClass(rowData.storage)]">{{
-                    rowData.storage
-                  }}</span>
-                </template>
-                <template v-else-if="column.dataKey === 'fee'">
-                  <span :class="[getCellClass(rowData.fee)]">{{
-                    rowData.fee
-                  }}</span>
-                </template>
-                <template v-else-if="column.dataKey === 'distance'">{{
-                  getDistance(rowData)
-                }}</template>
-                <template v-else-if="column.dataKey === 'close_type'">{{
-                  getCloseType(rowData)
-                }}</template>
-                <template v-else-if="column.dataKey === 'days'">{{
-                  getDays(rowData)
-                }}</template>
-                <template v-else-if="column.dataKey === 'positionAction'">
-                  <el-tooltip content="平仓" placement="top">
-                    <el-icon
-                      class="iconfont"
-                      @click="closeMarketOrder(rowData)"
+                  <span class="item">
+                    <span class="label"
+                      >累计入金（{{ accDeposit.len }}笔）：</span
                     >
-                      <CloseBold />
-                    </el-icon>
-                  </el-tooltip>
-                </template>
-                <template v-else-if="column.dataKey === 'orderAction'">
-                  <el-tooltip content="撤销" placement="top">
-                    <el-icon class="iconfont" @click="delPendingOrder(rowData)">
-                      <CloseBold />
-                    </el-icon>
-                  </el-tooltip>
-                </template>
-                <template v-else>
-                  {{
-                    [null, undefined, ""].includes(rowData[column.dataKey])
-                      ? "-"
-                      : rowData[column.dataKey]
-                  }}
-                </template>
-              </template>
-              <template #footer>
-                <el-scrollbar>
-                  <div class="loadingFooter" v-if="pageLoading">
-                    <el-icon class="loading"><Loading /></el-icon>
-                  </div>
-                  <div
-                    class="tableFooter"
-                    v-if="!pageLoading && activeKey === 'blanceRecord'"
-                  >
-                    <span class="item">
-                      <span class="label">净入金：</span>
-                      <span class="value">{{ netDeposit }}</span>
-                    </span>
-                    <span class="item">
-                      <span class="label"
-                        >累计入金（{{ accDeposit.len }}笔）：</span
-                      >
-                      <span class="value">{{ accDeposit.sum }}</span>
-                    </span>
-                    <span class="item">
-                      <span class="label"
-                        >累计出金（{{ accWithdrawal.len }}笔）：</span
-                      >
-                      <span class="value">{{ accWithdrawal.sum }}</span>
-                    </span>
-                  </div>
-                </el-scrollbar>
-              </template>
-            </el-table-v2>
-          </template>
-        </el-auto-resizer>
-      </div>
+                    <span class="value">{{ accDeposit.sum }}</span>
+                  </span>
+                  <span class="item">
+                    <span class="label"
+                      >累计出金（{{ accWithdrawal.len }}笔）：</span
+                    >
+                    <span class="value">{{ accWithdrawal.sum }}</span>
+                  </span>
+                </div>
+              </el-scrollbar>
+            </template>
+          </el-table-v2>
+        </template>
+      </el-auto-resizer>
     </div>
     <MarketOrderEdit
       v-model:visible="state.marketDialogVisible"
@@ -935,7 +926,7 @@ onMounted(async () => {
   observer = new ResizeObserver((entries) => {
     for (const entry of entries) {
       const { height } = entry.contentRect;
-      boxH.value = `${height - 40 - 5}px`;
+      boxH.value = `${height - 40}px`;
     }
   });
   observer.observe(container.value);
@@ -1004,6 +995,11 @@ onMounted(async () => {
 
 :deep(.tableHeader) {
   font-size: var(--font-size);
+  // background-color: red;
+  // @include background_color("background-table-active");
+  background-color: #f1f3f6;
+  border-radius: 4px 4px 0px 0px;
+  overflow: hidden;
 }
 
 :deep(.el-table-v2__header-cell) {
@@ -1014,6 +1010,62 @@ onMounted(async () => {
 
 :deep(.el-table-v2__row) {
   font-size: var(--font-size);
+}
+:deep(.el-table-v2__row:nth-child(even)) {
+  background-color: #f1f3f6;
+}
+
+.orderArea {
+  box-sizing: border-box;
+  border-radius: 5px;
+  width: 100%;
+  @include background_color("background");
+
+  .header {
+    display: flex;
+    box-sizing: border-box;
+    width: 100%;
+    height: 40px;
+    &_right {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+    }
+  }
+
+  .container {
+    box-sizing: border-box;
+    height: calc(100% - 48px);
+    margin: 4px;
+    padding: 8px;
+    border-radius: 4px;
+    @include background_color("background-component");
+
+    .filter {
+      height: 32px;
+      display: flex;
+      gap: 8px;
+      box-sizing: border-box;
+      align-items: center;
+      margin-bottom: 8px;
+
+      .rightOpera {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+
+        .delList {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          cursor: pointer;
+          width: 75px;
+        }
+      }
+    }
+  }
 }
 
 .header-box {
@@ -1032,11 +1084,6 @@ onMounted(async () => {
     box-sizing: border-box;
     @include font_color("border");
   }
-}
-
-.tableBox {
-  border: 1px solid;
-  @include border_color("border");
 }
 @keyframes rotate {
   from {
@@ -1074,59 +1121,6 @@ onMounted(async () => {
     .value {
       @include font_color("word");
       font-size: var(--font-size);
-    }
-  }
-}
-
-.orderArea {
-  box-sizing: border-box;
-  border-radius: 5px;
-  width: calc(100% - 16px);
-  float: right;
-
-  .header {
-    display: flex;
-    box-sizing: border-box;
-    width: 100%;
-    padding-right: 16px;
-    height: 24px;
-    &_right {
-      flex: 1;
-      border-bottom: 1px solid;
-      @include border_color("border");
-      height: 100%;
-      box-sizing: border-box;
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-    }
-  }
-
-  .container {
-    box-sizing: border-box;
-    padding-right: 16px;
-    height: calc(100% - 24px);
-
-    .filter {
-      height: 40px;
-      display: flex;
-      gap: 8px;
-      box-sizing: border-box;
-      align-items: center;
-
-      .rightOpera {
-        flex: 1;
-        display: flex;
-        justify-content: flex-end;
-
-        .delList {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          cursor: pointer;
-          width: 75px;
-        }
-      }
     }
   }
 }

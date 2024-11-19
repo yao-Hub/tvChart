@@ -17,7 +17,7 @@ const moving = {
 
 const minWidth = 300;
 const minHeight = 150;
-const lineWidth = 5;
+const lineWidth = 8;
 const marginTop = 5;
 const lineColor = "#CECDD1";
 
@@ -135,10 +135,7 @@ function setDragAreaSize() {
   );
   const havChiLen = haveChildItems.length;
   if (havChiLen === 1) {
-    haveChildItems[0].setAttribute(
-      "style",
-      `height: ${dh}px; margin-top: ${marginTop}px`
-    );
+    haveChildItems[0].setAttribute("style", `height: ${dh}px;`);
     return;
   }
   if (havChiLen > 1) {
@@ -179,12 +176,16 @@ function setDragAreaSize() {
     //   });
     // } else {
     const leftHeight = dh - initHSum;
-    haveChildItems.forEach((item) => {
+    haveChildItems.forEach((item, index) => {
       const h = item.getAttribute("data-initH");
-      let rh = h ? +h - marginTop : leftHeight / leftItemLen - marginTop;
+      let rh = h
+        ? +h - marginTop
+        : leftHeight / leftItemLen - (index > 0 ? marginTop : 0);
       item.setAttribute(
         "style",
-        `height:${rh}px; margin-top: ${marginTop}px; width: ${innerWidth}px;`
+        `height:${rh}px; margin-top: ${
+          index > 0 ? marginTop : 0
+        }px; width: ${innerWidth}px;`
       );
     });
     // }
@@ -270,6 +271,7 @@ function createHoriLine(addNum: number) {
     line.style.cursor = "ns-resize";
     line.style.left = "0";
     line.style.top = "0";
+    line.style.borderRadius = "2px";
     line.addEventListener("mouseover", function () {
       line.style.backgroundColor = lineColor;
     });
@@ -444,6 +446,7 @@ function createVertLine(addNum: number) {
     line.style.position = "absolute";
     line.style.width = lineWidth + "px";
     line.style.cursor = "ew-resize";
+    line.style.borderRadius = "2px";
     line.addEventListener("mouseover", function () {
       line.style.backgroundColor = lineColor;
     });

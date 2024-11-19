@@ -58,13 +58,6 @@
   }
 }
 
-// 边框颜色
-@mixin border_color_bottom($color) {
-  @include themeify {
-    border-bottom-color: themed($color);
-  }
-}
-
 // 背景颜色
 @mixin background_color($color) {
   @include themeify {

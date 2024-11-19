@@ -181,8 +181,14 @@ const getCheckType = (type: string) => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+.el-scrollbar {
+  width: 100%;
+}
 .searchList {
-  height: 100%;
+  height: calc(100% - 8px);
+  width: 100%;
+  margin-top: 8px;
+  @include background_color("background-component");
 }
 .back {
   @include background_color("background-component");

@@ -5,7 +5,10 @@
     :data-id="props.id"
     @click="emit('tabClick', props.id)"
   >
-    <el-icon class="moveIcon"><Mic /></el-icon>
+    <div class="moveIcon"></div>
+    <!-- <el-icon class="moveIcon">
+      <Mic />
+    </el-icon> -->
     <el-dropdown
       trigger="contextmenu"
       ref="symbolDropdown"
@@ -14,13 +17,18 @@
       @command="emit('symbolCommand', $event, props.id)"
     >
       <div class="el-dropdown-link symbolLink" @click.stop="toggleSymbol">
-        {{ props.symbol }}<el-icon><CaretBottom /></el-icon>
+        {{ props.symbol
+        }}<el-icon>
+          <CaretBottom />
+        </el-icon>
       </div>
       <template #dropdown>
         <div class="search">
           <el-input v-model="searchInput" placeholder="search symbol" clearable>
             <template #prefix>
-              <el-icon><search /></el-icon>
+              <el-icon>
+                <search />
+              </el-icon>
             </template>
           </el-input>
         </div>
@@ -40,7 +48,10 @@
       @command="emit('resolutionCommand', $event, props.id)"
     >
       <div class="el-dropdown-link" @click.stop="toggleResolution">
-        {{ getResolution }}<el-icon><CaretBottom /></el-icon>
+        {{ getResolution
+        }}<el-icon>
+          <CaretBottom />
+        </el-icon>
       </div>
       <template #dropdown>
         <el-dropdown-item v-for="(value, key) in resolutes" :command="key">
@@ -51,7 +62,9 @@
       </template>
     </el-dropdown>
     <el-divider direction="vertical" />
-    <el-icon @click.stop="emit('tabClose', props.id)"><Close /></el-icon>
+    <el-icon @click.stop="emit('tabClose', props.id)">
+      <Close />
+    </el-icon>
   </div>
 </template>
 
@@ -142,6 +155,8 @@ const resolutes = computed(() => {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/_handle.scss";
+
 .chartTab {
   display: flex;
   padding: 0 8px;
@@ -149,28 +164,38 @@ const resolutes = computed(() => {
   height: 40px;
   align-items: center;
   gap: 8px;
-  border: 1px solid #eef2f6;
+  border: 1px solid;
+  @include border_color("background");
   width: fit-content;
   border-radius: 2px;
   cursor: pointer;
 }
+
 .el-dropdown-link {
   display: flex;
   align-items: center;
   gap: 5px;
   white-space: nowrap;
 }
+
 .symbolLink {
   font-weight: 500;
 }
+
 .active {
-  background: #eef2f6;
+  @include background_color("background");
 }
+
 .search {
   padding: 8px;
   width: 200px;
 }
+
 .moveIcon {
   cursor: grab;
+  width: 8px;
+  height: 18px;
+  background-image: url("@/assets/icons/icon_drag2.svg");
+  background-size: cover;
 }
 </style>

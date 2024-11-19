@@ -115,13 +115,13 @@ const handleOk = async () => {
 @import "@/styles/_handle.scss";
 
 .item {
+  padding: 0 16px;
   display: flex;
   gap: 5px;
   font-size: var(--font-size);
   @include font_color("word-gray");
   cursor: pointer;
-  width: 80px;
-  justify-content: flex-end;
+  align-items: center;
 }
 
 .header {
