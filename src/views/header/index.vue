@@ -42,7 +42,7 @@ import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
 </script>
 
-<style>
+<style lang="scss">
 .iconbox {
   width: 32px;
   height: 32px;
@@ -51,7 +51,7 @@ const orderStore = useOrder();
   cursor: pointer;
   box-sizing: border-box;
   background-repeat: no-repeat;
-  background-size: 24px 24px;
+  background-size: var(--icon-size);
   background-position: center;
 }
 </style>

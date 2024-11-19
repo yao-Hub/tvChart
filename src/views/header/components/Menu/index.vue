@@ -55,7 +55,8 @@ const visible = ref(false);
   .menuIcon {
     background-image: url("@/assets/icons/menu.svg");
     background-repeat: no-repeat;
-    background-size: cover;
+    background-size: var(--icon-size);
+    background-position: center;
     width: 32px;
     height: 32px;
     cursor: pointer;

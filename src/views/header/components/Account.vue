@@ -160,7 +160,7 @@ const modalOpen = ref<boolean>(false);
 
 .info {
   display: flex;
-  height: 38px;
+  height: 48px;
   margin-right: 8px;
   align-items: center;
   justify-content: space-between;
@@ -179,12 +179,15 @@ const modalOpen = ref<boolean>(false);
     flex-direction: column;
     justify-content: space-between;
     height: 100%;
+    text-align: right;
+
     .top {
       display: flex;
       align-items: center;
     }
     .balance {
       @include font_color("primary");
+      font-weight: 500;
     }
   }
   .divider {
