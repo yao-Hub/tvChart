@@ -1,16 +1,14 @@
 <template>
   <div class="transaction">
     <div class="transaction_left">
-      <el-icon><Sunny /></el-icon>
-      <span>{{ $t("lightTheme") }}</span>
+      <img class="logo" src="@/assets/icons/icon_10.svg" />
+      <span class="label">{{ $t("lightTheme") }}</span>
     </div>
     <el-switch v-model="checked" @change="handleChange" size="small" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { Sunny } from "@element-plus/icons-vue";
-
 import { ref } from "vue";
 import { useTheme } from "@/store/modules/theme";
 const themeStore = useTheme();

@@ -16,7 +16,7 @@
             <el-avatar :size="40" :src="item.avatar" />
           </div>
           <div class="detail">
-            <span class="word">{{ item.remark }}</span>
+            <span class="word">{{ item.feedbackContent }}</span>
             <div class="images">
               <el-image
                 v-for="(src, index) in item.feedbackFileIds"

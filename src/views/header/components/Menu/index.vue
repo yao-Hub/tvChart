@@ -21,6 +21,9 @@
           <FontSize></FontSize>
         </el-dropdown-item>
         <el-dropdown-item divided>
+          <sendFeedback></sendFeedback>
+        </el-dropdown-item>
+        <el-dropdown-item>
           <aboutUs></aboutUs>
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -35,6 +38,7 @@ import OneTransactions from "./oneTransactions.vue";
 import Theme from "./theme.vue";
 import Language from "./Language/index.vue";
 import aboutUs from "./aboutUs.vue";
+import sendFeedback from "./sendFeedback.vue";
 import UpDowncolor from "./UpDowncolor/index.vue";
 import FontSize from "./FontSize/index.vue";
 

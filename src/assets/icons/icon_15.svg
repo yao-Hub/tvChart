@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_36</title>
+    <g id="icon_36" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="编组" stroke="#94959B" stroke-width="1.4">
+            <g id="编组" transform="translate(2.623808, 0.987809)">
+                <path d="M13,11.6 L13,15.2 C13,15.64184 12.6362437,16 12.1875,16 L9.546875,16" id="路径"></path>
+                <path d="M13,4.8 L13,0.8 C13,0.358172 12.6362437,0 12.1875,0 L0.8125,0 C0.363768437,0 0,0.358172 0,0.8 L0,15.2 C0,15.64184 0.363768437,16 0.8125,16 L3.25,16" id="路径"></path>
+                <line x1="3.25" y1="4.8" x2="8.9375" y2="4.8" id="路径"></line>
+                <line x1="6.09375" y1="16" x2="13" y2="7.6" id="路径"></line>
+                <line x1="3.25" y1="8" x2="6.5" y2="8" id="路径"></line>
+            </g>
+        </g>
+    </g>
+</svg>

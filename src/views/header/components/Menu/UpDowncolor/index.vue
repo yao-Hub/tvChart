@@ -2,18 +2,15 @@
   <el-dropdown trigger="hover" placement="right-start">
     <div class="nowColor">
       <div class="nowColor_left">
-        <BgColorsOutlined />
-        <span>{{ $t("updownColor") }}</span>
+        <img class="logo" src="@/assets/icons/icon_14.svg" />
+        <span class="label">{{ $t("updownColor") }}</span>
       </div>
       <div class="nowColor_right">
-        <svg class="icon" aria-hidden="true">
-          <use
-            xlink:href="#icon-a-v31-16px-line-Lighthongzhanglvdie"
-            v-if="themeStore.upDownTheme === 'upRedDownGreen'"
-          ></use>
-          <use xlink:href="#icon-a-20px-lvzhanghongdie" v-else></use>
-        </svg>
-        <RightOutlined style="font-size: 12px" />
+        <img
+          class="logo checkIcon"
+          :src="`src/assets/icons/${themeStore.upDownTheme}.svg`"
+        />
+        <img class="logo" src="@/assets/icons/turnRight.svg" />
       </div>
     </div>
     <template #dropdown>
@@ -23,7 +20,6 @@
 </template>
 
 <script setup lang="ts">
-import { RightOutlined, BgColorsOutlined } from "@ant-design/icons-vue";
 import Colors from "./Colors.vue";
 import { useTheme } from "@/store/modules/theme";
 const themeStore = useTheme();

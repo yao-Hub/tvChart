@@ -7,6 +7,7 @@
 
   <FloatMenu></FloatMenu>
   <OrderDialog></OrderDialog>
+  <Feedback></Feedback>
   <Disclaimers></Disclaimers>
 </template>
 

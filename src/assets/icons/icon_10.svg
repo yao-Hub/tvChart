@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_31</title>
+    <g id="icon_31" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组-20" transform="translate(1.000000, 1.000000)">
+            <path d="M8.00820208,12.4878478 C10.4382658,12.4878478 12.408245,10.5659164 12.408245,8.19512195 C12.408245,5.82432751 10.4382658,3.9023961 8.00820208,3.9023961 C5.57813839,3.9023961 3.60815918,5.82432751 3.60815918,8.19512195 C3.60815918,10.5659164 5.57813839,12.4878478 8.00820208,12.4878478 Z" id="路径" stroke="#94959B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path>
+            <line x1="13.9841803" y1="2.207265" x2="13.0000508" y2="3.17290588" id="路径" stroke="#94959B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></line>
+            <line x1="2.82691156" y1="13.0309167" x2="2.00814758" y2="13.8342808" id="路径" stroke="#94959B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></line>
+            <line x1="8.000002" y1="14.8292566" x2="8.000002" y2="16" id="路径" stroke="#94959B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></line>
+            <line x1="16" y1="7.80487415" x2="14.3999844" y2="7.80487415" id="路径" stroke="#94959B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></line>
+            <line x1="13.4130148" y1="12.8713053" x2="14.3999844" y2="13.8342027" id="路径" stroke="#94959B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></line>
+            <path d="M8.00820208,5.46338732 C6.461787,5.46338732 5.20817478,6.68642394 5.20817478,8.19512195 C5.20817478,9.70381997 6.461787,10.9268566 8.00820208,10.9268566" id="路径" fill="#94959B"></path>
+            <line x1="0" y1="8.19512195" x2="1.6000156" y2="8.19512195" id="路径" stroke="#94959B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></line>
+            <line x1="2.41770757" y1="2.20725329" x2="3.23883558" y2="3.00833838" id="路径" stroke="#94959B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></line>
+            <line x1="8.000002" y1="0" x2="8.000002" y2="1.56099122" id="路径" stroke="#94959B" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></line>
+        </g>
+    </g>
+</svg>

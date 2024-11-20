@@ -11,7 +11,13 @@
           </TabItem>
         </baseTabs>
         <div class="header_right">
-          <Feedback></Feedback>
+          <div
+            class="feedback textEllipsis"
+            @click="dialogStore.feedbackVisible = true"
+          >
+            <img class="logo" src="@/assets/icons/icon_16.svg" />
+            <span class="label">{{ $t("feedback") }}</span>
+          </div>
         </div>
       </div>
     </HorizontalScrolling>
@@ -328,7 +334,6 @@ import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
 
 import TimeSelect from "./components/TimeSelect.vue";
-import Feedback from "./components/Feedback/index.vue";
 
 const userStore = useUser();
 const orderStore = useOrder();
@@ -1033,6 +1038,15 @@ onMounted(async () => {
       display: flex;
       justify-content: flex-end;
       align-items: center;
+      .feedback {
+        padding: 0 16px;
+        display: flex;
+        gap: 5px;
+        font-size: var(--font-size);
+        @include font_color("word-gray");
+        cursor: pointer;
+        align-items: center;
+      }
     }
   }
 
@@ -1117,7 +1131,6 @@ onMounted(async () => {
     @include border_color("border");
     .label {
       @include font_color("word-gray");
-      font-size: var(--font-size);
     }
     .value {
       @include font_color("word");

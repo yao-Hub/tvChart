@@ -2,12 +2,12 @@
   <el-dropdown trigger="hover" placement="right-start">
     <div class="expandIcon">
       <div class="expandIcon_left">
-        <TranslationOutlined />
-        <span>{{ $t("lauguage") }}</span>
+        <img class="logo" src="@/assets/icons/icon_12.svg" />
+        <span class="label">{{ $t("lauguage") }}</span>
       </div>
       <div class="expandIcon_right">
-        <span>{{ nowLocale }}</span>
-        <RightOutlined style="font-size: 12px" />
+        <span class="label">{{ nowLocale }}</span>
+        <img class="logo" src="@/assets/icons/turnRight.svg" />
       </div>
     </div>
     <template #dropdown>
@@ -18,7 +18,6 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { RightOutlined, TranslationOutlined } from "@ant-design/icons-vue";
 import Locales from "./Locales.vue";
 import { useI18n } from "vue-i18n";
 const I18n = useI18n();

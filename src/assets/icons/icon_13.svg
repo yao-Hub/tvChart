@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_34</title>
+    <g id="icon_34" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="编组" stroke="#94959B" stroke-width="1.4">
+            <g id="编组" transform="translate(2.000000, 2.000000)">
+                <rect id="矩形" x="0" y="0" width="14" height="14" rx="1.16666667"></rect>
+                <polyline id="路径" points="3.88888889 5.05555556 3.88888889 3.88888889 10.1111111 3.88888889 10.1111111 5.05555556"></polyline>
+                <line x1="6.22222222" y1="10.8888889" x2="7.77777778" y2="10.8888889" id="路径"></line>
+                <line x1="7" y1="4.66666667" x2="7" y2="10.8888889" id="路径"></line>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -2,34 +2,30 @@
   <el-dropdown-menu>
     <el-dropdown-item>
       <div class="item" @click="changeColor('upRedDownGreen')">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-a-v31-16px-line-Lighthongzhanglvdie"></use>
-        </svg>
-        <span>{{ $t("upRedDownGreen") }}</span>
-        <CheckOutlined
+        <img class="logo" src="@/assets/icons/upRedDownGreen.svg" />
+        <span class="label">{{ $t("upRedDownGreen") }}</span>
+        <img
+          class="logo checkIcon"
+          src="@/assets/icons/select.svg"
           v-if="themeStore.upDownTheme === 'upRedDownGreen'"
-          class="checkIcon"
         />
       </div>
     </el-dropdown-item>
     <el-dropdown-item>
       <div class="item" @click="changeColor('upGreenDownRed')">
-        <svg class="icon" aria-hidden="true">
-          <use xlink:href="#icon-a-20px-lvzhanghongdie"></use>
-        </svg>
-        <span>{{ $t("upGreenDownRed") }}</span>
-        <CheckOutlined
+        <img class="logo" src="@/assets/icons/upGreenDownRed.svg" />
+        <span class="label">{{ $t("upGreenDownRed") }}</span>
+        <img
+          class="logo checkIcon"
+          src="@/assets/icons/select.svg"
           v-if="themeStore.upDownTheme === 'upGreenDownRed'"
-          class="checkIcon"
         />
       </div>
     </el-dropdown-item>
   </el-dropdown-menu>
-
 </template>
 
 <script setup lang="ts">
-import { CheckOutlined } from "@ant-design/icons-vue";
 import { useTheme } from "@/store/modules/theme";
 const themeStore = useTheme();
 

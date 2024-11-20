@@ -2,8 +2,12 @@
   <el-dropdown-menu>
     <el-dropdown-item v-for="(value, key) in localeList">
       <div class="item" @click="changeLocale(key)">
-        <span>{{ value.nowLocale }}</span>
-        <CheckOutlined v-if="curentLocale === key" class="checkIcon" />
+        <span class="label">{{ value.nowLocale }}</span>
+        <img
+          class="logo"
+          src="@/assets/icons/select.svg"
+          v-if="curentLocale === key"
+        />
       </div>
     </el-dropdown-item>
   </el-dropdown-menu>
@@ -11,7 +15,6 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { CheckOutlined } from "@ant-design/icons-vue";
 import i18n from "@/language/index";
 import { useI18n } from "vue-i18n";
 const { locale } = useI18n();

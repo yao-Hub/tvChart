@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_35</title>
+    <g id="icon_35" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="编组" stroke="#94959B" stroke-width="1.4">
+            <g id="编组" transform="translate(2.000000, 2.000000)">
+                <path d="M12.8333333,0 L1.16666667,0 C0.522336111,0 0,0.522336111 0,1.16666667 L0,12.8333333 C0,13.4776833 0.522336111,14 1.16666667,14 L12.8333333,14 C13.4776833,14 14,13.4776833 14,12.8333333 L14,1.16666667 C14,0.522336111 13.4776833,0 12.8333333,0 Z" id="路径"></path>
+                <polyline id="路径" points="2.89325556 9.26905 5.09316111 7.06914444 6.79960556 8.77158333 10.8888889 4.66670556"></polyline>
+                <polyline id="路径" points="7.77777778 4.66666667 10.8888889 4.66666667 10.8888889 7.77777778"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

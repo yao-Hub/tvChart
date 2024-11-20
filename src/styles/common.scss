@@ -182,7 +182,7 @@ body {
 
 .el-select__wrapper,
 .el-tag {
-  font-size: var(--font-size) !important;
+  font-size: var(--font-size);
 }
 
 .icon {
@@ -191,6 +191,14 @@ body {
   vertical-align: -0.15em;
   fill: currentColor;
   overflow: hidden;
+}
+
+.logo {
+  width: var(--icon-size);
+  height: var(--icon-size);
+}
+.label {
+  font-size: var(--font-size);
 }
 
 .checkIcon {

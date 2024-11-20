@@ -1,7 +1,7 @@
 <template>
   <div class="item" @click="open = true">
-    <TeamOutlined />
-    <span>{{ $t("aboutUs") }}</span>
+    <img class="logo" src="@/assets/icons/icon_16.svg" />
+    <span class="label">{{ $t("aboutUs") }}</span>
   </div>
 
   <el-dialog
@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-import { TeamOutlined } from "@ant-design/icons-vue";
 import { ref } from "vue";
 const open = ref<boolean>(false);
 </script>
@@ -67,11 +66,6 @@ const open = ref<boolean>(false);
   font-weight: bold;
   font-size: 16px;
   @include font_color("word");
-}
-.label {
-  @include font_color("word-gray");
-  font-weight: 400;
-  font-size: var(--font-size);
 }
 .value {
   @include font_color("word");

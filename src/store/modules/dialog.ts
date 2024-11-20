@@ -9,7 +9,8 @@ interface FloatMenuParams {
 interface State {
   orderDialogVisible: boolean;
   floatMenuParams: FloatMenuParams;
-  disclaimers: boolean
+  disclaimers: boolean;
+  feedbackVisible: boolean;
 }
 
 export const useDialog = defineStore("dialog", {
@@ -17,6 +18,7 @@ export const useDialog = defineStore("dialog", {
     return {
       disclaimers: false,
       orderDialogVisible: false, // 订单弹窗
+      feedbackVisible: false,
       floatMenuParams: {
         visible: false,
         clientX: 0,

@@ -1,8 +1,8 @@
 <template>
   <div class="transaction">
     <div class="transaction_left">
-      <DollarCircleOutlined />
-      <span>{{ $t("QuickTransactions") }}</span>
+      <img class="logo" src="@/assets/icons/icon_9.svg" />
+      <span class="label">{{ $t("QuickTransactions") }}</span>
     </div>
     <el-switch
       v-model="orderStore.ifOne"
@@ -13,8 +13,6 @@
 </template>
 
 <script setup lang="ts">
-import { DollarCircleOutlined } from "@ant-design/icons-vue";
-
 import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
 

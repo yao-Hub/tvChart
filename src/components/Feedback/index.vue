@@ -1,11 +1,6 @@
 <template>
-  <div class="item textEllipsis" @click="showModal">
-    <MailOutlined />
-    <span>{{ $t("feedback") }}</span>
-  </div>
-
   <el-dialog
-    v-model="open"
+    v-model="dialogStore.feedbackVisible"
     width="486"
     :zIndex="10"
     destroy-on-close
@@ -63,12 +58,13 @@
 </template>
 
 <script setup lang="ts">
-import { MailOutlined } from "@ant-design/icons-vue";
-import { ref, computed } from "vue";
-const open = ref<boolean>(false);
+import { ref, computed, watch } from "vue";
+import type { UploadUserFile, UploadFile, UploadInstance } from "element-plus";
+import { useDialog } from "@/store/modules/dialog";
+const dialogStore = useDialog();
+
 const remark = ref<string>("");
 
-import type { UploadUserFile, UploadFile, UploadInstance } from "element-plus";
 const fileList = ref<UploadUserFile[]>([]);
 const uploadRef = ref<UploadInstance>();
 const action = computed(() => {
@@ -77,17 +73,20 @@ const action = computed(() => {
 const handleRemove = (file: UploadFile) => {
   uploadRef.value!.handleRemove(file);
 };
-
-const showModal = () => {
-  open.value = true;
-  remark.value = "";
-  fileList.value = [];
-};
+watch(
+  () => dialogStore.feedbackVisible,
+  (val) => {
+    if (val) {
+      remark.value = "";
+      fileList.value = [];
+    }
+  }
+);
 
 import MyFeedBack from "./MyFeedBack.vue";
 const myFeedBackOpen = ref(false);
 
-import { saveFeedback } from "api/feedback";
+import { saveFeedback } from "@/api/feedback";
 import { useNetwork } from "@/store/modules/network";
 import { ElMessage } from "element-plus";
 const networkStore = useNetwork();
@@ -107,22 +106,12 @@ const handleOk = async () => {
     message: res.errmsg,
     type: "success",
   });
-  open.value = false;
+  dialogStore.feedbackVisible = false;
 };
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
-.item {
-  padding: 0 16px;
-  display: flex;
-  gap: 5px;
-  font-size: var(--font-size);
-  @include font_color("word-gray");
-  cursor: pointer;
-  align-items: center;
-}
 
 .header {
   font-weight: bold;
