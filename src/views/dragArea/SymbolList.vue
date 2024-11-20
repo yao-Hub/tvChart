@@ -83,7 +83,7 @@
               style="text-align: right"
               :class="[+scope.row.variation > 0 ? ' buyWord' : ' sellWord']"
             >
-              {{ scope.row.variation }}
+              {{ scope.row.variation || "-" }}
             </span>
           </template>
         </el-table-column>
