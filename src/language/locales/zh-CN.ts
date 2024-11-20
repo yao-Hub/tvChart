@@ -97,6 +97,7 @@ export default {
     tradingRoute: "交易线路",
     queryNode: "交易节点",
     diurnalVariation: "日变化",
+    time: "时间",
   },
 
   tip: {

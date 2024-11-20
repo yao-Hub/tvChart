@@ -1118,7 +1118,7 @@ onMounted(async () => {
   }
 }
 .tableFooter {
-  height: 24px;
+  height: 32px;
   display: flex;
   align-items: center;
   .item {

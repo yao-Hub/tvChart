@@ -52,7 +52,7 @@
         >
           <template #default="scope">
             <span :class="[quotesClass[scope.row.symbols].bid]">
-              {{ getQuotes("bid", scope.row) }}
+              {{ scope.row.bid }}
             </span>
           </template>
         </el-table-column>
@@ -63,8 +63,13 @@
         >
           <template #default="scope">
             <span :class="[quotesClass[scope.row.symbols].ask]">
-              {{ getQuotes("ask", scope.row) }}
+              {{ scope.row.ask }}
             </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="ctm_ms" :label="$t('order.time')" min-width="90">
+          <template #default="scope">
+            {{ getTime(scope.row?.ctm_ms) }}
           </template>
         </el-table-column>
         <el-table-column
@@ -100,6 +105,7 @@ interface DataSource {
   ask?: string | number;
   variation?: string | number;
   topSort?: string | number;
+  ctm_ms?: number;
 }
 const dataSource = shallowRef<DataSource[]>([]);
 const originSource = ref<DataSource[]>([]);
@@ -200,26 +206,22 @@ const closeSearch = () => {
   getData();
 };
 
-// 实时报价
-import { useOrder } from "@/store/modules/order";
-const orderStore = useOrder();
-const getQuotes = (type: "bid" | "ask", e: DataSource) => {
-  if (!e.symbols) {
-    return "-";
+import dayjs from "dayjs";
+const getTime = (time: number) => {
+  if (time) {
+    return dayjs(time).format("HH:mm:ss");
   }
-  const quote = orderStore.currentQuotes[e.symbols];
-  const result = quote ? quote[type] : "-";
-  e[type] = result;
-  return result;
+  return "-";
 };
 
-// 报价样式
+// 报价样式 实时数据
 import { Quote } from "#/chart/index";
 import { eq } from "lodash";
 import { round } from "utils/common/index";
+import { useOrder } from "@/store/modules/order";
+const orderStore = useOrder();
 const temQuotes = ref<Record<string, Quote>>({});
 const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
-
 const temVar = ref<Record<string, Quote & { variation: string }>>({});
 watch(
   () => orderStore.currentQuotes,
@@ -247,26 +249,23 @@ watch(
         ...newQuote,
         variation: "",
       };
-      if (!oldVar) {
-        const close = newQuote.close;
-        const open = newQuote.open;
-        if (close && open) {
-          const variation = round(((close - open) / open) * 100, 2);
-          result.variation = variation;
-        }
-      } else {
-        const open = oldVar.open;
-        const close = newQuote.bid;
-        if (close && open) {
-          const variation = round(((close - open) / open) * 100, 2);
-          result.open = open;
-          result.variation = variation;
-        }
+      // 有新数据则close为新数据的bid
+      const close = !oldVar ? newQuote.close : newQuote.bid;
+      const open = !oldVar ? newQuote.open : oldVar.open;
+      if (close && open) {
+        const variation = round(((close - open) / open) * 100, 2);
+        result.variation = variation;
+        !!oldVar && (result.open = open);
       }
       temVar.value[i] = result;
+
+      // 赋值
       const found = dataSource.value.find((e) => e.symbols === i);
       if (found) {
         found.variation = result.variation;
+        found.bid = result.bid;
+        found.ask = result.ask;
+        found.ctm_ms = result.ctm_ms;
       }
     }
   },
