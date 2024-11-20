@@ -54,7 +54,7 @@
           <TimeSelect
             v-show="activeKey === 'pendingOrderHistory'"
             v-model:value="state.updata[activeKey].createTime"
-            style="width: 380px; flex-shrink: 0; height: 32px"
+            style="width: 380px; flex-shrink: 0"
             :pickerOption="{
               startPlaceholder: '创建开始时间',
               endPlaceholder: '创建结束时间',
@@ -64,7 +64,7 @@
           >
           <TimeSelect
             v-show="['marketOrderHistory'].includes(activeKey)"
-            style="width: 380px; flex-shrink: 0; height: 32px"
+            style="width: 380px; flex-shrink: 0"
             v-model:value="state.updata[activeKey].addTime"
             :pickerOption="{
               startPlaceholder: '建仓开始时间',
@@ -76,7 +76,7 @@
           <TimeSelect
             v-show="['marketOrderHistory'].includes(activeKey)"
             initFill
-            style="width: 380px; flex-shrink: 0; height: 32px"
+            style="width: 380px; flex-shrink: 0"
             v-model:value="state.updata[activeKey].closeTime"
             :pickerOption="{
               startPlaceholder: '平仓开始时间',
@@ -87,7 +87,7 @@
           >
           <TimeSelect
             v-show="['blanceRecord'].includes(activeKey)"
-            style="width: 380px; flex-shrink: 0; height: 32px"
+            style="width: 380px; flex-shrink: 0"
             v-model:value="state.updata[activeKey].createTime"
             :pickerOption="{
               startPlaceholder: '开始时间',
@@ -167,8 +167,7 @@
                 <div>{{ column.title || "" }}</div>
                 <div
                   class="drag-line"
-                  @mousedown="mousedown"
-                  @mousemove="(e: Event) => mousemove(e, column.dataKey)"
+                  @mousedown="(e: Event) => mousedown(e, column.dataKey)"
                 >
                   |
                 </div>
@@ -430,17 +429,19 @@ const columnRefresh = (x: any, fileKey: string) => {
 
 let isResizing = false;
 let lastX = 0;
-const mousedown = (e: any) => {
+let currentKey = "";
+const mousedown = (e: any, dataKey: string) => {
   isResizing = true;
   lastX = e.clientX;
+  currentKey = dataKey;
 };
-const mousemove = (e: any, dataKey: string) => {
+document.addEventListener("mousemove", (e) => {
   if (isResizing) {
     const offsetX = e.clientX - lastX;
-    columnRefresh(offsetX, dataKey);
+    columnRefresh(offsetX, currentKey);
     lastX = e.clientX;
   }
-};
+});
 document.addEventListener("mouseup", () => {
   isResizing = false;
 });

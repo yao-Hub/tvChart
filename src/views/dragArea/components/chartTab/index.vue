@@ -1,14 +1,11 @@
 <template>
   <div
     class="chartTab"
-    :class="{ active: props.active }"
+    :class="{ active: props.active && !props.noActiveStyle }"
     :data-id="props.id"
     @click="emit('tabClick', props.id)"
   >
     <div class="moveIcon"></div>
-    <!-- <el-icon class="moveIcon">
-      <Mic />
-    </el-icon> -->
     <el-dropdown
       trigger="contextmenu"
       ref="symbolDropdown"
@@ -86,6 +83,7 @@ interface Props {
   active?: boolean;
   symbol?: string;
   interval?: string | number;
+  noActiveStyle?: boolean;
 }
 const props = defineProps<Props>();
 

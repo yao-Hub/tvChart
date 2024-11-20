@@ -29,7 +29,8 @@
       >
         <chartTab
           v-if="chartType === 'multiple'"
-          :active="activedId === id"
+          active
+          noActiveStyle
           :symbol="symbol"
           :interval="interval"
           :id="id"

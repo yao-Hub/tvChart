@@ -18,8 +18,8 @@ const moving = {
 const minWidth = 300;
 const minHeight = 150;
 const lineWidth = 8;
-const marginTop = 5;
-const lineColor = "#CECDD1";
+const marginTop = 8;
+const lineColor = "rgba(206,205,209,1)";
 
 // 水平线初始拉伸位置
 let startY: number;
@@ -135,7 +135,13 @@ function setDragAreaSize() {
   );
   const havChiLen = haveChildItems.length;
   if (havChiLen === 1) {
-    haveChildItems[0].setAttribute("style", `height: ${dh}px;`);
+    // haveChildItems[0].setAttribute("style", `height: ${dh}px;`);
+
+    haveChildItems[0].setAttribute(
+      "style",
+      `height: ${dh}px; margin-top: ${marginTop}px`
+    );
+
     return;
   }
   if (havChiLen > 1) {
@@ -271,7 +277,32 @@ function createHoriLine(addNum: number) {
     line.style.cursor = "ns-resize";
     line.style.left = "0";
     line.style.top = "0";
+    line.style.zIndex = "1";
     line.style.borderRadius = "2px";
+
+    const moveIcon = document.createElement("img");
+    moveIcon.setAttribute("src", "/src/assets/icons/icon_td1.svg");
+    moveIcon.style.height = `${lineWidth + 4}px`;
+    moveIcon.style.width = `28px`;
+    moveIcon.style.position = "absolute";
+    moveIcon.style.top = "50%";
+    moveIcon.style.left = "50%";
+    moveIcon.style.transform = "translate(-50%, -50%)";
+    moveIcon.style.zIndex = "1";
+    moveIcon.style.transition = "transform 0.3s ease";
+    moveIcon.style.borderRadius = "3px";
+    moveIcon.addEventListener("mouseover", function () {
+      moveIcon.style.transform = "translate(-50%, -50%) scale(1.1)";
+    });
+    moveIcon.addEventListener("mouseout", function () {
+      moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
+    });
+    moveIcon.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+    });
+
+    line.appendChild(moveIcon);
+
     line.addEventListener("mouseover", function () {
       line.style.backgroundColor = lineColor;
     });
@@ -280,15 +311,6 @@ function createHoriLine(addNum: number) {
         return;
       }
       line.style.backgroundColor = "";
-    });
-    document.addEventListener("mouseup", function () {
-      line.style.backgroundColor = "";
-      moving.verticalLine = false;
-      document
-        .querySelectorAll(".resize_handler_horizontal")
-        .forEach((item) => {
-          (item as HTMLElement).style.removeProperty("display");
-        });
     });
     line.addEventListener("mousedown", (e) => {
       document
@@ -299,6 +321,15 @@ function createHoriLine(addNum: number) {
       moving.verticalLine = true;
       startY = e.pageY;
       resizeVertical(e);
+    });
+    document.addEventListener("mouseup", function () {
+      moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
+      moving.verticalLine = false;
+      document
+        .querySelectorAll(".resize_handler_horizontal")
+        .forEach((item) => {
+          (item as HTMLElement).style.removeProperty("display");
+        });
     });
     document.querySelector(".dragArea")?.appendChild(line);
   }
@@ -335,8 +366,7 @@ function updateHoriLine() {
 const resizeVertical = (event: MouseEvent) => {
   chartSubStore.chartsLoading = true;
   let result: HTMLDivElement[] = [];
-
-  const lineTarget = event.target as HTMLDivElement;
+  const lineTarget = event.currentTarget as HTMLDivElement;
   const lineX = lineTarget.getBoundingClientRect().x;
   const dragArea_items = document.querySelectorAll(".dragArea_item");
   const haveChildItems = Array.from(dragArea_items).filter(
@@ -446,7 +476,31 @@ function createVertLine(addNum: number) {
     line.style.position = "absolute";
     line.style.width = lineWidth + "px";
     line.style.cursor = "ew-resize";
-    line.style.borderRadius = "2px";
+    line.style.zIndex = "1";
+
+    const moveIcon = document.createElement("img");
+    moveIcon.setAttribute("src", "/src/assets/icons/icon_td2.svg");
+    moveIcon.style.width = `${lineWidth + 4}px`;
+    moveIcon.style.height = `28px`;
+    moveIcon.style.position = "absolute";
+    moveIcon.style.top = "50%";
+    moveIcon.style.left = "50%";
+    moveIcon.style.transform = "translate(-50%, -50%)";
+    moveIcon.style.zIndex = "2";
+    moveIcon.style.transition = "transform 0.3s ease";
+    moveIcon.style.borderRadius = "3px";
+    moveIcon.style.cursor = "ew-resize";
+    moveIcon.addEventListener("mouseover", function () {
+      moveIcon.style.transform = "translate(-50%, -50%) scale(1.1)";
+    });
+    moveIcon.addEventListener("mouseout", function () {
+      moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
+    });
+    moveIcon.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+    });
+    line.appendChild(moveIcon);
+
     line.addEventListener("mouseover", function () {
       line.style.backgroundColor = lineColor;
     });
@@ -457,7 +511,7 @@ function createVertLine(addNum: number) {
       line.style.backgroundColor = "";
     });
     document.addEventListener("mouseup", function () {
-      line.style.backgroundColor = "";
+      // moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
       moving.horizontalLine = false;
     });
     line.addEventListener("mousedown", (e) => {
@@ -539,7 +593,7 @@ function resizeHorizontal(event: MouseEvent) {
   chartSubStore.chartsLoading = true;
   let result: HTMLDivElement[] = [];
   const demos = document.querySelectorAll(".demo");
-  const lineTarget = event.target as HTMLDivElement;
+  const lineTarget = event.currentTarget as HTMLDivElement;
   const lineY = lineTarget.getBoundingClientRect().y;
   // 跟线在同一层的demo
   const sameYDemos = Array.from(demos).filter((item) => {

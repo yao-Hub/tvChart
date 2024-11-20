@@ -4,7 +4,7 @@
       <slot></slot>
     </span>
     <el-date-picker
-      size="small"
+      style="height: 30px"
       v-model="timeRange"
       type="datetimerange"
       :shortcuts="shortcuts"
@@ -93,7 +93,7 @@ const timeChange = (value: any) => {
   }
 }
 :deep(.el-date-editor.el-input__wrapper) {
-  box-shadow: 0 0 0 0;
+  box-shadow: none;
   padding: 0;
   width: 320px;
 }

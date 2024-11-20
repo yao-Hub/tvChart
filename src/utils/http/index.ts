@@ -66,7 +66,7 @@ const handleTokenErr = debounce(async () => {
   } finally {
     logging = false;
   }
-}, 20);
+}, 1000);
 
 const ifLocal = import.meta.env.MODE === "development";
 
