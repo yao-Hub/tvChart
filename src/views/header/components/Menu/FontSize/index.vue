@@ -6,12 +6,12 @@
         <span>{{ $t("font.fontSize") }}</span>
       </div>
       <div class="expandIcon_right">
-        <span>{{ $t(`font.${nowSize}`) }}</span>
+        <span>{{ $t(`font.${sizeStore.nowSize}`) }}</span>
         <RightOutlined style="font-size: 12px" />
       </div>
     </div>
     <template #dropdown>
-      <Sizes :nowSize="nowSize" @changeSize="setFontSize"></Sizes>
+      <Sizes></Sizes>
     </template>
   </el-dropdown>
 </template>
@@ -19,17 +19,8 @@
 <script setup lang="ts">
 import { RightOutlined, FontSizeOutlined } from "@ant-design/icons-vue";
 import Sizes from "./Sizes.vue";
-import { ref } from "vue";
-import { useStorage } from "@/store/modules/storage";
-const storageStore = useStorage();
-
-const nowSize = ref("small");
-nowSize.value = storageStore.getItem("fontSize") || "small";
-document.documentElement.setAttribute("data-size", nowSize.value);
-
-const setFontSize = (size: string) => {
-  nowSize.value = size;
-};
+import { useSize } from "@/store/modules/size";
+const sizeStore = useSize();
 </script>
 
 <style lang="scss" scoped>

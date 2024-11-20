@@ -1,5 +1,6 @@
 $systemThemes: (
-  light: (background: #eef2f6,
+  light: (
+    background: #eef2f6,
     background-component: #fff,
     background-dialog: #f6f8fb,
     background-hover: rgba(0, 0, 0, 0.06),
@@ -11,11 +12,12 @@ $systemThemes: (
     word: #081021,
     word-gray: #94959b,
     closeBtn: #333333,
-    tabActive: rgba(2, 16, 36, 0.06),
+    tabActive: #e8ebf0,
     btnDisabled: #bec2c9,
     inputDisabled: #eef2f6,
   ),
-  dark: (background: #141823,
+  dark: (
+    background: #141823,
     background-component: #525252,
     background-dialog: #525252,
     background-hover: rgba(2, 16, 36, 0.12),
@@ -27,21 +29,23 @@ $systemThemes: (
     word: #d1d4dc,
     word-gray: #63636a,
     closeBtn: #d1d4dc,
-    tabActive: rgba(2, 16, 36, 0.06),
+    tabActive: #e8ebf0,
     btnDisabled: #bec2c9,
     inputDisabled: #eef2f6,
   ),
 );
 
 $updwonThemes: (
-  upRedDownGreen: (up: #dc1d43,
+  upRedDownGreen: (
+    up: #dc1d43,
     upHover: #ff4a61,
     upActive: #a41532,
     down: #009355,
     downHover: #00c673,
     downActive: #03663d,
   ),
-  upGreenDownRed: (up: #009355,
+  upGreenDownRed: (
+    up: #009355,
     upHover: #00c673,
     upActive: #03663d,
     down: #dc1d43,

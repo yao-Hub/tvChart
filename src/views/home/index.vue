@@ -21,6 +21,7 @@ import { useOrder } from "@/store/modules/order";
 import { useNetwork } from "@/store/modules/network";
 import { useRoot } from "@/store/store";
 import { useLayout } from "@/store/modules/layout";
+import { useSize } from "@/store/modules/size";
 
 import { initDragResizeArea } from "utils/dragResize/drag_position";
 
@@ -39,6 +40,7 @@ const orderStore = useOrder();
 const networkStore = useNetwork();
 const socketStore = useSocket();
 const layoutStore = useLayout();
+const sizeStore = useSize();
 
 // 获取所有商品(品种)
 const getSymbols = async () => {
@@ -67,6 +69,7 @@ async function init() {
     // 其余操作 都要基于拿到缓存信息才操作
     orderStore.getQuickTrans();
     chartInitStore.loadChartList();
+    sizeStore.initSize();
     userStore.getLoginInfo({ emitSocket: true });
     // 记忆动作（没什么用(>^ω^<)喵）
     const rootStore = useRoot();

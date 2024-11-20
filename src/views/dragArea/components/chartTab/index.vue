@@ -167,12 +167,14 @@ const resolutes = computed(() => {
   width: fit-content;
   border-radius: 2px;
   cursor: pointer;
+  font-size: var(--font-size);
 }
 
 .el-dropdown-link {
   display: flex;
   align-items: center;
   gap: 5px;
+  font-size: var(--font-size);
   white-space: nowrap;
 }
 

@@ -1,9 +1,9 @@
 <template>
   <el-dropdown-menu>
     <el-dropdown-item v-for="size in sizeList">
-      <div class="item" @click="changeSize(size)">
+      <div class="item" @click="sizeStore.changeSize(size)">
         <span>{{ $t(`font.${size}`) }}</span>
-        <CheckOutlined v-if="props.nowSize === size" class="checkIcon" />
+        <CheckOutlined v-if="sizeStore.nowSize === size" class="checkIcon" />
       </div>
     </el-dropdown-item>
   </el-dropdown-menu>
@@ -11,23 +11,10 @@
 
 <script setup lang="ts">
 import { CheckOutlined } from "@ant-design/icons-vue";
-import { useStorage } from "@/store/modules/storage";
-const storageStore = useStorage();
+import { useSize } from "@/store/modules/size";
+const sizeStore = useSize();
 
 const sizeList = ["small", "medium", "large"];
-
-interface Props {
-  nowSize: string;
-}
-const props = defineProps<Props>();
-
-const emit = defineEmits(["changeSize"]);
-
-const changeSize = (size: string) => {
-  document.documentElement.setAttribute("data-size", size);
-  storageStore.setItem("fontSize", size);
-  emit("changeSize", size);
-};
 </script>
 
 <style lang="scss" scoped>

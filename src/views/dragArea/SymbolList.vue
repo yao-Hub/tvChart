@@ -26,13 +26,12 @@
         :data="dataSource"
         :style="{ width: '100%', height: '100%' }"
         :row-style="{
-          height: '24px',
+          height: '40px',
         }"
         header-cell-class-name="header-cell"
         cell-class-name="body-cell"
         row-key="symbols"
         :expand-row-keys="expandRowKeys"
-        @row-click="rowClick"
         @sort-change="sortChange"
         @expand-change="expandChange"
       >
@@ -278,16 +277,16 @@ watch(
 );
 
 // 点击行更改图表品种
-import { useChartInit } from "@/store/modules/chartInit";
-const chartInitStore = useChartInit();
-const changeSymbol = (e: any) => {
-  const symbol = e.symbols;
-  const chartId = chartInitStore.activeChartId;
-  chartInitStore.changeChartSymbol({ id: chartId, symbol });
-};
-const rowClick = (row: any) => {
-  changeSymbol(row);
-};
+// import { useChartInit } from "@/store/modules/chartInit";
+// const chartInitStore = useChartInit();
+// const changeSymbol = (e: any) => {
+//   const symbol = e.symbols;
+//   const chartId = chartInitStore.activeChartId;
+//   chartInitStore.changeChartSymbol({ id: chartId, symbol });
+// };
+// const rowClick = (row: any) => {
+//   changeSymbol(row);
+// };
 
 // 排序日变化
 const sortChange = ({ order, prop }: any) => {
@@ -348,7 +347,7 @@ const expandChange = (row: any, expandedRows: any[]) => {
   background: #f6f8fa !important;
   font-size: var(--font-size) !important;
   padding: 0 !important;
-  height: 24px !important;
+  height: 32px !important;
 }
 :deep(.cell) {
   padding: 0;

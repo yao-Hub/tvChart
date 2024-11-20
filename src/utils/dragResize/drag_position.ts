@@ -280,21 +280,32 @@ function createHoriLine(addNum: number) {
     line.style.zIndex = "1";
     line.style.borderRadius = "2px";
 
-    const moveIcon = document.createElement("img");
-    moveIcon.setAttribute("src", "/src/assets/icons/icon_td1.svg");
+    const moveIcon = document.createElement("div");
+    moveIcon.style.height = `${lineWidth + 8}px`;
+    moveIcon.style.width = `28px`;
+    moveIcon.style.backgroundImage = "url('/src/assets/icons/icon_td1.svg')";
+    moveIcon.style.backgroundSize = "contain";
+    moveIcon.style.backgroundRepeat = "no-repeat";
+    moveIcon.style.backgroundPosition = "center";
     moveIcon.style.height = `${lineWidth + 4}px`;
     moveIcon.style.width = `28px`;
     moveIcon.style.position = "absolute";
     moveIcon.style.top = "50%";
     moveIcon.style.left = "50%";
     moveIcon.style.transform = "translate(-50%, -50%)";
-    moveIcon.style.zIndex = "1";
+    moveIcon.style.zIndex = "2";
     moveIcon.style.transition = "transform 0.3s ease";
     moveIcon.style.borderRadius = "3px";
+    moveIcon.style.userSelect = "none";
     moveIcon.addEventListener("mouseover", function () {
+      moveIcon.style.backgroundColor = lineColor;
       moveIcon.style.transform = "translate(-50%, -50%) scale(1.1)";
     });
     moveIcon.addEventListener("mouseout", function () {
+      if (moving.verticalLine) {
+        return;
+      }
+      moveIcon.style.backgroundColor = "";
       moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
     });
     moveIcon.addEventListener("mousedown", function (e) {
@@ -303,15 +314,15 @@ function createHoriLine(addNum: number) {
 
     line.appendChild(moveIcon);
 
-    line.addEventListener("mouseover", function () {
-      line.style.backgroundColor = lineColor;
-    });
-    line.addEventListener("mouseout", function () {
-      if (moving.verticalLine) {
-        return;
-      }
-      line.style.backgroundColor = "";
-    });
+    // line.addEventListener("mouseover", function () {
+    //   line.style.backgroundColor = lineColor;
+    // });
+    // line.addEventListener("mouseout", function () {
+    //   if (moving.verticalLine) {
+    //     return;
+    //   }
+    //   line.style.backgroundColor = "";
+    // });
     line.addEventListener("mousedown", (e) => {
       document
         .querySelectorAll(".resize_handler_horizontal")
@@ -323,6 +334,7 @@ function createHoriLine(addNum: number) {
       resizeVertical(e);
     });
     document.addEventListener("mouseup", function () {
+      moveIcon.style.backgroundColor = "";
       moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
       moving.verticalLine = false;
       document
@@ -478,10 +490,13 @@ function createVertLine(addNum: number) {
     line.style.cursor = "ew-resize";
     line.style.zIndex = "1";
 
-    const moveIcon = document.createElement("img");
-    moveIcon.setAttribute("src", "/src/assets/icons/icon_td2.svg");
-    moveIcon.style.width = `${lineWidth + 4}px`;
+    const moveIcon = document.createElement("div");
+    moveIcon.style.width = `${lineWidth + 8}px`;
     moveIcon.style.height = `28px`;
+    moveIcon.style.backgroundImage = "url('/src/assets/icons/icon_td2.svg')";
+    moveIcon.style.backgroundSize = "contain";
+    moveIcon.style.backgroundRepeat = "no-repeat";
+    moveIcon.style.backgroundPosition = "center";
     moveIcon.style.position = "absolute";
     moveIcon.style.top = "50%";
     moveIcon.style.left = "50%";
@@ -490,10 +505,16 @@ function createVertLine(addNum: number) {
     moveIcon.style.transition = "transform 0.3s ease";
     moveIcon.style.borderRadius = "3px";
     moveIcon.style.cursor = "ew-resize";
+    moveIcon.style.userSelect = "none";
     moveIcon.addEventListener("mouseover", function () {
+      moveIcon.style.backgroundColor = lineColor;
       moveIcon.style.transform = "translate(-50%, -50%) scale(1.1)";
     });
     moveIcon.addEventListener("mouseout", function () {
+      if (moving.horizontalLine) {
+        return;
+      }
+      moveIcon.style.backgroundColor = "";
       moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
     });
     moveIcon.addEventListener("mousedown", function (e) {
@@ -501,17 +522,18 @@ function createVertLine(addNum: number) {
     });
     line.appendChild(moveIcon);
 
-    line.addEventListener("mouseover", function () {
-      line.style.backgroundColor = lineColor;
-    });
-    line.addEventListener("mouseout", function () {
-      if (moving.horizontalLine) {
-        return;
-      }
-      line.style.backgroundColor = "";
-    });
+    // line.addEventListener("mouseover", function () {
+    //   line.style.backgroundColor = lineColor;
+    // });
+    // line.addEventListener("mouseout", function () {
+    //   if (moving.horizontalLine) {
+    //     return;
+    //   }
+    //   line.style.backgroundColor = "";
+    // });
     document.addEventListener("mouseup", function () {
-      // moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
+      moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
+      moveIcon.style.backgroundColor = "";
       moving.horizontalLine = false;
     });
     line.addEventListener("mousedown", (e) => {
