@@ -52,7 +52,7 @@
         >
           <template #default="scope">
             <span :class="[quotesClass[scope.row.symbols].bid]">
-              {{ scope.row.bid }}
+              {{ scope.row.bid || "-" }}
             </span>
           </template>
         </el-table-column>
@@ -63,7 +63,7 @@
         >
           <template #default="scope">
             <span :class="[quotesClass[scope.row.symbols].ask]">
-              {{ scope.row.ask }}
+              {{ scope.row.ask || "-" }}
             </span>
           </template>
         </el-table-column>
