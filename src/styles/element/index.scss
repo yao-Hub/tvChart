@@ -7,9 +7,6 @@
   ),
   $dropdown: (
     "menuItem-hover-color": #606266,
-  ),
-  $table: (
-    "header-bg-color": #f1f3f6,
   )
 );
 // 如果你想导入所有样式:
@@ -19,6 +16,7 @@ html {
   .el-button {
     font-size: var(--font-size);
     --el-button-hover-text-color: #081021;
-    --el-button-hover-bg-color: #e28602;
+    --el-button-hover-bg-color: #ffd051;
+    --el-button-active-bg-color: #e28602;
   }
 }

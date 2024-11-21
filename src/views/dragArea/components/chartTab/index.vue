@@ -13,11 +13,9 @@
       @visible-change="symbolVisible = $event"
       @command="emit('symbolCommand', $event, props.id)"
     >
-      <div class="el-dropdown-link symbolLink" @click.stop="toggleSymbol">
-        {{ props.symbol
-        }}<el-icon>
-          <CaretBottom />
-        </el-icon>
+      <div class="el-dropdown-link" @click.stop="toggleSymbol">
+        <span class="label">{{ props.symbol }}</span>
+        <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
       </div>
       <template #dropdown>
         <div class="search">
@@ -30,9 +28,9 @@
           </el-input>
         </div>
         <el-scrollbar style="height: 200px">
-          <el-dropdown-item v-for="item in symbols" :command="item.symbol">{{
-            item.symbol
-          }}</el-dropdown-item>
+          <el-dropdown-item v-for="item in symbols" :command="item.symbol">
+            <span class="label">{{ item.symbol }}</span>
+          </el-dropdown-item>
         </el-scrollbar>
       </template>
     </el-dropdown>
@@ -45,21 +43,24 @@
       @command="emit('resolutionCommand', $event, props.id)"
     >
       <div class="el-dropdown-link" @click.stop="toggleResolution">
-        {{ getResolution
-        }}<el-icon>
-          <CaretBottom />
-        </el-icon>
+        <span class="label">{{ nowResolution }}</span>
+        <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
       </div>
       <template #dropdown>
         <el-dropdown-item v-for="(value, key) in resolutes" :command="key">
-          <div style="min-width: 100px; text-align: center">
-            {{ value }}
+          <div class="dropdownItem">
+            <span class="label">{{ value }}</span>
+            <img
+              class="selectIcon"
+              src="@/assets/icons/select.svg"
+              v-if="nowResolution === value"
+            />
           </div>
         </el-dropdown-item>
       </template>
     </el-dropdown>
     <el-divider direction="vertical" />
-    <el-icon @click.stop="emit('tabClose', props.id)">
+    <el-icon @click.stop="emit('tabClose', props.id)" style="margin-left: auto">
       <Close />
     </el-icon>
   </div>
@@ -132,7 +133,7 @@ const symbols = computed(() => {
   return result;
 });
 
-const getResolution = computed(() => {
+const nowResolution = computed(() => {
   if (props.interval) {
     const val = RESOLUTES[props.interval];
     const timeTYpe = val.split(" ")[1];
@@ -167,19 +168,19 @@ const resolutes = computed(() => {
   width: fit-content;
   border-radius: 2px;
   cursor: pointer;
-  font-size: var(--font-size);
 }
 
 .el-dropdown-link {
   display: flex;
   align-items: center;
-  gap: 5px;
-  font-size: var(--font-size);
   white-space: nowrap;
 }
-
-.symbolLink {
-  font-weight: 500;
+.dropdownItem {
+  align-items: center;
+  justify-content: space-between;
+  display: flex;
+  width: 120px;
+  height: 40px;
 }
 
 .active {

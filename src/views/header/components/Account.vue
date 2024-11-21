@@ -9,7 +9,7 @@
         </div>
         <span class="balance">{{ userStore.loginInfo?.balance }}</span>
       </div>
-      <img class="icondown" src="@/assets/icons/caretDown.svg" />
+      <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
     </div>
     <template #dropdown>
       <div class="aList">
@@ -168,12 +168,6 @@ const modalOpen = ref<boolean>(false);
   padding: 5px 0;
   box-sizing: border-box;
   cursor: pointer;
-
-  .icondown {
-    width: 8px;
-    height: 4px;
-    margin-left: 9px;
-  }
   .left {
     display: flex;
     flex-direction: column;

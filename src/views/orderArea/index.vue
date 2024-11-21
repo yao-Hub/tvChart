@@ -118,12 +118,10 @@
               v-if="['marketOrder'].includes(activeKey)"
               @command="closeMarketOrders"
             >
-              <div class="delList">
-                <span>批量平仓</span>
-                <el-icon>
-                  <arrow-down />
-                </el-icon>
-              </div>
+              <el-button type="primary">
+                <span class="label">批量平仓</span>
+                <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
+              </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item :command="1">所有持仓平仓</el-dropdown-item>
@@ -149,12 +147,15 @@
         <template #default="{ height, width }">
           <el-table-v2
             :key="activeKey"
-            header-class="tableHeader"
+            header-class="table_v2_Header"
             v-loading="state.loadingList[activeKey]"
             :columns="state.columns[activeKey]"
             :data="state.dataSource[activeKey]"
             :row-height="32"
             :header-height="32"
+            :cell-props="{
+              style: { padding: '0 16px' },
+            }"
             :width="width"
             :height="parseInt(height)"
             :footer-height="
@@ -173,6 +174,7 @@
                 <div>{{ column.title || "" }}</div>
                 <div
                   class="drag-line"
+                  v-if="column.key !== 'action'"
                   @mousedown="(e: Event) => mousedown(e, column.dataKey)"
                 >
                   |
@@ -413,23 +415,14 @@ const columnRefresh = (x: any, fileKey: string) => {
   const index = state.columns[activeKey.value].findIndex(
     (item: any) => item.dataKey === fileKey
   );
-  const nextIndex = index + 1;
   const nowCol = state.columns[activeKey.value][index];
-  const nextCol = state.columns[activeKey.value][nextIndex];
   const minNowW = nowCol.minWidth || 80;
-  const minNextW = nextCol.minWidth || 80;
   // 向左
   if (x < 0 && nowCol.width <= minNowW) {
     return;
   }
-  // 向右
-  if (x > 0 && nextCol.width <= minNextW) {
-    return;
-  }
   const nowW = nowCol.width + x;
-  const nextW = nextCol.width - x;
   nowCol.width = Math.max(nowW, minNowW);
-  nextCol.width = Math.max(nextW, minNextW);
 };
 
 let isResizing = false;
@@ -996,29 +989,29 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import "@/styles/_handle.scss";
 
-:deep(.tableHeader) {
+.table_v2_Header {
   font-size: var(--font-size);
-  // background-color: red;
-  // @include background_color("background-table-active");
-  background-color: #f1f3f6;
-  border-radius: 4px 4px 0px 0px;
-  overflow: hidden;
+  @include background_color("table-colored");
 }
+.el-table-v2__row:nth-child(even) {
+  @include background_color("table-colored");
+}
+</style>
+<style lang="scss" scoped>
+@import "@/styles/_handle.scss";
 
 :deep(.el-table-v2__header-cell) {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  padding: 0;
 }
 
 :deep(.el-table-v2__row) {
   font-size: var(--font-size);
-}
-:deep(.el-table-v2__row:nth-child(even)) {
-  background-color: #f1f3f6;
 }
 
 .orderArea {
@@ -1070,14 +1063,6 @@ onMounted(async () => {
         flex: 1;
         display: flex;
         justify-content: flex-end;
-
-        .delList {
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          cursor: pointer;
-          width: 75px;
-        }
       }
     }
   }
@@ -1088,12 +1073,16 @@ onMounted(async () => {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
+  @include background_color("table-colored");
+  height: 100%;
   width: 100%;
+  padding: 0 16px;
+  line-height: 32px;
+
   .drag-line {
     position: absolute;
     top: 0;
     right: 0;
-    bottom: 0;
     cursor: ew-resize;
     padding: 0 5px;
     box-sizing: border-box;

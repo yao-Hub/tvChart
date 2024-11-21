@@ -25,8 +25,8 @@
         ref="table"
         :data="dataSource"
         :style="{ width: '100%', height: '100%' }"
-        :row-style="{
-          height: '40px',
+        :header-row-style="{
+          height: '32px',
         }"
         header-cell-class-name="header-cell"
         cell-class-name="body-cell"
@@ -35,7 +35,7 @@
         @sort-change="sortChange"
         @expand-change="expandChange"
       >
-        <el-table-column type="expand" width="20">
+        <el-table-column type="expand" width="16">
           <template #default="{ row }">
             <Deep :symbol="row.symbols"></Deep>
           </template>
@@ -43,47 +43,53 @@
         <el-table-column
           prop="symbols"
           :label="$t('order.symbol')"
-          min-width="90"
+          align="left"
+          min-width="108"
         />
         <el-table-column
           prop="bid"
           :label="$t('order.sellPrice')"
-          min-width="90"
+          align="right"
+          min-width="96"
         >
-          <template #default="scope">
-            <span :class="[quotesClass[scope.row.symbols].bid]">
-              {{ scope.row.bid || "-" }}
+          <template #default="{ row }">
+            <span :class="[quotesClass[row.symbols].bid]">
+              {{ row.bid || "-" }}
             </span>
           </template>
         </el-table-column>
         <el-table-column
           prop="ask"
           :label="$t('order.buyPrice')"
-          min-width="90"
+          align="right"
+          min-width="96"
         >
-          <template #default="scope">
-            <span :class="[quotesClass[scope.row.symbols].ask]">
-              {{ scope.row.ask || "-" }}
+          <template #default="{ row }">
+            <span :class="[quotesClass[row.symbols].ask]">
+              {{ row.ask || "-" }}
             </span>
           </template>
         </el-table-column>
-        <el-table-column prop="ctm_ms" :label="$t('order.time')" min-width="90">
-          <template #default="scope">
-            {{ getTime(scope.row?.ctm_ms) }}
+        <el-table-column
+          prop="ctm_ms"
+          :label="$t('order.time')"
+          align="right"
+          min-width="88"
+        >
+          <template #default="{ row }">
+            {{ getTime(row?.ctm_ms) }}
           </template>
         </el-table-column>
         <el-table-column
           prop="variation"
           :label="$t('order.diurnalVariation')"
           sortable="custom"
-          min-width="90"
+          align="right"
+          min-width="84"
         >
-          <template #default="scope">
-            <span
-              style="text-align: right"
-              :class="[+scope.row.variation > 0 ? ' buyWord' : ' sellWord']"
-            >
-              {{ scope.row.variation || "-" }}
+          <template #default="{ row }">
+            <span :class="[+row.variation > 0 ? ' buyWord' : ' sellWord']">
+              {{ row.variation || "-" }}
             </span>
           </template>
         </el-table-column>
@@ -226,25 +232,28 @@ const temVar = ref<Record<string, Quote & { variation: string }>>({});
 watch(
   () => orderStore.currentQuotes,
   (quotes) => {
-    for (const i in quotes) {
-      const newQuote = cloneDeep(quotes[i]);
-      const oldQuote = temQuotes.value[i];
+    dataSource.value.forEach((item) => {
+      const symbol = item.symbols;
+      const newQuote = cloneDeep(quotes[symbol]);
+      const oldQuote = temQuotes.value[symbol];
       const ifEq = eq(newQuote, oldQuote);
       if (ifEq) {
-        break;
+        return;
       }
       const nowBid = newQuote.bid;
       const nowAsk = newQuote.ask;
-      if (oldQuote && quotesClass.value[i]) {
+      if (oldQuote && quotesClass.value[symbol]) {
         const oldBid = oldQuote.bid;
         const oldAsk = oldQuote.ask;
-        quotesClass.value[i].ask = oldAsk > nowAsk ? "sellWord" : "buyWord";
-        quotesClass.value[i].bid = oldBid > nowBid ? "sellWord" : "buyWord";
+        quotesClass.value[symbol].ask =
+          oldAsk > nowAsk ? "sellWord" : "buyWord";
+        quotesClass.value[symbol].bid =
+          oldBid > nowBid ? "sellWord" : "buyWord";
       }
-      temQuotes.value[i] = newQuote;
+      temQuotes.value[symbol] = newQuote;
 
       // 日变化
-      const oldVar = temVar.value[i];
+      const oldVar = temVar.value[symbol];
       const result = {
         ...newQuote,
         variation: "",
@@ -257,17 +266,14 @@ watch(
         result.variation = variation;
         !!oldVar && (result.open = open);
       }
-      temVar.value[i] = result;
+      temVar.value[symbol] = result;
 
       // 赋值
-      const found = dataSource.value.find((e) => e.symbols === i);
-      if (found) {
-        found.variation = result.variation;
-        found.bid = result.bid;
-        found.ask = result.ask;
-        found.ctm_ms = result.ctm_ms;
-      }
-    }
+      item.variation = result.variation;
+      item.bid = result.bid;
+      item.ask = result.ask;
+      item.ctm_ms = result.ctm_ms;
+    });
   },
   {
     deep: true,
@@ -343,19 +349,17 @@ const expandChange = (row: any, expandedRows: any[]) => {
 }
 
 :deep(.header-cell) {
-  background: #f6f8fa !important;
-  font-size: var(--font-size) !important;
-  padding: 0 !important;
-  height: 32px !important;
-}
-:deep(.cell) {
+  font-size: var(--font-size);
   padding: 0;
 }
+:deep(.cell) {
+  padding-left: 0;
+  padding-right: 16px;
+}
 :deep(.body-cell) {
-  padding: 0 !important;
-  height: 24px;
   border: none;
   font-size: var(--font-size);
+  // padding-left: 0 !important;
 }
 
 :deep(.el-table__expand-icon > .el-icon) {

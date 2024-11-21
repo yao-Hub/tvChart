@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { nextTick } from "vue";
-import { resizeUpdate } from "@/utils/dragResize/drag_position";
+import { refreshLayout } from "@/utils/dragResize/drag_position";
 
 import { useLayout } from "@/store/modules/layout";
 const layoutStore = useLayout();
@@ -31,7 +31,7 @@ const layoutStore = useLayout();
 const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
   layoutStore[type] = !layoutStore[type];
   await nextTick();
-  resizeUpdate();
+  refreshLayout();
   layoutStore.rememberLayout();
 };
 </script>

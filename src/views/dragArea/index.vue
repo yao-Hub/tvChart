@@ -16,7 +16,7 @@
     </div>
     <div class="dragArea_item nested-sortable" data-id="item_2" data-child="demo_3" data-initH="248">
       <!-- demo_3 -->
-      <div class="demo nested-2" data-id="demo_3" data-minWidth="445" v-if="layoutStore.orderAreaVisable">
+      <div class="demo nested-1" data-id="demo_3" data-minWidth="445" v-if="layoutStore.orderAreaVisable">
         <div class="handle"></div>
         <OrderArea v-if="!chartInitStore.loading" class="container_item"></OrderArea>
       </div>
@@ -57,6 +57,7 @@ const layoutStore = useLayout();
       user-select: none;
       overflow: hidden;
       border-radius: 4px;
+      height: 100%;
 
       .container_item {
         height: 100%;

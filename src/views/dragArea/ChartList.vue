@@ -28,6 +28,7 @@
         v-show="activedId === id || chartType === 'multiple'"
       >
         <chartTab
+          style="width: 100%"
           v-if="chartType === 'multiple'"
           active
           noActiveStyle
@@ -197,10 +198,12 @@ const tabClose = (id: string) => {
 
 .charts {
   box-sizing: border-box;
-
+  @include background_color("background");
+  padding-left: 3px;
   .tabs {
     display: flex;
     gap: 4px;
+    @include background_color("background-component");
   }
 
   &_container {

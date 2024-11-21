@@ -14,6 +14,10 @@ const moving = {
   horizontalLine: false,
   verticalLine: false,
 };
+const iconHover = {
+  horizontalLine: false,
+  verticalLine: false,
+};
 
 const minWidth = 300;
 const minHeight = 150;
@@ -57,11 +61,13 @@ function initDragArea() {
         }
       },
       onMove: () => {
-        resizeUpdate();
+        setTimeout(() => {
+          refreshLayout();
+        }, 200);
       },
       onEnd: () => {
         setTimeout(() => {
-          resizeUpdate(); // fix：拖拽完剩一个拖拽层时样式不对
+          refreshLayout(); // fix：拖拽完剩一个拖拽层时样式不对
           chartInitStore.loadCharts();
           themeStore.setChartTheme();
         }, 200);
@@ -105,97 +111,45 @@ function initDragArea() {
 function setDragAreaSize() {
   const dragArea = document.querySelector(".dragArea") as HTMLElement;
   const dh = dragArea.getBoundingClientRect().height;
-
-  const innerWidth = window.innerWidth;
+  const dw = dragArea.getBoundingClientRect().width;
 
   const dragItems = document.querySelectorAll(".dragArea_item");
 
-  // 没内容的item高度设为0，即隐藏
-  const emptyChildItems = Array.from(dragItems).filter(
-    (item) => item.querySelectorAll(".demo").length === 0
-  );
-  emptyChildItems.forEach((item) => {
-    const element = item as HTMLElement;
-    element.style.height = "0";
+  // 先平分
+  dragItems.forEach((item, index, arr) => {
+    const height = dh / arr.length - lineWidth * (arr.length - 1);
+    item.setAttribute(
+      "style",
+      `height: ${height}px; width: ${dw}px; margin-top: ${
+        index > 0 ? marginTop : 0
+      }px`
+    );
   });
 
-  /**
-   * 有内容的item：
-   *  1.当只有一个item有内容时，铺满；
-   *  2.当有多个包含内容的item时：
-   *    a.包含"data-initH"属性的item的高度为"data-initH"值
-   *    b.如果全部都有"data-initH"，则按照比例设置高度
-   *    c.没有"data-initH"的则平均分配剩余空间
-   *    d."data-initH"的和大于dw的高度时，根据item之间的比例缩小
-   *    e."data-initH"的和小于dw的高度时，需要考虑initH的dom数与item的个数关系
-   *    f. b、d和e的情况目前不需要，先不实现
-   * */
-  const haveChildItems = Array.from(dragItems).filter(
-    (item) => item.querySelectorAll(".demo").length !== 0
-  );
-  const havChiLen = haveChildItems.length;
-  if (havChiLen === 1) {
-    // haveChildItems[0].setAttribute("style", `height: ${dh}px;`);
+  // 裁剪高度
+  let leftH = 0;
+  dragItems.forEach((item) => {
+    const element = item as HTMLElement;
+    const nowH = item.getBoundingClientRect().height;
+    const dlen = item.querySelectorAll(".demo").length;
+    const initH = item.getAttribute("data-initH") || nowH;
+    const needH = dlen === 0 ? 0 : +initH;
+    if (needH !== nowH) {
+      leftH += nowH - needH;
+    }
+    element.style.height = `${needH}px`;
+  });
 
-    haveChildItems[0].setAttribute(
-      "style",
-      `height: ${dh}px; margin-top: ${marginTop}px`
-    );
-
-    return;
-  }
-  if (havChiLen > 1) {
-    const initHItem = haveChildItems.filter((item) =>
-      item.getAttribute("data-initH")
-    );
-    const initHSum = initHItem.reduce((pre, next) => {
-      const nextInitH = next.getAttribute("data-initH") || 0;
-      return pre + Number(nextInitH);
-    }, 0);
-
-    const leftItemLen = dragItems.length - initHItem.length;
-
-    // if (initHSum > dh) {
-    //   let totalRadio = 1;
-    //   haveChildItems.forEach((item) => {
-    //     const h = item.getAttribute("data-initH");
-    //     if (h) {
-    //       const radio = +h / initHSum;
-    //       totalRadio -= radio;
-    //       const rh = radio * dh;
-    //       item.setAttribute(
-    //         "style",
-    //         `height:${rh}px; margin-top: ${marginTop}px`
-    //       );
-    //     }
-    //   });
-    //   const leftHeight = dh * totalRadio;
-    //   haveChildItems.forEach((item) => {
-    //     const h = item.getAttribute("data-initH");
-    //     if (h === null) {
-    //       const rh = leftHeight / leftItemLen - marginTop;
-    //       item.setAttribute(
-    //         "style",
-    //         `height:${rh}px; margin-top: ${marginTop}px`
-    //       );
-    //     }
-    //   });
-    // } else {
-    const leftHeight = dh - initHSum;
-    haveChildItems.forEach((item, index) => {
-      const h = item.getAttribute("data-initH");
-      let rh = h
-        ? +h - marginTop
-        : leftHeight / leftItemLen - (index > 0 ? marginTop : 0);
-      item.setAttribute(
-        "style",
-        `height:${rh}px; margin-top: ${
-          index > 0 ? marginTop : 0
-        }px; width: ${innerWidth}px;`
-      );
-    });
-    // }
-  }
+  // 把裁剪的高度分配
+  const list = Array.from(dragItems).filter((item) => {
+    const dlen = item.querySelectorAll(".demo").length;
+    const initH = item.getAttribute("data-initH");
+    return dlen > 0 && !initH;
+  });
+  const target = list.length ? list[0] : dragItems[0];
+  const nowH = target.getBoundingClientRect().height;
+  const ele = target as HTMLElement;
+  ele.style.height = `${nowH + leftH}px`;
 }
 
 // 初始化demo宽高
@@ -225,45 +179,53 @@ function initDemosPosition() {
   }
 }
 
-// 定位demo的具体位置(widht, left) 原理与设置item的原理类似，特殊情况还待完善
+// 定位demo的具体位置(widht, left)
 function setDemoPosition() {
   const dragArea_items = document.querySelectorAll(".dragArea_item");
   dragArea_items.forEach((item) => {
     const demos = item.querySelectorAll(".demo");
-    const ih = item.getBoundingClientRect().height;
     const iw = item.getBoundingClientRect().width;
-    if (demos.length === 1) {
-      demos[0].setAttribute(
-        "style",
-        `width: 100%; height: ${ih}px; left: 0; top: 0;`
-      );
-    } else {
-      const initWDemos = Array.from(demos).filter((demo) =>
-        demo.getAttribute("data-initW")
-      );
-      const initWSum = initWDemos.reduce((pre, next) => {
-        const nextInitW = next.getAttribute("data-initW") || 0;
-        return pre + Number(nextInitW);
-      }, 0);
-      const noInitWLen = demos.length - initWDemos.length;
-      if (initWSum < iw) {
-        const leftW = iw - initWSum;
-        demos.forEach((demo, index) => {
-          const initW = demo.getAttribute("data-initW");
-          const width =
-            initW ||
-            leftW / noInitWLen -
-              lineWidth * (noInitWLen > 1 ? noInitWLen - 1 : 1);
-          const left = index
-            ? demos[index - 1].getBoundingClientRect().right + lineWidth
-            : 0;
-          demo.setAttribute(
-            "style",
-            `width: ${width}px; height: ${ih}px; top: 0; left: ${left}px`
-          );
-        });
+
+    // 先平分
+    demos.forEach((demo, index, arr) => {
+      const lineNum = arr.length - 1;
+      const width = (iw - lineWidth * lineNum) / arr.length;
+      demo.setAttribute("style", `width: ${width}px`);
+    });
+
+    // 裁剪宽度
+    let leftW = 0;
+    demos.forEach((demo, index, arr) => {
+      const nowW = demo.getBoundingClientRect().width;
+      const initW = demo.getAttribute("data-initW") || nowW;
+      const needW = arr.length === 1 ? iw : +initW;
+      if (needW !== nowW) {
+        leftW += nowW - needW;
       }
+      demo.setAttribute("style", `width: ${needW}px`);
+    });
+
+    // 分配裁剪宽度
+    const list = Array.from(demos).filter((demo) => {
+      const initW = demo.getAttribute("data-initW");
+      return !initW;
+    });
+    const target = list.length ? list[0] : demos[0];
+    if (target) {
+      const nowW = target.getBoundingClientRect().width;
+      target.setAttribute("style", `width: ${nowW + leftW}px`);
     }
+
+    // 设置left
+    demos.forEach((demo, index, arr) => {
+      const element = demo as HTMLElement;
+      if (index === 0) {
+        element.style.left = "0";
+      } else {
+        const right = arr[index - 1].getBoundingClientRect().right;
+        element.style.left = `${right + lineWidth}px`;
+      }
+    });
   });
 }
 
@@ -298,6 +260,7 @@ function createHoriLine(addNum: number) {
     moveIcon.style.borderRadius = "3px";
     moveIcon.style.userSelect = "none";
     moveIcon.addEventListener("mouseover", function () {
+      iconHover.verticalLine = true;
       moveIcon.style.backgroundColor = lineColor;
       moveIcon.style.transform = "translate(-50%, -50%) scale(1.1)";
     });
@@ -307,6 +270,7 @@ function createHoriLine(addNum: number) {
       }
       moveIcon.style.backgroundColor = "";
       moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
+      iconHover.verticalLine = false;
     });
     moveIcon.addEventListener("mousedown", function (e) {
       e.preventDefault();
@@ -314,15 +278,18 @@ function createHoriLine(addNum: number) {
 
     line.appendChild(moveIcon);
 
-    // line.addEventListener("mouseover", function () {
-    //   line.style.backgroundColor = lineColor;
-    // });
-    // line.addEventListener("mouseout", function () {
-    //   if (moving.verticalLine) {
-    //     return;
-    //   }
-    //   line.style.backgroundColor = "";
-    // });
+    line.addEventListener("mouseover", function () {
+      if (iconHover.verticalLine) {
+        return;
+      }
+      line.style.backgroundColor = lineColor;
+    });
+    line.addEventListener("mouseout", function () {
+      if (moving.verticalLine) {
+        return;
+      }
+      line.style.backgroundColor = "";
+    });
     line.addEventListener("mousedown", (e) => {
       document
         .querySelectorAll(".resize_handler_horizontal")
@@ -337,6 +304,7 @@ function createHoriLine(addNum: number) {
       moveIcon.style.backgroundColor = "";
       moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
       moving.verticalLine = false;
+      iconHover.verticalLine = false;
       document
         .querySelectorAll(".resize_handler_horizontal")
         .forEach((item) => {
@@ -490,50 +458,50 @@ function createVertLine(addNum: number) {
     line.style.cursor = "ew-resize";
     line.style.zIndex = "1";
 
-    const moveIcon = document.createElement("div");
-    moveIcon.style.width = `${lineWidth + 8}px`;
-    moveIcon.style.height = `28px`;
-    moveIcon.style.backgroundImage = "url('/src/assets/icons/icon_td2.svg')";
-    moveIcon.style.backgroundSize = "contain";
-    moveIcon.style.backgroundRepeat = "no-repeat";
-    moveIcon.style.backgroundPosition = "center";
-    moveIcon.style.position = "absolute";
-    moveIcon.style.top = "50%";
-    moveIcon.style.left = "50%";
-    moveIcon.style.transform = "translate(-50%, -50%)";
-    moveIcon.style.zIndex = "2";
-    moveIcon.style.transition = "transform 0.3s ease";
-    moveIcon.style.borderRadius = "3px";
-    moveIcon.style.cursor = "ew-resize";
-    moveIcon.style.userSelect = "none";
-    moveIcon.addEventListener("mouseover", function () {
-      moveIcon.style.backgroundColor = lineColor;
-      moveIcon.style.transform = "translate(-50%, -50%) scale(1.1)";
-    });
-    moveIcon.addEventListener("mouseout", function () {
-      if (moving.horizontalLine) {
-        return;
-      }
-      moveIcon.style.backgroundColor = "";
-      moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
-    });
-    moveIcon.addEventListener("mousedown", function (e) {
-      e.preventDefault();
-    });
-    line.appendChild(moveIcon);
-
-    // line.addEventListener("mouseover", function () {
-    //   line.style.backgroundColor = lineColor;
+    // const moveIcon = document.createElement("div");
+    // moveIcon.style.width = `${lineWidth + 8}px`;
+    // moveIcon.style.height = `28px`;
+    // moveIcon.style.backgroundImage = "url('/src/assets/icons/icon_td2.svg')";
+    // moveIcon.style.backgroundSize = "contain";
+    // moveIcon.style.backgroundRepeat = "no-repeat";
+    // moveIcon.style.backgroundPosition = "center";
+    // moveIcon.style.position = "absolute";
+    // moveIcon.style.top = "50%";
+    // moveIcon.style.left = "50%";
+    // moveIcon.style.transform = "translate(-50%, -50%)";
+    // moveIcon.style.zIndex = "2";
+    // moveIcon.style.transition = "transform 0.3s ease";
+    // moveIcon.style.borderRadius = "3px";
+    // moveIcon.style.cursor = "ew-resize";
+    // moveIcon.style.userSelect = "none";
+    // moveIcon.addEventListener("mouseover", function () {
+    //   moveIcon.style.backgroundColor = lineColor;
+    //   moveIcon.style.transform = "translate(-50%, -50%) scale(1.1)";
     // });
-    // line.addEventListener("mouseout", function () {
+    // moveIcon.addEventListener("mouseout", function () {
     //   if (moving.horizontalLine) {
     //     return;
     //   }
-    //   line.style.backgroundColor = "";
+    //   moveIcon.style.backgroundColor = "";
+    //   moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
     // });
+    // moveIcon.addEventListener("mousedown", function (e) {
+    //   e.preventDefault();
+    // });
+    // line.appendChild(moveIcon);
+
+    line.addEventListener("mouseover", function () {
+      line.style.backgroundColor = lineColor;
+    });
+    line.addEventListener("mouseout", function () {
+      if (moving.horizontalLine) {
+        return;
+      }
+      line.style.backgroundColor = "";
+    });
     document.addEventListener("mouseup", function () {
-      moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
-      moveIcon.style.backgroundColor = "";
+      // moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
+      // moveIcon.style.backgroundColor = "";
       moving.horizontalLine = false;
     });
     line.addEventListener("mousedown", (e) => {
@@ -740,6 +708,14 @@ function resizeSetDemo() {
     });
   });
 }
+
+export const refreshLayout = debounce(() => {
+  setDragAreaSize();
+  setDemoPosition();
+  operaHoriLine();
+  operaVertLine();
+  rememberAttr();
+}, 20);
 
 export const resizeUpdate = debounce(() => {
   resizeSetItem();

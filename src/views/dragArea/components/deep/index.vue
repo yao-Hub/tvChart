@@ -7,7 +7,7 @@
           <span class="pre-value">{{ item.ask_size }}</span>
           <span class="last-value">{{ item.ask }}</span>
           <div
-            class="ask buyBtn"
+            class="ask"
             :style="{ width: getWidth(item.ask_size, 'ask') }"
           ></div>
         </div>
@@ -18,7 +18,7 @@
           <span class="pre-value">{{ item.bid }}</span>
           <span class="last-value">{{ item.bid_size }}</span>
           <div
-            class="bid sellBtn"
+            class="bid"
             :style="{ width: getWidth(item.bid_size, 'bid') }"
           ></div>
         </div>
@@ -97,6 +97,7 @@ const getWidth = (value: number, type: string) => {
   width: 100%;
   font-size: var(--font-size);
   position: relative;
+  color: #000;
 }
 .pre-value {
   position: absolute;
@@ -112,20 +113,22 @@ const getWidth = (value: number, type: string) => {
 }
 .ask {
   position: absolute;
-  // background-color: #ff4a61;
   right: 0;
   top: 0;
   height: 100%;
   border-radius: 2px;
   z-index: 1;
+  @include background_color("up");
+  transition: width 1s ease-in-out;
 }
 .bid {
   position: absolute;
-  // background-color: #00c673;
   top: 0;
   left: 0;
   height: 100%;
   border-radius: 2px;
   z-index: 1;
+  @include background_color("down");
+  transition: width 1s ease-in-out;
 }
 </style>

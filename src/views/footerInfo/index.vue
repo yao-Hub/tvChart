@@ -29,7 +29,6 @@
       <span>{{ $t("order.TotalProfit") }}：</span>
       <span :class="[+profit > 0 ? 'redWord' : 'greenWord']">{{ profit }}</span>
     </div>
-    <el-divider direction="vertical" />
     <div class="item_delay">
       <el-dropdown trigger="click" placement="top-start">
         <div
@@ -52,14 +51,13 @@
               :key="node.nodeName"
             >
               <div class="delayItem" @click="changeNode(node.nodeName)">
-                <div style="display: flex; gap: 5px; align-items: center">
-                  <CheckOutlined
-                    v-show="
-                      node.nodeName === networkStore.currentNode?.nodeName
-                    "
-                    class="checkIcon"
+                <div class="left">
+                  <img
+                    class="selectIcon"
+                    src="@/assets/icons/select.svg"
+                    v-if="node.nodeName === networkStore.currentNode?.nodeName"
                   />
-                  <span class="nodeName textEllipsis">
+                  <span class="textEllipsis label">
                     {{ node.nodeName }}
                   </span>
                 </div>
@@ -172,7 +170,6 @@ const changeNode = (name: string) => {
 
 import { get } from "lodash";
 import { useSocket } from "@/store/modules/socket";
-import { CheckOutlined } from "@ant-design/icons-vue";
 const socketStore = useSocket();
 const currentDelay = computed(() => {
   const currentWsUri = networkStore.currentNode?.webWebsocket || "";
@@ -209,9 +206,9 @@ const refreshDelay = () => {
   overflow: auto;
   display: flex;
   align-items: center;
+  padding: 0 16px;
 
   .item {
-    flex: 1;
     min-width: 100px;
     overflow: auto;
     font-size: var(--font-size);
@@ -219,13 +216,15 @@ const refreshDelay = () => {
     height: 100%;
     justify-content: center;
     align-items: center;
+    padding: 0 8px;
     & span:first-child {
       @include font_color("word-gray");
     }
     &_delay {
       border: none;
       width: 108px;
-      text-align: center;
+      text-align: right;
+      margin-left: auto;
     }
   }
 }
@@ -242,28 +241,25 @@ const refreshDelay = () => {
 .delay:hover {
   @include font_color("primary");
 }
-.checkIcon {
-  @include font_color("primary");
-}
 .operaItem {
   display: flex;
   gap: 5px;
   align-items: center;
   font-size: var(--font-size);
   cursor: pointer;
-  width: 100%;
 }
 .operaItem:hover {
   @include font_color("primary");
 }
 .delayItem {
-  min-width: 300px;
-  font-size: var(--font-size);
+  width: 300px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  .nodeName {
-    max-width: 200px;
+  .left {
+    display: flex;
+    gap: 5px;
+    align-items: center;
   }
 }
 .redWord {

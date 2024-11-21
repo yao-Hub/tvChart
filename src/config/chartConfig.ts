@@ -273,7 +273,7 @@ export const datafeed = (id: string) => {
         visible_plots_set: false,
         minmov: 1, // 纵坐标比例
         minmov2: 0,
-        pricescale: 100,
+        pricescale: Math.pow(10, storeSymbolInfo?.digits || 2), // 纵坐标小数位数
         session,
         ticker: symbolName,
         timezone: "Asia/Hong_Kong",
