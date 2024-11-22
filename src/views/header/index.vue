@@ -73,8 +73,6 @@ const orderStore = useOrder();
     align-items: center;
 
     .orderBtn {
-      width: 72px;
-      height: 32px;
       margin-left: 16px;
     }
 

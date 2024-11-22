@@ -22,7 +22,7 @@
       </div>
     </HorizontalScrolling>
     <div class="container" ref="container">
-      <HorizontalScrolling>
+      <HorizontalScrolling style="margin-bottom: 8px">
         <div class="filter">
           <SymbolSelect
             v-if="activeKey !== 'blanceRecord'"
@@ -133,7 +133,6 @@
               </template>
             </el-dropdown>
             <el-button
-              size="small"
               type="primary"
               v-show="activeKey === 'pendingOrder'"
               @click="closePendingOrders(state.dataSource.pendingOrder)"
@@ -993,7 +992,6 @@ onMounted(async () => {
 @import "@/styles/_handle.scss";
 
 .table_v2_Header {
-  font-size: var(--font-size);
   @include background_color("table-colored");
 }
 .el-table-v2__row:nth-child(even) {
@@ -1008,10 +1006,6 @@ onMounted(async () => {
   overflow: hidden;
   white-space: nowrap;
   padding: 0;
-}
-
-:deep(.el-table-v2__row) {
-  font-size: var(--font-size);
 }
 
 .orderArea {
@@ -1035,7 +1029,6 @@ onMounted(async () => {
         padding: 0 16px;
         display: flex;
         gap: 5px;
-        font-size: var(--font-size);
         @include font_color("word-gray");
         cursor: pointer;
         align-items: center;
@@ -1052,12 +1045,9 @@ onMounted(async () => {
     @include background_color("background-component");
 
     .filter {
-      height: 32px;
+      min-height: 32px;
       display: flex;
       gap: 8px;
-      box-sizing: border-box;
-      align-items: center;
-      margin-bottom: 8px;
 
       .rightOpera {
         flex: 1;
@@ -1123,7 +1113,6 @@ onMounted(async () => {
     }
     .value {
       @include font_color("word");
-      font-size: var(--font-size);
     }
   }
 }

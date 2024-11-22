@@ -6,7 +6,7 @@
         <img
           class="logo"
           src="@/assets/icons/select.svg"
-          v-if="sizeStore.nowSize === size"
+          v-if="sizeStore.systemSize === size"
         />
       </div>
     </el-dropdown-item>
@@ -17,7 +17,7 @@
 import { useSize } from "@/store/modules/size";
 const sizeStore = useSize();
 
-const sizeList = ["small", "medium", "large"];
+const sizeList: ["small", "default", "large"] = ["small", "default", "large"];
 </script>
 
 <style lang="scss" scoped>

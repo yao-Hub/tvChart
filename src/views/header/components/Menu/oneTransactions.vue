@@ -4,11 +4,7 @@
       <img class="logo" src="@/assets/icons/icon_9.svg" />
       <span class="label">{{ $t("QuickTransactions") }}</span>
     </div>
-    <el-switch
-      v-model="orderStore.ifOne"
-      :before-change="beforeChange"
-      size="small"
-    />
+    <el-switch v-model="orderStore.ifOne" :before-change="beforeChange" />
   </div>
 </template>
 

@@ -353,7 +353,6 @@ const expandChange = (row: any, expandedRows: any[]) => {
 }
 
 :deep(.header-cell) {
-  font-size: var(--font-size);
   padding: 0;
 }
 :deep(.cell) {
@@ -362,7 +361,6 @@ const expandChange = (row: any, expandedRows: any[]) => {
 }
 :deep(.body-cell) {
   border: none;
-  font-size: var(--font-size);
 }
 
 :deep(.el-table__expand-icon > .el-icon) {

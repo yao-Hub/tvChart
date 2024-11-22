@@ -38,7 +38,6 @@ const tabClick = () => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 .baseTabs_item {
-  font-size: var(--font-size);
   height: 100%;
   font-weight: 500;
   min-width: 88px;

@@ -155,9 +155,10 @@ img {
   vertical-align: middle;
 }
 
-input {
-  font-size: var(--font-size) !important;
-  outline: none;
+input,
+div,
+span {
+  font-size: var(--font-size);
 }
 
 input:disabled {
@@ -180,11 +181,6 @@ body {
   @include font_color("word");
 }
 
-.el-select__wrapper,
-.el-tag {
-  font-size: var(--font-size);
-}
-
 .icon {
   width: 1em;
   height: 1em;
@@ -196,9 +192,6 @@ body {
 .logo {
   width: var(--icon-size);
   height: var(--icon-size);
-}
-.label {
-  font-size: var(--font-size);
 }
 .caretDownIcon {
   width: 8px;

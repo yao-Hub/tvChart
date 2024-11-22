@@ -73,7 +73,6 @@ const getWidth = (value: number, type: string) => {
 }
 .title {
   font-weight: bold;
-  font-size: var(--font-size);
 }
 .container {
   flex: 1;
@@ -95,7 +94,6 @@ const getWidth = (value: number, type: string) => {
   height: 18px;
   line-height: 18px;
   width: 100%;
-  font-size: var(--font-size);
   position: relative;
   color: #000;
 }

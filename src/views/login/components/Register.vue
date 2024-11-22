@@ -221,7 +221,6 @@ const copy = async () => {
           font-size: 16px;
         }
         .down {
-          font-size: var(--font-size);
           @include font_color("word-gray");
         }
       }
@@ -293,7 +292,6 @@ const copy = async () => {
 
 .link {
   @include font_color("word-gray");
-  font-size: var(--font-size);
   cursor: pointer;
   &:hover {
     @include font_color("primary");

@@ -2,10 +2,14 @@ import { defineStore } from "pinia";
 import { ElMessage } from "element-plus";
 import { assign } from "lodash";
 import CryptoJS from "utils/AES";
-import { loginInfo, UserInfo, Login } from "api/account/index";
-import { useSocket } from "@/store/modules/socket";
-import { useNetwork } from "@/store/modules/network";
 import i18n from "@/language/index";
+
+import { loginInfo, UserInfo, Login } from "api/account/index";
+import { round } from "utils/common/index";
+
+import { useSocket } from "./socket";
+import { useNetwork } from "./network";
+import { useOrder } from "./order";
 
 type Account = Pick<UserInfo, "login" | "password"> & {
   server: string;
@@ -41,6 +45,42 @@ export const useUser = defineStore("user", {
         result = found;
       }
       return result;
+    },
+    // 净值
+    equity(state) {
+      if (!state.loginInfo) {
+        return "-";
+      }
+      const orderStore = useOrder();
+      const currentPosition = orderStore.tableData.marketOrder;
+      const sum = currentPosition?.reduce((accumulator, currentValue) => {
+        return accumulator + currentValue.profit;
+      }, 0);
+      return round(+state.loginInfo.balance + (sum || 0), 2);
+    },
+    // 预付款
+    margin(state) {
+      if (!state.loginInfo) {
+        return "-";
+      }
+      return state.loginInfo.margin;
+    },
+    // 可用预付款
+    margin_free() {
+      if (this.equity !== "-" && this.margin !== "-") {
+        return round(Number(this.equity) - Number(this.margin), 2);
+      }
+      return "-";
+    },
+    // 预付款水平
+    margin_level() {
+      if (+this.margin === 0) {
+        return 0;
+      }
+      if (this.equity !== "-" && this.margin !== "-") {
+        return round((+this.equity / +this.margin) * 100, 2);
+      }
+      return "-";
     },
   },
   actions: {

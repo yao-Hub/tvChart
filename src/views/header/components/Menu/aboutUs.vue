@@ -70,6 +70,5 @@ const open = ref<boolean>(false);
 .value {
   @include font_color("word");
   font-weight: 400;
-  font-size: var(--font-size);
 }
 </style>

@@ -108,7 +108,6 @@ watch(
 }
 .comment {
   display: flex;
-  font-size: var(--font-size);
   gap: 8px;
   .avatar {
     width: 40px;

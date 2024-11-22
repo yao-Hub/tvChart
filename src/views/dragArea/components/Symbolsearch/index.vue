@@ -221,7 +221,6 @@ const itemClick = (e: SessionSymbolInfo) => {
   &_title {
     display: flex;
     gap: 5px;
-    font-size: var(--font-size);
     align-items: center;
     &:hover {
       cursor: pointer;

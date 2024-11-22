@@ -7,14 +7,23 @@
   ),
   $dropdown: (
     "menuItem-hover-color": #606266,
+  ),
+  $dialog: (
+    "bg-color": #f6f8fb,
+    "padding-primary": 24px 32px,
   )
 );
 // 如果你想导入所有样式:
 @use "element-plus/theme-chalk/src/index.scss" as *;
 
+:root {
+  --el-font-size-large: 16px;
+  --el-font-size-medium: 14px;
+  --el-font-size-base: 14px;
+  --el-font-size-small: 12px;
+}
 html {
   .el-button {
-    font-size: var(--font-size);
     --el-button-hover-text-color: #081021;
     --el-button-hover-bg-color: #ffd051;
     --el-button-active-bg-color: #e28602;

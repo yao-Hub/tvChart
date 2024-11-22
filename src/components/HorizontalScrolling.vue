@@ -3,7 +3,6 @@
     <el-button
       class="btn"
       :icon="ArrowLeft"
-      size="large"
       v-if="showScrollLeft"
       @click="scrollLeft"
     />
@@ -13,7 +12,6 @@
     <el-button
       class="btn"
       :icon="ArrowRight"
-      size="large"
       v-if="showScrollRight"
       @click="scrollRight"
     />

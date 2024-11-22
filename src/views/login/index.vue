@@ -26,11 +26,16 @@ import Accounts from "./components/Accounts.vue";
 
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
+import { useSize } from "@/store/modules/size";
 
 const networkStore = useNetwork();
 const userStore = useUser();
+const sizeStore = useSize();
 const router = useRouter();
 const route = useRoute();
+
+// 登录页保持这个大小
+sizeStore.changeSize("default", true);
 
 const state = reactive({
   componentMap: {

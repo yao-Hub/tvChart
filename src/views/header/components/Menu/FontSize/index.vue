@@ -6,7 +6,7 @@
         <span class="label">{{ $t("font.fontSize") }}</span>
       </div>
       <div class="expandIcon_right">
-        <span class="label">{{ $t(`font.${sizeStore.nowSize}`) }}</span>
+        <span class="label">{{ $t(`font.${sizeStore.systemSize}`) }}</span>
         <img class="logo" src="@/assets/icons/turnRight.svg" />
       </div>
     </div>

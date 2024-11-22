@@ -14,7 +14,6 @@
       label-position="top"
       class="login-form"
       :rules="rules"
-      size="large"
     >
       <el-form-item prop="server" :label="$t('order.tradingRoute')">
         <el-select
@@ -62,7 +61,7 @@
           style="width: 100%"
           type="primary"
           :disabled="disabled"
-          :loading="loading"
+          size="large"
           @click="happyStart"
           >{{ $t("account.login") }}</el-button
         >
@@ -214,7 +213,6 @@ const disabled = computed(() => {
 
 .link {
   @include font_color("word-gray");
-  font-size: var(--font-size);
   cursor: pointer;
   &:hover {
     @include font_color("primary");

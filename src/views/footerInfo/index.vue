@@ -7,22 +7,22 @@
     <el-divider direction="vertical" />
     <div class="item">
       <span>{{ $t("order.equity") }}：</span>
-      <span>{{ equity }}</span>
+      <span>{{ userStore.equity }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
       <span>{{ $t("order.Margin") }}：</span>
-      <span>{{ Margin }}</span>
+      <span>{{ userStore.margin }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
       <span>{{ $t("order.marginFree") }}：</span>
-      <span>{{ margin_free }}</span>
+      <span>{{ userStore.margin_free }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
       <span>{{ $t("order.marginLevel") }}：</span>
-      <span>{{ margin_level }}</span>
+      <span>{{ userStore.margin_level }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
@@ -89,53 +89,6 @@ const userStore = useUser();
 const orderStore = useOrder();
 
 const loginInfo = computed(() => userStore.loginInfo);
-
-// 净值
-const equity = computed(() => {
-  try {
-    if (!loginInfo.value) {
-      return "-";
-    }
-    const currentPosition = orderStore.tableData.marketOrder;
-    const sum = currentPosition?.reduce((accumulator, currentValue) => {
-      return accumulator + currentValue.profit;
-    }, 0);
-    return round(+loginInfo.value.balance + (sum || 0), 2);
-  } catch (error) {
-    return "-";
-  }
-});
-
-// 预付款
-const Margin = computed(() => {
-  try {
-    if (!loginInfo.value) {
-      return "-";
-    }
-    return loginInfo.value.margin;
-  } catch (error) {
-    return "-";
-  }
-});
-
-// 可用预付款
-const margin_free = computed(() => {
-  if (equity.value !== "-" && Margin.value !== "-") {
-    return round(Number(equity.value) - Number(Margin.value), 2);
-  }
-  return "-";
-});
-
-// 预付款水平
-const margin_level = computed(() => {
-  if (+Margin.value === 0) {
-    return 0;
-  }
-  if (equity.value !== "-" && Margin.value !== "-") {
-    return round((+equity.value / +Margin.value) * 100, 2);
-  }
-  return "-";
-});
 
 // 总盈亏
 const profit = computed(() => {
@@ -211,7 +164,6 @@ const refreshDelay = () => {
   .item {
     min-width: 100px;
     overflow: auto;
-    font-size: var(--font-size);
     display: flex;
     height: 100%;
     justify-content: center;
@@ -232,7 +184,6 @@ const refreshDelay = () => {
 .delay {
   display: flex;
   cursor: pointer;
-  font-size: var(--font-size);
   gap: 5px;
   justify-content: center;
   align-items: center;
@@ -245,7 +196,6 @@ const refreshDelay = () => {
   display: flex;
   gap: 5px;
   align-items: center;
-  font-size: var(--font-size);
   cursor: pointer;
 }
 .operaItem:hover {

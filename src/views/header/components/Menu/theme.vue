@@ -4,7 +4,7 @@
       <img class="logo" src="@/assets/icons/icon_10.svg" />
       <span class="label">{{ $t("lightTheme") }}</span>
     </div>
-    <el-switch v-model="checked" @change="handleChange" size="small" />
+    <el-switch v-model="checked" @change="handleChange" />
   </div>
 </template>
 

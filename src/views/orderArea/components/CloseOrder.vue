@@ -4,7 +4,6 @@
     type="primary"
     @click="handleButtonClick"
     :hide-on-click="false"
-    size="small"
     trigger="click"
   >
     <el-tooltip :content="state.toolTip" placement="top">
@@ -196,6 +195,5 @@ const handleButtonClick = (e: Event) => {
 <style lang="scss" scoped>
 .title {
   width: 100px;
-  font-size: var(--font-size);
 }
 </style>

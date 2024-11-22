@@ -183,7 +183,6 @@ const sumit = (formEl: FormInstance | undefined) => {
         font-size: 16px;
       }
       .down {
-        font-size: var(--font-size);
         @include font_color("word-gray");
       }
     }

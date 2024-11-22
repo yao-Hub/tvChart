@@ -9,7 +9,10 @@
   --font-size: 12px;
   --icon-size: 12px;
 }
-
+[data-size="default"] {
+  --font-size: 14px;
+  --icon-size: 16px;
+}
 [data-size="medium"] {
   --font-size: 14px;
   --icon-size: 16px;

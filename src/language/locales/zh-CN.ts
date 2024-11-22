@@ -116,6 +116,7 @@ export default {
     small: "小号",
     medium: "中号",
     large: "大号",
+    default: "中号",
   },
 
   resolute: {

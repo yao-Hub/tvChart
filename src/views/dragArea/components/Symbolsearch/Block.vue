@@ -73,7 +73,6 @@ const emit = defineEmits(["blockClick", "btnClick"]);
     flex-direction: column;
     justify-content: center;
     gap: 5px;
-    font-size: var(--font-size);
     .title {
       @include font_color("word");
     }
@@ -86,7 +85,6 @@ const emit = defineEmits(["blockClick", "btnClick"]);
   .count {
     display: flex;
     align-items: center;
-    font-size: var(--font-size);
     @include font_color("word-gray");
   }
 

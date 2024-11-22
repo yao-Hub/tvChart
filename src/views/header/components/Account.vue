@@ -164,7 +164,6 @@ const modalOpen = ref<boolean>(false);
   margin-right: 8px;
   align-items: center;
   justify-content: space-between;
-  font-size: var(--font-size);
   padding: 5px 0;
   box-sizing: border-box;
   cursor: pointer;
@@ -206,7 +205,6 @@ const modalOpen = ref<boolean>(false);
     padding: 0 16px;
     box-sizing: border-box;
     gap: 4px;
-    font-size: var(--font-size);
     cursor: pointer;
     &:hover {
       @include background_color("background-hover");
@@ -244,7 +242,6 @@ const modalOpen = ref<boolean>(false);
   gap: 5px;
   border-top: 1px solid;
   padding: 0 16px;
-  font-size: var(--font-size);
   @include background_color("background-dialog");
   @include font_color("word-gray");
   @include border_color("border");
@@ -268,12 +265,10 @@ const modalOpen = ref<boolean>(false);
 .label {
   @include font_color("word-gray");
   font-weight: 400;
-  font-size: var(--font-size);
 }
 .value {
   @include font_color("word");
   font-weight: 400;
-  font-size: var(--font-size);
 }
 
 .el-row {

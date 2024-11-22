@@ -4,12 +4,16 @@
     :options="symbols"
     :props="{
       value: 'symbol',
-      label: 'symbol'
+      label: 'symbol',
     }"
     placeholder="品种"
-    style="width: 200px"
+    style="width: 100%"
     v-bind="selectOption"
-    />
+  >
+    <template #default="{ item }">
+      <slot name="option" :item="item"></slot>
+    </template>
+  </el-select-v2>
 </template>
 
 <script setup lang="ts">
