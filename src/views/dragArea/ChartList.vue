@@ -195,7 +195,6 @@ const tabClose = (id: string) => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
 .charts {
   box-sizing: border-box;
   @include background_color("background");

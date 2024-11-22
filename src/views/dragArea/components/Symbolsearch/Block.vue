@@ -2,7 +2,7 @@
   <div
     class="Block"
     @click="emit('blockClick')"
-    :style="{ cursor: type === 'count' ? 'pointer' : 'default' }"
+    :style="{ cursor: 'pointer', ...styles }"
   >
     <div class="label">
       <slot name="title">
@@ -11,15 +11,17 @@
       </slot>
     </div>
 
-    <div v-if="type === 'radio'" class="opera">
+    <div v-if="type === 'radio' && !hideStar" class="opera">
       <LoadingOutlined v-if="loading" />
-      <PlusCircleOutlined
-        class="plusBtn btn"
+      <img
+        class="logo btn"
+        src="@/assets/icons/icon_star_noactive.svg"
         v-else-if="!ifChecked"
         @click="emit('btnClick', 'add')"
       />
-      <CheckCircleOutlined
-        class="checkBtn btn"
+      <img
+        class="logo btn"
+        src="@/assets/icons/icon_star_active.svg"
         v-else-if="ifChecked"
         @click="emit('btnClick', 'cancel')"
       />
@@ -32,11 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  PlusCircleOutlined,
-  CheckCircleOutlined,
-  LoadingOutlined,
-} from "@ant-design/icons-vue";
+import { LoadingOutlined } from "@ant-design/icons-vue";
 interface Props {
   title?: string;
   describe?: string;
@@ -45,6 +43,8 @@ interface Props {
   total?: string | number;
   count?: string | number;
   loading?: boolean;
+  styles?: object;
+  hideStar?: boolean;
 }
 withDefaults(defineProps<Props>(), {
   total: 0,
@@ -92,19 +92,6 @@ const emit = defineEmits(["blockClick", "btnClick"]);
 
   .btn {
     cursor: pointer;
-    font-size: 14px;
-
-    &:hover {
-      @include font_color("primary");
-    }
-  }
-
-  .checkBtn {
-    @include font_color("word-gray");
-  }
-
-  .plusBtn {
-    @include font_color("word");
   }
 }
 </style>

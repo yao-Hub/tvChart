@@ -243,33 +243,31 @@ function createHoriLine(addNum: number) {
     line.style.borderRadius = "2px";
 
     const moveIcon = document.createElement("div");
-    moveIcon.style.height = `${lineWidth + 8}px`;
     moveIcon.style.width = `28px`;
+    moveIcon.style.height = `${lineWidth}px`;
     moveIcon.style.backgroundImage = "url('/src/assets/icons/icon_td1.svg')";
-    moveIcon.style.backgroundSize = "contain";
+    moveIcon.style.backgroundSize = "28px 4px";
     moveIcon.style.backgroundRepeat = "no-repeat";
     moveIcon.style.backgroundPosition = "center";
-    moveIcon.style.height = `${lineWidth + 4}px`;
-    moveIcon.style.width = `28px`;
     moveIcon.style.position = "absolute";
     moveIcon.style.top = "50%";
     moveIcon.style.left = "50%";
     moveIcon.style.transform = "translate(-50%, -50%)";
     moveIcon.style.zIndex = "2";
-    moveIcon.style.transition = "transform 0.3s ease";
-    moveIcon.style.borderRadius = "3px";
+    moveIcon.style.transition = "all 0.3s ease";
     moveIcon.style.userSelect = "none";
+    moveIcon.style.borderRadius = "2px";
     moveIcon.addEventListener("mouseover", function () {
       iconHover.verticalLine = true;
-      moveIcon.style.backgroundColor = lineColor;
-      moveIcon.style.transform = "translate(-50%, -50%) scale(1.1)";
+      moveIcon.style.padding = "4px 6px";
+      moveIcon.style.backgroundColor = "rgba(232, 235, 240, 1)";
     });
     moveIcon.addEventListener("mouseout", function () {
       if (moving.verticalLine) {
         return;
       }
       moveIcon.style.backgroundColor = "";
-      moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
+      moveIcon.style.padding = "0";
       iconHover.verticalLine = false;
     });
     moveIcon.addEventListener("mousedown", function (e) {
@@ -302,7 +300,7 @@ function createHoriLine(addNum: number) {
     });
     document.addEventListener("mouseup", function () {
       moveIcon.style.backgroundColor = "";
-      moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
+      moveIcon.style.padding = "0";
       moving.verticalLine = false;
       iconHover.verticalLine = false;
       document

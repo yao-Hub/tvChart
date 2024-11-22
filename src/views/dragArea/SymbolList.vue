@@ -7,7 +7,7 @@
       class="input"
     >
       <template #prefix>
-        <img class="searchIcon" src="@/assets/icons/icon_search.svg" />
+        <img class="logo" src="@/assets/icons/icon_search.svg" />
       </template>
       <template #suffix>
         <img
@@ -95,14 +95,22 @@
         </el-table-column>
       </el-table>
 
-      <Search :input="input" v-if="ifSearch" :mySymbols="dataSource"></Search>
+      <Search
+        class="searchList"
+        :input="input"
+        v-if="ifSearch"
+        :mySymbols="dataSource"
+        :headerStyle="{
+          background: '#fff',
+        }"
+      ></Search>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, watch, nextTick, shallowRef } from "vue";
-import Search from "./components/search/index.vue";
+import Search from "./components/Symbolsearch/index.vue";
 import Deep from "./components/deep/index.vue";
 
 interface DataSource {
@@ -332,10 +340,6 @@ const expandChange = (row: any, expandedRows: any[]) => {
 .input {
   width: calc(100% - 16px);
   height: 32px;
-  .searchIcon {
-    width: 18px;
-    height: 18px;
-  }
   .closeIcon {
     width: 18px;
     height: 18px;
@@ -359,7 +363,6 @@ const expandChange = (row: any, expandedRows: any[]) => {
 :deep(.body-cell) {
   border: none;
   font-size: var(--font-size);
-  // padding-left: 0 !important;
 }
 
 :deep(.el-table__expand-icon > .el-icon) {
@@ -372,5 +375,9 @@ const expandChange = (row: any, expandedRows: any[]) => {
 }
 :deep(.el-table__expand-icon--expanded) {
   transform: scale(0.7) rotate(90deg);
+}
+
+.searchList {
+  @include background_color("background-component");
 }
 </style>

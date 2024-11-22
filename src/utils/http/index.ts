@@ -50,9 +50,9 @@ const handleTokenErr = debounce(async () => {
     showTokenConfirm();
     return;
   }
+  reLogin = true;
   const userStore = useUser();
   const { login, password, server } = userStore.account;
-  reLogin = true;
   try {
     logging = true;
     await userStore.login({
@@ -66,7 +66,7 @@ const handleTokenErr = debounce(async () => {
   } finally {
     logging = false;
   }
-}, 1000);
+}, 3000);
 
 const ifLocal = import.meta.env.MODE === "development";
 

@@ -12,9 +12,21 @@
     </el-scrollbar>
 
     <el-scrollbar v-if="!input && showSymbols">
-      <Block class="back">
+      <Block
+        :styles="{
+          cursor: 'default',
+          ...headerStyle,
+        }"
+        type="count"
+        class="searchList_back"
+        :total="getTotal(currentType)"
+        :count="getCount(currentType)"
+      >
         <template #title>
-          <div class="back_title" @click="() => (showSymbols = false)">
+          <div
+            class="searchList_back_title"
+            @click="() => (showSymbols = false)"
+          >
             <el-icon>
               <img src="@/assets/icons/turnleft.svg" />
             </el-icon>
@@ -25,10 +37,12 @@
       <Block
         v-for="item in symbolList"
         :title="item.symbol"
+        :hideStar="hideStar"
         type="radio"
         :loading="item.loading"
         :ifChecked="getCheckType(item.symbol)"
         @btnClick="(e) => btnClick(e, item)"
+        @blockClick="itemClick(item)"
       >
       </Block>
     </el-scrollbar>
@@ -38,9 +52,11 @@
         v-for="item in filterSymbols"
         :title="item.symbol"
         type="radio"
+        :hideStar="hideStar"
         :loading="item.loading"
         :ifChecked="getCheckType(item.symbol)"
         @btnClick="(e) => btnClick(e, item)"
+        @blockClick="itemClick(item)"
       >
       </Block>
     </el-scrollbar>
@@ -54,7 +70,9 @@ import Block from "./Block.vue";
 
 interface Props {
   input: string;
-  mySymbols: any[];
+  mySymbols?: any[];
+  headerStyle?: object;
+  hideStar?: boolean;
 }
 const props = defineProps<Props>();
 
@@ -138,10 +156,12 @@ type SymbolListItem = SessionSymbolInfo & { loading: boolean };
 const symbolList = ref<SymbolListItem[]>([]);
 const showSymbols = ref(false);
 const currentPath = ref("");
+const currentType = ref("");
 const getSymbols = (type: string) => {
   currentPath.value = listState.menu.find((e) => e.type === type).value;
   symbolList.value = listState.pathMap[type];
   showSymbols.value = true;
+  currentType.value = type;
 };
 const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
   try {
@@ -151,18 +171,20 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
         await delOptionalQuery({ symbols: [listItem.symbol] });
         break;
       case "add":
-        const mySymbols = cloneDeep(props.mySymbols);
-        mySymbols.unshift({
-          symbols: listItem.symbol,
-        });
-        const symbols = mySymbols.map((item, index) => {
-          return {
-            symbol: item.symbols,
-            sort: index,
-            topSort: item.topSort || "",
-          };
-        });
-        await addOptionalQuery({ symbols });
+        if (props.mySymbols) {
+          const mySymbols = cloneDeep(props.mySymbols);
+          mySymbols.unshift({
+            symbols: listItem.symbol,
+          });
+          const symbols = mySymbols.map((item, index) => {
+            return {
+              symbol: item.symbols,
+              sort: index,
+              topSort: item.topSort || "",
+            };
+          });
+          await addOptionalQuery({ symbols });
+        }
         break;
       default:
         break;
@@ -177,6 +199,11 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
 const getCheckType = (type: string) => {
   return listState.query.includes(type);
 };
+
+const emit = defineEmits(["itemClick"]);
+const itemClick = (e: SessionSymbolInfo) => {
+  emit("itemClick", e);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -185,19 +212,17 @@ const getCheckType = (type: string) => {
   width: 100%;
 }
 .searchList {
-  height: calc(100% - 8px);
+  height: 100%;
   width: 100%;
-  margin-top: 8px;
-  @include background_color("background-component");
 }
-.back {
-  @include background_color("background-component");
+.searchList_back {
   position: sticky;
   top: 0;
   &_title {
     display: flex;
     gap: 5px;
     font-size: var(--font-size);
+    align-items: center;
     &:hover {
       cursor: pointer;
       @include font_color("primary");

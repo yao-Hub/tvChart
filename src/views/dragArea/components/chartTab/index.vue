@@ -9,7 +9,7 @@
     <el-dropdown
       trigger="contextmenu"
       ref="symbolDropdown"
-      placement="bottom-start"
+      placement="bottom"
       @visible-change="symbolVisible = $event"
       @command="emit('symbolCommand', $event, props.id)"
     >
@@ -19,19 +19,28 @@
       </div>
       <template #dropdown>
         <div class="search">
-          <el-input v-model="searchInput" placeholder="search symbol" clearable>
+          <el-input
+            class="input"
+            v-model="searchInput"
+            placeholder="search symbol"
+            clearable
+          >
             <template #prefix>
-              <el-icon>
-                <search />
-              </el-icon>
+              <img class="logo" src="@/assets/icons/icon_search.svg" />
             </template>
           </el-input>
+          <div style="height: 336px">
+            <Search
+              class="searchList"
+              :input="searchInput"
+              :headerStyle="{
+                background: '#f6f8fb',
+              }"
+              hideStar
+              @item-click="(e) => emit('symbolCommand', e.symbol, props.id)"
+            ></Search>
+          </div>
         </div>
-        <el-scrollbar style="height: 200px">
-          <el-dropdown-item v-for="item in symbols" :command="item.symbol">
-            <span class="label">{{ item.symbol }}</span>
-          </el-dropdown-item>
-        </el-scrollbar>
       </template>
     </el-dropdown>
     <el-divider direction="vertical" />
@@ -40,23 +49,24 @@
       ref="resolutionDropdown"
       placement="bottom"
       @visible-change="resolutionVisible = $event"
-      @command="emit('resolutionCommand', $event, props.id)"
     >
       <div class="el-dropdown-link" @click.stop="toggleResolution">
         <span class="label">{{ nowResolution }}</span>
         <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
       </div>
       <template #dropdown>
-        <el-dropdown-item v-for="(value, key) in resolutes" :command="key">
-          <div class="dropdownItem">
-            <span class="label">{{ value }}</span>
-            <img
-              class="selectIcon"
-              src="@/assets/icons/select.svg"
-              v-if="nowResolution === value"
-            />
-          </div>
-        </el-dropdown-item>
+        <div
+          v-for="(value, key) in resolutes"
+          class="dropdownItem"
+          @click="emit('resolutionCommand', key, props.id)"
+        >
+          <span class="label">{{ value }}</span>
+          <img
+            class="selectIcon"
+            src="@/assets/icons/select.svg"
+            v-if="nowResolution === value"
+          />
+        </div>
       </template>
     </el-dropdown>
     <el-divider direction="vertical" />
@@ -70,11 +80,9 @@
 import { ref, computed } from "vue";
 import type { DropdownInstance } from "element-plus";
 
-import { selectMatchItem } from "utils/common";
 import { RESOLUTES } from "@/constants/common";
 
-import { useChartSub } from "@/store/modules/chartSub";
-const subStore = useChartSub();
+import Search from "../Symbolsearch/index.vue";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
@@ -124,14 +132,6 @@ const toggleResolution = () => {
 };
 
 const searchInput = ref("");
-const symbols = computed(() => {
-  const result = selectMatchItem(
-    subStore.tradeAllowSymbols,
-    searchInput.value,
-    "symbol"
-  );
-  return result;
-});
 
 const nowResolution = computed(() => {
   if (props.interval) {
@@ -155,7 +155,9 @@ const resolutes = computed(() => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+:deep(.el-popper) {
+  transform: translateX(-40px);
+}
 .chartTab {
   display: flex;
   padding: 0 8px;
@@ -175,12 +177,20 @@ const resolutes = computed(() => {
   align-items: center;
   white-space: nowrap;
 }
+
 .dropdownItem {
   align-items: center;
   justify-content: space-between;
   display: flex;
   width: 120px;
   height: 40px;
+  box-sizing: border-box;
+  padding: 0 16px;
+  @include background_color("background-dialog");
+  cursor: pointer;
+  &:hover {
+    @include background_color("background");
+  }
 }
 
 .active {
@@ -188,8 +198,16 @@ const resolutes = computed(() => {
 }
 
 .search {
-  padding: 8px;
-  width: 200px;
+  @include background_color("background-dialog");
+  overflow: hidden;
+
+  .input {
+    margin: 8px;
+    width: 240px;
+  }
+  .searchList {
+    @include background_color("background-dialog");
+  }
 }
 
 .moveIcon {
