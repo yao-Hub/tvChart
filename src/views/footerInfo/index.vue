@@ -79,14 +79,17 @@
 </template>
 
 <script setup lang="ts">
-import { ReloadOutlined, LoadingOutlined } from "@ant-design/icons-vue";
 import { computed } from "vue";
+import { ReloadOutlined, LoadingOutlined } from "@ant-design/icons-vue";
+import { round } from "utils/common/index";
+
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
-import { round } from "utils/common/index";
+import { useChartInit } from "@/store/modules/chartInit";
 
 const userStore = useUser();
 const orderStore = useOrder();
+const chartInitStore = useChartInit();
 
 const loginInfo = computed(() => userStore.loginInfo);
 
@@ -118,7 +121,7 @@ const changeNode = (name: string) => {
   userStore.changeCurrentAccountOption({
     queryNode: name,
   });
-  window.location.reload();
+  chartInitStore.refresh();
 };
 
 import { get } from "lodash";
