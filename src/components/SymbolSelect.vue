@@ -9,6 +9,7 @@
     placeholder="品种"
     style="width: 100%"
     v-bind="selectOption"
+    filterable
   >
     <template #default="{ item }">
       <slot name="option" :item="item"></slot>

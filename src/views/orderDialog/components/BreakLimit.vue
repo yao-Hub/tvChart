@@ -5,15 +5,22 @@
     :label="props.formOption.label"
     :rules="[{ required: true, trigger: ['change', 'blur'] }]"
   >
-    <StepNumInput v-model:value="price" :step="step"></StepNumInput>
-    <el-form-item>
-      <span class="tip" v-if="props.symbolInfo">{{ tip }}</span>
-    </el-form-item>
+    <StepNumInput
+      v-model:value="price"
+      :step="step"
+      style="width: 168px"
+      :valid="ifError"
+      :customSub="initPrice"
+      :customAdd="initPrice"
+    ></StepNumInput>
+    <el-text :type="ifError ? 'danger' : 'info'" class="tip">{{
+      range
+    }}</el-text>
   </el-form-item>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, watch, ref } from "vue";
 import { SessionSymbolInfo, Quote } from "#/chart/index";
 import { round } from "utils/common/index";
 
@@ -21,7 +28,7 @@ interface Props {
   edit?: boolean;
   symbolInfo?: SessionSymbolInfo;
   orderType: string;
-  quote: Quote;
+  quote?: Quote;
   formOption: {
     name: string;
     label: string;
@@ -73,16 +80,19 @@ const limitPrice = () => {
 const initPrice = () => {
   const name = props.formOption.name;
   if (name === "breakPrice") {
-    price.value = breakPrice();
+    return breakPrice();
   }
   if (name === "limitedPrice") {
-    price.value = limitPrice();
+    return limitPrice();
   }
+  return false;
 };
 watch(
   () => [props.symbolInfo, props.orderType],
   () => {
-    props.symbolInfo && props.orderType && !props.edit && initPrice();
+    if (props.symbolInfo && props.orderType && !props.edit) {
+      price.value = initPrice() || "";
+    }
   },
   {
     deep: true,
@@ -99,30 +109,43 @@ watch(
   }
 );
 
-const tip = computed(() => {
+const ifError = ref(false);
+const range = ref("");
+watch(
+  () => [props.orderType, props.quote, price.value],
+  () => valid(),
+  { deep: true }
+);
+
+const valid = () => {
+  let result = "";
+  let vaild = true;
   const name = props.formOption.name;
   const label = props.formOption.label;
   const type = props.orderType.toLocaleLowerCase();
   if (name === "breakPrice") {
     const contrastVal = breakPrice();
-    // const vaild = type.includes("buy") ? +price.value >= +contrastVal : +price.value <= +contrastVal;
+    vaild = type.includes("buy")
+      ? +price.value >= +contrastVal
+      : +price.value <= +contrastVal;
     const size = type.includes("buy") ? "≥" : "≤";
-    return `${label} ${size} ${contrastVal}`;
+    result = `${label} ${size} ${contrastVal}`;
   }
   if (name === "limitedPrice" && props.breakPrice) {
     const contrastVal = limitPrice();
-    // const vaild = type.includes("buy") ? +price.value <= +contrastVal : +price.value >= +contrastVal;
+    vaild = type.includes("buy")
+      ? +price.value <= +contrastVal
+      : +price.value >= +contrastVal;
     const size = type.includes("buy") ? "≤" : "≥";
-    return `${label} ${size} ${contrastVal}`;
+    result = `${label} ${size} ${contrastVal}`;
   }
-  return "";
-});
+  range.value = result;
+  ifError.value = !vaild;
+};
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_handle.scss";
-
 .tip {
-  @include font_color("word-gray");
+  margin-left: 16px;
 }
 </style>

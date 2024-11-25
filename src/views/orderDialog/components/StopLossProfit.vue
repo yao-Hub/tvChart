@@ -1,22 +1,24 @@
 <template>
-  <el-form-item
-    label-position="top"
-    :prop="props.type"
-    :label="titleMap[props.type]"
-  >
+  <el-form-item label-position="top" :prop="props.type" label-width="100%">
+    <template #label>
+      <div class="title">
+        <span>{{ titleMap[props.type] }}</span>
+        <span class="tip" v-if="!price"
+          >至少远离市价{{ minPoint || "-" }}点</span
+        >
+        <el-text :type="ifError ? 'danger' : 'info'" v-if="rangeTip && price">{{
+          rangeTip
+        }}</el-text>
+      </div>
+    </template>
     <StepNumInput
       v-model:value="price"
       :customSub="initPrice"
       :customAdd="initPrice"
+      :valid="ifError"
     ></StepNumInput>
     <el-form-item>
-      <el-text type="danger" v-if="rangeTip">{{ rangeTip }}</el-text>
-      <span class="tip" v-if="props.symbolInfo && price === ''"
-        >至少远离市价{{ minDisPoint }}点</span
-      >
-      <span class="tip" v-if="props.symbolInfo && price !== '' && !rangeTip"
-        >预计{{ $t(`order.${props.type}`) }}: {{ profit }}</span
-      >
+      <span class="tip" v-if="profit">预计毛利: {{ profit }}</span>
     </el-form-item>
   </el-form-item>
 </template>
@@ -33,7 +35,7 @@ const titleMap = {
 interface Props {
   type: "stopLoss" | "stopProfit";
   symbolInfo?: SessionSymbolInfo;
-  quote: Quote;
+  quote?: Quote;
   orderType: string;
   orderPrice: string | number;
   volume: string | number;
@@ -46,8 +48,8 @@ const price = defineModel<string | number>("price");
 // 止盈止损验证规则
 
 // 至少远离市价点数
-const minDisPoint = computed(() => {
-  let result = 0;
+const minPoint = computed(() => {
+  let result;
   if (props.symbolInfo) {
     const digits = props.symbolInfo.digits;
     const stopsLevel = props.symbolInfo.stops_level;
@@ -59,7 +61,7 @@ const minDisPoint = computed(() => {
 // 获取止盈止损范围
 const getRange = () => {
   const leadOption: Record<string, any> = {
-    price: props.quote.ask,
+    price: props.quote?.ask,
     buyLimit: +props.orderPrice,
     sellLimit: +props.orderPrice,
     buyStop: +props.orderPrice,
@@ -67,11 +69,11 @@ const getRange = () => {
     buyStopLimit: props.limitedPrice || 0,
     sellStopLimit: props.limitedPrice || 0,
   };
-  if (props.symbolInfo) {
+  if (props.symbolInfo && minPoint.value) {
     const digits = props.symbolInfo.digits;
     const lead = +leadOption[props.orderType] || 0;
-    const down = +round(lead - minDisPoint.value, digits);
-    const up = +round(lead + minDisPoint.value, digits);
+    const down = +round(lead - minPoint.value, digits);
+    const up = +round(lead + minPoint.value, digits);
     return [down, up];
   }
   return [0, 0];
@@ -91,64 +93,76 @@ const initPrice = () => {
 };
 
 const rangeTip = ref("");
-
+const ifError = ref(false);
 const setHelp = () => {
   const value = price.value;
-  if (value === "" || value === null || value === undefined) {
-    rangeTip.value = "";
-    return;
-  }
   const orderType = props.orderType;
   const [down, up] = getRange();
   const ifLoss = props.type === "stopLoss";
-  let result = "";
+  let range = "";
+  let valid = true;
   switch (orderType) {
     case "price":
       if (props.priceOrderType === "buy") {
-        if (ifLoss && +value > down) {
-          result = `止损价 ≤ ${down}`;
+        if (ifLoss) {
+          range = `≤ ${down}`;
+          value && (valid = +value <= down);
         }
-        if (!ifLoss && +value < up) {
-          result = `止盈价 ≥ ${up}`;
+        if (!ifLoss) {
+          range = `≥ ${up}`;
+          value && (valid = +value >= up);
         }
       }
       if (props.priceOrderType === "sell") {
-        if (ifLoss && +value < up) {
-          result = `止损价 ≥ ${up}`;
+        if (ifLoss) {
+          range = `≥ ${up}`;
+          value && (valid = +value >= up);
         }
-        if (!ifLoss && +value > down) {
-          result = `止盈价 ≤ ${down}`;
+        if (!ifLoss) {
+          range = `≤ ${down}`;
+          value && (valid = +value <= down);
         }
       }
       break;
     case "buyLimit":
     case "buyStop":
     case "buyStopLimit":
-      if (ifLoss && +value > down) {
-        result = `止损价 ≤ ${down}`;
+      if (ifLoss) {
+        range = `≤ ${down}`;
+        value && (valid = +value <= down);
       }
-      if (!ifLoss && +value < up) {
-        result = `止盈价 ≥ ${up}`;
+      if (!ifLoss) {
+        range = `≥ ${up}`;
+        value && (valid = +value >= up);
       }
       break;
     case "sellLimit":
     case "sellStop":
     case "sellStopLimit":
-      if (ifLoss && +value < down) {
-        result = `止损价 ≥ ${down}`;
+      if (ifLoss) {
+        range = `≥ ${down}`;
+        value && (valid = +value >= down);
       }
-      if (!ifLoss && +value > up) {
-        result = `止盈价 ≤ ${up}`;
+      if (!ifLoss) {
+        range = `≤ ${up}`;
+        value && (valid = +value <= up);
       }
       break;
     default:
       break;
   }
-  rangeTip.value = result;
+  rangeTip.value = range;
+  ifError.value = !valid;
 };
 
 watch(
-  () => [props.symbolInfo, props.quote, price.value],
+  () => [
+    props.symbolInfo,
+    props.quote,
+    price.value,
+    props.orderPrice,
+    props.limitedPrice,
+  ],
   () => setHelp(),
   {
     deep: true,
@@ -157,11 +171,11 @@ watch(
 
 const profit = computed(() => {
   if (price.value === null || price.value === undefined) {
-    return;
+    return "";
   }
   let result: string | number = "";
-  const ask = props.quote.ask;
-  const bid = props.quote.bid;
+  const ask = props.quote?.ask;
+  const bid = props.quote?.bid;
   const openPrice =
     props.orderType === "price" || props.orderType.includes("buy") ? ask : bid;
   // profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
@@ -169,7 +183,7 @@ const profit = computed(() => {
   // 平仓合约价值 = close_price X contract_size X volume / 100
   const closePrice = +price.value;
   const volume = +props.volume;
-  if (props.symbolInfo) {
+  if (props.symbolInfo && openPrice) {
     const { contract_size, storage, fee, digits } = props.symbolInfo;
     const buildingPrice = +((openPrice * contract_size * volume) / 100).toFixed(
       digits
@@ -186,7 +200,14 @@ const profit = computed(() => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+:deep(.el-form-item__label) {
+  width: 100%;
+}
+.title {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
 .tip {
   @include font_color("word-gray");
 }

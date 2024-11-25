@@ -2,34 +2,47 @@
   <div>
     <el-dialog
       v-model="dialogStore.orderDialogVisible"
+      class="order_dialog scrollList"
       width="464"
+      :zIndex="10"
+      :modal="false"
+      :close-on-click-modal="false"
       draggable
       overflow
       align-center
-      :zIndex="10"
       destroy-on-close
-      :close-on-click-modal="false"
+      append-to-body
       @close="handleCancel"
+      modal-class="order_dialog_modal"
     >
       <template #header>
         <span class="dialog_header">下单</span>
       </template>
-      <el-form :model="formState" :rules="rules" ref="orderFormRef">
+      <el-form
+        :model="formState"
+        :rules="rules"
+        ref="orderFormRef"
+        style="margin-top: 32px"
+      >
         <el-row :gutter="24">
-          <el-col :span="12">
+          <el-col :span="24">
             <el-form-item prop="symbol" label="交易品种" label-position="top">
-              <SymbolSelect
-                style="width: 100%"
-                v-model="formState.symbol"
-              ></SymbolSelect>
+              <SymbolSelect v-model="formState.symbol" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item
-              prop="orderType"
-              label="订单类型"
-              label-position="top"
+          <el-col :span="24">
+            <el-radio-group
+              v-model="formState.orderType"
+              fill="#EFEFEF"
+              text-color="#000"
             >
+              <el-radio-button label="市价单" value="price" />
+              <el-radio-button label="挂单" value="buyLimit" />
+            </el-radio-group>
+            <div class="divider"></div>
+          </el-col>
+          <el-col :span="24" v-if="formState.orderType !== 'price'">
+            <el-form-item prop="orderType" label="类型" label-position="top">
               <el-select
                 v-model="formState.orderType"
                 filterable
@@ -45,7 +58,19 @@
             </el-form-item>
           </el-col>
           <el-col
-            :span="12"
+            :span="24"
+            v-if="domVisableOption.breakPrice.includes(formState.orderType)"
+          >
+            <BreakLimit
+              v-model:value="formState.breakPrice"
+              :formOption="{ name: 'breakPrice', label: '突破价' }"
+              :orderType="formState.orderType"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+            ></BreakLimit>
+          </el-col>
+          <el-col
+            :span="24"
             v-if="domVisableOption.orderPrice.includes(formState.orderType)"
           >
             <Price
@@ -63,32 +88,7 @@
             </Price>
           </el-col>
           <el-col
-            :span="
-              domVisableOption.volume.includes(formState.orderType) ? 24 : 12
-            "
-          >
-            <el-form-item prop="volume" label="交易量" label-position="top">
-              <Volume
-                v-model:volume="formState.volume"
-                :symbolInfo="symbolInfo"
-                :quote="quote"
-              ></Volume>
-            </el-form-item>
-          </el-col>
-          <el-col
-            :span="12"
-            v-if="domVisableOption.breakPrice.includes(formState.orderType)"
-          >
-            <BreakLimit
-              v-model:value="formState.breakPrice"
-              :formOption="{ name: 'breakPrice', label: '突破价' }"
-              :orderType="formState.orderType"
-              :symbolInfo="symbolInfo"
-              :quote="quote"
-            ></BreakLimit>
-          </el-col>
-          <el-col
-            :span="12"
+            :span="24"
             v-if="domVisableOption.limitedPrice.includes(formState.orderType)"
           >
             <BreakLimit
@@ -99,6 +99,16 @@
               :symbolInfo="symbolInfo"
               :quote="quote"
             ></BreakLimit>
+          </el-col>
+          <el-col :span="24">
+            <Volume
+              v-model:volume="formState.volume"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+              :formOption="{ name: 'volume', label: '手数' }"
+              :orderType="formState.orderType"
+              :orderPrice="formState.orderPrice"
+            ></Volume>
           </el-col>
           <el-col :span="12">
             <StopLossProfit
@@ -128,56 +138,40 @@
             :span="24"
             v-if="domVisableOption.dueDate.includes(formState.orderType)"
           >
-            <el-form-item name="dueDate" label="期限">
-              <Term v-model:term="formState.dueDate"></Term>
-            </el-form-item>
+            <Term v-model:term="formState.dueDate"></Term>
           </el-col>
-          <el-col :span="12">
-            <el-form-item>
-              <div style="display: flex; flex-wrap: nowrap; width: 100%">
-                <span class="sellWord" style="width: 50%"
-                  >卖价: {{ formState.symbol ? quote.bid : "" }}</span
-                >
-                <span class="buyWord" style="width: 50%"
-                  >买价: {{ formState.symbol ? quote.ask : "" }}</span
-                >
-              </div>
-            </el-form-item>
+          <el-col :span="24">
+            <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
           </el-col>
-          <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-            <el-form-item>
-              <div style="display: flex; justify-content: space-evenly">
-                <el-button
-                  class="sellBtn"
-                  :loading="priceBtnLoading"
-                  @click="showConfirmModal('sell')"
-                  >卖出</el-button
-                >
-                <el-button
-                  class="buyBtn"
-                  :loading="priceBtnLoading"
-                  @click="showConfirmModal('buy')"
-                  >买入</el-button
-                >
-              </div>
-            </el-form-item>
+          <el-col :span="24" v-if="['', 'price'].includes(formState.orderType)">
+            <div class="btns">
+              <el-button
+                class="sellBtn"
+                :loading="priceBtnLoading"
+                @click="showConfirmModal('sell')"
+                >卖出</el-button
+              >
+              <el-button
+                class="buyBtn"
+                :loading="priceBtnLoading"
+                @click="showConfirmModal('buy')"
+                >买入</el-button
+              >
+            </div>
           </el-col>
           <el-col
-            :span="12"
+            :span="24"
             v-if="!['', 'price'].includes(formState.orderType)"
           >
-            <el-form-item>
-              <div style="display: flex; justify-content: flex-end">
-                <el-button
-                  :class="[
-                    formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
-                  ]"
-                  :loading="pendingBtnLoading"
-                  @click="addPendingOrders"
-                  >下单</el-button
-                >
-              </div>
-            </el-form-item>
+            <el-button
+              :class="[
+                formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
+              ]"
+              class="pendingBtn"
+              :loading="pendingBtnLoading"
+              @click="addPendingOrders"
+              >下单</el-button
+            >
           </el-col>
         </el-row>
       </el-form>
@@ -218,11 +212,13 @@
 <script setup lang="ts">
 import { ref, computed, reactive, watch, nextTick } from "vue";
 import { debounce } from "lodash";
-import Volume from "./components/Volume.vue";
-import StopLossProfit from "./components/StopLossProfit.vue";
-import Term from "./components/Term.vue";
 import Price from "./components/Price.vue";
+import Volume from "./components/Volume.vue";
 import BreakLimit from "./components/BreakLimit.vue";
+import Term from "./components/Term.vue";
+import Spread from "./components/spread.vue";
+import StopLossProfit from "./components/StopLossProfit.vue";
+
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
 
@@ -311,7 +307,6 @@ watch(
 );
 // 订单类型
 const orderTypeOptions = [
-  { value: "price", label: "市价" },
   { value: "buyLimit", label: "buy limit" },
   { value: "sellLimit", label: "sell limit" },
   { value: "buyStop", label: "buy stop" },
@@ -332,9 +327,6 @@ const validDate = (rule: any, value: any, callback: any) => {
   callback();
 };
 const rules: FormRules<typeof formState> = {
-  symbol: [{ required: true, trigger: "change", message: "请输入品种" }],
-  orderType: [{ required: true, trigger: "change", message: "请选择订单类型" }],
-  volume: [{ required: true, trigger: "change", message: "请输入交易量" }],
   dueDate: [{ required: true, trigger: "change", validator: validDate }],
   breakPrice: [{ required: true, trigger: "change" }],
   limitedPrice: [{ required: true, trigger: "change" }],
@@ -349,14 +341,7 @@ const symbolInfo = computed(() => {
 });
 
 /** 当前报价 */
-const quote = ref<Quote>({
-  ask: 0,
-  bid: 0,
-  ctm_ms: 0,
-  ctm: 0,
-  symbol: "",
-  server: "",
-});
+const quote = ref<Quote>();
 watch(
   () => [orderStore.currentQuotes, formState.symbol],
   () => {
@@ -473,42 +458,49 @@ const addPendingOrders = debounce(async () => {
 }, 20);
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+@import "@/styles/_handle.scss";
+.order_dialog {
+  pointer-events: auto;
+  max-height: 80vh;
+  overflow: auto;
+}
+.order_dialog_modal {
+  pointer-events: none;
+}
+</style>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+:deep(.el-radio-group) {
+  width: 100%;
+  display: flex;
+}
+:deep(.el-radio-button) {
+  flex: 1;
+}
+:deep(.el-radio-button__inner) {
+  width: 100%;
+}
+.divider {
+  width: 100%;
+  height: 1px;
+  background: #dee2e9;
+  margin: 24px 0;
+}
+.btns {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
+}
 .sellBtn,
 .buyBtn {
-  border-radius: 4px;
-  @include font_color("background-component");
+  color: #fff !important;
+  width: 168px;
 }
-:deep(.el-overlay) {
-  background-color: transparent;
-  pointer-events: none;
-}
-:deep(.el-dialog) {
-  pointer-events: auto;
-}
-:deep(.el-col) {
-  margin-bottom: 14px;
-}
-:deep(.el-row) {
-  margin-top: 14px;
-}
-.dialog_header {
-  font-weight: bold;
-  font-size: 16px;
-  @include font_color("word");
-}
-.label {
-  @include font_color("word-gray");
-  display: block;
-  min-width: 75px;
-  text-align: left;
-}
-.value {
-  @include font_color("word");
-  display: block;
+.pendingBtn {
+  width: 100%;
+  margin-top: 8px;
 }
 </style>

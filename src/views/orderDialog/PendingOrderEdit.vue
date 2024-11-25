@@ -63,13 +63,14 @@
               domVisableOption.volume.includes(formState.orderType) ? 24 : 12
             "
           >
-            <el-form-item prop="volume" label="交易量" label-position="top">
-              <Volume
-                v-model:volume="formState.volume"
-                :symbolInfo="symbolInfo"
-                :quote="quote"
-              ></Volume>
-            </el-form-item>
+            <Volume
+              v-model:volume="formState.volume"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+              :orderType="formState.orderType"
+              :formOption="{ name: 'volume', label: '交易量' }"
+              :orderPrice="formState.orderPrice"
+            ></Volume>
           </el-col>
           <el-col
             :span="12"
@@ -126,9 +127,7 @@
             :span="24"
             v-if="domVisableOption.dueDate.includes(formState.orderType)"
           >
-            <el-form-item name="dueDate" label="期限">
-              <Term v-model:term="formState.dueDate"></Term>
-            </el-form-item>
+            <Term v-model:term="formState.dueDate"></Term>
           </el-col>
           <el-col :span="12">
             <el-form-item>
@@ -299,14 +298,7 @@ const symbolInfo = computed(() => {
 });
 
 /** 当前报价 */
-const quote = ref<Quote>({
-  ask: 0,
-  bid: 0,
-  ctm_ms: 0,
-  ctm: 0,
-  symbol: "",
-  server: "",
-});
+const quote = ref<Quote>();
 watch(
   () => [orderStore.currentQuotes, formState.symbol],
   () => {

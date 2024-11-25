@@ -1,12 +1,15 @@
 <!-- 期限 -->
 <template>
-  <el-date-picker
-    :format="dateFormat"
-    v-model="model"
-    value-format="X"
-    type="datetime"
-    placeholder="Select Time"
-  />
+  <el-form-item name="dueDate" label="期限" label-position="top">
+    <el-date-picker
+      :format="dateFormat"
+      v-model="model"
+      value-format="X"
+      type="datetime"
+      placeholder="Select Time"
+      style="width: 100%"
+    />
+  </el-form-item>
 </template>
 
 <script setup lang="ts">
@@ -16,7 +19,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
-const dateFormat = "YY/MM/DD HH:mm";
+const dateFormat = "YY-MM-DD HH:mm";
 
 // Can not select days before today
 // const disabledDate = (current: Dayjs) => {

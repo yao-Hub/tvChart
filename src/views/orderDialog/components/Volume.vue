@@ -1,24 +1,53 @@
 <template>
-  <div style="display: flex; flex-direction: column; width: 100%">
+  <el-form-item
+    label-position="top"
+    :prop="props.formOption.name"
+    :label="props.formOption.label"
+  >
     <StepNumInput
       v-model:value="model"
       :step="step"
       :min="min"
       :max="max"
       @blur="checkVolume"
+      @sub="percentage = 0"
+      @plus="percentage = 0"
+      @input="percentage = 0"
+      style="width: 168px"
     ></StepNumInput>
-    <span class="tip">参考预付款：{{ Margin }}</span>
-  </div>
+    <div class="tips">
+      <span>可用预付款：{{ userStore.margin_free }}</span>
+      <span>参考预付款：{{ referMargin }}</span>
+    </div>
+    <el-slider
+      v-model="percentage"
+      :marks="marks"
+      :max="20"
+      :format-tooltip="formatTooltip"
+      style="width: 145px; margin-left: 10px; margin-bottom: 20px"
+      @input="sliderInput"
+    />
+  </el-form-item>
 </template>
 
 <script setup lang="ts">
-import { computed, watch } from "vue";
+import { computed, watch, ref, reactive } from "vue";
+import type { CSSProperties } from "vue";
+import { round } from "utils/common/index";
 import { SessionSymbolInfo, Quote } from "#/chart/index";
-import Decimal from "decimal.js";
+import { useUser } from "@/store/modules/user";
 
+const userStore = useUser();
+type Arrayable<T> = T | T[];
 interface Props {
   symbolInfo?: SessionSymbolInfo;
-  quote: Quote;
+  quote?: Quote;
+  formOption: {
+    name: string;
+    label: string;
+  };
+  orderType: string;
+  orderPrice: string;
 }
 const props = defineProps<Props>();
 const model = defineModel<string | number>("volume", { default: "" });
@@ -49,26 +78,31 @@ const max = computed(() => {
 });
 
 // 预付款(以买入计算)
-const Margin = computed(() => {
-  let result = 0;
+// 固定保证金时：referMargin = margin（1手固定的预付款金额） * 需保证金手数
+// 固定杠杆时：referMargin = open_price（下单价格） * contract_size （合约数量）/ leverage * 需保证金手数
+// open_price（下单价格）： 市价单 = bid，挂单 = 限价[orderPrice]
+const referMargin = computed(() => {
+  let result;
+  const orderType = props.orderType.toLowerCase();
   const symbol = props.symbolInfo;
-  if (symbol) {
-    const margin = new Decimal(symbol.margin);
-    const ask = new Decimal(props.quote.ask);
-    const contractSize = new Decimal(symbol.contract_size);
-    const volumeValue = new Decimal(model.value || 0);
-    if (symbol.leverage) {
-      const leverage = new Decimal(symbol.leverage);
-      result = ask
-        .times(contractSize)
-        .div(leverage)
-        .times(volumeValue)
-        .toNumber();
-    } else {
-      result = margin.times(volumeValue).toNumber();
+  const volume = model.value;
+  let open_price;
+  open_price = orderType === "price" ? props.quote?.bid : props.orderPrice;
+  if (symbol && volume) {
+    if (open_price) {
+      const leverage = symbol.leverage;
+      const contract_size = symbol.contract_size;
+      const margin = symbol.margin;
+      const digits = symbol.digits;
+      result = margin * +volume;
+      if (leverage) {
+        result = ((+open_price * contract_size) / leverage) * +volume;
+      }
+      return round(result, digits);
     }
-    return result;
+    return "-";
   }
+  return "-";
 });
 
 const checkVolume = () => {
@@ -84,16 +118,93 @@ const checkVolume = () => {
 watch(
   () => min.value,
   (value) => {
-    if (value && model.value === "") {
-      model.value = value.toString();
-    }
-  }
+    model.value = value.toString();
+  },
+  { deep: true }
 );
+
+// 进度条
+const percentage = ref<number>(0);
+// 底部数字样式
+const numStyle = (num: number) => {
+  const nowPercent = percentage.value;
+  return {
+    style: {
+      color: num === nowPercent ? "#000" : "#CECDD1",
+      fontSize: "12px",
+    },
+    label: `${num}%`,
+  };
+};
+interface Mark {
+  style: CSSProperties;
+  label: string;
+}
+type Marks = Record<number, Mark | string>;
+const marks = reactive<Marks>({
+  0: "0%",
+  5: "5%",
+  10: "10%",
+  15: "15%",
+  20: "20%",
+});
+const formatTooltip = (value: number) => {
+  return `${value}%`;
+};
+// 更改底部数字样式和手数
+watch(
+  () => percentage.value,
+  (value) => {
+    const keys = Object.keys(marks).map((key) => Number(key));
+    if (keys.includes(value)) {
+      for (const i in marks) {
+        marks[i] = numStyle(+i);
+      }
+    }
+  },
+  { deep: true, immediate: true }
+);
+const sliderInput = (percentage: Arrayable<number>) => {
+  // 固定杠杆
+  // 手数 =（margin_free[可用预付款]*percentage[滑块百分比]）/（(self.bid[市价] * contractSize[合约数量]) / leverage[固定的杠杆倍数]）
+
+  // 固定保证金
+  // 手数 =（margin_free[可用预付款]*percentage[滑块百分比]）/ margin[ 1手固定的预付款金额]
+  if (props.symbolInfo) {
+    let result;
+    const leverage = props.symbolInfo.leverage;
+    const margin_free = +userStore.margin_free;
+    const bid = props.quote?.bid;
+    const contractSize = props.symbolInfo.contract_size;
+    const margin = props.symbolInfo.margin;
+    const digits = props.symbolInfo.digits;
+    const per = +percentage / 100;
+    if (leverage && bid) {
+      result = (margin_free * per) / ((bid * contractSize) / leverage);
+    } else {
+      result = (margin_free * per) / margin;
+    }
+    model.value = result.toFixed(digits);
+  }
+};
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-.tip {
+:deep(.el-slider__stop) {
+  border: 2px solid #dee2e9;
+  transform: translate(-50%, -20%);
+}
+:deep(.el-slider__bar) {
+  background-color: #dee2e9 !important;
+}
+.tips {
+  margin-left: 16px;
   @include font_color("word-gray");
+  display: flex;
+  flex-direction: column;
+  height: 40px;
+  justify-content: space-between;
+  line-height: normal;
 }
 </style>

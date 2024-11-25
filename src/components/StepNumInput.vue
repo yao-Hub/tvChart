@@ -1,20 +1,25 @@
 <template>
-  <div>
-    <el-input v-model="model" type="number" @blur="inputBlur">
-      <template #prefix>
-        <span class="btn" @click="handleSubtract()">-</span>
-      </template>
-      <template #suffix>
-        <span class="btn" @click="handleAdd()">+</span>
-      </template>
-    </el-input>
-  </div>
+  <el-input
+    v-model="model"
+    type="number"
+    @blur="blur"
+    @input="input"
+    :class="{ danger: valid }"
+  >
+    <template #prefix>
+      <span class="btn" @click="handleSubtract()">-</span>
+    </template>
+    <template #suffix>
+      <span class="btn" @click="handleAdd()">+</span>
+    </template>
+  </el-input>
 </template>
 
 <script setup lang="ts">
 import Decimal from "decimal.js";
 
 interface Props {
+  valid?: boolean;
   step?: string | number;
   customAdd?: () => string | void;
   customSub?: () => void | string;
@@ -23,10 +28,13 @@ const props = withDefaults(defineProps<Props>(), {
   step: 1,
 });
 const model = defineModel<string | number>("value");
-const emit = defineEmits(["blur", "sub", "plus"]);
+const emit = defineEmits(["blur", "sub", "plus", "input"]);
 
-const inputBlur = () => {
+const blur = () => {
   emit("blur", model.value);
+};
+const input = () => {
+  emit("input", model.value);
 };
 
 const handleSubtract = () => {
@@ -63,5 +71,11 @@ const handleAdd = () => {
 }
 :deep(input) {
   text-align: center;
+}
+
+.danger {
+  --el-input-border-color: #f56c6c;
+  --el-border-color-hover: #f56c6c;
+  --el-input-focus-border-color: #f56c6c;
 }
 </style>

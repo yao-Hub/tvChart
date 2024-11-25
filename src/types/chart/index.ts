@@ -15,8 +15,8 @@ export interface Quote {
   ctm_ms: number;
   server: string;
   symbol: string;
-  close?: number;
-  open?: number;
+  close: number;
+  open: number;
   high?: number;
   low?: number;
 }
@@ -61,6 +61,7 @@ export interface SessionSymbolInfo {
   leverage: number;
   fee: number;
   storage: number;
+  description: string;
 }
 
 export interface LineData {

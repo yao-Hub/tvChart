@@ -72,6 +72,22 @@ const ifLocal = import.meta.env.MODE === "development";
 
 const controller = new AbortController();
 
+function generateUUID() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+let uuid;
+const storageId = window.localStorage.getItem("uuid");
+if (storageId) {
+  uuid = storageId;
+} else {
+  uuid = generateUUID();
+  window.localStorage.setItem("uuid", uuid);
+}
+
 const service = axios.create({
   timeout: 30 * 1000,
   // 请求是否携带cookie
@@ -82,7 +98,7 @@ const service = axios.create({
     // @ts-ignore
     "x-u-app-version": _VERSION_,
     // @ts-ignore
-    "x-u-device-id": _OS_HOSTNAME_,
+    "x-u-device-id": uuid,
     // @ts-ignore
     "x-u-device-type": __OS_PLATFORM__,
     // @ts-ignore

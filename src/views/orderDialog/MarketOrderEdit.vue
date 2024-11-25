@@ -413,7 +413,6 @@ const modify = debounce(async () => {
 .closeBtn {
   height: 40px;
   border-radius: 4px;
-  font-size: var(--font-size);
   width: 88px;
 }
 </style>

@@ -1,14 +1,21 @@
 <template>
   <el-form-item
-    ref="priceItem"
     label-position="top"
     :prop="props.formOption.name"
     :label="props.formOption.label"
-    :rules="[
-      { required: true, trigger: ['change', 'blur'], validator: validator },
-    ]"
+    :rules="[{ required: true, trigger: ['change', 'blur'] }]"
   >
-    <StepNumInput v-model:value="price" :step="step"></StepNumInput>
+    <StepNumInput
+      v-model:value="price"
+      :step="step"
+      style="width: 168px"
+      :valid="ifError"
+      :customSub="initPrice"
+      :customAdd="initPrice"
+    ></StepNumInput>
+    <el-text :type="ifError ? 'danger' : 'info'" class="tip">{{
+      range
+    }}</el-text>
   </el-form-item>
 </template>
 
@@ -21,7 +28,7 @@ interface Props {
   edit?: boolean;
   symbolInfo?: SessionSymbolInfo;
   orderType: string;
-  quote: Quote;
+  quote?: Quote;
   formOption: {
     name: string;
     label: string;
@@ -30,22 +37,8 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const price = defineModel<string | number>("value");
+const price = defineModel<string | number>("value", { default: "" });
 
-const priceItem = ref();
-
-watch(
-  () => props.quote,
-  () => {
-    if (priceItem.value) {
-      if (price.value) {
-        priceItem.value.validate();
-      } else {
-        priceItem.value.clearValidate();
-      }
-    }
-  }
-);
 // 步长
 const step = computed(() => {
   return props.symbolInfo ? props.symbolInfo.volume_step / 100 : 1;
@@ -68,29 +61,26 @@ const getLeed = () => {
 };
 
 // 初始化价格
-const initPrice = async () => {
-  const orderType = props.orderType;
+const initPrice = () => {
+  const orderType = props.orderType.toLowerCase();
   const leed = getLeed();
+  let result = "";
   if (leed) {
     const { result_1, result_2 } = leed;
-    const lowCase = orderType.toLowerCase();
-    if (lowCase.includes("buy")) {
-      price.value = lowCase.includes("limit")
-        ? String(result_1)
-        : String(result_2);
+    if (orderType.includes("buy")) {
+      result = orderType.includes("limit") ? result_1 : result_2;
     }
-    if (lowCase.includes("sell")) {
-      price.value = lowCase.includes("limit")
-        ? String(result_2)
-        : String(result_1);
+    if (orderType.includes("sell")) {
+      result = orderType.includes("limit") ? result_2 : result_1;
     }
   }
+  return result;
 };
 watch(
   () => [props.symbolInfo, props.orderType, props.edit],
   () => {
     if (props.symbolInfo && props.orderType && !props.edit) {
-      initPrice();
+      price.value = initPrice();
     }
   },
   {
@@ -99,44 +89,56 @@ watch(
   }
 );
 
-// 检查价格是否合法
-const validator = (rule: any, value: any, callback: any) => {
-  const type = props.orderType.toLowerCase();
-  if (price.value === undefined || price.value === "") {
-    return callback(new Error(`请输入${props.formOption.label}`));
-  }
+const ifError = ref(false);
+const range = ref("");
+watch(
+  () => [props.orderType, props.quote, price.value],
+  () => valid(),
+  { deep: true }
+);
+
+const valid = () => {
   let size = "";
   let val: string | number = "";
-  let result = false;
+  let valid = true;
   const leed = getLeed();
+  const type = props.orderType.toLowerCase();
+  const value = price.value;
   if (leed) {
     const { result_1, result_2 } = leed;
     if (type.includes("buy")) {
       if (["buylimit", "selllimit"].includes(type)) {
-        result = +price.value <= +result_1;
+        value && (valid = +value <= +result_1);
         size = "≤";
         val = result_1;
       } else {
-        result = +price.value >= +result_2;
+        value && (valid = +value >= +result_1);
         size = "≥";
         val = result_2;
       }
     }
     if (type.includes("sell")) {
       if (["buylimit", "selllimit"].includes(type)) {
-        result = +price.value >= +result_2;
+        value && (valid = +value >= +result_1);
         size = "≥";
         val = result_2;
       } else {
-        result = +price.value <= +result_1;
+        value && (valid = +value <= +result_1);
         size = "≤";
         val = result_1;
       }
     }
   }
-  if (!result) {
-    return callback(new Error(`${props.formOption.label}需${size}${val}`));
-  }
-  callback();
+  range.value = `${props.formOption.label}${size}${val}`;
+  ifError.value = !valid;
 };
 </script>
+
+<style lang="scss" scoped>
+@import "@/styles/_handle.scss";
+
+.tip {
+  @include font_color("word-gray");
+  margin-left: 16px;
+}
+</style>

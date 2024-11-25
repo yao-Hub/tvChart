@@ -269,7 +269,7 @@ export const datafeed = (id: string) => {
       const session = timeArr.join("|");
       const symbol_stub = {
         name: symbolName,
-        description: "",
+        description: storeSymbolInfo?.description || "-",
         visible_plots_set: false,
         minmov: 1, // 纵坐标比例
         minmov2: 0,
