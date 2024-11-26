@@ -16,7 +16,7 @@
             @click="dialogStore.feedbackVisible = true"
           >
             <img class="logo" src="@/assets/icons/icon_16.svg" />
-            <el-text type="info">{{ $t("feedback") }}：</el-text>
+            <el-text type="info">{{ $t("feedback") }}</el-text>
           </div>
         </div>
       </div>
@@ -203,9 +203,7 @@
                 getNowPrice(rowData)
               }}</template>
               <template v-else-if="column.dataKey === 'order_price'">{{
-                rowData.order_price_time
-                  ? rowData.trigger_price
-                  : rowData.order_price
+                getOrderPrice(rowData)
               }}</template>
               <template v-else-if="column.dataKey === 'profit'">
                 <span :class="[getCellClass(rowData.profit)]">
@@ -359,7 +357,7 @@ const state = reactive({
   } as Record<orderTypes.TableDataKey, orders.resOrders[]>,
   marketDialogVisible: false,
   pendingDialogVisible: false,
-  orderInfo: {} as orders.resOrders,
+  orderInfo: {} as orders.resOrders & orders.resPendingOrders,
   updata: {
     marketOrder: {
       symbol: [],
@@ -560,6 +558,13 @@ const getNowPrice = (e: orders.resOrders) => {
   } catch (error) {
     return "";
   }
+};
+
+const getOrderPrice = (e: orders.resPendingOrders) => {
+  if ([6, 7].includes(e.type)) {
+    return e.order_price_time ? e.trigger_price: e.order_price
+  }
+  return e.order_price;
 };
 
 // 获取盈亏

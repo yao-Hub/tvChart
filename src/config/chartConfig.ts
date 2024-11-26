@@ -122,15 +122,15 @@ export const datafeed = (id: string) => {
         d.ask = round(d.ask, digits);
         d.bid = round(d.bid, digits);
       }
-      const oldQuote = orderStore.currentQuotes[d.symbol];
-      const open = oldQuote?.open || d?.open;
+      const oldQuote = cloneDeep(orderStore.currentQuotes[d.symbol]);
+      const open = cloneDeep(oldQuote?.open || d?.open);
       const result = {
         ...d,
       };
       if (open) {
         result.open = open;
       }
-      orderStore.currentQuotes[d.symbol] = result;
+      orderStore.currentQuotes[d.symbol] = cloneDeep(result);
       if (
         !subscribed[`${id}@${d.symbol}`] ||
         !subscribed[`${id}@${d.symbol}`].symbolInfo ||
@@ -162,7 +162,9 @@ export const datafeed = (id: string) => {
           volume: new_one[d.symbol].volume + 1,
         };
         new_one[d.symbol].volume = newlastbar.volume;
-        subscribed[`${id}@${d.symbol}`].onRealtimeCallback(newlastbar); //更新K线
+        subscribed[`${id}@${d.symbol}`].onRealtimeCallback(
+          cloneDeep(newlastbar)
+        ); //更新K线
       }
     });
     // 监听k线
@@ -203,7 +205,9 @@ export const datafeed = (id: string) => {
           };
           new_one[d.symbol] = cloneDeep(newlastbar);
           newlastbar.time = newlastbar.time * 1000;
-          subscribed[`${id}@${d.symbol}`].onRealtimeCallback(newlastbar); //更新K线
+          subscribed[`${id}@${d.symbol}`].onRealtimeCallback(
+            cloneDeep(newlastbar)
+          ); //更新K线
         }
         kLineLoading = false;
       }

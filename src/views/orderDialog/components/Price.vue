@@ -1,3 +1,4 @@
+<!-- 普通挂单的价格计算 2，3,4,5 -->
 <template>
   <el-form-item
     label-position="top"
@@ -5,17 +6,18 @@
     :label="props.formOption.label"
     :rules="[{ required: true, trigger: ['change', 'blur'] }]"
   >
-    <StepNumInput
-      v-model:value="price"
-      :step="step"
-      style="width: 168px"
-      :valid="ifError"
-      :customSub="initPrice"
-      :customAdd="initPrice"
-    ></StepNumInput>
-    <el-text :type="ifError ? 'danger' : 'info'" class="tip">{{
-      range
-    }}</el-text>
+    <div style="width: 100%; display: flex; gap: 16px">
+      <StepNumInput
+        :disabled="disabled"
+        v-model:value="price"
+        :step="step"
+        style="width: 168px"
+        :valid="ifError"
+        :customSub="initPrice"
+        :customAdd="initPrice"
+      ></StepNumInput>
+      <el-text :type="ifError ? 'danger' : 'info'">{{ range }}</el-text>
+    </div>
   </el-form-item>
 </template>
 
@@ -25,7 +27,7 @@ import { SessionSymbolInfo, Quote } from "#/chart/index";
 import { round } from "utils/common/index";
 
 interface Props {
-  edit?: boolean;
+  disabled?: boolean;
   symbolInfo?: SessionSymbolInfo;
   orderType: string;
   quote?: Quote;
@@ -62,25 +64,26 @@ const getLeed = () => {
 
 // 初始化价格
 const initPrice = () => {
-  const orderType = props.orderType.toLowerCase();
-  const leed = getLeed();
-  let result = "";
-  if (leed) {
-    const { result_1, result_2 } = leed;
-    if (orderType.includes("buy")) {
-      result = orderType.includes("limit") ? result_1 : result_2;
-    }
-    if (orderType.includes("sell")) {
-      result = orderType.includes("limit") ? result_2 : result_1;
+  if (price.value === "") {
+    const orderType = props.orderType.toLowerCase();
+    const leed = getLeed();
+    if (leed) {
+      const { result_1, result_2 } = leed;
+      if (orderType.includes("buy")) {
+        return orderType.includes("limit") ? result_1 : result_2;
+      }
+      if (orderType.includes("sell")) {
+        return orderType.includes("limit") ? result_2 : result_1;
+      }
     }
   }
-  return result;
+  return false;
 };
 watch(
-  () => [props.symbolInfo, props.orderType, props.edit],
+  () => [props.symbolInfo, props.orderType],
   () => {
-    if (props.symbolInfo && props.orderType && !props.edit) {
-      price.value = initPrice();
+    if (props.symbolInfo && props.orderType && !props.disabled) {
+      price.value = initPrice() || "";
     }
   },
   {
@@ -136,9 +139,4 @@ const valid = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
-.tip {
-  @include font_color("word-gray");
-  margin-left: 16px;
-}
 </style>

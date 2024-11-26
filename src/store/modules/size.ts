@@ -13,9 +13,7 @@ export const useSize = defineStore("size", {
     initSize() {
       const storageStore = useStorage();
       const stoSize = storageStore.getItem("fontSize");
-      if (stoSize) {
-        this.systemSize = stoSize;
-      }
+      this.systemSize = stoSize || "default";
       document.documentElement.setAttribute("data-size", this.systemSize);
     },
 

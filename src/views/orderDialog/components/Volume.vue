@@ -9,6 +9,7 @@
       :step="step"
       :min="min"
       :max="max"
+      :disabled="disabled"
       @blur="checkVolume"
       @sub="percentage = 0"
       @plus="percentage = 0"
@@ -20,6 +21,7 @@
       <span>参考预付款：{{ referMargin }}</span>
     </div>
     <el-slider
+      v-if="!disabled"
       v-model="percentage"
       :marks="marks"
       :max="20"
@@ -40,6 +42,7 @@ import { useUser } from "@/store/modules/user";
 const userStore = useUser();
 type Arrayable<T> = T | T[];
 interface Props {
+  disabled?: boolean;
   symbolInfo?: SessionSymbolInfo;
   quote?: Quote;
   formOption: {

@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
+import { onMounted, watch, nextTick } from "vue";
 
 import { useSocket } from "@/store/modules/socket";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -61,17 +61,17 @@ async function init() {
     await getSymbols();
   } finally {
     socketStore.initSocket();
+    userStore.getLoginInfo({ emitSocket: true });
+    sizeStore.initSize();
+    orderStore.getQuickTrans();
+    await nextTick();
     // 3.拿到缓存信息才能确定历史页面布局
     layoutStore.initLayout();
     chartInitStore.intChartFlexDirection();
     chartInitStore.intLayoutType();
     // 4.确定了布局才去初始化各个模块位置
     initDragResizeArea();
-    // 其余操作 都要基于拿到缓存信息才操作
-    orderStore.getQuickTrans();
     chartInitStore.loadChartList();
-    sizeStore.initSize();
-    userStore.getLoginInfo({ emitSocket: true });
     // 记忆动作（没什么用(>^ω^<)喵）
     const rootStore = useRoot();
     if (rootStore.cacheAction) {

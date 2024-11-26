@@ -150,12 +150,8 @@ export const useChartInit = defineStore("chartInit", {
     // 初始化图表布局（单个多个）
     intLayoutType() {
       const storageStore = useStorage();
-      const type = storageStore.getItem(
-        "chartLayoutType"
-      ) as State["chartLayoutType"];
-      if (type) {
-        this.chartLayoutType = type;
-      }
+      const type = storageStore.getItem("chartLayoutType");
+      this.chartLayoutType = type || "single";
     },
     // 设置图表布局（单个多个）
     setLayoutType(type: State["chartLayoutType"]) {
@@ -166,12 +162,8 @@ export const useChartInit = defineStore("chartInit", {
     // 初始化图表布局方向（row or column）
     intChartFlexDirection() {
       const storageStore = useStorage();
-      const type = storageStore.getItem(
-        "chartFlexDirection"
-      ) as State["chartFlexDirection"];
-      if (type) {
-        this.chartFlexDirection = type;
-      }
+      const type = storageStore.getItem("chartFlexDirection");
+      this.chartFlexDirection = type || "row";
     },
     // 设置图表布局方向（row or column）
     setChartFlexDirection(type: State["chartFlexDirection"]) {

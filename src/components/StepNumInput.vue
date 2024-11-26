@@ -2,6 +2,7 @@
   <el-input
     v-model="model"
     type="number"
+    :disabled="disabled"
     @blur="blur"
     @input="input"
     :class="{ danger: valid }"
@@ -19,6 +20,7 @@
 import Decimal from "decimal.js";
 
 interface Props {
+  disabled?: boolean;
   valid?: boolean;
   step?: string | number;
   customAdd?: () => string | void;

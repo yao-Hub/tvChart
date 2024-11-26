@@ -1,7 +1,7 @@
 <template>
   <div class="spread">
     <span class="buyWord">{{ quote?.ask }}</span>
-    <div class="point">点差{{ spread }}</div>
+    <div class="spread_point">点差{{ spread }}</div>
     <span class="sellWord">{{ quote?.bid }}</span>
   </div>
 </template>
@@ -31,14 +31,14 @@ const spread = computed(() => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
-.point {
+.spread_point {
   @include font_color("word-gray");
   border-bottom: 1px solid;
   @include border_color("word-gray");
   width: 60px;
-  height: 18px;
   text-align: center;
   position: relative;
+  padding-bottom: 3px;
   &::before {
     content: "";
     display: block;

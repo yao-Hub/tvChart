@@ -39,6 +39,7 @@ export const allSymbols = () => {
     url: Api.allSymbols,
     noNeedToken: true,
     method: "post",
+    needLogin: true,
   });
 };
 

@@ -173,12 +173,10 @@ input::-webkit-inner-spin-button {
 button {
   cursor: pointer;
   outline: none;
-  @include font_color("word");
 }
 
 body {
   @include background_color("background");
-  @include font_color("word");
 }
 
 .icon {

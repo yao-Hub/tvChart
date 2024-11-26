@@ -3,7 +3,7 @@
     <el-dialog
       align-center
       width="464"
-      v-model="props.visible"
+      v-model="modal"
       @close="handleCancel"
       :z-index="13"
       destroy-on-close
@@ -17,7 +17,6 @@
           <el-form
             ref="closeFormRef"
             :model="closeFormState"
-            class="closeForm"
             label-position="top"
             :rules="closeRules"
           >
@@ -36,39 +35,34 @@
                   :step="step"
                   v-model:value="closeFormState.volume"
                 ></StepNumInput>
-                <el-tooltip content="反向持仓" placement="top-start">
-                  <el-button
-                    :icon="Back"
-                    @click="handleConfirm('reverse', closeFormRef)"
-                  />
-                </el-tooltip>
-                <el-tooltip content="双倍持仓" placement="top-start">
-                  <el-button @click="handleConfirm('double', closeFormRef)">
-                    <i class="iconfont icon-icon_2times"></i>
-                  </el-button>
-                </el-tooltip>
+                <img
+                  class="opearBtn"
+                  src="@/assets/icons/icon_18.png"
+                  title="反向持仓"
+                  @click="handleConfirm('reverse', closeFormRef)"
+                />
+                <img
+                  class="opearBtn"
+                  src="@/assets/icons/icon_19.png"
+                  title="双倍持仓"
+                  @click="handleConfirm('double', closeFormRef)"
+                />
               </div>
             </el-form-item>
-            <el-form-item>
-              <el-col :span="15">
-                <div style="display: flex; gap: 16px; width: 100%">
-                  <span class="sellWord" style="width: 50%"
-                    >卖价: {{ props.quote.bid }}</span
-                  >
-                  <span class="buyWord" style="width: 50%"
-                    >买价: {{ props.quote.ask }}</span
-                  >
-                </div>
-              </el-col>
-              <el-col :span="7">
-                <el-button
-                  type="primary"
-                  class="closeBtn"
-                  @click="handleConfirm('close', closeFormRef)"
-                  >按市价平仓</el-button
-                >
-              </el-col>
-            </el-form-item>
+            <el-col :span="24">
+              <Spread
+                :quote="props.quote"
+                :digits="symbolInfo?.digits"
+              ></Spread>
+            </el-col>
+            <el-col :span="24">
+              <el-button
+                style="width: 100%; margin-top: 8px"
+                type="primary"
+                @click="handleConfirm('close', closeFormRef)"
+                >按市价平仓</el-button
+              >
+            </el-col>
           </el-form>
         </div>
         <el-form ref="stopFormRef" :model="stopFormState" class="stopForm">
@@ -103,7 +97,7 @@
       <template #footer>
         <el-button
           type="primary"
-          class="btn"
+          style="width: 100%"
           :loading="modifyLoading"
           :disabled="!stopFormState.stopLoss && !stopFormState.stopProfit"
           @click="modify"
@@ -146,16 +140,19 @@
 import { ref, reactive, computed, watch, nextTick } from "vue";
 import { resOrders } from "api/order/index";
 import { Quote } from "#/chart/index";
-import { Back } from "@element-plus/icons-vue";
+
+import Spread from "./components/spread.vue";
+
 interface Props {
-  visible: boolean;
   orderInfo: resOrders;
   quote: Quote;
 }
 const props = defineProps<Props>();
 const emit = defineEmits();
+
+const modal = defineModel("visible", { type: Boolean, default: false });
 const handleCancel = () => {
-  emit("update:visible", false);
+  modal.value = false;
 };
 
 /** 当前品种 */
@@ -214,17 +211,15 @@ const step = computed(() => {
 });
 
 watch(
-  () => props.visible,
+  () => modal.value,
   async (val) => {
     await nextTick();
     if (val && closeFormRef.value && stopFormRef.value) {
       closeFormRef.value.resetFields();
       stopFormRef.value.resetFields();
-      setTimeout(() => {
-        closeFormState.volume = String(props.orderInfo.volume / 100);
-        stopFormState.stopLoss = props.orderInfo.sl_price.toString();
-        stopFormState.stopProfit = props.orderInfo.tp_price.toString();
-      });
+      closeFormState.volume = String(props.orderInfo.volume / 100);
+      stopFormState.stopLoss = props.orderInfo.sl_price.toString();
+      stopFormState.stopProfit = props.orderInfo.tp_price.toString();
     }
   }
 );
@@ -385,34 +380,21 @@ const modify = debounce(async () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 384px;
-  margin: auto;
+  width: 100%;
+  margin-top: 31px;
   &_top {
-    box-sizing: border-box;
     width: 100%;
-    border: 1px solid;
+    border-bottom: 1px solid;
     @include border_color("border");
-    border-radius: 8px;
+    padding-bottom: 24px;
   }
   .stopForm {
     margin-top: 24px;
   }
-  .closeForm {
-    padding: 15px 24px 0 24px;
-  }
 }
-.btn {
-  margin-right: 40px;
-  margin-bottom: 24px;
-}
-.iconbtn {
-  width: 40px !important;
-  height: 40px;
-  border-radius: 4px;
-}
-.closeBtn {
-  height: 40px;
-  border-radius: 4px;
-  width: 88px;
+.opearBtn {
+  cursor: pointer;
+  width: var(--size);
+  height: var(--size);
 }
 </style>

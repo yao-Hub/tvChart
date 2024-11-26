@@ -3,7 +3,7 @@
     <el-dialog
       align-center
       width="464"
-      v-model="props.visible"
+      v-model="modal"
       @close="handleCancel"
       :z-index="13"
       destroy-on-close
@@ -14,38 +14,25 @@
       </template>
       <el-form :model="formState" :rules="rules" ref="orderFormRef">
         <el-row :gutter="24">
-          <el-col :span="12">
+          <el-col :span="24">
             <el-form-item prop="symbol" label="交易品种" label-position="top">
               <el-input disabled :value="props.orderInfo.symbol"></el-input>
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item
-              prop="orderType"
-              label="订单类型"
-              label-position="top"
-            >
-              <el-select
-                v-model="formState.orderType"
-                filterable
-                placeholder="订单类型"
-              >
-                <el-option
-                  v-for="item in orderTypeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
+          <el-col :span="24">
+            <el-form-item prop="symbol" label="订单类型" label-position="top">
+              <el-input
+                disabled
+                :value="getOrderType(props.orderInfo.type)"
+              ></el-input>
             </el-form-item>
           </el-col>
           <el-col
-            :span="12"
+            :span="24"
             v-if="domVisableOption.orderPrice.includes(formState.orderType)"
           >
             <Price
               v-model:value="formState.orderPrice"
-              edit
               :formOption="{
                 name: 'orderPrice',
                 label: `${
@@ -58,26 +45,13 @@
             >
             </Price>
           </el-col>
+          <!-- 不是6 7都能改 是6 7考虑是否到达突破价 到达突破价不能改 只能改限价 -->
           <el-col
-            :span="
-              domVisableOption.volume.includes(formState.orderType) ? 24 : 12
-            "
-          >
-            <Volume
-              v-model:volume="formState.volume"
-              :symbolInfo="symbolInfo"
-              :quote="quote"
-              :orderType="formState.orderType"
-              :formOption="{ name: 'volume', label: '交易量' }"
-              :orderPrice="formState.orderPrice"
-            ></Volume>
-          </el-col>
-          <el-col
-            :span="12"
+            :span="24"
             v-if="domVisableOption.breakPrice.includes(formState.orderType)"
           >
             <BreakLimit
-              edit
+              :disabled="!!orderInfo.order_price_time"
               v-model:value="formState.breakPrice"
               :formOption="{ name: 'breakPrice', label: '突破价' }"
               :orderType="formState.orderType"
@@ -86,11 +60,10 @@
             ></BreakLimit>
           </el-col>
           <el-col
-            :span="12"
+            :span="24"
             v-if="domVisableOption.limitedPrice.includes(formState.orderType)"
           >
             <BreakLimit
-              edit
               v-model:value="formState.limitedPrice"
               :breakPrice="formState.breakPrice"
               :formOption="{ name: 'limitedPrice', label: '限价' }"
@@ -98,6 +71,17 @@
               :symbolInfo="symbolInfo"
               :quote="quote"
             ></BreakLimit>
+          </el-col>
+          <el-col :span="24">
+            <Volume
+              disabled
+              v-model:volume="formState.volume"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+              :orderType="formState.orderType"
+              :formOption="{ name: 'volume', label: '平仓量' }"
+              :orderPrice="formState.orderPrice"
+            ></Volume>
           </el-col>
           <el-col :span="12">
             <StopLossProfit
@@ -129,29 +113,17 @@
           >
             <Term v-model:term="formState.dueDate"></Term>
           </el-col>
-          <el-col :span="12">
-            <el-form-item>
-              <div style="display: flex; flex-wrap: nowrap; width: 100%">
-                <span class="sellWord" style="width: 50%"
-                  >卖价: {{ formState.symbol ? quote?.bid : "" }}</span
-                >
-                <span class="buyWord" style="width: 50%"
-                  >买价: {{ formState.symbol ? quote?.ask : "" }}</span
-                >
-              </div>
-            </el-form-item>
+          <el-col :span="24">
+            <Spread :quote="props.quote" :digits="symbolInfo?.digits"></Spread>
           </el-col>
-          <el-col :span="12">
-            <el-form-item>
-              <div style="display: flex; justify-content: flex-end">
-                <el-button
-                  type="primary"
-                  :loading="pendingBtnLoading"
-                  @click="confirmEdit"
-                  >确认修改</el-button
-                >
-              </div>
-            </el-form-item>
+          <el-col :span="24">
+            <el-button
+              style="width: 100%"
+              type="primary"
+              :loading="pendingBtnLoading"
+              @click="confirmEdit"
+              >确认修改</el-button
+            >
           </el-col>
         </el-row>
       </el-form>
@@ -160,43 +132,36 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, watch } from "vue";
+import { ref, computed, reactive, watch, nextTick } from "vue";
 import { debounce, findKey } from "lodash";
 import dayjs from "dayjs";
 
 import type { FormInstance, FormRules } from "element-plus";
-import { resOrders } from "api/order/index";
+import { resPendingOrders } from "api/order/index";
 import { ORDERMAP } from "@/constants/common";
+import { getOrderType } from "utils/order/index";
 
 import Volume from "./components/Volume.vue";
 import StopLossProfit from "./components/StopLossProfit.vue";
 import Term from "./components/Term.vue";
 import Price from "./components/Price.vue";
 import BreakLimit from "./components/BreakLimit.vue";
+import Spread from "./components/spread.vue";
 
 import { useOrder } from "@/store/modules/order";
 
 const orderStore = useOrder();
 interface Props {
-  visible: boolean;
-  orderInfo: resOrders;
+  orderInfo: resPendingOrders;
   quote: Quote;
 }
 const props = defineProps<Props>();
 const emit = defineEmits();
+const modal = defineModel("visible", { type: Boolean, default: false });
 const handleCancel = () => {
   orderFormRef.value?.resetFields();
-  emit("update:visible", false);
+  modal.value = false;
 };
-// 订单类型
-const orderTypeOptions = [
-  { value: "buyLimit", label: "buy limit" },
-  { value: "sellLimit", label: "sell limit" },
-  { value: "buyStop", label: "buy stop" },
-  { value: "sellStop", label: "sell stop" },
-  { value: "buyStopLimit", label: "buy stop limit" },
-  { value: "sellStopLimit", label: "sell stop limit" },
-];
 
 /** 表单处理 */
 const orderFormRef = ref<FormInstance>();
@@ -224,7 +189,6 @@ const formState = reactive<FormState>({
 });
 const domVisableOption = {
   orderPrice: ["buyLimit", "sellLimit", "buyStop", "sellStop"],
-  volume: ["", "price", "buyStopLimit", "sellStopLimit"],
   breakPrice: ["buyStopLimit", "sellStopLimit"],
   limitedPrice: ["buyStopLimit", "sellStopLimit"],
   dueDate: [
@@ -251,9 +215,10 @@ for (const i in formState) {
 }
 // 重置表单 自动填充
 watch(
-  () => props.visible,
-  (val) => {
+  () => modal.value,
+  async (val) => {
     if (val) {
+      await nextTick();
       const orderType = findKey(ORDERMAP, (o) => o === props.orderInfo.type);
       if (orderType) {
         formState.orderType = orderType;
@@ -262,10 +227,12 @@ watch(
       formState.volume = props.orderInfo.volume / 100;
       formState.stopLoss = props.orderInfo.sl_price;
       formState.stopProfit = props.orderInfo.tp_price;
-      formState.orderPrice = props.orderInfo.order_price;
       formState.dueDate = dayjs(props.orderInfo.time_expiration).unix();
       formState.limitedPrice = props.orderInfo.trigger_price;
       formState.breakPrice = props.orderInfo.order_price;
+      setTimeout(() => {
+        formState.orderPrice = props.orderInfo.order_price;
+      }, 200);
     }
   }
 );

@@ -2,10 +2,16 @@
   <el-form-item label-position="top" :prop="props.type" label-width="100%">
     <template #label>
       <div class="title">
-        <span>{{ titleMap[props.type] }}</span>
-        <span class="tip" v-if="!price"
-          >至少远离市价{{ minPoint || "-" }}点</span
-        >
+        <span style="white-space: nowrap">{{ titleMap[props.type] }}</span>
+        <el-tooltip :content="`至少远离市价${minPoint}点`" placement="top">
+          <el-text
+            class="textEllipsis"
+            style="width: 130px"
+            type="info"
+            v-if="!price"
+            >至少远离市价{{ minPoint || "-" }}点</el-text
+          >
+        </el-tooltip>
         <el-text :type="ifError ? 'danger' : 'info'" v-if="rangeTip && price">{{
           rangeTip
         }}</el-text>
@@ -37,15 +43,13 @@ interface Props {
   symbolInfo?: SessionSymbolInfo;
   quote?: Quote;
   orderType: string;
-  orderPrice: string | number;
+  orderPrice: string | number | null;
   volume: string | number;
   limitedPrice?: string | number;
   priceOrderType?: string;
 }
 const props = defineProps<Props>();
 const price = defineModel<string | number>("price");
-
-// 止盈止损验证规则
 
 // 至少远离市价点数
 const minPoint = computed(() => {
@@ -62,10 +66,10 @@ const minPoint = computed(() => {
 const getRange = () => {
   const leadOption: Record<string, any> = {
     price: props.quote?.ask,
-    buyLimit: +props.orderPrice,
-    sellLimit: +props.orderPrice,
-    buyStop: +props.orderPrice,
-    sellStop: +props.orderPrice,
+    buyLimit: props.orderPrice,
+    sellLimit: props.orderPrice,
+    buyStop: props.orderPrice,
+    sellStop: props.orderPrice,
     buyStopLimit: props.limitedPrice || 0,
     sellStopLimit: props.limitedPrice || 0,
   };
@@ -207,8 +211,6 @@ const profit = computed(() => {
   width: 100%;
   display: flex;
   justify-content: space-between;
-}
-.tip {
-  @include font_color("word-gray");
+  gap: 20px;
 }
 </style>

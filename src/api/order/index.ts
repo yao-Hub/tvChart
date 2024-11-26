@@ -145,6 +145,7 @@ export interface resPendingOrders {
   fee: number; //	手续费
   profit: number; //	浮动盈亏
   comment: string; //	备注评论
+  order_price_time: number;
 }
 
 export interface reqHistoryOrders {

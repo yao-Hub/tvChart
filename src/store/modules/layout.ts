@@ -23,6 +23,9 @@ export const useLayout = defineStore("layout", {
       if (layout) {
         this.symbolsVisable = layout.symbolsVisable;
         this.orderAreaVisable = layout.orderAreaVisable;
+      } else {
+        this.symbolsVisable = true;
+        this.orderAreaVisable = true;
       }
     },
     rememberLayout() {

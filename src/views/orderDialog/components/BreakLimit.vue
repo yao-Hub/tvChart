@@ -1,3 +1,4 @@
+<!-- 特殊挂单的价格计算 6,7 -->
 <template>
   <el-form-item
     label-position="top"
@@ -5,17 +6,18 @@
     :label="props.formOption.label"
     :rules="[{ required: true, trigger: ['change', 'blur'] }]"
   >
-    <StepNumInput
-      v-model:value="price"
-      :step="step"
-      style="width: 168px"
-      :valid="ifError"
-      :customSub="initPrice"
-      :customAdd="initPrice"
-    ></StepNumInput>
-    <el-text :type="ifError ? 'danger' : 'info'" class="tip">{{
-      range
-    }}</el-text>
+    <div style="width: 100%; display: flex; gap: 16px">
+      <StepNumInput
+        :disabled="disabled"
+        v-model:value="price"
+        :step="step"
+        style="width: 168px"
+        :valid="ifError"
+        :customSub="initPrice"
+        :customAdd="initPrice"
+      ></StepNumInput>
+      <el-text :type="ifError ? 'danger' : 'info'">{{ range }}</el-text>
+    </div>
   </el-form-item>
 </template>
 
@@ -25,7 +27,7 @@ import { SessionSymbolInfo, Quote } from "#/chart/index";
 import { round } from "utils/common/index";
 
 interface Props {
-  edit?: boolean;
+  disabled?: boolean;
   symbolInfo?: SessionSymbolInfo;
   orderType: string;
   quote?: Quote;
@@ -79,18 +81,20 @@ const limitPrice = () => {
 // 初始化价格
 const initPrice = () => {
   const name = props.formOption.name;
-  if (name === "breakPrice") {
-    return breakPrice();
-  }
-  if (name === "limitedPrice") {
-    return limitPrice();
+  if (price.value === "") {
+    if (name === "breakPrice") {
+      return breakPrice();
+    }
+    if (name === "limitedPrice") {
+      return limitPrice();
+    }
   }
   return false;
 };
 watch(
   () => [props.symbolInfo, props.orderType],
   () => {
-    if (props.symbolInfo && props.orderType && !props.edit) {
+    if (props.symbolInfo && props.orderType && !props.disabled) {
       price.value = initPrice() || "";
     }
   },
@@ -147,5 +151,7 @@ const valid = () => {
 <style lang="scss" scoped>
 .tip {
   margin-left: 16px;
+  display: block;
+  width: 200px;
 }
 </style>

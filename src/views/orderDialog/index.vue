@@ -460,7 +460,7 @@ const addPendingOrders = debounce(async () => {
 @import "@/styles/_handle.scss";
 .order_dialog {
   pointer-events: auto;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow: auto;
 }
 .order_dialog_modal {
@@ -509,7 +509,7 @@ const addPendingOrders = debounce(async () => {
   margin-top: 31px;
 }
 :deep(.el-text.el-text--info) {
-  width: 86px;
+  min-width: 86px;
   display: inline-block;
 }
 </style>
