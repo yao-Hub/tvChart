@@ -1018,7 +1018,7 @@ onMounted(async () => {
     display: flex;
     box-sizing: border-box;
     width: 100%;
-    height: 40px;
+    height: var(--size);
     &_right {
       flex: 1;
       height: 100%;

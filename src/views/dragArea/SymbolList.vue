@@ -44,7 +44,7 @@
           prop="symbols"
           :label="$t('order.symbol')"
           align="left"
-          min-width="108"
+          min-width="80"
         />
         <el-table-column
           prop="bid"
@@ -339,7 +339,6 @@ const expandChange = (row: any, expandedRows: any[]) => {
 }
 .input {
   width: calc(100% - 16px);
-  height: 32px;
   .closeIcon {
     width: 18px;
     height: 18px;

@@ -8,19 +8,17 @@
 [data-size="small"] {
   --font-size: 12px;
   --icon-size: 12px;
+  --size: var(--el-component-size-small);
 }
 [data-size="default"] {
   --font-size: 14px;
   --icon-size: 16px;
+  --size: var(--el-component-size);
 }
-[data-size="medium"] {
-  --font-size: 14px;
-  --icon-size: 16px;
-}
-
 [data-size="large"] {
   --font-size: 16px;
   --icon-size: 20px;
+  --size: var(--el-component-size-large);
 }
 
 @mixin themeify {

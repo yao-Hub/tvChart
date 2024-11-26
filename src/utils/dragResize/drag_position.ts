@@ -241,6 +241,7 @@ function createHoriLine(addNum: number) {
     line.style.top = "0";
     line.style.zIndex = "1";
     line.style.borderRadius = "2px";
+    line.style.transition = "background-color 0.5s ease";
 
     const moveIcon = document.createElement("div");
     moveIcon.style.width = `28px`;
@@ -455,38 +456,7 @@ function createVertLine(addNum: number) {
     line.style.width = lineWidth + "px";
     line.style.cursor = "ew-resize";
     line.style.zIndex = "1";
-
-    // const moveIcon = document.createElement("div");
-    // moveIcon.style.width = `${lineWidth + 8}px`;
-    // moveIcon.style.height = `28px`;
-    // moveIcon.style.backgroundImage = "url('/src/assets/icons/icon_td2.svg')";
-    // moveIcon.style.backgroundSize = "contain";
-    // moveIcon.style.backgroundRepeat = "no-repeat";
-    // moveIcon.style.backgroundPosition = "center";
-    // moveIcon.style.position = "absolute";
-    // moveIcon.style.top = "50%";
-    // moveIcon.style.left = "50%";
-    // moveIcon.style.transform = "translate(-50%, -50%)";
-    // moveIcon.style.zIndex = "2";
-    // moveIcon.style.transition = "transform 0.3s ease";
-    // moveIcon.style.borderRadius = "3px";
-    // moveIcon.style.cursor = "ew-resize";
-    // moveIcon.style.userSelect = "none";
-    // moveIcon.addEventListener("mouseover", function () {
-    //   moveIcon.style.backgroundColor = lineColor;
-    //   moveIcon.style.transform = "translate(-50%, -50%) scale(1.1)";
-    // });
-    // moveIcon.addEventListener("mouseout", function () {
-    //   if (moving.horizontalLine) {
-    //     return;
-    //   }
-    //   moveIcon.style.backgroundColor = "";
-    //   moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
-    // });
-    // moveIcon.addEventListener("mousedown", function (e) {
-    //   e.preventDefault();
-    // });
-    // line.appendChild(moveIcon);
+    line.style.transition = "background-color 0.5s ease";
 
     line.addEventListener("mouseover", function () {
       line.style.backgroundColor = lineColor;
@@ -498,8 +468,6 @@ function createVertLine(addNum: number) {
       line.style.backgroundColor = "";
     });
     document.addEventListener("mouseup", function () {
-      // moveIcon.style.transform = "translate(-50%, -50%) scale(1)";
-      // moveIcon.style.backgroundColor = "";
       moving.horizontalLine = false;
     });
     line.addEventListener("mousedown", (e) => {

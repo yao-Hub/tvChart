@@ -8,7 +8,7 @@
         </ChartList>
       </div>
       <!-- demo_2 -->
-      <div class="demo nested-1" data-id="demo_2" data-minWidth="360" data-initW="568"
+      <div class="demo nested-1" data-id="demo_2" data-minWidth="360" data-initW="468"
         v-if="layoutStore.symbolsVisable">
         <div class="handle"></div>
         <SymbolList class="container_item"></SymbolList>

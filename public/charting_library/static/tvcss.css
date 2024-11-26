@@ -1,3 +1,8 @@
-/* .icon-KTgbfaP5 {
-  transform: scale(0.8);
-} */
+.chart-page .chart-container {
+  transform: translateX(-3px) translateY(-3px);
+  width: calc(100% + 3px) !important;
+  height: calc(100% + 3px) !important;
+}
+#drawing-toolbar {
+  transform: translateY(-3px);
+}

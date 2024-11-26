@@ -47,6 +47,7 @@ const tabClick = () => {
   box-sizing: border-box;
   border: 1px solid;
   border-bottom: none;
+  padding: 0 8px;
   @include border_color("border");
   cursor: pointer;
   &:hover {
