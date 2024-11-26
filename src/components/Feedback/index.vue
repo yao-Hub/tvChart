@@ -17,6 +17,7 @@
       placeholder="有反馈就会有结果…"
       show-word-limit
       maxlength="500"
+      style="margin-top: 24px"
     />
 
     <el-upload

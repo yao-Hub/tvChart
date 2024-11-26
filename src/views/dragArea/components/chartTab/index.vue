@@ -14,7 +14,7 @@
       @command="emit('symbolCommand', $event, props.id)"
     >
       <div class="el-dropdown-link" @click.stop="toggleSymbol">
-        <span class="label">{{ props.symbol }}</span>
+        <span>{{ props.symbol }}</span>
         <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
       </div>
       <template #dropdown>
@@ -51,7 +51,7 @@
       @visible-change="resolutionVisible = $event"
     >
       <div class="el-dropdown-link" @click.stop="toggleResolution">
-        <span class="label">{{ nowResolution }}</span>
+        <span>{{ nowResolution }}</span>
         <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
       </div>
       <template #dropdown>
@@ -60,7 +60,7 @@
           class="dropdownItem"
           @click="emit('resolutionCommand', key, props.id)"
         >
-          <span class="label">{{ value }}</span>
+          <span>{{ value }}</span>
           <img
             class="selectIcon"
             src="@/assets/icons/select.svg"

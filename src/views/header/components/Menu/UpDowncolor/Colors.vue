@@ -3,7 +3,7 @@
     <el-dropdown-item>
       <div class="item" @click="changeColor('upRedDownGreen')">
         <img class="logo" src="@/assets/icons/upRedDownGreen.svg" />
-        <span class="label">{{ $t("upRedDownGreen") }}</span>
+        <span>{{ $t("upRedDownGreen") }}</span>
         <img
           class="logo checkIcon"
           src="@/assets/icons/select.svg"
@@ -14,7 +14,7 @@
     <el-dropdown-item>
       <div class="item" @click="changeColor('upGreenDownRed')">
         <img class="logo" src="@/assets/icons/upGreenDownRed.svg" />
-        <span class="label">{{ $t("upGreenDownRed") }}</span>
+        <span>{{ $t("upGreenDownRed") }}</span>
         <img
           class="logo checkIcon"
           src="@/assets/icons/select.svg"

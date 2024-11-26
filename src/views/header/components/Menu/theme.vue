@@ -2,7 +2,7 @@
   <div class="transaction">
     <div class="transaction_left">
       <img class="logo" src="@/assets/icons/icon_10.svg" />
-      <span class="label">{{ $t("lightTheme") }}</span>
+      <span>{{ $t("lightTheme") }}</span>
     </div>
     <el-switch v-model="checked" @change="handleChange" />
   </div>

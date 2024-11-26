@@ -2,7 +2,7 @@
   <el-dropdown-menu>
     <el-dropdown-item v-for="size in sizeList">
       <div class="item" @click="sizeStore.changeSize(size)">
-        <span class="label">{{ $t(`font.${size}`) }}</span>
+        <span>{{ $t(`font.${size}`) }}</span>
         <img
           class="logo"
           src="@/assets/icons/select.svg"

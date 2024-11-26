@@ -105,6 +105,7 @@ watch(
 .commentList {
   padding: 0 16px;
   height: 500px;
+  margin-top: 24px;
 }
 .comment {
   display: flex;

@@ -2,7 +2,7 @@
   <div class="transaction">
     <div class="transaction_left">
       <img class="logo" src="@/assets/icons/icon_9.svg" />
-      <span class="label">{{ $t("QuickTransactions") }}</span>
+      <span>{{ $t("QuickTransactions") }}</span>
     </div>
     <el-switch v-model="orderStore.ifOne" :before-change="beforeChange" />
   </div>

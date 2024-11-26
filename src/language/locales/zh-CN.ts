@@ -100,6 +100,18 @@ export default {
     time: "时间",
   },
 
+  confirmOrder: {
+    symbol: "交易品种",
+    orderType: "订单类型",
+    volume: "交易量",
+    stopLoss: "止损",
+    stopProfit: "止盈",
+    orderPrice: "下单价",
+    dueDate: "期限",
+    breakPrice: "突破价",
+    limitedPrice: "限价",
+  },
+
   tip: {
     usernameRequired: "请输入账号",
     passwordRequired: "请输入密码",

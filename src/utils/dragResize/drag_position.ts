@@ -22,7 +22,6 @@ const iconHover = {
 const minWidth = 300;
 const minHeight = 150;
 const lineWidth = 8;
-const marginTop = 8;
 const lineColor = "rgba(206,205,209,1)";
 
 // 水平线初始拉伸位置
@@ -112,16 +111,15 @@ function setDragAreaSize() {
   const dragArea = document.querySelector(".dragArea") as HTMLElement;
   const dh = dragArea.getBoundingClientRect().height;
   const dw = dragArea.getBoundingClientRect().width;
-
   const dragItems = document.querySelectorAll(".dragArea_item");
 
   // 先平分
   dragItems.forEach((item, index, arr) => {
-    const height = dh / arr.length - lineWidth * (arr.length - 1);
+    const height = dh / arr.length;
     item.setAttribute(
       "style",
       `height: ${height}px; width: ${dw}px; margin-top: ${
-        index > 0 ? marginTop : 0
+        index > 0 ? lineWidth : 0
       }px`
     );
   });
@@ -603,8 +601,7 @@ function resizeHorizontal(event: MouseEvent) {
 function resizeSetItem() {
   const dragArea = document.querySelector(".dragArea");
   const dragItems = document.querySelectorAll(".dragArea_item");
-  const dh =
-    dragArea!.getBoundingClientRect().height - marginTop * dragItems.length;
+  const dh = dragArea!.getBoundingClientRect().height;
   const dw = dragArea!.getBoundingClientRect().width;
   // 获取高度比例
   const heights = Array.from(dragItems).map((item) => {
@@ -634,7 +631,7 @@ function resizeSetItem() {
     const element = item as HTMLElement;
     element.style.height = `${dh * heightRatios[index]}px`;
     element.style.width = `${dw}px`;
-    element.style.marginTop = `${marginTop}px`;
+    element.style.marginTop = `${index > 0 ? lineWidth : 0}px`;
   });
 }
 

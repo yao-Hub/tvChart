@@ -1,7 +1,7 @@
 <template>
   <div class="item" @click="open = true">
     <img class="logo" src="@/assets/icons/icon_16.svg" />
-    <span class="label">{{ $t("aboutUs") }}</span>
+    <span>{{ $t("aboutUs") }}</span>
   </div>
 
   <el-dialog
@@ -10,34 +10,35 @@
     :zIndex="10"
     destroy-on-close
     append-to-body
+    @close="open = false"
   >
     <template #header>
       <span class="header">{{ $t("aboutUs") }}</span>
     </template>
     <el-row>
       <el-col :span="24">
-        <span class="label">{{ $t("company") }}：</span>
-        <span class="value">广州微派</span>
+        <el-text type="info">{{ $t("company") }}</el-text>
+        <el-text>广州微派</el-text>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
-        <span class="label">Tel：</span>
-        <span class="value">+86 8803 445</span>
+        <el-text type="info">Tel</el-text>
+        <el-text>+86 8803 445</el-text>
       </el-col>
       <el-col :span="12">
-        <span class="label">FaX：</span>
-        <span class="value">+86 8803 445</span>
+        <el-text type="info">FaX</el-text>
+        <el-text>+86 8803 445</el-text>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
-        <span class="label">Web：</span>
-        <span class="value">www.weipai.com</span>
+        <el-text type="info">Web</el-text>
+        <el-text>www.weipai.com</el-text>
       </el-col>
       <el-col :span="12">
-        <span class="label">Email：</span>
-        <span class="value">info@utrader.com</span>
+        <el-text type="info">Email</el-text>
+        <el-text>info@utrader.com</el-text>
       </el-col>
     </el-row>
   </el-dialog>
@@ -67,8 +68,8 @@ const open = ref<boolean>(false);
   font-size: 16px;
   @include font_color("word");
 }
-.value {
-  @include font_color("word");
-  font-weight: 400;
+:deep(.el-text.el-text--info) {
+  width: 44px;
+  display: inline-block;
 }
 </style>

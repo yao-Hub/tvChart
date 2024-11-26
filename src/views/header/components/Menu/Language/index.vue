@@ -3,10 +3,10 @@
     <div class="expandIcon">
       <div class="expandIcon_left">
         <img class="logo" src="@/assets/icons/icon_12.svg" />
-        <span class="label">{{ $t("lauguage") }}</span>
+        <span>{{ $t("lauguage") }}</span>
       </div>
       <div class="expandIcon_right">
-        <span class="label">{{ nowLocale }}</span>
+        <span>{{ nowLocale }}</span>
         <img class="logo" src="@/assets/icons/turnRight.svg" />
       </div>
     </div>

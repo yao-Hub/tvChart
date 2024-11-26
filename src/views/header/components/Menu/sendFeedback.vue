@@ -1,7 +1,7 @@
 <template>
   <div class="item" @click="dialogStore.feedbackVisible = true">
     <img class="logo" src="@/assets/icons/icon_15.svg" />
-    <span class="label">{{ $t("feedback") }}</span>
+    <span>{{ $t("feedback") }}</span>
   </div>
 </template>
 

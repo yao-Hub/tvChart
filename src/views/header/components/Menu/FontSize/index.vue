@@ -3,10 +3,10 @@
     <div class="expandIcon">
       <div class="expandIcon_left">
         <img class="logo" src="@/assets/icons/icon_13.svg" />
-        <span class="label">{{ $t("font.fontSize") }}</span>
+        <span>{{ $t("font.fontSize") }}</span>
       </div>
       <div class="expandIcon_right">
-        <span class="label">{{ $t(`font.${sizeStore.systemSize}`) }}</span>
+        <span>{{ $t(`font.${sizeStore.systemSize}`) }}</span>
         <img class="logo" src="@/assets/icons/turnRight.svg" />
       </div>
     </div>

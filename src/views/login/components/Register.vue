@@ -62,12 +62,12 @@
       <span class="tipSav">{{ $t("tip.keepPasswordSave") }}</span>
       <div class="copyBox">
         <div class="item">
-          <span class="label">{{ $t("account.accountNumber") }}： </span>
-          <span class="value">{{ account.name }}</span>
+          <el-text type="info">{{ $t("account.accountNumber") }}： </el-text>
+          <el-text>{{ account.name }}</el-text>
         </div>
         <div class="item">
-          <span class="label">{{ $t("account.password") }}：</span>
-          <span class="value"> {{ account.pass }}</span>
+          <el-text type="info">{{ $t("account.password") }}：</el-text>
+          <el-text> {{ account.pass }}</el-text>
         </div>
         <span class="copyBtn" @click="copy">{{ $t("account.copy") }}</span>
       </div>
@@ -270,9 +270,6 @@ const copy = async () => {
       .item {
         font-weight: 400;
         font-size: 16px;
-      }
-      .label {
-        @include font_color("word-gray");
       }
       .copyBtn {
         @include font_color("primary");

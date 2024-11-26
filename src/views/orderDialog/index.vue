@@ -177,7 +177,7 @@
       </el-form>
     </el-dialog>
 
-    <!-- 下单确认 -->
+    <!-- 市价单下单确认 -->
     <el-dialog
       v-model="confirmOrderOpen"
       @cancel="handleConfirmOrderCancle"
@@ -188,19 +188,28 @@
       <template #header>
         <span class="dialog_header">下单确认</span>
       </template>
-      <el-row>
-        <el-col :span="12" v-for="(value, key) in formState" v-show="!!value">
-          <div
-            style="display: flex"
-            v-if="domVisableOption[key].includes(formState.orderType)"
-          >
-            <span class="label"> {{ formMap[key] }}： </span>
-            <span class="value">
-              {{ key === "orderType" ? directionType : value }}
-            </span>
-          </div>
-        </el-col>
-      </el-row>
+      <div class="infos">
+        <div class="infoItem">
+          <el-text type="info">{{ $t("confirmOrder.symbol") }}</el-text>
+          <el-text>{{ formState.symbol }}</el-text>
+        </div>
+        <div class="infoItem">
+          <el-text type="info">{{ $t("confirmOrder.orderType") }}</el-text>
+          <el-text>{{ directionType }}</el-text>
+        </div>
+        <div class="infoItem">
+          <el-text type="info">{{ $t("confirmOrder.volume") }}</el-text>
+          <el-text>{{ formState.volume }}</el-text>
+        </div>
+        <div class="infoItem">
+          <el-text type="info">{{ $t("confirmOrder.stopProfit") }}</el-text>
+          <el-text>{{ formState.stopProfit }}</el-text>
+        </div>
+        <div class="infoItem">
+          <el-text type="info">{{ $t("confirmOrder.stopLoss") }}</el-text>
+          <el-text>{{ formState.stopLoss }}</el-text>
+        </div>
+      </div>
       <template #footer>
         <el-button @click="handleConfirmOrderCancle">修改</el-button>
         <el-button type="primary" @click="createPriceOrder">确认</el-button>
@@ -243,17 +252,6 @@ interface FormState {
   breakPrice: string;
   limitedPrice: string;
 }
-const formMap = {
-  symbol: "交易品种",
-  orderType: "订单类型",
-  volume: "交易量",
-  stopLoss: "止损",
-  stopProfit: "止盈",
-  orderPrice: "下单价",
-  dueDate: "期限",
-  breakPrice: "突破价",
-  limitedPrice: "限价",
-};
 const formState = reactive<FormState>({
   symbol: "",
   orderType: "",
@@ -502,5 +500,16 @@ const addPendingOrders = debounce(async () => {
 .pendingBtn {
   width: 100%;
   margin-top: 8px;
+}
+.infos {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: repeat(auto-fill, 20px);
+  grid-row-gap: 8px;
+  margin-top: 31px;
+}
+:deep(.el-text.el-text--info) {
+  width: 86px;
+  display: inline-block;
 }
 </style>

@@ -57,7 +57,7 @@
                     src="@/assets/icons/select.svg"
                     v-if="node.nodeName === networkStore.currentNode?.nodeName"
                   />
-                  <span class="textEllipsis label">
+                  <span class="textEllipsis">
                     {{ node.nodeName }}
                   </span>
                 </div>

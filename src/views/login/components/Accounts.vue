@@ -11,7 +11,7 @@
           @click="selectAccount(account)"
         >
           <div class="item_left">
-            <img class="icon" src="@/assets/icons/logo@3x.png" />
+            <img class="icon" :src="getLogo(account.server)" />
             <span>{{ account.server }} |</span>
             <span>{{ account.login }} |</span>
             <span>{{ account.blance }}</span>
@@ -105,6 +105,19 @@ const happyStart = async () => {
   } catch (e) {
     loading.value = false;
   }
+};
+
+import { useNetwork } from "@/store/modules/network";
+const networkStore = useNetwork();
+const getLogo = (server: string) => {
+  let result = "@/assets/icons/logo@3x.png";
+  const target = networkStore.queryTradeLines.find(
+    (e) => e.lineName === server
+  );
+  if (target && target.lineLogo) {
+    result = target.lineLogo;
+  }
+  return result;
 };
 </script>
 

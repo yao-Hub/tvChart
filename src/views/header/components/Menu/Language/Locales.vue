@@ -2,7 +2,7 @@
   <el-dropdown-menu>
     <el-dropdown-item v-for="(value, key) in localeList">
       <div class="item" @click="changeLocale(key)">
-        <span class="label">{{ value.nowLocale }}</span>
+        <span>{{ value.nowLocale }}</span>
         <img
           class="logo"
           src="@/assets/icons/select.svg"

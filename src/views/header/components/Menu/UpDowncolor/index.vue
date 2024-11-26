@@ -3,7 +3,7 @@
     <div class="nowColor">
       <div class="nowColor_left">
         <img class="logo" src="@/assets/icons/icon_14.svg" />
-        <span class="label">{{ $t("updownColor") }}</span>
+        <span>{{ $t("updownColor") }}</span>
       </div>
       <div class="nowColor_right">
         <img

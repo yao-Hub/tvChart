@@ -16,7 +16,7 @@
             @click="dialogStore.feedbackVisible = true"
           >
             <img class="logo" src="@/assets/icons/icon_16.svg" />
-            <span class="label">{{ $t("feedback") }}</span>
+            <el-text type="info">{{ $t("feedback") }}：</el-text>
           </div>
         </div>
       </div>
@@ -272,20 +272,20 @@
                   v-if="!pageLoading && activeKey === 'blanceRecord'"
                 >
                   <span class="item">
-                    <span class="label">净入金：</span>
-                    <span class="value">{{ netDeposit }}</span>
+                    <el-text type="info">净入金：</el-text>
+                    <el-text>{{ netDeposit }}</el-text>
                   </span>
                   <span class="item">
-                    <span class="label"
-                      >累计入金（{{ accDeposit.len }}笔）：</span
+                    <el-text type="info"
+                      >累计入金（{{ accDeposit.len }}笔）：</el-text
                     >
-                    <span class="value">{{ accDeposit.sum }}</span>
+                    <el-text>{{ accDeposit.sum }}</el-text>
                   </span>
                   <span class="item">
-                    <span class="label"
-                      >累计出金（{{ accWithdrawal.len }}笔）：</span
+                    <el-text type="info"
+                      >累计出金（{{ accWithdrawal.len }}笔）：</el-text
                     >
-                    <span class="value">{{ accWithdrawal.sum }}</span>
+                    <el-text>{{ accWithdrawal.sum }}</el-text>
                   </span>
                 </div>
               </el-scrollbar>
@@ -1108,12 +1108,6 @@ onMounted(async () => {
     justify-content: center;
     border-right: 2px solid;
     @include border_color("border");
-    .label {
-      @include font_color("word-gray");
-    }
-    .value {
-      @include font_color("word");
-    }
   }
 }
 </style>

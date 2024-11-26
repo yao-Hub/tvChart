@@ -21,7 +21,7 @@
           @mouseover="item.hover = true"
           @mouseleave="item.hover = false"
         >
-          <img class="icon" src="@/assets/icons/logo@3x.png" />
+          <img class="icon" :src="getLogo(item.server)" />
           <span>{{ item.server }}</span>
           <span>|</span>
           <span>{{ item.login }}</span>
@@ -52,34 +52,34 @@
     </template>
     <el-row>
       <el-col :span="24">
-        <span class="label">经纪商名称：</span>
-        <span class="value">{{ networkStore.currentLine?.brokerName }}</span>
+        <el-text type="info">经纪商名称</el-text>
+        <el-text>{{ networkStore.currentLine?.brokerName }}</el-text>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
-        <span class="label">线路名称：</span>
-        <span class="value">{{ networkStore.nodeName }}</span>
+        <el-text type="info">线路名称</el-text>
+        <el-text>{{ networkStore.nodeName }}</el-text>
       </el-col>
       <el-col :span="12">
-        <span class="label">登录id：</span>
-        <span class="value"></span>
+        <el-text type="info">登录id</el-text>
+        <el-text>{{}}</el-text>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
-        <span class="label">服务器：</span>
-        <span class="value">{{ networkStore.currentNode?.ip }}</span>
+        <el-text type="info">服务器</el-text>
+        <el-text>{{ networkStore.currentNode?.ip }}</el-text>
       </el-col>
       <el-col :span="12">
-        <span class="label">已连接节点：</span>
-        <span class="value">{{ networkStore.currentNode?.nodeName }}</span>
+        <el-text type="info">已连接节点</el-text>
+        <el-text>{{ networkStore.currentNode?.nodeName }}</el-text>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="24">
-        <span class="label">邮箱地址：</span>
-        <span class="value"></span>
+        <el-text type="info">邮箱地址</el-text>
+        <el-text></el-text>
       </el-col>
     </el-row>
   </el-dialog>
@@ -150,6 +150,17 @@ const changeLogin = (account: any) => {
 const logout = () => {
   userStore.logoutCurrentAccount();
   router.replace({ name: "login" });
+};
+
+const getLogo = (server: string) => {
+  let result = "@/assets/icons/logo@3x.png";
+  const target = networkStore.queryTradeLines.find(
+    (e) => e.lineName === server
+  );
+  if (target && target.lineLogo) {
+    result = target.lineLogo;
+  }
+  return result;
 };
 
 const modalOpen = ref<boolean>(false);
@@ -262,14 +273,6 @@ const modalOpen = ref<boolean>(false);
   font-size: 16px;
   @include font_color("word");
 }
-.label {
-  @include font_color("word-gray");
-  font-weight: 400;
-}
-.value {
-  @include font_color("word");
-  font-weight: 400;
-}
 
 .el-row {
   margin-bottom: 16px;
@@ -281,5 +284,9 @@ const modalOpen = ref<boolean>(false);
   margin: 0 8px;
   border-radius: 4px;
   padding: 0;
+}
+:deep(.el-text.el-text--info) {
+  width: 90px;
+  display: inline-block;
 }
 </style>
