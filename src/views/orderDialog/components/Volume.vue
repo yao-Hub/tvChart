@@ -47,7 +47,7 @@ interface Props {
     label: string;
   };
   orderType: string;
-  orderPrice: string;
+  orderPrice: string | number;
 }
 const props = defineProps<Props>();
 const model = defineModel<string | number>("volume", { default: "" });

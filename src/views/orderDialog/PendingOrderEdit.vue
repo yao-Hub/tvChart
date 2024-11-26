@@ -133,10 +133,10 @@
             <el-form-item>
               <div style="display: flex; flex-wrap: nowrap; width: 100%">
                 <span class="sellWord" style="width: 50%"
-                  >卖价: {{ formState.symbol ? quote.bid : "" }}</span
+                  >卖价: {{ formState.symbol ? quote?.bid : "" }}</span
                 >
                 <span class="buyWord" style="width: 50%"
-                  >买价: {{ formState.symbol ? quote.ask : "" }}</span
+                  >买价: {{ formState.symbol ? quote?.ask : "" }}</span
                 >
               </div>
             </el-form-item>
