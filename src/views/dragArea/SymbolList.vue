@@ -54,7 +54,7 @@
         >
           <template #default="{ row }">
             <span :class="[quotesClass[row.symbols].bid]">
-              {{ row.bid || "-" }}
+              {{ getPrice(row.symbols, "bid") }}
             </span>
           </template>
         </el-table-column>
@@ -66,7 +66,7 @@
         >
           <template #default="{ row }">
             <span :class="[quotesClass[row.symbols].ask]">
-              {{ row.ask || "-" }}
+              {{ getPrice(row.symbols, "ask") }}
             </span>
           </template>
         </el-table-column>
@@ -77,7 +77,7 @@
           min-width="88"
         >
           <template #default="{ row }">
-            {{ getTime(row?.ctm_ms) }}
+            {{ getTime(row.symbols) }}
           </template>
         </el-table-column>
         <el-table-column
@@ -89,7 +89,7 @@
         >
           <template #default="{ row }">
             <span :class="[+row.variation > 0 ? ' buyWord' : ' sellWord']">
-              {{ row.variation || "-" }}
+              {{ getVariation(row.symbols) }}
             </span>
           </template>
         </el-table-column>
@@ -136,10 +136,10 @@ const getQuery = async () => {
   tableLoading.value = true;
   const queryRes = await optionalQuery();
   dataSource.value = orderBy(queryRes.data, ["sort"]);
-  dataSource.value.forEach((item) => {
+  queryRes.data.forEach((item) => {
     quotesClass.value[item.symbols] = { ask: "", bid: "" };
   });
-  originSource.value = cloneDeep(dataSource.value);
+  originSource.value = cloneDeep(queryRes.data);
   tableLoading.value = false;
   await nextTick();
 
@@ -220,14 +220,6 @@ const closeSearch = () => {
   getData();
 };
 
-import dayjs from "dayjs";
-const getTime = (time: number) => {
-  if (time) {
-    return dayjs(time).format("HH:mm:ss");
-  }
-  return "-";
-};
-
 // 报价样式 实时数据
 import { Quote } from "#/chart/index";
 import { eq } from "lodash";
@@ -275,12 +267,6 @@ watch(
         !!oldVar && (result.open = open);
       }
       temVar.value[symbol] = result;
-
-      // 赋值
-      item.variation = result.variation;
-      item.bid = result.bid;
-      item.ask = result.ask;
-      item.ctm_ms = result.ctm_ms;
     });
   },
   {
@@ -288,6 +274,34 @@ watch(
     immediate: true,
   }
 );
+
+const getPrice = (symbol: string, type: "bid" | "ask") => {
+  const quotes = orderStore.currentQuotes;
+  const target = quotes[symbol];
+  if (target) {
+    return target[type];
+  }
+  return "-";
+};
+
+import dayjs from "dayjs";
+const getTime = (symbol: string) => {
+  const quotes = orderStore.currentQuotes;
+  const target = quotes[symbol];
+  if (target) {
+    const time = target.ctm_ms;
+    return dayjs(time).format("HH:mm:ss");
+  }
+  return "-";
+};
+
+const getVariation = (symbol: string) => {
+  const target = temVar.value[symbol];
+  if (target) {
+    return target.variation;
+  }
+  return "-";
+};
 
 // 点击行更改图表品种
 // import { useChartInit } from "@/store/modules/chartInit";
