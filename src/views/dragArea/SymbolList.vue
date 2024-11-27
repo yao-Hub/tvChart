@@ -32,6 +32,8 @@
         cell-class-name="body-cell"
         row-key="symbols"
         :expand-row-keys="expandRowKeys"
+        @row-contextmenu="rowContextmenu"
+        @rowClick="rowClick"
         @sort-change="sortChange"
         @expand-change="expandChange"
       >
@@ -44,7 +46,7 @@
           prop="symbols"
           :label="$t('order.symbol')"
           align="left"
-          min-width="80"
+          min-width="90"
         />
         <el-table-column
           prop="bid"
@@ -105,6 +107,11 @@
         }"
       ></Search>
     </div>
+    <RightClickMenu
+      v-model:visible="menuVisible"
+      :pos="pos"
+      :symbol="menuSymbol"
+    ></RightClickMenu>
   </div>
 </template>
 
@@ -112,6 +119,7 @@
 import { ref, watch, nextTick, shallowRef } from "vue";
 import Search from "./components/Symbolsearch/index.vue";
 import Deep from "./components/deep/index.vue";
+import RightClickMenu from "./components/RightClickMenu.vue";
 
 interface DataSource {
   symbols: string;
@@ -311,9 +319,25 @@ const getVariation = (symbol: string) => {
 //   const chartId = chartInitStore.activeChartId;
 //   chartInitStore.changeChartSymbol({ id: chartId, symbol });
 // };
-// const rowClick = (row: any) => {
-//   changeSymbol(row);
-// };
+const menuVisible = ref(false);
+const pos = ref({
+  left: 0,
+  top: 0,
+});
+const menuSymbol = ref("");
+const rowClick = () => {
+  menuVisible.value = false;
+};
+const rowContextmenu = (row: any, column: any, event: MouseEvent) => {
+  event.preventDefault();
+  menuSymbol.value = row.symbols;
+  const symbolList = document.querySelector(".symbolList");
+  const { top, left } = symbolList!.getBoundingClientRect();
+  const { clientX, clientY } = event;
+  pos.value.top = clientY - top;
+  pos.value.left = clientX - left;
+  menuVisible.value = true;
+};
 
 // 排序日变化
 const sortChange = ({ order, prop }: any) => {

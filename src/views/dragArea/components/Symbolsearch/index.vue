@@ -169,6 +169,8 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
     switch (type) {
       case "cancel":
         await delOptionalQuery({ symbols: [listItem.symbol] });
+        const index = listState.query.findIndex((e) => e === listItem.symbol);
+        listState.query.splice(index, 1);
         break;
       case "add":
         if (props.mySymbols) {
@@ -184,12 +186,13 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
             };
           });
           await addOptionalQuery({ symbols });
+          listState.query = symbols.map((item) => item.symbol);
         }
         break;
       default:
         break;
     }
-    await getQuery();
+    listItem.loading = false;
   } catch (error) {
     listItem.loading = false;
   } finally {

@@ -1,4 +1,13 @@
-import { flattenDeep, groupBy, orderBy, get, last, cloneDeep } from "lodash";
+import {
+  flattenDeep,
+  groupBy,
+  orderBy,
+  get,
+  last,
+  cloneDeep,
+  set,
+  maxBy,
+} from "lodash";
 import moment from "moment";
 import { klineHistory } from "api/kline/index";
 import * as types from "@/types/chart/index";
@@ -45,7 +54,7 @@ const formatToSeesion = (time: number) => {
 
 const subscribed: any = {};
 
-let new_one: Record<string, types.LineData> = {};
+let new_one: any = {};
 
 const barsCache: any = {};
 
@@ -106,14 +115,10 @@ function getCacheBars(data: any, id: string) {
 }
 
 export const datafeed = (id: string) => {
-  let kLineLoading = false;
   // 报价和k线图的socket监听
   function socketOpera() {
     // 监听报价
     socketStore.socket.on("quote", function (d: any) {
-      if (kLineLoading) {
-        return;
-      }
       const symbolInfo = chartSubStore.symbols.find(
         (e) => e.symbol === d.symbol
       );
@@ -131,11 +136,7 @@ export const datafeed = (id: string) => {
         result.open = open;
       }
       orderStore.currentQuotes[d.symbol] = cloneDeep(result);
-      if (
-        !subscribed[`${id}@${d.symbol}`] ||
-        !subscribed[`${id}@${d.symbol}`].symbolInfo ||
-        !new_one[d.symbol]
-      ) {
+      if (!subscribed[id] || !subscribed[id].symbolInfo || !new_one[id]) {
         //图表没初始化
         return;
       }
@@ -144,72 +145,68 @@ export const datafeed = (id: string) => {
       }
       //报价更新 最新一条柱子 实时 上下 跳动
       //报价为图表当前品种的报价
-      const currentSymbol = subscribed[`${id}@${d.symbol}`].symbolInfo?.name;
+      const currentSymbol = subscribed[id].symbolInfo?.name;
       if (currentSymbol && d.symbol === currentSymbol) {
-        //报价为图表当前品种的报价
-        if (new_one[d.symbol].high < d.bid) {
-          new_one[d.symbol].high = d.bid;
+        const newOneTime = get(new_one, `${id}.time`);
+        const newOneHigh = get(new_one, `${id}.high`);
+        const newOneLow = get(new_one, `${id}.low`);
+        const newOneOpen = get(new_one, `${id}.open`);
+        const volume = get(new_one, `${id}.volume`) || 0;
+        if (!newOneTime || newOneTime < d.ctm_ms) {
+          const high = !newOneHigh || newOneHigh < d.bid ? d.bid : newOneHigh;
+          const low = !newOneLow || newOneLow > d.bid ? d.bid : newOneLow;
+          set(new_one, id, {
+            ...d,
+            time: d.ctm * 1000,
+            close: +d.bid,
+            high: +high,
+            low: +low,
+            volume: volume + 1,
+            open: +newOneOpen,
+            low_price: +low,
+            high_price: +high,
+          });
+          setTimeout(() => {
+            subscribed[id].onRealtimeCallback(cloneDeep(new_one[id]));
+          });
         }
-        if (new_one[d.symbol].low > d.bid) {
-          new_one[d.symbol].low = d.bid;
-        }
-        const newlastbar = {
-          time: new_one[d.symbol].time * 1000,
-          close: d.bid,
-          high: new_one[d.symbol].high,
-          low: new_one[d.symbol].low,
-          open: new_one[d.symbol].open,
-          volume: new_one[d.symbol].volume + 1,
-        };
-        new_one[d.symbol].volume = newlastbar.volume;
-        subscribed[`${id}@${d.symbol}`].onRealtimeCallback(
-          cloneDeep(newlastbar)
-        ); //更新K线
       }
     });
     // 监听k线
     socketStore.socket.on("kline_new", function (d: any) {
-      // 提升k线数据
       const lastLines = last(orderBy(d.klines, "ctm", "desc"));
       orderStore.currentKline[d.symbol] = lastLines;
 
       // 图表没初始化
-      if (
-        !subscribed[`${id}@${d.symbol}`] ||
-        !subscribed[`${id}@${d.symbol}`].symbolInfo ||
-        !new_one[d.symbol]
-      ) {
+      if (!subscribed[id] || !subscribed[id].symbolInfo || !new_one[id]) {
         return;
       }
       if (chartInitStore.chartLoading[id]) {
         return;
       }
-      const currentSymbol = subscribed[`${id}@${d.symbol}`].symbolInfo?.name;
+      const currentSymbol = subscribed[id].symbolInfo?.name;
 
       const condition =
         currentSymbol &&
         d.symbol === currentSymbol &&
-        subscribed[`${id}@${d.symbol}`].resolution == d.period_type;
+        subscribed[id].resolution == d.period_type;
       //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1}]}
       if (condition) {
-        kLineLoading = true;
         d.klines = orderBy(d.klines, ["ctm"]);
+        const newOneTime = get(new_one, `${id}.time`);
         for (let i in d.klines) {
-          let newlastbar = {
-            time: d.klines[i].ctm,
-            close: d.klines[i].close,
-            high: d.klines[i].high,
-            low: d.klines[i].low,
-            open: d.klines[i].open,
-            volume: d.klines[i].volume,
-          };
-          new_one[d.symbol] = cloneDeep(newlastbar);
-          newlastbar.time = newlastbar.time * 1000;
-          subscribed[`${id}@${d.symbol}`].onRealtimeCallback(
-            cloneDeep(newlastbar)
-          ); //更新K线
+          const dTime = d.klines[i].ctm * 1000;
+          if (!newOneTime || newOneTime <= dTime) {
+            set(new_one, id, {
+              ...new_one[id],
+              ...d.klines[i],
+              time: dTime,
+            });
+            setTimeout(() => {
+              subscribed[id].onRealtimeCallback(cloneDeep(new_one[id])); //更新K线
+            });
+          }
         }
-        kLineLoading = false;
       }
     });
   }
@@ -217,6 +214,8 @@ export const datafeed = (id: string) => {
   return {
     onReady: (callback: Function) => {
       infoCache[id] = {};
+      subscribed[id] = {};
+      new_one[id] = {};
       setTimeout(() => {
         callback(config);
         socketOpera();
@@ -229,10 +228,6 @@ export const datafeed = (id: string) => {
       onSymbolResolvedCallback: Function,
       onResolveErrorCallback: Function
     ) => {
-      if (!subscribed[`${id}@${symbolName}`]) {
-        subscribed[`${id}@${symbolName}`] = {};
-      }
-      orderStore.currentSymbol = symbolName;
       // 获取session
       const storeSymbolInfo = chartSubStore.symbols.find(
         (e) => e.symbol === symbolName
@@ -314,9 +309,8 @@ export const datafeed = (id: string) => {
       const symbol = symbolInfo.name;
       infoCache[id].temResolution = resolution;
       infoCache[id].temSymbol = symbol;
-      subscribed[`${id}@${symbol}`].onHistoryCallback = onHistoryCallback;
-      subscribed[`${id}@${symbol}`].onErrorCallback = onErrorCallback;
-      const bar: types.LineData[] = [];
+      subscribed[id].onHistoryCallback = onHistoryCallback;
+      subscribed[id].onErrorCallback = onErrorCallback;
       let count = periodParams.countBack;
       // 第一次请求会出现数据请求长度不够导致数据缺失
       if (periodParams.firstDataRequest) {
@@ -343,39 +337,29 @@ export const datafeed = (id: string) => {
       getCacheBars(updata, id)
         .then((res: any) => {
           if (res.length === 0) {
-            subscribed[`${id}@${symbol}`].onHistoryCallback([]);
+            subscribed[id].onHistoryCallback([]);
             return;
           }
-          const preSymbol = get(subscribed, `${id}@${symbol}.symbolInfo.name`);
           const reverse_data = orderBy(res, "ctm");
-          const data_cache = reverse_data.map((item) => {
-            const { ctm, open, high, low, close, volume } = item;
-            const tone = { time: ctm, open, high, low, close, volume };
-            if (
-              !new_one ||
-              !new_one[symbol] ||
-              ctm > new_one[symbol].time ||
-              (symbolInfo.name !== preSymbol && preSymbol)
-            ) {
-              new_one[symbol] = cloneDeep(tone);
-            }
-            return tone;
-          });
-          // 生成k线数据
-          data_cache.forEach((item) => {
-            const barValue = {
+          const bars = reverse_data.map((item) => {
+            return {
               ...item,
-              // 时间戳
-              time: item.time * 1000,
+              time: item.ctm * 1000,
             };
-            bar.push(barValue);
           });
+          const bar = maxBy(bars, "ctm");
+          const barTime = bar.time;
+          const newOneTime = get(new_one, [id, "time"]);
+          if (!newOneTime || barTime > newOneTime) {
+            new_one[id] = cloneDeep(bar);
+          }
+
           setTimeout(() => {
-            subscribed[`${id}@${symbol}`].onHistoryCallback(bar);
+            subscribed[id].onHistoryCallback(bars);
           });
         })
         .catch(() => {
-          subscribed[`${id}@${symbol}`].onErrorCallback(bar);
+          subscribed[id].onErrorCallback([]);
         });
     },
 
@@ -387,8 +371,7 @@ export const datafeed = (id: string) => {
       subscriberUID: string,
       onResetCacheNeededCallback: Function
     ) => {
-      const symbol = symbolInfo.name;
-      subscribed[`${id}@${symbol}`] = {
+      subscribed[id] = {
         symbolInfo,
         resolution,
         onRealtimeCallback,
@@ -407,41 +390,41 @@ export const datafeed = (id: string) => {
     },
 
     // 查找品种（商品）
-    searchSymbols: (
-      userInput: string,
-      exchange: string,
-      symbolType: string,
-      onResultReadyCallback: Function
-    ) => {
-      // 模糊匹配
-      const regex = new RegExp(userInput.split("").join(".*"), "i");
-      const matches = chartSubStore.symbols.map((item, index) => {
-        const exchangeMatch = regex.test(item.path);
-        const symbolMatch = regex.test(item.symbol);
-        return {
-          index,
-          count: (exchangeMatch ? 1 : 0) + (symbolMatch ? 1 : 0),
-        };
-      });
+    // searchSymbols: (
+    //   userInput: string,
+    //   exchange: string,
+    //   symbolType: string,
+    //   onResultReadyCallback: Function
+    // ) => {
+    //   // 模糊匹配
+    //   const regex = new RegExp(userInput.split("").join(".*"), "i");
+    //   const matches = chartSubStore.symbols.map((item, index) => {
+    //     const exchangeMatch = regex.test(item.path);
+    //     const symbolMatch = regex.test(item.symbol);
+    //     return {
+    //       index,
+    //       count: (exchangeMatch ? 1 : 0) + (symbolMatch ? 1 : 0),
+    //     };
+    //   });
 
-      // 匹配度排列
-      matches.sort((a, b) => b.count - a.count);
-      const sortedIndices = matches.map((match) => match.index);
-      const sortedArr = sortedIndices.map(
-        (index) => chartSubStore.symbols[index]
-      );
+    //   // 匹配度排列
+    //   matches.sort((a, b) => b.count - a.count);
+    //   const sortedIndices = matches.map((match) => match.index);
+    //   const sortedArr = sortedIndices.map(
+    //     (index) => chartSubStore.symbols[index]
+    //   );
 
-      const targetList = sortedArr.map((item: types.SessionSymbolInfo) => {
-        return {
-          symbol: item.symbol,
-          full_name: item.symbol,
-          description: item.path,
-          exchange: item.path,
-          ticker: item.symbol,
-          force_session_rebuild: true,
-        };
-      });
-      onResultReadyCallback(targetList);
-    },
+    //   const targetList = sortedArr.map((item: types.SessionSymbolInfo) => {
+    //     return {
+    //       symbol: item.symbol,
+    //       full_name: item.symbol,
+    //       description: item.path,
+    //       exchange: item.path,
+    //       ticker: item.symbol,
+    //       force_session_rebuild: true,
+    //     };
+    //   });
+    //   onResultReadyCallback(targetList);
+    // },
   };
 };

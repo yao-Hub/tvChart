@@ -78,7 +78,7 @@ export const useChartInit = defineStore("chartInit", {
     },
 
     // 增加一个图表
-    addChart() {
+    addChart(symbol?: string) {
       const orderStore = useOrder();
       const ids = this.chartWidgetList.map((item) => +item.id.split("_")[1]);
       const minId = Math.min(...ids) as number;
@@ -89,10 +89,12 @@ export const useChartInit = defineStore("chartInit", {
       const arrSet = new Set(ids);
       const missingIds = [...fullRange].filter((num) => !arrSet.has(num));
       const addId = missingIds.length ? missingIds[0] : maxId + 1;
+      const id = `chart_${addId}`;
       this.chartWidgetList.push({
-        id: `chart_${addId}`,
-        symbol: orderStore.currentSymbol,
+        id,
+        symbol: symbol || orderStore.currentSymbol,
       });
+      this.activeChartId = id;
     },
 
     // 获取chartWidgetList的symbol字段
