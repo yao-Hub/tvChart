@@ -238,6 +238,11 @@
               <template v-else-if="column.dataKey === 'days'">{{
                 getDays(rowData)
               }}</template>
+              <template v-else-if="column.dataKey === 'comment'">
+                <el-tooltip :content="rowData.comment" placement="top">
+                  <span class="textEllipsis">{{ rowData.comment || "-" }}</span>
+                </el-tooltip>
+              </template>
               <template v-else-if="column.dataKey === 'positionAction'">
                 <el-tooltip content="平仓" placement="top">
                   <el-icon class="iconfont" @click="closeMarketOrder(rowData)">
@@ -562,7 +567,7 @@ const getNowPrice = (e: orders.resOrders) => {
 
 const getOrderPrice = (e: orders.resPendingOrders) => {
   if ([6, 7].includes(e.type)) {
-    return e.order_price_time ? e.trigger_price: e.order_price
+    return e.order_price_time ? e.trigger_price : e.order_price;
   }
   return e.order_price;
 };

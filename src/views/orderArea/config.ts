@@ -81,6 +81,13 @@ export const tableColumns: any = {
       align: "right",
     },
     {
+      title: "备注",
+      dataKey: "comment",
+      key: "comment",
+      width: 110,
+      align: "right",
+    },
+    {
       title: "盈亏",
       dataKey: "profit",
       key: "profit",
