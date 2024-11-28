@@ -7,7 +7,7 @@ export type TableDataKey =
   | "marketOrderHistory"
   | "blanceRecord";
 export type TableData = {
-  [K in TableDataKey]?: resOrders[];
+  [K in TableDataKey]: resOrders[];
 };
 
 export type OrderType = "price" | "limit" | "stop" | "stopLimit";

@@ -59,6 +59,7 @@ async function init() {
     userStore.initAccount();
     await networkStore.initNode();
     await getSymbols();
+    await orderStore.initTableData();
   } finally {
     socketStore.initSocket();
     userStore.getLoginInfo({ emitSocket: true });
