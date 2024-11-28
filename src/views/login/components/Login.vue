@@ -50,9 +50,12 @@
             v-model="formState.remember"
             :label="$t('account.rememberMe')"
           />
-          <span class="link" @click="emit('goCom', 'forgetPassword')">{{
-            $t("account.forgetPassword")
-          }}</span>
+          <span
+            class="link"
+            v-if="formState.server === 'utrader-demo'"
+            @click="emit('goCom', 'forgetPassword')"
+            >{{ $t("account.forgetPassword") }}</span
+          >
         </div>
       </el-form-item>
 

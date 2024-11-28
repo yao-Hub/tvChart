@@ -37,8 +37,15 @@
       <div class="account">
         <span @click="modalOpen = true">个人信息</span>
         <el-divider direction="vertical" />
-        <span @click="resetPasswordOpen = true">更改密码</span>
-        <el-divider direction="vertical" />
+        <span
+          @click="resetPasswordOpen = true"
+          v-if="userStore.account.server === 'utrader-demo'"
+          >更改密码</span
+        >
+        <el-divider
+          direction="vertical"
+          v-if="userStore.account.server === 'utrader-demo'"
+        />
         <span @click="$router.push({ name: 'login' })">添加账号</span>
         <el-divider direction="vertical" />
         <span @click="logout">退出登录</span>

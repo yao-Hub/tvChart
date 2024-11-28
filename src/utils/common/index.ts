@@ -12,8 +12,10 @@ export function getDecimalPlaces(num: number) {
 export function round(number: number, precision: number) {
   // return Math.round(+number + "e" + precision) / Math.pow(10, precision);
   //same as:
-  // @ts-ignore
-  const roundedNumber = Number(Math.round(+number + "e" + precision) + "e-" + precision);
+  // const roundedNumber = Number(Math.round(+number + "e" + precision) + "e-" + precision);
+  const roundedNumber = Number(
+    Math.round(number * Math.pow(10, precision)) / Math.pow(10, precision)
+  );
   return roundedNumber.toFixed(precision);
 }
 

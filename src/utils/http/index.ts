@@ -97,7 +97,6 @@ const service = axios.create({
     "x-u-platform": "web",
     // @ts-ignore
     "x-u-app-version": _VERSION_,
-    // @ts-ignore
     "x-u-device-id": uuid,
     // @ts-ignore
     "x-u-device-type": __OS_PLATFORM__,

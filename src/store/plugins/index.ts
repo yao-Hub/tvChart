@@ -13,13 +13,11 @@ export function debouncePlugin({ options, store }: PiniaPluginContext) {
   if (options.debounce) {
     // 我们正在用新的 action 来覆盖这些 action
     return Object.keys(options.debounce).reduce((debouncedActions, action) => {
-      // @ts-ignore
-      debouncedActions[action] = debounce(
+      debouncedActions[action as keyof typeof debouncedActions] = debounce(
         store[action],
-        // @ts-ignore
-        options.debounce[action]
+        options.debounce![action]
       );
       return debouncedActions;
-    }, {});
+    }, {} as Partial<typeof store>);
   }
 }

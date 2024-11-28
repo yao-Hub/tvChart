@@ -30,10 +30,7 @@ export const STOCKS_DIRECTION = {
   0: "buy",
   1: "sell",
 };
-interface OrderType {
-  [value: string]: { buy: number; sell: number };
-}
-export const ORDER_TYPE: OrderType = {
+export const ORDER_TYPE: Record<string, { buy: number; sell: number }> = {
   price: {
     buy: 0,
     sell: 1,
@@ -50,7 +47,7 @@ export const ORDER_TYPE: OrderType = {
     buy: 6,
     sell: 7,
   },
-} as Record<string, { buy: number; sell: number }>;
+};
 
 export const ORDERMAP = {
   buyLimit: 2,
