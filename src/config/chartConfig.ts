@@ -386,6 +386,9 @@ export const datafeed = (id: string) => {
 
     //取消订阅,撤销掉某条线的实时更新
     unsubscribeBars: (subscriberUID: string) => {
+      new_one[id] = {};
+      infoCache[id] = {};
+      subscribed[id] = {};
       // chartSubStore.unsubKlineQuote(subscriberUID);
     },
 

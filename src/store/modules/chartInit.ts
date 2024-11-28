@@ -174,7 +174,7 @@ export const useChartInit = defineStore("chartInit", {
       storageStore.setItem("chartFlexDirection", type);
     },
 
-    // 保存图标形态
+    // 保存图表状态
     saveCharts() {
       try {
         const storageStore = useStorage();
