@@ -33,7 +33,6 @@
         row-key="symbols"
         :expand-row-keys="expandRowKeys"
         @row-contextmenu="rowContextmenu"
-        @rowClick="rowClick"
         @sort-change="sortChange"
         @expand-change="expandChange"
       >
@@ -325,9 +324,9 @@ const pos = ref({
   top: 0,
 });
 const menuSymbol = ref("");
-const rowClick = () => {
+document.addEventListener("mouseup", () => {
   menuVisible.value = false;
-};
+});
 const rowContextmenu = (row: any, column: any, event: MouseEvent) => {
   event.preventDefault();
   menuSymbol.value = row.symbols;

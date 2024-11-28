@@ -7,7 +7,7 @@
         type="count"
         :total="getTotal(item.type)"
         :count="getCount(item.type)"
-        @blockClick="getSymbols(item.type)"
+        @blockClick="getSymbolsDetail(item.type)"
       ></Block>
     </el-scrollbar>
 
@@ -110,13 +110,18 @@ const getQuery = async () => {
   const queryRes = await optionalQuery();
   listState.query = queryRes.data.map((item) => item.symbols);
 };
+
 onMounted(async () => {
   listState.loading = true;
+  // 获取分类
   const allPathRes = await symbolAllPath();
   listState.menu = allPathRes.data;
+  // 获取我的自选
   await getQuery();
   listState.loading = false;
 });
+
+// 获取各个分类下品种数量
 watch(
   () => [allSymbols.value, listState.menu],
   ([symbols, menu]) => {
@@ -157,12 +162,15 @@ const symbolList = ref<SymbolListItem[]>([]);
 const showSymbols = ref(false);
 const currentPath = ref("");
 const currentType = ref("");
-const getSymbols = (type: string) => {
+// 从分类进入详情列表
+const getSymbolsDetail = (type: string) => {
   currentPath.value = listState.menu.find((e) => e.type === type).value;
   symbolList.value = listState.pathMap[type];
   showSymbols.value = true;
   currentType.value = type;
 };
+
+// 新增删除自选品种
 const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
   try {
     listItem.loading = true;
@@ -186,7 +194,7 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
             };
           });
           await addOptionalQuery({ symbols });
-          listState.query = symbols.map((item) => item.symbol);
+          listState.query.unshift(listItem.symbol);
         }
         break;
       default:
@@ -199,8 +207,10 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
     listItem.loading = false;
   }
 }, 20);
-const getCheckType = (type: string) => {
-  return listState.query.includes(type);
+
+// 是否是已经添加的品种
+const getCheckType = (symbol: string) => {
+  return listState.query.includes(symbol);
 };
 
 const emit = defineEmits(["itemClick"]);
