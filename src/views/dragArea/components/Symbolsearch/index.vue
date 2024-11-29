@@ -80,7 +80,7 @@ const props = defineProps<Props>();
 import { useChartSub } from "@/store/modules/chartSub";
 const chartSubStore = useChartSub();
 const allSymbols = computed(() => {
-  return chartSubStore.symbols.map((item: SessionSymbolInfo) => {
+  return chartSubStore.symbols.map((item: ISessionSymbolInfo) => {
     return {
       ...item,
       loading: false,
@@ -155,9 +155,9 @@ const getCount = (type: string) => {
 };
 
 import { debounce, cloneDeep } from "lodash";
-import { SessionSymbolInfo } from "@/types/chart/index";
+import { ISessionSymbolInfo } from "@/types/chart/index";
 import { delOptionalQuery, addOptionalQuery } from "api/symbols/index";
-type SymbolListItem = SessionSymbolInfo & { loading: boolean };
+type SymbolListItem = ISessionSymbolInfo & { loading: boolean };
 const symbolList = ref<SymbolListItem[]>([]);
 const showSymbols = ref(false);
 const currentPath = ref("");
@@ -214,7 +214,7 @@ const getCheckType = (symbol: string) => {
 };
 
 const emit = defineEmits(["itemClick"]);
-const itemClick = (e: SessionSymbolInfo) => {
+const itemClick = (e: ISessionSymbolInfo) => {
   emit("itemClick", e);
 };
 </script>

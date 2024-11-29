@@ -4,7 +4,7 @@ import { useNetwork } from "@/store/modules/network";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useUser } from "@/store/modules/user";
 
-interface Quote {
+interface IQuote {
   ask: number;
   ask_size: number;
   bid: number;
@@ -25,7 +25,7 @@ interface State {
       | "getQuoteDepth";
     options?: any;
   }>;
-  depthMap: Record<string, Quote[]>;
+  depthMap: Record<string, IQuote[]>;
 }
 interface ChartProps {
   resolution: string | number;

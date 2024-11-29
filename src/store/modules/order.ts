@@ -12,9 +12,9 @@ import * as types from "#/chart/index";
 import * as orderTypes from "#/order";
 
 interface State {
-  currentQuotes: Record<string, types.Quote>;
+  currentQuotes: Record<string, types.IQuote>;
   currentSymbol: string;
-  currentKline: Record<string, types.Line>;
+  currentKline: Record<string, types.ILine>;
   tableData: orderTypes.TableData;
   dataLoading: Record<orderTypes.TableDataKey, boolean>;
   dataEnding: Record<orderTypes.TableDataKey, boolean>;

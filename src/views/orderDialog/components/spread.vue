@@ -9,9 +9,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import Decimal from "decimal.js";
-import { Quote } from "#/chart/index";
+import { IQuote } from "#/chart/index";
 interface Props {
-  quote?: Quote;
+  quote?: IQuote;
   digits?: number;
 }
 const props = defineProps<Props>();

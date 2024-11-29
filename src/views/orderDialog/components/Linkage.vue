@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { reactive, watch, computed, watchEffect } from "vue";
 import { CaretUpFilled, CaretDownFilled } from "@ant-design/icons-vue";
-import { SessionSymbolInfo } from "#/chart/index";
+import { ISessionSymbolInfo } from "#/chart/index";
 import { useUser } from "@/store/modules/user";
 import { getDecimalPlaces, round } from "utils/common/index";
 
@@ -45,7 +45,7 @@ interface Props {
   stopType: string; // 止亏 or 止盈
   currentBuy: number; // 当前买入价
   currentSell: number; // 当前卖出价
-  tradeAllowSymbols: SessionSymbolInfo[];
+  tradeAllowSymbols: ISessionSymbolInfo[];
   selectedSymbol: SymbolStrings;
   volume: number;
 }

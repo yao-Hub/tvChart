@@ -5,12 +5,13 @@ import {
 } from "public/charting_library";
 import { useOrder } from "./order";
 import { useStorage } from "./storage";
+import { useChartLine } from "@/store/modules/chartLine";
 
 interface State {
   chartWidgetList: {
     widget?: IChartingLibraryWidget;
     id: string;
-    symbol?: string;
+    symbol: string;
     interval?: ResolutionString;
   }[];
   loading: Boolean;
@@ -53,7 +54,7 @@ export const useChartInit = defineStore("chartInit", {
       if (index === -1) {
         this.chartWidgetList.push(obj);
       } else {
-        this.chartWidgetList[index] = obj;
+        Object.assign(this.chartWidgetList[index], obj);
       }
     },
 
@@ -71,10 +72,17 @@ export const useChartInit = defineStore("chartInit", {
         return;
       }
       const index = this.chartWidgetList.findIndex((e) => e.id === id);
+
       this.chartWidgetList.splice(index, 1);
-      if (id === this.activeChartId) {
-        this.activeChartId = this.chartWidgetList[0].id;
-      }
+      const chartLineStore = useChartLine();
+      chartLineStore.removeChartSub(id);
+
+      setTimeout(() => {
+        const firstChart = this.chartWidgetList[0];
+        if (id === this.activeChartId) {
+          this.activeChartId = firstChart.id;
+        }
+      });
     },
 
     // 增加一个图表
@@ -154,6 +162,11 @@ export const useChartInit = defineStore("chartInit", {
       const storageStore = useStorage();
       const type = storageStore.getItem("chartLayoutType");
       this.chartLayoutType = type || "single";
+
+      const storageId = storageStore.getItem("activeChartId");
+      if (storageId) {
+        this.activeChartId = storageId;
+      }
     },
     // 设置图表布局（单个多个）
     setLayoutType(type: State["chartLayoutType"]) {
@@ -194,8 +207,9 @@ export const useChartInit = defineStore("chartInit", {
         });
         storageStore.setItem("chartList", saveChatList);
         storageStore.setItem("chartInfoMap", saveMap);
+        storageStore.setItem("activeChartId", this.activeChartId);
       } catch (error) {
-        console.log("saveCharts", error);
+        console.log("saveChart error", error);
       }
     },
 

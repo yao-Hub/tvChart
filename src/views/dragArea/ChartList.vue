@@ -25,6 +25,7 @@
       <div
         class="charts_container_item"
         v-for="{ id, symbol, interval } in chartInitStore.chartWidgetList"
+        :key="id"
         v-show="activedId === id || chartType === 'multiple'"
       >
         <chartTab
@@ -48,6 +49,8 @@
           :loading="
             chartSubStore.chartsLoading || chartInitStore.chartLoading[id]
           "
+          :client_id="`${id}_client_id`"
+          :user_id="`${id}_user_id`"
           :datafeed="datafeed(id)"
           :symbol="symbol"
           :theme="themeStore.systemTheme"

@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { assign } from "lodash";
 import { uniq, difference } from "lodash";
-import { SessionSymbolInfo, TVSymbolInfo } from "@/types/chart/index";
+import { ISessionSymbolInfo, ITVSymbolInfo } from "@/types/chart/index";
 import { keydownList } from "utils/keydown";
 import { useChartInit } from "./chartInit";
 import { useDialog } from "./dialog";
@@ -11,7 +11,7 @@ import { useSocket } from "@/store/modules/socket";
 import { allSymbolQuotes } from "api/symbols/index";
 
 interface State {
-  symbols: SessionSymbolInfo[];
+  symbols: ISessionSymbolInfo[];
   barsCache: Map<string, any>;
   mustSubscribeList: Array<string>;
   chartsLoading: boolean;
@@ -19,7 +19,7 @@ interface State {
 
 interface TurnSocket {
   subscriberUID: string;
-  symbolInfo: TVSymbolInfo;
+  symbolInfo: ITVSymbolInfo;
   resolution: string;
 }
 
@@ -40,7 +40,7 @@ export const useChartSub = defineStore("chartSub", {
     },
   },
   actions: {
-    async setSymbols(list: SessionSymbolInfo[]) {
+    async setSymbols(list: ISessionSymbolInfo[]) {
       const orderStore = useOrder();
       const socketStore = useSocket();
       orderStore.currentSymbol = list[0].symbol;
@@ -51,7 +51,7 @@ export const useChartSub = defineStore("chartSub", {
       const resQuotes = await allSymbolQuotes();
       resQuotes.data.forEach((item) => {
         orderStore.currentQuotes[item.symbol] = item;
-        orderStore.currentKline[item.symbol] = item;
+        // orderStore.currentKline[item.symbol] = item;
       });
     },
     // 设置必须监听品种

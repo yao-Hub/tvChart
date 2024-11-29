@@ -23,6 +23,7 @@ import { useNetwork } from "@/store/modules/network";
 import { useRoot } from "@/store/store";
 import { useLayout } from "@/store/modules/layout";
 import { useSize } from "@/store/modules/size";
+import { useChartLine } from "@/store/modules/chartLine";
 
 import { initDragResizeArea } from "utils/dragResize/drag_position";
 
@@ -42,6 +43,7 @@ const networkStore = useNetwork();
 const socketStore = useSocket();
 const layoutStore = useLayout();
 const sizeStore = useSize();
+const chartLineStore = useChartLine();
 
 // 获取所有商品(品种)
 const getSymbols = async () => {
@@ -59,9 +61,11 @@ async function init() {
     userStore.initAccount();
     await networkStore.initNode();
     await getSymbols();
-    await orderStore.initTableData();
+  } catch (error) {
+    chartInitStore.loading = false;
   } finally {
     socketStore.initSocket();
+    chartLineStore.initSubLineAndQuote();
     userStore.getLoginInfo({ emitSocket: true });
     sizeStore.initSize();
     orderStore.getQuickTrans();
@@ -80,6 +84,7 @@ async function init() {
       rootStore.clearCacheAction();
     }
     chartInitStore.loading = false;
+    await orderStore.initTableData();
   }
 }
 onMounted(() => {

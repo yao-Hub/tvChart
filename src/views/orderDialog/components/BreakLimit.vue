@@ -23,14 +23,14 @@
 
 <script setup lang="ts">
 import { computed, watch, ref } from "vue";
-import { SessionSymbolInfo, Quote } from "#/chart/index";
+import { ISessionSymbolInfo, IQuote } from "#/chart/index";
 import { round } from "utils/common/index";
 
 interface Props {
   disabled?: boolean;
-  symbolInfo?: SessionSymbolInfo;
+  symbolInfo?: ISessionSymbolInfo;
   orderType: string;
-  quote?: Quote;
+  quote?: IQuote;
   formOption: {
     name: string;
     label: string;

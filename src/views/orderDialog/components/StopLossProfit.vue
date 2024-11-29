@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
-import { SessionSymbolInfo, Quote } from "#/chart/index";
+import { ISessionSymbolInfo, IQuote } from "#/chart/index";
 import { round } from "utils/common/index";
 
 const titleMap = {
@@ -40,8 +40,8 @@ const titleMap = {
 };
 interface Props {
   type: "stopLoss" | "stopProfit";
-  symbolInfo?: SessionSymbolInfo;
-  quote?: Quote;
+  symbolInfo?: ISessionSymbolInfo;
+  quote?: IQuote;
   orderType: string;
   orderPrice: string | number | null;
   volume: string | number;

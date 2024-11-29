@@ -332,14 +332,14 @@ const rules: FormRules<typeof formState> = {
 
 /** 当前品种 */
 import { useChartSub } from "@/store/modules/chartSub";
-import { Quote } from "#/chart/index";
+import { IQuote } from "#/chart/index";
 const subStore = useChartSub();
 const symbolInfo = computed(() => {
   return subStore.symbols.find((e) => e.symbol === formState.symbol);
 });
 
 /** 当前报价 */
-const quote = ref<Quote>();
+const quote = ref<IQuote>();
 watch(
   () => [orderStore.currentQuotes, formState.symbol],
   () => {

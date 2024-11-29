@@ -34,7 +34,7 @@ import { UpOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { useChartSub } from "@/store/modules/chartSub";
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ORDER_TYPE } from "@/constants/common";
-import { SessionSymbolInfo } from "@/types/chart/index";
+import { ISessionSymbolInfo } from "@/types/chart/index";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
@@ -157,7 +157,7 @@ const minVolume = ref<string>("0");
 const maxVolume = ref<string>("0");
 
 // 当前品种
-const symbolInfo = ref<SessionSymbolInfo>();
+const symbolInfo = ref<ISessionSymbolInfo>();
 watchEffect(() => {
   const info = subStore.symbols.find((e) => e.symbol === currentSymbol.value);
   if (info) {

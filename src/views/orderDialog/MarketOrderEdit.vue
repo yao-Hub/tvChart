@@ -139,13 +139,13 @@
 <script setup lang="ts">
 import { ref, reactive, computed, watch, nextTick } from "vue";
 import { resOrders } from "api/order/index";
-import { Quote } from "#/chart/index";
+import { IQuote } from "#/chart/index";
 
 import Spread from "./components/spread.vue";
 
 interface Props {
   orderInfo: resOrders;
-  quote: Quote;
+  quote: IQuote;
 }
 const props = defineProps<Props>();
 const emit = defineEmits();

@@ -228,14 +228,14 @@ const closeSearch = () => {
 };
 
 // 报价样式 实时数据
-import { Quote } from "#/chart/index";
+import { IQuote } from "#/chart/index";
 import { eq } from "lodash";
 import { round } from "utils/common/index";
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
-const temQuotes = ref<Record<string, Quote>>({});
+const temQuotes = ref<Record<string, IQuote>>({});
 const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
-const temVar = ref<Record<string, Quote & { variation: string }>>({});
+const temVar = ref<Record<string, IQuote & { variation: string }>>({});
 watch(
   () => orderStore.currentQuotes,
   (quotes) => {

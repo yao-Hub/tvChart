@@ -4,14 +4,14 @@ enum Api {
   klineHistory = "/kline/history",
 }
 
-interface ReqLineInfo {
+export interface ReqLineInfo {
   period_type: number | string;
   symbol: string;
   count: number;
   limit_ctm: number;
 }
 
-interface ResLineInfo {
+export interface ResLineInfo {
   ctm: number; // 时间
   open: number; // 开盘价
   high: number; // 最高价

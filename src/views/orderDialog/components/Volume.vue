@@ -36,15 +36,15 @@
 import { computed, watch, ref, reactive } from "vue";
 import type { CSSProperties } from "vue";
 import { round } from "utils/common/index";
-import { SessionSymbolInfo, Quote } from "#/chart/index";
+import { ISessionSymbolInfo, IQuote } from "#/chart/index";
 import { useUser } from "@/store/modules/user";
 
 const userStore = useUser();
 type Arrayable<T> = T | T[];
 interface Props {
   disabled?: boolean;
-  symbolInfo?: SessionSymbolInfo;
-  quote?: Quote;
+  symbolInfo?: ISessionSymbolInfo;
+  quote?: IQuote;
   formOption: {
     name: string;
     label: string;

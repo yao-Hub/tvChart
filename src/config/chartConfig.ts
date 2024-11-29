@@ -1,27 +1,13 @@
-import {
-  flattenDeep,
-  groupBy,
-  orderBy,
-  get,
-  last,
-  cloneDeep,
-  set,
-  maxBy,
-} from "lodash";
+import { flattenDeep, groupBy, orderBy, get, cloneDeep, maxBy } from "lodash";
 import moment from "moment";
-import { klineHistory } from "api/kline/index";
+import { klineHistory, ReqLineInfo, ResLineInfo } from "api/kline/index";
 import * as types from "@/types/chart/index";
-import { round } from "utils/common/index";
-import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
-import { useOrder } from "@/store/modules/order";
-import { useSocket } from "@/store/modules/socket";
+import { useChartLine } from "@/store/modules/chartLine";
 import { RESOLUTES } from "@/constants/common";
 
-const chartInitStore = useChartInit();
+const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();
-const orderStore = useOrder();
-const socketStore = useSocket();
 
 const countOptions: any = {
   "1D": "days",
@@ -52,12 +38,6 @@ const formatToSeesion = (time: number) => {
   return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
 };
 
-const subscribed: any = {};
-
-let new_one: any = {};
-
-const barsCache: any = {};
-
 function hasEmptyArrayValue(map: Map<string, any>) {
   for (const [key, value] of map) {
     if (Array.isArray(value) && value.length === 0) {
@@ -68,23 +48,33 @@ function hasEmptyArrayValue(map: Map<string, any>) {
 }
 
 // 优化当前k线图加载
-const infoCache: any = {};
-function getCacheBars(data: any, id: string) {
+interface IInfoCache {
+  nowSymbol: string;
+  temSymbol: string;
+  temResolution: string;
+  nowResolution: string;
+}
+interface IBarsCache {
+  [key: string]: Map<string, ResLineInfo[]>;
+}
+const infoCache: Record<string, Partial<IInfoCache>> = {};
+const barsCache: IBarsCache = {};
+let temBar: Record<string, ResLineInfo> = {};
+function getCacheBars(data: ReqLineInfo, id: string): Promise<ResLineInfo[]> {
   return new Promise(async (resolve, reject) => {
     try {
       const fkey = `${data.symbol}#${data["period_type"]}`;
       const skey = `${data["limit_ctm"]}`;
       const cache = barsCache[fkey];
-      if ([undefined, null].includes(cache)) {
+      if (!cache) {
         barsCache[fkey] = new Map();
         const res = await klineHistory(data);
         barsCache[fkey].set(skey, res.data);
         resolve(res.data);
         return;
       }
-      const ifBars = barsCache[fkey].has(skey);
-      if (ifBars) {
-        const bar = barsCache[fkey].get(skey);
+      const bar = barsCache[fkey].get(skey);
+      if (bar) {
         resolve(bar);
         return;
       }
@@ -102,7 +92,7 @@ function getCacheBars(data: any, id: string) {
         if (temSymbol !== nowSymbol || temResolution !== nowResolution) {
           barsCache[fkey].delete(emptyKey);
         }
-        infoCache[id].nowResolution = data.period_type;
+        infoCache[id].nowResolution = data.period_type.toString();
         infoCache[id].nowSymbol = data.symbol;
       }
       const res = await klineHistory(data);
@@ -115,110 +105,13 @@ function getCacheBars(data: any, id: string) {
 }
 
 export const datafeed = (id: string) => {
-  // 报价和k线图的socket监听
-  function socketOpera() {
-    // 监听报价
-    socketStore.socket.on("quote", function (d: any) {
-      const symbolInfo = chartSubStore.symbols.find(
-        (e) => e.symbol === d.symbol
-      );
-      if (symbolInfo) {
-        const digits = symbolInfo.digits;
-        d.ask = round(d.ask, digits);
-        d.bid = round(d.bid, digits);
-      }
-      const oldQuote = cloneDeep(orderStore.currentQuotes[d.symbol]);
-      const open = cloneDeep(oldQuote?.open || d?.open);
-      const result = {
-        ...d,
-      };
-      if (open) {
-        result.open = open;
-      }
-      orderStore.currentQuotes[d.symbol] = cloneDeep(result);
-      if (!subscribed[id] || !subscribed[id].symbolInfo || !new_one[id]) {
-        //图表没初始化
-        return;
-      }
-      if (chartInitStore.chartLoading[id]) {
-        return;
-      }
-      //报价更新 最新一条柱子 实时 上下 跳动
-      //报价为图表当前品种的报价
-      const currentSymbol = subscribed[id].symbolInfo?.name;
-      if (currentSymbol && d.symbol === currentSymbol) {
-        const newOneTime = get(new_one, `${id}.time`);
-        const newOneHigh = get(new_one, `${id}.high`);
-        const newOneLow = get(new_one, `${id}.low`);
-        const newOneOpen = get(new_one, `${id}.open`);
-        const volume = get(new_one, `${id}.volume`) || 0;
-        if (!newOneTime || newOneTime < d.ctm_ms) {
-          const high = !newOneHigh || newOneHigh < d.bid ? d.bid : newOneHigh;
-          const low = !newOneLow || newOneLow > d.bid ? d.bid : newOneLow;
-          set(new_one, id, {
-            ...d,
-            time: d.ctm * 1000,
-            close: +d.bid,
-            high: +high,
-            low: +low,
-            volume: volume + 1,
-            open: +newOneOpen,
-            low_price: +low,
-            high_price: +high,
-          });
-          setTimeout(() => {
-            subscribed[id].onRealtimeCallback(cloneDeep(new_one[id]));
-          });
-        }
-      }
-    });
-    // 监听k线
-    socketStore.socket.on("kline_new", function (d: any) {
-      const lastLines = last(orderBy(d.klines, "ctm", "desc"));
-      orderStore.currentKline[d.symbol] = lastLines;
-
-      // 图表没初始化
-      if (!subscribed[id] || !subscribed[id].symbolInfo || !new_one[id]) {
-        return;
-      }
-      if (chartInitStore.chartLoading[id]) {
-        return;
-      }
-      const currentSymbol = subscribed[id].symbolInfo?.name;
-
-      const condition =
-        currentSymbol &&
-        d.symbol === currentSymbol &&
-        subscribed[id].resolution == d.period_type;
-      //{"server":"upway-live","symbol":"BTCUSD","period_type":1,"klines":[{"ctm":1715408460,"date_time":"2024-05-11 14:21:00","open":60955.5,"high":60955.5,"low":60955.5,"close":60955.5,"volume":1}]}
-      if (condition) {
-        d.klines = orderBy(d.klines, ["ctm"]);
-        const newOneTime = get(new_one, `${id}.time`);
-        for (let i in d.klines) {
-          const dTime = d.klines[i].ctm * 1000;
-          if (!newOneTime || newOneTime <= dTime) {
-            set(new_one, id, {
-              ...new_one[id],
-              ...d.klines[i],
-              time: dTime,
-            });
-            setTimeout(() => {
-              subscribed[id].onRealtimeCallback(cloneDeep(new_one[id])); //更新K线
-            });
-          }
-        }
-      }
-    });
-  }
-
+  let UID = "";
+  let subId = "";
   return {
     onReady: (callback: Function) => {
       infoCache[id] = {};
-      subscribed[id] = {};
-      new_one[id] = {};
       setTimeout(() => {
         callback(config);
-        socketOpera();
       });
     },
 
@@ -228,6 +121,11 @@ export const datafeed = (id: string) => {
       onSymbolResolvedCallback: Function,
       onResolveErrorCallback: Function
     ) => {
+      if (UID) {
+        chartLineStore.unsubscribed(UID);
+      }
+      subId = "";
+      UID = "";
       // 获取session
       const storeSymbolInfo = chartSubStore.symbols.find(
         (e) => e.symbol === symbolName
@@ -293,51 +191,74 @@ export const datafeed = (id: string) => {
         ],
         exchange: storeSymbolInfo?.path,
       };
-      setTimeout(function () {
+      setTimeout(() => {
         onSymbolResolvedCallback(symbol_stub);
+      });
+    },
+
+    //实时更新
+    subscribeBars: (
+      symbolInfo: types.ITVSymbolInfo,
+      resolution: string,
+      onRealtimeCallback: Function,
+      subscriberUID: string,
+      onResetCacheNeededCallback: Function
+    ) => {
+      if (!UID && temBar[id]) {
+        const endBar = temBar[id];
+        chartLineStore.newbar[subscriberUID] = cloneDeep(endBar);
+        delete temBar[id];
+      }
+      UID = `${id}@${subscriberUID}`;
+      subId = subscriberUID;
+      chartLineStore.subscribed[UID] = {
+        onRealtimeCallback,
+        resolution,
+        symbolInfo,
+      };
+      chartSubStore.subKlineQuote({
+        subscriberUID,
+        symbolInfo,
+        resolution,
       });
     },
 
     //渲染历史数据
     getBars: (
-      symbolInfo: types.TVSymbolInfo,
+      symbolInfo: types.ITVSymbolInfo,
       resolution: string,
       periodParams: types.PeriodParams,
       onHistoryCallback: Function,
       onErrorCallback: Function
     ) => {
-      const symbol = symbolInfo.name;
-      infoCache[id].temResolution = resolution;
-      infoCache[id].temSymbol = symbol;
-      subscribed[id].onHistoryCallback = onHistoryCallback;
-      subscribed[id].onErrorCallback = onErrorCallback;
-      let count = periodParams.countBack;
-      // 第一次请求会出现数据请求长度不够导致数据缺失
-      if (periodParams.firstDataRequest) {
-        const to = moment.unix(periodParams.to);
-        const from = moment.unix(periodParams.from);
-        const option = countOptions[resolution];
-        let diffType;
-        let gap = 1;
-        if (typeof option === "string") {
-          diffType = option;
-        } else {
-          diffType = option[0];
-          gap = option[1];
+      try {
+        let count = periodParams.countBack;
+        // 第一次请求会出现数据请求长度不够导致数据缺失
+        if (periodParams.firstDataRequest) {
+          const to = moment.unix(periodParams.to);
+          const from = moment.unix(periodParams.from);
+          const option = countOptions[resolution];
+          let diffType;
+          let gap = 1;
+          if (typeof option === "string") {
+            diffType = option;
+          } else {
+            diffType = option[0];
+            gap = option[1];
+          }
+          count = Math.ceil(to.diff(from, diffType) / gap);
         }
-        count = Math.ceil(to.diff(from, diffType) / gap);
-      }
-      const updata = {
-        period_type:
-          types.Periods[resolution as keyof typeof types.Periods] || resolution,
-        symbol: symbolInfo.name,
-        count: count,
-        limit_ctm: periodParams.to,
-      };
-      getCacheBars(updata, id)
-        .then((res: any) => {
+        const updata = {
+          period_type:
+            types.Periods[resolution as keyof typeof types.Periods] ||
+            resolution,
+          symbol: symbolInfo.name,
+          count: count,
+          limit_ctm: periodParams.to,
+        };
+        getCacheBars(updata, id).then((res) => {
           if (res.length === 0) {
-            subscribed[id].onHistoryCallback([]);
+            onHistoryCallback([]);
             return;
           }
           const reverse_data = orderBy(res, "ctm");
@@ -348,47 +269,30 @@ export const datafeed = (id: string) => {
             };
           });
           const bar = maxBy(bars, "ctm");
-          const barTime = bar.time;
-          const newOneTime = get(new_one, [id, "time"]);
-          if (!newOneTime || barTime > newOneTime) {
-            new_one[id] = cloneDeep(bar);
+          if (bar) {
+            const barTime = bar.time;
+            if (subId) {
+              const newbarTime = get(chartLineStore.newbar, [subId, "time"]);
+              if (!newbarTime || barTime > newbarTime) {
+                chartLineStore.newbar[subId] = {
+                  ...bar,
+                };
+              }
+            } else {
+              temBar[id] = cloneDeep(bar);
+            }
           }
-
           setTimeout(() => {
-            subscribed[id].onHistoryCallback(bars);
+            onHistoryCallback(bars);
           });
-        })
-        .catch(() => {
-          subscribed[id].onErrorCallback([]);
         });
-    },
-
-    //实时更新
-    subscribeBars: (
-      symbolInfo: types.TVSymbolInfo,
-      resolution: string,
-      onRealtimeCallback: Function,
-      subscriberUID: string,
-      onResetCacheNeededCallback: Function
-    ) => {
-      subscribed[id] = {
-        symbolInfo,
-        resolution,
-        onRealtimeCallback,
-        onResetCacheNeededCallback,
-      };
-      chartSubStore.subKlineQuote({
-        subscriberUID,
-        symbolInfo,
-        resolution,
-      });
+      } catch (error) {
+        onErrorCallback();
+      }
     },
 
     //取消订阅,撤销掉某条线的实时更新
     unsubscribeBars: (subscriberUID: string) => {
-      new_one[id] = {};
-      infoCache[id] = {};
-      subscribed[id] = {};
       // chartSubStore.unsubKlineQuote(subscriberUID);
     },
 
@@ -417,7 +321,7 @@ export const datafeed = (id: string) => {
     //     (index) => chartSubStore.symbols[index]
     //   );
 
-    //   const targetList = sortedArr.map((item: types.SessionSymbolInfo) => {
+    //   const targetList = sortedArr.map((item: types.ISessionSymbolInfo) => {
     //     return {
     //       symbol: item.symbol,
     //       full_name: item.symbol,

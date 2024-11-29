@@ -13,7 +13,7 @@
       @visible-change="symbolVisible = $event"
       @command="emit('symbolCommand', $event, props.id)"
     >
-      <div class="el-dropdown-link" @click.stop="toggleSymbol">
+      <div class="el-dropdown-link" @click.stop="toggleSymbolDropdown">
         <span>{{ props.symbol }}</span>
         <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
       </div>
@@ -37,7 +37,7 @@
                 background: '#f6f8fb',
               }"
               hideStar
-              @item-click="(e) => emit('symbolCommand', e.symbol, props.id)"
+              @item-click="symbolItemSelect"
             ></Search>
           </div>
         </div>
@@ -50,7 +50,7 @@
       placement="bottom"
       @visible-change="resolutionVisible = $event"
     >
-      <div class="el-dropdown-link" @click.stop="toggleResolution">
+      <div class="el-dropdown-link" @click.stop="toggleResolutionDropdown">
         <span>{{ nowResolution }}</span>
         <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
       </div>
@@ -58,7 +58,7 @@
         <div
           v-for="(value, key) in resolutes"
           class="dropdownItem"
-          @click="emit('resolutionCommand', key, props.id)"
+          @click="resoluteItemSelect(key)"
         >
           <span>{{ value }}</span>
           <img
@@ -70,7 +70,10 @@
       </template>
     </el-dropdown>
     <el-divider direction="vertical" />
-    <el-icon @click.stop="emit('tabClose', props.id)" style="margin-left: auto">
+    <el-icon
+      @click.stop="emit('tabClose', props.id)"
+      style="margin-left: auto; cursor: pointer"
+    >
       <Close />
     </el-icon>
   </div>
@@ -106,7 +109,8 @@ const emit = defineEmits([
 const symbolDropdown = ref<DropdownInstance>();
 const resolutionDropdown = ref<DropdownInstance>();
 const symbolVisible = ref(false);
-const toggleSymbol = () => {
+// 品种下拉菜单显示隐藏
+const toggleSymbolDropdown = () => {
   if (!props.active) {
     emit("tabClick", props.id);
     return;
@@ -118,7 +122,8 @@ const toggleSymbol = () => {
   }
 };
 const resolutionVisible = ref(false);
-const toggleResolution = () => {
+// 周期下拉菜单显示隐藏
+const toggleResolutionDropdown = () => {
   if (!props.active) {
     emit("tabClick", props.id);
     return;
@@ -151,6 +156,15 @@ const resolutes = computed(() => {
   }
   return result;
 });
+
+const symbolItemSelect = (e: any) => {
+  emit("symbolCommand", e.symbol, props.id);
+  symbolDropdown.value!.handleClose();
+};
+const resoluteItemSelect = (key: number) => {
+  emit("resolutionCommand", key, props.id);
+  resolutionDropdown.value!.handleClose();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -169,12 +183,13 @@ const resolutes = computed(() => {
   @include border_color("background");
   width: fit-content;
   border-radius: 2px;
-  cursor: pointer;
+  @include background_color("background-component");
 }
 
 .el-dropdown-link {
   display: flex;
   align-items: center;
+  cursor: pointer;
   white-space: nowrap;
 }
 

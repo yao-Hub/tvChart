@@ -1,34 +1,40 @@
-export interface ChartData {
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  timestamp?: number;
-  ctm?: number;
-  volume?: number;
-}
-
-export interface Quote {
+export interface ISocketQuote {
   ask: number;
   bid: number;
   ctm: number;
   ctm_ms: number;
   server: string;
   symbol: string;
+}
+
+export interface ISocketKlineNew {
+  period_type: number;
+  server: string;
+  symbol: string;
+  klines: ILine[];
+}
+export interface IQuote {
+  ask: number;
+  bid: number;
+  ctm: number;
   close: number;
   open: number;
   high?: number;
   low?: number;
+  volume?: number;
+  ctm_ms: number;
+  server: string;
+  symbol: string;
 }
 
-export interface Line {
+export interface ILine {
   close: number;
   ctm: number;
+  date_time: string;
   high: number;
   low: number;
   open: number;
   volume: number;
-  symbol?: string;
 }
 
 export enum Periods {
@@ -37,12 +43,12 @@ export enum Periods {
   "1M" = 43200,
 }
 
-export interface TVSymbolInfo {
+export interface ITVSymbolInfo {
   name: string;
   [value: string]: any;
 }
 
-export interface SessionSymbolInfo {
+export interface ISessionSymbolInfo {
   id: number; // 时间，毫秒级
   symbol: string; // 品种编码
   path: string; // 品种路径
@@ -64,24 +70,12 @@ export interface SessionSymbolInfo {
   description: string;
 }
 
-export interface LineData {
-  time: number;
-  open: number;
-  high: number;
-  low: number;
-  close: number;
-  volume: number;
-  ctm?: number;
-}
-
 export interface PeriodParams {
   from: number;
   to: number;
   countBack: number;
   firstDataRequest: Boolean;
 }
-
-export type Resolution = number;
 
 export interface TimeUnit {
   btime: number;
@@ -101,5 +95,3 @@ export enum Type {
   forex = "外汇",
   index = "指数",
 }
-
-export type OrderType = "limit" | "stopLimit" | "stop" | "price";
