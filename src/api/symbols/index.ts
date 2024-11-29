@@ -8,6 +8,7 @@ enum Api {
   DelMySymbols = "/my/optional_delete",
   AddMySymbols = "/my/optional_add",
   EditMySymbols = "/my/optional_update",
+  SymbolDetail = "/symbol/one_symbol",
 }
 
 // 获取交易商线路的所有交易品种
@@ -30,7 +31,7 @@ export interface ResSymbolsInfo {
   margin: number;
   contract_size: number;
   trade_allow: number;
-  ttimes: Array<Array<Array<TimeInfo>>>;
+  ttimes: Array<Array<TimeInfo>>;
   holidays: (string | number)[];
   symbol: string;
 }
@@ -69,6 +70,41 @@ export const allSymbolQuotes = () => {
     url: Api.allSymbolsQuotes,
     noNeedToken: true,
     method: "post",
+  });
+};
+
+// 根据品种编码查询品种信息;
+interface IOneSymbol {
+  symbol: string;
+}
+export interface ISymbolDetail {
+  id: number; //	时间，毫秒级
+  symbol: string; //	品种编码
+  path: string; //	品种路径
+  digits: number; //	报价位数
+  currency: string; //	品种法币币种
+  volume_min: number; //	单笔交易最小手数，1=0.01手
+  volume_step: number; //	单笔交易手数的最小步值。5=0.05手，即手数只能是0.05的倍数
+  volume_max: number; //	单笔交易最大手数
+  volume_max_total: number; //	单个账户最大持仓手数
+  stops_level: number; //	交易距离。200=200点。即digits=2时，止损止盈等设定需远离现价2。digits=3时，止损止盈等设定需远离现价0.2
+  margin: number; //	1手固定的保证金金额
+  contract_size: number; //	合约数量
+  trade_allow: number; //	是否能交易，1=是。
+  leverage: number; //	固定的杠杆倍数
+  buy_rate: number; //	买入建仓过夜年利率
+  sell_rate: number; //	卖出建仓过夜年利率
+  fee: number; //	1手固定的手续费
+  ttimes: Array<Array<TimeInfo>>; //	交易时间段。休闭市设定
+  holidays: Array<Array<TimeInfo>>; //		假期。 休闭市设定
+  settlement_type: number; // 利润计算方式
+}
+export const symbolDetail = (data: IOneSymbol) => {
+  return request<ISymbolDetail>({
+    url: Api.SymbolDetail,
+    method: "post",
+    data,
+    needLogin: true,
   });
 };
 
