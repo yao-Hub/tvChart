@@ -63,6 +63,11 @@
                 >按市价平仓</el-button
               >
             </el-col>
+            <el-col :span="24" v-if="closeFormState.volume">
+              <div class="profit" :class="[profitClass]">
+                预计毛利：{{ getProfit() }}
+              </div>
+            </el-col>
           </el-form>
         </div>
         <el-form ref="stopFormRef" :model="stopFormState" class="stopForm">
@@ -175,7 +180,7 @@ const validateVolume = (rule: any, value: any, callback: any) => {
   if (value === "") {
     return callback(new Error("请输入手数"));
   } else if (+value > props.orderInfo.volume / 100 || +value <= 0) {
-    return callback(new Error("请输入合适范围的手数"));
+    return callback(new Error(`需<=${props.orderInfo.volume / 100}`));
   } else {
     callback();
   }
@@ -217,7 +222,7 @@ watch(
     if (val && closeFormRef.value && stopFormRef.value) {
       closeFormRef.value.resetFields();
       stopFormRef.value.resetFields();
-      closeFormState.volume = String(props.orderInfo.volume / 100);
+      closeFormState.volume = (props.orderInfo.volume / 100).toString();
       stopFormState.stopLoss = props.orderInfo.sl_price.toString();
       stopFormState.stopProfit = props.orderInfo.tp_price.toString();
     }
@@ -365,11 +370,45 @@ const modify = debounce(async () => {
     modifyLoading.value = false;
   }
 }, 20);
+
+// 获取盈亏
+const profitClass = ref("");
+const getProfit = () => {
+  try {
+    const volume = +closeFormState.volume;
+    let result: string | number = "";
+    const type = getTradingDirection(props.orderInfo.type);
+    // 持仓多单时，close_price = 现价卖价
+    // 持仓空单时，close_price = 现价买价
+    const closePrice = type === "buy" ? props.quote.bid : props.quote.ask;
+    const { contract_size, storage, fee, open_price } = props.orderInfo;
+    // 建仓合约价值 = open_price X contract_size X volume / 100
+    const buildingPrice = (open_price * contract_size * volume) / 100;
+    // 平仓合约价值 = close_price X contract_size X volume / 100
+    const closingPrice = (closePrice * contract_size * volume) / 100;
+    // buy时 : profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
+    // sell时 : profit = 建仓合约价值 - 平仓合约价值 + 手续费 + 过夜费
+    const direction =
+      type === "buy"
+        ? closingPrice - buildingPrice
+        : buildingPrice - closingPrice;
+    result = (direction + (storage || 0) + (fee || 0)).toFixed(2);
+    profitClass.value = +result > 0 ? "up" : "down";
+    return result;
+  } catch (error) {
+    return "";
+  }
+};
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+.up {
+  @include background_color("upHover");
+}
+.down {
+  @include background_color("downHover");
+}
 .dialog_header {
   font-weight: bold;
   font-size: 16px;
@@ -396,5 +435,10 @@ const modify = debounce(async () => {
   cursor: pointer;
   width: var(--size);
   height: var(--size);
+}
+.profit {
+  padding: 5px 0;
+  text-align: center;
+  margin-top: 4px;
 }
 </style>

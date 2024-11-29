@@ -636,13 +636,13 @@ const delPendingOrder = async (record: orders.resOrders) => {
 const rowProps = ({ rowData }: any) => {
   return {
     ondblclick: () => {
-      state.orderInfo = rowData;
       if (activeKey.value === "marketOrder") {
         state.marketDialogVisible = true;
       }
       if (activeKey.value === "pendingOrder") {
         state.pendingDialogVisible = true;
       }
+      state.orderInfo = rowData;
     },
   };
 };

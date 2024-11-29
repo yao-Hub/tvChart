@@ -117,13 +117,18 @@
             <Spread :quote="props.quote" :digits="symbolInfo?.digits"></Spread>
           </el-col>
           <el-col :span="24">
-            <el-button
-              style="width: 100%"
-              type="primary"
-              :loading="pendingBtnLoading"
-              @click="confirmEdit"
-              >确认修改</el-button
-            >
+            <div class="btns">
+              <el-button style="flex: 1" @click="delPendingOrder"
+                >删除</el-button
+              >
+              <el-button
+                style="flex: 1"
+                type="primary"
+                :loading="editing"
+                @click="confirmEdit"
+                >确认修改</el-button
+              >
+            </div>
           </el-col>
         </el-row>
       </el-form>
@@ -292,10 +297,10 @@ const valids = async () => {
 
 import { editPendingOrders, reqPendingOrdersAdd } from "api/order/index";
 import { ElMessage } from "element-plus";
-const pendingBtnLoading = ref(false);
+const editing = ref(false);
 const confirmEdit = debounce(async () => {
   try {
-    pendingBtnLoading.value = true;
+    editing.value = true;
     const values = await valids();
     if (values) {
       const updata: reqPendingOrdersAdd = {
@@ -327,9 +332,27 @@ const confirmEdit = debounce(async () => {
       }
     }
   } finally {
-    pendingBtnLoading.value = false;
+    editing.value = false;
   }
 }, 20);
+
+import { delPendingOrders } from "api/order/index";
+import { ElMessageBox } from "element-plus";
+
+const delPendingOrder = () => {
+  ElMessageBox.confirm("", "确定删除").then(async () => {
+    const res = await delPendingOrders({
+      id: props.orderInfo.id,
+      symbol: props.orderInfo.symbol,
+    });
+    if (res.data.action_success) {
+      ElMessage.success("删除挂单成功");
+      handleCancel();
+      return;
+    }
+    ElMessage.error(res.data.err_text);
+  });
+};
 </script>
 
 <style lang="scss"></style>
@@ -369,5 +392,11 @@ const confirmEdit = debounce(async () => {
 .value {
   @include font_color("word");
   display: block;
+}
+.btns {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 8px;
 }
 </style>
