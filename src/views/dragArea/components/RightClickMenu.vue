@@ -32,6 +32,24 @@
       </div>
       <div class="timeTable">
         <el-text class="secondaryTitle">交易时间</el-text>
+        <el-table
+          :data="tableData"
+          :cell-style="{ height: '42px', 'padding-left': '16px' }"
+        >
+          <el-table-column
+            v-for="(item, index) in columns"
+            :key="index"
+            :prop="item.prop"
+            :label="item.label"
+          >
+            <template #header="{ column }">
+              <div class="weekday_header">
+                <span>{{ column.label }}</span>
+                <div class="drag-line">|</div>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
       </div>
     </div>
     <el-empty v-else style="margin: auto" />
@@ -39,7 +57,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watchEffect } from "vue";
 
 import { ISymbolDetail, symbolDetail } from "api/symbols";
 
@@ -127,7 +145,7 @@ const addChart = () => {
   model.value = false;
 };
 
-const symbolInfo = ref();
+const symbolInfo = ref<ISymbolDetail>();
 const loading = ref(false);
 const ifError = ref(false);
 const getDetail = async () => {
@@ -168,6 +186,45 @@ const getValue = (key: Tkey) => {
       return info ? info[key] : "-";
   }
 };
+
+import dayjs from "dayjs";
+import { flattenDeep, groupBy, uniq, set } from "lodash";
+const tableData = ref<any[]>([{}, {}]);
+const columns = ref<{ prop: string; label: string }[]>([]);
+const formatTime = (time: number) => {
+  const hours = Math.floor(time / 60);
+  const second = time % 60;
+  return `${hours < 9 ? "0" : ""}${hours}:${second < 9 ? "0" : ""}${second}`;
+};
+watchEffect(() => {
+  const info = symbolInfo.value;
+  if (info) {
+    tableData.value = [];
+    const ttimes = info.ttimes;
+    const timeList = flattenDeep(Object.values(ttimes));
+    const weekDays = uniq(timeList.map((item) => item.week_day));
+    columns.value = weekDays.map((item) => {
+      return {
+        label: dayjs().day(item).format("dddd"),
+        prop: String(item),
+      };
+    });
+    const group = groupBy(timeList, "week_day");
+    for (const i in group) {
+      const [first, last] = group[i];
+      if (first) {
+        const { btime, etime } = first;
+        const session = `${formatTime(btime)}-${formatTime(etime)}`;
+        set(tableData.value, [0, String(i)], session);
+      }
+      if (last) {
+        const { btime, etime } = last;
+        const session = `${formatTime(btime)}-${formatTime(etime)}`;
+        set(tableData.value, [1, String(i)], session);
+      }
+    }
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -224,6 +281,33 @@ const getValue = (key: Tkey) => {
   }
 }
 .timeTable {
-  margin-top: 24px;
+  margin: 24px 0;
+}
+
+:deep(.el-table__cell) {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0;
+}
+.weekday_header {
+  position: relative;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  @include background_color("table-colored");
+  height: 42px;
+  width: 100%;
+  padding-left: 16px;
+  line-height: 42px;
+
+  .drag-line {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0 5px;
+    box-sizing: border-box;
+    @include font_color("border");
+  }
 }
 </style>

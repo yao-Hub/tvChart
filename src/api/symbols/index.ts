@@ -13,7 +13,7 @@ enum Api {
 }
 
 // 获取交易商线路的所有交易品种
-interface TimeInfo {
+export interface TimeInfo {
   symbol: string;
   week_day: number;
   btime: number;

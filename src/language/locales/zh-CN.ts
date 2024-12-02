@@ -27,6 +27,10 @@ export default {
   cancel: "取消",
   reLogin: "重新登陆",
   "login succeeded": "登录成功",
+  "Personal Information": "个人信息",
+  "Change password": "更改密码",
+  "Add Account": "添加账号",
+  "Log Out": "退出登录",
   user: {
     login: "账户",
     password: "密码",

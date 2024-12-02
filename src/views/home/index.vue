@@ -24,6 +24,7 @@ import { useLayout } from "@/store/modules/layout";
 import { useSize } from "@/store/modules/size";
 import { useChartLine } from "@/store/modules/chartLine";
 import { useSymbols } from "@/store/modules/symbols";
+import { useTheme } from "@/store/modules/theme";
 
 import { initDragResizeArea } from "utils/dragResize/drag_position";
 
@@ -42,7 +43,7 @@ const layoutStore = useLayout();
 const sizeStore = useSize();
 const chartLineStore = useChartLine();
 const symbolsStore = useSymbols();
-
+const themeStore = useTheme();
 // 初始化 注意调用顺序
 async function init() {
   try {
@@ -63,6 +64,7 @@ async function init() {
     orderStore.getQuickTrans();
     await nextTick();
     // 3.拿到缓存信息才能确定历史页面布局
+    themeStore.initTheme();
     layoutStore.initLayout();
     chartInitStore.intChartFlexDirection();
     chartInitStore.intLayoutType();

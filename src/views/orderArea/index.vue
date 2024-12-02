@@ -167,8 +167,6 @@
             <template #header-cell="{ column }">
               <div
                 class="header-box"
-                @dragenter="(e: Event) => e.preventDefault()"
-                @dragover="(e: Event) => e.preventDefault()"
               >
                 <div>{{ column.title || "" }}</div>
                 <div
@@ -336,8 +334,8 @@ const state = reactive({
   menu: [
     { label: "持仓", key: "marketOrder" },
     { label: "挂单", key: "pendingOrder" },
-    { label: "历史持仓", key: "marketOrderHistory" },
-    { label: "历史挂单", key: "pendingOrderHistory" },
+    { label: "交易历史", key: "marketOrderHistory" },
+    { label: "挂单历史", key: "pendingOrderHistory" },
     { label: "出入金记录", key: "blanceRecord" },
   ],
   columns: tableColumns,
@@ -722,7 +720,6 @@ onMounted(async () => {
 
 <style lang="scss">
 @import "@/styles/_handle.scss";
-
 .table_v2_Header {
   @include background_color("table-colored");
 }
@@ -789,7 +786,6 @@ onMounted(async () => {
     }
   }
 }
-
 .header-box {
   position: relative;
   text-overflow: ellipsis;

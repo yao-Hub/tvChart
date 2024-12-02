@@ -13,6 +13,9 @@ export default {
   shortcutkey: "Shortcut key",
   SingleImageMode: "Single image mode",
   MultiGrapMode: "Multi graph mode",
+  "Horizontal layout": "Horizontal layout",
+  "Vertical layout": "Vertical layout",
+  "create chart": "create chart",
   chartList: "chart List",
   symbolList: "symbol List",
   orderList: "order List",
@@ -20,6 +23,11 @@ export default {
   upRedDownGreen: "upRed DownGreen",
   upGreenDownRed: "upGreen DownRed",
   refresh: "refresh",
+  "Personal Information": "Personal Information",
+  "Add Account": "Add Account",
+  "Change password": "Change password",
+  "Log Out": "Log Out",
+
   user: {
     login: "user",
     password: "password",
@@ -87,6 +95,7 @@ export default {
     tradingRoute: "trading route",
     queryNode: "query node",
     diurnalVariation: "vol",
+    time: "time",
   },
 
   tip: {
@@ -107,5 +116,14 @@ export default {
     small: "small",
     medium: "medium",
     large: "large",
+    default: "medium",
+  },
+
+  resolute: {
+    days: "day",
+    weeks: "week",
+    months: "month",
+    hours: "hour",
+    minutes: "minute",
   },
 };

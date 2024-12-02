@@ -1,5 +1,3 @@
-// import { resOrders, resPendingOrders, resHistoryOrders } from "api/order/index";
-
 export const tableColumns: any = {
   marketOrder: [
     { title: "订单ID", dataKey: "id", key: "id", width: 100, align: "left" },

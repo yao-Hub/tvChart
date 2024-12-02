@@ -35,20 +35,22 @@
         </div>
       </div>
       <div class="account">
-        <span @click="modalOpen = true">个人信息</span>
+        <span @click="modalOpen = true">{{ $t("Personal Information") }}</span>
         <el-divider direction="vertical" />
         <span
           @click="resetPasswordOpen = true"
           v-if="userStore.account.server === 'utrader-demo'"
-          >更改密码</span
+          >{{ $t("Change password") }}</span
         >
         <el-divider
           direction="vertical"
           v-if="userStore.account.server === 'utrader-demo'"
         />
-        <span @click="$router.push({ name: 'login' })">添加账号</span>
+        <span @click="$router.push({ name: 'login' })">{{
+          $t("Add Account")
+        }}</span>
         <el-divider direction="vertical" />
-        <span @click="logout">退出登录</span>
+        <span @click="logout">{{ $t("Log Out") }}</span>
       </div>
     </template>
   </el-dropdown>
@@ -216,7 +218,7 @@ const modalOpen = ref<boolean>(false);
   @include background_color("background-dialog");
 
   .aItem {
-    width: 384px;
+    width: 100%;
     height: 40px;
     display: flex;
     align-items: center;
@@ -229,6 +231,12 @@ const modalOpen = ref<boolean>(false);
     }
     &:active {
       @include background_color("background-active");
+    }
+    span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 120px;
     }
     .icon {
       width: 20px;
