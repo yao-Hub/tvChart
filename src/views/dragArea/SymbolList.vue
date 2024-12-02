@@ -404,7 +404,7 @@ const expandChange = (row: any, expandedRows: any[]) => {
 }
 
 :deep(.el-table__expand-icon) {
-  content: url("src/assets/icons/caretRight.svg");
+  content: url("@/assets/icons/caretRight.svg");
   transform: scale(0.7);
 }
 :deep(.el-table__expand-icon--expanded) {

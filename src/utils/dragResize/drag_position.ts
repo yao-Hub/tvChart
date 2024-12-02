@@ -244,7 +244,7 @@ function createHoriLine(addNum: number) {
     const moveIcon = document.createElement("div");
     moveIcon.style.width = `28px`;
     moveIcon.style.height = `${lineWidth}px`;
-    moveIcon.style.backgroundImage = "url('/src/assets/icons/icon_td1.svg')";
+    moveIcon.style.backgroundImage = "url('@/assets/icons/icon_td1.svg')";
     moveIcon.style.backgroundSize = "28px 4px";
     moveIcon.style.backgroundRepeat = "no-repeat";
     moveIcon.style.backgroundPosition = "center";
