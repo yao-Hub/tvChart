@@ -31,21 +31,23 @@
 <script lang="ts" setup>
 import { computed, ref, watchEffect } from "vue";
 import { UpOutlined, DownOutlined } from "@ant-design/icons-vue";
-import { useChartSub } from "@/store/modules/chartSub";
+import { ElMessage } from "element-plus";
+
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ORDER_TYPE } from "@/constants/common";
 import { ISessionSymbolInfo } from "@/types/chart/index";
+
 import { useChartInit } from "@/store/modules/chartInit";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useTheme } from "@/store/modules/theme";
-import { ElMessage } from "element-plus";
+import { useSymbols } from "@/store/modules/symbols";
 
-const subStore = useChartSub();
 const chartInitStore = useChartInit();
 const dialogStore = useDialog();
 const orderStore = useOrder();
 const themeStore = useTheme();
+const symbolsStore = useSymbols();
 
 // 样式
 const styles = {
@@ -159,7 +161,9 @@ const maxVolume = ref<string>("0");
 // 当前品种
 const symbolInfo = ref<ISessionSymbolInfo>();
 watchEffect(() => {
-  const info = subStore.symbols.find((e) => e.symbol === currentSymbol.value);
+  const info = symbolsStore.symbols.find(
+    (e) => e.symbol === currentSymbol.value
+  );
   if (info) {
     symbolInfo.value = info;
     minVolume.value = (info.volume_min / 100).toString();

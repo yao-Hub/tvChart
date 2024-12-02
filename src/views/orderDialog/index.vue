@@ -27,7 +27,7 @@
         <el-row :gutter="24">
           <el-col :span="24">
             <el-form-item prop="symbol" label="交易品种" label-position="top">
-              <SymbolSelect v-model="formState.symbol" />
+              <SymbolSelect v-model="formState.symbol" subSymbol/>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -221,6 +221,7 @@
 <script setup lang="ts">
 import { ref, computed, reactive, watch, nextTick } from "vue";
 import { debounce } from "lodash";
+
 import Price from "./components/Price.vue";
 import Volume from "./components/Volume.vue";
 import BreakLimit from "./components/BreakLimit.vue";
@@ -229,6 +230,9 @@ import Spread from "./components/spread.vue";
 import StopLossProfit from "./components/StopLossProfit.vue";
 
 import { useOrder } from "@/store/modules/order";
+import { useSymbols } from "@/store/modules/symbols";
+
+const symbolsStore = useSymbols();
 const orderStore = useOrder();
 
 /** 弹窗处理 */
@@ -331,24 +335,23 @@ const rules: FormRules<typeof formState> = {
 };
 
 /** 当前品种 */
-import { useChartSub } from "@/store/modules/chartSub";
 import { IQuote } from "#/chart/index";
-const subStore = useChartSub();
 const symbolInfo = computed(() => {
-  return subStore.symbols.find((e) => e.symbol === formState.symbol);
+  return symbolsStore.symbols.find((e) => e.symbol === formState.symbol);
 });
 
 /** 当前报价 */
+import { throttle } from "lodash";
 const quote = ref<IQuote>();
 watch(
   () => [orderStore.currentQuotes, formState.symbol],
-  () => {
+  throttle(() => {
     const quotes = orderStore.currentQuotes;
     const formSymbol = formState.symbol;
     if (quotes && quotes[formSymbol]) {
       quote.value = quotes[formSymbol];
     }
-  },
+  }, 200),
   { immediate: true, deep: true }
 );
 

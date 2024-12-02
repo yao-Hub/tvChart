@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import SingletonSocket from "utils/socket";
 import { useNetwork } from "@/store/modules/network";
-import { useChartSub } from "@/store/modules/chartSub";
 import { useUser } from "@/store/modules/user";
 
 interface IQuote {
@@ -88,14 +87,8 @@ export const useSocket = defineStore("socket", {
 
     // 取消订阅k线和报价
     unsubKlineQuote({ resolution, symbol }: ChartProps) {
-      const subStore = useChartSub();
       const userStore = useUser();
 
-      const list = subStore.mustSubscribeList;
-      if (list.indexOf(symbol) > -1) {
-        console.warn(`${symbol}品种需要持续监听，无法取消监听`);
-        return;
-      }
       if (this.socket) {
         this.socket.emit("unsubscribe_kline", {
           server: userStore.account.server,

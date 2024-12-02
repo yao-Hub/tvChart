@@ -1,4 +1,5 @@
 import request from "utils/http";
+import { ISessionSymbolInfo } from "@/types/chart/index";
 
 enum Api {
   allSymbols = "/symbol/all_symbols",
@@ -18,25 +19,8 @@ interface TimeInfo {
   btime: number;
   etime: number;
 }
-export interface ResSymbolsInfo {
-  server: string;
-  id: number;
-  path: string;
-  digits: number;
-  volume_min: number;
-  volume_step: number;
-  volume_max: number;
-  volume_max_total: number;
-  stops_level: number;
-  margin: number;
-  contract_size: number;
-  trade_allow: number;
-  ttimes: Array<Array<TimeInfo>>;
-  holidays: (string | number)[];
-  symbol: string;
-}
 export const allSymbols = () => {
-  return request<ResSymbolsInfo>({
+  return request<ISessionSymbolInfo[]>({
     url: Api.allSymbols,
     noNeedToken: true,
     method: "post",
@@ -60,7 +44,7 @@ export interface ResQuote {
   // one_min_klines	list	最新的720条1分钟k线数据
 }
 
-interface reqOptionalQuery {
+export interface reqOptionalQuery {
   symbols: string; //	品种
   sort: number; //	排序
   topSort: number; //	置顶排序

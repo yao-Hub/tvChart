@@ -133,20 +133,21 @@ const originSource = ref<DataSource[]>([]);
 
 // 获取自选品种
 import { orderBy, cloneDeep } from "lodash";
-import { optionalQuery } from "api/symbols/index";
 import { useUser } from "@/store/modules/user";
 import { useSocket } from "@/store/modules/socket";
+import { useSymbols } from "@/store/modules/symbols";
+const symbolsStore = useSymbols();
 const socketStore = useSocket();
 const userStore = useUser();
 const tableLoading = ref(false);
 const getQuery = async () => {
   tableLoading.value = true;
-  const queryRes = await optionalQuery();
-  dataSource.value = orderBy(queryRes.data, ["sort"]);
-  queryRes.data.forEach((item) => {
+  await symbolsStore.getMySymbols();
+  dataSource.value = symbolsStore.mySymbols_sort;
+  dataSource.value.forEach((item) => {
     quotesClass.value[item.symbols] = { ask: "", bid: "" };
   });
-  originSource.value = cloneDeep(queryRes.data);
+  originSource.value = cloneDeep(symbolsStore.mySymbols_sort);
   tableLoading.value = false;
   await nextTick();
 
@@ -229,7 +230,7 @@ const closeSearch = () => {
 
 // 报价样式 实时数据
 import { IQuote } from "#/chart/index";
-import { eq } from "lodash";
+import { eq, throttle } from "lodash";
 import { round } from "utils/common/index";
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
@@ -238,7 +239,7 @@ const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
 const temVar = ref<Record<string, IQuote & { variation: string }>>({});
 watch(
   () => orderStore.currentQuotes,
-  (quotes) => {
+  throttle((quotes) => {
     dataSource.value.forEach((item) => {
       const symbol = item.symbols;
       const newQuote = cloneDeep(quotes[symbol]);
@@ -275,7 +276,7 @@ watch(
       }
       temVar.value[symbol] = result;
     });
-  },
+  }, 50),
   {
     deep: true,
     immediate: true,

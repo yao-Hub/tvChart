@@ -68,6 +68,9 @@ import { reactive, computed, watch, ref, onMounted } from "vue";
 
 import Block from "./Block.vue";
 
+import { useSymbols } from "@/store/modules/symbols";
+const symbolsStore = useSymbols();
+
 interface Props {
   input: string;
   mySymbols?: any[];
@@ -77,10 +80,8 @@ interface Props {
 const props = defineProps<Props>();
 
 // 所有品种
-import { useChartSub } from "@/store/modules/chartSub";
-const chartSubStore = useChartSub();
 const allSymbols = computed(() => {
-  return chartSubStore.symbols.map((item: ISessionSymbolInfo) => {
+  return symbolsStore.symbols.map((item: ISessionSymbolInfo) => {
     return {
       ...item,
       loading: false,
@@ -95,29 +96,18 @@ const filterSymbols = computed(() => {
 });
 
 // 分类、
-import {
-  symbolAllPath,
-  resSymbolAllPath,
-  optionalQuery,
-} from "api/symbols/index";
+import { symbolAllPath, resSymbolAllPath } from "api/symbols/index";
 const listState = reactive({
   menu: [] as Array<any>,
   pathMap: {} as Record<string, any>,
-  query: [] as Array<string>,
   loading: false,
 });
-const getQuery = async () => {
-  const queryRes = await optionalQuery();
-  listState.query = queryRes.data.map((item) => item.symbols);
-};
 
 onMounted(async () => {
   listState.loading = true;
   // 获取分类
   const allPathRes = await symbolAllPath();
   listState.menu = allPathRes.data;
-  // 获取我的自选
-  await getQuery();
   listState.loading = false;
 });
 
@@ -146,9 +136,12 @@ const getTotal = (type: string) => {
 // 各个分类下的已选品种数量
 const getCount = (type: string) => {
   if (listState.pathMap[type]) {
-    const filterList = listState.pathMap[type].filter((item: any) =>
-      listState.query.includes(item.symbol)
-    );
+    const filterList = listState.pathMap[type].filter((item: any) => {
+      const index = symbolsStore.mySymbols.findIndex(
+        (e) => e.symbols === item.symbol
+      );
+      return index > -1;
+    });
     return filterList.length;
   }
   return 0;
@@ -177,8 +170,10 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
     switch (type) {
       case "cancel":
         await delOptionalQuery({ symbols: [listItem.symbol] });
-        const index = listState.query.findIndex((e) => e === listItem.symbol);
-        listState.query.splice(index, 1);
+        const index = symbolsStore.mySymbols.findIndex(
+          (e) => e.symbols === listItem.symbol
+        );
+        symbolsStore.mySymbols.splice(index, 1);
         break;
       case "add":
         if (props.mySymbols) {
@@ -194,7 +189,11 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
             };
           });
           await addOptionalQuery({ symbols });
-          listState.query.unshift(listItem.symbol);
+          symbolsStore.mySymbols.unshift({
+            symbols: listItem.symbol,
+            sort: 0,
+            topSort: 0,
+          });
         }
         break;
       default:
@@ -210,7 +209,8 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
 
 // 是否是已经添加的品种
 const getCheckType = (symbol: string) => {
-  return listState.query.includes(symbol);
+  const index = symbolsStore.mySymbols.findIndex((e) => e.symbols === symbol);
+  return index > -1;
 };
 
 const emit = defineEmits(["itemClick"]);

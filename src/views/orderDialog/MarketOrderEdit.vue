@@ -161,10 +161,10 @@ const handleCancel = () => {
 };
 
 /** 当前品种 */
-import { useChartSub } from "@/store/modules/chartSub";
-const subStore = useChartSub();
+import { useSymbols } from "@/store/modules/symbols";
+const symbolsStore = useSymbols();
 const symbolInfo = computed(() => {
-  return subStore.symbols.find((e) => e.symbol === props.orderInfo.symbol);
+  return symbolsStore.symbols.find((e) => e.symbol === props.orderInfo.symbol);
 });
 
 // 平仓表单

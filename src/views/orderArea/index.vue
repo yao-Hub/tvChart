@@ -135,7 +135,7 @@
             <el-button
               type="primary"
               v-show="activeKey === 'pendingOrder'"
-              @click="closePendingOrders(orderStore.tableData.pendingOrder)"
+              @click="closePendingOrders(orderStore.orderData.pendingOrder)"
               >全部撤单</el-button
             >
           </div>
@@ -384,7 +384,7 @@ document.addEventListener("mouseup", () => {
 // 出入金记录底部合计
 import { accAdd } from "utils/arithmetic";
 const profits = computed(() => {
-  return (orderStore.tableData.blanceRecord || []).map((item) => item.profit);
+  return (orderStore.orderData.blanceRecord || []).map((item) => item.profit);
 });
 // 净入金：
 const netDeposit = computed(() => {
@@ -424,7 +424,7 @@ const getCellClass = (num: number) => {
 // 筛选过滤
 const dataSource = computed(() => {
   const active = activeKey.value;
-  const originData = cloneDeep(orderStore.tableData[active]);
+  const originData = cloneDeep(orderStore.orderData[active]);
   const selectSymbols = orderStore.dataFilter[active].symbol || [];
   const direction = orderStore.dataFilter[active].direction;
   const pol = orderStore.dataFilter[active].pol;
@@ -482,7 +482,7 @@ const getNowPrice = (e: orders.resOrders) => {
     const type = getTradingDirection(e.type);
     const result = type === "buy" ? currentQuote.bid : currentQuote.ask;
     const id = e.id;
-    const data = orderStore.tableData[activeKey.value];
+    const data = orderStore.orderData[activeKey.value];
     if (data) {
       const index = data.findIndex((e) => e.id === id);
       if (index) {
@@ -524,7 +524,7 @@ const getProfit = (e: orders.resOrders) => {
         : buildingPrice - closingPrice;
     result = (direction + (storage || 0) + (fee || 0)).toFixed(2);
     e.profit = +result;
-    const data = orderStore.tableData[activeKey.value];
+    const data = orderStore.orderData[activeKey.value];
     if (data) {
       const index = data.findIndex((e) => e.id === id);
       if (index) {
@@ -650,7 +650,7 @@ const rowProps = ({ rowData }: any) => {
 // 到底触发(持仓历史，挂单历史，出入金分页)
 const pageLoading = ref(false);
 const endReached = async () => {
-  const nowData = orderStore.tableData[activeKey.value];
+  const nowData = orderStore.orderData[activeKey.value];
   const minId = minBy(nowData, "id")?.id;
   if (
     !minId ||

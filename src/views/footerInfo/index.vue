@@ -99,7 +99,7 @@ const profit = computed(() => {
     if (!loginInfo.value) {
       return "-";
     }
-    const currentPosition = orderStore.tableData.marketOrder;
+    const currentPosition = orderStore.orderData.marketOrder;
     const sum = currentPosition?.reduce((accumulator, currentValue) => {
       return accumulator + Number(currentValue.profit);
     }, 0);

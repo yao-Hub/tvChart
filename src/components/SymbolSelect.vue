@@ -10,6 +10,7 @@
     style="width: 100%"
     v-bind="selectOption"
     filterable
+    @change="handleChange"
   >
     <template #default="{ item }">
       <slot name="option" :item="item"></slot>
@@ -19,15 +20,16 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { useChartSub } from "@/store/modules/chartSub";
+import { useSymbols } from "@/store/modules/symbols";
+
+const symbolsStore = useSymbols();
 
 interface Props {
   title?: string;
   type?: "tradeAllow" | "default";
   selectOption?: object;
+  subSymbol?: boolean;
 }
-
-const subStore = useChartSub();
 
 const props = withDefaults(defineProps<Props>(), {
   title: "品种",
@@ -38,11 +40,23 @@ const emit = defineEmits(["change"]);
 
 const model = defineModel();
 
+const handleChange = (symbols: string[] | string) => {
+  if (!props.subSymbol) {
+    return;
+  }
+  if (typeof symbols === "object") {
+    symbolsStore.selectSymbols = symbols;
+  }
+  if (typeof symbols === "string") {
+    symbolsStore.selectSymbols = [symbols];
+  }
+};
+
 const symbols = computed(() => {
   // 可交易品种
   if (props.type === "tradeAllow") {
-    return subStore.symbols.filter((e) => e.trade_allow === 1);
+    return symbolsStore.symbols_tradeAllow;
   }
-  return subStore.symbols;
+  return symbolsStore.symbols;
 });
 </script>

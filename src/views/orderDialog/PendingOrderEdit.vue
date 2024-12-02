@@ -262,24 +262,25 @@ const rules: FormRules<typeof formState> = {
 };
 
 /** 当前品种 */
-import { useChartSub } from "@/store/modules/chartSub";
 import { IQuote } from "#/chart/index";
-const subStore = useChartSub();
+import { useSymbols } from "@/store/modules/symbols";
+const symbolsStore = useSymbols();
 const symbolInfo = computed(() => {
-  return subStore.symbols.find((e) => e.symbol === formState.symbol);
+  return symbolsStore.symbols.find((e) => e.symbol === formState.symbol);
 });
 
 /** 当前报价 */
+import { throttle } from "lodash";
 const quote = ref<IQuote>();
 watch(
   () => [orderStore.currentQuotes, formState.symbol],
-  () => {
+  throttle(() => {
     const quotes = orderStore.currentQuotes;
     const formSymbol = formState.symbol;
     if (quotes && quotes[formSymbol]) {
       quote.value = quotes[formSymbol];
     }
-  },
+  }, 50),
   { immediate: true, deep: true }
 );
 

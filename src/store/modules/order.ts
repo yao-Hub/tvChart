@@ -15,7 +15,7 @@ interface State {
   currentQuotes: Record<string, types.IQuote>;
   currentSymbol: string;
   currentKline: Record<string, types.ILine>;
-  tableData: orderTypes.TableData;
+  orderData: orderTypes.TableData;
   dataLoading: Record<orderTypes.TableDataKey, boolean>;
   dataEnding: Record<orderTypes.TableDataKey, boolean>;
   dataFilter: Record<orderTypes.TableDataKey, any>;
@@ -30,7 +30,7 @@ export const useOrder = defineStore("order", {
       currentQuotes: {},
       currentSymbol: "",
       currentKline: {},
-      tableData: {
+      orderData: {
         marketOrder: [],
         pendingOrder: [],
         pendingOrderHistory: [],
@@ -209,7 +209,7 @@ export const useOrder = defineStore("order", {
               key: index,
             };
           });
-          this.tableData.marketOrder = res.data;
+          this.orderData.marketOrder = res.data;
         }
       } finally {
         this.dataLoading.marketOrder = false;
@@ -228,7 +228,7 @@ export const useOrder = defineStore("order", {
               key: index,
             };
           });
-          this.tableData.pendingOrder = res.data;
+          this.orderData.pendingOrder = res.data;
         }
       } finally {
         this.dataLoading.pendingOrder = false;
@@ -255,9 +255,9 @@ export const useOrder = defineStore("order", {
           };
         });
         if (limit_id) {
-          this.tableData.pendingOrderHistory.push(...res.data);
+          this.orderData.pendingOrderHistory.push(...res.data);
         } else {
-          this.tableData.pendingOrderHistory = res.data;
+          this.orderData.pendingOrderHistory = res.data;
         }
         this.dataEnding.pendingOrderHistory = !res.data.length;
       } finally {
@@ -288,9 +288,9 @@ export const useOrder = defineStore("order", {
           };
         });
         if (limit_id) {
-          this.tableData.marketOrderHistory.push(...res.data);
+          this.orderData.marketOrderHistory.push(...res.data);
         } else {
-          this.tableData.marketOrderHistory = res.data;
+          this.orderData.marketOrderHistory = res.data;
         }
         this.dataEnding.marketOrderHistory = !res.data.length;
       } finally {
@@ -319,9 +319,9 @@ export const useOrder = defineStore("order", {
           };
         });
         if (limit_id) {
-          this.tableData.blanceRecord.push(...res.data);
+          this.orderData.blanceRecord.push(...res.data);
         } else {
-          this.tableData.blanceRecord = res.data;
+          this.orderData.blanceRecord = res.data;
         }
         this.dataEnding.blanceRecord = !res.data.length;
       } finally {

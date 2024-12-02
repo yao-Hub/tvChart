@@ -46,10 +46,12 @@
 <script setup lang="ts">
 import { reactive, computed, watch } from "vue";
 import { throttle } from "lodash";
+
 import { getTradingDirection } from "utils/order/index";
-import { resOrders } from "api/order/index";
-import { useOrder } from "@/store/modules/order";
 import { TableDataKey } from "#/order";
+import { resOrders } from "api/order/index";
+
+import { useOrder } from "@/store/modules/order";
 
 const orderStore = useOrder();
 
@@ -102,7 +104,7 @@ const checkList = computed(() => {
 });
 
 const dataSource = computed(() => {
-  return orderStore.tableData[props.orderType];
+  return orderStore.orderData[props.orderType];
 });
 
 watch(

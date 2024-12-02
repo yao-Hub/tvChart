@@ -16,7 +16,6 @@ import { onMounted, watch, nextTick } from "vue";
 
 import { useSocket } from "@/store/modules/socket";
 import { useChartInit } from "@/store/modules/chartInit";
-import { useChartSub } from "@/store/modules/chartSub";
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
 import { useNetwork } from "@/store/modules/network";
@@ -24,10 +23,9 @@ import { useRoot } from "@/store/store";
 import { useLayout } from "@/store/modules/layout";
 import { useSize } from "@/store/modules/size";
 import { useChartLine } from "@/store/modules/chartLine";
+import { useSymbols } from "@/store/modules/symbols";
 
 import { initDragResizeArea } from "utils/dragResize/drag_position";
-
-import { allSymbols } from "api/symbols/index";
 
 import WPHeader from "../header/index.vue";
 import dragArea from "../dragArea/index.vue";
@@ -36,7 +34,6 @@ import FloatMenu from "./components/FloatMenu.vue";
 import FooterInfo from "../footerInfo/index.vue";
 
 const chartInitStore = useChartInit();
-const chartSubStore = useChartSub();
 const userStore = useUser();
 const orderStore = useOrder();
 const networkStore = useNetwork();
@@ -44,12 +41,7 @@ const socketStore = useSocket();
 const layoutStore = useLayout();
 const sizeStore = useSize();
 const chartLineStore = useChartLine();
-
-// 获取所有商品(品种)
-const getSymbols = async () => {
-  const res: any = await allSymbols();
-  chartSubStore.setSymbols(res.data);
-};
+const symbolsStore = useSymbols();
 
 // 初始化 注意调用顺序
 async function init() {
@@ -60,7 +52,7 @@ async function init() {
     // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址
     userStore.initAccount();
     await networkStore.initNode();
-    await getSymbols();
+    await symbolsStore.getAllSymbol();
   } catch (error) {
     chartInitStore.loading = false;
   } finally {

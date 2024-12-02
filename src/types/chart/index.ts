@@ -68,6 +68,14 @@ export interface ISessionSymbolInfo {
   fee: number;
   storage: number;
   description: string;
+  buy_rate: number;
+  currency: string;
+  sell_rate: number;
+  settlement_btime: number;
+  settlement_etime: number;
+  settlement_type: number;
+  status: number;
+  utrader_trade_allow: number;
 }
 
 export interface PeriodParams {

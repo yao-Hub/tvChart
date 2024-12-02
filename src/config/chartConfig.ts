@@ -5,9 +5,11 @@ import * as types from "@/types/chart/index";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useChartLine } from "@/store/modules/chartLine";
 import { RESOLUTES } from "@/constants/common";
+import { useSymbols } from "@/store/modules/symbols";
 
 const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();
+const symbolsStore = useSymbols();
 
 const countOptions: any = {
   "1D": "days",
@@ -32,7 +34,7 @@ const config = {
   supported_resolutions: Object.keys(RESOLUTES),
 };
 
-const formatToSeesion = (time: number) => {
+const formatTime = (time: number) => {
   const hours = Math.floor(time / 60);
   const second = time % 60;
   return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
@@ -127,7 +129,7 @@ export const datafeed = (id: string) => {
       subId = "";
       UID = "";
       // 获取session
-      const storeSymbolInfo = chartSubStore.symbols.find(
+      const storeSymbolInfo = symbolsStore.symbols.find(
         (e) => e.symbol === symbolName
       );
       const ttimes = storeSymbolInfo ? storeSymbolInfo.ttimes : [];
@@ -141,12 +143,12 @@ export const datafeed = (id: string) => {
         const tItem = grouptObj[weekDay];
         const fTime = tItem.reduce(
           (pre: types.TimeUnit, next: types.TimeUnit) => {
-            const preSession = `${formatToSeesion(pre.btime)}-${formatToSeesion(
+            const preSession = `${formatTime(pre.btime)}-${formatTime(
               pre.etime
             )}`;
-            const endSession = `${formatToSeesion(
-              next.btime
-            )}-${formatToSeesion(next.etime)}`;
+            const endSession = `${formatTime(next.btime)}-${formatTime(
+              next.etime
+            )}`;
             return {
               btime: pre.btime,
               etime: next.etime,
@@ -158,7 +160,7 @@ export const datafeed = (id: string) => {
         );
         const resultTs =
           fTime.session ||
-          `${formatToSeesion(fTime.btime)}-${formatToSeesion(fTime.etime)}:${
+          `${formatTime(fTime.btime)}-${formatTime(fTime.etime)}:${
             Number(weekDay) + 1
           }`;
         timeArr.push(resultTs);
@@ -216,7 +218,7 @@ export const datafeed = (id: string) => {
         resolution,
         symbolInfo,
       };
-      chartSubStore.subKlineQuote({
+      chartSubStore.subChartKlineQuote({
         subscriberUID,
         symbolInfo,
         resolution,
@@ -293,7 +295,7 @@ export const datafeed = (id: string) => {
 
     //取消订阅,撤销掉某条线的实时更新
     unsubscribeBars: (subscriberUID: string) => {
-      // chartSubStore.unsubKlineQuote(subscriberUID);
+      // chartSubStore.unsubChartKlineQuote(subscriberUID);
     },
 
     // 查找品种（商品）
@@ -305,7 +307,7 @@ export const datafeed = (id: string) => {
     // ) => {
     //   // 模糊匹配
     //   const regex = new RegExp(userInput.split("").join(".*"), "i");
-    //   const matches = chartSubStore.symbols.map((item, index) => {
+    //   const matches = symbolsStore.symbols.map((item, index) => {
     //     const exchangeMatch = regex.test(item.path);
     //     const symbolMatch = regex.test(item.symbol);
     //     return {
@@ -318,7 +320,7 @@ export const datafeed = (id: string) => {
     //   matches.sort((a, b) => b.count - a.count);
     //   const sortedIndices = matches.map((match) => match.index);
     //   const sortedArr = sortedIndices.map(
-    //     (index) => chartSubStore.symbols[index]
+    //     (index) => symbolsStore.symbols[index]
     //   );
 
     //   const targetList = sortedArr.map((item: types.ISessionSymbolInfo) => {
