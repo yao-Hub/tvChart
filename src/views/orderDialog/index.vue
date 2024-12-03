@@ -27,7 +27,7 @@
         <el-row :gutter="24">
           <el-col :span="24">
             <el-form-item prop="symbol" label="交易品种" label-position="top">
-              <SymbolSelect v-model="formState.symbol" subSymbol/>
+              <SymbolSelect v-model="formState.symbol" subSymbol />
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -318,11 +318,14 @@ const orderTypeOptions = [
 ];
 // 期限规则
 import dayjs from "dayjs";
+import { useTime } from "@/store/modules/time";
+const timeStore = useTime();
 const validDate = (rule: any, value: any, callback: any) => {
+  const timezone = timeStore.settedTimezone;
   if (!value) {
     return callback(new Error("请选择期限"));
   }
-  const distanceFromNow = dayjs.unix(value).fromNow();
+  const distanceFromNow = dayjs.unix(value).tz(timezone).fromNow();
   if (distanceFromNow.includes("ago") || distanceFromNow.includes("前")) {
     return callback(new Error("时间不能小于当前时间"));
   }
@@ -341,17 +344,16 @@ const symbolInfo = computed(() => {
 });
 
 /** 当前报价 */
-import { throttle } from "lodash";
 const quote = ref<IQuote>();
 watch(
   () => [orderStore.currentQuotes, formState.symbol],
-  throttle(() => {
+  () => {
     const quotes = orderStore.currentQuotes;
     const formSymbol = formState.symbol;
     if (quotes && quotes[formSymbol]) {
       quote.value = quotes[formSymbol];
     }
-  }, 200),
+  },
   { immediate: true, deep: true }
 );
 

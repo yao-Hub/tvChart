@@ -82,7 +82,7 @@ const max = computed(() => {
 
 // 预付款(以买入计算)
 // 固定保证金时：referMargin = margin（1手固定的预付款金额） * 需保证金手数
-// 固定杠杆时：referMargin = open_price（下单价格） * contract_size （合约数量）/ leverage * 需保证金手数
+// 固定杠杆时：referMargin = open_price（下单价格） * contract_size （合约数量）/ leverage * 需保证金手数  * 汇率
 // open_price（下单价格）： 市价单 = bid，挂单 = 限价[orderPrice]
 const referMargin = computed(() => {
   let result;
@@ -97,7 +97,9 @@ const referMargin = computed(() => {
       const contract_size = symbol.contract_size;
       const margin = symbol.margin;
       const digits = symbol.digits;
+      // 固定保证金时
       result = margin * +volume;
+      // 固定杠杆时：
       if (leverage) {
         result = ((+open_price * contract_size) / leverage) * +volume;
       }

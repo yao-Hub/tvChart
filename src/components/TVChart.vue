@@ -6,6 +6,7 @@
 import { ref, onMounted } from "vue";
 import * as library from "public/charting_library";
 import { useI18n } from "vue-i18n";
+import { timezoneOptions } from "@/constants/timezone";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
 import { useChartSub } from "@/store/modules/chartSub";
@@ -165,6 +166,7 @@ const initonReady = () => {
     compare_symbols: props.compareSymbols as library.CompareSymbol[],
     context_menu: props.contextMenu,
     custom_css_url: "/charting_library/static/tvcss.css",
+    custom_timezones: timezoneOptions as library.CustomAliasedTimezone[],
   };
   const savedData = chartInitStore.getChartSavedData(props.chartId);
   if (savedData) {

@@ -154,7 +154,9 @@ import BreakLimit from "./components/BreakLimit.vue";
 import Spread from "./components/spread.vue";
 
 import { useOrder } from "@/store/modules/order";
+import { useTime } from "@/store/modules/time";
 
+const timeStore = useTime();
 const orderStore = useOrder();
 interface Props {
   orderInfo: resPendingOrders;
@@ -223,6 +225,7 @@ watch(
   () => modal.value,
   async (val) => {
     if (val) {
+      const timezone = timeStore.settedTimezone;
       await nextTick();
       const orderType = findKey(ORDERMAP, (o) => o === props.orderInfo.type);
       if (orderType) {
@@ -232,7 +235,9 @@ watch(
       formState.volume = props.orderInfo.volume / 100;
       formState.stopLoss = props.orderInfo.sl_price;
       formState.stopProfit = props.orderInfo.tp_price;
-      formState.dueDate = dayjs(props.orderInfo.time_expiration).unix();
+      formState.dueDate = dayjs(props.orderInfo.time_expiration)
+        .tz(timezone)
+        .unix();
       formState.limitedPrice = props.orderInfo.trigger_price;
       formState.breakPrice = props.orderInfo.order_price;
       setTimeout(() => {
@@ -247,7 +252,8 @@ const validDate = (rule: any, value: any, callback: any) => {
   if (!value) {
     return callback(new Error("请选择期限"));
   }
-  const distanceFromNow = dayjs.unix(value).fromNow();
+  const timezone = timeStore.settedTimezone;
+  const distanceFromNow = dayjs.unix(value).tz(timezone).fromNow();
   if (distanceFromNow.includes("ago") || distanceFromNow.includes("前")) {
     return callback(new Error("时间不能小于当前时间"));
   }
@@ -270,17 +276,16 @@ const symbolInfo = computed(() => {
 });
 
 /** 当前报价 */
-import { throttle } from "lodash";
 const quote = ref<IQuote>();
 watch(
   () => [orderStore.currentQuotes, formState.symbol],
-  throttle(() => {
+  () => {
     const quotes = orderStore.currentQuotes;
     const formSymbol = formState.symbol;
     if (quotes && quotes[formSymbol]) {
       quote.value = quotes[formSymbol];
     }
-  }, 50),
+  },
   { immediate: true, deep: true }
 );
 

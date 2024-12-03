@@ -230,7 +230,7 @@ const closeSearch = () => {
 
 // 报价样式 实时数据
 import { IQuote } from "#/chart/index";
-import { eq, throttle } from "lodash";
+import { eq } from "lodash";
 import { round } from "utils/common/index";
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
@@ -239,7 +239,7 @@ const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
 const temVar = ref<Record<string, IQuote & { variation: string }>>({});
 watch(
   () => orderStore.currentQuotes,
-  throttle((quotes) => {
+  (quotes) => {
     dataSource.value.forEach((item) => {
       const symbol = item.symbols;
       const newQuote = cloneDeep(quotes[symbol]);
@@ -276,7 +276,7 @@ watch(
       }
       temVar.value[symbol] = result;
     });
-  }, 50),
+  },
   {
     deep: true,
     immediate: true,
@@ -293,12 +293,15 @@ const getPrice = (symbol: string, type: "bid" | "ask") => {
 };
 
 import dayjs from "dayjs";
+import { useTime } from "@/store/modules/time";
+const timeStore = useTime();
 const getTime = (symbol: string) => {
   const quotes = orderStore.currentQuotes;
   const target = quotes[symbol];
   if (target) {
+    const timezone = timeStore.settedTimezone;
     const time = target.ctm_ms;
-    return dayjs(time).format("HH:mm:ss");
+    return dayjs(time).tz(timezone).format("HH:mm:ss");
   }
   return "-";
 };

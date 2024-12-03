@@ -33,6 +33,7 @@ import dragArea from "../dragArea/index.vue";
 import OrderDialog from "../orderDialog/index.vue";
 import FloatMenu from "./components/FloatMenu.vue";
 import FooterInfo from "../footerInfo/index.vue";
+import { useTime } from "@/store/modules/time";
 
 const chartInitStore = useChartInit();
 const userStore = useUser();
@@ -44,33 +45,37 @@ const sizeStore = useSize();
 const chartLineStore = useChartLine();
 const symbolsStore = useSymbols();
 const themeStore = useTheme();
+const timeStore = useTime();
+
 // 初始化 注意调用顺序
 async function init() {
   try {
     chartInitStore.loading = true;
     // 1.先拿到 交易线路
     await networkStore.getLines();
-    // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址
+    // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
     userStore.initAccount();
     await networkStore.initNode();
     await symbolsStore.getAllSymbol();
+    await orderStore.initTableData();
   } catch (error) {
     chartInitStore.loading = false;
   } finally {
-    socketStore.initSocket();
-    chartLineStore.initSubLineAndQuote();
-    userStore.getLoginInfo({ emitSocket: true });
-    sizeStore.initSize();
+    socketStore.initSocket(); // 初始化socket
+    chartLineStore.initSubLineAndQuote(); // 初始化监听k线和报价
+    userStore.getLoginInfo({ emitSocket: true }); // 获取个人信息
+    sizeStore.initSize(); // 初始化字体大小
     orderStore.getQuickTrans();
     await nextTick();
     // 3.拿到缓存信息才能确定历史页面布局
-    themeStore.initTheme();
-    layoutStore.initLayout();
-    chartInitStore.intChartFlexDirection();
-    chartInitStore.intLayoutType();
+    themeStore.initTheme(); // 系统主题（亮色暗色）
+    layoutStore.initLayout(); // 布局显示隐藏
+    chartInitStore.intChartFlexDirection(); // 横向 or 纵向
+    chartInitStore.intLayoutType(); // 单图表 or 多图表
     // 4.确定了布局才去初始化各个模块位置
     initDragResizeArea();
-    chartInitStore.loadChartList();
+    chartInitStore.loadChartList(); // 加载图表
+    timeStore.initTime(); // 初始化时间语言和时区
     // 记忆动作（没什么用(>^ω^<)喵）
     const rootStore = useRoot();
     if (rootStore.cacheAction) {
@@ -78,7 +83,6 @@ async function init() {
       rootStore.clearCacheAction();
     }
     chartInitStore.loading = false;
-    await orderStore.initTableData();
   }
 }
 onMounted(() => {

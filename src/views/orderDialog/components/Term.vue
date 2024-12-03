@@ -17,7 +17,10 @@
 import { onMounted } from "vue";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import { useTime } from "@/store/modules/time";
+
 dayjs.extend(relativeTime);
+const timeStore = useTime();
 
 const dateFormat = "YY-MM-DD HH:mm";
 
@@ -29,7 +32,8 @@ const dateFormat = "YY-MM-DD HH:mm";
 const model = defineModel<string | number>("term");
 onMounted(() => {
   if (!model.value) {
-    model.value = dayjs().add(12, "minute").unix();
+    const timezone = timeStore.settedTimezone;
+    model.value = dayjs().tz(timezone).add(12, "minute").unix();
   }
 });
 </script>

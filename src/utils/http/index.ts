@@ -155,10 +155,10 @@ service.interceptors.request.use(
       action,
       d: encrypt(JSON.stringify(config.data)),
     };
-    console.log("request----", {
-      url: config.url,
-      data: config.data,
-    });
+    // console.log("request----", {
+    //   url: config.url,
+    //   data: config.data,
+    // });
     config.data = JSON.stringify(p);
     return config;
   },

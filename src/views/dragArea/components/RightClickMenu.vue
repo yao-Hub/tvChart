@@ -188,7 +188,9 @@ const getValue = (key: Tkey) => {
 };
 
 import dayjs from "dayjs";
+import { useTime } from "@/store/modules/time";
 import { flattenDeep, groupBy, uniq, set } from "lodash";
+const timeStore = useTime();
 const tableData = ref<any[]>([{}, {}]);
 const columns = ref<{ prop: string; label: string }[]>([]);
 const formatTime = (time: number) => {
@@ -198,6 +200,7 @@ const formatTime = (time: number) => {
 };
 watchEffect(() => {
   const info = symbolInfo.value;
+  const timezone = timeStore.settedTimezone;
   if (info) {
     tableData.value = [];
     const ttimes = info.ttimes;
@@ -205,7 +208,7 @@ watchEffect(() => {
     const weekDays = uniq(timeList.map((item) => item.week_day));
     columns.value = weekDays.map((item) => {
       return {
-        label: dayjs().day(item).format("dddd"),
+        label: dayjs().tz(timezone).day(item).format("dddd"),
         prop: String(item),
       };
     });

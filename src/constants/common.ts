@@ -4,7 +4,7 @@ import en from "element-plus/es/locale/lang/en";
 export const LANGUAGE_LIST = {
   zh: zhCn,
   en: en,
-} as Record<string, any>;
+};
 
 // 单选语言切换
 export const LOCALE_SINGLE_LIST = {

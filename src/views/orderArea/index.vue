@@ -165,9 +165,7 @@
             fixed
           >
             <template #header-cell="{ column }">
-              <div
-                class="header-box"
-              >
+              <div class="header-box">
                 <div>{{ column.title || "" }}</div>
                 <div
                   class="drag-line"
@@ -308,8 +306,6 @@ import { cloneDeep, set, minBy } from "lodash";
 import { CloseBold } from "@element-plus/icons-vue";
 import { ElMessageBox, ElMessage } from "element-plus";
 
-import moment from "moment";
-
 import * as orders from "api/order/index";
 
 import * as orderTypes from "#/order";
@@ -320,6 +316,7 @@ import { CLOSE_TYPE } from "@/constants/common";
 import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
+import { useTime } from "@/store/modules/time";
 
 import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
@@ -329,6 +326,7 @@ import TimeSelect from "./components/TimeSelect.vue";
 const userStore = useUser();
 const orderStore = useOrder();
 const dialogStore = useDialog();
+const timeStore = useTime();
 
 const state = reactive({
   menu: [
@@ -468,8 +466,10 @@ const getCloseType = (e: orders.resHistoryOrders) => {
 };
 
 // 格式化表格时间字段
+import dayjs from "dayjs";
 const formatTime = (timestamp: string) => {
-  const result = moment(timestamp).format("YYYY-MM-DD HH:mm:ss");
+  const timezone = timeStore.settedTimezone;
+  const result = dayjs(timestamp).tz(timezone).format("YYYY-MM-DD HH:mm:ss");
   return result;
 };
 
@@ -536,10 +536,10 @@ const getProfit = (e: orders.resOrders) => {
 };
 // 持仓天数
 const getDays = (e: orders.resHistoryOrders) => {
-  const timeDone = e.time_done || moment().valueOf();
+  const timeDone = e.time_done || dayjs().valueOf();
   const openTime = e.open_time;
-  const date1 = moment(openTime);
-  const date2 = moment(timeDone);
+  const date1 = dayjs(openTime);
+  const date2 = dayjs(timeDone);
   const daysDifference = date2.diff(date1, "days");
   return +daysDifference;
 };
