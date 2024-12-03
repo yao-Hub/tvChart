@@ -13,7 +13,8 @@
     "preview:dev": "vite preview --mode development --open",
     "lint": "eslint --ext .js,.vue,.ts src",
     "http-server": "cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o",
-    "ts:check": "vue-tsc"
+    "ts:check": "vue-tsc",
+    "prepare": "husky"
   },
   "dependencies": {
     "@ant-design/icons-vue": "7.0.1",
@@ -48,6 +49,7 @@
     "eslint": "9.2.0",
     "eslint-plugin-vue": "9.25.0",
     "globals": "15.1.0",
+    "husky": "^9.1.7",
     "less": "4.2.0",
     "less-loader": "12.2.0",
     "lint-staged": "15.2.2",
