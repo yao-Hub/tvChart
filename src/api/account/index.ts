@@ -9,6 +9,7 @@ enum Api {
   QueryNode = "/server/queryNode",
   VirtualLine = "/my/virtual_line_query",
   EmailPasswordUpdate = "/my/email_password_update",
+  SendEmail = "my/sendEmail",
 }
 export interface Order {
   id: number; //	订单ID
@@ -205,6 +206,17 @@ export interface resQueryNode {
 export const queryNode = (data: { lineCode: string }) => {
   return request<resQueryNode[]>({
     url: Api.QueryNode,
+    method: "post",
+    data,
+    urlType: "admin",
+    noNeedToken: true,
+    noNeedServer: true,
+  });
+};
+
+export const sendEmail = (data: { email: string }) => {
+  return request({
+    url: Api.SendEmail,
     method: "post",
     data,
     urlType: "admin",

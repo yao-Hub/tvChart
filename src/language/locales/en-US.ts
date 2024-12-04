@@ -49,7 +49,7 @@ export default {
     registerAccount: "register Account",
     register: "register",
     verificationCode: "verificationCode",
-    sendCode: "send Code",
+    getCode: "get verificationCode",
     resetPassword: "reset Password",
     retrievePassword: "retrieve Password",
     registerSucceed: "Simulated account created successfully",

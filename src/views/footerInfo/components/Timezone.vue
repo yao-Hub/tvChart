@@ -1,8 +1,9 @@
 <template>
   <el-dropdown trigger="click" placement="top-start">
     <div class="timezone">
-      <span>当前时区：{{ currentTimezone }}</span>
+      <span>当前时间：{{ currentTimezone }}</span>
       <img src="@/assets/icons/caretUp.svg" />
+      <span style="margin-left: 4px">{{ nowTime }}</span>
     </div>
     <template #dropdown>
       <el-scrollbar height="200px">
@@ -24,8 +25,9 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from "vue";
-import { timezoneOptions, ITimezone } from "@/constants/timezone";
+import { ITimezone, timezoneOptions } from "@/constants/timezone";
+import dayjs from "dayjs";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 import { useTime } from "@/store/modules/time";
 const timeStore = useTime();
@@ -38,6 +40,21 @@ const currentTimezone = computed(() => {
 const changeTimezone = (info: ITimezone) => {
   timeStore.setTimezone(info.id);
 };
+
+const timeFormat = "HH:mm DD.MM.YYYY";
+const nowTime = ref(dayjs().tz(timeStore.settedTimezone).format(timeFormat));
+
+const timer = ref();
+onMounted(() => {
+  timer.value = setInterval(() => {
+    nowTime.value = dayjs().tz(timeStore.settedTimezone).format(timeFormat);
+  }, 1000);
+});
+onBeforeUnmount(() => {
+  if (timer.value) {
+    clearInterval(timer.value);
+  }
+});
 </script>
 
 <style lang="scss" scoped>

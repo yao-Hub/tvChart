@@ -1,18 +1,18 @@
+import type { CustomResponseType } from "#/axios";
 import axios, {
-  AxiosRequestConfig,
   AxiosError,
+  AxiosRequestConfig,
   InternalAxiosRequestConfig,
 } from "axios";
-import type { CustomResponseType } from "#/axios";
 
 import { debounce } from "lodash";
-import { encrypt, decrypt } from "utils/DES/JS";
+import { decrypt, encrypt } from "utils/DES/JS";
 
-import { ElNotification, ElMessageBox, ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 
-import { useUser } from "@/store/modules/user";
-import { useNetwork } from "@/store/modules/network";
 import { useChartInit } from "@/store/modules/chartInit";
+import { useNetwork } from "@/store/modules/network";
+import { useUser } from "@/store/modules/user";
 
 import i18n from "@/language/index";
 
@@ -155,10 +155,10 @@ service.interceptors.request.use(
       action,
       d: encrypt(JSON.stringify(config.data)),
     };
-    // console.log("request----", {
-    //   url: config.url,
-    //   data: config.data,
-    // });
+    console.log("request----", {
+      url: config.url,
+      data: config.data,
+    });
     config.data = JSON.stringify(p);
     return config;
   },
@@ -201,12 +201,15 @@ service.interceptors.response.use(
       return Promise.reject(err);
     }
     if (res && res.data) {
-      if (res.data.errmsg.includes("invalid token")) {
+      if (res.data.errmsg && res.data.errmsg.includes("invalid token")) {
         handleTokenErr();
         return Promise.reject(err);
       }
       ElNotification({
-        message: i18n.global.t(res.data.errmsg || "error"),
+        message:
+          i18n.global.t(res.data.errmsg || res.data.msg) ||
+          res.data.msg ||
+          "error",
         type: "error",
       });
       return Promise.reject(err);

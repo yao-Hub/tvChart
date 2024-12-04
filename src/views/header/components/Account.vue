@@ -27,11 +27,9 @@
           <span>{{ item.login }}</span>
           <span>|</span>
           <span>{{ item.blance }}</span>
-          <div
-            class="delIcon"
-            v-if="item.hover && !item.ifLogin"
-            @click.stop="delAccount(item)"
-          ></div>
+          <div class="del" @click.stop="delAccount(item)">
+            <div class="delIcon" v-show="item.hover && !item.ifLogin"></div>
+          </div>
         </div>
       </div>
       <div class="account">
@@ -97,11 +95,11 @@
 </template>
 
 <script setup lang="ts">
+import { useChartInit } from "@/store/modules/chartInit";
+import { useNetwork } from "@/store/modules/network";
+import { useUser } from "@/store/modules/user";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
-import { useUser } from "@/store/modules/user";
-import { useNetwork } from "@/store/modules/network";
-import { useChartInit } from "@/store/modules/chartInit";
 
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
 const resetPasswordOpen = ref(false);
@@ -243,10 +241,14 @@ const modalOpen = ref<boolean>(false);
       height: 20px;
       border-radius: 44px;
     }
-    .delIcon {
+    .del {
       width: 18px;
       height: 18px;
       margin-left: auto;
+    }
+    .delIcon {
+      width: 18px;
+      height: 18px;
       background-size: contain;
       background-repeat: no-repeat;
       background-image: url("@/assets/icons/delete.svg");

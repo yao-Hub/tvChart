@@ -33,11 +33,10 @@
         </el-form-item>
 
         <el-form-item prop="code" :label="$t('account.verificationCode')">
-          <el-input v-model="formState.code" placeholder="code">
-            <template #suffix>
-              <span class="link">{{ $t("account.sendCode") }}</span>
-            </template>
-          </el-input>
+          <VerificationCode
+            v-model:value="formState.code"
+            :email="formState.email"
+          ></VerificationCode>
         </el-form-item>
 
         <el-form-item :label="$t('user.newPassword')" prop="pass">
@@ -69,10 +68,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from "vue";
-import type { FormInstance, FormRules } from "element-plus";
 import { emailPasswordUpdate, resQueryTradeLine } from "api/account/index";
+import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
+import { reactive, ref, watch } from "vue";
+import VerificationCode from "./VerificationCode.vue";
 
 interface Props {
   lineInfo: resQueryTradeLine;

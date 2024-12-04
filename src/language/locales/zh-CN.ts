@@ -55,7 +55,7 @@ export default {
     registerAccount: "注册账号",
     register: "创建模拟账号",
     verificationCode: "验证码",
-    sendCode: "发送验证码",
+    getCode: "获取验证码",
     resetPassword: "重置密码",
     retrievePassword: "找回密码",
     registerSucceed: "模拟账号创建成功",

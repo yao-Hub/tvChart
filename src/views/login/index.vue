@@ -15,27 +15,30 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, markRaw, ref } from "vue";
-import { useRouter, useRoute } from "vue-router";
 import { virtualLine } from "api/account/index";
+import { markRaw, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
+import Accounts from "./components/Accounts.vue";
+import ForgetPassword from "./components/ForgetPassword.vue";
 import Login from "./components/Login.vue";
 import Register from "./components/Register.vue";
-import ForgetPassword from "./components/ForgetPassword.vue";
-import Accounts from "./components/Accounts.vue";
 
-import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
 import { useSize } from "@/store/modules/size";
+import { useTheme } from "@/store/modules/theme";
+import { useUser } from "@/store/modules/user";
 
 const networkStore = useNetwork();
 const userStore = useUser();
 const sizeStore = useSize();
+const themeStore = useTheme();
 const router = useRouter();
 const route = useRoute();
 
 // 登录页保持这个大小
 sizeStore.changeSize("default", true);
+themeStore.initTheme();
 
 const state = reactive({
   componentMap: {
