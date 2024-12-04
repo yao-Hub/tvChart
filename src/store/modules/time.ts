@@ -1,12 +1,15 @@
+import dayjs from "dayjs";
+import "dayjs/locale/en";
+import "dayjs/locale/zh-cn";
+import relativeTime from "dayjs/plugin/relativeTime";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import timezone from "dayjs/plugin/timezone";
-import relativeTime from "dayjs/plugin/relativeTime";
-import { useStorage } from "./storage";
 import { useChartInit } from "./chartInit";
+import { useStorage } from "./storage";
 
 const time = dayjs;
 
@@ -24,10 +27,10 @@ export const useTime = defineStore("time", () => {
     const userTimezone = storageStore.getItem("timezone") || time.tz.guess();
     // 日期语言
     if (value === "en") {
-      time().locale("en");
+      dayjs.locale("en");
     }
     if (value === "zh") {
-      time().locale("zh-cn");
+      dayjs.locale("zh-cn");
     }
     setChartTimezone(userTimezone);
     setTimezone(userTimezone);
