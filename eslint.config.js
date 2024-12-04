@@ -1,12 +1,11 @@
-import globals from "globals";
 import pluginJs from "@eslint/js";
+import pluginVue from "eslint-plugin-vue";
+import globals from "globals";
 import tseslint from "typescript-eslint";
-import pluginVue, { rules } from "eslint-plugin-vue";
-
 
 export default [
-  {languageOptions: { globals: {...globals.browser, ...globals.node} }},
+  { languageOptions: { globals: { ...globals.browser, ...globals.node } } },
   pluginJs.configs.recommended,
   ...tseslint.configs.recommended,
-  ...pluginVue.configs["flat/essential"]
+  ...pluginVue.configs["flat/essential"],
 ];
