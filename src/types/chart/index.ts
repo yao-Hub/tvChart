@@ -14,17 +14,17 @@ export interface ISocketKlineNew {
   klines: ILine[];
 }
 export interface IQuote {
-  ask: number;
-  bid: number;
-  ctm: number;
-  close: number;
-  open: number;
-  high?: number;
-  low?: number;
-  volume?: number;
-  ctm_ms: number;
-  server: string;
-  symbol: string;
+  ctm_ms: number; //	时间，毫秒级
+  ctm: number; //	时间
+  symbol: string; //	品种编码
+  ask: number; //	买价
+  bid: number; //	卖价
+  server: string; //	经济商交易线路编码
+  open: number; //	最新一个交易日的开盘价
+  high: number; //	最新一个交易日的最高价
+  low: number; //	最新一个交易日的最低价
+  close: number; //	最新一个交易日的收盘价
+  volume: number; //	最新一个交易日的交易量
 }
 
 export interface ILine {
@@ -35,6 +35,13 @@ export interface ILine {
   low: number;
   open: number;
   volume: number;
+}
+
+export interface IRate {
+  symbol: string; //	汇率币种
+  bid_rate: number; //	卖出汇率
+  ask_rate: number; //	买入汇率
+  update_time: number; //	最新更新时间
 }
 
 export enum Periods {

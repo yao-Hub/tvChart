@@ -19,6 +19,7 @@ import { useChartLine } from "@/store/modules/chartLine";
 import { useLayout } from "@/store/modules/layout";
 import { useNetwork } from "@/store/modules/network";
 import { useOrder } from "@/store/modules/order";
+import { useRate } from "@/store/modules/rate";
 import { useSize } from "@/store/modules/size";
 import { useSocket } from "@/store/modules/socket";
 import { useSymbols } from "@/store/modules/symbols";
@@ -46,6 +47,7 @@ const chartLineStore = useChartLine();
 const symbolsStore = useSymbols();
 const themeStore = useTheme();
 const timeStore = useTime();
+const rateStore = useRate();
 
 // 初始化 注意调用顺序
 async function init() {
@@ -59,13 +61,16 @@ async function init() {
     Promise.all([
       symbolsStore.getAllSymbol(),
       symbolsStore.getAllSymbolQuotes(),
+      rateStore.getAllRates(),
       orderStore.initTableData(),
     ]);
   } catch (error) {
     chartInitStore.loading = false;
   } finally {
     socketStore.initSocket(); // 初始化socket
-    chartLineStore.initSubLineAndQuote(); // 初始化监听k线和报价
+    chartLineStore.initSubLineAndQuote(); // 监听k线和报价
+    socketStore.emitRate(); // 监听汇率
+    rateStore.subRate(); // 监听汇率
     userStore.getLoginInfo({ emitSocket: true }); // 获取个人信息
     sizeStore.initSize(); // 初始化字体大小
     orderStore.getQuickTrans();

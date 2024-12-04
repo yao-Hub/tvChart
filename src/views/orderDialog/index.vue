@@ -523,8 +523,10 @@ const addPendingOrders = debounce(async () => {
   grid-row-gap: 8px;
   margin-top: 31px;
 }
-:deep(.el-text.el-text--info) {
-  // min-width: 86px;
+.infoItem span {
   display: inline-block;
+  &:first-child {
+    min-width: 86px;
+  }
 }
 </style>

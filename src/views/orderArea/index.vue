@@ -504,6 +504,8 @@ const getOrderPrice = (e: orders.resPendingOrders) => {
 };
 
 // 获取盈亏
+import { useRate } from "@/store/modules/rate";
+const rateStore = useRate();
 const getProfit = (e: orders.resOrders) => {
   try {
     let result: string | number = "";
@@ -512,6 +514,8 @@ const getProfit = (e: orders.resOrders) => {
     // 持仓多单时，close_price = 现价卖价
     // 持仓空单时，close_price = 现价买价
     const closePrice = type === "buy" ? currentQuote.bid : currentQuote.ask;
+    const rateMap = rateStore.getSymbolRate(e.symbol);
+    const rate = type === "buy" ? rateMap.ask_rate : rateMap.bid_rate;
     const { contract_size, storage, fee, open_price, volume, id } = e;
     // 建仓合约价值 = open_price X contract_size X volume / 100
     const buildingPrice = (open_price * contract_size * volume) / 100;
@@ -523,7 +527,7 @@ const getProfit = (e: orders.resOrders) => {
       type === "buy"
         ? closingPrice - buildingPrice
         : buildingPrice - closingPrice;
-    result = (direction + (storage || 0) + (fee || 0)).toFixed(2);
+    result = ((direction + (storage || 0) + (fee || 0)) * rate).toFixed(2);
     e.profit = +result;
     const data = orderStore.orderData[activeKey.value];
     if (data) {

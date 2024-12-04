@@ -1,8 +1,8 @@
-import { defineStore } from "pinia";
-import { throttle } from "lodash";
-import * as types from "@/types/chart/index";
-import { useSocket } from "./socket";
 import { useOrder } from "@/store/modules/order";
+import * as types from "@/types/chart/index";
+import { throttle } from "lodash";
+import { defineStore } from "pinia";
+import { useSocket } from "./socket";
 interface ISubSCribed {
   onRealtimeCallback: Function;
   symbolInfo: types.ITVSymbolInfo;
@@ -31,10 +31,9 @@ export const useChartLine = defineStore("chartLine", {
         "quote",
         throttle((d: types.ISocketQuote) => {
           const oldQuote = orderStore.currentQuotes[d.symbol];
-          const open = oldQuote?.open;
           const result = {
+            ...oldQuote,
             ...d,
-            open,
             close: d.bid,
           };
           orderStore.currentQuotes[d.symbol] = result;

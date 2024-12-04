@@ -21,7 +21,7 @@
     <div v-loading="loading" v-if="!ifError" class="container">
       <div class="infoDetail">
         <el-text class="secondaryTitle">{{
-          getValue("description" as keyof ISymbolDetail)
+          getValue("description" as keyof ISessionSymbolInfo)
         }}</el-text>
         <div class="infobox">
           <div v-for="item in infoList" class="item">
@@ -57,12 +57,13 @@
 </template>
 
 <script setup lang="ts">
+import { ISessionSymbolInfo } from "@/types/chart/index";
 import { computed, ref, watchEffect } from "vue";
 
-import { ISymbolDetail, symbolDetail } from "api/symbols";
+import { symbolDetail } from "api/symbols";
 
-import { useOrder } from "@/store/modules/order";
 import { useChartInit } from "@/store/modules/chartInit";
+import { useOrder } from "@/store/modules/order";
 
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
@@ -81,7 +82,7 @@ const model = defineModel<boolean>("visible", {
 });
 
 type TOtherKey = "prepaidMode";
-type Tkey = keyof ISymbolDetail | TOtherKey;
+type Tkey = keyof ISessionSymbolInfo | TOtherKey;
 interface Iitem {
   key: Tkey;
   label: string;
@@ -145,7 +146,7 @@ const addChart = () => {
   model.value = false;
 };
 
-const symbolInfo = ref<ISymbolDetail>();
+const symbolInfo = ref<ISessionSymbolInfo>();
 const loading = ref(false);
 const ifError = ref(false);
 const getDetail = async () => {
@@ -187,9 +188,9 @@ const getValue = (key: Tkey) => {
   }
 };
 
-import dayjs from "dayjs";
 import { useTime } from "@/store/modules/time";
-import { flattenDeep, groupBy, uniq, set } from "lodash";
+import dayjs from "dayjs";
+import { flattenDeep, groupBy, set, uniq } from "lodash";
 const timeStore = useTime();
 const tableData = ref<any[]>([{}, {}]);
 const columns = ref<{ prop: string; label: string }[]>([]);

@@ -1,7 +1,7 @@
-import { defineStore } from "pinia";
-import SingletonSocket from "utils/socket";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
+import { defineStore } from "pinia";
+import SingletonSocket from "utils/socket";
 
 interface IQuote {
   ask: number;
@@ -21,7 +21,8 @@ interface State {
       | "sendToken"
       | "subQuoteDepth"
       | "orderChanges"
-      | "getQuoteDepth";
+      | "getQuoteDepth"
+      | "emitRate";
     options?: any;
   }>;
   depthMap: Record<string, IQuote[]>;
@@ -202,6 +203,20 @@ export const useSocket = defineStore("socket", {
       } else {
         this.noExecuteList.push({
           fooName: "getQuoteDepth",
+        });
+      }
+    },
+
+    // 订阅汇率
+    emitRate() {
+      if (this.socket) {
+        const userStore = useUser();
+        this.socket.emit("subscribe_rate", {
+          server: userStore.account.server,
+        });
+      } else {
+        this.noExecuteList.push({
+          fooName: "emitRate",
         });
       }
     },
