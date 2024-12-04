@@ -37,7 +37,14 @@
               text-color="#000"
             >
               <el-radio-button label="市价单" value="price" />
-              <el-radio-button label="挂单" value="buyLimit" />
+              <el-radio-button
+                label="挂单"
+                :value="
+                  formState.orderType === 'price'
+                    ? 'buyLimit'
+                    : formState.orderType
+                "
+              />
             </el-radio-group>
             <div class="divider"></div>
           </el-col>
@@ -219,15 +226,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, watch, nextTick } from "vue";
 import { debounce } from "lodash";
+import { computed, nextTick, reactive, ref, watch } from "vue";
 
-import Price from "./components/Price.vue";
-import Volume from "./components/Volume.vue";
 import BreakLimit from "./components/BreakLimit.vue";
-import Term from "./components/Term.vue";
+import Price from "./components/Price.vue";
 import Spread from "./components/spread.vue";
 import StopLossProfit from "./components/StopLossProfit.vue";
+import Term from "./components/Term.vue";
+import Volume from "./components/Volume.vue";
 
 import { useOrder } from "@/store/modules/order";
 import { useSymbols } from "@/store/modules/symbols";
@@ -317,8 +324,8 @@ const orderTypeOptions = [
   { value: "sellStopLimit", label: "sell stop limit" },
 ];
 // 期限规则
-import dayjs from "dayjs";
 import { useTime } from "@/store/modules/time";
+import dayjs from "dayjs";
 const timeStore = useTime();
 const validDate = (rule: any, value: any, callback: any) => {
   const timezone = timeStore.settedTimezone;
@@ -382,8 +389,8 @@ const showConfirmModal = debounce(async (type: "sell" | "buy") => {
   }
 }, 20);
 // 市价单下单
-import { ElNotification } from "element-plus";
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
+import { ElNotification } from "element-plus";
 const createPriceOrder = debounce(async () => {
   try {
     priceBtnLoading.value = true;
@@ -420,9 +427,9 @@ const createPriceOrder = debounce(async () => {
   }
 }, 20);
 // 挂单下单
+import { ORDERMAP } from "@/constants/common";
 import { pendingOrdersAdd, reqPendingOrdersAdd } from "api/order/index";
 import { ElMessage } from "element-plus";
-import { ORDERMAP } from "@/constants/common";
 
 const pendingBtnLoading = ref(false);
 const addPendingOrders = debounce(async () => {
@@ -501,6 +508,9 @@ const addPendingOrders = debounce(async () => {
 .buyBtn {
   color: #fff !important;
   width: 168px;
+  &:active {
+    border: none;
+  }
 }
 .pendingBtn {
   width: 100%;
@@ -514,7 +524,7 @@ const addPendingOrders = debounce(async () => {
   margin-top: 31px;
 }
 :deep(.el-text.el-text--info) {
-  min-width: 86px;
+  // min-width: 86px;
   display: inline-block;
 }
 </style>

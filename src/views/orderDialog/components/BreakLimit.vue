@@ -22,9 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref } from "vue";
-import { ISessionSymbolInfo, IQuote } from "#/chart/index";
+import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { round } from "utils/common/index";
+import { computed, ref, watch } from "vue";
 
 interface Props {
   disabled?: boolean;
@@ -116,7 +116,7 @@ watch(
 const ifError = ref(false);
 const range = ref("");
 watch(
-  () => [props.orderType, props.quote, price.value],
+  () => [props.orderType, props.quote, price.value, props.breakPrice],
   () => valid(),
   { deep: true }
 );

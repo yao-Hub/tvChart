@@ -30,9 +30,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
-import { ISessionSymbolInfo, IQuote } from "#/chart/index";
+import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { round } from "utils/common/index";
+import { computed, ref, watch } from "vue";
 
 const titleMap = {
   stopLoss: "止损",
@@ -174,7 +174,7 @@ watch(
 );
 
 const profit = computed(() => {
-  if (price.value === null || price.value === undefined) {
+  if (price.value === null || price.value === undefined || price.value === "") {
     return "";
   }
   let result: string | number = "";

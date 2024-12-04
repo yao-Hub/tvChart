@@ -23,10 +23,6 @@
   $text: (
     "color": #000000,
   ),
-  $button: (
-    "hover-bg-color": #ffd051,
-    "active-bg-color": #e28602,
-  ),
   $menu: (
     "bg-color": #f6f8fb,
   )
@@ -46,4 +42,7 @@
   --el-button-disabled-bg-color: #bec2c9;
   --el-button-disabled-border-color: #bec2c9;
   --el-button-hover-text-color: #000000;
+}
+.el-button {
+  --el-button-active-bg-color: rgba(244, 178, 1, 0.24);
 }

@@ -1,9 +1,9 @@
+import { useChartInit } from "@/store/modules/chartInit";
+import { useChartSub } from "@/store/modules/chartSub";
+import { useStorage } from "@/store/modules/storage";
+import { useTheme } from "@/store/modules/theme";
 import { debounce } from "lodash";
 import Sortable from "sortablejs";
-import { useChartSub } from "@/store/modules/chartSub";
-import { useChartInit } from "@/store/modules/chartInit";
-import { useTheme } from "@/store/modules/theme";
-import { useStorage } from "@/store/modules/storage";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
@@ -241,39 +241,39 @@ function createHoriLine(addNum: number) {
     line.style.borderRadius = "2px";
     line.style.transition = "background-color 0.5s ease";
 
-    const moveIcon = document.createElement("div");
-    moveIcon.style.width = `28px`;
-    moveIcon.style.height = `${lineWidth}px`;
-    moveIcon.style.backgroundImage = "url('src/assets/icons/icon_td1.svg')";
-    moveIcon.style.backgroundSize = "28px 4px";
-    moveIcon.style.backgroundRepeat = "no-repeat";
-    moveIcon.style.backgroundPosition = "center";
-    moveIcon.style.position = "absolute";
-    moveIcon.style.top = "50%";
-    moveIcon.style.left = "50%";
-    moveIcon.style.transform = "translate(-50%, -50%)";
-    moveIcon.style.zIndex = "2";
-    moveIcon.style.transition = "all 0.3s ease";
-    moveIcon.style.userSelect = "none";
-    moveIcon.style.borderRadius = "2px";
-    moveIcon.addEventListener("mouseover", function () {
+    const moveBtn = document.createElement("div");
+    moveBtn.className = "horilineMoveBtn";
+    moveBtn.style.width = `28px`;
+    moveBtn.style.height = `${lineWidth}px`;
+    moveBtn.style.backgroundSize = "28px 4px";
+    moveBtn.style.backgroundRepeat = "no-repeat";
+    moveBtn.style.backgroundPosition = "center";
+    moveBtn.style.position = "absolute";
+    moveBtn.style.top = "50%";
+    moveBtn.style.left = "50%";
+    moveBtn.style.transform = "translate(-50%, -50%)";
+    moveBtn.style.zIndex = "2";
+    moveBtn.style.transition = "all 0.3s ease";
+    moveBtn.style.userSelect = "none";
+    moveBtn.style.borderRadius = "2px";
+    moveBtn.addEventListener("mouseover", function () {
       iconHover.verticalLine = true;
-      moveIcon.style.padding = "4px 6px";
-      moveIcon.style.backgroundColor = "rgba(232, 235, 240, 1)";
+      moveBtn.style.padding = "4px 6px";
+      moveBtn.style.backgroundColor = "rgba(232, 235, 240, 1)";
     });
-    moveIcon.addEventListener("mouseout", function () {
+    moveBtn.addEventListener("mouseout", function () {
       if (moving.verticalLine) {
         return;
       }
-      moveIcon.style.backgroundColor = "";
-      moveIcon.style.padding = "0";
+      moveBtn.style.backgroundColor = "";
+      moveBtn.style.padding = "0";
       iconHover.verticalLine = false;
     });
-    moveIcon.addEventListener("mousedown", function (e) {
+    moveBtn.addEventListener("mousedown", function (e) {
       e.preventDefault();
     });
 
-    line.appendChild(moveIcon);
+    line.appendChild(moveBtn);
 
     line.addEventListener("mouseover", function () {
       if (iconHover.verticalLine) {
@@ -298,8 +298,8 @@ function createHoriLine(addNum: number) {
       resizeVertical(e);
     });
     document.addEventListener("mouseup", function () {
-      moveIcon.style.backgroundColor = "";
-      moveIcon.style.padding = "0";
+      moveBtn.style.backgroundColor = "";
+      moveBtn.style.padding = "0";
       moving.verticalLine = false;
       iconHover.verticalLine = false;
       document
@@ -363,7 +363,7 @@ const resizeVertical = (event: MouseEvent) => {
     const preDemoY = sameXItems[i].getBoundingClientRect().y;
     const nextDemoY = sameXItems[i + 1].getBoundingClientRect().y;
     if (preDemoY < lineY && nextDemoY > lineY) {
-      let diff = nextDemoY - preDemoY;
+      const diff = nextDemoY - preDemoY;
       if (diff < minDiff) {
         minDiff = diff;
         result = [
@@ -379,7 +379,7 @@ const resizeVertical = (event: MouseEvent) => {
     document.querySelector(".header")?.getBoundingClientRect().height || 48;
 
   function resize(e: MouseEvent) {
-    let mouseY = e.clientY - headerHight;
+    const mouseY = e.clientY - headerHight;
     const offset = e.pageY - startY;
     const topHeight = result_0_height + offset;
     const downHeight = result_1_height - offset;
@@ -563,7 +563,7 @@ function resizeHorizontal(event: MouseEvent) {
     const preDemoX = sameYDemos[i].getBoundingClientRect().x;
     const nextDemoX = sameYDemos[i + 1].getBoundingClientRect().x;
     if (preDemoX < lineX && nextDemoX > lineX) {
-      let diff = nextDemoX - preDemoX;
+      const diff = nextDemoX - preDemoX;
       if (diff < minDiff) {
         minDiff = diff;
         result = [
@@ -575,9 +575,9 @@ function resizeHorizontal(event: MouseEvent) {
   }
 
   function resize({ clientX }: MouseEvent) {
-    let lineLeft = clientX;
-    let leftWidht = clientX - result[0].getBoundingClientRect().left;
-    let rightWidht = result[1].getBoundingClientRect().right - clientX;
+    const lineLeft = clientX;
+    const leftWidht = clientX - result[0].getBoundingClientRect().left;
+    const rightWidht = result[1].getBoundingClientRect().right - clientX;
     if (leftWidht < minWidth || rightWidht < minWidth) {
       return;
     }

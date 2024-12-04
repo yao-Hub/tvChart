@@ -115,10 +115,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick, shallowRef } from "vue";
-import Search from "./components/Symbolsearch/index.vue";
+import { nextTick, ref, shallowRef, watch } from "vue";
 import Deep from "./components/deep/index.vue";
 import RightClickMenu from "./components/RightClickMenu.vue";
+import Search from "./components/Symbolsearch/index.vue";
 
 interface DataSource {
   symbols: string;
@@ -132,10 +132,10 @@ const dataSource = shallowRef<DataSource[]>([]);
 const originSource = ref<DataSource[]>([]);
 
 // 获取自选品种
-import { orderBy, cloneDeep } from "lodash";
-import { useUser } from "@/store/modules/user";
 import { useSocket } from "@/store/modules/socket";
 import { useSymbols } from "@/store/modules/symbols";
+import { useUser } from "@/store/modules/user";
+import { cloneDeep, orderBy } from "lodash";
 const symbolsStore = useSymbols();
 const socketStore = useSocket();
 const userStore = useUser();
@@ -176,8 +176,8 @@ watch(
 );
 
 // 可拖拽行
-import Sortable from "sortablejs";
 import { editOptionalQuery } from "api/symbols/index";
+import Sortable from "sortablejs";
 const sortBox = ref();
 const table = ref();
 const createSortable = () => {
@@ -230,9 +230,9 @@ const closeSearch = () => {
 
 // 报价样式 实时数据
 import { IQuote } from "#/chart/index";
+import { useOrder } from "@/store/modules/order";
 import { eq } from "lodash";
 import { round } from "utils/common/index";
-import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
 const temQuotes = ref<Record<string, IQuote>>({});
 const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
@@ -292,8 +292,8 @@ const getPrice = (symbol: string, type: "bid" | "ask") => {
   return "-";
 };
 
-import dayjs from "dayjs";
 import { useTime } from "@/store/modules/time";
+import dayjs from "dayjs";
 const timeStore = useTime();
 const getTime = (symbol: string) => {
   const quotes = orderStore.currentQuotes;
