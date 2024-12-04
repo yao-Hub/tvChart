@@ -1,15 +1,15 @@
 <template>
   <div class="spread">
-    <span class="buyWord">{{ quote?.ask }}</span>
+    <span class="sellWord">{{ quote?.bid.toFixed(props.digits) }}</span>
     <div class="spread_point">点差{{ spread }}</div>
-    <span class="sellWord">{{ quote?.bid }}</span>
+    <span class="buyWord">{{ quote?.ask.toFixed(props.digits) }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import Decimal from "decimal.js";
 import { IQuote } from "#/chart/index";
+import Decimal from "decimal.js";
+import { computed } from "vue";
 interface Props {
   quote?: IQuote;
   digits?: number;

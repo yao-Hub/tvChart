@@ -1,21 +1,23 @@
-import { defineStore } from "pinia";
+import i18n from "@/language/index";
 import { ElMessage } from "element-plus";
 import { assign } from "lodash";
+import { defineStore } from "pinia";
 import CryptoJS from "utils/AES";
-import i18n from "@/language/index";
 
-import { loginInfo, UserInfo, Login } from "api/account/index";
+import { Login, loginInfo, UserInfo } from "api/account/index";
 import { round } from "utils/common/index";
 
-import { useSocket } from "./socket";
 import { useNetwork } from "./network";
 import { useOrder } from "./order";
+import { useSocket } from "./socket";
 
-type Account = Pick<UserInfo, "login" | "password"> & {
+interface IAccount {
+  login: string;
   server: string;
-  token: "";
-};
-type AccountListItem = Account & {
+  token: string;
+  password: string;
+}
+type AccountListItem = IAccount & {
   blance: number | string;
   token: string;
   ifLogin: boolean;

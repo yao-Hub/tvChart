@@ -287,6 +287,11 @@ const getPrice = (symbol: string, type: "bid" | "ask") => {
   const quotes = orderStore.currentQuotes;
   const target = quotes[symbol];
   if (target) {
+    const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
+    const digits = symbolInfo?.digits;
+    if (digits) {
+      return target[type].toFixed(digits);
+    }
     return target[type];
   }
   return "-";

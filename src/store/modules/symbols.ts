@@ -1,15 +1,15 @@
+import { compact, debounce, orderBy, uniq } from "lodash";
 import { defineStore } from "pinia";
-import { ref, computed, watch } from "vue";
-import { orderBy, uniq, compact, debounce } from "lodash";
+import { computed, ref, watch } from "vue";
 
-import {
-  allSymbols,
-  allSymbolQuotes,
-  reqOptionalQuery,
-  optionalQuery,
-} from "api/symbols/index";
 import { TableDataKey } from "#/order";
 import { ISessionSymbolInfo } from "@/types/chart/index";
+import {
+  allSymbolQuotes,
+  allSymbols,
+  optionalQuery,
+  reqOptionalQuery,
+} from "api/symbols/index";
 
 import { useOrder } from "./order";
 import { useSocket } from "./socket";
@@ -30,6 +30,9 @@ export const useSymbols = defineStore("symbols", () => {
     const res = await allSymbols();
     symbols.value = res.data;
     orderStore.currentSymbol = res.data[0].symbol;
+  };
+
+  const getAllSymbolQuotes = async () => {
     const quotes = await allSymbolQuotes();
     quotes.data.forEach((item) => {
       orderStore.currentQuotes[item.symbol] = item;
@@ -98,6 +101,7 @@ export const useSymbols = defineStore("symbols", () => {
 
   return {
     getAllSymbol,
+    getAllSymbolQuotes,
     symbols,
     mySymbols,
     selectSymbols,

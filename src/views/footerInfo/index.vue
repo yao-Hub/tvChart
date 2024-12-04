@@ -2,7 +2,7 @@
   <div class="footerInfo">
     <div class="item">
       <span>{{ $t("order.balance") }}：</span>
-      <span>{{ loginInfo?.balance }}</span>
+      <span>{{ loginInfo?.balance }} {{ loginInfo?.currency }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
@@ -38,11 +38,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { round } from "utils/common/index";
+import { computed } from "vue";
 
-import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
+import { useUser } from "@/store/modules/user";
 
 import Delay from "./components/Delay.vue";
 import Timezone from "./components/Timezone.vue";

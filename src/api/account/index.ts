@@ -43,32 +43,31 @@ export interface Order {
   comment: string; //	备注评论
 }
 export interface UserInfo {
-  username: string;
-  password: string;
-  login: string;
-  group: string;
-  status: number;
-  trade_rights: number;
-  add_time: number;
-  first_name: string;
-  last_name: string;
-  mid_name: string;
-  total_name: string;
-  country: string;
-  language: string;
-  agent_login: number;
-  last_ip: string;
-  currency_digits: number;
-  balance: number;
-  credit: number;
-  margin: number;
-  margin_free: number;
-  margin_level: number;
-  margin_leverage: number;
-  profit: number;
-  storage: number;
-  fee: number;
-  equity: number;
+  login: number; //	查询的订单账户
+  group: string; //	组别
+  status: number; //	账户状态。0=禁用，1=启用
+  trade_rights: number; //	交易权限。0=禁止，1=可交易，2=只读
+  add_time: number; //	添加时间，时间戳毫秒级
+  first_name: string; //	名
+  last_name: string; //	姓
+  mid_name: string; //	中间名
+  total_name: string; //	全名
+  country: string; //	国家/地区 编码
+  language: string; //	语言编码
+  agent_login: number; //	上级代理的login
+  last_ip: string; //	最后IP
+  currency: string; //	账户币种
+  currency_digits: number; //(11)	法币小数位数
+  balance: number; //	余额
+  credit: number; //	信用额
+  margin: number; //	已用保证金
+  margin_free: number; //	可用保证金
+  margin_level: number; //	保证金水平
+  margin_leverage: number; //	杠杆倍数
+  profit: number; //	持仓盈亏
+  storage: number; //	持仓过夜费
+  fee: number; //	持仓手续费
+  equity: number; //	净值
   openning_orders: Order[];
 }
 
@@ -78,7 +77,7 @@ export interface reqLogin {
   server: string;
 }
 interface reqLoginInfo {
-  login: string;
+  login: string | string;
 }
 /**
  * 登录

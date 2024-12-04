@@ -41,7 +41,7 @@ const changeTimezone = (info: ITimezone) => {
   timeStore.setTimezone(info.id);
 };
 
-const timeFormat = "HH:mm DD.MM.YYYY";
+const timeFormat = "YYYY.MM.DD HH:mm:ss";
 const nowTime = ref(dayjs().tz(timeStore.settedTimezone).format(timeFormat));
 
 const timer = ref();

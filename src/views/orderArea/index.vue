@@ -301,22 +301,22 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, computed } from "vue";
-import { cloneDeep, set, minBy } from "lodash";
 import { CloseBold } from "@element-plus/icons-vue";
-import { ElMessageBox, ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { cloneDeep, minBy, set } from "lodash";
+import { computed, onMounted, reactive, ref } from "vue";
 
 import * as orders from "api/order/index";
 
 import * as orderTypes from "#/order";
-import { tableColumns } from "./config";
-import { getTradingDirection, getOrderType } from "utils/order/index";
 import { CLOSE_TYPE } from "@/constants/common";
+import { getOrderType, getTradingDirection } from "utils/order/index";
+import { tableColumns } from "./config";
 
-import { useUser } from "@/store/modules/user";
-import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
+import { useOrder } from "@/store/modules/order";
 import { useTime } from "@/store/modules/time";
+import { useUser } from "@/store/modules/user";
 
 import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
@@ -487,9 +487,12 @@ const getNowPrice = (e: orders.resOrders) => {
         set(data, [index, "now_price"], +result);
       }
     }
+    if (e.digits) {
+      return result.toFixed(e.digits);
+    }
     return result;
   } catch (error) {
-    return "";
+    return "-";
   }
 };
 
