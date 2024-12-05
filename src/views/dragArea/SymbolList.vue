@@ -132,12 +132,10 @@ const dataSource = shallowRef<DataSource[]>([]);
 const originSource = ref<DataSource[]>([]);
 
 // 获取自选品种
-import { useSocket } from "@/store/modules/socket";
 import { useSymbols } from "@/store/modules/symbols";
 import { useUser } from "@/store/modules/user";
 import { cloneDeep, orderBy } from "lodash";
 const symbolsStore = useSymbols();
-const socketStore = useSocket();
 const userStore = useUser();
 const tableLoading = ref(false);
 const getQuery = async () => {
@@ -159,18 +157,10 @@ const getQuery = async () => {
   createSortable();
 };
 
-const getData = async () => {
-  await getQuery();
-  // 订阅市场深度
-  const symbols = dataSource.value.map((item) => item.symbols);
-  socketStore.subQuoteDepth(symbols);
-  socketStore.getQuoteDepth();
-};
-
 watch(
   () => userStore.account.login,
   (val) => {
-    val && getData();
+    val && getQuery();
   },
   { immediate: true }
 );
@@ -225,7 +215,7 @@ const input = ref("");
 const closeSearch = () => {
   ifSearch.value = false;
   input.value = "";
-  getData();
+  getQuery();
 };
 
 // 报价样式 实时数据
@@ -368,8 +358,23 @@ const sortChange = ({ order, prop }: any) => {
 };
 
 // 只一个展开
+// 展开时订阅，收起时取消订阅
+import { useSocket } from "@/store/modules/socket";
+const socketStore = useSocket();
 const expandRowKeys = ref<any[]>([]);
 const expandChange = (row: any, expandedRows: any[]) => {
+  // 展开时expandedRows.lenght > 0
+  if (expandedRows.length) {
+    socketStore.emitQuoteDepth([row.symbols]);
+    const unsubSymbols = expandedRows
+      .filter((e) => e.symbols !== row.symbols)
+      .map((item) => item.symbols);
+    if (unsubSymbols.length) {
+      socketStore.unSubQuoteDepth(unsubSymbols);
+    }
+  } else {
+    socketStore.unSubQuoteDepth([row.symbols]);
+  }
   expandRowKeys.value = expandedRows.length ? [row.symbols] : [];
 };
 </script>

@@ -1,6 +1,7 @@
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 import { defineStore } from "pinia";
+import { Socket } from "socket.io-client";
 import SingletonSocket from "utils/socket";
 
 interface IQuote {
@@ -9,23 +10,26 @@ interface IQuote {
   bid: number;
   bid_size: number;
 }
+type TFooname =
+  | "emitKlineQuote"
+  | "unsubKlineQuote"
+  | "sendToken"
+  | "subQuoteDepth"
+  | "orderChanges"
+  | "emitQuoteDepth"
+  | "emitRate"
+  | "unSubRate"
+  | "unSubQuoteDepth";
 
 interface State {
-  socket: any;
-  delayMap: Record<string, string | number>;
-  instance: any;
+  socket: Socket | null;
+  delayMap: Record<string, string | number>; // 各个网路节点延迟
+  instance: SingletonSocket;
+  // socket未初始化时，若调用了方法则先存储方法，等待socket初始化后再去执行
   noExecuteList: Array<{
-    fooName:
-      | "subKlineQuote"
-      | "unsubKlineQuote"
-      | "sendToken"
-      | "subQuoteDepth"
-      | "orderChanges"
-      | "getQuoteDepth"
-      | "emitRate";
-    options?: any;
+    fooName: TFooname;
+    options?: unknown;
   }>;
-  depthMap: Record<string, IQuote[]>;
 }
 interface ChartProps {
   resolution: string | number;
@@ -33,11 +37,10 @@ interface ChartProps {
 }
 export const useSocket = defineStore("socket", {
   state: (): State => ({
-    instance: null,
+    instance: new SingletonSocket(),
     socket: null,
     delayMap: {},
     noExecuteList: [],
-    depthMap: {},
   }),
 
   actions: {
@@ -45,14 +48,11 @@ export const useSocket = defineStore("socket", {
       const networkStore = useNetwork();
       const mainUri = networkStore.currentNode?.webWebsocket;
       if (mainUri) {
-        this.instance = new SingletonSocket();
         this.socket = this.instance.getInstance(mainUri);
-
-        this.noExecuteList.forEach((item) => {
-          this[item.fooName](item.options);
-        });
-        this.noExecuteList = [];
-
+        while (this.noExecuteList.length) {
+          const item = this.noExecuteList.shift();
+          this[item!.fooName](item!.options);
+        }
         setTimeout(() => {
           this.getDelay();
         }, 1000);
@@ -60,7 +60,7 @@ export const useSocket = defineStore("socket", {
     },
 
     // 订阅k线和报价
-    subKlineQuote({ resolution, symbol }: ChartProps) {
+    emitKlineQuote({ resolution, symbol }: ChartProps) {
       const userStore = useUser();
       const updata = {
         platform: "web",
@@ -80,7 +80,7 @@ export const useSocket = defineStore("socket", {
         });
       } else {
         this.noExecuteList.push({
-          fooName: "subKlineQuote",
+          fooName: "emitKlineQuote",
           options: { resolution, symbol },
         });
       }
@@ -129,7 +129,7 @@ export const useSocket = defineStore("socket", {
       }
     },
 
-    orderChanges(callback: Function) {
+    orderChanges(callback: (type: string) => void) {
       if (this.socket) {
         // 监听订单已建仓
         this.socket.on("order_opened", function (d: any) {
@@ -179,8 +179,8 @@ export const useSocket = defineStore("socket", {
       }
     },
 
-    // 市场深度
-    subQuoteDepth(symbols: string[]) {
+    // 发送市场深度监听
+    emitQuoteDepth(symbols: string[]) {
       const userStore = useUser();
       if (this.socket) {
         this.socket.emit("subscribe_quote_depth", {
@@ -189,20 +189,37 @@ export const useSocket = defineStore("socket", {
         });
       } else {
         this.noExecuteList.push({
-          fooName: "subQuoteDepth",
+          fooName: "emitQuoteDepth",
           options: symbols,
         });
       }
     },
 
-    getQuoteDepth() {
+    // 市场深度返回监听
+    subQuoteDepth(callback: (symbol: string, quotes: IQuote[]) => void) {
       if (this.socket) {
         this.socket.on("quote_depth", (d: any) => {
-          this.depthMap[d.symbol] = d.quotes;
+          callback(d.symbol, d.quotes);
         });
       } else {
         this.noExecuteList.push({
-          fooName: "getQuoteDepth",
+          fooName: "subQuoteDepth",
+          options: callback,
+        });
+      }
+    },
+
+    //取消订阅市场深度
+    unSubQuoteDepth(symbols: string[]) {
+      if (this.socket) {
+        const userStore = useUser();
+        this.socket.emit("unsubscribe_quote_depth", {
+          server: userStore.account.server,
+          symbols,
+        });
+      } else {
+        this.noExecuteList.push({
+          fooName: "unSubQuoteDepth",
         });
       }
     },
@@ -221,25 +238,29 @@ export const useSocket = defineStore("socket", {
       }
     },
 
+    //取消订阅汇率
+    unSubRate() {
+      if (this.socket) {
+        const userStore = useUser();
+        this.socket.emit("unsubscribe_rate", {
+          server: userStore.account.server,
+        });
+      } else {
+        this.noExecuteList.push({
+          fooName: "unSubRate",
+        });
+      }
+    },
+
     // 获取socket延迟
     getDelay(callback?: Function) {
       const networkStore = useNetwork();
       const wsUriList = networkStore.nodeList.map((item) => item.webWebsocket);
-      this.instance.getSocketDelay(wsUriList, (e: any) => {
+      this.instance.getSocketDelay(wsUriList, (e) => {
         if (callback) {
           callback(e);
         }
       });
-    },
-
-    // 轮询获取延迟
-    pollingDelay(uriList: string[]) {
-      const pollingInterval = 30 * 1000;
-      if (this.instance) {
-        setInterval(() => {
-          this.instance.getSocketDelay(uriList);
-        }, pollingInterval);
-      }
     },
   },
 });

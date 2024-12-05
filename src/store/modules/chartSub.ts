@@ -1,5 +1,5 @@
-import { defineStore } from "pinia";
 import { ISessionSymbolInfo, ITVSymbolInfo } from "@/types/chart/index";
+import { defineStore } from "pinia";
 import { keydownList } from "utils/keydown";
 import { useSocket } from "./socket";
 
@@ -37,7 +37,7 @@ export const useChartSub = defineStore("chartSub", {
         ...symbolInfo,
         resolution,
       });
-      socketStore.subKlineQuote({ resolution, symbol: symbolInfo.name });
+      socketStore.emitKlineQuote({ resolution, symbol: symbolInfo.name });
     },
     // k线图取消监听k线和报价
     unsubChartKlineQuote(subscriberUID: string) {

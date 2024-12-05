@@ -1,9 +1,9 @@
 <template>
   <div class="deep">
     <span class="title">市场深度</span>
-    <div class="container" v-if="quotes.length">
+    <div class="container" v-if="depths.length">
       <div class="box">
-        <div class="item" v-for="item in quotes">
+        <div class="item" v-for="item in depths">
           <span class="pre-value">{{ item.ask_size }}</span>
           <span class="last-value">{{ item.ask }}</span>
           <div
@@ -14,7 +14,7 @@
       </div>
 
       <div class="box">
-        <div class="item" v-for="item in quotes">
+        <div class="item" v-for="item in depths">
           <span class="pre-value">{{ item.bid }}</span>
           <span class="last-value">{{ item.bid_size }}</span>
           <div
@@ -24,30 +24,34 @@
         </div>
       </div>
     </div>
-    <el-empty v-if="!quotes.length"></el-empty>
+    <el-empty v-if="!depths.length"></el-empty>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import { maxBy } from "lodash";
 import { useSocket } from "@/store/modules/socket";
+import { maxBy } from "lodash";
+import { computed, onMounted, ref } from "vue";
 const socketStore = useSocket();
 
 interface Props {
   symbol: string;
 }
+interface IDepth {
+  ask: number;
+  ask_size: number;
+  bid: number;
+  bid_size: number;
+}
 const props = defineProps<Props>();
 
-const quotes = computed(() => {
-  return socketStore.depthMap[props.symbol] || [];
-});
+const depths = ref<IDepth[]>([]);
 
 const maxBidSize = computed(() => {
-  return maxBy(quotes.value, "bid_size")?.bid_size;
+  return maxBy(depths.value, "bid_size")?.bid_size;
 });
 const maxAskSize = computed(() => {
-  return maxBy(quotes.value, "ask_size")?.ask_size;
+  return maxBy(depths.value, "ask_size")?.ask_size;
 });
 
 const getWidth = (value: number, type: string) => {
@@ -57,6 +61,14 @@ const getWidth = (value: number, type: string) => {
   }
   return "0";
 };
+
+onMounted(() => {
+  socketStore.subQuoteDepth((symbol, quotes) => {
+    if (symbol === props.symbol) {
+      depths.value = quotes;
+    }
+  });
+});
 </script>
 
 <style lang="scss" scoped>

@@ -1,5 +1,5 @@
-import { io, Socket } from "socket.io-client";
 import { useSocket } from "@/store/modules/socket";
+import { io, Socket } from "socket.io-client";
 
 class SingletonSocket {
   private instance: Socket | null = null;
@@ -38,14 +38,17 @@ class SingletonSocket {
     }
   }
 
-  getSocketDelay(uriList: string[], callback?:Function) {
+  getSocketDelay(
+    uriList: string[],
+    callback?: ({ ending }: { ending: boolean }) => void
+  ) {
     const startTimeMap: Record<string, number> = {};
     let count = 0;
-    uriList.forEach(uri => {
+    uriList.forEach((uri) => {
       startTimeMap[uri] = new Date().getTime();
       if (callback) {
         callback({
-          ending: false
+          ending: false,
         });
       }
       const IO = io(uri, {
@@ -62,10 +65,12 @@ class SingletonSocket {
         count++;
         if (callback && count === uriList.length) {
           callback({
-            ending: true
+            ending: true,
           });
         }
-        console.log(`${uri} Connection established in ${connectionTime} milliseconds`);
+        console.log(
+          `${uri} Connection established in ${connectionTime} milliseconds`
+        );
         IO.disconnect();
       });
       IO.on("disconnect", (reason: string) => {
@@ -75,7 +80,7 @@ class SingletonSocket {
           console.log(`${uri} Connection lost, trying to reconnect...`);
         }
       });
-    })
+    });
   }
 }
 

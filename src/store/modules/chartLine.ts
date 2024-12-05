@@ -27,7 +27,7 @@ export const useChartLine = defineStore("chartLine", {
     initSubLineAndQuote() {
       const socketStore = useSocket();
       const orderStore = useOrder();
-      socketStore.socket.on(
+      socketStore.socket?.on(
         "quote",
         throttle((d: types.ISocketQuote) => {
           const oldQuote = orderStore.currentQuotes[d.symbol];
@@ -69,7 +69,7 @@ export const useChartLine = defineStore("chartLine", {
         }, 200)
       );
 
-      socketStore.socket.on("kline_new", (d: types.ISocketKlineNew) => {
+      socketStore.socket?.on("kline_new", (d: types.ISocketKlineNew) => {
         for (const UID in this.subscribed) {
           const item = this.subscribed[UID];
           const symbol = item.symbolInfo.name;

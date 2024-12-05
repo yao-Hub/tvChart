@@ -47,7 +47,7 @@ export const useRate = defineStore("rate", () => {
   };
 
   const subRate = () => {
-    socketStore.socket.on("rate", (e: types.IRate) => {
+    socketStore.socket?.on("rate", (e: types.IRate) => {
       currentRates.value[e.symbol] = e;
     });
   };

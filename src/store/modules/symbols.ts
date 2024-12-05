@@ -89,7 +89,7 @@ export const useSymbols = defineStore("symbols", () => {
       const removed = preList.filter((item) => !nextSet.has(item));
       if (added.length) {
         added.forEach((symbol) => {
-          socketStore.subKlineQuote({ resolution: "1", symbol });
+          socketStore.emitKlineQuote({ resolution: "1", symbol });
         });
       }
       if (removed.length) {
