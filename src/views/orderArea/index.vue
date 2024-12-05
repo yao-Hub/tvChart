@@ -156,12 +156,16 @@
               style: { padding: '0 16px' },
             }"
             :width="width"
-            :height="parseInt(height)"
+            :height="getTableHeight(height)"
             :footer-height="
-              pageLoading || activeKey === 'blanceRecord' ? 32 : 0
+              pageLoading ||
+              ['marketOrderHistory', 'blanceRecord'].includes(activeKey)
+                ? 32
+                : 0
             "
             :row-props="rowProps"
             @end-reached="endReached"
+            @scroll="tableScroll"
             fixed
           >
             <template #header-cell="{ column }">
@@ -196,7 +200,7 @@
                 getOrderPrice(rowData)
               }}</template>
               <template v-else-if="column.dataKey === 'profit'">
-                <span :class="[getCellClass(rowData.profit)]">
+                <span :class="[getCellClass(rowData.profit), 'profitcell']">
                   <span v-if="activeKey === 'marketOrder'">{{
                     getProfit(rowData)
                   }}</span>
@@ -258,25 +262,35 @@
                   <el-icon class="loading"><Loading /></el-icon>
                 </div>
                 <div
-                  class="tableFooter"
+                  class="blaRecFooter"
                   v-if="!pageLoading && activeKey === 'blanceRecord'"
                 >
-                  <span class="item">
+                  <span class="blaRecFooter_item">
                     <el-text type="info">净入金：</el-text>
                     <el-text>{{ netDeposit }}</el-text>
                   </span>
-                  <span class="item">
+                  <span class="blaRecFooter_item">
                     <el-text type="info"
                       >累计入金（{{ accDeposit.len }}笔）：</el-text
                     >
                     <el-text>{{ accDeposit.sum }}</el-text>
                   </span>
-                  <span class="item">
+                  <span class="blaRecFooter_item">
                     <el-text type="info"
                       >累计出金（{{ accWithdrawal.len }}笔）：</el-text
                     >
                     <el-text>{{ accWithdrawal.sum }}</el-text>
                   </span>
+                </div>
+                <div
+                  class="MOHFooter"
+                  :style="{ width: MOHFWidth }"
+                  v-if="!pageLoading && activeKey === 'marketOrderHistory'"
+                >
+                  <el-text type="info">合计：</el-text>
+                  <span :class="[getCellClass(MOHProSum)]">
+                    {{ MOHProSum }}</span
+                  >
                 </div>
               </el-scrollbar>
             </template>
@@ -336,7 +350,7 @@ const state = reactive({
     { label: "挂单历史", key: "pendingOrderHistory" },
     { label: "出入金记录", key: "blanceRecord" },
   ],
-  columns: tableColumns,
+  columns: cloneDeep(tableColumns),
   marketDialogVisible: false,
   pendingDialogVisible: false,
   orderInfo: {} as orders.resOrders & orders.resPendingOrders,
@@ -376,6 +390,12 @@ document.addEventListener("mousemove", (e) => {
 document.addEventListener("mouseup", () => {
   isResizing = false;
 });
+
+const getTableHeight = (height: number) => {
+  return ["marketOrderHistory"].includes(activeKey.value)
+    ? Math.min((dataSource.value.length + 2) * 32, height)
+    : height;
+};
 
 // 出入金记录底部合计
 import { accAdd } from "utils/arithmetic";
@@ -447,14 +467,6 @@ const dataSource = computed(() => {
   }
   return result;
 });
-// // 挂单价距离
-// const getDistance = (e: orders.resOrders) => {
-//   const currentQuote = orderStore.currentQuotes[e.symbol];
-//   const type = getTradingDirection(e.type);
-//   const result = type === "buy" ? currentQuote.ask : currentQuote.bid;
-//   const entryPrice = +e.order_price;
-//   return round(Math.abs(result - entryPrice), 2);
-// };
 
 // 平仓类型
 const getCloseType = (e: orders.resHistoryOrders) => {
@@ -496,6 +508,7 @@ const getNowPrice = (e: orders.resOrders) => {
   }
 };
 
+// 挂单价格
 const getOrderPrice = (e: orders.resPendingOrders) => {
   if ([6, 7].includes(e.type)) {
     return e.order_price_time ? e.trigger_price : e.order_price;
@@ -505,6 +518,7 @@ const getOrderPrice = (e: orders.resPendingOrders) => {
 
 // 获取盈亏
 import { useRate } from "@/store/modules/rate";
+import { watch } from "vue";
 const rateStore = useRate();
 const getProfit = (e: orders.resOrders) => {
   try {
@@ -541,6 +555,50 @@ const getProfit = (e: orders.resOrders) => {
     return "";
   }
 };
+
+// 交易历史盈亏合计位置
+const MOHFWidth = ref("");
+const tableXScroll = ref(0);
+watch(
+  () => [state.columns.marketOrderHistory, tableXScroll, activeKey],
+  () => {
+    const list = state.columns.marketOrderHistory;
+    const cell = document.querySelector(".profitcell");
+    if (cell) {
+      const cellRight = cell.getBoundingClientRect().right;
+      MOHFWidth.value = cellRight + "px";
+    } else {
+      const index = list.findIndex((e) => e.dataKey === "profit");
+      const targetList = list.slice(0, index + 1);
+      const width = targetList.reduce((pre, next) => {
+        return pre + next.width;
+      }, 0);
+      MOHFWidth.value = width - tableXScroll.value + "px";
+    }
+  },
+  { deep: true, flush: "post" }
+);
+type ScrollParams = {
+  xAxisScrollDir: "forward" | "backward";
+  scrollLeft: number;
+  yAxisScrollDir: "forward" | "backward";
+  scrollTop: number;
+};
+const tableScroll = (e: ScrollParams) => {
+  if (activeKey.value !== "marketOrderHistory") {
+    tableXScroll.value = 0;
+    return;
+  }
+  tableXScroll.value = e.scrollLeft;
+};
+// 交易历史盈亏合计
+const MOHProSum = computed(() => {
+  const sum = dataSource.value.reduce((pre, next) => {
+    return pre + next.profit;
+  }, 0);
+  return sum;
+});
+
 // 持仓天数
 const getDays = (e: orders.resHistoryOrders) => {
   const timeDone = e.time_done || dayjs().valueOf();
@@ -823,7 +881,7 @@ onMounted(async () => {
   }
 }
 .loadingFooter {
-  height: 24px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -831,11 +889,11 @@ onMounted(async () => {
     animation: rotate 1s linear infinite;
   }
 }
-.tableFooter {
+.blaRecFooter {
   height: 32px;
   display: flex;
   align-items: center;
-  .item {
+  &_item {
     padding: 0 15px;
     min-width: 150px;
     flex-shrink: 0;
@@ -844,5 +902,12 @@ onMounted(async () => {
     border-right: 2px solid;
     @include border_color("border");
   }
+}
+.MOHFooter {
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: 16px;
 }
 </style>

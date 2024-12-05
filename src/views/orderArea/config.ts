@@ -1,4 +1,15 @@
-export const tableColumns: any = {
+import { TableDataKey } from "#/order";
+
+interface IColumn {
+  title?: string;
+  dataKey: string;
+  key: string;
+  width: number;
+  align: string;
+  minWidth?: number;
+}
+
+export const tableColumns: Record<TableDataKey, IColumn[]> = {
   marketOrder: [
     { title: "订单ID", dataKey: "id", key: "id", width: 100, align: "left" },
     {
