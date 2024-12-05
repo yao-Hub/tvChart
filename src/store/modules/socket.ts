@@ -1,5 +1,6 @@
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
+import { IRate, ISocketKlineNew, ISocketQuote } from "@/types/chart/index";
 import { defineStore } from "pinia";
 import { Socket } from "socket.io-client";
 import SingletonSocket from "utils/socket";
@@ -13,11 +14,14 @@ interface IQuote {
 type TFooname =
   | "emitKlineQuote"
   | "unsubKlineQuote"
+  | "subQuote"
+  | "subKline"
   | "sendToken"
   | "subQuoteDepth"
   | "orderChanges"
   | "emitQuoteDepth"
   | "emitRate"
+  | "subRate"
   | "unSubRate"
   | "unSubQuoteDepth";
 
@@ -82,6 +86,32 @@ export const useSocket = defineStore("socket", {
         this.noExecuteList.push({
           fooName: "emitKlineQuote",
           options: { resolution, symbol },
+        });
+      }
+    },
+
+    subQuote(callback: (e: ISocketQuote) => void) {
+      if (this.socket) {
+        this.socket.on("quote", (d) => {
+          callback(d);
+        });
+      } else {
+        this.noExecuteList.push({
+          fooName: "subQuote",
+          options: callback,
+        });
+      }
+    },
+
+    subKline(callback: (e: ISocketKlineNew) => void) {
+      if (this.socket) {
+        this.socket.on("kline_new", (d) => {
+          callback(d);
+        });
+      } else {
+        this.noExecuteList.push({
+          fooName: "subKline",
+          options: callback,
         });
       }
     },
@@ -234,6 +264,19 @@ export const useSocket = defineStore("socket", {
       } else {
         this.noExecuteList.push({
           fooName: "emitRate",
+        });
+      }
+    },
+
+    subRate(callback: (e: IRate) => void) {
+      if (this.socket) {
+        this.socket.on("rate", (d) => {
+          callback(d);
+        });
+      } else {
+        this.noExecuteList.push({
+          fooName: "subRate",
+          options: callback,
         });
       }
     },

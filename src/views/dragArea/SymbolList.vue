@@ -38,7 +38,10 @@
       >
         <el-table-column type="expand" width="16">
           <template #default="{ row }">
-            <Deep :symbol="row.symbols"></Deep>
+            <Deep
+              :symbol="row.symbols"
+              v-model:depths="depths[row.symbols]"
+            ></Deep>
           </template>
         </el-table-column>
         <el-table-column
@@ -115,6 +118,7 @@
 </template>
 
 <script setup lang="ts">
+import { IDepth } from "@/types/common";
 import { nextTick, ref, shallowRef, watch } from "vue";
 import Deep from "./components/deep/index.vue";
 import RightClickMenu from "./components/RightClickMenu.vue";
@@ -130,6 +134,7 @@ interface DataSource {
 }
 const dataSource = shallowRef<DataSource[]>([]);
 const originSource = ref<DataSource[]>([]);
+const depths = ref<Record<string, IDepth[]>>({});
 
 // 获取自选品种
 import { useSymbols } from "@/store/modules/symbols";

@@ -1,6 +1,5 @@
 import { useOrder } from "@/store/modules/order";
 import * as types from "@/types/chart/index";
-import { throttle } from "lodash";
 import { defineStore } from "pinia";
 import { useSocket } from "./socket";
 interface ISubSCribed {
@@ -27,49 +26,46 @@ export const useChartLine = defineStore("chartLine", {
     initSubLineAndQuote() {
       const socketStore = useSocket();
       const orderStore = useOrder();
-      socketStore.socket?.on(
-        "quote",
-        throttle((d: types.ISocketQuote) => {
-          const oldQuote = orderStore.currentQuotes[d.symbol];
-          const result = {
-            ...oldQuote,
-            ...d,
-            close: d.bid,
-          };
-          orderStore.currentQuotes[d.symbol] = result;
-          for (const UID in this.subscribed) {
-            const item = this.subscribed[UID];
-            const symbol = item.symbolInfo.name;
-            const subscriberUID = UID.split("@")[1];
-            const bar = this.newbar[subscriberUID];
-            if (bar && d.symbol === symbol) {
-              const bartime = bar.time;
-              const high = bar.high;
-              const low = bar.low;
-              const open = bar.open || d.bid;
-              const volume = bar.volume || 0;
-              if (!bartime || bartime < d.ctm_ms) {
-                const newHigh = !high || high < d.bid ? d.bid : high;
-                const newLow = !low || low > d.bid ? d.bid : low;
-                this.newbar[subscriberUID] = {
-                  ...d,
-                  time: d.ctm * 1000,
-                  close: +d.bid,
-                  high: +newHigh,
-                  low: +newLow,
-                  volume: volume + 1,
-                  open: +open,
-                };
-                this.subscribed[UID].onRealtimeCallback(
-                  this.newbar[subscriberUID]
-                );
-              }
+      socketStore.subQuote((d) => {
+        const oldQuote = orderStore.currentQuotes[d.symbol];
+        const result = {
+          ...oldQuote,
+          ...d,
+          close: d.bid,
+        };
+        orderStore.currentQuotes[d.symbol] = result;
+        for (const UID in this.subscribed) {
+          const item = this.subscribed[UID];
+          const symbol = item.symbolInfo.name;
+          const subscriberUID = UID.split("@")[1];
+          const bar = this.newbar[subscriberUID];
+          if (bar && d.symbol === symbol) {
+            const bartime = bar.time;
+            const high = bar.high;
+            const low = bar.low;
+            const open = bar.open || d.bid;
+            const volume = bar.volume || 0;
+            if (!bartime || bartime < d.ctm_ms) {
+              const newHigh = !high || high < d.bid ? d.bid : high;
+              const newLow = !low || low > d.bid ? d.bid : low;
+              this.newbar[subscriberUID] = {
+                ...d,
+                time: d.ctm * 1000,
+                close: +d.bid,
+                high: +newHigh,
+                low: +newLow,
+                volume: volume + 1,
+                open: +open,
+              };
+              this.subscribed[UID].onRealtimeCallback(
+                this.newbar[subscriberUID]
+              );
             }
           }
-        }, 200)
-      );
+        }
+      });
 
-      socketStore.socket?.on("kline_new", (d: types.ISocketKlineNew) => {
+      socketStore.subKline((d) => {
         for (const UID in this.subscribed) {
           const item = this.subscribed[UID];
           const symbol = item.symbolInfo.name;

@@ -30,22 +30,18 @@
 
 <script setup lang="ts">
 import { useSocket } from "@/store/modules/socket";
+import { IDepth } from "@/types/common";
 import { maxBy } from "lodash";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted } from "vue";
+
 const socketStore = useSocket();
 
 interface Props {
   symbol: string;
 }
-interface IDepth {
-  ask: number;
-  ask_size: number;
-  bid: number;
-  bid_size: number;
-}
 const props = defineProps<Props>();
 
-const depths = ref<IDepth[]>([]);
+const depths = defineModel<IDepth[]>("depths", { default: [] });
 
 const maxBidSize = computed(() => {
   return maxBy(depths.value, "bid_size")?.bid_size;
