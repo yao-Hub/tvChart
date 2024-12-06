@@ -3,7 +3,7 @@
     <HorizontalScrolling v-if="chartType === 'single'">
       <div class="tabs">
         <chartTab
-          v-for="chart in chartInitStore.chartWidgetList"
+          v-for="chart in chartInitStore.state.chartWidgetList"
           :active="activedId === chart.id"
           :symbol="chart.symbol"
           :interval="chart.interval"
@@ -18,13 +18,13 @@
     <div
       class="charts_container"
       :style="{
-        flexDirection: chartInitStore.chartFlexDirection,
+        flexDirection: chartInitStore.state.chartFlexDirection,
         height: chartType === 'single' ? 'calc(100% - 40px)' : '100%',
       }"
     >
       <div
         class="charts_container_item"
-        v-for="{ id, symbol, interval } in chartInitStore.chartWidgetList"
+        v-for="{ id, symbol, interval } in chartInitStore.state.chartWidgetList"
         :key="id"
         v-show="activedId === id || chartType === 'multiple'"
       >
@@ -47,7 +47,7 @@
           }"
           :chartId="id"
           :loading="
-            chartSubStore.chartsLoading || chartInitStore.chartLoading[id]
+            chartSubStore.chartsLoading || chartInitStore.state.chartLoading[id]
           "
           :client_id="`${id}_client_id`"
           :user_id="`${id}_user_id`"
@@ -64,14 +64,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { IChartingLibraryWidget } from "public/charting_library";
 import Sortable from "sortablejs";
+import { computed, onMounted } from "vue";
 
-import { useChartInit } from "@/store/modules/chartInit";
 import { useChartAction } from "@/store/modules/chartAction";
-import { useTheme } from "@/store/modules/theme";
+import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useOrder } from "@/store/modules/order";
+import { useTheme } from "@/store/modules/theme";
 
 import { datafeed } from "@/config/chartConfig";
 
@@ -93,14 +94,20 @@ const disabledFeatures = [
 ];
 
 const chartType = computed(() => {
-  return chartInitStore.chartLayoutType;
+  return chartInitStore.state.chartLayoutType;
 });
 
 const activedId = computed(() => {
-  return chartInitStore.activeChartId;
+  return chartInitStore.state.activeChartId;
 });
 
-const initChart = ({ id, widget }: any) => {
+const initChart = ({
+  id,
+  widget,
+}: {
+  id: string;
+  widget: IChartingLibraryWidget;
+}) => {
   // widget.chart().createShape(
   //   { time: 1730771118, price: 2737 },
   //   {
@@ -146,6 +153,7 @@ const initChart = ({ id, widget }: any) => {
   // 涨跌颜色
   themeStore.setUpDownTheme();
   chartActionStore.addOrderBtn(id);
+
   // chartActionStore.createOrderLine(id);
 };
 
@@ -180,7 +188,7 @@ onMounted(() => {
 });
 
 const chartTabClick = (id: string, symbol?: string) => {
-  chartInitStore.activeChartId = id;
+  chartInitStore.state.activeChartId = id;
   if (symbol) {
     orderStore.currentSymbol = symbol;
   }

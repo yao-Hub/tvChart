@@ -1,5 +1,5 @@
 <template>
-  <div class="chart" v-loading.fullscreen.lock="chartInitStore.loading">
+  <div class="chart" v-loading.fullscreen.lock="chartInitStore.state.loading">
     <WPHeader></WPHeader>
     <dragArea></dragArea>
     <FooterInfo></FooterInfo>
@@ -52,7 +52,7 @@ const rateStore = useRate();
 // 初始化 注意调用顺序
 async function init() {
   try {
-    chartInitStore.loading = true;
+    chartInitStore.state.loading = true;
     // 1.先拿到 交易线路
     await networkStore.getLines();
     // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
@@ -65,7 +65,7 @@ async function init() {
       orderStore.initTableData(),
     ]);
   } catch (error) {
-    chartInitStore.loading = false;
+    chartInitStore.state.loading = false;
   } finally {
     socketStore.initSocket(); // 初始化socket
     chartLineStore.initSubLineAndQuote(); // 监听k线和报价
@@ -90,7 +90,7 @@ async function init() {
       rootStore[rootStore.cacheAction]();
       rootStore.clearCacheAction();
     }
-    chartInitStore.loading = false;
+    chartInitStore.state.loading = false;
   }
 }
 onMounted(() => {
@@ -98,7 +98,7 @@ onMounted(() => {
 });
 
 watch(
-  () => chartInitStore.globalRefresh,
+  () => chartInitStore.state.globalRefresh,
   (val) => {
     val && init();
   }

@@ -2,7 +2,9 @@
   <el-tooltip :content="$t('MultiGrapMode')">
     <div
       class="iconbox"
-      :class="{ iconActive: layoutType === 'multiple' }"
+      :class="{
+        iconActive: chartInitStore.state.chartLayoutType === 'multiple',
+      }"
       @click="chartInitStore.setLayoutType('multiple')"
     ></div>
   </el-tooltip>
@@ -10,10 +12,8 @@
 
 <script setup lang="ts">
 import { useChartInit } from "@/store/modules/chartInit";
-import { computed } from "vue";
 
 const chartInitStore = useChartInit();
-const layoutType = computed(() => chartInitStore.chartLayoutType);
 </script>
 
 <style lang="scss" scoped>

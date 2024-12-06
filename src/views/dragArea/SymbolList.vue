@@ -319,7 +319,7 @@ const getVariation = (symbol: string) => {
 // const chartInitStore = useChartInit();
 // const changeSymbol = (e: any) => {
 //   const symbol = e.symbols;
-//   const chartId = chartInitStore.activeChartId;
+//   const chartId = chartInitStore.state.activeChartId;
 //   chartInitStore.changeChartSymbol({ id: chartId, symbol });
 // };
 const menuVisible = ref(false);

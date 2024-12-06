@@ -44,7 +44,7 @@ export const useTime = defineStore("time", () => {
   };
 
   const setChartTimezone = (value: string) => {
-    chartInitStore.chartWidgetList.forEach((item) => {
+    chartInitStore.state.chartWidgetList.forEach((item) => {
       if (item.widget) {
         // @ts-ignore
         item.widget.activeChart().getTimezoneApi().setTimezone(value);

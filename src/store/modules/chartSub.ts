@@ -50,7 +50,7 @@ export const useChartSub = defineStore("chartSub", {
     // subscribePlusBtn() {
     //   const dialogStore = useDialog();
     //   const chartInitStore = useChartInit();
-    //   const widgetList = chartInitStore.chartWidgetList;
+    //   const widgetList = chartInitStore.state.chartWidgetList;
     //   widgetList.forEach((Widget) => {
     //     Widget.widget?.subscribe("onPlusClick", (e) => {
     //       assign(dialogStore.floatMenuParams, { ...e, visible: true });

@@ -3,13 +3,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import * as library from "public/charting_library";
-import { useI18n } from "vue-i18n";
 import { timezoneOptions } from "@/constants/timezone";
 import { useChartInit } from "@/store/modules/chartInit";
-import { useOrder } from "@/store/modules/order";
 import { useChartSub } from "@/store/modules/chartSub";
+import { useOrder } from "@/store/modules/order";
+import * as library from "public/charting_library";
+import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
@@ -172,7 +172,9 @@ const initonReady = () => {
   if (savedData) {
     widgetOptions.saved_data = savedData;
   }
-  const widget = new library.widget(widgetOptions);
+  const widget: library.IChartingLibraryWidget = new library.widget(
+    widgetOptions
+  );
   widget?.onChartReady(() => {
     widget?.headerReady().then(() => {
       chartInitStore.createChartWidget(props.chartId, widget);
@@ -206,9 +208,10 @@ const initonReady = () => {
 
       // 监听鼠标按下
       widget.subscribe("mouse_down", () => {
-        chartInitStore.activeChartId = props.chartId;
+        chartInitStore.state.activeChartId = props.chartId;
       });
 
+      // 增加策略
       if (!savedData) {
         widget.activeChart().createStudy("MACD");
         widget.activeChart().createStudy("Moving Average Double");

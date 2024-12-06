@@ -1,6 +1,6 @@
+import { useDark, useToggle } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { useChartInit } from "./chartInit";
-import { useDark, useToggle } from "@vueuse/core";
 import { useStorage } from "./storage";
 
 interface State {
@@ -37,7 +37,7 @@ export const useTheme = defineStore("theme", {
     },
     setChartTheme() {
       const chartInitStore = useChartInit();
-      chartInitStore.chartWidgetList.forEach((item) => {
+      chartInitStore.state.chartWidgetList.forEach((item) => {
         item.widget?.changeTheme(this.systemTheme as "light" | "dark");
       });
     },
@@ -75,7 +75,7 @@ export const useTheme = defineStore("theme", {
         this.upDownTheme === "upRedDownGreen" ? "#f5a6ae" : "#a9dcc3";
 
       try {
-        chartInitStore.chartWidgetList.forEach((item) => {
+        chartInitStore.state.chartWidgetList.forEach((item) => {
           item.widget?.applyOverrides({
             "mainSeriesProperties.candleStyle.upColor": upColor,
             "mainSeriesProperties.candleStyle.downColor": downColor,

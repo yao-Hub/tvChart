@@ -2,7 +2,7 @@
   <el-tooltip :content="$t('SingleImageMode')">
     <div
       class="iconbox"
-      :class="{ iconActive: layoutType === 'single' }"
+      :class="{ iconActive: chartInitStore.state.chartLayoutType === 'single' }"
       @click="chartInitStore.setLayoutType('single')"
     ></div>
   </el-tooltip>
@@ -10,10 +10,8 @@
 
 <script setup lang="ts">
 import { useChartInit } from "@/store/modules/chartInit";
-import { computed } from "vue";
 
 const chartInitStore = useChartInit();
-const layoutType = computed(() => chartInitStore.chartLayoutType);
 </script>
 
 <style lang="scss" scoped>

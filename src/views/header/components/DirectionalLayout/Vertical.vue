@@ -13,7 +13,7 @@ import { useChartInit } from "@/store/modules/chartInit";
 import { computed } from "vue";
 
 const chartInitStore = useChartInit();
-const flexDirection = computed(() => chartInitStore.chartFlexDirection);
+const flexDirection = computed(() => chartInitStore.state.chartFlexDirection);
 </script>
 
 <style lang="scss" scoped>
