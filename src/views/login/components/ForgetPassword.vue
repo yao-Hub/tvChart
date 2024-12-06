@@ -5,7 +5,7 @@
         <el-icon>
           <img src="@/assets/icons/turnleft.svg" />
         </el-icon>
-        <span>返回</span>
+        <span>{{ $t("back") }}</span>
       </div>
     </div>
     <div class="forget_main">

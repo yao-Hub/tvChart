@@ -5,7 +5,7 @@
         <el-icon>
           <img src="@/assets/icons/turnleft.svg" />
         </el-icon>
-        <span>返回</span>
+        <span>{{ $t("back") }}</span>
       </div>
     </div>
     <div class="Register_main" v-if="!ifSuccess">
@@ -40,9 +40,26 @@
         </el-form-item>
 
         <el-form-item prop="agree">
-          <el-checkbox v-model="formState.agree">{{
-            $t("tip.agree")
-          }}</el-checkbox>
+          <el-checkbox v-model="formState.agree">
+            <span>{{ $t("article.readAgree") }}</span>
+            <el-link
+              type="primary"
+              @click.stop
+              :href="accountClauseUrl"
+              target="_blank"
+              :underline="false"
+              >&nbsp;{{ $t("article.accountClause") }}&nbsp;</el-link
+            >
+            <span>{{ $t("and") }}</span>
+            <el-link
+              type="primary"
+              @click.stop
+              :href="dataPolicyUrl"
+              target="_blank"
+              :underline="false"
+              >&nbsp;{{ $t("article.dataPolicy") }}&nbsp;</el-link
+            >
+          </el-checkbox>
         </el-form-item>
 
         <el-button
@@ -78,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import { register, resQueryTradeLine } from "api/account/index";
+import { articleDetails, register, resQueryTradeLine } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import { computed, reactive, ref } from "vue";
@@ -118,6 +135,17 @@ const rules = reactive<FormRules<typeof formState>>({
     },
   ],
 });
+
+const accountClauseUrl = ref("");
+const dataPolicyUrl = ref("");
+(async function getProtoco() {
+  const [accountClause, dataPolicy] = await Promise.all([
+    articleDetails({ columnCode: "accountClause", articleCode: "" }),
+    articleDetails({ columnCode: "dataPolicy", articleCode: "" }),
+  ]);
+  accountClauseUrl.value = accountClause.data.url;
+  dataPolicyUrl.value = dataPolicy.data.url;
+})();
 
 const querySearch = (queryString: string, cb: any) => {
   let res: { value: string }[];

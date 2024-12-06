@@ -46,8 +46,8 @@ export const allSymbolQuotes = () => {
 export const alllRates = () => {
   return request<IRate[]>({
     url: Api.AllRates,
-    noNeedToken: true,
     method: "post",
+    needLogin: true,
   });
 };
 

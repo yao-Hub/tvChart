@@ -88,6 +88,8 @@ if (storageId) {
   window.localStorage.setItem("uuid", uuid);
 }
 
+const theme = localStorage.getItem("systemTheme") || "light";
+
 const service = axios.create({
   timeout: 30 * 1000,
   // 请求是否携带cookie
@@ -102,6 +104,7 @@ const service = axios.create({
     "x-u-device-type": __OS_PLATFORM__,
     // @ts-ignore
     "x-u-device-info": _OS_RELEASE_,
+    "x-u-app-theme": theme,
   },
 });
 

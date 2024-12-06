@@ -1,5 +1,5 @@
 <template>
-  <el-tooltip :content="$t('create chart')">
+  <el-tooltip :content="$t('createChart')">
     <div class="iconbox" @click="chartInitStore.addChart()"></div>
   </el-tooltip>
 </template>

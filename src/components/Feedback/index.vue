@@ -14,7 +14,7 @@
       v-model="remark"
       type="textarea"
       :rows="5"
-      placeholder="有反馈就会有结果…"
+      :placeholder="t('tip.feedbackPlac')"
       show-word-limit
       maxlength="500"
       style="margin-top: 24px"
@@ -43,15 +43,17 @@
             class="el-upload-list__item-actions"
             @click="handleRemove(file)"
           >
-            删除
+            {{ $t("delete") }}
           </span>
         </div>
       </template>
     </el-upload>
 
     <template #footer>
-      <el-button @click="myFeedBackOpen = true">我的反馈</el-button>
-      <el-button type="primary" @click="handleOk">提交</el-button>
+      <el-button @click="myFeedBackOpen = true">{{
+        $t("myFeedback")
+      }}</el-button>
+      <el-button type="primary" @click="handleOk">{{ $t("submit") }}</el-button>
     </template>
   </el-dialog>
 
@@ -59,9 +61,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
-import type { UploadUserFile, UploadFile, UploadInstance } from "element-plus";
+import type { UploadFile, UploadInstance, UploadUserFile } from "element-plus";
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+
 import { useDialog } from "@/store/modules/dialog";
+
+const { t } = useI18n();
 const dialogStore = useDialog();
 
 const remark = ref<string>("");

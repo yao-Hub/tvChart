@@ -214,7 +214,7 @@ export const useUser = defineStore("user", {
           });
           // 缓存token 发送登录状态
           socketStore.sendToken({ login: updata.login, token });
-          ElMessage.success(i18n.global.t("login succeeded"));
+          ElMessage.success(i18n.global.t("loginSucceeded"));
           if (callback) {
             callback({ ending: true, success: true });
           }

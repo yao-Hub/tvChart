@@ -1,5 +1,5 @@
 <template>
-  <el-tooltip :content="$t('Vertical layout')">
+  <el-tooltip :content="$t('VerticaLayout')">
     <div
       class="iconbox"
       :class="{ iconActive: flexDirection === 'column' }"

@@ -33,60 +33,54 @@
         </div>
       </div>
       <div class="account">
-        <span @click="modalOpen = true">{{ $t("Personal Information") }}</span>
+        <span @click="modalOpen = true">{{ $t("personalInformation") }}</span>
         <el-divider direction="vertical" />
         <span
           @click="resetPasswordOpen = true"
           v-if="userStore.account.server === 'utrader-demo'"
-          >{{ $t("Change password") }}</span
+          >{{ $t("changePassword") }}</span
         >
         <el-divider
           direction="vertical"
           v-if="userStore.account.server === 'utrader-demo'"
         />
         <span @click="$router.push({ name: 'login' })">{{
-          $t("Add Account")
+          $t("addAccount")
         }}</span>
         <el-divider direction="vertical" />
-        <span @click="logout">{{ $t("Log Out") }}</span>
+        <span @click="logout">{{ $t("logOut") }}</span>
       </div>
     </template>
   </el-dropdown>
 
   <el-dialog v-model="modalOpen" width="486" :zIndex="10" destroy-on-close>
     <template #header>
-      <span class="header">个人信息</span>
+      <span class="header">{{ $t("personalInformation") }}</span>
     </template>
     <el-row>
       <el-col :span="24">
-        <el-text type="info">经纪商名称</el-text>
+        <el-text type="info">{{ $t("brokerName") }}</el-text>
         <el-text>{{ networkStore.currentLine?.brokerName }}</el-text>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
-        <el-text type="info">线路名称</el-text>
+        <el-text type="info">{{ $t("nodeName") }}</el-text>
         <el-text>{{ networkStore.nodeName }}</el-text>
       </el-col>
       <el-col :span="12">
-        <el-text type="info">登录id</el-text>
-        <el-text>{{}}</el-text>
+        <el-text type="info">{{ $t("loginId") }}</el-text>
+        <el-text>{{ userStore.loginInfo?.login }}</el-text>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
-        <el-text type="info">服务器</el-text>
+        <el-text type="info">{{ $t("ip") }}</el-text>
         <el-text>{{ networkStore.currentNode?.ip }}</el-text>
       </el-col>
       <el-col :span="12">
-        <el-text type="info">已连接节点</el-text>
+        <el-text type="info">{{ $t("connectedNode") }}</el-text>
         <el-text>{{ networkStore.currentNode?.nodeName }}</el-text>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="24">
-        <el-text type="info">邮箱地址</el-text>
-        <el-text></el-text>
       </el-col>
     </el-row>
   </el-dialog>

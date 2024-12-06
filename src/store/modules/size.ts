@@ -1,6 +1,4 @@
 import { defineStore } from "pinia";
-import { useStorage } from "./storage";
-
 interface State {
   systemSize: "small" | "default" | "large";
 }
@@ -11,17 +9,15 @@ export const useSize = defineStore("size", {
   }),
   actions: {
     initSize() {
-      const storageStore = useStorage();
-      const stoSize = storageStore.getItem("fontSize");
+      const stoSize = localStorage.getItem("fontSize") as State["systemSize"];
       this.systemSize = stoSize || "default";
       document.documentElement.setAttribute("data-size", this.systemSize);
     },
 
     changeSize(size: State["systemSize"], temporary?: boolean) {
-      const storageStore = useStorage();
       document.documentElement.setAttribute("data-size", size);
       this.systemSize = size;
-      if (!temporary) storageStore.setItem("fontSize", size);
+      if (!temporary) localStorage.setItem("fontSize", size);
     },
   },
 });

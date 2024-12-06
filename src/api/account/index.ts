@@ -9,7 +9,9 @@ enum Api {
   QueryNode = "/server/queryNode",
   VirtualLine = "/my/virtual_line_query",
   EmailPasswordUpdate = "/my/email_password_update",
-  SendEmail = "my/sendEmail",
+  SendEmail = "/my/sendEmail",
+  ArticleDetails = "/column/select_trade_column",
+  ProtocolAgree = "/protocol/protocol_agree",
 }
 export interface Order {
   id: number; //	订单ID
@@ -216,6 +218,39 @@ export const queryNode = (data: { lineCode: string }) => {
 export const sendEmail = (data: { email: string }) => {
   return request({
     url: Api.SendEmail,
+    method: "post",
+    data,
+    urlType: "admin",
+    noNeedToken: true,
+    noNeedServer: true,
+  });
+};
+
+interface IReqArticle {
+  columnCode: string; //	栏目编码
+  articleCode?: string; // 文章编码
+}
+export const articleDetails = (data: IReqArticle) => {
+  return request<{ url: string }>({
+    url: Api.ArticleDetails,
+    method: "post",
+    data,
+    urlType: "admin",
+    noNeedToken: true,
+    noNeedServer: true,
+  });
+};
+
+interface IReqProtocolAgree {
+  protocolName: string; //	协议名称
+  brokerName: string; //	经纪商
+  lineName: string; //	交易线路
+  login: string; //	登录名
+  loginName?: string; //	姓名
+}
+export const protocolAgree = (data: IReqProtocolAgree) => {
+  return request({
+    url: Api.ProtocolAgree,
     method: "post",
     data,
     urlType: "admin",

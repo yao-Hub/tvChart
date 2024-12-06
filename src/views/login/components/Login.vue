@@ -4,10 +4,10 @@
       <el-icon>
         <img src="@/assets/icons/turnleft.svg" />
       </el-icon>
-      <span>返回</span>
+      <span>{{ $t("back") }}</span>
     </div>
-    <span class="plogin">登录您的账号</span>
-    <span class="padd">已有交易账号，可直接登录，如没有，可开模</span>
+    <span class="plogin">{{ $t("logAccount") }}</span>
+    <span class="padd">{{ $t("noAccount") }}</span>
     <el-form
       ref="ruleFormRef"
       :model="formState"
@@ -69,24 +69,47 @@
           >{{ $t("account.login") }}</el-button
         >
       </el-form-item>
+
       <el-form-item>
         <div class="login-form-account">
-          <span> {{ $t("account.noAccount") }}</span>
+          <span> {{ $t("account.noAccount") }}&nbsp;</span>
           <span class="link" @click="emit('goCom', 'register')">{{
             $t("account.createAccount")
           }}</span>
         </div>
       </el-form-item>
     </el-form>
+
+    <div class="article">
+      <span>{{ $t("article.loginsee") }}</span>
+      <el-link
+        type="primary"
+        target="_blank"
+        :href="serviceArticleUrl"
+        :underline="false"
+        >{{ $t("leftBook") }}{{ $t("article.userAgreement")
+        }}{{ $t("rightBook") }}</el-link
+      >
+      <span> {{ $t("and") }} </span>
+      <el-link
+        type="primary"
+        target="_blank"
+        :href="privacyPolicyUrl"
+        :underline="false"
+        >{{ $t("leftBook") }}{{ $t("article.privacyPolicy")
+        }}{{ $t("rightBook") }}</el-link
+      >
+      <span></span>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, ref } from "vue";
+import { useNetwork } from "@/store/modules/network";
+import { useUser } from "@/store/modules/user";
 import { Search } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
-import { useUser } from "@/store/modules/user";
-import { useNetwork } from "@/store/modules/network";
+import { computed, reactive, ref } from "vue";
 
 const networkStore = useNetwork();
 const userStore = useUser();
@@ -146,8 +169,37 @@ if (props.server) {
   formState.server = String(props.server);
 }
 
+import { articleDetails, protocolAgree } from "api/account/index";
+// 隐私协议
+const privacyPolicyUrl = ref("");
+// 用户协议
+const serviceArticleUrl = ref("");
+(async function getProtoco() {
+  const [privacyPolicy, serviceArticle] = await Promise.all([
+    articleDetails({ columnCode: "privacy-policy", articleCode: "" }),
+    articleDetails({ columnCode: "service-article", articleCode: "" }),
+  ]);
+  privacyPolicyUrl.value = privacyPolicy.data.url;
+  serviceArticleUrl.value = serviceArticle.data.url;
+})();
+
 const happyStart = async () => {
   try {
+    const target = networkStore.queryTradeLines.find(
+      (e) => e.lineName === formState.server
+    );
+    if (target) {
+      await Promise.all(
+        ["privacy-policy", "service-article"].map((item) => {
+          return protocolAgree({
+            protocolName: item,
+            brokerName: target.brokerName,
+            lineName: target.lineName,
+            login: formState.login,
+          });
+        })
+      );
+    }
     await userStore.login(formState, ({ ending }) => {
       loading.value = !ending;
     });
@@ -169,7 +221,7 @@ const disabled = computed(() => {
   box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
   @include background_color("background-component");
   box-sizing: border-box;
-  padding: 56px 32px;
+  padding: 56px 32px 0 32px;
   .plogin {
     font-weight: bold;
     font-size: 28px;
@@ -220,5 +272,20 @@ const disabled = computed(() => {
   &:hover {
     @include font_color("primary");
   }
+}
+
+.article {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  padding: 16px 32px;
+  background-color: #fff9eb;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <el-tooltip :content="$t('Horizontal layout')">
+  <el-tooltip :content="$t('HorizontalLayout')">
     <div
       class="iconbox"
       :class="{ iconActive: flexDirection === 'row' }"

@@ -1,7 +1,7 @@
 <template>
   <div class="accounts">
-    <span class="plogin">登录您的账号</span>
-    <span class="padd">已有交易账号，可直接登录，如没有，可开模</span>
+    <span class="plogin">{{ $t("logAccount") }}</span>
+    <span class="padd">{{ $t("noAccount") }}</span>
 
     <div class="list">
       <el-scrollbar always :height="Math.min(list.length, 3) * 56">
@@ -35,21 +35,23 @@
       type="primary"
       :loading="loading"
       @click="happyStart"
-      >{{ ifOpera ? "完成" : $t("account.login") }}</el-button
+      >{{ ifOpera ? $t("done") : $t("account.login") }}</el-button
     >
 
     <div class="footer">
-      <span @click="emit('goCom', 'login', { needBack: true })">添加账号</span>
+      <span @click="emit('goCom', 'login', { needBack: true })">{{
+        $t("addAccount")
+      }}</span>
       <el-divider direction="vertical" />
-      <span @click="ifOpera = true">管理账号</span>
+      <span @click="ifOpera = true">{{ $t("manageAccount") }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { orderBy } from "lodash";
 import { useUser } from "@/store/modules/user";
+import { orderBy } from "lodash";
+import { ref } from "vue";
 
 const userStore = useUser();
 const list = ref<any[]>([]);

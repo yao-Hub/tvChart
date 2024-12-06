@@ -1,7 +1,7 @@
 <template>
   <div class="login">
-    <span class="welcome">欢迎使用UTrader</span>
     <img class="title" src="@/assets/icons/title.png" />
+    <span class="welcome">{{ $t("welcomeToUTrader") }}</span>
     <component
       class="main"
       :lineInfo="lineInfo"
@@ -36,8 +36,7 @@ const themeStore = useTheme();
 const router = useRouter();
 const route = useRoute();
 
-// 登录页保持这个大小
-sizeStore.changeSize("default", true);
+sizeStore.initSize();
 themeStore.initTheme();
 
 const state = reactive({

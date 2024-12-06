@@ -1,5 +1,6 @@
 import * as orders from "api/order/index";
 import { ElMessageBox } from "element-plus";
+import { isNil } from "lodash";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useChartAction } from "./chartAction";
@@ -85,7 +86,7 @@ export const useOrder = defineStore("order", {
       },
       selectedMenuKey: "price",
       ifOne: false, // 一键交易
-      ifQuick: false, // 快捷交易(图表是否显示快捷交易组件)
+      ifQuick: true, // 快捷交易(图表是否显示快捷交易组件)
     };
   },
 
@@ -133,7 +134,8 @@ export const useOrder = defineStore("order", {
     // 获取快捷交易状态
     getQuickTrans() {
       const storageStore = useStorage();
-      this.ifQuick = !!storageStore.getItem("ifQuick");
+      const sto = storageStore.getItem("ifQuick");
+      this.ifQuick = isNil(sto) ? true : sto;
       return this.ifQuick;
     },
 

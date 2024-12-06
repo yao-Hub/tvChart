@@ -7,7 +7,7 @@
     append-to-body
   >
     <template #header>
-      <span class="header">我的反馈</span>
+      <span class="header">{{ $t("myFeedback") }}</span>
     </template>
     <el-scrollbar v-loading="loading" class="commentList">
       <div v-for="item in commentList">
@@ -36,7 +36,7 @@
                 class="expand"
                 v-if="item.handleOpinion"
                 @click="item.ifExpand = !item.ifExpand"
-                >{{ item.ifExpand ? "收起" : "展开回复" }}</span
+                >{{ item.ifExpand ? $t("retract") : $t("expandReply") }}</span
               >
             </div>
 
@@ -46,7 +46,9 @@
                   style="height: 24px; width: 24px; border-radius: 50%"
                   src="@/assets/icons/logo@3x.png"
                 />
-                <span class="grayWord">平台答复：</span>
+                <span class="grayWord"
+                  >{{ $t("platformResponse") }}:&nbsp;</span
+                >
               </div>
               <span class="reply_word">{{ item.handleOpinion }}</span>
               <span class="grayWord reply_time">{{ item.handleTime }}</span>
