@@ -60,7 +60,7 @@
           <el-button
             type="primary"
             style="width: 72px; height: 40px"
-            @click="sumit(formRef)"
+            @click="submit(formRef)"
             >确认更改</el-button
           >
         </el-form-item>
@@ -70,11 +70,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, watch } from "vue";
-import { useI18n } from "vue-i18n";
-import type { FormInstance, FormRules } from "element-plus";
-import { passwordReset } from "api/account/index";
 import { useNetwork } from "@/store/modules/network";
+import { passwordReset } from "api/account/index";
+import type { FormInstance, FormRules } from "element-plus";
+import { reactive, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 const networkStore = useNetwork();
 const { t } = useI18n();
@@ -133,7 +133,7 @@ const rules = reactive<FormRules<typeof formState>>({
 });
 
 import { ElMessage } from "element-plus";
-const sumit = (formEl: FormInstance | undefined) => {
+const submit = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   formEl.validate(async (valid) => {
     if (valid) {
@@ -150,6 +150,15 @@ const sumit = (formEl: FormInstance | undefined) => {
     }
   });
 };
+
+import { onMounted } from "vue";
+onMounted(() => {
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      submit(formRef.value);
+    }
+  });
+});
 </script>
 
 <style lang="scss" scoped>

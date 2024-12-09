@@ -188,43 +188,41 @@ export const useUser = defineStore("user", {
         callback({ ending: false, success: false });
       }
       const networkStore = useNetwork();
-      const socketStore = useSocket();
       networkStore.server = updata.server;
       const nodeList = await networkStore.getNodes(updata.server);
       if (nodeList.length === 0) {
         ElMessage.info("找不到网络节点");
         return Promise.reject();
       }
-      let errorCount = 0;
-      for (let i in nodeList) {
-        const item = nodeList[i];
-        try {
-          // 接口节点确定
-          networkStore.nodeName = item.nodeName;
-          // socket地址确定
-          socketStore.initSocket();
-          const res = await Login(updata);
-          const token = res.data.token;
-          // 缓存登录信息
-          this.addAccount({
-            ...updata,
-            queryNode: item.nodeName,
-            token,
-            ifLogin: true,
-          });
-          // 缓存token 发送登录状态
-          socketStore.sendToken({ login: updata.login, token });
-          ElMessage.success(i18n.global.t("loginSucceeded"));
-          if (callback) {
-            callback({ ending: true, success: true });
-          }
-          return Promise.resolve();
-        } catch (error) {
-          errorCount++;
-          continue;
+      try {
+        const res = await Promise.any(
+          nodeList.map(async (item) => {
+            networkStore.nodeName = item.nodeName;
+            // socket地址确定
+            const res = await Login(updata);
+            return Promise.resolve({
+              ...updata,
+              queryNode: item.nodeName,
+              token: res.data.token,
+            });
+          })
+        );
+        const socketStore = useSocket();
+        socketStore.initSocket();
+        const { queryNode, token } = res;
+        // 缓存登录信息
+        this.addAccount({
+          ...updata,
+          queryNode,
+          token,
+          ifLogin: true,
+        });
+        socketStore.sendToken({ login: updata.login, token });
+        if (callback) {
+          callback({ ending: true, success: true });
         }
-      }
-      if (errorCount === nodeList.length) {
+        ElMessage.success(i18n.global.t("loginSucceeded"));
+      } catch (error) {
         if (callback) {
           callback({ ending: true, success: false });
         }

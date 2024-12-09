@@ -58,7 +58,7 @@
         <el-button
           type="primary"
           class="submit-button"
-          :disabled="!isFormValid"
+          :disabled="!formValid"
           @click="resetPwd"
           >{{ $t("account.resetPassword") }}</el-button
         >
@@ -145,18 +145,18 @@ const rules = reactive<FormRules<typeof formState>>({
   checkPass: [{ required: true, validator: validatePass2, trigger: "blur" }],
 });
 
-const isFormValid = ref(false);
+const formValid = ref(false);
 
 const validateForm = () => {
   formRef.value?.validate((valid: any) => {
-    isFormValid.value = valid;
+    formValid.value = valid;
   });
 };
 
 watch(() => formState, validateForm, { deep: true });
 
-const resetPwd = async (values: any) => {
-  const { code, email, pass, checkPass } = values;
+const resetPwd = async () => {
+  const { code, email, pass, checkPass } = formState;
   await emailPasswordUpdate({
     server: props.lineInfo.lineName,
     email,
@@ -167,6 +167,18 @@ const resetPwd = async (values: any) => {
   ElMessage.success("reset success");
   emit("goBack");
 };
+
+import { onMounted } from "vue";
+onMounted(() => {
+  if (!formValid.value) {
+    return;
+  }
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      resetPwd();
+    }
+  });
+});
 </script>
 
 <style lang="scss" scoped>

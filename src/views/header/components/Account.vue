@@ -1,6 +1,6 @@
 <template>
-  <el-dropdown trigger="click">
-    <div class="info">
+  <el-dropdown trigger="contextmenu" ref="dropdown">
+    <div class="info" @click="openDropdown">
       <div class="left">
         <div class="top">
           <span>{{ networkStore.currentNode?.nodeName }}</span>
@@ -33,7 +33,7 @@
         </div>
       </div>
       <div class="account">
-        <span @click="modalOpen = true">{{ $t("personalInformation") }}</span>
+        <span @click="showModal">{{ $t("personalInformation") }}</span>
         <el-divider direction="vertical" />
         <span
           @click="resetPasswordOpen = true"
@@ -92,10 +92,13 @@
 import { useChartInit } from "@/store/modules/chartInit";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
+import type { DropdownInstance } from "element-plus";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
+
+const dropdown = ref<DropdownInstance>();
 const resetPasswordOpen = ref(false);
 
 const networkStore = useNetwork();
@@ -118,6 +121,17 @@ watch(
   },
   { deep: true }
 );
+
+const openDropdown = () => {
+  if (!dropdown.value) return;
+  dropdown.value.handleOpen();
+};
+
+const closeDropdown = () => {
+  if (!dropdown.value) return;
+  dropdown.value.handleClose();
+};
+
 const delAccount = (account: any) => {
   userStore.removeAccount(account);
 };
@@ -139,6 +153,7 @@ const changeLogin = (account: any) => {
     userStore.accountList.forEach((item) => {
       item.ifLogin = item.login === login && item.server === server;
     });
+    closeDropdown();
     await userStore.login({
       login,
       password,
@@ -165,6 +180,10 @@ const getLogo = (server: string) => {
 };
 
 const modalOpen = ref<boolean>(false);
+const showModal = () => {
+  closeDropdown();
+  modalOpen.value = true;
+};
 </script>
 
 <style lang="scss" scoped>

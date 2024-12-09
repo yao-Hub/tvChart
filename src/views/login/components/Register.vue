@@ -183,6 +183,18 @@ const submit = (formEl: FormInstance | undefined) => {
   });
 };
 
+import { onMounted } from "vue";
+onMounted(() => {
+  if (!btnDisabled.value) {
+    return;
+  }
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      submit(formRef.value);
+    }
+  });
+});
+
 const back = () => {
   if (ifSuccess.value) {
     ifSuccess.value = !ifSuccess.value;

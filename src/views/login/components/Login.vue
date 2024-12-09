@@ -109,7 +109,7 @@ import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 import { Search } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
 
 const networkStore = useNetwork();
 const userStore = useUser();
@@ -160,14 +160,9 @@ const rules = reactive<FormRules<typeof formState>>({
   ],
 });
 
-// 记住密码自动填充
-if (props.login) {
-  formState.login = String(props.login);
-  formState.remember = false;
-}
-if (props.server) {
-  formState.server = String(props.server);
-}
+const disabled = computed(() => {
+  return !(formState.login && formState.password);
+});
 
 import { articleDetails, protocolAgree } from "api/account/index";
 // 隐私协议
@@ -189,16 +184,12 @@ const happyStart = async () => {
       (e) => e.lineName === formState.server
     );
     if (target) {
-      await Promise.all(
-        ["privacy-policy", "service-article"].map((item) => {
-          return protocolAgree({
-            protocolName: item,
-            brokerName: target.brokerName,
-            lineName: target.lineName,
-            login: formState.login,
-          });
-        })
-      );
+      protocolAgree({
+        protocolName: "2",
+        brokerName: target.brokerName,
+        lineName: target.lineName,
+        login: formState.login,
+      });
     }
     await userStore.login(formState, ({ ending }) => {
       loading.value = !ending;
@@ -209,8 +200,23 @@ const happyStart = async () => {
   }
 };
 
-const disabled = computed(() => {
-  return !(formState.login && formState.password);
+onMounted(() => {
+  // 记住密码自动填充
+  if (props.login) {
+    formState.login = String(props.login);
+    formState.remember = false;
+  }
+  if (props.server) {
+    formState.server = String(props.server);
+  }
+  document.addEventListener("keydown", function (event) {
+    if (disabled.value) {
+      return;
+    }
+    if (event.key === "Enter") {
+      happyStart();
+    }
+  });
 });
 </script>
 

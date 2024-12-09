@@ -51,7 +51,7 @@
 <script setup lang="ts">
 import { useUser } from "@/store/modules/user";
 import { orderBy } from "lodash";
-import { ref } from "vue";
+import { onMounted, ref } from "vue";
 
 const userStore = useUser();
 const list = ref<any[]>([]);
@@ -121,6 +121,14 @@ const getLogo = (server: string) => {
   }
   return result;
 };
+
+onMounted(() => {
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      happyStart();
+    }
+  });
+});
 </script>
 
 <style lang="scss" scoped>

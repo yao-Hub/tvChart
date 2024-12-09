@@ -133,7 +133,11 @@ const chartContainer = ref();
 const emit = defineEmits(["initChart"]);
 
 onMounted(() => {
-  initonReady();
+  try {
+    initonReady();
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 const initonReady = () => {

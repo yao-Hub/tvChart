@@ -105,6 +105,8 @@ const service = axios.create({
     // @ts-ignore
     "x-u-device-info": _OS_RELEASE_,
     "x-u-app-theme": theme,
+    // @ts-ignore
+    "x-u-device-model": _OS_HOSTNAME_,
   },
 });
 
