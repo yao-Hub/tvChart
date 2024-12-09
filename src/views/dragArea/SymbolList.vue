@@ -120,9 +120,9 @@
 <script setup lang="ts">
 import { IDepth } from "@/types/common";
 import { nextTick, ref, shallowRef, watch } from "vue";
-import Deep from "./components/deep/index.vue";
 import RightClickMenu from "./components/RightClickMenu.vue";
 import Search from "./components/Symbolsearch/index.vue";
+import Deep from "./components/deep/index.vue";
 
 interface DataSource {
   symbols: string;
@@ -407,15 +407,14 @@ const expandChange = (row: any, expandedRows: any[]) => {
   justify-content: flex-end;
 }
 
-:deep(.header-cell) {
-  padding: 0;
-}
-:deep(.cell) {
+:deep(.el-table .cell) {
   padding-left: 0;
-  padding-right: 16px;
 }
 :deep(.body-cell) {
   border: none;
+}
+:deep(.el-table .caret-wrapper) {
+  width: 14px;
 }
 
 :deep(.el-table__expand-icon > .el-icon) {

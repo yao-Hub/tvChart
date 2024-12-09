@@ -1,5 +1,5 @@
 <template>
-  <div :style="styles.orderBtn">
+  <div :style="styles.addOrder">
     <div :style="styles.area">
       <div :style="wordStyle('sell')">
         {{ bid }}
@@ -9,13 +9,21 @@
       </div>
     </div>
     <div :style="{ ...inputAreaStyle, boxSizing: 'border-box' }">
-      <UpOutlined :style="styles.icon" @click="addNum" />
+      <img
+        :style="styles.icon"
+        src="@/assets/icons/caretDown.svg"
+        @click="reduceNum"
+      />
       <input
         :style="{ ...styles.input, textAlign: 'center' }"
         type="text"
         v-model="volume"
       />
-      <DownOutlined :style="styles.icon" @click="reduceNum" />
+      <img
+        src="@/assets/icons/caretUp.svg"
+        :style="styles.icon"
+        @click="addNum"
+      />
     </div>
     <div :style="styles.area">
       <div :style="btnStyle('buy')" @click="creatOrder('buy')">
@@ -29,19 +37,18 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, ref, watchEffect } from "vue";
-import { UpOutlined, DownOutlined } from "@ant-design/icons-vue";
 import { ElMessage } from "element-plus";
+import { computed, ref, watchEffect } from "vue";
 
-import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ORDER_TYPE } from "@/constants/common";
 import { ISessionSymbolInfo } from "@/types/chart/index";
+import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
-import { useTheme } from "@/store/modules/theme";
 import { useSymbols } from "@/store/modules/symbols";
+import { useTheme } from "@/store/modules/theme";
 
 const chartInitStore = useChartInit();
 const dialogStore = useDialog();
@@ -51,11 +58,11 @@ const symbolsStore = useSymbols();
 
 // 样式
 const styles = {
-  orderBtn: {
+  addOrder: {
     display: "flex",
-    height: "18px",
-    width: "267px",
+    height: "24px",
     justifyContent: "space-between",
+    gap: "2px",
   },
   area: {
     display: "flex",
@@ -66,7 +73,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-between",
     flex: 1,
-    height: "18px",
+    height: "24px",
   },
   input: {
     border: "none",
@@ -81,34 +88,49 @@ const styles = {
     cursor: "pointer",
   },
   btn: {
-    height: "18px",
+    height: "24px",
     padding: "0 5px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    cursor: "pointer",
+    color: "#fff",
+  },
+  word: {
+    height: "24px",
+    padding: "0 5px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "51px",
+    color: "#fff",
   },
 };
-const downColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? "#009355" : "#DC1D43";
+const wordDownColor = computed(() => {
+  return themeStore.upDownTheme === "upRedDownGreen" ? "#00C673" : "#FF4A61";
 });
-const upColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? "#DC1D43" : "#009355";
+const wordUpColor = computed(() => {
+  return themeStore.upDownTheme === "upRedDownGreen" ? "#FF4A61" : "#00C673";
 });
 const wordStyle = (type: "sell" | "buy") => {
   return {
-    ...styles.btn,
-    width: "51px",
-    backgroundColor: type === "sell" ? downColor.value : upColor.value,
-    color: "#fff",
+    ...styles.word,
+    backgroundColor: type === "sell" ? wordDownColor.value : wordUpColor.value,
+    borderRadius: type === "sell" ? "2px 0 0 2px" : "0 2px 2px 0",
   };
 };
+
+const btnDownColor = computed(() => {
+  return themeStore.upDownTheme === "upRedDownGreen" ? "#009355" : "#DC1D43";
+});
+const btnUpColor = computed(() => {
+  return themeStore.upDownTheme === "upRedDownGreen" ? "#DC1D43" : "#009355";
+});
+
 const btnStyle = (type: "sell" | "buy") => {
   return {
     ...styles.btn,
-    backgroundColor: type === "sell" ? downColor.value : upColor.value,
-    opacity: 0.8,
-    cursor: "pointer",
-    color: "#fff",
+    backgroundColor: type === "sell" ? btnDownColor.value : btnUpColor.value,
   };
 };
 const inputAreaStyle = computed(() => {
@@ -145,8 +167,9 @@ const ask = computed(() => {
 });
 
 const getQuotes = (type: "bid" | "ask", symbol: string) => {
-  if (orderStore.currentQuotes[symbol]) {
-    return orderStore.currentQuotes[symbol][type];
+  const digits = symbolInfo.value?.digits;
+  if (orderStore.currentQuotes[symbol] && digits) {
+    return orderStore.currentQuotes[symbol][type].toFixed(digits);
   }
   return "-";
 };

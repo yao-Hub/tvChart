@@ -38,6 +38,7 @@
           >
           </SymbolSelect>
           <el-select
+            :suffix-icon="SelectSuffixIcon"
             style="width: 130px; flex-shrink: 0; height: 32px"
             v-if="activeKey === 'marketOrder'"
             v-model="orderStore.dataFilter[activeKey].direction"
@@ -48,6 +49,7 @@
             <el-option value="sell" :label="$t('order.sell')"></el-option>
           </el-select>
           <el-select
+            :suffix-icon="SelectSuffixIcon"
             style="width: 130px; flex-shrink: 0; height: 32px"
             v-if="activeKey === 'marketOrder'"
             v-model="orderStore.dataFilter[activeKey].pol"
@@ -103,6 +105,7 @@
             >时间：</TimeSelect
           >
           <el-select
+            :suffix-icon="SelectSuffixIcon"
             style="width: 130px; flex-shrink: 0; height: 32px"
             v-if="activeKey === 'blanceRecord'"
             v-model="orderStore.dataFilter[activeKey].pol"
@@ -332,9 +335,9 @@ import { useOrder } from "@/store/modules/order";
 import { useTime } from "@/store/modules/time";
 import { useUser } from "@/store/modules/user";
 
+import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
-
 import TimeSelect from "./components/TimeSelect.vue";
 
 const userStore = useUser();
@@ -791,6 +794,9 @@ onMounted(async () => {
 .el-table-v2__row:nth-child(even) {
   @include background_color("table-colored");
 }
+.el-select-v2__caret {
+  content: url("@/assets/icons/caretDown.svg");
+}
 </style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
@@ -801,7 +807,6 @@ onMounted(async () => {
   white-space: nowrap;
   padding: 0;
 }
-
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;
@@ -861,6 +866,7 @@ onMounted(async () => {
   width: 100%;
   padding: 0 16px;
   line-height: 32px;
+  font-weight: 400;
 
   .drag-line {
     position: absolute;

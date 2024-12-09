@@ -51,6 +51,7 @@ declare module 'vue' {
     MyFeedBack: typeof import('./src/components/Feedback/MyFeedBack.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SelectSuffixIcon: typeof import('./src/components/SelectSuffixIcon.vue')['default']
     StepNumInput: typeof import('./src/components/StepNumInput.vue')['default']
     SymbolSelect: typeof import('./src/components/SymbolSelect.vue')['default']
     TabItem: typeof import('./src/components/BaseTabs/tabItem.vue')['default']

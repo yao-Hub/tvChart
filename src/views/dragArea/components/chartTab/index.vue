@@ -14,7 +14,7 @@
       @command="emit('symbolCommand', $event, props.id)"
     >
       <div class="el-dropdown-link" @click.stop="toggleSymbolDropdown">
-        <span>{{ props.symbol }}</span>
+        <el-text :type="props.active ? '' : 'info'">{{ props.symbol }}</el-text>
         <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
       </div>
       <template #dropdown>
@@ -51,7 +51,9 @@
       @visible-change="resolutionVisible = $event"
     >
       <div class="el-dropdown-link" @click.stop="toggleResolutionDropdown">
-        <span>{{ nowResolution }}</span>
+        <el-text :type="props.active ? '' : 'info'">{{
+          nowResolution
+        }}</el-text>
         <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
       </div>
       <template #dropdown>
@@ -80,8 +82,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
 import type { DropdownInstance } from "element-plus";
+import { computed, ref } from "vue";
 
 import { RESOLUTES } from "@/constants/common";
 

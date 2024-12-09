@@ -3,11 +3,14 @@
     <div class="info" @click="openDropdown">
       <div class="left">
         <div class="top">
-          <span>{{ networkStore.currentNode?.nodeName }}</span>
+          <el-text>{{ networkStore.currentNode?.nodeName }}</el-text>
           <div class="divider"></div>
-          <span>{{ userStore.account.login }}</span>
+          <el-text>{{ userStore.account.login }}</el-text>
         </div>
-        <span class="balance">{{ userStore.loginInfo?.balance }}</span>
+        <el-text class="balance"
+          >{{ userStore.loginInfo?.balance }}
+          {{ userStore.loginInfo?.currency }}</el-text
+        >
       </div>
       <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
     </div>
@@ -201,17 +204,21 @@ const showModal = () => {
   .left {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 4px;
     height: 100%;
-    text-align: right;
 
     .top {
       display: flex;
       align-items: center;
     }
+
     .balance {
-      @include font_color("primary");
       font-weight: 500;
+      text-align: right;
+      display: block;
+      width: 100%;
     }
   }
   .divider {

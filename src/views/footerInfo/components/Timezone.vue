@@ -1,27 +1,30 @@
 <template>
-  <el-dropdown trigger="click" placement="top-start">
-    <div class="timezone">
-      <span>当前时间：{{ currentTimezone }}</span>
-      <img src="@/assets/icons/caretUp.svg" />
-      <span style="margin-left: 4px">{{ nowTime }}</span>
-    </div>
-    <template #dropdown>
-      <el-scrollbar height="200px">
-        <div
-          v-for="item in timezoneOptions"
-          :key="item.id"
-          class="timezone_item"
-          @click="changeTimezone(item)"
-        >
-          <span>{{ item.title }}</span>
-          <img
-            src="@/assets/icons/select.svg"
-            v-if="item.title === currentTimezone"
-          />
-        </div>
-      </el-scrollbar>
-    </template>
-  </el-dropdown>
+  <div class="Timezone">
+    <el-dropdown trigger="click" placement="top-start">
+      <div class="face">
+        <span>当前时间：{{ currentTimezone }}</span>
+        <img src="@/assets/icons/caretUp.svg" />
+      </div>
+      <template #dropdown>
+        <el-scrollbar height="200px">
+          <div
+            v-for="item in timezoneOptions"
+            :key="item.id"
+            class="item"
+            @click="changeTimezone(item)"
+          >
+            <span>{{ item.title }}</span>
+            <img
+              src="@/assets/icons/select.svg"
+              v-if="item.title === currentTimezone"
+            />
+          </div>
+        </el-scrollbar>
+      </template>
+    </el-dropdown>
+
+    <span>{{ nowTime }}</span>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -59,14 +62,18 @@ onBeforeUnmount(() => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
-.timezone {
+.Timezone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.face {
   display: flex;
   gap: 4px;
   align-items: center;
   cursor: pointer;
 }
-.timezone_item {
+.item {
   width: 120px;
   height: 40px;
   padding: 0 16px;

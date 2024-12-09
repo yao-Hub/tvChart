@@ -22,6 +22,7 @@ const iconHover = {
 const minWidth = 300;
 const minHeight = 150;
 const lineWidth = 8;
+const dragAreaPadding = 8;
 const lineColor = "rgba(206,205,209,1)";
 
 // 水平线初始拉伸位置
@@ -182,7 +183,8 @@ function setDemoPosition() {
   const dragArea_items = document.querySelectorAll(".dragArea_item");
   dragArea_items.forEach((item) => {
     const demos = item.querySelectorAll(".demo");
-    const iw = item.getBoundingClientRect().width;
+    // 减去padding
+    const iw = item.getBoundingClientRect().width - dragAreaPadding * 2;
 
     // 先平分
     demos.forEach((demo, index, arr) => {
@@ -218,7 +220,7 @@ function setDemoPosition() {
     demos.forEach((demo, index, arr) => {
       const element = demo as HTMLElement;
       if (index === 0) {
-        element.style.left = "0";
+        element.style.left = `${dragAreaPadding}px`;
       } else {
         const right = arr[index - 1].getBoundingClientRect().right;
         element.style.left = `${right + lineWidth}px`;
@@ -639,34 +641,29 @@ function resizeSetItem() {
 function resizeSetDemo() {
   const dragItems = document.querySelectorAll(".dragArea_item");
   dragItems.forEach((item) => {
-    const ele = item as HTMLElement;
-    const itemW = +ele.style.width.replace("px", "");
-    const itemH = ele.style.height;
     const demos = item.querySelectorAll(".demo");
+    const itemW =
+      item.getBoundingClientRect().width -
+      dragAreaPadding * 2 -
+      lineWidth * (demos.length - 1);
+    const itemH = item.getBoundingClientRect().height;
     const widths = Array.from(demos).map((demo) => {
-      let width = minWidth;
       const ele = demo as HTMLElement;
-      const styleW = ele.style.width;
-      if (styleW) {
-        width = +styleW.replace("px", "");
-      } else {
-        const initW = demo.getAttribute("data-initW");
-        width = initW ? +initW : minWidth;
-      }
+      const width = Math.floor(ele.getBoundingClientRect().width);
       return width;
     });
     const totalWidth = widths.reduce((a, b) => a + b, 0);
     const widthRatios = widths.map((width) => {
-      const r = width / totalWidth;
-      return parseFloat(String(r));
+      const r = (width / totalWidth).toFixed(2);
+      return parseFloat(r);
     });
     demos.forEach((demo, index) => {
       const element = demo as HTMLElement;
       element.style.width = `${widthRatios[index] * itemW}px`;
-      element.style.height = itemH;
+      element.style.height = `${itemH}px`;
       const left = index
         ? demos[index - 1].getBoundingClientRect().right + lineWidth
-        : 0;
+        : dragAreaPadding;
       element.style.left = `${left}px`;
     });
   });

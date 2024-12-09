@@ -36,6 +36,7 @@
   --el-font-size-base: 14px;
   --el-font-size-small: 12px;
   --el-bg-color-overlay: #f6f8fb;
+  --el-color-info: #63636a;
 }
 .el-button--primary {
   --el-button-text-color: #000000;
@@ -47,5 +48,11 @@
   --el-button-active-bg-color: rgba(244, 178, 1, 0.24);
 }
 .el-form-item__label {
+  color: #000;
+}
+.el-table thead th {
+  font-weight: 400;
+}
+.el-table {
   color: #000;
 }

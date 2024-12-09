@@ -3,13 +3,13 @@
     <template #label>
       <div class="title">
         <span style="white-space: nowrap">{{ titleMap[props.type] }}</span>
-        <el-tooltip :content="`至少远离市价${minPoint}点`" placement="top">
+        <el-tooltip :content="`${minPoint}`" placement="top">
           <el-text
             class="textEllipsis"
             style="width: 130px"
             type="info"
             v-if="!price"
-            >至少远离市价{{ minPoint || "-" }}点</el-text
+            >{{ minPoint }}</el-text
           >
         </el-tooltip>
         <el-text :type="ifError ? 'danger' : 'info'" v-if="rangeTip && price">{{
@@ -53,11 +53,10 @@ const price = defineModel<string | number>("price");
 
 // 至少远离市价点数
 const minPoint = computed(() => {
-  let result;
+  let result = "-";
   if (props.symbolInfo) {
-    const digits = props.symbolInfo.digits;
     const stopsLevel = props.symbolInfo.stops_level;
-    result = stopsLevel / Math.pow(10, +digits);
+    result = `至少远离市价${stopsLevel}点`;
   }
   return result;
 });
@@ -73,11 +72,14 @@ const getRange = () => {
     buyStopLimit: props.limitedPrice || 0,
     sellStopLimit: props.limitedPrice || 0,
   };
-  if (props.symbolInfo && minPoint.value) {
+  if (props.symbolInfo) {
     const digits = props.symbolInfo.digits;
+    const stopsLevel = props.symbolInfo.stops_level;
+    const point = stopsLevel / Math.pow(10, +digits);
+    stopsLevel / Math.pow(10, +digits);
     const lead = +leadOption[props.orderType] || 0;
-    const down = +round(lead - minPoint.value, digits);
-    const up = +round(lead + minPoint.value, digits);
+    const down = +round(lead - point, digits);
+    const up = +round(lead + point, digits);
     return [down, up];
   }
   return [0, 0];

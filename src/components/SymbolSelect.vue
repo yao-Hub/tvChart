@@ -1,5 +1,6 @@
 <template>
   <el-select-v2
+    :suffix-icon="SelectSuffixIcon"
     v-model="model"
     :options="symbols"
     :props="{
@@ -19,8 +20,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import { useSymbols } from "@/store/modules/symbols";
+import { computed, createApp, onMounted } from "vue";
 
 const symbolsStore = useSymbols();
 
@@ -39,6 +41,17 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(["change"]);
 
 const model = defineModel();
+
+onMounted(() => {
+  const selectIcon = document.querySelector(".el-select__caret");
+  const oldSvg = selectIcon?.querySelector("svg");
+  const tempContainer = document.createElement("div");
+  createApp(SelectSuffixIcon).mount(tempContainer);
+  const newIcon = tempContainer.firstElementChild;
+  if (newIcon && oldSvg) {
+    selectIcon?.replaceChild(newIcon, oldSvg);
+  }
+});
 
 const handleChange = (symbols: string[] | string) => {
   if (!props.subSymbol) {

@@ -21,7 +21,7 @@
         class="demo nested-1"
         data-id="demo_2"
         data-minWidth="360"
-        data-initW="468"
+        data-initW="480"
         v-if="layoutStore.symbolsVisable"
       >
         <div class="handle"></div>
