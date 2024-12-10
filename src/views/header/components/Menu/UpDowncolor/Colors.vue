@@ -1,7 +1,7 @@
 <template>
   <el-dropdown-menu>
     <el-dropdown-item>
-      <div class="item" @click="changeColor('upRedDownGreen')">
+      <div class="colorsItem" @click="changeColor('upRedDownGreen')">
         <img class="logo" src="@/assets/icons/upRedDownGreen.svg" />
         <span>{{ $t("upRedDownGreen") }}</span>
         <img
@@ -12,7 +12,7 @@
       </div>
     </el-dropdown-item>
     <el-dropdown-item>
-      <div class="item" @click="changeColor('upGreenDownRed')">
+      <div class="colorsItem" @click="changeColor('upGreenDownRed')">
         <img class="logo" src="@/assets/icons/upGreenDownRed.svg" />
         <span>{{ $t("upGreenDownRed") }}</span>
         <img
@@ -35,7 +35,7 @@ const changeColor = (theme: "upRedDownGreen" | "upGreenDownRed") => {
 </script>
 
 <style lang="scss" scoped>
-.item {
+.colorsItem {
   width: 150px;
   display: flex;
   gap: 10px;

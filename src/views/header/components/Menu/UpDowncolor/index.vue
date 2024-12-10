@@ -1,11 +1,11 @@
 <template>
   <el-dropdown trigger="hover" placement="right-start">
-    <div class="nowColor">
-      <div class="nowColor_left">
+    <div class="UpdownColor">
+      <div class="UpdownColor_left">
         <img class="logo" src="@/assets/icons/icon_14.svg" />
         <span>{{ $t("updownColor") }}</span>
       </div>
-      <div class="nowColor_right">
+      <div class="UpdownColor_right">
         <img
           class="logo checkIcon"
           :src="`src/assets/icons/${themeStore.upDownTheme}.svg`"
@@ -20,17 +20,17 @@
 </template>
 
 <script setup lang="ts">
-import Colors from "./Colors.vue";
 import { useTheme } from "@/store/modules/theme";
+import Colors from "./Colors.vue";
 const themeStore = useTheme();
 </script>
 
 <style lang="scss" scoped>
-.nowColor {
+.UpdownColor {
   display: flex;
   justify-content: space-between;
   width: 200px;
-  height: 32px;
+  height: 100%;
 
   &_left {
     display: flex;

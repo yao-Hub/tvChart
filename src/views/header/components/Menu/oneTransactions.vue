@@ -1,6 +1,6 @@
 <template>
-  <div class="transaction">
-    <div class="transaction_left">
+  <div class="oneTransactions">
+    <div class="oneTransactions_left">
       <img class="logo" src="@/assets/icons/icon_9.svg" />
       <span>{{ $t("QuickTransactions") }}</span>
     </div>
@@ -9,8 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
+import { useOrder } from "@/store/modules/order";
 
 const orderStore = useOrder();
 const dialogStore = useDialog();
@@ -28,12 +28,12 @@ const beforeChange = () => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
-.transaction {
+.oneTransactions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 200px;
-  height: 32px;
+  height: 100%;
 
   &_left {
     display: flex;

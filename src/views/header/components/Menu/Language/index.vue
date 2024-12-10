@@ -1,12 +1,12 @@
 <template>
   <el-dropdown trigger="hover" placement="right-start">
-    <div class="expandIcon">
-      <div class="expandIcon_left">
+    <div class="Language">
+      <div class="Language_left">
         <img class="logo" src="@/assets/icons/icon_12.svg" />
         <span>{{ $t("lauguage") }}</span>
       </div>
-      <div class="expandIcon_right">
-        <span>{{ nowLocale }}</span>
+      <div class="Language_right">
+        <el-text type="info">{{ nowLocale }}</el-text>
         <img class="logo" src="@/assets/icons/turnRight.svg" />
       </div>
     </div>
@@ -18,8 +18,8 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import Locales from "./Locales.vue";
 import { useI18n } from "vue-i18n";
+import Locales from "./Locales.vue";
 const I18n = useI18n();
 const nowLocale = computed(() => {
   const { locale, messages } = I18n;
@@ -30,11 +30,11 @@ const nowLocale = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-.expandIcon {
+.Language {
   width: 200px;
+  height: 100%;
   display: flex;
   justify-content: space-between;
-  height: 32px;
   align-items: center;
   &_left {
     display: flex;

@@ -1,7 +1,7 @@
 <template>
   <el-dropdown-menu>
     <el-dropdown-item v-for="(value, key) in localeList">
-      <div class="item" @click="changeLocale(key)">
+      <div class="localeItem" @click="changeLocale(key)">
         <span>{{ value.nowLocale }}</span>
         <img
           class="logo"
@@ -14,8 +14,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import i18n from "@/language/index";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 const { locale } = useI18n();
 
@@ -32,7 +32,7 @@ const changeLocale = (value: string) => {
 </script>
 
 <style lang="scss" scoped>
-.item {
+.localeItem {
   width: 150px;
   display: flex;
   justify-content: space-between;

@@ -27,7 +27,7 @@
         <el-row :gutter="24">
           <el-col :span="24">
             <el-form-item prop="symbol" label="交易品种" label-position="top">
-              <SymbolSelect v-model="formState.symbol" subSymbol />
+              <SymbolSelect v-model="formState.symbol" subSymbol ></SymbolSelect>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -491,6 +491,10 @@ const addPendingOrders = debounce(async () => {
 }
 :deep(.el-radio-button__inner) {
   width: 100%;
+}
+.dialog_header {
+  font-size: 18px;
+  font-weight: 500;
 }
 .divider {
   width: 100%;

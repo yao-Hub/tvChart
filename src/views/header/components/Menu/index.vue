@@ -1,32 +1,38 @@
 <template>
-  <el-dropdown trigger="click" @visible-change="visible = $event">
+  <el-dropdown
+    trigger="click"
+    @visible-change="visible = $event"
+    placement="bottom-end"
+  >
     <div class="menu">
       <div class="menuIcon" :class="{ menuIcon_active: visible }"></div>
     </div>
     <template #dropdown>
-      <el-dropdown-menu>
-        <el-dropdown-item>
+      <div class="dropdownbox">
+        <div class="dropdownbox_item">
           <OneTransactions></OneTransactions>
-        </el-dropdown-item>
-        <el-dropdown-item divided>
+        </div>
+        <div class="divider"></div>
+        <div class="dropdownbox_item">
           <Theme></Theme>
-        </el-dropdown-item>
-        <el-dropdown-item>
+        </div>
+        <div class="dropdownbox_item">
           <Language></Language>
-        </el-dropdown-item>
-        <el-dropdown-item>
-          <upDowncolor></upDowncolor>
-        </el-dropdown-item>
-        <el-dropdown-item>
+        </div>
+        <div class="dropdownbox_item">
+          <UpDowncolor></UpDowncolor>
+        </div>
+        <div class="dropdownbox_item">
           <FontSize></FontSize>
-        </el-dropdown-item>
-        <el-dropdown-item divided>
+        </div>
+        <div class="divider"></div>
+        <div class="dropdownbox_item">
           <sendFeedback></sendFeedback>
-        </el-dropdown-item>
-        <el-dropdown-item>
+        </div>
+        <div class="dropdownbox_item">
           <aboutUs></aboutUs>
-        </el-dropdown-item>
-      </el-dropdown-menu>
+        </div>
+      </div>
     </template>
   </el-dropdown>
 </template>
@@ -35,19 +41,21 @@
 import { ref } from "vue";
 import OneTransactions from "./oneTransactions.vue";
 // import TableSetting from './tableSetting.vue';
-import Theme from "./theme.vue";
+import FontSize from "./FontSize/index.vue";
 import Language from "./Language/index.vue";
+import UpDowncolor from "./UpDowncolor/index.vue";
 import aboutUs from "./aboutUs.vue";
 import sendFeedback from "./sendFeedback.vue";
-import UpDowncolor from "./UpDowncolor/index.vue";
-import FontSize from "./FontSize/index.vue";
+import Theme from "./theme.vue";
 
 const visible = ref(false);
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+:deep(.el-dropdown) {
+  height: 100%;
+}
 .menu {
   width: 48px;
   height: 48px;
@@ -71,5 +79,32 @@ const visible = ref(false);
       background-image: url("@/assets/icons/menuactive.svg");
     }
   }
+}
+
+.dropdownbox {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  &_item {
+    height: var(--size);
+    padding: 0 15px;
+    box-sizing: border-box;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    &:hover {
+      @include background_color("border");
+    }
+  }
+}
+
+.divider {
+  height: 1px;
+  @include background_color("border");
+  padding: 0 15px;
+  background-clip: content-box;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 4px 0;
 }
 </style>

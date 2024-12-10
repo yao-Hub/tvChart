@@ -1,12 +1,12 @@
 <template>
   <el-dropdown trigger="hover" placement="right-start">
-    <div class="expandIcon">
-      <div class="expandIcon_left">
+    <div class="Fontsize">
+      <div class="Fontsize_left">
         <img class="logo" src="@/assets/icons/icon_13.svg" />
         <span>{{ $t("font.fontSize") }}</span>
       </div>
-      <div class="expandIcon_right">
-        <span>{{ $t(`font.${sizeStore.systemSize}`) }}</span>
+      <div class="Fontsize_right">
+        <el-text type="info">{{ $t(`font.${sizeStore.systemSize}`) }}</el-text>
         <img class="logo" src="@/assets/icons/turnRight.svg" />
       </div>
     </div>
@@ -17,17 +17,17 @@
 </template>
 
 <script setup lang="ts">
-import Sizes from "./Sizes.vue";
 import { useSize } from "@/store/modules/size";
+import Sizes from "./Sizes.vue";
 const sizeStore = useSize();
 </script>
 
 <style lang="scss" scoped>
-.expandIcon {
+.Fontsize {
   width: 200px;
+  height: 100%;
   display: flex;
   justify-content: space-between;
-  height: 32px;
   align-items: center;
   &_left {
     display: flex;

@@ -1,5 +1,5 @@
 <template>
-  <div class="item" @click="dialogStore.feedbackVisible = true">
+  <div class="sendFeedback" @click="dialogStore.feedbackVisible = true">
     <img class="logo" src="@/assets/icons/icon_15.svg" />
     <span>{{ $t("feedback") }}</span>
   </div>
@@ -10,10 +10,11 @@ import { useDialog } from "@/store/modules/dialog";
 const dialogStore = useDialog();
 </script>
 <style lang="scss" scoped>
-.item {
+.sendFeedback {
+  height: 100%;
+  width: 100%;
   display: flex;
   gap: 5px;
-  height: 32px;
   align-items: center;
 }
 </style>

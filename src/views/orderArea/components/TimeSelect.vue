@@ -15,30 +15,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import { onMounted, ref } from "vue";
+
+const timeStore = useTime();
+const timezone = timeStore.settedTimezone;
 
 const shortcuts = [
   {
     text: "本周",
     value: () => {
-      return [dayjs().startOf("week"), dayjs()];
+      return [dayjs().tz(timezone).startOf("week"), dayjs()];
     },
   },
   {
     text: "本月",
     value: () => {
-      return [dayjs().startOf("month"), dayjs()];
+      return [dayjs().tz(timezone).startOf("month"), dayjs()];
     },
   },
   {
     text: "今年",
     value: () => {
-      return [dayjs().startOf("year"), dayjs()];
+      return [dayjs().tz(timezone).startOf("year"), dayjs()];
     },
   },
 ];
-import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
 interface Props {
@@ -54,8 +58,12 @@ const model = defineModel<any[]>("value");
 
 const initializeTimeRange = async () => {
   if (props.initFill) {
-    const monday = dayjs().startOf("week").startOf("day").format(dateFormat); // 当前周一的日期
-    const today = dayjs().format(dateFormat);
+    const monday = dayjs()
+      .tz(timezone)
+      .startOf("week")
+      .startOf("day")
+      .format(dateFormat); // 当前周一的日期
+    const today = dayjs().tz(timezone).format(dateFormat);
     model.value = [monday, today];
     timeRange.value = [monday, today];
     emit("timeRange");
@@ -70,8 +78,8 @@ const emit = defineEmits(["timeRange"]);
 const timeChange = (value: any) => {
   if (value !== null) {
     const [st, et] = value;
-    const startDate = dayjs(st).format(dateFormat);
-    const endDate = dayjs(et).format(dateFormat);
+    const startDate = dayjs(st).tz(timezone).format(dateFormat);
+    const endDate = dayjs(et).tz(timezone).format(dateFormat);
     model.value = [startDate, endDate];
   } else {
     model.value = [];

@@ -22,9 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, watch, ref } from "vue";
-import { ISessionSymbolInfo, IQuote } from "#/chart/index";
+import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { round } from "utils/common/index";
+import { computed, nextTick, ref, watch } from "vue";
 
 interface Props {
   disabled?: boolean;
@@ -81,8 +81,9 @@ const initPrice = () => {
 };
 watch(
   () => [props.symbolInfo, props.orderType],
-  () => {
+  async () => {
     if (props.symbolInfo && props.orderType && !props.disabled) {
+      await nextTick();
       price.value = initPrice() || "";
     }
   },

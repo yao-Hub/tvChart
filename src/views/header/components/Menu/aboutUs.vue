@@ -1,5 +1,5 @@
 <template>
-  <div class="item" @click="open = true">
+  <div class="aboutUs" @click="open = true">
     <img class="logo" src="@/assets/icons/icon_16.svg" />
     <span>{{ $t("aboutUs") }}</span>
   </div>
@@ -51,10 +51,11 @@ const open = ref<boolean>(false);
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-.item {
+.aboutUs {
+  height: 100%;
+  width: 100%;
   display: flex;
   gap: 5px;
-  height: 32px;
   align-items: center;
 }
 .el-row {

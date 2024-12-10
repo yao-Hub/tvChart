@@ -43,14 +43,16 @@ const emit = defineEmits(["change"]);
 const model = defineModel();
 
 onMounted(() => {
-  const selectIcon = document.querySelector(".el-select__caret");
-  const oldSvg = selectIcon?.querySelector("svg");
-  const tempContainer = document.createElement("div");
-  createApp(SelectSuffixIcon).mount(tempContainer);
-  const newIcon = tempContainer.firstElementChild;
-  if (newIcon && oldSvg) {
-    selectIcon?.replaceChild(newIcon, oldSvg);
-  }
+  const selects = document.querySelectorAll(".el-select__caret");
+  Array.from(selects).forEach((item) => {
+    const oldSvg = item?.querySelector("svg");
+    const tempContainer = document.createElement("div");
+    createApp(SelectSuffixIcon).mount(tempContainer);
+    const newIcon = tempContainer.firstElementChild;
+    if (newIcon && oldSvg) {
+      item?.replaceChild(newIcon, oldSvg);
+    }
+  });
 });
 
 const handleChange = (symbols: string[] | string) => {

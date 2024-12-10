@@ -1,6 +1,6 @@
 <template>
-  <div class="transaction">
-    <div class="transaction_left">
+  <div class="Theme">
+    <div class="Theme_left">
       <img class="logo" src="@/assets/icons/icon_10.svg" />
       <span>{{ $t("lightTheme") }}</span>
     </div>
@@ -9,8 +9,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { useTheme } from "@/store/modules/theme";
+import { ref } from "vue";
 const themeStore = useTheme();
 
 const checked = ref(false);
@@ -22,12 +22,12 @@ const handleChange = () => {
 </script>
 
 <style lang="scss" scoped>
-.transaction {
+.Theme {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 200px;
-  height: 32px;
+  height: 100%;
 
   &_left {
     display: flex;
