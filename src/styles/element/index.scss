@@ -26,6 +26,10 @@
   ),
   $menu: (
     "bg-color": #f6f8fb,
+  ),
+  $table: (
+    "header-text-color": #63636a,
+    "text-color": #000,
   )
 );
 // 如果你想导入所有样式:
@@ -54,7 +58,4 @@
 }
 .el-table thead th {
   font-weight: 400;
-}
-.el-table {
-  color: #000;
 }

@@ -39,7 +39,7 @@
           </SymbolSelect>
           <el-select
             :suffix-icon="SelectSuffixIcon"
-            style="width: 130px; flex-shrink: 0; height: 32px"
+            style="width: 130px"
             v-if="activeKey === 'marketOrder'"
             v-model="orderStore.dataFilter[activeKey].direction"
             clearable
@@ -50,7 +50,7 @@
           </el-select>
           <el-select
             :suffix-icon="SelectSuffixIcon"
-            style="width: 130px; flex-shrink: 0; height: 32px"
+            style="width: 130px"
             v-if="activeKey === 'marketOrder'"
             v-model="orderStore.dataFilter[activeKey].pol"
             clearable
@@ -62,7 +62,7 @@
           <TimeSelect
             v-show="activeKey === 'pendingOrderHistory'"
             v-model:value="orderStore.dataFilter[activeKey].createTime"
-            style="width: 380px; flex-shrink: 0"
+            style="width: 380px"
             :pickerOption="{
               startPlaceholder: '创建开始时间',
               endPlaceholder: '创建结束时间',
@@ -72,7 +72,7 @@
           >
           <TimeSelect
             v-show="['marketOrderHistory'].includes(activeKey)"
-            style="width: 380px; flex-shrink: 0"
+            style="width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].addTime"
             :pickerOption="{
               startPlaceholder: '建仓开始时间',
@@ -84,7 +84,7 @@
           <TimeSelect
             v-show="['marketOrderHistory'].includes(activeKey)"
             initFill
-            style="width: 380px; flex-shrink: 0"
+            style="width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].closeTime"
             :pickerOption="{
               startPlaceholder: '平仓开始时间',
@@ -95,7 +95,7 @@
           >
           <TimeSelect
             v-show="['blanceRecord'].includes(activeKey)"
-            style="width: 380px; flex-shrink: 0"
+            style="width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].createTime"
             :pickerOption="{
               startPlaceholder: '开始时间',
@@ -106,7 +106,7 @@
           >
           <el-select
             :suffix-icon="SelectSuffixIcon"
-            style="width: 130px; flex-shrink: 0; height: 32px"
+            style="width: 130px"
             v-if="activeKey === 'blanceRecord'"
             v-model="orderStore.dataFilter[activeKey].pol"
             clearable
@@ -190,12 +190,18 @@
               <template v-else-if="column.dataKey === 'volume'"
                 >{{ rowData.volume / 100 }}手</template
               >
-              <template v-else-if="column.dataKey === 'type'">{{
-                $t(`order.${getTradingDirection(rowData.type)}`)
-              }}</template>
-              <template v-else-if="column.dataKey === 'orderType'">{{
-                getOrderType(rowData.type)
-              }}</template>
+              <template v-else-if="column.dataKey === 'type'">
+                <span
+                  :class="[rowData.type % 2 === 0 ? 'buyWord' : 'sellWord']"
+                  >{{ $t(`order.${getTradingDirection(rowData.type)}`) }}</span
+                >
+              </template>
+              <template v-else-if="column.dataKey === 'orderType'">
+                <span
+                  :class="[rowData.type % 2 === 0 ? 'buyWord' : 'sellWord']"
+                  >{{ getOrderType(rowData.type) }}</span
+                ></template
+              >
               <template v-else-if="column.dataKey === 'now_price'">{{
                 getNowPrice(rowData)
               }}</template>

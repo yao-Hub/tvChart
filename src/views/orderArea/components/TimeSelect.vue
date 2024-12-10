@@ -1,16 +1,16 @@
 <template>
   <div class="timeSelect">
-    <span style="font-size: 12px">
+    <span class="label">
       <slot></slot>
     </span>
     <el-date-picker
-      style="height: 30px"
       v-model="timeRange"
       type="datetimerange"
       :shortcuts="shortcuts"
       v-bind="props.pickerOption"
       @change="timeChange"
     />
+    <img src="@/assets/icons/caretDown.svg" />
   </div>
 </template>
 
@@ -90,12 +90,18 @@ const timeChange = (value: any) => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+.label {
+  white-space: nowrap;
+  word-break: break-all;
+}
 .timeSelect {
+  height: fit-content;
+  display: flex;
+  align-items: center;
   border-radius: 4px;
   border: 1px solid;
   @include border_color("border");
-  padding-left: 8px;
+  padding: 0 8px;
   &:hover {
     @include border_color("primary");
   }
