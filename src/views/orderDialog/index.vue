@@ -3,7 +3,7 @@
     <el-dialog
       v-model="dialogStore.orderDialogVisible"
       class="order_dialog scrollList"
-      width="464"
+      width="450"
       :zIndex="10"
       :modal="false"
       :close-on-click-modal="false"
@@ -27,7 +27,7 @@
         <el-row :gutter="24">
           <el-col :span="24">
             <el-form-item prop="symbol" label="交易品种" label-position="top">
-              <SymbolSelect v-model="formState.symbol" subSymbol ></SymbolSelect>
+              <SymbolSelect v-model="formState.symbol" subSymbol></SymbolSelect>
             </el-form-item>
           </el-col>
           <el-col :span="24">
@@ -119,6 +119,7 @@
           </el-col>
           <el-col :span="12">
             <StopLossProfit
+              style="width: 168px"
               type="stopLoss"
               v-model:price="formState.stopLoss"
               :volume="formState.volume"
@@ -131,6 +132,7 @@
           </el-col>
           <el-col :span="12">
             <StopLossProfit
+              style="width: 168px"
               type="stopProfit"
               v-model:price="formState.stopProfit"
               :volume="formState.volume"
@@ -150,21 +152,21 @@
           <el-col :span="24">
             <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
           </el-col>
-          <el-col :span="24" v-if="['', 'price'].includes(formState.orderType)">
-            <div class="btns">
-              <el-button
-                class="sellBtn"
-                :loading="priceBtnLoading"
-                @click="showConfirmModal('sell')"
-                >卖出</el-button
-              >
-              <el-button
-                class="buyBtn"
-                :loading="priceBtnLoading"
-                @click="showConfirmModal('buy')"
-                >买入</el-button
-              >
-            </div>
+          <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
+            <el-button
+              class="sellBtn"
+              :loading="priceBtnLoading"
+              @click="showConfirmModal('sell')"
+              >卖出</el-button
+            >
+          </el-col>
+          <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
+            <el-button
+              class="buyBtn"
+              :loading="priceBtnLoading"
+              @click="showConfirmModal('buy')"
+              >买入</el-button
+            >
           </el-col>
           <el-col
             :span="24"
@@ -482,6 +484,9 @@ const addPendingOrders = debounce(async () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+:deep(.el-col) {
+  padding: 0;
+}
 :deep(.el-radio-group) {
   width: 100%;
   display: flex;
@@ -501,12 +506,6 @@ const addPendingOrders = debounce(async () => {
   height: 1px;
   background: #dee2e9;
   margin: 24px 0;
-}
-.btns {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 8px;
 }
 .sellBtn,
 .buyBtn {

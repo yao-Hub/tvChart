@@ -3,14 +3,10 @@
     <template #label>
       <div class="title">
         <span style="white-space: nowrap">{{ titleMap[props.type] }}</span>
-        <el-tooltip :content="`${minPoint}`" placement="top">
-          <el-text
-            class="textEllipsis"
-            style="width: 130px"
-            type="info"
-            v-if="!price"
-            >{{ minPoint }}</el-text
-          >
+        <el-tooltip :content="`${minPoint}`" placement="top" v-if="!price">
+          <el-text class="textEllipsis" style="width: 130px" type="info">{{
+            minPoint
+          }}</el-text>
         </el-tooltip>
         <el-text :type="ifError ? 'danger' : 'info'" v-if="rangeTip && price">{{
           rangeTip

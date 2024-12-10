@@ -7,9 +7,9 @@
   >
     <div class="moveIcon"></div>
     <el-dropdown
+      placement="bottom-start"
       trigger="contextmenu"
       ref="symbolDropdown"
-      placement="bottom"
       @visible-change="symbolVisible = $event"
       @command="emit('symbolCommand', $event, props.id)"
     >
@@ -47,7 +47,7 @@
     <el-dropdown
       trigger="contextmenu"
       ref="resolutionDropdown"
-      placement="bottom"
+      placement="bottom-start"
       @visible-change="resolutionVisible = $event"
     >
       <div class="el-dropdown-link" @click.stop="toggleResolutionDropdown">
