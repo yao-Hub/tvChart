@@ -95,6 +95,7 @@ const myFeedBackOpen = ref(false);
 
 import { saveFeedback } from "@/api/feedback";
 import { useNetwork } from "@/store/modules/network";
+import dayjs from "dayjs";
 import { ElMessage } from "element-plus";
 const networkStore = useNetwork();
 const handleOk = async () => {
@@ -107,6 +108,7 @@ const handleOk = async () => {
     lineName: networkStore.currentLine!.lineName,
     feedbackContent: remark.value,
     feedbackFileIds,
+    createTime: dayjs().unix(),
   };
   const res = await saveFeedback(updata);
   ElMessage({

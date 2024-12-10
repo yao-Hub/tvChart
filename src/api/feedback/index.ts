@@ -4,11 +4,12 @@ enum Api {
   Myfeedback = "/feedback/select_my_feedback",
 }
 interface reqSaveFeedback {
-  platform: string; // 平台
+  platform: string;
   brokerName: string; // 经纪商
   lineName: string; // 交易线路
   feedbackContent: string; // 反馈内容
   feedbackFileIds?: string[]; //	反馈图片
+  createTime: number;
 }
 // 提交反馈
 export const saveFeedback = (data: reqSaveFeedback) => {
@@ -26,9 +27,9 @@ export interface resFeedback {
   login: number; //	登录名
   feedbackContent: string; //	反馈内容
   feedbackFileIds: string[]; // 反馈图片
-  handleOpinion: string; //	处理意见（回复）
-  handleTime: string; //	处理时间
-  createTime: string; //	创建时间
+  feedbackReply: string; //	处理意见（回复）
+  replyTime: number; //	处理时间
+  createTime: number; //	创建时间
 }
 // 查看问题反馈列表
 export const myfeedback = () => {
