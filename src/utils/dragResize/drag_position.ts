@@ -242,6 +242,8 @@ function createHoriLine(addNum: number) {
     line.style.zIndex = "1";
     line.style.borderRadius = "2px";
     line.style.transition = "background-color 0.5s ease";
+    line.style.backgroundClip = "content-box";
+    line.style.padding = `0 ${dragAreaPadding}px`;
 
     const moveBtn = document.createElement("div");
     moveBtn.className = "horilineMoveBtn";

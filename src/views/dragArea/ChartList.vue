@@ -16,10 +16,12 @@
       </div>
     </HorizontalScrolling>
     <div
-      class="charts_container"
+      :class="[
+        'charts_container',
+        chartType === 'single' ? 'chart_sin' : 'chart_mul',
+      ]"
       :style="{
         flexDirection: chartInitStore.state.chartFlexDirection,
-        height: chartType === 'single' ? 'calc(100% - 40px)' : '100%',
       }"
     >
       <div
@@ -210,6 +212,7 @@ const tabClose = (id: string) => {
   box-sizing: border-box;
   @include background_color("background");
   padding-left: 3px;
+  height: calc(100% - var(--size));
   .tabs {
     display: flex;
     gap: 4px;
@@ -231,12 +234,11 @@ const tabClose = (id: string) => {
       @include background_color("background-component");
     }
   }
-}
-
-.handle {
-  cursor: grab;
-  height: 24px;
-  width: 16px;
-  @include background_color("border");
+  .chart_sin {
+    height: calc(100% - var(--size));
+  }
+  .chart_mul {
+    height: 100%;
+  }
 }
 </style>

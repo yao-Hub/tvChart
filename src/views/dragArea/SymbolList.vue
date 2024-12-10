@@ -19,7 +19,7 @@
       </template>
     </el-input>
 
-    <div style="width: 100%; height: calc(100% - 35px - 4px); margin-top: 8px">
+    <div class="container">
       <el-table
         v-if="!ifSearch"
         ref="table"
@@ -394,12 +394,22 @@ const expandChange = (row: any, expandedRows: any[]) => {
   padding: 4px;
 }
 .input {
-  width: calc(100% - 16px);
+  width: calc(100% - 12px);
   .closeIcon {
     width: 18px;
     height: 18px;
     cursor: pointer;
   }
+}
+
+.container {
+  width: 100%;
+  // 减去顶部搜索框的高度 - padding
+  height: calc(100% - var(--size) - 8px);
+  margin-top: 8px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  overflow: hidden;
 }
 
 .variation {
