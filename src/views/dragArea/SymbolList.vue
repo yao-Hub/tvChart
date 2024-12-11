@@ -92,8 +92,8 @@
           min-width="84"
         >
           <template #default="{ row }">
-            <span :class="[+row.variation > 0 ? ' buyWord' : ' sellWord']">
-              {{ getVariation(row.symbols) }}
+            <span :class="[getVariation(row.symbols).class]">
+              {{ getVariation(row.symbols).value }}
             </span>
           </template>
         </el-table-column>
@@ -227,11 +227,9 @@ const closeSearch = () => {
 import { IQuote } from "#/chart/index";
 import { useOrder } from "@/store/modules/order";
 import { eq } from "lodash";
-import { round } from "utils/common/index";
 const orderStore = useOrder();
 const temQuotes = ref<Record<string, IQuote>>({});
 const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
-const temVar = ref<Record<string, IQuote & { variation: string }>>({});
 watch(
   () => orderStore.currentQuotes,
   (quotes) => {
@@ -254,22 +252,6 @@ watch(
           oldBid > nowBid ? "sellWord" : "buyWord";
       }
       temQuotes.value[symbol] = newQuote;
-
-      // 日变化
-      const oldVar = temVar.value[symbol];
-      const result = {
-        ...newQuote,
-        variation: "",
-      };
-      // 有新数据则close为新数据的bid
-      const close = !oldVar ? newQuote.close : newQuote.bid;
-      const open = !oldVar ? newQuote.open : oldVar.open;
-      if (close && open) {
-        const variation = round(((close - open) / open) * 100, 2);
-        result.variation = variation;
-        !!oldVar && (result.open = open);
-      }
-      temVar.value[symbol] = result;
     });
   },
   {
@@ -306,12 +288,22 @@ const getTime = (symbol: string) => {
   return "-";
 };
 
+// 日变化
+import { round } from "utils/common/index";
 const getVariation = (symbol: string) => {
-  const target = temVar.value[symbol];
-  if (target) {
-    return target.variation;
+  const result = {
+    class: "",
+    value: "-",
+  };
+  const quote = orderStore.currentQuotes[symbol];
+  if (quote) {
+    const close = quote.close;
+    const open = quote.open;
+    const variation = round(((close - open) / open) * 100, 2);
+    result.value = `${variation}%`;
+    result.class = +variation > 0 ? " buyWord" : " sellWord";
   }
-  return "-";
+  return result;
 };
 
 // 点击行更改图表品种
@@ -410,11 +402,6 @@ const expandChange = (row: any, expandedRows: any[]) => {
   box-sizing: border-box;
   border-radius: 4px;
   overflow: hidden;
-}
-
-.variation {
-  display: flex;
-  justify-content: flex-end;
 }
 
 :deep(.el-table .cell) {
