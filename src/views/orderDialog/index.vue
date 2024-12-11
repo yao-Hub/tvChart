@@ -18,7 +18,9 @@
       <template #header>
         <span class="dialog_header">下单</span>
       </template>
+
       <el-form
+        v-show="!priceConfirm"
         :model="formState"
         :rules="rules"
         ref="orderFormRef"
@@ -153,18 +155,12 @@
             <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
           </el-col>
           <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-            <el-button
-              class="sellBtn"
-              :loading="priceBtnLoading"
-              @click="showConfirmModal('sell')"
+            <el-button class="sellBtn" @click="showConfirmModal('sell')"
               >卖出</el-button
             >
           </el-col>
           <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-            <el-button
-              class="buyBtn"
-              :loading="priceBtnLoading"
-              @click="showConfirmModal('buy')"
+            <el-button class="buyBtn" @click="showConfirmModal('buy')"
               >买入</el-button
             >
           </el-col>
@@ -184,45 +180,45 @@
           </el-col>
         </el-row>
       </el-form>
-    </el-dialog>
 
-    <!-- 市价单下单确认 -->
-    <el-dialog
-      v-model="confirmOrderOpen"
-      @cancel="handleConfirmOrderCancle"
-      :width="400"
-      align-center
-      :zIndex="12"
-    >
-      <template #header>
-        <span class="dialog_header">下单确认</span>
-      </template>
-      <div class="infos">
-        <div class="infoItem">
-          <el-text type="info">{{ $t("confirmOrder.symbol") }}</el-text>
-          <el-text>{{ formState.symbol }}</el-text>
+      <!-- 市价单下单确认 -->
+      <div v-show="priceConfirm" class="confirmBox">
+        <img src="@/assets/icons/icon_recognise.svg" class="icon" />
+        <el-text class="title">下单确认</el-text>
+        <el-text class="tip" type="info">请在下方确认您的下单信息</el-text>
+        <div class="infobox">
+          <div class="infobox_item">
+            <el-text type="info">{{ $t("confirmOrder.symbol") }}</el-text>
+            <el-text>{{ formState.symbol }}</el-text>
+          </div>
+          <div class="infobox_item">
+            <el-text type="info">{{ $t("confirmOrder.orderType") }}</el-text>
+            <el-text>{{ directionType }}</el-text>
+          </div>
+          <div class="infobox_item">
+            <el-text type="info">{{ $t("confirmOrder.volume") }}</el-text>
+            <el-text>{{ formState.volume }}</el-text>
+          </div>
+          <div class="infobox_item">
+            <el-text type="info">{{ $t("confirmOrder.stopProfit") }}</el-text>
+            <el-text>{{ formState.stopProfit }}</el-text>
+          </div>
+          <div class="infobox_item">
+            <el-text type="info">{{ $t("confirmOrder.stopLoss") }}</el-text>
+            <el-text>{{ formState.stopLoss }}</el-text>
+          </div>
         </div>
-        <div class="infoItem">
-          <el-text type="info">{{ $t("confirmOrder.orderType") }}</el-text>
-          <el-text>{{ directionType }}</el-text>
-        </div>
-        <div class="infoItem">
-          <el-text type="info">{{ $t("confirmOrder.volume") }}</el-text>
-          <el-text>{{ formState.volume }}</el-text>
-        </div>
-        <div class="infoItem">
-          <el-text type="info">{{ $t("confirmOrder.stopProfit") }}</el-text>
-          <el-text>{{ formState.stopProfit }}</el-text>
-        </div>
-        <div class="infoItem">
-          <el-text type="info">{{ $t("confirmOrder.stopLoss") }}</el-text>
-          <el-text>{{ formState.stopLoss }}</el-text>
+        <div class="btnGroup">
+          <el-button class="btn" @click="back">返回</el-button>
+          <el-button
+            class="btn"
+            type="primary"
+            :loading="priceBtnLoading"
+            @click="createPriceOrder"
+            >确认</el-button
+          >
         </div>
       </div>
-      <template #footer>
-        <el-button @click="handleConfirmOrderCancle">修改</el-button>
-        <el-button type="primary" @click="createPriceOrder">确认</el-button>
-      </template>
     </el-dialog>
   </div>
 </template>
@@ -238,11 +234,13 @@ import StopLossProfit from "./components/StopLossProfit.vue";
 import Term from "./components/Term.vue";
 import Volume from "./components/Volume.vue";
 
+import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
 import { useSymbols } from "@/store/modules/symbols";
 
 const symbolsStore = useSymbols();
 const orderStore = useOrder();
+const chartInitStore = useChartInit();
 
 /** 弹窗处理 */
 import { useDialog } from "@/store/modules/dialog";
@@ -311,8 +309,13 @@ watch(
     if (val) {
       await nextTick();
       orderFormRef.value?.resetFields();
-      formState.symbol = orderStore.currentSymbol;
+      formState.symbol =
+        orderStore.initOrderSymbol || chartInitStore.activeChartSymbol;
       formState.orderType = "price";
+      back();
+      setTimeout(() => {
+        orderStore.initOrderSymbol = "";
+      });
     }
   }
 );
@@ -366,11 +369,13 @@ watch(
   { immediate: true, deep: true }
 );
 
-/** 下单 */
-const confirmOrderOpen = ref(false);
-const handleConfirmOrderCancle = () => {
-  confirmOrderOpen.value = false;
+// 确认市价单
+const priceConfirm = ref(false);
+const back = () => {
+  priceConfirm.value = false;
 };
+
+// 下单验证
 const valids = async () => {
   let result: boolean = false;
   if (orderFormRef.value) {
@@ -381,18 +386,20 @@ const valids = async () => {
   }
   return result;
 };
-const directionType = ref();
-const priceBtnLoading = ref(false);
+
+const directionType = ref(); // 交易方向
 const showConfirmModal = debounce(async (type: "sell" | "buy") => {
-  const values = await valids();
+  const valid = await valids();
   directionType.value = type;
-  if (values) {
-    confirmOrderOpen.value = true;
+  if (valid) {
+    priceConfirm.value = true;
   }
 }, 20);
+
 // 市价单下单
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ElNotification } from "element-plus";
+const priceBtnLoading = ref(false);
 const createPriceOrder = debounce(async () => {
   try {
     priceBtnLoading.value = true;
@@ -416,7 +423,7 @@ const createPriceOrder = debounce(async () => {
         }手${formState.symbol}的订单已提交。`,
         type: "success",
       });
-      handleConfirmOrderCancle();
+      back();
       handleCancel();
     } else {
       ElNotification.error({
@@ -428,11 +435,11 @@ const createPriceOrder = debounce(async () => {
     priceBtnLoading.value = false;
   }
 }, 20);
+
 // 挂单下单
 import { ORDERMAP } from "@/constants/common";
 import { pendingOrdersAdd, reqPendingOrdersAdd } from "api/order/index";
 import { ElMessage } from "element-plus";
-
 const pendingBtnLoading = ref(false);
 const addPendingOrders = debounce(async () => {
   try {
@@ -519,17 +526,46 @@ const addPendingOrders = debounce(async () => {
   width: 100%;
   margin-top: 8px;
 }
-.infos {
-  display: grid;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: repeat(auto-fill, 20px);
-  grid-row-gap: 8px;
-  margin-top: 31px;
-}
-.infoItem span {
-  display: inline-block;
-  &:first-child {
-    min-width: 86px;
+.confirmBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .icon {
+    width: 64px;
+    height: 64px;
+    margin-top: 48px;
+  }
+  .title {
+    font-size: 18px;
+    margin-top: 16px;
+  }
+  .tip {
+    margin-top: 8px;
+  }
+  .infobox {
+    margin-top: 24px;
+    width: 100%;
+    padding: 16px;
+    box-sizing: border-box;
+    @include background_color("background-component");
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-row-gap: 8px;
+    gap: 8px;
+    &_item span {
+      display: inline-block;
+      min-width: 86px;
+    }
+  }
+  .btnGroup {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 105px;
+    gap: 16px;
+    .btn {
+      flex: 1;
+    }
   }
 }
 </style>

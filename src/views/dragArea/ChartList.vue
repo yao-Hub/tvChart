@@ -8,7 +8,7 @@
           :symbol="chart.symbol"
           :interval="chart.interval"
           :id="chart.id"
-          @tabClick="chartTabClick($event, chart.symbol)"
+          @tabClick="chartTabClick(chart.id)"
           @symbolCommand="symbolCommand"
           @resolutionCommand="resolutionCommand"
           @tabClose="tabClose"
@@ -38,7 +38,7 @@
           :symbol="symbol"
           :interval="interval"
           :id="id"
-          @tabClick="chartTabClick($event, symbol)"
+          @tabClick="chartTabClick(id)"
           @symbolCommand="symbolCommand"
           @resolutionCommand="resolutionCommand"
           @tabClose="tabClose"
@@ -73,7 +73,6 @@ import { computed, onMounted } from "vue";
 import { useChartAction } from "@/store/modules/chartAction";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
-import { useOrder } from "@/store/modules/order";
 import { useTheme } from "@/store/modules/theme";
 
 import { datafeed } from "@/config/chartConfig";
@@ -84,7 +83,6 @@ const chartInitStore = useChartInit();
 const chartActionStore = useChartAction();
 const themeStore = useTheme();
 const chartSubStore = useChartSub();
-const orderStore = useOrder();
 
 const disabledFeatures = [
   "header_compare",
@@ -189,11 +187,8 @@ onMounted(() => {
   });
 });
 
-const chartTabClick = (id: string, symbol?: string) => {
+const chartTabClick = (id: string) => {
   chartInitStore.state.activeChartId = id;
-  if (symbol) {
-    orderStore.currentSymbol = symbol;
-  }
 };
 const symbolCommand = (symbol: string, id: string) => {
   chartInitStore.changeChartSymbol({ symbol, id });

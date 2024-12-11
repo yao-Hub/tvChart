@@ -153,17 +153,17 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-const currentSymbol = computed(() => {
-  const chartSymbol = chartInitStore.getChartWidgetListSymbol(props.id);
+const nowSymbol = computed(() => {
+  const chartSymbol = chartInitStore.getChartSymbol(props.id);
   return chartSymbol || props.symbol;
 });
 
 const bid = computed(() => {
-  return getQuotes("bid", currentSymbol.value);
+  return getQuotes("bid", nowSymbol.value);
 });
 
 const ask = computed(() => {
-  return getQuotes("ask", currentSymbol.value);
+  return getQuotes("ask", nowSymbol.value);
 });
 
 const getQuotes = (type: "bid" | "ask", symbol: string) => {
@@ -184,9 +184,7 @@ const maxVolume = ref<string>("0");
 // 当前品种
 const symbolInfo = ref<ISessionSymbolInfo>();
 watchEffect(() => {
-  const info = symbolsStore.symbols.find(
-    (e) => e.symbol === currentSymbol.value
-  );
+  const info = symbolsStore.symbols.find((e) => e.symbol === nowSymbol.value);
   if (info) {
     symbolInfo.value = info;
     minVolume.value = (info.volume_min / 100).toString();
@@ -239,13 +237,13 @@ const creatOrder = async (type: "sell" | "buy") => {
     return;
   }
   if (!orderStore.ifOne) {
-    orderStore.createOrder();
+    orderStore.createOrder(nowSymbol.value);
     return;
   }
   const v = valid();
   if (v) {
     const updata: ReqOrderAdd = {
-      symbol: currentSymbol.value,
+      symbol: nowSymbol.value,
       type: ORDER_TYPE.price[type],
       volume: +(volume.value || 0) * 100,
     };

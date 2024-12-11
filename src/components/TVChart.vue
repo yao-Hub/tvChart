@@ -6,13 +6,11 @@
 import { timezoneOptions } from "@/constants/timezone";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
-import { useOrder } from "@/store/modules/order";
 import * as library from "public/charting_library";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 const chartInitStore = useChartInit();
-const orderStore = useOrder();
 const chartSubStore = useChartSub();
 
 const { locale } = useI18n();
@@ -192,7 +190,6 @@ const initonReady = () => {
         .onSymbolChanged()
         // @ts-ignore
         .subscribe(null, (e) => {
-          orderStore.currentSymbol = e.name;
           chartInitStore.setChartMapSymbolInterval({
             symbol: e.name,
             id: props.chartId,

@@ -4,9 +4,9 @@ import {
   IChartingLibraryWidget,
   ResolutionString,
 } from "public/charting_library";
-import { reactive, watch } from "vue";
-import { useOrder } from "./order";
+import { computed, reactive, watch } from "vue";
 import { useStorage } from "./storage";
+import { useSymbols } from "./symbols";
 
 interface State {
   chartWidgetList: {
@@ -32,6 +32,15 @@ export const useChartInit = defineStore("chartInit", () => {
     activeChartId: "chart_1",
     chartFlexDirection: "row",
     globalRefresh: false,
+  });
+
+  const activeChartSymbol = computed(() => {
+    const symbolStore = useSymbols();
+    const firstSymbol = symbolStore.symbols[0]?.symbol;
+    if (state.chartWidgetList.length) {
+      return getChartSymbol(state.activeChartId) || firstSymbol || "";
+    }
+    return "";
   });
 
   // 单图表显示工具栏 多图表隐藏
@@ -106,7 +115,6 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 增加一个图表
   function addChart(symbol?: string) {
-    const orderStore = useOrder();
     const ids = state.chartWidgetList.map((item) => +item.id.split("_")[1]);
     const minId = Math.min(...ids) as number;
     const maxId = Math.max(...ids) as number;
@@ -119,17 +127,21 @@ export const useChartInit = defineStore("chartInit", () => {
     const id = `chart_${addId}`;
     state.chartWidgetList.push({
       id,
-      symbol: symbol || orderStore.currentSymbol,
+      symbol: symbol || activeChartSymbol.value,
     });
     state.activeChartId = id;
   }
 
-  // 获取chartWidgetList的symbol字段
-  function getChartWidgetListSymbol(id: string) {
+  // 获取chart的symbol
+  function getChartSymbol(id: string) {
     if (state.chartWidgetList.length === 0) {
       throw new Error("chartWidget is null");
     }
-    return state.chartWidgetList.find((e) => e.id === id)?.symbol;
+    const symbol = state.chartWidgetList.find((e) => e.id === id)?.symbol;
+    if (symbol) {
+      return symbol;
+    }
+    return "";
   }
 
   // 设置chartWidgetList对象的品种 周期字段
@@ -238,8 +250,7 @@ export const useChartInit = defineStore("chartInit", () => {
   // 加载图表个数
   function loadChartList() {
     const storageStore = useStorage();
-    const orderStore = useOrder();
-    let result = [{ id: "chart_1", symbol: orderStore.currentSymbol }];
+    let result = [{ id: "chart_1", symbol: activeChartSymbol.value }];
     const wList = storageStore.getItem("chartList");
     if (wList && wList.length) {
       result = wList;
@@ -278,7 +289,7 @@ export const useChartInit = defineStore("chartInit", () => {
     getChartWidget,
     removeChartWidget,
     addChart,
-    getChartWidgetListSymbol,
+    getChartSymbol,
     setChartMapSymbolInterval,
     changeChartSymbol,
     changeChartInterval,
@@ -290,5 +301,6 @@ export const useChartInit = defineStore("chartInit", () => {
     loadChartList,
     getChartSavedData,
     loadCharts,
+    activeChartSymbol,
   };
 });

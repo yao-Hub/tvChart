@@ -1,11 +1,11 @@
-import { flattenDeep, groupBy, orderBy, get, cloneDeep, maxBy } from "lodash";
-import moment from "moment";
-import { klineHistory, ReqLineInfo, ResLineInfo } from "api/kline/index";
-import * as types from "@/types/chart/index";
-import { useChartSub } from "@/store/modules/chartSub";
-import { useChartLine } from "@/store/modules/chartLine";
 import { RESOLUTES } from "@/constants/common";
+import { useChartLine } from "@/store/modules/chartLine";
+import { useChartSub } from "@/store/modules/chartSub";
 import { useSymbols } from "@/store/modules/symbols";
+import * as types from "@/types/chart/index";
+import { ReqLineInfo, ResLineInfo, klineHistory } from "api/kline/index";
+import { cloneDeep, flattenDeep, get, groupBy, maxBy, orderBy } from "lodash";
+import moment from "moment";
 
 const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();

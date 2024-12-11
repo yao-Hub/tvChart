@@ -13,8 +13,15 @@ import * as types from "#/chart/index";
 import * as orderTypes from "#/order";
 
 interface State {
+  quotesClass: Record<
+    string,
+    {
+      ask: string;
+      bid: string;
+    }
+  >;
   currentQuotes: Record<string, types.IQuote>;
-  currentSymbol: string;
+  initOrderSymbol: string;
   currentKline: Record<string, types.ILine>;
   orderData: orderTypes.TableData;
   dataLoading: Record<orderTypes.TableDataKey, boolean>;
@@ -28,8 +35,9 @@ interface State {
 export const useOrder = defineStore("order", {
   state: (): State => {
     return {
+      quotesClass: {},
       currentQuotes: {},
-      currentSymbol: "",
+      initOrderSymbol: "",
       currentKline: {},
       orderData: {
         marketOrder: [],
@@ -91,7 +99,7 @@ export const useOrder = defineStore("order", {
   },
 
   actions: {
-    createOrder() {
+    createOrder(symbol?: string) {
       const dialogStore = useDialog();
       const userStore = useUser();
       if (!userStore.account.token) {
@@ -113,6 +121,9 @@ export const useOrder = defineStore("order", {
           type: "error",
         });
         return;
+      }
+      if (symbol) {
+        this.initOrderSymbol = symbol;
       }
       dialogStore.showOrderDialog();
     },

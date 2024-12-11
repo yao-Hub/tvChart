@@ -30,11 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch, computed, watchEffect } from "vue";
-import { CaretUpFilled, CaretDownFilled } from "@ant-design/icons-vue";
 import { ISessionSymbolInfo } from "#/chart/index";
 import { useUser } from "@/store/modules/user";
+import { CaretDownFilled, CaretUpFilled } from "@ant-design/icons-vue";
 import { getDecimalPlaces, round } from "utils/common/index";
+import { computed, reactive, watch, watchEffect } from "vue";
 
 type SymbolStrings = Props["tradeAllowSymbols"][number]["symbol"];
 
@@ -73,7 +73,7 @@ const state = reactive({
 });
 
 // 当前品种
-const currentSymbol = computed(() => {
+const nowSymbol = computed(() => {
   return props.tradeAllowSymbols.find((e) => e.symbol === props.selectedSymbol);
 });
 
@@ -217,8 +217,8 @@ function calculateProfit() {
   // 平仓合约价值 = close_price X contract_size X volume / 100
   const closePrice = state.form.price;
   const volume = props.volume;
-  if (currentSymbol.value) {
-    const { contract_size, storage, fee, digits } = currentSymbol.value;
+  if (nowSymbol.value) {
+    const { contract_size, storage, fee, digits } = nowSymbol.value;
     const buildingPrice = +((openPrice * contract_size * volume) / 100).toFixed(
       digits
     );
@@ -237,7 +237,7 @@ const loginInfo = computed(() => userStore.loginInfo);
 function calculateBalance() {
   let result: string | number = "";
 
-  if (currentSymbol.value && loginInfo.value) {
+  if (nowSymbol.value && loginInfo.value) {
     result = ((state.form.profit * 100) / loginInfo.value.balance).toFixed(2);
   }
   return result;

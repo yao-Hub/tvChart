@@ -26,10 +26,8 @@ export const useSymbols = defineStore("symbols", () => {
 
   // 全部品种
   const getAllSymbol = async () => {
-    const orderStore = useOrder();
     const res = await allSymbols();
     symbols.value = res.data;
-    orderStore.currentSymbol = res.data[0].symbol;
   };
 
   // 所有品种报价

@@ -259,7 +259,6 @@ watch(
     immediate: true,
   }
 );
-
 const getPrice = (symbol: string, type: "bid" | "ask") => {
   const quotes = orderStore.currentQuotes;
   const target = quotes[symbol];
