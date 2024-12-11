@@ -78,10 +78,9 @@
                 v-model:price="stopFormState.stopLoss"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
-                orderType="price"
+                :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}price`"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
-                :priceOrderType="transactionType"
               ></StopLossProfit>
             </el-col>
             <el-col :span="12">
@@ -90,10 +89,9 @@
                 v-model:price="stopFormState.stopProfit"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
-                orderType="price"
+                :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}price`"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
-                :priceOrderType="transactionType"
               ></StopLossProfit>
             </el-col>
           </el-row>
@@ -142,9 +140,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, watch, nextTick } from "vue";
-import { resOrders } from "api/order/index";
 import { IQuote } from "#/chart/index";
+import { resOrders } from "api/order/index";
+import { computed, nextTick, reactive, ref, watch } from "vue";
 
 import Spread from "./components/spread.vue";
 
@@ -169,6 +167,8 @@ const symbolInfo = computed(() => {
 
 // 平仓表单
 import type { FormInstance, FormRules } from "element-plus";
+import { getTradingDirection } from "utils/order/index";
+import StopLossProfit from "./components/StopLossProfit.vue";
 interface CloseFormState {
   volume: string | number;
 }
@@ -195,8 +195,6 @@ const stopFormState = reactive({
   stopProfit: "",
 });
 const stopFormRef = ref<FormInstance>();
-import StopLossProfit from "./components/StopLossProfit.vue";
-import { getTradingDirection } from "utils/order/index";
 // buy or sell
 const transactionType = computed(() => {
   return getTradingDirection(props.orderInfo.type);
@@ -230,7 +228,7 @@ watch(
 );
 
 import { marketOrdersClose } from "api/order/index";
-import { ElNotification, ElMessage } from "element-plus";
+import { ElMessage, ElNotification } from "element-plus";
 import { debounce } from "lodash";
 const confirmOpen = ref(false);
 const confirmLoading = ref(false);

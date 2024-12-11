@@ -4,7 +4,7 @@ import {
   IChartingLibraryWidget,
   ResolutionString,
 } from "public/charting_library";
-import { reactive, ref, watch } from "vue";
+import { reactive, watch } from "vue";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
 
@@ -36,17 +36,6 @@ export const useChartInit = defineStore("chartInit", () => {
     chartFlexDirection: "row",
     globalRefresh: false,
   });
-
-  const activeChartSymbol = ref("");
-  watch(
-    () => [symbolStore.symbols, state.activeChartId],
-    () => {
-      const firstSymbol = symbolStore.symbols[0]?.symbol;
-      const chartSymbol = getChartSymbol(state.activeChartId);
-      activeChartSymbol.value = chartSymbol || firstSymbol;
-    },
-    { deep: true, immediate: true }
-  );
 
   // 单图表显示工具栏 多图表隐藏
   watch(
@@ -131,9 +120,10 @@ export const useChartInit = defineStore("chartInit", () => {
     const missingIds = [...fullRange].filter((num) => !arrSet.has(num));
     const addId = missingIds.length ? missingIds[0] : maxId + 1;
     const id = `chart_${addId}`;
+    const activeSymbol = getDefaultSymbol();
     state.chartWidgetList.push({
       id,
-      symbol: symbol || activeChartSymbol.value,
+      symbol: symbol || activeSymbol,
     });
     state.activeChartId = id;
   }
@@ -145,6 +135,12 @@ export const useChartInit = defineStore("chartInit", () => {
       return symbol;
     }
     return "";
+  }
+
+  function getDefaultSymbol() {
+    const firstSymbol = symbolStore.symbols[0]?.symbol;
+    const chartSymbol = getChartSymbol(state.activeChartId);
+    return chartSymbol || firstSymbol;
   }
 
   // 设置chartWidgetList对象的品种 周期字段
@@ -247,7 +243,8 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 加载图表个数
   function loadChartList() {
-    let result = [{ id: "chart_1", symbol: activeChartSymbol.value }];
+    const activeSymbol = getDefaultSymbol();
+    let result = [{ id: "chart_1", symbol: activeSymbol }];
     const wList = storageStore.getItem("chartList");
     if (wList && wList.length) {
       result = wList;
@@ -296,6 +293,6 @@ export const useChartInit = defineStore("chartInit", () => {
     loadChartList,
     getChartSavedData,
     loadCharts,
-    activeChartSymbol,
+    getDefaultSymbol,
   };
 });

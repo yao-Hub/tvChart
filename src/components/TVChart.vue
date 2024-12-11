@@ -190,6 +190,7 @@ const initonReady = () => {
         .onSymbolChanged()
         // @ts-ignore
         .subscribe(null, (e) => {
+          chartInitStore.state.activeChartId = props.chartId;
           chartInitStore.setChartMapSymbolInterval({
             symbol: e.name,
             id: props.chartId,
@@ -201,6 +202,7 @@ const initonReady = () => {
         .activeChart()
         .onIntervalChanged()
         .subscribe(null, (interval) => {
+          chartInitStore.state.activeChartId = props.chartId;
           chartInitStore.setChartMapSymbolInterval({
             interval,
             id: props.chartId,

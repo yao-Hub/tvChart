@@ -164,10 +164,7 @@
               >买入</el-button
             >
           </el-col>
-          <el-col
-            :span="24"
-            v-if="!['', 'price'].includes(formState.orderType)"
-          >
+          <el-col :span="24" v-if="!['price'].includes(formState.orderType)">
             <el-button
               :class="[
                 formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
@@ -276,7 +273,6 @@ const formState = reactive<FormState>({
 });
 const domVisableOption = {
   orderPrice: ["buyLimit", "sellLimit", "buyStop", "sellStop"],
-  volume: ["", "price", "buyStopLimit", "sellStopLimit"],
   breakPrice: ["buyStopLimit", "sellStopLimit"],
   limitedPrice: ["buyStopLimit", "sellStopLimit"],
   dueDate: [
@@ -288,20 +284,7 @@ const domVisableOption = {
     "sellStopLimit",
   ],
 } as Record<string, string[]>;
-for (const i in formState) {
-  if (!domVisableOption[i]) {
-    domVisableOption[i] = [
-      "",
-      "price",
-      "buyLimit",
-      "sellLimit",
-      "buyStop",
-      "sellStop",
-      "buyStopLimit",
-      "sellStopLimit",
-    ];
-  }
-}
+
 // 重置表单 自动填充
 watch(
   () => dialogStore.orderDialogVisible,
@@ -310,7 +293,7 @@ watch(
       await nextTick();
       orderFormRef.value?.resetFields();
       formState.symbol =
-        orderStore.initOrderSymbol || chartInitStore.activeChartSymbol;
+        orderStore.initOrderSymbol || chartInitStore.getDefaultSymbol();
       formState.orderType = "price";
       back();
       setTimeout(() => {

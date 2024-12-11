@@ -3,7 +3,7 @@
     <template #label>
       <div class="title">
         <span style="white-space: nowrap">{{ titleMap[props.type] }}</span>
-        <el-tooltip :content="`${minPoint}`" placement="top" v-if="!price">
+        <el-tooltip :content="`${minPoint}`" placement="top" v-if="!rangeTip">
           <el-text class="textEllipsis" style="width: 130px" type="info">{{
             minPoint
           }}</el-text>
@@ -27,8 +27,11 @@
 
 <script setup lang="ts">
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
+import { useRate } from "@/store/modules/rate";
 import { round } from "utils/common/index";
 import { computed, ref, watch } from "vue";
+
+const rateStore = useRate();
 
 const titleMap = {
   stopLoss: "止损",
@@ -42,10 +45,9 @@ interface Props {
   orderPrice: string | number | null;
   volume: string | number;
   limitedPrice?: string | number;
-  priceOrderType?: string;
 }
 const props = defineProps<Props>();
-const price = defineModel<string | number>("price");
+const price = defineModel<string>("price", { default: "" });
 
 // 至少远离市价点数
 const minPoint = computed(() => {
@@ -65,8 +67,8 @@ const getRange = () => {
     sellLimit: props.orderPrice,
     buyStop: props.orderPrice,
     sellStop: props.orderPrice,
-    buyStopLimit: props.limitedPrice || 0,
-    sellStopLimit: props.limitedPrice || 0,
+    buyStopLimit: props.limitedPrice,
+    sellStopLimit: props.limitedPrice,
   };
   if (props.symbolInfo) {
     const digits = props.symbolInfo.digits;
@@ -97,38 +99,17 @@ const initPrice = () => {
 const rangeTip = ref("");
 const ifError = ref(false);
 const setHelp = () => {
+  if (["", null, undefined].includes(price.value)) {
+    return "";
+  }
   const value = price.value;
-  const orderType = props.orderType;
+  const orderType = props.orderType.toLowerCase();
   const [down, up] = getRange();
   const ifLoss = props.type === "stopLoss";
   let range = "";
   let valid = true;
   switch (orderType) {
-    case "price":
-      if (props.priceOrderType === "buy") {
-        if (ifLoss) {
-          range = `≤ ${down}`;
-          value && (valid = +value <= down);
-        }
-        if (!ifLoss) {
-          range = `≥ ${up}`;
-          value && (valid = +value >= up);
-        }
-      }
-      if (props.priceOrderType === "sell") {
-        if (ifLoss) {
-          range = `≥ ${up}`;
-          value && (valid = +value >= up);
-        }
-        if (!ifLoss) {
-          range = `≤ ${down}`;
-          value && (valid = +value <= down);
-        }
-      }
-      break;
-    case "buyLimit":
-    case "buyStop":
-    case "buyStopLimit":
+    case "buyprice":
       if (ifLoss) {
         range = `≤ ${down}`;
         value && (valid = +value <= down);
@@ -138,9 +119,31 @@ const setHelp = () => {
         value && (valid = +value >= up);
       }
       break;
-    case "sellLimit":
-    case "sellStop":
-    case "sellStopLimit":
+    case "sellprice":
+      if (ifLoss) {
+        range = `≥ ${up}`;
+        value && (valid = +value >= up);
+      }
+      if (!ifLoss) {
+        range = `≤ ${down}`;
+        value && (valid = +value <= down);
+      }
+      break;
+    case "buylimit":
+    case "buystop":
+    case "buystoplimit":
+      if (ifLoss) {
+        range = `≤ ${down}`;
+        value && (valid = +value <= down);
+      }
+      if (!ifLoss) {
+        range = `≥ ${up}`;
+        value && (valid = +value >= up);
+      }
+      break;
+    case "selllimit":
+    case "sellstop":
+    case "sellstoplimit":
       if (ifLoss) {
         range = `≥ ${down}`;
         value && (valid = +value >= down);
@@ -151,6 +154,7 @@ const setHelp = () => {
       }
       break;
     default:
+      range = "";
       break;
   }
   rangeTip.value = range;
@@ -159,6 +163,7 @@ const setHelp = () => {
 
 watch(
   () => [
+    props.orderType,
     props.symbolInfo,
     props.quote,
     price.value,
@@ -171,32 +176,56 @@ watch(
   }
 );
 
+/**
+ * openPrice：    建仓价（止盈止损价）
+ * closePrice：   平仓价（市价单->持仓多单时：closePrice = 现价卖价、持仓空单时，closePrice = 现价买价；挂单: 限价）
+ * contractSize： 订单品种合约数量
+ * volume：       手数
+ * fee：          手续费
+ * storage：      库存费
+ * 建仓合约价值 = open_price * contract_size *volume / 100
+ * 平仓合约价值 = close_price *contract_size * volume / 100
+ * buy时: profit = （平仓合约价值 - 建仓合约价值 + 库存费 +  手续费） * 利率
+ * sell时: profit = （建仓合约价值 - 平仓合约价值 + 库存费 +  手续费） * 利率
+ **/
+
+//  盈亏
 const profit = computed(() => {
-  if (price.value === null || price.value === undefined || price.value === "") {
+  const type = props.orderType.toLowerCase();
+  const ifBuy = type.includes("buy");
+  const ifSell = type.includes("sell");
+  // 止盈止损为空并且没有确定方向不计算
+  if (["", null, undefined].includes(price.value) || (!ifBuy && !ifSell)) {
     return "";
   }
-  let result: string | number = "";
   const ask = props.quote?.ask;
   const bid = props.quote?.bid;
-  const openPrice =
-    props.orderType === "price" || props.orderType.includes("buy") ? ask : bid;
-  // profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
-  // 建仓合约价值 = open_price X contract_size X volume / 100
-  // 平仓合约价值 = close_price X contract_size X volume / 100
-  const closePrice = +price.value;
-  const volume = +props.volume;
-  if (props.symbolInfo && openPrice) {
-    const { contract_size, storage, fee, digits } = props.symbolInfo;
-    const buildingPrice = +((openPrice * contract_size * volume) / 100).toFixed(
-      digits
-    );
-    const closingPrice = +((closePrice * contract_size * volume) / 100).toFixed(
-      digits
-    );
-    result = closingPrice - buildingPrice + (storage || 0) + (fee || 0);
-    result = result.toFixed(digits);
+  let closePrice;
+  if (type.includes("price")) {
+    closePrice = ifBuy ? ask : bid;
+  } else {
+    closePrice = props.orderPrice;
   }
-  return result;
+  if (props.symbolInfo && closePrice) {
+    let result: number | null = null;
+    const volume = +props.volume;
+    const { contract_size, storage, fee, digits, symbol } = props.symbolInfo;
+    const buildingPrice = +price.value * contract_size * volume; // 建仓合约价值
+    const closingPrice = +closePrice * contract_size * volume; // 平仓合约价值
+
+    const rateMap = rateStore.getSymbolRate(symbol);
+    const rate = ifBuy ? rateMap.ask_rate : rateMap.bid_rate;
+    if (ifBuy) {
+      result = (closingPrice - buildingPrice + fee || 0 + storage || 0) * rate;
+    }
+    if (ifSell) {
+      result = (buildingPrice - closingPrice + fee || 0 + storage || 0) * rate;
+    }
+    if (result) {
+      return result.toFixed(digits);
+    }
+  }
+  return "";
 });
 </script>
 

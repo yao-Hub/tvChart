@@ -137,20 +137,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, watch, nextTick } from "vue";
-import { debounce, findKey } from "lodash";
 import dayjs from "dayjs";
+import { debounce, findKey } from "lodash";
+import { computed, nextTick, reactive, ref, watch } from "vue";
 
-import type { FormInstance, FormRules } from "element-plus";
-import { resPendingOrders } from "api/order/index";
 import { ORDERMAP } from "@/constants/common";
+import { resPendingOrders } from "api/order/index";
+import type { FormInstance, FormRules } from "element-plus";
 import { getOrderType } from "utils/order/index";
 
-import Volume from "./components/Volume.vue";
+import BreakLimit from "./components/BreakLimit.vue";
+import Price from "./components/Price.vue";
 import StopLossProfit from "./components/StopLossProfit.vue";
 import Term from "./components/Term.vue";
-import Price from "./components/Price.vue";
-import BreakLimit from "./components/BreakLimit.vue";
+import Volume from "./components/Volume.vue";
 import Spread from "./components/spread.vue";
 
 import { useOrder } from "@/store/modules/order";
@@ -176,9 +176,9 @@ interface FormState {
   symbol: string;
   orderType: string;
   volume: string | number;
-  stopLoss: string | number;
-  stopProfit: string | number;
-  orderPrice: string | number;
+  stopLoss: string;
+  stopProfit: string;
+  orderPrice: string;
   dueDate: string | number;
   breakPrice: string | number;
   limitedPrice: string | number;
@@ -233,15 +233,15 @@ watch(
       }
       formState.symbol = props.orderInfo.symbol;
       formState.volume = props.orderInfo.volume / 100;
-      formState.stopLoss = props.orderInfo.sl_price;
-      formState.stopProfit = props.orderInfo.tp_price;
+      formState.stopLoss = String(props.orderInfo.sl_price);
+      formState.stopProfit = String(props.orderInfo.tp_price);
       formState.dueDate = dayjs(props.orderInfo.time_expiration)
         .tz(timezone)
         .unix();
       formState.limitedPrice = props.orderInfo.trigger_price;
       formState.breakPrice = props.orderInfo.order_price;
       setTimeout(() => {
-        formState.orderPrice = props.orderInfo.order_price;
+        formState.orderPrice = String(props.orderInfo.order_price);
       }, 200);
     }
   }
