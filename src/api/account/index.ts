@@ -160,7 +160,7 @@ interface reqPasswordReset {
 }
 // 重置用户密码
 export const passwordReset = (data: reqPasswordReset) => {
-  return request<any>({
+  return request({
     url: Api.PasswordReset,
     method: "post",
     data,

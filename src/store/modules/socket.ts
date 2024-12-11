@@ -32,7 +32,7 @@ interface State {
   // socket未初始化时，若调用了方法则先存储方法，等待socket初始化后再去执行
   noExecuteList: Array<{
     fooName: TFooname;
-    options?: unknown;
+    options?: any;
   }>;
 }
 interface ChartProps {
@@ -55,7 +55,9 @@ export const useSocket = defineStore("socket", {
         this.socket = this.instance.getInstance(mainUri);
         while (this.noExecuteList.length) {
           const item = this.noExecuteList.shift();
-          this[item!.fooName](item!.options);
+          if (item) {
+            this[item.fooName](item.options);
+          }
         }
         setTimeout(() => {
           this.getDelay();
@@ -143,7 +145,7 @@ export const useSocket = defineStore("socket", {
     },
 
     // 验证登录信息绑定交易账户
-    sendToken({ login, token }: any) {
+    sendToken({ login, token }: { login: string | number; token: string }) {
       const userStore = useUser();
       if (this.socket) {
         this.socket.emit("set_login", {
@@ -162,42 +164,42 @@ export const useSocket = defineStore("socket", {
     orderChanges(callback: (type: string) => void) {
       if (this.socket) {
         // 监听订单已建仓
-        this.socket.on("order_opened", function (d: any) {
+        this.socket.on("order_opened", function (d: unknown) {
           console.log("order_opened", JSON.stringify(d));
           callback("order_opened");
         });
         // 监听订单已平仓
-        this.socket.on("order_closed", function (d: any) {
+        this.socket.on("order_closed", function (d: unknown) {
           console.log("order_closed", JSON.stringify(d));
           callback("order_opened");
         });
         // 监听订单已修改（止盈止损）
-        this.socket.on("order_modified", function (d: any) {
+        this.socket.on("order_modified", function (d: unknown) {
           console.log("order_modified", JSON.stringify(d));
           callback("order_modified");
         });
         // 监听挂单已创建
-        this.socket.on("pending_order_opened", function (d: any) {
+        this.socket.on("pending_order_opened", function (d: unknown) {
           console.log("pending_order_opened", JSON.stringify(d));
           callback("pending_order_opened");
         });
         // 监听挂单已删除
-        this.socket.on("pending_order_deleted", function (d: any) {
+        this.socket.on("pending_order_deleted", function (d: unknown) {
           console.log("pending_order_deleted", JSON.stringify(d));
           callback("pending_order_deleted");
         });
         // 监听挂单已更新
-        this.socket.on("pending_order_modified", function (d: any) {
+        this.socket.on("pending_order_modified", function (d: unknown) {
           console.log("pending_order_modified", JSON.stringify(d));
           callback("pending_order_modified");
         });
         // 监听挂单已成交
-        this.socket.on("pending_order_dealt", function (d: any) {
+        this.socket.on("pending_order_dealt", function (d: unknown) {
           console.log("pending_order_dealt", JSON.stringify(d));
           callback("pending_order_dealt");
         });
         // 监听出入金
-        this.socket.on("balance_order_added", function (d: any) {
+        this.socket.on("balance_order_added", function (d: unknown) {
           console.log("balance_order_added", JSON.stringify(d));
           callback("balance_order_added");
         });

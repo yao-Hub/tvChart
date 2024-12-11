@@ -20,8 +20,8 @@
 
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight } from "@element-plus/icons-vue";
-import { ref, onMounted, onUpdated } from "vue";
 import { debounce } from "lodash";
+import { onMounted, onUpdated, ref } from "vue";
 
 const container = ref();
 
@@ -52,7 +52,7 @@ const scrollRight = () => {
 const showScrollLeft = ref(false);
 const showScrollRight = ref(false);
 
-function tabsMouseWheel(event: any) {
+function tabsMouseWheel(event: WheelEvent) {
   event.preventDefault();
   // 向上滚动，向左移动div
   if (event.deltaY < 0) {

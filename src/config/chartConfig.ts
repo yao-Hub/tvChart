@@ -2,25 +2,28 @@ import { RESOLUTES } from "@/constants/common";
 import { useChartLine } from "@/store/modules/chartLine";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useSymbols } from "@/store/modules/symbols";
+import { useTime } from "@/store/modules/time";
+import dayjs from "dayjs";
+
 import * as types from "@/types/chart/index";
 import { ReqLineInfo, ResLineInfo, klineHistory } from "api/kline/index";
 import { cloneDeep, flattenDeep, get, groupBy, maxBy, orderBy } from "lodash";
-import moment from "moment";
 
 const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();
 const symbolsStore = useSymbols();
 
-const countOptions: any = {
-  "1D": "days",
-  "1W": "weeks",
-  "1M": "months",
-  "60": "hours",
-  "240": ["hours", 4],
-  "1": "minutes",
-  "5": ["minutes", 5],
-  "15": ["minutes", 15],
-  "30": ["minutes", 30],
+type Tunit = "day" | "week" | "month" | "hour" | "minute";
+const countOptions: Record<string, Tunit> = {
+  "1D": "day",
+  "1W": "week",
+  "1M": "month",
+  "60": "hour",
+  "240": "hour",
+  "1": "minute",
+  "5": "minute",
+  "15": "minute",
+  "30": "minute",
 };
 
 const config = {
@@ -40,7 +43,7 @@ const formatTime = (time: number) => {
   return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
 };
 
-function hasEmptyArrayValue(map: Map<string, any>) {
+function hasEmptyArrayValue(map: Map<string, unknown>) {
   for (const [key, value] of map) {
     if (Array.isArray(value) && value.length === 0) {
       return key;
@@ -228,32 +231,22 @@ export const datafeed = (id: string) => {
     //渲染历史数据
     getBars: (
       symbolInfo: types.ITVSymbolInfo,
-      resolution: string,
+      resolution: keyof typeof types.Periods,
       periodParams: types.PeriodParams,
       onHistoryCallback: Function,
       onErrorCallback: Function
     ) => {
       try {
         let count = periodParams.countBack;
-        // 第一次请求会出现数据请求长度不够导致数据缺失
-        if (periodParams.firstDataRequest) {
-          const to = moment.unix(periodParams.to);
-          const from = moment.unix(periodParams.from);
-          const option = countOptions[resolution];
-          let diffType;
-          let gap = 1;
-          if (typeof option === "string") {
-            diffType = option;
-          } else {
-            diffType = option[0];
-            gap = option[1];
-          }
-          count = Math.ceil(to.diff(from, diffType) / gap);
-        }
+        // periodParams.countBack 长度不够导致数据缺失
+        const timeStore = useTime();
+        const timezone = timeStore.settedTimezone;
+        const to = dayjs.unix(periodParams.to).tz(timezone);
+        const from = dayjs.unix(periodParams.from).tz(timezone);
+        const diffType = countOptions[resolution];
+        count = to.diff(from, diffType);
         const updata = {
-          period_type:
-            types.Periods[resolution as keyof typeof types.Periods] ||
-            resolution,
+          period_type: types.Periods[resolution] || resolution,
           symbol: symbolInfo.name,
           count: count,
           limit_ctm: periodParams.to,
@@ -267,7 +260,7 @@ export const datafeed = (id: string) => {
           const bars = reverse_data.map((item) => {
             return {
               ...item,
-              time: item.ctm * 1000,
+              time: dayjs.unix(item.ctm).valueOf(),
             };
           });
           const bar = maxBy(bars, "ctm");

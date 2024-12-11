@@ -65,15 +65,9 @@ export const useOrder = defineStore("order", {
           symbol: [],
           direction: null,
           pol: null,
-          createTime: [],
-          addTime: [],
-          closeTime: [],
         },
         pendingOrder: {
           symbol: [],
-          createTime: [],
-          addTime: [],
-          closeTime: [],
         },
         pendingOrderHistory: {
           symbol: [],
@@ -254,7 +248,7 @@ export const useOrder = defineStore("order", {
         this.dataLoading.pendingOrderHistory = true;
         const [begin_time, end_time] =
           this.dataFilter.pendingOrderHistory.createTime;
-        const updata: any = {
+        const updata: orders.reqHistoryPendingOrders = {
           count: 200,
           limit_id,
         };
@@ -285,7 +279,7 @@ export const useOrder = defineStore("order", {
         const { addTime, closeTime } = this.dataFilter.marketOrderHistory;
         const [open_begin_time, open_end_time] = addTime;
         const [close_begin_time, close_end_time] = closeTime;
-        const updata: any = {
+        const updata: orders.reqHistoryOrders = {
           count: 200,
           limit_id,
         };
@@ -317,7 +311,7 @@ export const useOrder = defineStore("order", {
         this.dataLoading.blanceRecord = true;
         const { createTime } = this.dataFilter.blanceRecord;
         const [setup_begin_time, setup_end_time] = createTime;
-        const updata: any = {
+        const updata: orders.reqHistoryOrders = {
           types: [18],
           setup_begin_time,
           setup_end_time,

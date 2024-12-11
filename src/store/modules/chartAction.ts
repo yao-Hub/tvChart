@@ -1,7 +1,7 @@
-import { defineStore } from "pinia";
-import { createApp } from "vue";
-import { ResolutionString } from "public/charting_library/charting_library";
 import i18n from "@/language/index";
+import { defineStore } from "pinia";
+import { ResolutionString } from "public/charting_library/charting_library";
+import { createApp } from "vue";
 
 import { useChartInit } from "./chartInit";
 import { useOrder } from "./order";
@@ -9,7 +9,6 @@ import { useOrder } from "./order";
 import FastAddOrder from "@/components/FastAddOrder.vue";
 interface State {
   cacheAction: string;
-  line: any;
 }
 
 export const useChartAction = defineStore("chartAction", {
@@ -17,11 +16,6 @@ export const useChartAction = defineStore("chartAction", {
     return {
       // 即将执行的动作
       cacheAction: "",
-      line: {
-        default: true,
-        tp: false,
-        sl: false,
-      },
     };
   },
   actions: {

@@ -4,8 +4,8 @@ const allActions = {};
 const allStates: Record<string, any> = {};
 nextTick(async () => {
   const getActions = (
-    item: Record<string, any>,
-    states: Record<string, any>
+    item: Record<string, Function>,
+    states: Record<string, Object>
   ) => {
     const actions: Record<string, Function> = {};
     for (const i in item) {
@@ -16,10 +16,10 @@ nextTick(async () => {
     return actions;
   };
 
-  const moduleFiles = import.meta.glob("./modules/*.ts");
+  const moduleFiles: any = import.meta.glob("./modules/*.ts");
   for (const path in moduleFiles) {
     if (Object.prototype.hasOwnProperty.call(moduleFiles, path)) {
-      const modules: any = await moduleFiles[path]();
+      const modules = await moduleFiles[path]();
       for (const i in modules) {
         const storeItem = modules[i]();
         const states = storeToRefs(storeItem);

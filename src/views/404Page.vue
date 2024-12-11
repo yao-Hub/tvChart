@@ -1,25 +1,23 @@
 <template>
   <div class="page">
-    <a-result
-      status="404"
-      title="404"
-      sub-title="Sorry, the page you visited does not exist."
-    >
+    <el-result sub-title="Sorry, the page you visited does not exist">
+      <template #icon>
+        <img src="../assets/images/404.jpg" />
+      </template>
       <template #extra>
-        <a-button type="primary" @click="$router.push({ path: '/' })"
-          >Back Home</a-button
+        <el-button type="primary" @click="$router.push({ path: '/' })"
+          >Back Home</el-button
         >
       </template>
-    </a-result>
+    </el-result>
   </div>
 </template>
 
-<script lang="ts" setup>
-</script>
+<script lang="ts" setup></script>
 
 <style scoped>
 .page {
-  width: 100%;
+  width: 100vw;
   height: 100vh;
   display: flex;
   align-items: center;

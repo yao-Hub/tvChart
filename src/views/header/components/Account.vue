@@ -3,7 +3,7 @@
     <div class="info" @click="openDropdown">
       <div class="left">
         <div class="top">
-          <el-text>{{ networkStore.currentNode?.nodeName }}</el-text>
+          <el-text>{{ networkStore.server }}</el-text>
           <div class="divider"></div>
           <el-text>{{ userStore.account.login }}</el-text>
         </div>

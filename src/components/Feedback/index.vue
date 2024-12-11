@@ -70,9 +70,16 @@ import { useDialog } from "@/store/modules/dialog";
 const { t } = useI18n();
 const dialogStore = useDialog();
 
-const remark = ref<string>("");
+interface CustomUploadUserFile extends UploadUserFile {
+  response: {
+    data: {
+      fileId: string;
+    };
+  };
+}
 
-const fileList = ref<UploadUserFile[]>([]);
+const remark = ref<string>("");
+const fileList = ref<CustomUploadUserFile[]>([]);
 const uploadRef = ref<UploadInstance>();
 const action = computed(() => {
   return import.meta.env.VITE_HTTP_URL_admin + "/common/sysFile/upload";
@@ -100,7 +107,7 @@ import { ElMessage } from "element-plus";
 const networkStore = useNetwork();
 const handleOk = async () => {
   const feedbackFileIds = fileList.value?.map(
-    (item: any) => item.response.data.fileId
+    (item) => item.response.data.fileId
   );
   const updata = {
     platform: "web",

@@ -4,7 +4,7 @@ import {
   IChartingLibraryWidget,
   ResolutionString,
 } from "public/charting_library";
-import { computed, reactive, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
 
@@ -24,6 +24,9 @@ interface State {
 }
 
 export const useChartInit = defineStore("chartInit", () => {
+  const symbolStore = useSymbols();
+  const storageStore = useStorage();
+
   const state = reactive<State>({
     chartWidgetList: [],
     loading: true,
@@ -34,14 +37,16 @@ export const useChartInit = defineStore("chartInit", () => {
     globalRefresh: false,
   });
 
-  const activeChartSymbol = computed(() => {
-    const symbolStore = useSymbols();
-    const firstSymbol = symbolStore.symbols[0]?.symbol;
-    if (state.chartWidgetList.length) {
-      return getChartSymbol(state.activeChartId) || firstSymbol || "";
-    }
-    return "";
-  });
+  const activeChartSymbol = ref("");
+  watch(
+    () => [symbolStore.symbols, state.activeChartId],
+    () => {
+      const firstSymbol = symbolStore.symbols[0]?.symbol;
+      const chartSymbol = getChartSymbol(state.activeChartId);
+      activeChartSymbol.value = chartSymbol || firstSymbol;
+    },
+    { deep: true, immediate: true }
+  );
 
   // 单图表显示工具栏 多图表隐藏
   watch(
@@ -70,6 +75,7 @@ export const useChartInit = defineStore("chartInit", () => {
       state.globalRefresh = false;
     }, 1000);
   }
+
   // 创建图表实例
   function createChartWidget(id: string, widget: IChartingLibraryWidget) {
     const index = state.chartWidgetList.findIndex((e) => e.id === id);
@@ -134,9 +140,6 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 获取chart的symbol
   function getChartSymbol(id: string) {
-    if (state.chartWidgetList.length === 0) {
-      throw new Error("chartWidget is null");
-    }
     const symbol = state.chartWidgetList.find((e) => e.id === id)?.symbol;
     if (symbol) {
       return symbol;
@@ -193,7 +196,6 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 初始化图表布局（单个多个）
   function intLayoutType() {
-    const storageStore = useStorage();
     const type = storageStore.getItem("chartLayoutType");
     state.chartLayoutType = type || "single";
 
@@ -204,19 +206,16 @@ export const useChartInit = defineStore("chartInit", () => {
   }
   // 设置图表布局（单个多个）
   function setLayoutType(type: State["chartLayoutType"]) {
-    const storageStore = useStorage();
     state.chartLayoutType = type;
     storageStore.setItem("chartLayoutType", type);
   }
   // 初始化图表布局方向（row or column）
   function intChartFlexDirection() {
-    const storageStore = useStorage();
     const type = storageStore.getItem("chartFlexDirection");
     state.chartFlexDirection = type || "row";
   }
   // 设置图表布局方向（row or column）
   function setChartFlexDirection(type: State["chartFlexDirection"]) {
-    const storageStore = useStorage();
     state.chartFlexDirection = type;
     storageStore.setItem("chartFlexDirection", type);
   }
@@ -224,8 +223,7 @@ export const useChartInit = defineStore("chartInit", () => {
   // 保存图表状态
   function saveCharts() {
     try {
-      const storageStore = useStorage();
-      const saveMap: Record<string, any> = {};
+      const saveMap: Record<string, object> = {};
       state.chartWidgetList.forEach((item) => {
         item.widget?.save((state) => {
           saveMap[item.id] = state;
@@ -249,7 +247,6 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 加载图表个数
   function loadChartList() {
-    const storageStore = useStorage();
     let result = [{ id: "chart_1", symbol: activeChartSymbol.value }];
     const wList = storageStore.getItem("chartList");
     if (wList && wList.length) {
@@ -258,7 +255,6 @@ export const useChartInit = defineStore("chartInit", () => {
     state.chartWidgetList = result;
   }
   function getChartSavedData(id: string) {
-    const storageStore = useStorage();
     const sMap = storageStore.getItem("chartInfoMap");
     if (sMap) {
       return sMap[id];
@@ -266,7 +262,6 @@ export const useChartInit = defineStore("chartInit", () => {
   }
   // 加载图表最后的操作形态
   function loadCharts(id?: string) {
-    const storageStore = useStorage();
     const sMap = storageStore.getItem("chartInfoMap");
     if (sMap) {
       if (id) {

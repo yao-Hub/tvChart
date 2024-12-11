@@ -35,9 +35,6 @@ importers:
       element-plus:
         specifier: 2.8.4
         version: 2.8.4(vue@3.4.21(typescript@5.2.2))
-      moment:
-        specifier: 2.30.1
-        version: 2.30.1
       pinia:
         specifier: 2.1.7
         version: 2.1.7(typescript@5.2.2)(vue@3.4.21(typescript@5.2.2))
@@ -2739,9 +2736,6 @@ packages:
 
   module-alias@2.2.3:
     resolution: {integrity: sha512-23g5BFj4zdQL/b6tor7Ji+QY4pEfNH784BMslY9Qb0UnJWRAt+lQGLYmRaM0KDBwIG23ffEBELhZDP2rhi9f/Q==}
-
-  moment@2.30.1:
-    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
 
   mrmime@2.0.0:
     resolution: {integrity: sha512-eu38+hdgojoyq63s+yTpN4XMBdt5l8HhMhc4VKLO9KM5caLIBvUm4thi7fFaxyTmCKeNnXZ5pAlBwCUnhA09uw==}
@@ -7043,8 +7037,6 @@ snapshots:
       ufo: 1.5.4
 
   module-alias@2.2.3: {}
-
-  moment@2.30.1: {}
 
   mrmime@2.0.0: {}
 

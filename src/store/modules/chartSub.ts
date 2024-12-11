@@ -1,11 +1,13 @@
 import { ISessionSymbolInfo, ITVSymbolInfo } from "@/types/chart/index";
 import { defineStore } from "pinia";
+import { IChartingLibraryWidget } from "public/charting_library";
 import { keydownList } from "utils/keydown";
 import { useSocket } from "./socket";
 
+type TcacheItem = ITVSymbolInfo & { resolution: string };
 interface State {
   symbols: ISessionSymbolInfo[];
-  barsCache: Map<string, any>;
+  barsCache: Map<string, TcacheItem>;
   chartsLoading: boolean;
 }
 
@@ -42,9 +44,12 @@ export const useChartSub = defineStore("chartSub", {
     // k线图取消监听k线和报价
     unsubChartKlineQuote(subscriberUID: string) {
       const socketStore = useSocket();
-      const { resolution, name } = this.barsCache.get(subscriberUID);
-      socketStore.unsubKlineQuote({ resolution, symbol: name });
-      this.barsCache.delete(subscriberUID);
+      const target = this.barsCache.get(subscriberUID);
+      if (target) {
+        const { resolution, name } = target;
+        socketStore.unsubKlineQuote({ resolution, symbol: name });
+        this.barsCache.delete(subscriberUID);
+      }
     },
     // 监听点击报价加号按钮（显示加号菜单）
     // subscribePlusBtn() {
@@ -70,7 +75,7 @@ export const useChartSub = defineStore("chartSub", {
     //   });
     // },
     // 监听键盘快捷键
-    subscribeKeydown(widget: any) {
+    subscribeKeydown(widget: IChartingLibraryWidget) {
       keydownList.forEach((item) => {
         widget.onShortcut(item.keyCode, item.callback);
       });

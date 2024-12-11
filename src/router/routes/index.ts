@@ -2,7 +2,10 @@ import type { RouteRecordRaw } from "vue-router";
 
 // 获取modules中的路由规则
 // https://cn.vitejs.dev/guide/features.html#glob-import
-const modules: any = import.meta.glob("./modules/**/*.ts", { eager: true });
+const modules: Record<string, { default: RouteRecordRaw }> = import.meta.glob(
+  "./modules/**/*.ts",
+  { eager: true }
+);
 
 // modules routes
 const routes: RouteRecordRaw[] = [];

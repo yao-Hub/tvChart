@@ -157,6 +157,8 @@ export interface reqHistoryOrders {
   count?: number; //	最大2000
   symbol?: string; //	品种
   types?: number[]; // 类型筛选，默认 [0,1]
+  setup_begin_time?: string; // 创建时间的最小值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  setup_end_time?: string; // 创建时间的最大值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
 }
 export interface resHistoryOrders {
   id: number; //	订单ID
