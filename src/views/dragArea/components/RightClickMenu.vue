@@ -137,7 +137,7 @@ const top = computed(() => {
 });
 
 const addOrder = () => {
-  orderStore.createOrder(props.symbol);
+  orderStore.createOrder({ symbol: props.symbol });
   model.value = false;
 };
 const addChart = () => {

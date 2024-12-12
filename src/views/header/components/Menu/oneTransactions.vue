@@ -4,16 +4,23 @@
       <img class="logo" src="@/assets/icons/icon_9.svg" />
       <span>{{ $t("QuickTransactions") }}</span>
     </div>
-    <el-switch v-model="orderStore.ifOne" :before-change="beforeChange" />
+    <el-switch v-model="switchVal" :before-change="beforeChange" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
+import { ref, watchEffect } from "vue";
 
 const orderStore = useOrder();
 const dialogStore = useDialog();
+
+const switchVal = ref(false);
+
+watchEffect(() => {
+  switchVal.value = !!orderStore.ifOne;
+});
 
 const beforeChange = () => {
   if (!orderStore.ifOne) {

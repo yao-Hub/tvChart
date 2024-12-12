@@ -12,6 +12,23 @@ import { useUser } from "./user";
 import * as types from "#/chart/index";
 import * as orderTypes from "#/order";
 
+type ModeType = "create" | "confirm";
+type SymbolType = string;
+type VolumeType = string;
+type OrderStateWithDirectionRequired<T extends ModeType> = T extends "confirm"
+  ? {
+      symbol: SymbolType;
+      volume: VolumeType;
+      directionType: orderTypes.DirectionType;
+      mode: T;
+    }
+  : {
+      symbol: SymbolType;
+      volume?: VolumeType;
+      directionType?: orderTypes.DirectionType;
+      mode?: T;
+    };
+
 interface State {
   quotesClass: Record<
     string,
@@ -21,14 +38,13 @@ interface State {
     }
   >;
   currentQuotes: Record<string, types.IQuote>;
-  initOrderSymbol: string;
+  initOrderState: OrderStateWithDirectionRequired<ModeType>;
   currentKline: Record<string, types.ILine>;
   orderData: orderTypes.TableData;
   dataLoading: Record<orderTypes.TableDataKey, boolean>;
   dataEnding: Record<orderTypes.TableDataKey, boolean>;
   dataFilter: Record<orderTypes.TableDataKey, any>;
-  selectedMenuKey: orderTypes.OrderType;
-  ifOne: boolean;
+  ifOne: boolean | null;
   ifQuick: boolean;
 }
 
@@ -37,7 +53,7 @@ export const useOrder = defineStore("order", {
     return {
       quotesClass: {},
       currentQuotes: {},
-      initOrderSymbol: "",
+      initOrderState: { symbol: "" },
       currentKline: {},
       orderData: {
         marketOrder: [],
@@ -86,14 +102,15 @@ export const useOrder = defineStore("order", {
           pol: null,
         },
       },
-      selectedMenuKey: "price",
       ifOne: false, // 一键交易
       ifQuick: true, // 快捷交易(图表是否显示快捷交易组件)
     };
   },
 
   actions: {
-    createOrder(symbol?: string) {
+    createOrder<T extends ModeType>(
+      params?: OrderStateWithDirectionRequired<T>
+    ) {
       const dialogStore = useDialog();
       const userStore = useUser();
       if (!userStore.account.token) {
@@ -116,8 +133,8 @@ export const useOrder = defineStore("order", {
         });
         return;
       }
-      if (symbol) {
-        this.initOrderSymbol = symbol;
+      if (params) {
+        this.initOrderState = { ...params };
       }
       dialogStore.showOrderDialog();
     },
@@ -132,7 +149,8 @@ export const useOrder = defineStore("order", {
     // 获取一键交易状态
     getOneTrans() {
       const storageStore = useStorage();
-      this.ifOne = !!storageStore.getItem("ifOne");
+      const ifOne = storageStore.getItem("ifOne");
+      this.ifOne = isNil(ifOne) ? null : ifOne;
       return this.ifOne;
     },
 

@@ -4,7 +4,7 @@
       <div :style="wordStyle('sell')">
         {{ bid }}
       </div>
-      <div :style="btnStyle('sell')" @click="creatOrder('sell')">
+      <div :style="btnStyle('sell')" @click="addOrder('sell')">
         {{ $t("order.sell") }}
       </div>
     </div>
@@ -26,7 +26,7 @@
       />
     </div>
     <div :style="styles.area">
-      <div :style="btnStyle('buy')" @click="creatOrder('buy')">
+      <div :style="btnStyle('buy')" @click="addOrder('buy')">
         {{ $t("order.buy") }}
       </div>
       <div :style="wordStyle('buy')">
@@ -39,6 +39,8 @@
 <script lang="ts" setup>
 import { ElMessage } from "element-plus";
 import { computed, ref, watchEffect } from "vue";
+
+import { DirectionType } from "#/order";
 
 import { ORDER_TYPE } from "@/constants/common";
 import { ISessionSymbolInfo } from "@/types/chart/index";
@@ -112,7 +114,7 @@ const wordDownColor = computed(() => {
 const wordUpColor = computed(() => {
   return themeStore.upDownTheme === "upRedDownGreen" ? "#FF4A61" : "#00C673";
 });
-const wordStyle = (type: "sell" | "buy") => {
+const wordStyle = (type: DirectionType) => {
   return {
     ...styles.word,
     backgroundColor: type === "sell" ? wordDownColor.value : wordUpColor.value,
@@ -127,7 +129,7 @@ const btnUpColor = computed(() => {
   return themeStore.upDownTheme === "upRedDownGreen" ? "#DC1D43" : "#009355";
 });
 
-const btnStyle = (type: "sell" | "buy") => {
+const btnStyle = (type: DirectionType) => {
   return {
     ...styles.btn,
     backgroundColor: type === "sell" ? btnDownColor.value : btnUpColor.value,
@@ -230,14 +232,19 @@ const valid = () => {
   }
   return true;
 };
-const creatOrder = async (type: "sell" | "buy") => {
+const addOrder = async (type: DirectionType) => {
   const ifOne = orderStore.getOneTrans();
   if (ifOne === null) {
     dialogStore.disclaimers = true;
     return;
   }
   if (!orderStore.ifOne) {
-    orderStore.createOrder(nowSymbol.value);
+    orderStore.createOrder({
+      symbol: nowSymbol.value,
+      mode: "confirm",
+      directionType: type,
+      volume: volume.value,
+    });
     return;
   }
   const v = valid();

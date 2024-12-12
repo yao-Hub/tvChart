@@ -190,7 +190,7 @@
           </div>
           <div class="infobox_item">
             <el-text type="info">{{ $t("confirmOrder.orderType") }}</el-text>
-            <el-text>{{ directionType }}</el-text>
+            <el-text>{{ $t(`order.${directionType}`) }}</el-text>
           </div>
           <div class="infobox_item">
             <el-text type="info">{{ $t("confirmOrder.volume") }}</el-text>
@@ -221,8 +221,10 @@
 </template>
 
 <script setup lang="ts">
-import { debounce } from "lodash";
+import { cloneDeep, debounce } from "lodash";
 import { computed, nextTick, reactive, ref, watch } from "vue";
+
+import { DirectionType, OrderType } from "#/order";
 
 import BreakLimit from "./components/BreakLimit.vue";
 import Price from "./components/Price.vue";
@@ -251,7 +253,7 @@ import type { FormInstance, FormRules } from "element-plus";
 const orderFormRef = ref<FormInstance>();
 interface FormState {
   symbol: string;
-  orderType: string;
+  orderType: OrderType;
   volume: string;
   stopLoss: string;
   stopProfit: string;
@@ -262,7 +264,7 @@ interface FormState {
 }
 const formState = reactive<FormState>({
   symbol: "",
-  orderType: "",
+  orderType: "price",
   volume: "",
   stopLoss: "",
   stopProfit: "",
@@ -292,13 +294,19 @@ watch(
     if (val) {
       await nextTick();
       orderFormRef.value?.resetFields();
-      formState.symbol =
-        orderStore.initOrderSymbol || chartInitStore.getDefaultSymbol();
+      const initState = cloneDeep(orderStore.initOrderState);
+      orderStore.initOrderState.symbol = "";
+
+      formState.symbol = initState.symbol || chartInitStore.getDefaultSymbol();
+      if (initState.mode === "confirm") {
+        formState.orderType = "price";
+        formState.volume = initState.volume;
+        showConfirmModal(initState.directionType);
+        return;
+      }
       formState.orderType = "price";
       back();
-      setTimeout(() => {
-        orderStore.initOrderSymbol = "";
-      });
+      setTimeout(() => {});
     }
   }
 );
@@ -371,7 +379,7 @@ const valids = async () => {
 };
 
 const directionType = ref(); // 交易方向
-const showConfirmModal = debounce(async (type: "sell" | "buy") => {
+const showConfirmModal = debounce(async (type: DirectionType) => {
   const valid = await valids();
   directionType.value = type;
   if (valid) {

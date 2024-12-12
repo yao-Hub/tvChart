@@ -137,7 +137,7 @@ export default {
   confirmOrder: {
     symbol: "交易品种",
     orderType: "订单类型",
-    volume: "交易量",
+    volume: "手数",
     stopLoss: "止损",
     stopProfit: "止盈",
     orderPrice: "下单价",
