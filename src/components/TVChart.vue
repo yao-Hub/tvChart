@@ -38,7 +38,7 @@ const props = defineProps({
     type: Object,
   },
   timezone: {
-    default: "Asia/Hong_Kong",
+    default: "Asia/Shanghai",
     type: String,
   },
   debug: {

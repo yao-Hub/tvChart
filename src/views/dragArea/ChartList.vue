@@ -56,6 +56,7 @@
           :datafeed="datafeed(id)"
           :symbol="symbol"
           :theme="themeStore.systemTheme"
+          :timezone="timeStore.settedTimezone"
           :disabledFeatures="disabledFeatures"
           @initChart="initChart"
         >
@@ -74,6 +75,7 @@ import { useChartAction } from "@/store/modules/chartAction";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useTheme } from "@/store/modules/theme";
+import { useTime } from "@/store/modules/time";
 
 import { datafeed } from "@/config/chartConfig";
 
@@ -83,6 +85,7 @@ const chartInitStore = useChartInit();
 const chartActionStore = useChartAction();
 const themeStore = useTheme();
 const chartSubStore = useChartSub();
+const timeStore = useTime();
 
 const disabledFeatures = [
   "header_compare",

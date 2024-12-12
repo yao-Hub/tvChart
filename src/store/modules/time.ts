@@ -32,7 +32,6 @@ export const useTime = defineStore("time", () => {
     if (value === "zh") {
       dayjs.locale("zh-cn");
     }
-    setChartTimezone(userTimezone);
     setTimezone(userTimezone);
   };
 

@@ -6,7 +6,7 @@ import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 
 import * as types from "@/types/chart/index";
-import { ReqLineInfo, ResLineInfo, klineHistory } from "api/kline/index";
+import { ResLineInfo, klineHistory } from "api/kline/index";
 import { cloneDeep, flattenDeep, get, groupBy, maxBy, orderBy } from "lodash";
 
 const chartLineStore = useChartLine();
@@ -29,7 +29,7 @@ const countOptions: Record<string, Tunit> = {
 const config = {
   supports_search: true,
   supports_group_request: false,
-  supports_marks: false,
+  supports_marks: true,
   supports_timescale_marks: false,
   supports_time: true,
   exchanges: [],
@@ -43,78 +43,13 @@ const formatTime = (time: number) => {
   return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
 };
 
-function hasEmptyArrayValue(map: Map<string, unknown>) {
-  for (const [key, value] of map) {
-    if (Array.isArray(value) && value.length === 0) {
-      return key;
-    }
-  }
-  return false;
-}
-
-// 优化当前k线图加载
-interface IInfoCache {
-  nowSymbol: string;
-  temSymbol: string;
-  temResolution: string;
-  nowResolution: string;
-}
-interface IBarsCache {
-  [key: string]: Map<string, ResLineInfo[]>;
-}
-const infoCache: Record<string, Partial<IInfoCache>> = {};
-const barsCache: IBarsCache = {};
 let temBar: Record<string, ResLineInfo> = {};
-function getCacheBars(data: ReqLineInfo, id: string): Promise<ResLineInfo[]> {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const fkey = `${data.symbol}#${data["period_type"]}`;
-      const skey = `${data["limit_ctm"]}`;
-      const cache = barsCache[fkey];
-      if (!cache) {
-        barsCache[fkey] = new Map();
-        const res = await klineHistory(data);
-        barsCache[fkey].set(skey, res.data);
-        resolve(res.data);
-        return;
-      }
-      const bar = barsCache[fkey].get(skey);
-      if (bar) {
-        resolve(bar);
-        return;
-      }
-      const emptyKey = hasEmptyArrayValue(barsCache[fkey]);
-      if (emptyKey) {
-        const { nowSymbol, temSymbol, temResolution, nowResolution } =
-          infoCache[id];
-        if (
-          !nowSymbol ||
-          (temSymbol === nowSymbol && temResolution === nowResolution)
-        ) {
-          resolve([]);
-          return;
-        }
-        if (temSymbol !== nowSymbol || temResolution !== nowResolution) {
-          barsCache[fkey].delete(emptyKey);
-        }
-        infoCache[id].nowResolution = data.period_type.toString();
-        infoCache[id].nowSymbol = data.symbol;
-      }
-      const res = await klineHistory(data);
-      barsCache[fkey].set(skey, res.data);
-      resolve(res.data);
-    } catch (error) {
-      reject([]);
-    }
-  });
-}
 
 export const datafeed = (id: string) => {
   let UID = "";
   let subId = "";
   return {
     onReady: (callback: Function) => {
-      infoCache[id] = {};
       setTimeout(() => {
         callback(config);
       });
@@ -169,6 +104,8 @@ export const datafeed = (id: string) => {
         timeArr.push(resultTs);
       }
       const session = timeArr.join("|");
+      const timeStore = useTime();
+
       const symbol_stub = {
         name: symbolName,
         description: storeSymbolInfo?.description || "-",
@@ -176,12 +113,12 @@ export const datafeed = (id: string) => {
         minmov: 1, // 纵坐标比例
         minmov2: 0,
         pricescale: Math.pow(10, storeSymbolInfo?.digits || 2), // 纵坐标小数位数
-        session,
+        session: session,
         ticker: symbolName,
-        timezone: "Asia/Hong_Kong",
+        timezone: timeStore.settedTimezone,
         type: "cfd",
         has_intraday: true, // 分钟数据
-        // has_daily: true, // 日k线数据
+        has_daily: true, // 日k线数据
         has_weekly_and_monthly: true, // 月，周数据
         supported_resolutions: [
           "D",
@@ -239,28 +176,29 @@ export const datafeed = (id: string) => {
       try {
         let count = periodParams.countBack;
         // periodParams.countBack 长度不够导致数据缺失
-        const timeStore = useTime();
-        const timezone = timeStore.settedTimezone;
-        const to = dayjs.unix(periodParams.to).tz(timezone);
-        const from = dayjs.unix(periodParams.from).tz(timezone);
+        const to = dayjs.unix(periodParams.to);
+        const from = dayjs.unix(periodParams.from);
         const diffType = countOptions[resolution];
         count = to.diff(from, diffType);
         const updata = {
           period_type: types.Periods[resolution] || resolution,
           symbol: symbolInfo.name,
-          count: count,
+          count,
           limit_ctm: periodParams.to,
         };
-        getCacheBars(updata, id).then((res) => {
-          if (res.length === 0) {
-            onHistoryCallback([]);
+        klineHistory(updata).then((res) => {
+          const data = res.data;
+          if (data.length === 0) {
+            onHistoryCallback([], {
+              noData: true,
+            });
             return;
           }
-          const reverse_data = orderBy(res, "ctm");
-          const bars = reverse_data.map((item) => {
+          const orderBy_data = orderBy(data, "ctm");
+          const bars = orderBy_data.map((item) => {
             return {
               ...item,
-              time: dayjs.unix(item.ctm).valueOf(),
+              time: item.ctm * 1000,
             };
           });
           const bar = maxBy(bars, "ctm");
@@ -278,11 +216,13 @@ export const datafeed = (id: string) => {
             }
           }
           setTimeout(() => {
-            onHistoryCallback(bars);
+            onHistoryCallback(cloneDeep(bars));
           });
         });
       } catch (error) {
-        onErrorCallback();
+        onHistoryCallback([], {
+          noData: true,
+        });
       }
     },
 
