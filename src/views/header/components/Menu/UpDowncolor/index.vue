@@ -14,7 +14,7 @@
       </div>
     </div>
     <template #dropdown>
-      <Colors></Colors>
+      <Colors @closeDropdown="emit('closeDropdown')"></Colors>
     </template>
   </el-dropdown>
 </template>
@@ -23,6 +23,8 @@
 import { useTheme } from "@/store/modules/theme";
 import Colors from "./Colors.vue";
 const themeStore = useTheme();
+
+const emit = defineEmits(["closeDropdown"]);
 </script>
 
 <style lang="scss" scoped>

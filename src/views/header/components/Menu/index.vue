@@ -1,36 +1,41 @@
 <template>
   <el-dropdown
-    trigger="click"
+    ref="dropdown"
+    trigger="contextmenu"
     @visible-change="visible = $event"
     placement="bottom-end"
   >
     <div class="menu">
-      <div class="menuIcon" :class="{ menuIcon_active: visible }"></div>
+      <div
+        class="menuIcon"
+        :class="{ menuIcon_active: visible }"
+        @click="toggle(true)"
+      ></div>
     </div>
     <template #dropdown>
       <div class="dropdownbox">
         <div class="dropdownbox_item">
-          <OneTransactions></OneTransactions>
+          <OneTransactions @closeDropdown="toggle(false)"></OneTransactions>
         </div>
         <div class="divider"></div>
         <div class="dropdownbox_item">
-          <Theme></Theme>
+          <Theme @closeDropdown="toggle(false)"></Theme>
         </div>
         <div class="dropdownbox_item">
-          <Language></Language>
+          <Language @closeDropdown="toggle(false)"></Language>
         </div>
         <div class="dropdownbox_item">
-          <UpDowncolor></UpDowncolor>
+          <UpDowncolor @closeDropdown="toggle(false)"></UpDowncolor>
         </div>
         <div class="dropdownbox_item">
-          <FontSize></FontSize>
+          <FontSize @closeDropdown="toggle(false)"></FontSize>
         </div>
         <div class="divider"></div>
         <div class="dropdownbox_item">
-          <sendFeedback></sendFeedback>
+          <sendFeedback @closeDropdown="toggle(false)"></sendFeedback>
         </div>
         <div class="dropdownbox_item">
-          <aboutUs></aboutUs>
+          <aboutUs @closeDropdown="toggle(false)"></aboutUs>
         </div>
       </div>
     </template>
@@ -49,6 +54,19 @@ import sendFeedback from "./sendFeedback.vue";
 import Theme from "./theme.vue";
 
 const visible = ref(false);
+
+import type { DropdownInstance } from "element-plus";
+
+const dropdown = ref<DropdownInstance>();
+
+function toggle(visible: boolean) {
+  if (!dropdown.value) return;
+  if (visible) {
+    dropdown.value.handleOpen();
+  } else {
+    dropdown.value.handleClose();
+  }
+}
 </script>
 
 <style lang="scss" scoped>

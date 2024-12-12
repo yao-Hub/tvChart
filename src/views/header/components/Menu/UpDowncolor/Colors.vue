@@ -29,7 +29,10 @@
 import { useTheme } from "@/store/modules/theme";
 const themeStore = useTheme();
 
+const emit = defineEmits(["closeDropdown"]);
+
 const changeColor = (theme: "upRedDownGreen" | "upGreenDownRed") => {
+  emit("closeDropdown");
   themeStore.setUpDownTheme(theme);
 };
 </script>

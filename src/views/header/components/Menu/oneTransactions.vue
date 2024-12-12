@@ -22,7 +22,10 @@ watchEffect(() => {
   switchVal.value = !!orderStore.ifOne;
 });
 
+const emit = defineEmits(["closeDropdown"]);
+
 const beforeChange = () => {
+  emit("closeDropdown");
   if (!orderStore.ifOne) {
     dialogStore.disclaimers = true;
     return false;

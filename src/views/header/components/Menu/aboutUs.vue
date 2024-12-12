@@ -1,5 +1,5 @@
 <template>
-  <div class="aboutUs" @click="open = true">
+  <div class="aboutUs" @click="handleClick">
     <img class="logo" src="@/assets/icons/icon_16.svg" />
     <span>{{ $t("aboutUs") }}</span>
   </div>
@@ -47,6 +47,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 const open = ref<boolean>(false);
+const emit = defineEmits(["closeDropdown"]);
+
+const handleClick = () => {
+  emit("closeDropdown");
+  open.value = true;
+};
 </script>
 
 <style lang="scss" scoped>

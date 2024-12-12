@@ -15,9 +15,12 @@ const themeStore = useTheme();
 
 const checked = ref(false);
 checked.value = themeStore.systemTheme !== "dark";
+const emit = defineEmits(["closeDropdown"]);
+
 const handleChange = () => {
   themeStore.changeSystemTheme();
   themeStore.setChartTheme();
+  emit("closeDropdown");
 };
 </script>
 
