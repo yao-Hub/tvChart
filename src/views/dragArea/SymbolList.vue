@@ -305,14 +305,6 @@ const getVariation = (symbol: string) => {
   return result;
 };
 
-// 点击行更改图表品种
-// import { useChartInit } from "@/store/modules/chartInit";
-// const chartInitStore = useChartInit();
-// const changeSymbol = (e: any) => {
-//   const symbol = e.symbols;
-//   const chartId = chartInitStore.state.activeChartId;
-//   chartInitStore.changeChartSymbol({ id: chartId, symbol });
-// };
 const menuVisible = ref(false);
 const pos = ref({
   left: 0,

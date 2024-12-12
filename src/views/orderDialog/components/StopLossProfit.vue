@@ -177,8 +177,8 @@ watch(
 );
 
 /**
- * openPrice：    建仓价（止盈止损价）
- * closePrice：   平仓价（市价单->持仓多单时：closePrice = 现价卖价、持仓空单时，closePrice = 现价买价；挂单: 限价）
+ * openPrice：    建仓价
+ * closePrice：   平仓价（市价单->持仓多单时：closePrice = 现价卖价、持仓空单时，closePrice = 现价买价；止盈止损价）
  * contractSize： 订单品种合约数量
  * volume：       手数
  * fee：          手续费
@@ -200,18 +200,18 @@ const profit = computed(() => {
   }
   const ask = props.quote?.ask;
   const bid = props.quote?.bid;
-  let closePrice;
+  let open_price;
   if (type.includes("price")) {
-    closePrice = ifBuy ? ask : bid;
+    open_price = ifBuy ? ask : bid;
   } else {
-    closePrice = props.orderPrice;
+    open_price = props.orderPrice;
   }
-  if (props.symbolInfo && closePrice) {
+  if (props.symbolInfo && open_price) {
     let result: number | null = null;
     const volume = +props.volume;
     const { contract_size, storage, fee, digits, symbol } = props.symbolInfo;
-    const buildingPrice = +price.value * contract_size * volume; // 建仓合约价值
-    const closingPrice = +closePrice * contract_size * volume; // 平仓合约价值
+    const buildingPrice = +open_price * contract_size * volume; // 建仓合约价值
+    const closingPrice = +price.value * contract_size * volume; // 平仓合约价值
 
     const rateMap = rateStore.getSymbolRate(symbol);
     const rate = ifBuy ? rateMap.ask_rate : rateMap.bid_rate;

@@ -355,8 +355,10 @@ const state = reactive({
   menu: [
     { label: "持仓", key: "marketOrder" },
     { label: "挂单", key: "pendingOrder" },
-    { label: "交易历史", key: "marketOrderHistory" },
-    { label: "挂单历史", key: "pendingOrderHistory" },
+    // { label: "交易历史", key: "marketOrderHistory" },
+    { label: "历史", key: "marketOrderHistory" },
+    // { label: "挂单历史", key: "pendingOrderHistory" },
+    { label: "失效", key: "pendingOrderHistory" },
     { label: "出入金记录", key: "blanceRecord" },
   ],
   columns: cloneDeep(tableColumns),

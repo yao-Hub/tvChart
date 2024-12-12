@@ -191,10 +191,6 @@ const initonReady = () => {
         // @ts-ignore
         .subscribe(null, (e) => {
           chartInitStore.state.activeChartId = props.chartId;
-          chartInitStore.setChartMapSymbolInterval({
-            symbol: e.name,
-            id: props.chartId,
-          });
         });
 
       // 监听周期变化
@@ -203,10 +199,6 @@ const initonReady = () => {
         .onIntervalChanged()
         .subscribe(null, (interval) => {
           chartInitStore.state.activeChartId = props.chartId;
-          chartInitStore.setChartMapSymbolInterval({
-            interval,
-            id: props.chartId,
-          });
         });
 
       // 监听鼠标按下

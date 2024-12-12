@@ -48,6 +48,7 @@ function initDragArea() {
         const emptyChildItems = Array.from(dragArea_items).filter(
           (item) => item.querySelectorAll(".demo").length === 0
         );
+        // 没有内容的区域初始化高度
         if (emptyChildItems.length) {
           dragArea_items.forEach((item) => {
             const element = item as HTMLElement;

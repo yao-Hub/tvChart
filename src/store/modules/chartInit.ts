@@ -137,26 +137,11 @@ export const useChartInit = defineStore("chartInit", () => {
     return "";
   }
 
+  // 默认品种（初始化的品种）
   function getDefaultSymbol() {
     const firstSymbol = symbolStore.symbols[0]?.symbol;
     const chartSymbol = getChartSymbol(state.activeChartId);
     return chartSymbol || firstSymbol;
-  }
-
-  // 设置chartWidgetList对象的品种 周期字段
-  function setChartMapSymbolInterval(params: {
-    id: string;
-    symbol?: string;
-    interval?: ResolutionString;
-  }) {
-    const { id, symbol, interval } = params;
-    const targetItem = state.chartWidgetList.find((e) => e.id === id);
-    if (targetItem && symbol) {
-      targetItem.symbol = symbol;
-    }
-    if (targetItem && interval) {
-      targetItem.interval = interval;
-    }
   }
 
   // 设置图表显示品种
@@ -282,7 +267,6 @@ export const useChartInit = defineStore("chartInit", () => {
     removeChartWidget,
     addChart,
     getChartSymbol,
-    setChartMapSymbolInterval,
     changeChartSymbol,
     changeChartInterval,
     intLayoutType,
