@@ -27,7 +27,11 @@ const source = computed(() => {
   }
   if (props.iconName) {
     const theme = themeStore.systemTheme;
-    return `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
+    // return `/static/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
+    return new URL(
+      `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
+      import.meta.url
+    ).href;
   }
   return "";
 });
