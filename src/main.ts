@@ -1,17 +1,17 @@
-import { createApp } from "vue";
 import i18n from "@/language/index";
+import { createApp } from "vue";
 import App from "./App.vue";
 import { setupRouter } from "./router";
 import { setupStore } from "./store";
 
-import "./styles/common.scss";
 import "./assets/icons/iconfont/iconfont.css";
-import "./styles/element/index.scss";
+import "./styles/common.scss";
 import "./styles/element/dark/css-vars.scss";
 import "./styles/element/dark/index.scss";
+import "./styles/element/index.scss";
 
-import ElementPlus from "element-plus";
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
+import ElementPlus from "element-plus";
 
 const bootstrap = () => {
   const app = createApp(App);

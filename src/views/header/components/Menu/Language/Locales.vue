@@ -3,11 +3,7 @@
     <el-dropdown-item v-for="(value, key) in localeList">
       <div class="localeItem" @click="changeLocale(key)">
         <span>{{ value.nowLocale }}</span>
-        <img
-          class="logo"
-          src="@/assets/icons/select.svg"
-          v-if="curentLocale === key"
-        />
+        <BaseImg class="logo" iconName="select" v-if="curentLocale === key" />
       </div>
     </el-dropdown-item>
   </el-dropdown-menu>

@@ -2,22 +2,22 @@
   <el-dropdown-menu>
     <el-dropdown-item>
       <div class="colorsItem" @click="changeColor('upRedDownGreen')">
-        <img class="logo" src="@/assets/icons/upRedDownGreen.svg" />
+        <BaseImg class="logo" iconName="upRedDownGreen" />
         <span>{{ $t("upRedDownGreen") }}</span>
-        <img
+        <BaseImg
           class="logo checkIcon"
-          src="@/assets/icons/select.svg"
+          iconName="select"
           v-if="themeStore.upDownTheme === 'upRedDownGreen'"
         />
       </div>
     </el-dropdown-item>
     <el-dropdown-item>
       <div class="colorsItem" @click="changeColor('upGreenDownRed')">
-        <img class="logo" src="@/assets/icons/upGreenDownRed.svg" />
+        <BaseImg class="logo" iconName="upGreenDownRed" />
         <span>{{ $t("upGreenDownRed") }}</span>
-        <img
+        <BaseImg
           class="logo checkIcon"
-          src="@/assets/icons/select.svg"
+          iconName="select"
           v-if="themeStore.upDownTheme === 'upGreenDownRed'"
         />
       </div>

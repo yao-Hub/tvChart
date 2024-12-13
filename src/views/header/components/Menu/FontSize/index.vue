@@ -2,12 +2,12 @@
   <el-dropdown trigger="hover" placement="right-start">
     <div class="Fontsize">
       <div class="Fontsize_left">
-        <img class="logo" src="@/assets/icons/icon_13.svg" />
+        <BaseImg class="logo" iconName="icon_13" />
         <span>{{ $t("font.fontSize") }}</span>
       </div>
       <div class="Fontsize_right">
         <el-text type="info">{{ $t(`font.${sizeStore.systemSize}`) }}</el-text>
-        <img class="logo" src="@/assets/icons/turnRight.svg" />
+        <BaseImg class="logo" iconName="turnRight" />
       </div>
     </div>
     <template #dropdown>

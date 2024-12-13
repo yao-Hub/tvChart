@@ -179,6 +179,10 @@ body {
   @include background_color("background");
 }
 
+.word {
+  @include font_color("word");
+}
+
 .icon {
   width: 1em;
   height: 1em;
@@ -274,5 +278,5 @@ body {
 }
 
 .horilineMoveBtn {
-  background-image: url("@/assets/icons/icon_td1.svg");
+  background-image: url("@/assets/icons/light/icon_td1.svg");
 }

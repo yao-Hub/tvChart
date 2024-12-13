@@ -1,9 +1,10 @@
+import { PageEnum } from "@/constants/pageEnum";
 import type { RouteRecordRaw } from "vue-router";
 
 // 路由规则
 const routes: RouteRecordRaw[] = [
   {
-    path: "/chart",
+    path: PageEnum.CHART,
     name: "chart",
     component: () => import("@/views/home/index.vue"),
   },

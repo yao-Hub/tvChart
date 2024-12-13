@@ -15,7 +15,7 @@
     >
       <div class="el-dropdown-link" @click.stop="toggleSymbolDropdown">
         <el-text :type="props.active ? '' : 'info'">{{ props.symbol }}</el-text>
-        <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
+        <BaseImg class="caretDownIcon" iconName="caretDown" />
       </div>
       <template #dropdown>
         <div class="search">
@@ -26,7 +26,7 @@
             clearable
           >
             <template #prefix>
-              <img class="logo" src="@/assets/icons/icon_search.svg" />
+              <BaseImg class="logo" iconName="icon_search" />
             </template>
           </el-input>
           <div style="height: 336px">
@@ -54,7 +54,7 @@
         <el-text :type="props.active ? '' : 'info'">{{
           nowResolution
         }}</el-text>
-        <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
+        <BaseImg class="caretDownIcon" iconName="caretDown" />
       </div>
       <template #dropdown>
         <div
@@ -63,9 +63,9 @@
           @click="resoluteItemSelect(key)"
         >
           <span>{{ value }}</span>
-          <img
+          <BaseImg
             class="selectIcon"
-            src="@/assets/icons/select.svg"
+            iconName="select"
             v-if="nowResolution === value"
           />
         </div>
@@ -231,7 +231,7 @@ const resoluteItemSelect = (key: number) => {
   cursor: grab;
   width: 8px;
   height: 18px;
-  background-image: url("@/assets/icons/icon_drag2.svg");
+  background-image: url("@/assets/icons/light/icon_drag2.svg");
   background-size: cover;
 }
 </style>

@@ -1,7 +1,12 @@
 <template>
   <el-input v-model="model" placeholder="verification code">
     <template #suffix>
-      <el-button link @click="handleClick" :loading="loading" v-if="!showTimer">
+      <el-button
+        link
+        @click.stop="handleClick"
+        :loading="loading"
+        v-if="!showTimer"
+      >
         <span class="sendbtn">{{ $t("account.getCode") }}</span>
       </el-button>
       <span v-if="showTimer">{{ leftTime }} 秒后可重新获取</span>

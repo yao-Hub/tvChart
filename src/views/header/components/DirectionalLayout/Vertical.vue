@@ -20,12 +20,12 @@ const flexDirection = computed(() => chartInitStore.state.chartFlexDirection);
 @import "@/styles/_handle.scss";
 
 .iconbox {
-  background-image: url("@/assets/icons/icon_7.svg");
+  background-image: url("@/assets/icons/light/icon_7.svg");
   &:hover {
     @include background_color("background-hover");
   }
 }
 .iconActive {
-  background-image: url("@/assets/icons/icon_7a.svg");
+  background-image: url("@/assets/icons/light/icon_7a.svg");
 }
 </style>

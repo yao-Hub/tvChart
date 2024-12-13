@@ -1,7 +1,7 @@
 <template>
   <div class="Theme">
     <div class="Theme_left">
-      <img class="logo" src="@/assets/icons/icon_10.svg" />
+      <BaseImg class="logo" iconName="icon_10" />
       <span>{{ $t("lightTheme") }}</span>
     </div>
     <el-switch v-model="checked" @change="handleChange" />

@@ -2,7 +2,7 @@
   <div class="page">
     <el-result sub-title="Sorry, the page you visited does not exist">
       <template #icon>
-        <img src="../assets/images/404.jpg" />
+        <BaseImg iconName="404" catalog="images" imgSuffix="jpg" />
       </template>
       <template #extra>
         <el-button type="primary" @click="$router.push({ path: '/' })"

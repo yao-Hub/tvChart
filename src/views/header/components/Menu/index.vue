@@ -83,7 +83,7 @@ function toggle(visible: boolean) {
   box-sizing: border-box;
   padding: 8px;
   .menuIcon {
-    background-image: url("@/assets/icons/menu.svg");
+    background-image: url("@/assets/icons/light/menu.svg");
     background-repeat: no-repeat;
     background-size: var(--icon-size);
     background-position: center;
@@ -94,7 +94,7 @@ function toggle(visible: boolean) {
       @include background_color("background-hover");
     }
     &_active {
-      background-image: url("@/assets/icons/menuactive.svg");
+      background-image: url("@/assets/icons/light/menuactive.svg");
     }
   }
 }

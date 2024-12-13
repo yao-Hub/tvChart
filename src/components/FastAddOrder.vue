@@ -9,21 +9,13 @@
       </div>
     </div>
     <div :style="{ ...inputAreaStyle, boxSizing: 'border-box' }">
-      <img
-        :style="styles.icon"
-        src="@/assets/icons/caretDown.svg"
-        @click="reduceNum"
-      />
+      <BaseImg :style="styles.icon" iconName="caretDown" @click="reduceNum" />
       <input
         :style="{ ...styles.input, textAlign: 'center' }"
         type="text"
         v-model="volume"
       />
-      <img
-        src="@/assets/icons/caretUp.svg"
-        :style="styles.icon"
-        @click="addNum"
-      />
+      <BaseImg iconName="caretUp" :style="styles.icon" @click="addNum" />
     </div>
     <div :style="styles.area">
       <div :style="btnStyle('buy')" @click="addOrder('buy')">

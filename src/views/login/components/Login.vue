@@ -1,8 +1,8 @@
 <template>
   <div class="Login">
-    <div class="back" @click="emit('goCom', 'accounts')" v-if="props.needBack">
+    <div class="back" @click="goAccount" v-if="ifloginBack">
       <el-icon>
-        <img src="@/assets/icons/turnleft.svg" />
+        <BaseImg iconName="turnleft" />
       </el-icon>
       <span>{{ $t("back") }}</span>
     </div>
@@ -47,13 +47,14 @@
       <el-form-item>
         <div class="login-form-remember">
           <el-checkbox
+            class="link"
             v-model="formState.remember"
             :label="$t('account.rememberMe')"
           />
           <span
             class="link"
             v-if="formState.server === 'utrader-demo'"
-            @click="emit('goCom', 'forgetPassword')"
+            @click="goForgetPassword"
             >{{ $t("account.forgetPassword") }}</span
           >
         </div>
@@ -73,15 +74,15 @@
       <el-form-item>
         <div class="login-form-account">
           <span> {{ $t("account.noAccount") }}&nbsp;</span>
-          <span class="link" @click="emit('goCom', 'register')">{{
+          <el-text type="primary" style="cursor: pointer" @click="goRegister">{{
             $t("account.createAccount")
-          }}</span>
+          }}</el-text>
         </div>
       </el-form-item>
     </el-form>
 
     <div class="article">
-      <span>{{ $t("article.loginsee") }}</span>
+      <span class="word">{{ $t("article.loginsee") }}</span>
       <el-link
         type="primary"
         target="_blank"
@@ -90,7 +91,7 @@
         >{{ $t("leftBook") }}{{ $t("article.userAgreement")
         }}{{ $t("rightBook") }}</el-link
       >
-      <span> {{ $t("and") }} </span>
+      <span class="word"> {{ $t("and") }} </span>
       <el-link
         type="primary"
         target="_blank"
@@ -105,22 +106,20 @@
 </template>
 
 <script setup lang="ts">
+import { PageEnum } from "@/constants/pageEnum";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 import { Search } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { computed, onMounted, reactive, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
+const router = useRouter();
+const route = useRoute();
 const networkStore = useNetwork();
 const userStore = useUser();
 
-interface Props {
-  login?: number | string;
-  server?: string;
-  needBack?: boolean;
-}
-const props = defineProps<Props>();
-const emit = defineEmits(["goCom", "goHome"]);
+const query = route.query;
 
 interface FormState {
   login: string;
@@ -164,6 +163,10 @@ const disabled = computed(() => {
   return !(formState.login && formState.password);
 });
 
+const ifloginBack = computed(() => {
+  return userStore.accountList.length;
+});
+
 import { articleDetails, protocolAgree } from "api/account/index";
 // 隐私协议
 const privacyPolicyUrl = ref("");
@@ -194,20 +197,30 @@ const happyStart = async () => {
     await userStore.login(formState, ({ ending }) => {
       loading.value = !ending;
     });
-    emit("goHome");
+    router.push({ path: "/" });
   } catch (e) {
     loading.value = false;
   }
 };
 
+const goAccount = () => {
+  router.push({ path: PageEnum.LOGIN_ACCOUNTS });
+};
+const goRegister = () => {
+  router.push({ path: PageEnum.LOGIN_REGISTER });
+};
+const goForgetPassword = () => {
+  router.push({ path: PageEnum.LOGIN_FORGETPASSWORD });
+};
+
 onMounted(() => {
   // 记住密码自动填充
-  if (props.login) {
-    formState.login = String(props.login);
+  if (query.login) {
+    formState.login = String(query.login);
     formState.remember = false;
   }
-  if (props.server) {
-    formState.server = String(props.server);
+  if (query.server) {
+    formState.server = String(query.server);
   }
   document.addEventListener("keydown", function (event) {
     if (disabled.value) {
@@ -223,10 +236,6 @@ onMounted(() => {
 <style scoped lang="scss">
 @import "@/styles/_handle.scss";
 .Login {
-  border-radius: 8px;
-  box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
-  @include background_color("background-component");
-  box-sizing: border-box;
   padding: 56px 32px 0 32px;
   .plogin {
     font-weight: bold;
@@ -278,6 +287,9 @@ onMounted(() => {
   &:hover {
     @include font_color("primary");
   }
+  &:active {
+    @include font_color("primary-active");
+  }
 }
 
 .article {
@@ -285,7 +297,6 @@ onMounted(() => {
   bottom: 0;
   left: 0;
   padding: 16px 32px;
-  background-color: #fff9eb;
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -293,5 +304,11 @@ onMounted(() => {
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+}
+[data-theme="light"] .article {
+  background-color: #fff9eb;
+}
+[data-theme="dark"] .article {
+  background: #262b35;
 }
 </style>

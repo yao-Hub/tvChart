@@ -1,6 +1,6 @@
 <template>
   <div class="aboutUs" @click="handleClick">
-    <img class="logo" src="@/assets/icons/icon_16.svg" />
+    <BaseImg class="logo" iconName="icon_16" />
     <span>{{ $t("aboutUs") }}</span>
   </div>
 

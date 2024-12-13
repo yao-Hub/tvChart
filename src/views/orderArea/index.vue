@@ -15,7 +15,7 @@
             class="feedback textEllipsis"
             @click="dialogStore.feedbackVisible = true"
           >
-            <img class="logo" src="@/assets/icons/icon_16.svg" />
+            <BaseImg class="logo" iconName="icon_16" />
             <el-text type="info">{{ $t("feedback") }}</el-text>
           </div>
         </div>
@@ -123,7 +123,7 @@
             >
               <el-button type="primary">
                 <span class="label">批量平仓</span>
-                <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
+                <BaseImg class="caretDownIcon" iconName="caretDown" />
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -803,7 +803,7 @@ onMounted(async () => {
   @include background_color("table-colored");
 }
 .el-select-v2__caret {
-  content: url("@/assets/icons/caretDown.svg");
+  content: url("@/assets/icons/light/caretDown.svg");
 }
 </style>
 <style lang="scss" scoped>

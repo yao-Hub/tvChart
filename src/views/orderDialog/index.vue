@@ -180,7 +180,7 @@
 
       <!-- 市价单下单确认 -->
       <div v-show="priceConfirm" class="confirmBox">
-        <img src="@/assets/icons/icon_recognise.svg" class="icon" />
+        <BaseImg iconName="icon_recognise" class="icon" />
         <el-text class="title">下单确认</el-text>
         <el-text class="tip" type="info">请在下方确认您的下单信息</el-text>
         <div class="infobox">

@@ -2,15 +2,12 @@
   <el-dropdown trigger="hover" placement="right-start">
     <div class="UpdownColor">
       <div class="UpdownColor_left">
-        <img class="logo" src="@/assets/icons/icon_14.svg" />
+        <BaseImg class="logo" iconName="icon_14" />
         <span>{{ $t("updownColor") }}</span>
       </div>
       <div class="UpdownColor_right">
-        <img
-          class="logo checkIcon"
-          :src="`src/assets/icons/${themeStore.upDownTheme}.svg`"
-        />
-        <img class="logo" src="@/assets/icons/turnRight.svg" />
+        <BaseImg class="logo checkIcon" :iconName="themeStore.upDownTheme" />
+        <BaseImg class="logo" iconName="turnRight" />
       </div>
     </div>
     <template #dropdown>

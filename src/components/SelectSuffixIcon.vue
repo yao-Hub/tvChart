@@ -1,3 +1,3 @@
 <template>
-  <img src="@/assets/icons/caretDown.svg" />
+  <BaseImg iconName="caretDown" />
 </template>

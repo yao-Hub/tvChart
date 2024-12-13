@@ -22,8 +22,8 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick } from "vue";
 import { refreshLayout } from "@/utils/dragResize/drag_position";
+import { nextTick } from "vue";
 
 import { useLayout } from "@/store/modules/layout";
 const layoutStore = useLayout();
@@ -40,7 +40,7 @@ const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
 @import "@/styles/_handle.scss";
 
 .iconbox {
-  background-image: url("@/assets/icons/icon_1.svg");
+  background-image: url("@/assets/icons/light/icon_1.svg");
   &:hover {
     @include background_color("background-hover");
   }

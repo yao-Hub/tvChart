@@ -3,14 +3,14 @@
     <div class="Register_header">
       <div class="Register_header_goback" @click="back">
         <el-icon>
-          <img src="@/assets/icons/turnleft.svg" />
+          <BaseImg iconName="turnleft" />
         </el-icon>
         <span>{{ $t("back") }}</span>
       </div>
     </div>
     <div class="Register_main" v-if="!ifSuccess">
       <div class="Register_main_title">
-        <img src="@/assets/icons/logo@3x.png" />
+        <BaseImg iconName="logo@3x" imgSuffix="png" />
         <div class="Register_main_title_right">
           <span class="up">{{ props.lineInfo.lineName }}</span>
           <span class="down">{{ props.lineInfo.brokerName }}</span>
@@ -73,7 +73,7 @@
     </div>
 
     <div class="success-card" v-else>
-      <img class="typeIcon" src="@/assets/icons/icon_success.svg" />
+      <BaseImg class="typeIcon" iconName="icon_success" />
       <span class="tipSuc">{{ $t("account.registerSucceed") }}</span>
       <span class="tipSav">{{ $t("tip.keepPasswordSave") }}</span>
       <div class="copyBox">
@@ -87,7 +87,7 @@
         </div>
         <span class="copyBtn" @click="copy">{{ $t("account.copy") }}</span>
       </div>
-      <el-button class="startUseBtn" type="primary" @click="emit('goBack')">{{
+      <el-button class="startUseBtn" type="primary" @click="start">{{
         $t("account.startUse")
       }}</el-button>
     </div>
@@ -99,14 +99,15 @@ import { articleDetails, register, resQueryTradeLine } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import { computed, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 import VerificationCode from "./VerificationCode.vue";
+
+const router = useRouter();
 
 interface Props {
   lineInfo: resQueryTradeLine;
 }
 const props = defineProps<Props>();
-
-const emit = defineEmits(["goBack"]);
 
 interface FormState {
   email: string;
@@ -195,12 +196,11 @@ onMounted(() => {
   });
 });
 
-const back = () => {
+const start = () => {
   if (ifSuccess.value) {
     ifSuccess.value = !ifSuccess.value;
     return;
   }
-  emit("goBack");
 };
 
 import useClipboard from "vue-clipboard3";
@@ -213,6 +213,10 @@ const copy = async () => {
     ElMessage.error("复制失败");
   }
 };
+
+const back = () => {
+  router.back();
+};
 </script>
 
 <style lang="scss" scoped>
@@ -220,12 +224,6 @@ const copy = async () => {
 
 .Register {
   position: relative;
-  width: 512px;
-  height: 648px;
-  border-radius: 8px;
-  box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
-  @include background_color("background-component");
-  box-sizing: border-box;
   &_header {
     width: 100%;
     height: 56px;

@@ -19,9 +19,9 @@
         >
           <div class="delayItem" @click="changeNode(node.nodeName)">
             <div class="left">
-              <img
+              <BaseImg
                 class="selectIcon"
-                src="@/assets/icons/select.svg"
+                iconName="select"
                 v-if="node.nodeName === networkStore.currentNode?.nodeName"
               />
               <span class="textEllipsis">
@@ -42,13 +42,13 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, computed } from "vue";
-import { ReloadOutlined, LoadingOutlined } from "@ant-design/icons-vue";
-import { get } from "lodash";
+import { useChartInit } from "@/store/modules/chartInit";
 import { useNetwork } from "@/store/modules/network";
 import { useSocket } from "@/store/modules/socket";
-import { useChartInit } from "@/store/modules/chartInit";
 import { useUser } from "@/store/modules/user";
+import { LoadingOutlined, ReloadOutlined } from "@ant-design/icons-vue";
+import { get } from "lodash";
+import { computed, ref } from "vue";
 
 const userStore = useUser();
 const networkStore = useNetwork();

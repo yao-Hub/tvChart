@@ -1,7 +1,8 @@
+import { PageEnum } from "@/constants/pageEnum";
 import { useUser } from "@/store/modules/user";
 import { useVersion } from "@/store/modules/version";
+import { compact } from "lodash";
 import type { Router } from "vue-router";
-import { PageEnum } from "@/constants/pageEnum";
 
 export function createPermissionGuard(router: Router) {
   const userStore = useUser();
@@ -12,12 +13,14 @@ export function createPermissionGuard(router: Router) {
       return true;
     }
     const token = userStore.getToken();
-    if (to.path !== PageEnum.LOGIN && !token) {
-      await router.replace({ path: PageEnum.LOGIN });
+    if (!to.path.includes(PageEnum.LOGIN) && !token) {
+      await router.replace({ path: PageEnum.LOGIN_ACCOUNTS });
       return false;
     }
-    if (to.path === PageEnum.LOGIN && token) {
-      await router.replace(PageEnum.CHART);
+    const pathList = compact(to.path.substring(1).split("/"));
+    const firstPath = pathList[0].toLowerCase();
+    if (pathList.length === 1 && firstPath === "login") {
+      await router.replace(PageEnum.LOGIN_ACCOUNTS);
       return false;
     }
   });

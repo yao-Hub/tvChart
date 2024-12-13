@@ -13,15 +13,15 @@
 
     <div v-if="type === 'radio' && !hideStar" class="opera">
       <LoadingOutlined v-if="loading" />
-      <img
+      <BaseImg
         class="logo btn"
-        src="@/assets/icons/icon_star_noactive.svg"
+        iconName="icon_star_noactive"
         v-else-if="!ifChecked"
         @click="emit('btnClick', 'add')"
       />
-      <img
+      <BaseImg
         class="logo btn"
-        src="@/assets/icons/icon_star_active.svg"
+        iconName="icon_star_active"
         v-else-if="ifChecked"
         @click="emit('btnClick', 'cancel')"
       />

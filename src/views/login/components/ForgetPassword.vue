@@ -1,16 +1,16 @@
 <template>
   <div class="forget">
     <div class="forget_header">
-      <div class="forget_header_goback" @click="emit('goBack')">
+      <div class="forget_header_goback" @click="back">
         <el-icon>
-          <img src="@/assets/icons/turnleft.svg" />
+          <BaseImg iconName="turnleft" />
         </el-icon>
         <span>{{ $t("back") }}</span>
       </div>
     </div>
     <div class="forget_main">
       <div class="forget_main_title">
-        <img src="@/assets/icons/logo@3x.png" />
+        <BaseImg iconName="logo@3x" imgSuffix="png" />
         <div class="forget_main_title_right">
           <span class="up">{{ props.lineInfo.lineName }}</span>
           <span class="down">{{ props.lineInfo.brokerName }}</span>
@@ -72,14 +72,15 @@ import { emailPasswordUpdate, resQueryTradeLine } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import { reactive, ref, watch } from "vue";
+import { useRouter } from "vue-router";
 import VerificationCode from "./VerificationCode.vue";
+
+const router = useRouter();
 
 interface Props {
   lineInfo: resQueryTradeLine;
 }
 const props = defineProps<Props>();
-
-const emit = defineEmits(["goBack"]);
 
 const querySearch = (queryString: string, cb: any) => {
   let res: { value: string }[];
@@ -165,7 +166,10 @@ const resetPwd = async () => {
     confirm_password: checkPass,
   });
   ElMessage.success("reset success");
-  emit("goBack");
+};
+
+const back = () => {
+  router.back();
 };
 
 import { onMounted } from "vue";
@@ -185,14 +189,8 @@ onMounted(() => {
 @import "@/styles/_handle.scss";
 
 .forget {
-  width: 512px;
-  height: 648px;
-  border-radius: 16px;
-  box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
-  @include background_color("background-component");
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
   &_header {
     width: 100%;
     height: 56px;

@@ -12,7 +12,7 @@
           {{ userStore.loginInfo?.currency }}</el-text
         >
       </div>
-      <img class="caretDownIcon" src="@/assets/icons/caretDown.svg" />
+      <BaseImg class="caretDownIcon" iconName="caretDown" />
     </div>
     <template #dropdown>
       <div class="aList">
@@ -24,7 +24,7 @@
           @mouseover="item.hover = true"
           @mouseleave="item.hover = false"
         >
-          <img class="icon" :src="getLogo(item.server)" />
+          <BaseImg class="icon" :fullPath="getLogo(item.server)" />
           <span>{{ item.server }}</span>
           <span>|</span>
           <span>{{ item.login }}</span>
@@ -47,7 +47,7 @@
           direction="vertical"
           v-if="userStore.account.server === 'utrader-demo'"
         />
-        <span @click="$router.push({ name: 'login' })">{{
+        <span @click="$router.push({ path: PageEnum.LOGIN })">{{
           $t("addAccount")
         }}</span>
         <el-divider direction="vertical" />
@@ -92,6 +92,7 @@
 </template>
 
 <script setup lang="ts">
+import { PageEnum } from "@/constants/pageEnum";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
@@ -146,7 +147,7 @@ const changeLogin = (account: any) => {
   }
   if (!remember) {
     router.push({
-      path: "/login",
+      path: PageEnum.LOGIN_HOME,
       query: { login, server },
     });
     return;
@@ -168,11 +169,11 @@ const changeLogin = (account: any) => {
 
 const logout = () => {
   userStore.logoutCurrentAccount();
-  router.replace({ name: "login" });
+  router.replace({ path: PageEnum.LOGIN });
 };
 
 const getLogo = (server: string) => {
-  let result = "@/assets/icons/logo@3x.png";
+  let result = "";
   const target = networkStore.queryTradeLines.find(
     (e) => e.lineName === server
   );
@@ -271,9 +272,9 @@ const showModal = () => {
       height: 18px;
       background-size: contain;
       background-repeat: no-repeat;
-      background-image: url("@/assets/icons/delete.svg");
+      background-image: url("@/assets/icons/light/delete.svg");
       &:hover {
-        background-image: url("@/assets/icons/deleteHover.svg");
+        background-image: url("@/assets/icons/light/deleteHover.svg");
       }
     }
   }

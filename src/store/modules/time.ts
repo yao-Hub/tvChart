@@ -5,6 +5,8 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
+import { CustomTimezoneId, TimezoneId } from "public/charting_library";
+
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -39,14 +41,13 @@ export const useTime = defineStore("time", () => {
     settedTimezone.value = value;
     time.tz.setDefault(value);
     storageStore.setItem("timezone", value);
-    setChartTimezone(value);
+    setChartTimezone(value as TimezoneId | CustomTimezoneId);
   };
 
-  const setChartTimezone = (value: string) => {
+  const setChartTimezone = (value: TimezoneId | CustomTimezoneId) => {
     chartInitStore.state.chartWidgetList.forEach((item) => {
       if (item.widget) {
-        // @ts-ignore
-        item.widget.activeChart().getTimezoneApi().setTimezone(value);
+        item.widget?.activeChart().getTimezoneApi().setTimezone(value);
       }
     });
   };

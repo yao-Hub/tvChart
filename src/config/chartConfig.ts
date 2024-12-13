@@ -196,9 +196,13 @@ export const datafeed = (id: string) => {
           }
           const orderBy_data = orderBy(data, "ctm");
           const bars = orderBy_data.map((item) => {
+            const time =
+              resolution === "1D"
+                ? item.ctm * 1000 + 8 * 3600
+                : item.ctm * 1000;
             return {
               ...item,
-              time: item.ctm * 1000,
+              time,
             };
           });
           const bar = maxBy(bars, "ctm");

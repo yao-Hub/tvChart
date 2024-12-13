@@ -2,12 +2,12 @@
   <el-dropdown trigger="hover" placement="right-start">
     <div class="Language">
       <div class="Language_left">
-        <img class="logo" src="@/assets/icons/icon_12.svg" />
+        <BaseImg class="logo" iconName="icon_12" />
         <span>{{ $t("lauguage") }}</span>
       </div>
       <div class="Language_right">
         <el-text type="info">{{ nowLocale }}</el-text>
-        <img class="logo" src="@/assets/icons/turnRight.svg" />
+        <BaseImg class="logo" iconName="turnRight" />
       </div>
     </div>
     <template #dropdown>

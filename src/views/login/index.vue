@@ -1,28 +1,16 @@
 <template>
   <div class="login">
-    <img class="title" src="@/assets/icons/title.png" />
+    <BaseImg class="title" iconName="title" imgSuffix="png" />
     <span class="welcome">{{ $t("welcomeToUTrader") }}</span>
-    <component
-      class="main"
-      :lineInfo="lineInfo"
-      :is="state.componentMap[state.currentComponent]"
-      v-bind="state.props"
-      @goCom="goCom"
-      @goBack="state.currentComponent = 'login'"
-      @goHome="goHome"
-    ></component>
+    <div class="main">
+      <router-view :lineInfo="lineInfo" />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { virtualLine } from "api/account/index";
-import { markRaw, reactive, ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
-
-import Accounts from "./components/Accounts.vue";
-import ForgetPassword from "./components/ForgetPassword.vue";
-import Login from "./components/Login.vue";
-import Register from "./components/Register.vue";
+import { ref } from "vue";
 
 import { useNetwork } from "@/store/modules/network";
 import { useSize } from "@/store/modules/size";
@@ -33,30 +21,11 @@ const networkStore = useNetwork();
 const userStore = useUser();
 const sizeStore = useSize();
 const themeStore = useTheme();
-const router = useRouter();
-const route = useRoute();
 
 sizeStore.initSize();
 themeStore.initTheme();
 
-const state = reactive({
-  componentMap: {
-    login: markRaw(Login),
-    register: markRaw(Register),
-    forgetPassword: markRaw(ForgetPassword),
-    accounts: markRaw(Accounts),
-  } as Record<string, any>,
-  currentComponent: "login",
-  props: {},
-});
-
 userStore.initAccount();
-
-if (Object.keys(route.query).length) {
-  state.props = route.query;
-} else if (userStore.accountList.length) {
-  state.currentComponent = "accounts";
-}
 
 const lineInfo = ref({
   lineName: "", // 交易线路名称
@@ -71,27 +40,21 @@ virtualLine().then((res) => {
   lineInfo.value = res.data;
 });
 networkStore.getLines();
-
-const goCom = (name: string, props?: any) => {
-  state.currentComponent = name;
-  if (props) {
-    state.props = props;
-  }
-};
-
-const goHome = () => {
-  router.push({ path: "/" });
-};
 </script>
 
 <style lang="scss">
 @import "@/styles/_handle.scss";
+[data-theme="light"] .login {
+  background-image: url("@/assets/images/light/loginBg@2x.png");
+}
+[data-theme="dark"] .login {
+  background-image: url("@/assets/images/dark/loginBg@2x.png");
+}
 
 .login {
   width: 100vw;
   height: 100vh;
   min-width: 1280px;
-  background-image: url("@/assets/images/loginBg@2x.png");
   background-repeat: no-repeat;
   background-size: cover;
   position: relative;
@@ -117,6 +80,10 @@ const goHome = () => {
     transform: translate(0, -50%);
     width: 512px;
     height: 648px;
+    @include background_color("background-component");
+    box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
+    border-radius: 8px;
+    box-sizing: border-box;
   }
 }
 </style>

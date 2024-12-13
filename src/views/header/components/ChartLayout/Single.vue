@@ -18,12 +18,12 @@ const chartInitStore = useChartInit();
 @import "@/styles/_handle.scss";
 
 .iconbox {
-  background-image: url("@/assets/icons/icon_4.svg");
+  background-image: url("@/assets/icons/light/icon_4.svg");
   &:hover {
     @include background_color("background-hover");
   }
 }
 .iconActive {
-  background-image: url("@/assets/icons/icon_4a.svg");
+  background-image: url("@/assets/icons/light/icon_4a.svg");
 }
 </style>

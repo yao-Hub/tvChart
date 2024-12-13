@@ -35,15 +35,15 @@
                   :step="step"
                   v-model:value="closeFormState.volume"
                 ></StepNumInput>
-                <img
+                <BaseImg
                   class="opearBtn"
-                  src="@/assets/icons/icon_18.png"
+                  iconName="icon_18"
                   title="反向持仓"
                   @click="handleConfirm('reverse', closeFormRef)"
                 />
-                <img
+                <BaseImg
                   class="opearBtn"
-                  src="@/assets/icons/icon_19.png"
+                  iconName="icon_19"
                   title="双倍持仓"
                   @click="handleConfirm('double', closeFormRef)"
                 />

@@ -28,7 +28,7 @@
             @click="() => (showSymbols = false)"
           >
             <el-icon>
-              <img src="@/assets/icons/turnleft.svg" />
+              <BaseImg iconName="turnleft" />
             </el-icon>
             <span>{{ currentPath }}</span>
           </div>
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, watch, ref, onMounted } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 
 import Block from "./Block.vue";
 
@@ -96,7 +96,7 @@ const filterSymbols = computed(() => {
 });
 
 // 分类、
-import { symbolAllPath, resSymbolAllPath } from "api/symbols/index";
+import { resSymbolAllPath, symbolAllPath } from "api/symbols/index";
 const listState = reactive({
   menu: [] as Array<any>,
   pathMap: {} as Record<string, any>,
@@ -147,9 +147,9 @@ const getCount = (type: string) => {
   return 0;
 };
 
-import { debounce, cloneDeep } from "lodash";
 import { ISessionSymbolInfo } from "@/types/chart/index";
-import { delOptionalQuery, addOptionalQuery } from "api/symbols/index";
+import { addOptionalQuery, delOptionalQuery } from "api/symbols/index";
+import { cloneDeep, debounce } from "lodash";
 type SymbolListItem = ISessionSymbolInfo & { loading: boolean };
 const symbolList = ref<SymbolListItem[]>([]);
 const showSymbols = ref(false);

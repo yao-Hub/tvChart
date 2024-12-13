@@ -3,9 +3,9 @@
     <el-dropdown-item v-for="size in sizeList">
       <div class="sizeItem" @click="handleChange(size)">
         <span>{{ $t(`font.${size}`) }}</span>
-        <img
+        <BaseImg
           class="logo"
-          src="@/assets/icons/select.svg"
+          iconName="select"
           v-if="sizeStore.systemSize === size"
         />
       </div>

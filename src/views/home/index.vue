@@ -79,11 +79,11 @@ async function init() {
     layoutStore.initLayout(); // 布局显示隐藏
     chartInitStore.intChartFlexDirection(); // 横向 or 纵向
     chartInitStore.intLayoutType(); // 单图表 or 多图表
-    timeStore.initTime(); // 初始化时间语言和时区
     await nextTick();
     // 4.确定了布局才去初始化各个模块位置
     initDragResizeArea();
     chartInitStore.loadChartList(); // 加载图表
+    timeStore.initTime(); // 初始化时间语言和时区
     // 记忆动作（没什么用(>^ω^<)喵）
     const rootStore = useRoot();
     if (rootStore.cacheAction) {

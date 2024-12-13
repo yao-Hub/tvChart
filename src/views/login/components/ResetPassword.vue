@@ -11,7 +11,7 @@
     </template>
     <div class="Reset">
       <div class="Reset_title">
-        <img src="@/assets/icons/logo@3x.png" />
+        <BaseImg iconName="logo@3x" imgSuffix="png" />
         <div class="Reset_title_right">
           <span class="up">{{ networkStore.currentLine?.lineName }}</span>
           <span class="down">{{ networkStore.currentLine?.brokerName }}</span>

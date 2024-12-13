@@ -10,7 +10,7 @@
       v-bind="props.pickerOption"
       @change="timeChange"
     />
-    <img src="@/assets/icons/caretDown.svg" />
+    <BaseImg iconName="caretDown" />
   </div>
 </template>
 

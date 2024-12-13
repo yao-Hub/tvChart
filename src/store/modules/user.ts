@@ -17,11 +17,12 @@ interface IAccount {
   token: string;
   password: string;
 }
-type AccountListItem = IAccount & {
+export type AccountListItem = IAccount & {
   blance: number | string;
   token: string;
   ifLogin: boolean;
   queryNode: string;
+  remember?: boolean;
 };
 interface State {
   accountList: Array<AccountListItem>;

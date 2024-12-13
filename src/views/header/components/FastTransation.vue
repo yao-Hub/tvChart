@@ -10,8 +10,8 @@
 </template>
 
 <script setup lang="ts">
-import { useOrder } from "@/store/modules/order";
 import { useChartAction } from "@/store/modules/chartAction";
+import { useOrder } from "@/store/modules/order";
 import { useStorage } from "@/store/modules/storage";
 const storageStore = useStorage();
 
@@ -29,12 +29,12 @@ const handleClick = () => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 .iconbox {
-  background-image: url("@/assets/icons/icon_3.svg");
+  background-image: url("@/assets/icons/light/icon_3.svg");
   &:hover {
     @include background_color("background-hover");
   }
 }
 .iconActive {
-  background-image: url("@/assets/icons/icon_3a.svg");
+  background-image: url("@/assets/icons/light/icon_3a.svg");
 }
 </style>

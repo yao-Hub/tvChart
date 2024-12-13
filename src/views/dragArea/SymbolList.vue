@@ -7,12 +7,12 @@
       class="input"
     >
       <template #prefix>
-        <img class="logo" src="@/assets/icons/icon_search.svg" />
+        <BaseImg class="logo" iconName="icon_search" />
       </template>
       <template #suffix>
-        <img
+        <BaseImg
           class="closeIcon"
-          src="@/assets/icons/icon_close.svg"
+          iconName="icon_close"
           @click="closeSearch"
           v-show="ifSearch"
         />
@@ -410,7 +410,7 @@ const expandChange = (row: any, expandedRows: any[]) => {
 }
 
 :deep(.el-table__expand-icon) {
-  content: url("@/assets/icons/caretRight.svg");
+  content: url("@/assets/icons/light/caretRight.svg");
   transform: scale(0.7);
 }
 :deep(.el-table__expand-icon--expanded) {

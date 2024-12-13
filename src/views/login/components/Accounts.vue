@@ -11,14 +11,14 @@
           @click="selectAccount(account)"
         >
           <div class="item_left">
-            <img class="icon" :src="getLogo(account.server)" />
+            <BaseImg class="icon" :fullPath="getLogo(account.server)" />
             <span>{{ account.server }} |</span>
             <span>{{ account.login }} |</span>
             <span>{{ account.blance }}</span>
           </div>
           <div class="item_right">
             <el-icon v-if="account.actived && !ifOpera">
-              <img src="@/assets/icons/select.svg" />
+              <BaseImg iconName="select" />
             </el-icon>
             <div
               class="delIcon"
@@ -39,9 +39,7 @@
     >
 
     <div class="footer">
-      <span @click="emit('goCom', 'login', { needBack: true })">{{
-        $t("addAccount")
-      }}</span>
+      <span @click="goLogin()">{{ $t("addAccount") }}</span>
       <el-divider direction="vertical" />
       <span @click="ifOpera = true">{{ $t("manageAccount") }}</span>
     </div>
@@ -49,15 +47,28 @@
 </template>
 
 <script setup lang="ts">
-import { useUser } from "@/store/modules/user";
+import { PageEnum } from "@/constants/pageEnum";
+import { AccountListItem, useUser } from "@/store/modules/user";
 import { orderBy } from "lodash";
-import { onMounted, ref } from "vue";
+import { onBeforeMount, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const userStore = useUser();
-const list = ref<any[]>([]);
+
+type TList = AccountListItem & { actived: boolean };
+
+const list = ref<TList[]>([]);
+
+onBeforeMount(() => {
+  const accounts = userStore.accountList;
+  if (accounts.length === 0) {
+    router.replace({ path: PageEnum.LOGIN_HOME });
+  }
+});
 
 const initList = () => {
-  const accounts: any[] = userStore.accountList;
+  const accounts = userStore.accountList;
   const orderAccounts = orderBy(accounts, ["ifLogin"], ["desc"]);
   list.value = orderAccounts.map((item, index) => {
     return {
@@ -83,7 +94,7 @@ const delAccount = (e: any) => {
   userStore.removeAccount(e);
   initList();
   if (list.value.length === 0) {
-    emit("goCom", "login", { needBack: false });
+    goLogin();
   }
 };
 
@@ -96,13 +107,13 @@ const happyStart = async () => {
       return;
     }
     const account = list.value.find((item) => item.actived);
-    if (account.remember) {
+    if (account && account.remember) {
       await userStore.login(account, ({ ending }) => {
         loading.value = !ending;
       });
-      emit("goHome");
+      router.push({ path: PageEnum.CHART });
     } else {
-      emit("goCom", "login", { ...account, needBack: true });
+      goLogin(account);
     }
   } catch (e) {
     loading.value = false;
@@ -112,7 +123,7 @@ const happyStart = async () => {
 import { useNetwork } from "@/store/modules/network";
 const networkStore = useNetwork();
 const getLogo = (server: string) => {
-  let result = "@/assets/icons/logo@3x.png";
+  let result = "";
   const target = networkStore.queryTradeLines.find(
     (e) => e.lineName === server
   );
@@ -120,6 +131,10 @@ const getLogo = (server: string) => {
     result = target.lineLogo;
   }
   return result;
+};
+
+const goLogin = (account?: { login: string; server: string }) => {
+  router.push({ path: PageEnum.LOGIN_HOME, query: account });
 };
 
 onMounted(() => {
@@ -134,12 +149,6 @@ onMounted(() => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 .accounts {
-  width: 512px;
-  height: 648px;
-  border-radius: 8px;
-  box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
-  @include background_color("background-component");
-  box-sizing: border-box;
   padding: 56px;
   position: relative;
   .plogin {
@@ -196,9 +205,7 @@ onMounted(() => {
   }
 
   .footer {
-    position: absolute;
-    bottom: 64px;
-    left: 0;
+    margin-top: 152px;
     display: flex;
     justify-content: center;
     gap: 24px;
@@ -211,7 +218,7 @@ onMounted(() => {
         @include font_color("primary");
       }
       &:active {
-        @include font_color("dark-primary");
+        @include font_color("primary-active");
       }
     }
   }
@@ -222,9 +229,20 @@ onMounted(() => {
   height: 18px;
   background-size: contain;
   background-repeat: no-repeat;
-  background-image: url("@/assets/icons/delete.svg");
   &:hover {
-    background-image: url("@/assets/icons/deleteHover.svg");
+    background-image: url("@/assets/icons/light/deleteHover.svg");
+  }
+}
+[data-theme="light"] .delIcon {
+  background-image: url("@/assets/icons/light/delete.svg");
+  &:hover {
+    background-image: url("@/assets/icons/light/deleteHover.svg");
+  }
+}
+[data-theme="dark"] .delIcon {
+  background-image: url("@/assets/icons/dark/delete.svg");
+  &:hover {
+    background-image: url("@/assets/icons/dark/deleteHover.svg");
   }
 }
 </style>

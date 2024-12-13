@@ -94,7 +94,7 @@ const layoutStore = useLayout();
         height: var(--size);
         width: 16px;
         cursor: grab;
-        background-image: url("@/assets/icons/icon_drag1.svg");
+        background-image: url("@/assets/icons/light/icon_drag1.svg");
         background-repeat: no-repeat;
         background-position: center;
         background-clip: content-box;

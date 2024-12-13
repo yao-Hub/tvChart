@@ -1,6 +1,6 @@
 <template>
   <div class="sendFeedback" @click="handleClick">
-    <img class="logo" src="@/assets/icons/icon_15.svg" />
+    <BaseImg class="logo" iconName="icon_15" />
     <span>{{ $t("feedback") }}</span>
   </div>
 </template>

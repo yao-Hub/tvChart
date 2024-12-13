@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="28px" height="4px" viewBox="0 0 28 4" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_td1</title>
+    <g id="icon_td1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="编组" fill="#63636A">
+            <polygon id="路径备份" points="18 0 14 4 10 0"></polygon>
+            <rect id="矩形" x="22" y="0" width="6" height="1"></rect>
+            <rect id="矩形备份-2" x="0" y="0" width="6" height="1"></rect>
+            <rect id="矩形备份" x="22" y="3" width="6" height="1"></rect>
+            <rect id="矩形备份-3" x="0" y="3" width="6" height="1"></rect>
+        </g>
+    </g>
+</svg>

@@ -1,7 +1,7 @@
 <template>
   <div class="oneTransactions">
     <div class="oneTransactions_left">
-      <img class="logo" src="@/assets/icons/icon_9.svg" />
+      <BaseImg class="logo" iconName="icon_9" />
       <span>{{ $t("QuickTransactions") }}</span>
     </div>
     <el-switch v-model="switchVal" :before-change="beforeChange" />

@@ -3,7 +3,7 @@
     <el-dropdown trigger="click" placement="top-start">
       <div class="face">
         <span>当前时间：{{ currentTimezone }}</span>
-        <img src="@/assets/icons/caretUp.svg" />
+        <BaseImg iconName="caretUp" />
       </div>
       <template #dropdown>
         <el-scrollbar height="200px">
@@ -14,10 +14,7 @@
             @click="changeTimezone(item)"
           >
             <span>{{ item.title }}</span>
-            <img
-              src="@/assets/icons/select.svg"
-              v-if="item.title === currentTimezone"
-            />
+            <BaseImg iconName="select" v-if="item.title === currentTimezone" />
           </div>
         </el-scrollbar>
       </template>
