@@ -803,7 +803,7 @@ onMounted(async () => {
   @include background_color("table-colored");
 }
 .el-select-v2__caret {
-  content: url("@/assets/icons/light/caretDown.svg");
+  content: url("/src/assets/icons/light/caretDown.svg");
 }
 </style>
 <style lang="scss" scoped>
