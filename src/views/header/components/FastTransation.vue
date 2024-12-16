@@ -28,13 +28,23 @@ const handleClick = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-.iconbox {
+[data-theme="light"] .iconbox {
   background-image: url("@/assets/icons/light/icon_3.svg");
+}
+[data-theme="light"] .iconActive {
+  background-image: url("@/assets/icons/light/icon_3a.svg");
+}
+
+[data-theme="dark"] .iconbox {
+  background-image: url("@/assets/icons/dark/icon_3.svg");
+}
+[data-theme="dark"] .iconActive {
+  background-image: url("@/assets/icons/dark/icon_3a.svg");
+}
+
+.iconbox {
   &:hover {
     @include background_color("background-hover");
   }
-}
-.iconActive {
-  background-image: url("@/assets/icons/light/icon_3a.svg");
 }
 </style>

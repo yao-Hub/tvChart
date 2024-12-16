@@ -74,6 +74,18 @@ function toggle(visible: boolean) {
 :deep(.el-dropdown) {
   height: 100%;
 }
+[data-theme="light"] .menuIcon {
+  background-image: url("@/assets/icons/light/menu.svg");
+  &_active {
+    background-image: url("@/assets/icons/light/menuactive.svg");
+  }
+}
+[data-theme="dark"] .menuIcon {
+  background-image: url("@/assets/icons/dark/menu.svg");
+  &_active {
+    background-image: url("@/assets/icons/dark/menuactive.svg");
+  }
+}
 .menu {
   width: 48px;
   height: 48px;
@@ -83,7 +95,6 @@ function toggle(visible: boolean) {
   box-sizing: border-box;
   padding: 8px;
   .menuIcon {
-    background-image: url("@/assets/icons/light/menu.svg");
     background-repeat: no-repeat;
     background-size: var(--icon-size);
     background-position: center;
@@ -92,9 +103,6 @@ function toggle(visible: boolean) {
     cursor: pointer;
     &:hover {
       @include background_color("background-hover");
-    }
-    &_active {
-      background-image: url("@/assets/icons/light/menuactive.svg");
     }
   }
 }

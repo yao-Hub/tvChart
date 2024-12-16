@@ -96,7 +96,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   padding: 8px;
-  gap: 8px;
+  gap: 16px;
 }
 .item {
   height: 18px;
@@ -120,19 +120,19 @@ onMounted(() => {
 .ask {
   position: absolute;
   right: 0;
-  top: 0;
-  height: 100%;
-  border-radius: 2px;
+  bottom: -8px;
+  height: 8px;
+  border-radius: 4px;
   z-index: 1;
   @include background_color("up");
   transition: width 1s ease-in-out;
 }
 .bid {
   position: absolute;
-  top: 0;
+  bottom: -8px;
+  height: 8px;
   left: 0;
-  height: 100%;
-  border-radius: 2px;
+  border-radius: 4px;
   z-index: 1;
   @include background_color("down");
   transition: width 1s ease-in-out;

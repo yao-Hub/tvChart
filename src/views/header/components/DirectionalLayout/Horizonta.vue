@@ -18,14 +18,19 @@ const flexDirection = computed(() => chartInitStore.state.chartFlexDirection);
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
-.iconbox {
+[data-theme="light"] .iconbox {
   background-image: url("@/assets/icons/light/icon_6.svg");
-  &:hover {
-    @include background_color("background-hover");
-  }
 }
-.iconActive {
+[data-theme="light"] .iconActive {
   background-image: url("@/assets/icons/light/icon_6a.svg");
+}
+[data-theme="dark"] .iconActive {
+  background-image: url("@/assets/icons/dark/icon_6a.svg");
+}
+[data-theme="dark"] .iconbox {
+  background-image: url("@/assets/icons/dark/icon_6.svg");
+}
+.iconbox :hover {
+  @include background_color("background-hover");
 }
 </style>
