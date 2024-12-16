@@ -28,21 +28,22 @@
 </template>
 
 <script setup lang="ts">
-import LayoutVisibled from "./components/LayoutVisibled.vue";
-import Menu from "./components/Menu/index.vue";
 import Account from "./components/Account.vue";
-import FastTransation from "./components/FastTransation.vue";
-import SingleLayout from "./components/ChartLayout/Single.vue";
 import MultipleLayout from "./components/ChartLayout/Multiple.vue";
+import SingleLayout from "./components/ChartLayout/Single.vue";
+import CreateChart from "./components/CreateChart.vue";
 import HorizontalLayout from "./components/DirectionalLayout/Horizonta.vue";
 import VerticalLayout from "./components/DirectionalLayout/Vertical.vue";
-import CreateChart from "./components/CreateChart.vue";
+import FastTransation from "./components/FastTransation.vue";
+import LayoutVisibled from "./components/LayoutVisibled.vue";
+import Menu from "./components/Menu/index.vue";
 
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
 </script>
 
 <style lang="scss">
+@import "@/styles/_handle.scss";
 .iconbox {
   width: 32px;
   height: 32px;
@@ -53,6 +54,9 @@ const orderStore = useOrder();
   background-repeat: no-repeat;
   background-size: var(--icon-size);
   background-position: center;
+  &:hover {
+    @include background_color("background-hover");
+  }
 }
 </style>
 <style lang="scss" scoped>

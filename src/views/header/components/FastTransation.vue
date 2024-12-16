@@ -3,7 +3,7 @@
   <el-tooltip content="快捷交易">
     <div
       class="iconbox"
-      :class="{ iconActive: orderStore.ifQuick }"
+      :class="[orderStore.ifQuick ? 'active' : 'noActive']"
       @click="handleClick"
     ></div>
   </el-tooltip>
@@ -27,24 +27,17 @@ const handleClick = () => {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_handle.scss";
-[data-theme="light"] .iconbox {
+[data-theme="light"] .noActive {
   background-image: url("@/assets/icons/light/icon_3.svg");
 }
-[data-theme="light"] .iconActive {
+[data-theme="light"] .active {
   background-image: url("@/assets/icons/light/icon_3a.svg");
 }
 
-[data-theme="dark"] .iconbox {
+[data-theme="dark"] .noActive {
   background-image: url("@/assets/icons/dark/icon_3.svg");
 }
-[data-theme="dark"] .iconActive {
+[data-theme="dark"] .active {
   background-image: url("@/assets/icons/dark/icon_3a.svg");
-}
-
-.iconbox {
-  &:hover {
-    @include background_color("background-hover");
-  }
 }
 </style>

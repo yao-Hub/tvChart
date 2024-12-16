@@ -2,7 +2,7 @@
   <el-tooltip :content="$t('VerticaLayout')">
     <div
       class="iconbox"
-      :class="{ iconActive: flexDirection === 'column' }"
+      :class="[flexDirection === 'column' ? 'active' : 'noActive']"
       @click="chartInitStore.setChartFlexDirection('column')"
     ></div>
   </el-tooltip>
@@ -17,15 +17,16 @@ const flexDirection = computed(() => chartInitStore.state.chartFlexDirection);
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_handle.scss";
-
-.iconbox {
+[data-theme="light"] .noActive {
   background-image: url("@/assets/icons/light/icon_7.svg");
-  &:hover {
-    @include background_color("background-hover");
-  }
 }
-.iconActive {
+[data-theme="light"] .noActive {
   background-image: url("@/assets/icons/light/icon_7a.svg");
+}
+[data-theme="dark"] .iconbox {
+  background-image: url("@/assets/icons/dark/icon_7.svg");
+}
+[data-theme="dark"] .active {
+  background-image: url("@/assets/icons/dark/icon_7a.svg");
 }
 </style>

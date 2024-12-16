@@ -2,7 +2,7 @@
   <el-tooltip :content="$t('SingleImageMode')">
     <div
       class="iconbox"
-      :class="{ iconActive: chartInitStore.state.chartLayoutType === 'single' }"
+      :class="[type === 'single' ? 'active' : 'noActive']"
       @click="chartInitStore.setLayoutType('single')"
     ></div>
   </el-tooltip>
@@ -10,20 +10,27 @@
 
 <script setup lang="ts">
 import { useChartInit } from "@/store/modules/chartInit";
+import { computed } from "vue";
 
 const chartInitStore = useChartInit();
+
+const type = computed(() => {
+  return chartInitStore.state.chartLayoutType;
+});
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_handle.scss";
-
-.iconbox {
+[data-theme="light"] .noActive {
   background-image: url("@/assets/icons/light/icon_4.svg");
-  &:hover {
-    @include background_color("background-hover");
-  }
 }
-.iconActive {
+[data-theme="light"] .active {
   background-image: url("@/assets/icons/light/icon_4a.svg");
+}
+
+[data-theme="dark"] .noActive {
+  background-image: url("@/assets/icons/dark/icon_4.svg");
+}
+[data-theme="dark"] .active {
+  background-image: url("@/assets/icons/dark/icon_4a.svg");
 }
 </style>

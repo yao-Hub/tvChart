@@ -143,9 +143,11 @@ import { cloneDeep, orderBy } from "lodash";
 const symbolsStore = useSymbols();
 const userStore = useUser();
 const tableLoading = ref(false);
-const getQuery = async () => {
+const getQuery = async (fromHttp?: boolean) => {
   tableLoading.value = true;
-  await symbolsStore.getMySymbols();
+  if (fromHttp) {
+    await symbolsStore.getMySymbols();
+  }
   dataSource.value = symbolsStore.mySymbols_sort;
   dataSource.value.forEach((item) => {
     quotesClass.value[item.symbols] = { ask: "", bid: "" };
@@ -165,7 +167,7 @@ const getQuery = async () => {
 watch(
   () => userStore.account.login,
   (val) => {
-    val && getQuery();
+    val && getQuery(true);
   },
   { immediate: true }
 );

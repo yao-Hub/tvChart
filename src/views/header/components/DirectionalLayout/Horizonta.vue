@@ -2,7 +2,7 @@
   <el-tooltip :content="$t('HorizontalLayout')">
     <div
       class="iconbox"
-      :class="{ iconActive: flexDirection === 'row' }"
+      :class="[flexDirection === 'row' ? 'active' : 'noActive']"
       @click="chartInitStore.setChartFlexDirection('row')"
     ></div>
   </el-tooltip>
@@ -17,20 +17,16 @@ const flexDirection = computed(() => chartInitStore.state.chartFlexDirection);
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_handle.scss";
-[data-theme="light"] .iconbox {
+[data-theme="light"] .noActive {
   background-image: url("@/assets/icons/light/icon_6.svg");
 }
-[data-theme="light"] .iconActive {
+[data-theme="light"] .active {
   background-image: url("@/assets/icons/light/icon_6a.svg");
 }
-[data-theme="dark"] .iconActive {
-  background-image: url("@/assets/icons/dark/icon_6a.svg");
-}
-[data-theme="dark"] .iconbox {
+[data-theme="dark"] .noActive {
   background-image: url("@/assets/icons/dark/icon_6.svg");
 }
-.iconbox :hover {
-  @include background_color("background-hover");
+[data-theme="dark"] .active {
+  background-image: url("@/assets/icons/dark/icon_6a.svg");
 }
 </style>
