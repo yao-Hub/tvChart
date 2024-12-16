@@ -46,12 +46,11 @@
 }
 .el-button--primary {
   --el-button-text-color: #000000;
-  --el-button-disabled-bg-color: #0a0b0e;
+  --el-button-disabled-bg-color: #bec2c9;
   --el-button-disabled-border-color: #bec2c9;
   --el-button-hover-text-color: #000000;
-}
-.el-button {
-  --el-button-active-bg-color: rgba(244, 178, 1, 0.24);
+  --el-button-active-bg-color: #e28602;
+  --el-button-active-border-color: #e28602;
 }
 .el-form-item__label {
   color: #000;

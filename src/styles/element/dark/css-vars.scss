@@ -1,5 +1,19 @@
 html.dark {
-  .el-dropdown__popper {
-    --el-dropdown-menuItem-hover-color: #cfd3dc;
+  .el-form-item__label {
+    color: #fff;
+  }
+  .el-button--primary {
+    --el-button-disabled-bg-color: #4c515d;
+    --el-button-disabled-border-color: #4c515d;
+    --el-button-active-bg-color: #e28602;
+    --el-button-active-border-color: #e28602;
+    --el-button-hover-bg-color: #ffd051;
+    --el-button-hover-border-color: #ffd051;
+  }
+  .el-text {
+    --el-text-color: #fff;
+  }
+  .el-table {
+    --el-table-bg-color: #000;
   }
 }

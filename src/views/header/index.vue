@@ -68,7 +68,7 @@ const orderStore = useOrder();
   align-items: center;
   height: 48px;
   box-sizing: border-box;
-  @include background_color("background-component");
+  @include background_color("background");
 
   .left {
     box-sizing: border-box;

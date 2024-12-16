@@ -819,7 +819,7 @@ onMounted(async () => {
   box-sizing: border-box;
   border-radius: 5px;
   width: 100%;
-  @include background_color("background");
+  @include background_color("background-component");
 
   .header {
     display: flex;
@@ -846,10 +846,13 @@ onMounted(async () => {
   .container {
     box-sizing: border-box;
     height: calc(100% - 48px);
-    margin: 4px;
     padding: 8px;
+    border: 4px solid;
+    border-bottom: none;
     border-radius: 4px;
-    @include background_color("background-component");
+    margin: 0 4px 4px 4px;
+    @include border_color("background-component");
+    @include background_color("background");
 
     .filter {
       min-height: 32px;

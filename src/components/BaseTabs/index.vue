@@ -20,6 +20,6 @@ provide("model", model);
   box-sizing: border-box;
   display: flex;
   gap: 4px;
-  @include background_color("background-component");
+  @include background_color("background");
 }
 </style>

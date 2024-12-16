@@ -41,7 +41,7 @@
         data-minWidth="445"
         v-if="layoutStore.orderAreaVisable"
       >
-        <div class="handle" style="padding-top: 4px"></div>
+        <div class="handle"></div>
         <OrderArea
           v-if="!chartInitStore.state.loading"
           class="container_item"
@@ -71,7 +71,7 @@ const layoutStore = useLayout();
   width: 100%;
   position: relative;
   overflow: hidden;
-  @include background_color("background-component");
+  @include background_color("background");
 
   .dragArea_item {
     width: 100%;
@@ -91,7 +91,7 @@ const layoutStore = useLayout();
       }
 
       .handle {
-        height: var(--size);
+        height: calc(var(--size) + 4px);
         width: 16px;
         cursor: grab;
         background-image: url("@/assets/icons/light/icon_drag1.svg");
@@ -100,7 +100,7 @@ const layoutStore = useLayout();
         background-clip: content-box;
         float: left;
         box-sizing: border-box;
-        @include background_color("background");
+        @include background_color("background-component");
       }
     }
   }

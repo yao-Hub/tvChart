@@ -53,6 +53,9 @@ const rateStore = useRate();
 async function init() {
   try {
     chartInitStore.state.loading = true;
+    sizeStore.initSize(); // 初始化字体大小
+    themeStore.initTheme(); // 系统主题（亮色暗色）
+
     // 1.先拿到 交易线路
     await networkStore.getLines();
     // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
@@ -72,10 +75,8 @@ async function init() {
     socketStore.emitRate(); // 监听汇率
     rateStore.subRate(); // 监听汇率
     userStore.getLoginInfo({ emitSocket: true }); // 获取个人信息
-    sizeStore.initSize(); // 初始化字体大小
     orderStore.getQuickTrans();
     // 3.拿到缓存信息才能确定历史页面布局
-    themeStore.initTheme(); // 系统主题（亮色暗色）
     layoutStore.initLayout(); // 布局显示隐藏
     chartInitStore.intChartFlexDirection(); // 横向 or 纵向
     chartInitStore.intLayoutType(); // 单图表 or 多图表

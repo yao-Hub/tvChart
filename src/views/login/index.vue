@@ -80,12 +80,10 @@ networkStore.getLines();
     transform: translate(0, -50%);
     width: 512px;
     height: 648px;
-    @include background_color("background-component");
+    @include background_color("background");
     box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05);
     border-radius: 8px;
     box-sizing: border-box;
   }
 }
 </style>
-
-<style></style>

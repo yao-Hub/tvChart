@@ -34,7 +34,6 @@
           style="width: 100%"
           v-if="chartType === 'multiple'"
           active
-          noActiveStyle
           :symbol="symbol"
           :interval="interval"
           :id="id"
@@ -45,7 +44,8 @@
         ></chartTab>
         <TVChart
           :style="{
-            height: chartType === 'single' ? '100%' : 'calc(100% - 40px)',
+            height:
+              chartType === 'single' ? '100%' : 'calc(100% - var(--size))',
           }"
           :chartId="id"
           :loading="
@@ -208,35 +208,35 @@ const tabClose = (id: string) => {
 @import "@/styles/_handle.scss";
 .charts {
   box-sizing: border-box;
-  @include background_color("background");
-  padding-left: 3px;
-  height: calc(100% - var(--size));
+  @include background_color("background-component");
+  // padding: 0 4px 4px 4px;
+  padding: 4px;
   .tabs {
     display: flex;
     gap: 4px;
-    @include background_color("background-component");
+    @include background_color("background");
   }
 
-  &_container {
+  .charts_container {
     display: flex;
     flex-wrap: wrap;
     gap: 4px;
     box-sizing: border-box;
-    padding: 4px;
-    @include background_color("background");
+    @include background_color("background-component");
 
     &_item {
       flex: 1;
       min-width: 316px;
       position: relative;
-      @include background_color("background-component");
+      // @include background_color("background-component");
     }
   }
   .chart_sin {
-    height: calc(100% - var(--size));
+    height: calc(100% - var(--size) - 4px);
+    margin-top: 4px;
   }
   .chart_mul {
-    height: 100%;
+    height: calc(100% - 4px);
   }
 }
 </style>

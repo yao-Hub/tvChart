@@ -181,11 +181,18 @@ const resoluteItemSelect = (key: number) => {
   height: var(--size);
   align-items: center;
   gap: 8px;
-  border: 1px solid;
-  @include border_color("background");
   width: fit-content;
-  border-radius: 2px;
+  border: 1px solid;
+  border-bottom: none;
+  @include border_color("border");
+  border-radius: 4px 4px 0px 0px;
+  // @include background_color("background");
   @include background_color("background-component");
+}
+.active {
+  // @include background_color("background-component");
+  @include background_color("background");
+  border: none;
 }
 
 .el-dropdown-link {
@@ -208,10 +215,6 @@ const resoluteItemSelect = (key: number) => {
   &:hover {
     @include background_color("background");
   }
-}
-
-.active {
-  @include background_color("background");
 }
 
 .search {

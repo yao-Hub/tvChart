@@ -76,7 +76,7 @@ const profit = computed(() => {
   width: 100vw;
   box-sizing: border-box;
   height: 30px;
-  @include background_color("background-component");
+  @include background_color("backgroun");
   position: fixed;
   bottom: 0;
   left: 0;
