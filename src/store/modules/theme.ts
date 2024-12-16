@@ -52,10 +52,11 @@ export const useTheme = defineStore("theme", {
       document.documentElement.setAttribute("upDown-theme", this.upDownTheme);
       localStorage.setItem("upDownTheme", this.upDownTheme);
       const chartInitStore = useChartInit();
-      const downColor =
-        this.upDownTheme === "upRedDownGreen" ? "#089981" : "#F23645";
-      const upColor =
-        this.upDownTheme === "upRedDownGreen" ? "#F23645" : "#089981";
+
+      const red = "#DC1D43";
+      const green = "#009355";
+      const downColor = this.upDownTheme === "upRedDownGreen" ? green : red;
+      const upColor = this.upDownTheme === "upRedDownGreen" ? red : green;
       const upLightColor =
         this.upDownTheme === "upRedDownGreen"
           ? "rgba(8, 153, 129, 0.5)"

@@ -78,19 +78,19 @@ export const useChartLine = defineStore("chartLine", {
             d.klines.forEach((line) => {
               const dTime = line.ctm * 1000;
               this.newbar[subscriberUID] = {
-                ...bar,
                 close: line.close,
                 open: line.open,
                 volume: line.volume,
-                high: line.volume,
+                high: line.high,
                 low: line.low,
+                time: bar.time,
               };
               if (!barTime || barTime <= dTime) {
                 this.newbar[subscriberUID].time = dTime;
-                this.subscribed[UID].onRealtimeCallback(
-                  this.newbar[subscriberUID]
-                );
               }
+              this.subscribed[UID].onRealtimeCallback(
+                this.newbar[subscriberUID]
+              );
             });
           }
         }

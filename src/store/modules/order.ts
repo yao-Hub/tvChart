@@ -234,7 +234,7 @@ export const useOrder = defineStore("order", {
               key: index,
             };
           });
-          this.orderData.marketOrder = res.data;
+          this.orderData.marketOrder = res.data || [];
         }
       } finally {
         this.dataLoading.marketOrder = false;
@@ -253,7 +253,7 @@ export const useOrder = defineStore("order", {
               key: index,
             };
           });
-          this.orderData.pendingOrder = res.data;
+          this.orderData.pendingOrder = res.data || [];
         }
       } finally {
         this.dataLoading.pendingOrder = false;
@@ -273,7 +273,7 @@ export const useOrder = defineStore("order", {
         updata.begin_time = begin_time;
         updata.end_time = end_time;
         const res = await orders.invalidPendingOrders(updata);
-        res.data = res.data.map((item, index) => {
+        res.data = (res.data || []).map((item, index) => {
           return {
             ...item,
             key: index,
@@ -306,7 +306,7 @@ export const useOrder = defineStore("order", {
         updata.close_begin_time = close_begin_time;
         updata.close_end_time = close_end_time;
         const res = await orders.historyOrders(updata || {});
-        res.data = res.data.map((item, index) => {
+        res.data = (res.data || []).map((item, index) => {
           return {
             ...item,
             key: index,
@@ -337,7 +337,7 @@ export const useOrder = defineStore("order", {
           limit_id,
         };
         const res = await orders.historyOrders(updata);
-        res.data = res.data.map((item, index) => {
+        res.data = (res.data || []).map((item, index) => {
           return {
             ...item,
             key: index,
