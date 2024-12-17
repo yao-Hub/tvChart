@@ -65,3 +65,9 @@
     background-color: themed($color);
   }
 }
+
+@mixin box_shadow() {
+  @include themeify {
+    box-shadow: themed("box-shadow");
+  }
+}

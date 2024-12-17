@@ -1,7 +1,17 @@
 html.dark {
+  .el-text {
+    color: #fff;
+  }
+  .el-text.el-text--info {
+    color: #b0b1b3;
+  }
   .el-form-item__label {
     color: #fff;
   }
+  .el-text.el-text--primary {
+    color: #f4b201;
+  }
+
   .el-button--primary {
     --el-button-disabled-bg-color: #4c515d;
     --el-button-disabled-border-color: #4c515d;
@@ -10,10 +20,54 @@ html.dark {
     --el-button-hover-bg-color: #ffd051;
     --el-button-hover-border-color: #ffd051;
   }
-  .el-text {
-    --el-text-color: #fff;
-  }
+
   .el-table {
     --el-table-bg-color: #000;
+    --el-table-text-color: #fff;
+    --el-table-header-text-color: #b0b1b3;
+  }
+  .el-table__expand-icon {
+    content: url("@/assets/icons/dark/caretUp.svg");
+    width: 10px;
+    height: 6px;
+  }
+  .el-table__expand-icon--expanded {
+    transform: rotate(180deg);
+  }
+  .table_v2_Header {
+    background-color: #1b1f29;
+  }
+  .el-table-v2__row:nth-child(even) {
+    background-color: #1b1f29;
+  }
+  .el-table-v2 {
+    --el-table-header-text-color: #b0b1b3;
+  }
+
+  .el-input__wrapper {
+    background-color: #000;
+  }
+
+  .el-tag.el-tag--info {
+    --el-tag-text-color: #fff;
+  }
+
+  .el-dialog {
+    --el-dialog-bg-color: #1d222d;
+    box-shadow: 0px 12px 32px 8px #000000;
+  }
+
+  .el-slider {
+    --el-slider-button-size: 14px;
+  }
+
+  .el-dropdown-menu__item:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #fff;
+  }
+
+  .el-select-dropdown__item.is-hovering {
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.12);
   }
 }

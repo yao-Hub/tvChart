@@ -26,6 +26,8 @@ export const useTheme = defineStore("theme", {
       }
       this.systemTheme = stoTheme;
       document.documentElement.setAttribute("data-theme", this.systemTheme);
+
+      this.getUpDownTheme();
     },
     changeSystemTheme() {
       const theme = this.systemTheme === "dark" ? "light" : "dark";

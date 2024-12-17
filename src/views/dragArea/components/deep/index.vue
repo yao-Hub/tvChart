@@ -1,6 +1,6 @@
 <template>
   <div class="deep">
-    <span class="title">市场深度</span>
+    <el-text type="info" style="align-self: unset">市场深度</el-text>
     <div class="container" v-if="depths.length">
       <div class="box">
         <div class="item" v-for="item in depths">
@@ -71,16 +71,13 @@ onMounted(() => {
 @import "@/styles/_handle.scss";
 
 .deep {
-  background-color: rgb(244, 244, 244);
+  @include background-color("tabActive");
   margin: 0 10px;
   padding: 8px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   border-radius: 4px;
-}
-.title {
-  font-weight: bold;
 }
 .container {
   flex: 1;
@@ -90,7 +87,7 @@ onMounted(() => {
   gap: 8px;
 }
 .box {
-  @include background_color("background-component");
+  @include background_color("background");
   width: 50%;
   border-radius: 4px;
   display: flex;
@@ -103,7 +100,7 @@ onMounted(() => {
   line-height: 18px;
   width: 100%;
   position: relative;
-  color: #000;
+  @include font_color("word");
 }
 .pre-value {
   position: absolute;

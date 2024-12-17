@@ -75,23 +75,30 @@ export const useChartLine = defineStore("chartLine", {
           const bar = this.newbar[subscriberUID];
           if (bar && d.symbol === symbol && +item.resolution == d.period_type) {
             const barTime = bar.time;
-            d.klines.forEach((line) => {
+            for (let i = 0; i < d.klines.length; i++) {
+              const line = d.klines[i];
+              const { close, open, volume, high, low } = line;
               const dTime = line.ctm * 1000;
               this.newbar[subscriberUID] = {
-                close: line.close,
-                open: line.open,
-                volume: line.volume,
-                high: line.high,
-                low: line.low,
+                close,
+                open,
+                volume,
+                high,
+                low,
                 time: bar.time,
               };
               if (!barTime || barTime <= dTime) {
                 this.newbar[subscriberUID].time = dTime;
               }
+              orderStore.currentQuotes[d.symbol]["close"] = close;
+              orderStore.currentQuotes[d.symbol]["open"] = open;
+              orderStore.currentQuotes[d.symbol]["high"] = high;
+              orderStore.currentQuotes[d.symbol]["low"] = low;
+              orderStore.currentQuotes[d.symbol]["volume"] = volume;
               this.subscribed[UID].onRealtimeCallback(
                 this.newbar[subscriberUID]
               );
-            });
+            }
           }
         }
       });

@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, Ref, ref, computed } from "vue";
+import { Ref, computed, inject, ref } from "vue";
 
 const model = inject<Ref<string>>("model", ref(""));
 
@@ -51,12 +51,13 @@ const tabClick = () => {
   @include border_color("border");
   cursor: pointer;
   &:hover {
-    background: #eff0f1;
-    @include font_color("primary");
+    @include background_color("tabHover");
+    @include font_color("tabHoverTextColor");
   }
 }
 .baseTabs_active {
   @include background_color("tabActive");
   border: none;
+  font-weight: 500;
 }
 </style>

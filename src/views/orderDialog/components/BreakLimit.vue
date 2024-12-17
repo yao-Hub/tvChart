@@ -13,8 +13,8 @@
         :step="step"
         style="width: 168px"
         :valid="ifError"
-        :customSub="initPrice"
-        :customAdd="initPrice"
+        :customSub="customCalc"
+        :customAdd="customCalc"
       ></StepNumInput>
       <el-text :type="ifError ? 'danger' : 'info'">{{ range }}</el-text>
     </div>
@@ -81,13 +81,11 @@ const limitPrice = () => {
 // 初始化价格
 const initPrice = () => {
   const name = props.formOption.name;
-  if (price.value === "") {
-    if (name === "breakPrice") {
-      return breakPrice();
-    }
-    if (name === "limitedPrice") {
-      return limitPrice();
-    }
+  if (name === "breakPrice") {
+    return breakPrice();
+  }
+  if (name === "limitedPrice") {
+    return limitPrice();
   }
   return false;
 };
@@ -107,11 +105,20 @@ watch(
 watch(
   () => props.breakPrice,
   () => {
-    if (props.formOption.name === "limitedPrice" && price.value === "") {
-      price.value = limitPrice();
+    if (
+      props.formOption.name === "limitedPrice" &&
+      price.value === "" &&
+      !props.disabled
+    ) {
+      price.value = limitPrice() || "";
     }
   }
 );
+const customCalc = () => {
+  if (price.value === "") {
+    initPrice();
+  }
+};
 
 const ifError = ref(false);
 const range = ref("");

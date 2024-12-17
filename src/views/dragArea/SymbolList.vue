@@ -36,7 +36,7 @@
         @sort-change="sortChange"
         @expand-change="expandChange"
       >
-        <el-table-column type="expand" width="16">
+        <el-table-column type="expand" width="26">
           <template #default="{ row }">
             <Deep
               :symbol="row.symbols"
@@ -89,7 +89,7 @@
           :label="$t('order.diurnalVariation')"
           sortable="custom"
           align="right"
-          min-width="84"
+          min-width="90"
         >
           <template #default="{ row }">
             <span :class="[getVariation(row.symbols).class]">
@@ -374,7 +374,7 @@ const expandChange = (row: any, expandedRows: any[]) => {
 
 .symbolList {
   width: 100%;
-  @include background_color("background");
+  @include background_color("background-component");
   box-sizing: border-box;
   padding: 4px;
 }
@@ -397,29 +397,11 @@ const expandChange = (row: any, expandedRows: any[]) => {
   overflow: hidden;
 }
 
-:deep(.el-table .cell) {
-  padding-left: 0;
-}
-:deep(.body-cell) {
-  border: none;
-}
-:deep(.el-table .caret-wrapper) {
-  width: 14px;
-}
-
-:deep(.el-table__expand-icon > .el-icon) {
-  display: none;
-}
-
-:deep(.el-table__expand-icon) {
-  content: url("@/assets/icons/light/caretRight.svg");
-  transform: scale(0.7);
-}
-:deep(.el-table__expand-icon--expanded) {
-  transform: scale(0.7) rotate(90deg);
-}
-
 .searchList {
   @include background_color("background-component");
+}
+
+:deep(.body-cell) {
+  border: none;
 }
 </style>

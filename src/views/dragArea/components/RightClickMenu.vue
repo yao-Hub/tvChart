@@ -237,7 +237,7 @@ watchEffect(() => {
   position: absolute;
   z-index: 2;
   border-radius: 4px;
-  border: 1px solid #dee2e9;
+  @include box_shadow();
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -292,6 +292,9 @@ watchEffect(() => {
   overflow: hidden;
   white-space: nowrap;
   padding: 0;
+}
+:deep(.el-table .cell) {
+  padding-left: 0;
 }
 .weekday_header {
   position: relative;

@@ -13,8 +13,8 @@
         :step="step"
         style="width: 168px"
         :valid="ifError"
-        :customSub="initPrice"
-        :customAdd="initPrice"
+        :customSub="customCalc"
+        :customAdd="customCalc"
       ></StepNumInput>
       <el-text :type="ifError ? 'danger' : 'info'">{{ range }}</el-text>
     </div>
@@ -64,17 +64,15 @@ const getLeed = () => {
 
 // 初始化价格
 const initPrice = () => {
-  if (price.value === "") {
-    const orderType = props.orderType.toLowerCase();
-    const leed = getLeed();
-    if (leed) {
-      const { result_1, result_2 } = leed;
-      if (orderType.includes("buy")) {
-        return orderType.includes("limit") ? result_1 : result_2;
-      }
-      if (orderType.includes("sell")) {
-        return orderType.includes("limit") ? result_2 : result_1;
-      }
+  const orderType = props.orderType.toLowerCase();
+  const leed = getLeed();
+  if (leed) {
+    const { result_1, result_2 } = leed;
+    if (orderType.includes("buy")) {
+      return orderType.includes("limit") ? result_1 : result_2;
+    }
+    if (orderType.includes("sell")) {
+      return orderType.includes("limit") ? result_2 : result_1;
     }
   }
   return false;
@@ -92,6 +90,11 @@ watch(
     immediate: true,
   }
 );
+const customCalc = () => {
+  if (price.value === "") {
+    initPrice();
+  }
+};
 
 const ifError = ref(false);
 const range = ref("");

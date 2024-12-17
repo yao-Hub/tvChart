@@ -2,11 +2,7 @@
   $colors: (
     "primary": (
       "base": #f4b201,
-      "light-9": #eff0f1,
     ),
-  ),
-  $dropdown: (
-    "menuItem-hover-color": #606266,
   ),
   $dialog: (
     "bg-color": #f6f8fb,
@@ -18,8 +14,12 @@
     "button-size": 12px,
     "main-bg-color": #000,
   ),
-  $select-dropdown: (
-    "bg-color": #f6f8fb,
+  $dropdown: (
+    "menuItem-hover-color": #000,
+    "menuItem-hover-fill": #efefef,
+  ),
+  $select-option: (
+    "hover-background": #efefef,
   ),
   $text: (
     "color": #000000,
@@ -55,6 +55,25 @@
 .el-form-item__label {
   color: #000;
 }
+
 .el-table thead th {
   font-weight: 400;
+}
+.el-table__expand-icon {
+  content: url("@/assets/icons/light/caretUp.svg");
+  width: 10px;
+  height: 6px;
+}
+.el-table__expand-icon--expanded {
+  transform: rotate(180deg);
+}
+.table_v2_Header {
+  background-color: #f1f3f6;
+}
+.el-table-v2__row:nth-child(even) {
+  background-color: #f1f3f6;
+}
+
+.el-select-v2__caret {
+  content: url("/static/icons/light/caretDown.svg");
 }

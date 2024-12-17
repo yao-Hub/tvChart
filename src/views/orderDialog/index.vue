@@ -502,7 +502,7 @@ const addPendingOrders = debounce(async () => {
 .divider {
   width: 100%;
   height: 1px;
-  background: #dee2e9;
+  @include background_color("border");
   margin: 24px 0;
 }
 .sellBtn,

@@ -15,7 +15,7 @@
             class="feedback textEllipsis"
             @click="dialogStore.feedbackVisible = true"
           >
-            <BaseImg class="logo" iconName="icon_16" />
+            <BaseImg class="logo" iconName="icon_17" />
             <el-text type="info">{{ $t("feedback") }}</el-text>
           </div>
         </div>
@@ -26,7 +26,7 @@
         <div class="filter">
           <SymbolSelect
             v-if="activeKey !== 'blanceRecord'"
-            style="width: 190px; flex-shrink: 0; height: 32px"
+            style="width: 200px; flex-shrink: 0; height: 32px"
             v-model="orderStore.dataFilter[activeKey].symbol"
             :selectOption="{
               multiple: true,
@@ -297,7 +297,7 @@
                   v-if="!pageLoading && activeKey === 'marketOrderHistory'"
                 >
                   <el-text type="info">合计：</el-text>
-                  <span :class="[getCellClass(MOHProSum)]">
+                  <span :class="[getCellClass(+MOHProSum)]">
                     {{ MOHProSum }}</span
                   >
                 </div>
@@ -607,7 +607,7 @@ const MOHProSum = computed(() => {
   const sum = dataSource.value.reduce((pre, next) => {
     return pre + next.profit;
   }, 0);
-  return sum;
+  return sum.toFixed(2);
 });
 
 // 持仓天数
@@ -794,18 +794,6 @@ onMounted(async () => {
 });
 </script>
 
-<style lang="scss">
-@import "@/styles/_handle.scss";
-.table_v2_Header {
-  @include background_color("table-colored");
-}
-.el-table-v2__row:nth-child(even) {
-  @include background_color("table-colored");
-}
-.el-select-v2__caret {
-  content: url("/static/icons/light/caretDown.svg");
-}
-</style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
@@ -839,6 +827,9 @@ onMounted(async () => {
         @include font_color("word-gray");
         cursor: pointer;
         align-items: center;
+        &:hover {
+          @include font_color("primary");
+        }
       }
     }
   }

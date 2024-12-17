@@ -170,10 +170,14 @@ const initonReady = () => {
     custom_css_url: "/charting_library/static/tvcss.css",
     custom_timezones: timezoneOptions as library.CustomAliasedTimezone[],
   };
+
+  // 读取缓存数据
   const savedData = chartInitStore.getChartSavedData(props.chartId);
   if (savedData) {
     widgetOptions.saved_data = savedData;
   }
+
+  // 实例化
   const widget: library.IChartingLibraryWidget = new library.widget(
     widgetOptions
   );
@@ -211,6 +215,9 @@ const initonReady = () => {
         widget.activeChart().createStudy("MACD");
         widget.activeChart().createStudy("Moving Average Double");
       }
+
+      // 图表主题(正常是不用重新再这里改变的，但是如果自己更改了缓存，则需要这个)
+      widget.changeTheme(props.theme as library.ThemeName);
 
       setTimeout(() => {
         emit("initChart", { id: props.chartId, widget });
