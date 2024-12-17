@@ -100,11 +100,14 @@ const styles = {
     color: "#fff",
   },
 };
+
+const wordGreen = "#00C673";
+const wordRed = "#FF4A61";
 const wordDownColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? "#00C673" : "#FF4A61";
+  return themeStore.upDownTheme === "upRedDownGreen" ? wordGreen : wordRed;
 });
 const wordUpColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? "#FF4A61" : "#00C673";
+  return themeStore.upDownTheme === "upRedDownGreen" ? wordRed : wordGreen;
 });
 const wordStyle = (type: DirectionType) => {
   return {
@@ -114,11 +117,13 @@ const wordStyle = (type: DirectionType) => {
   };
 };
 
+const btnGreen = "#009355";
+const btnRed = "#DC1D43";
 const btnDownColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? "#009355" : "#DC1D43";
+  return themeStore.upDownTheme === "upRedDownGreen" ? btnGreen : btnRed;
 });
 const btnUpColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? "#DC1D43" : "#009355";
+  return themeStore.upDownTheme === "upRedDownGreen" ? btnRed : btnGreen;
 });
 
 const btnStyle = (type: DirectionType) => {
@@ -127,12 +132,12 @@ const btnStyle = (type: DirectionType) => {
     backgroundColor: type === "sell" ? btnDownColor.value : btnUpColor.value,
   };
 };
+
 const inputAreaStyle = computed(() => {
-  const color = themeStore.systemTheme === "light" ? "#081021" : "#d1d4dc";
+  const color = themeStore.systemTheme === "light" ? "#000" : "#fff";
   const borderColor =
-    themeStore.systemTheme === "light" ? "#dee2e9" : "#434651";
-  const backgroundColor =
-    themeStore.systemTheme === "light" ? "#fff" : "#525252";
+    themeStore.systemTheme === "light" ? "#DEE2E9" : "#2C2F35";
+  const backgroundColor = themeStore.systemTheme === "light" ? "#fff" : "#000";
   return {
     ...styles.inputArea,
     color,

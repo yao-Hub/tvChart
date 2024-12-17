@@ -6,13 +6,11 @@
     </div>
     <template #dropdown>
       <el-dropdown-menu>
-        <el-dropdown-item @click="refreshDelay">
-          <div class="operaItem">
-            <ReloadOutlined v-if="!delayLoading" />
-            <LoadingOutlined v-else />
-            <span>{{ $t("refresh") }}</span>
-          </div>
-        </el-dropdown-item>
+        <div class="freshItem" @click="refreshDelay">
+          <ReloadOutlined v-if="!delayLoading" />
+          <LoadingOutlined v-else />
+          <span>{{ $t("refresh") }}</span>
+        </div>
         <el-dropdown-item
           v-for="node in networkStore.nodeList"
           :key="node.nodeName"
@@ -99,13 +97,15 @@ const refreshDelay = () => {
 .delay:hover {
   @include font_color("primary");
 }
-.operaItem {
+.freshItem {
   display: flex;
   gap: 5px;
   align-items: center;
   cursor: pointer;
+  padding: 5px 16px;
+  width: fit-content;
 }
-.operaItem:hover {
+.freshItem:hover {
   @include font_color("primary");
 }
 .delayItem {

@@ -181,6 +181,9 @@ const initonReady = () => {
   const widget: library.IChartingLibraryWidget = new library.widget(
     widgetOptions
   );
+
+  chartInitStore.setChartLoadingEndType(props.chartId);
+
   widget?.onChartReady(() => {
     widget?.headerReady().then(() => {
       chartInitStore.createChartWidget(props.chartId, widget);

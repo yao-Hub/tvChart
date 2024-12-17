@@ -107,7 +107,9 @@ watch(
 
 import { onBeforeRouteLeave } from "vue-router";
 onBeforeRouteLeave((to, from, next) => {
-  chartInitStore.saveCharts();
+  if (chartInitStore.ifAllChartLoadingEnd) {
+    chartInitStore.saveCharts();
+  }
   next();
 });
 </script>

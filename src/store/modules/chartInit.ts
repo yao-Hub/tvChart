@@ -4,7 +4,7 @@ import {
   IChartingLibraryWidget,
   ResolutionString,
 } from "public/charting_library";
-import { reactive, watch } from "vue";
+import { computed, reactive, watch } from "vue";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
 
@@ -15,12 +15,13 @@ interface State {
     symbol: string;
     interval?: ResolutionString;
   }[];
-  loading: Boolean;
   chartLayoutType: "single" | "multiple";
-  chartLoading: Record<string, boolean>;
-  activeChartId: string;
   chartFlexDirection: "row" | "column";
-  globalRefresh: boolean;
+  loading: Boolean; // 整个图表区域的加载
+  chartLoading: Record<string, boolean>; // 各个图表的加载状态
+  activeChartId: string; // 当前激活的chart
+  globalRefresh: boolean; // 是否全局刷新
+  ifFinishLoad: Record<string, boolean>; // 图表是否渲染完成
 }
 
 export const useChartInit = defineStore("chartInit", () => {
@@ -35,6 +36,7 @@ export const useChartInit = defineStore("chartInit", () => {
     activeChartId: "chart_1",
     chartFlexDirection: "row",
     globalRefresh: false,
+    ifFinishLoad: {},
   });
 
   // 单图表显示工具栏 多图表隐藏
@@ -259,6 +261,14 @@ export const useChartInit = defineStore("chartInit", () => {
     }
   }
 
+  const ifAllChartLoadingEnd = computed(() => {
+    const loadList = Object.values(state.ifFinishLoad);
+    return !loadList.some((item) => !item);
+  });
+  function setChartLoadingEndType(id: string, ifFinish?: boolean) {
+    state.ifFinishLoad[id] = !!ifFinish;
+  }
+
   return {
     state,
     refresh,
@@ -278,5 +288,7 @@ export const useChartInit = defineStore("chartInit", () => {
     getChartSavedData,
     loadCharts,
     getDefaultSymbol,
+    setChartLoadingEndType,
+    ifAllChartLoadingEnd,
   };
 });

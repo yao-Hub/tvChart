@@ -186,12 +186,12 @@ const resoluteItemSelect = (key: number) => {
   border-bottom: none;
   @include border_color("border");
   border-radius: 4px 4px 0px 0px;
-  // @include background_color("background");
-  @include background_color("background-component");
+  @include background_color("background");
+  // @include background_color("background-component");
 }
 .active {
-  // @include background_color("background-component");
-  @include background_color("background");
+  @include background_color("background-component");
+  // @include background_color("background");
   border: none;
 }
 

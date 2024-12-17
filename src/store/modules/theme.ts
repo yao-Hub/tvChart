@@ -55,22 +55,25 @@ export const useTheme = defineStore("theme", {
       localStorage.setItem("upDownTheme", this.upDownTheme);
       const chartInitStore = useChartInit();
 
-      const red = "#DC1D43";
-      const green = "#009355";
+      const red = "#F53058";
+      const green = "#2E9C76";
+      const lightRed = "rgba(242, 54, 69, 0.5)";
+      const lightGreen = "rgba(8, 153, 129, 0.5)";
+      const proRed = "#f5a6ae";
+      const proGreen = "#a9dcc3";
+
       const downColor = this.upDownTheme === "upRedDownGreen" ? green : red;
       const upColor = this.upDownTheme === "upRedDownGreen" ? red : green;
+
       const upLightColor =
-        this.upDownTheme === "upRedDownGreen"
-          ? "rgba(8, 153, 129, 0.5)"
-          : "rgba(242, 54, 69, 0.5)";
+        this.upDownTheme === "upRedDownGreen" ? lightGreen : lightRed;
       const downLightColor =
-        this.upDownTheme === "upRedDownGreen"
-          ? "rgba(8, 153, 129, 0.5)"
-          : "rgba(242, 54, 69, 0.5)";
+        this.upDownTheme === "upRedDownGreen" ? lightGreen : lightRed;
+
       const upProjectionColor =
-        this.upDownTheme === "upRedDownGreen" ? "#a9dcc3" : "#f5a6ae";
+        this.upDownTheme === "upRedDownGreen" ? proGreen : proRed;
       const downProjectionColor =
-        this.upDownTheme === "upRedDownGreen" ? "#f5a6ae" : "#a9dcc3";
+        this.upDownTheme === "upRedDownGreen" ? proRed : proGreen;
 
       try {
         chartInitStore.state.chartWidgetList.forEach((item) => {
