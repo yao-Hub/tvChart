@@ -5,11 +5,12 @@ html.dark {
   .el-text.el-text--info {
     color: #b0b1b3;
   }
-  .el-form-item__label {
-    color: #fff;
-  }
   .el-text.el-text--primary {
     color: #f4b201;
+  }
+
+  .el-form-item__label {
+    color: #fff;
   }
 
   .el-button--primary {
@@ -57,10 +58,6 @@ html.dark {
     box-shadow: 0px 12px 32px 8px #000000;
   }
 
-  .el-slider {
-    --el-slider-button-size: 14px;
-  }
-
   .el-dropdown-menu__item:hover {
     background-color: rgba(255, 255, 255, 0.12);
     color: #fff;
@@ -69,5 +66,25 @@ html.dark {
   .el-select-dropdown__item.is-hovering {
     color: #fff;
     background-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .el-slider {
+    --el-slider-button-size: 14px;
+    --el-slider-height: 4px;
+  }
+  .el-slider__stop {
+    border: none;
+    background-color: #0c0f15;
+    transform: translate(-50%, -33%);
+    border: 2px solid #2c2f35;
+    height: 8px;
+    width: 8px;
+  }
+  .el-slider__bar {
+    background-color: #2c2f35;
+  }
+
+  .el-divider--horizontal {
+    margin: 4px 0;
   }
 }

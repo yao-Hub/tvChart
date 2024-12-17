@@ -77,3 +77,14 @@
 .el-select-v2__caret {
   content: url("/static/icons/light/caretDown.svg");
 }
+
+.el-slider__stop {
+  border: 2px solid #dee2e9;
+  transform: translate(-50%, -20%);
+}
+.el-slider__bar {
+  background-color: #dee2e9;
+}
+.el-divider--horizontal {
+  margin: 4px 0;
+}

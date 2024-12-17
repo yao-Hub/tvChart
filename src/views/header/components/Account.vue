@@ -4,7 +4,7 @@
       <div class="left">
         <div class="top">
           <el-text>{{ networkStore.server }}</el-text>
-          <div class="divider"></div>
+          <el-divider direction="vertical" />
           <el-text>{{ userStore.account.login }}</el-text>
         </div>
         <el-text class="balance"
@@ -36,20 +36,23 @@
         </div>
       </div>
       <div class="account">
-        <span @click="showModal">{{ $t("personalInformation") }}</span>
+        <el-text type="info" @click="showModal">{{
+          $t("personalInformation")
+        }}</el-text>
         <el-divider direction="vertical" />
-        <span
+        <el-text
+          type="info"
           @click="resetPasswordOpen = true"
           v-if="userStore.account.server === 'utrader-demo'"
-          >{{ $t("changePassword") }}</span
+          >{{ $t("changePassword") }}</el-text
         >
         <el-divider
           direction="vertical"
           v-if="userStore.account.server === 'utrader-demo'"
         />
-        <span @click="$router.push({ path: PageEnum.LOGIN })">{{
+        <el-text type="info" @click="$router.push({ path: PageEnum.LOGIN })">{{
           $t("addAccount")
-        }}</span>
+        }}</el-text>
         <el-divider direction="vertical" />
         <span @click="logout">{{ $t("logOut") }}</span>
       </div>
@@ -192,6 +195,24 @@ const showModal = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+.delIcon {
+  width: 18px;
+  height: 18px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+[data-theme="light"] .delIcon {
+  background-image: url("@/assets/icons/light/delete.svg");
+  &:hover {
+    background-image: url("@/assets/icons/light/deleteHover.svg");
+  }
+}
+[data-theme="dark"] .delIcon {
+  background-image: url("@/assets/icons/dark/delete.svg");
+  &:hover {
+    background-image: url("@/assets/icons/dark/deleteHover.svg");
+  }
+}
 
 .info {
   display: flex;
@@ -221,12 +242,6 @@ const showModal = () => {
       display: block;
       width: 100%;
     }
-  }
-  .divider {
-    margin: 0 4px;
-    width: 1px;
-    height: 12px;
-    @include background_color("border");
   }
 }
 
@@ -267,16 +282,6 @@ const showModal = () => {
       height: 18px;
       margin-left: auto;
     }
-    .delIcon {
-      width: 18px;
-      height: 18px;
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-image: url("@/assets/icons/light/delete.svg");
-      &:hover {
-        background-image: url("@/assets/icons/light/deleteHover.svg");
-      }
-    }
   }
   .aItemActive {
     @include background_color("background-active");
@@ -292,7 +297,6 @@ const showModal = () => {
   border-top: 1px solid;
   padding: 0 16px;
   @include background_color("background-dialog");
-  @include font_color("word-gray");
   @include border_color("border");
   span {
     cursor: pointer;

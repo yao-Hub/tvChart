@@ -17,7 +17,7 @@
         <div class="dropdownbox_item">
           <OneTransactions @closeDropdown="toggle(false)"></OneTransactions>
         </div>
-        <div class="divider"></div>
+        <el-divider />
         <div class="dropdownbox_item">
           <Theme @closeDropdown="toggle(false)"></Theme>
         </div>
@@ -30,7 +30,7 @@
         <div class="dropdownbox_item">
           <FontSize @closeDropdown="toggle(false)"></FontSize>
         </div>
-        <div class="divider"></div>
+        <el-divider />
         <div class="dropdownbox_item">
           <sendFeedback @closeDropdown="toggle(false)"></sendFeedback>
         </div>
@@ -122,15 +122,5 @@ function toggle(visible: boolean) {
       @include background_color("border");
     }
   }
-}
-
-.divider {
-  height: 1px;
-  @include background_color("border");
-  padding: 0 15px;
-  background-clip: content-box;
-  box-sizing: border-box;
-  width: 100%;
-  margin: 4px 0;
 }
 </style>

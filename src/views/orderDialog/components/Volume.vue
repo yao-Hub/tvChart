@@ -35,6 +35,7 @@
 <script setup lang="ts">
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { useRate } from "@/store/modules/rate";
+import { useTheme } from "@/store/modules/theme";
 import { useUser } from "@/store/modules/user";
 import { round } from "utils/common/index";
 import type { CSSProperties } from "vue";
@@ -42,6 +43,7 @@ import { computed, reactive, ref, watch } from "vue";
 
 const rateStore = useRate();
 const userStore = useUser();
+const themeStore = useTheme();
 type Arrayable<T> = T | T[];
 interface Props {
   disabled?: boolean;
@@ -152,9 +154,11 @@ const percentage = ref<number>(0);
 // 底部数字样式
 const numStyle = (num: number) => {
   const nowPercent = percentage.value;
+  const activedColor = themeStore.systemTheme === "light" ? "#000" : "#fff";
+  const nomalColor = themeStore.systemTheme === "light" ? "#CECDD1" : "#56585C";
   return {
     style: {
-      color: num === nowPercent ? "#000" : "#CECDD1",
+      color: num === nowPercent ? activedColor : nomalColor,
       fontSize: "12px",
     },
     label: `${num}%`,
@@ -221,13 +225,6 @@ const sliderInput = (percentage: Arrayable<number>) => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-:deep(.el-slider__stop) {
-  border: 2px solid #dee2e9;
-  transform: translate(-50%, -20%);
-}
-:deep(.el-slider__bar) {
-  background-color: #dee2e9 !important;
-}
 .tips {
   margin-left: 16px;
   @include font_color("word-gray");
