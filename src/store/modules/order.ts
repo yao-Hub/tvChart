@@ -1,8 +1,8 @@
+import i18n from "@/language/index";
 import * as orders from "api/order/index";
 import { ElMessageBox } from "element-plus";
 import { isNil } from "lodash";
 import { defineStore } from "pinia";
-import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useChartAction } from "./chartAction";
 import { useDialog } from "./dialog";
@@ -114,8 +114,7 @@ export const useOrder = defineStore("order", {
     ) {
       const dialogStore = useDialog();
       const userStore = useUser();
-      const { t } = useI18n();
-
+      const t = i18n.global.t;
       if (!userStore.account.token) {
         ElMessageBox.confirm("", t("user.notLoggedIn"), {
           confirmButtonText: t("user.logIn"),

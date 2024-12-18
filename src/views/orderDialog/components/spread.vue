@@ -1,7 +1,7 @@
 <template>
   <div class="spread">
     <span class="sellWord">{{ quote?.bid.toFixed(props.digits) }}</span>
-    <div class="spread_point">{{ $t("order.spread") }}{{ spread }}</div>
+    <div class="spread_point">{{ $t("order.spread") }} {{ spread }}</div>
     <span class="buyWord">{{ quote?.ask.toFixed(props.digits) }}</span>
   </div>
 </template>
@@ -35,7 +35,7 @@ const spread = computed(() => {
   @include font_color("word-gray");
   border-bottom: 1px solid;
   @include border_color("word-gray");
-  width: 60px;
+  min-width: 60px;
   text-align: center;
   position: relative;
   padding-bottom: 3px;

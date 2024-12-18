@@ -126,7 +126,7 @@ export default {
     Margin: "Margin",
     marginFree: "margin free",
     marginLevel: "margin level",
-    referencePrepayment: "reference prepayment",
+    referencePrepayment: "prepayment",
     TotalProfit: "total profit",
     profit: "profit",
     buy: "buy",
