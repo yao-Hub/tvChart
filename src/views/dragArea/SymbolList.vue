@@ -104,9 +104,6 @@
         :input="input"
         v-if="ifSearch"
         :mySymbols="dataSource"
-        :headerStyle="{
-          background: '#fff',
-        }"
       ></Search>
     </div>
     <RightClickMenu
@@ -398,7 +395,7 @@ const expandChange = (row: any, expandedRows: any[]) => {
 }
 
 .searchList {
-  @include background_color("background-component");
+  @include background_color("background");
 }
 
 :deep(.body-cell) {

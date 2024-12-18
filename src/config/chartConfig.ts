@@ -43,6 +43,7 @@ const formatTime = (time: number) => {
   return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
 };
 
+// 品种切换还未初始化，但是数据已经先到达，存储最新的那个bar
 let temBar: Record<string, ResLineInfo> = {};
 
 export const datafeed = (id: string) => {

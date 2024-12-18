@@ -13,10 +13,6 @@
 
     <el-scrollbar v-if="!input && showSymbols">
       <Block
-        :styles="{
-          cursor: 'default',
-          ...headerStyle,
-        }"
         type="count"
         class="searchList_back"
         :total="getTotal(currentType)"
@@ -41,7 +37,7 @@
         type="radio"
         :loading="item.loading"
         :ifChecked="getCheckType(item.symbol)"
-        @btnClick="(e) => btnClick(e, item)"
+        @btnClick="(e: string) => btnClick(e, item)"
         @blockClick="itemClick(item)"
       >
       </Block>
@@ -55,7 +51,7 @@
         :hideStar="hideStar"
         :loading="item.loading"
         :ifChecked="getCheckType(item.symbol)"
-        @btnClick="(e) => btnClick(e, item)"
+        @btnClick="(e: string) => btnClick(e, item)"
         @blockClick="itemClick(item)"
       >
       </Block>
@@ -74,7 +70,6 @@ const symbolsStore = useSymbols();
 interface Props {
   input: string;
   mySymbols?: any[];
-  headerStyle?: object;
   hideStar?: boolean;
 }
 const props = defineProps<Props>();
@@ -230,6 +225,8 @@ const itemClick = (e: ISessionSymbolInfo) => {
 }
 .searchList_back {
   position: sticky;
+  @include background_color("background");
+  cursor: "default";
   top: 0;
   &_title {
     display: flex;

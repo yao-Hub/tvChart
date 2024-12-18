@@ -65,7 +65,7 @@ const emit = defineEmits(["blockClick", "btnClick"]);
   padding: 6px 16px;
 
   &:hover {
-    @include background_color("background");
+    @include background_color("background-component");
   }
 
   .label {

@@ -33,9 +33,6 @@
             <Search
               class="searchList"
               :input="searchInput"
-              :headerStyle="{
-                background: '#f6f8fb',
-              }"
               hideStar
               @item-click="symbolItemSelect"
             ></Search>
