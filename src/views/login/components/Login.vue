@@ -107,15 +107,20 @@
 
 <script setup lang="ts">
 import { PageEnum } from "@/constants/pageEnum";
-import { useNetwork } from "@/store/modules/network";
-import { useUser } from "@/store/modules/user";
 import { Search } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { computed, onMounted, reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
+
+import { useNetwork } from "@/store/modules/network";
+import { useUser } from "@/store/modules/user";
+
+const { t } = useI18n();
 
 const router = useRouter();
 const route = useRoute();
+
 const networkStore = useNetwork();
 const userStore = useUser();
 
@@ -140,20 +145,20 @@ const rules = reactive<FormRules<typeof formState>>({
     {
       required: true,
       trigger: "change",
-      message: "Please select tradingRoute!",
+      message: t("tip.serverRequired"),
     },
   ],
   login: [
     {
       required: true,
       trigger: "change",
-      message: "Please input your login!",
+      message: t("tip.loginRequired"),
     },
   ],
   password: [
     {
       required: true,
-      message: "Please input your password!",
+      message: t("tip.passwordRequired"),
       trigger: "change",
     },
   ],

@@ -1,6 +1,8 @@
 <template>
   <div class="deep">
-    <el-text type="info" style="align-self: unset">市场深度</el-text>
+    <el-text type="info" style="align-self: unset">{{
+      $t("marketDepth")
+    }}</el-text>
     <div class="container" v-if="depths.length">
       <div class="box">
         <div class="item" v-for="item in depths">

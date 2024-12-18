@@ -1,6 +1,6 @@
 <!-- 快捷交易 -->
 <template>
-  <el-tooltip content="快捷交易">
+  <el-tooltip :content="t('QuickTransactions')">
     <div
       class="iconbox"
       :class="[orderStore.ifQuick ? 'active' : 'noActive']"
@@ -10,13 +10,16 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
 import { useChartAction } from "@/store/modules/chartAction";
 import { useOrder } from "@/store/modules/order";
 import { useStorage } from "@/store/modules/storage";
+
+const { t } = useI18n();
+
 const storageStore = useStorage();
-
 const chartActionStore = useChartAction();
-
 const orderStore = useOrder();
 
 const handleClick = () => {

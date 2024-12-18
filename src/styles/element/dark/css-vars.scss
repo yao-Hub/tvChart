@@ -57,6 +57,9 @@ html.dark {
     --el-dialog-bg-color: #1d222d;
     box-shadow: 0px 12px 32px 8px #000000;
   }
+  .el-message-box {
+    background-color: #1d222d;
+  }
 
   .el-dropdown-menu__item:not(.is-disabled):focus,
   .el-dropdown-menu__item:not(.is-disabled):hover {
@@ -87,5 +90,11 @@ html.dark {
 
   .el-divider--horizontal {
     margin: 4px 0;
+  }
+
+  .el-autocomplete-suggestion li.highlighted,
+  .el-autocomplete-suggestion li:hover {
+    background-color: rgba(255, 255, 255, 0.12);
+    color: #fff;
   }
 }

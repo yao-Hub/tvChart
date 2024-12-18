@@ -328,7 +328,7 @@ const showModal = () => {
   padding: 0;
 }
 :deep(.el-text.el-text--info) {
-  width: 90px;
+  min-width: 90px;
   display: inline-block;
 }
 </style>

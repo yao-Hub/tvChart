@@ -3,6 +3,7 @@ import { ElMessage } from "element-plus";
 import { assign } from "lodash";
 import { defineStore } from "pinia";
 import CryptoJS from "utils/AES";
+import { useI18n } from "vue-i18n";
 
 import { Login, loginInfo, UserInfo } from "api/account/index";
 import { round } from "utils/common/index";
@@ -192,7 +193,8 @@ export const useUser = defineStore("user", {
       networkStore.server = updata.server;
       const nodeList = await networkStore.getNodes(updata.server);
       if (nodeList.length === 0) {
-        ElMessage.info("找不到网络节点");
+        const { t } = useI18n();
+        ElMessage.info(t("tip.networkNodeNotFound"));
         return Promise.reject();
       }
       try {

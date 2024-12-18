@@ -6,14 +6,14 @@
         <el-dropdown-item>
           <div class="item" @click="() => layoutChange('symbolsVisable')">
             <el-icon><Select v-if="layoutStore.symbolsVisable" /></el-icon>
-            <span>活跃交易品种面板</span>
+            <span>{{ $t("symbolListArea") }}</span>
           </div>
         </el-dropdown-item>
 
         <el-dropdown-item>
           <div class="item" @click="() => layoutChange('orderAreaVisable')">
             <el-icon><Select v-if="layoutStore.orderAreaVisable" /></el-icon>
-            <span>交易看板</span>
+            <span>{{ $t("orderArea") }}</span>
           </div>
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -46,7 +46,7 @@ const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
   }
 }
 .item {
-  width: 180px;
+  min-width: 180px;
   height: 32px;
   display: flex;
   align-items: center;

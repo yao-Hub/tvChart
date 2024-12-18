@@ -72,9 +72,12 @@ import { emailPasswordUpdate, resQueryTradeLine } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import { reactive, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+
 import VerificationCode from "./VerificationCode.vue";
 
+const { t } = useI18n();
 const router = useRouter();
 
 interface Props {
@@ -110,14 +113,14 @@ const formState = reactive<FormState>({
 const formRef = ref<FormInstance>();
 const validatePass = (rule: any, value: any, callback: any) => {
   if (value === "") {
-    callback(new Error("Please input the password"));
+    callback(new Error(t("tip.passwordRequired")));
   } else {
     // 匹配6-24位数字和字母组合，不能包含空格
     const regex = /^[a-zA-Z0-9]{6,24}$/;
     if (regex.test(value)) {
       callback();
     } else {
-      callback(new Error("must be 6-24 digits and letters"));
+      callback(new Error(t("tip.passwordFormatRule")));
     }
     if (formState.checkPass !== "") {
       formRef.value?.validateField("checkPass");
@@ -127,21 +130,17 @@ const validatePass = (rule: any, value: any, callback: any) => {
 };
 const validatePass2 = (rule: any, value: any, callback: any) => {
   if (value === "") {
-    callback(new Error("Please input the password again"));
+    callback(new Error(t("tip.reInputPassword")));
   } else if (value !== formState.pass) {
-    callback(new Error("Two inputs don't match!"));
+    callback(new Error(t("tip.noSamePassword")));
   } else {
     callback();
   }
 };
 
 const rules = reactive<FormRules<typeof formState>>({
-  email: [
-    { required: true, message: "Please input your email!", trigger: "blur" },
-  ],
-  code: [
-    { required: true, message: "Please input your code!", trigger: "blur" },
-  ],
+  email: [{ required: true, message: t("tip.emailRequired"), trigger: "blur" }],
+  code: [{ required: true, message: t("tip.codeRequired"), trigger: "blur" }],
   pass: [{ required: true, validator: validatePass, trigger: "blur" }],
   checkPass: [{ required: true, validator: validatePass2, trigger: "blur" }],
 });
@@ -165,7 +164,7 @@ const resetPwd = async () => {
     new_password: pass,
     confirm_password: checkPass,
   });
-  ElMessage.success("reset success");
+  ElMessage.success(t("tip.resetPwdSuccess"));
 };
 
 const back = () => {

@@ -206,6 +206,9 @@ export const useChartInit = defineStore("chartInit", () => {
   // 保存图表状态
   function saveCharts() {
     try {
+      if (!ifAllChartLoadingEnd.value) {
+        return;
+      }
       const saveMap: Record<string, object> = {};
       state.chartWidgetList.forEach((item) => {
         item.widget?.save((state) => {
@@ -261,6 +264,7 @@ export const useChartInit = defineStore("chartInit", () => {
     }
   }
 
+  // 全部图表是否都加载完毕
   const ifAllChartLoadingEnd = computed(() => {
     const loadList = Object.values(state.ifFinishLoad);
     return !loadList.some((item) => !item);

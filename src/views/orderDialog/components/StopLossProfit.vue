@@ -20,7 +20,9 @@
       :valid="ifError"
     ></StepNumInput>
     <el-form-item>
-      <span class="tip" v-if="profit">预计毛利: {{ profit }}</span>
+      <span class="tip" v-if="profit"
+        >{{ $t("order.expectedGrossProfit") }}: {{ profit }}</span
+      >
     </el-form-item>
   </el-form-item>
 </template>
@@ -30,12 +32,14 @@ import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { useRate } from "@/store/modules/rate";
 import { round } from "utils/common/index";
 import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const rateStore = useRate();
 
 const titleMap = {
-  stopLoss: "止损",
-  stopProfit: "止盈",
+  stopLoss: t("order.sl"),
+  stopProfit: t("order.tp"),
 };
 interface Props {
   type: "stopLoss" | "stopProfit";
@@ -54,7 +58,7 @@ const minPoint = computed(() => {
   let result = "-";
   if (props.symbolInfo) {
     const stopsLevel = props.symbolInfo.stops_level;
-    result = `至少远离市价${stopsLevel}点`;
+    result = t("tip.minFastPoint", { size: stopsLevel });
   }
   return result;
 });

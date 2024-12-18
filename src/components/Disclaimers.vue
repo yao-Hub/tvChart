@@ -4,6 +4,9 @@
     width="900"
     :zIndex="10"
     destroy-on-close
+    :show-close="false"
+    :close-on-press-escape="false"
+    :close-on-click-modal="false"
   >
     <template #header>
       <span class="header">一键交易-免责声明</span>
@@ -39,10 +42,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import { ElMessage } from "element-plus";
-import { useOrder } from "@/store/modules/order";
 import { useDialog } from "@/store/modules/dialog";
+import { useOrder } from "@/store/modules/order";
+import { ElMessage } from "element-plus";
+import { ref } from "vue";
 
 const dialogStore = useDialog();
 const orderStore = useOrder();

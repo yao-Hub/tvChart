@@ -1,6 +1,6 @@
 <!-- 期限 -->
 <template>
-  <el-form-item name="dueDate" label="期限" label-position="top">
+  <el-form-item name="dueDate" :label="t('order.term')" label-position="top">
     <el-date-picker
       :format="dateFormat"
       v-model="model"
@@ -14,10 +14,13 @@
 
 <script setup lang="ts">
 // import dayjs, { Dayjs } from "dayjs";
-import { onMounted } from "vue";
+import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useTime } from "@/store/modules/time";
+import { onMounted } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 dayjs.extend(relativeTime);
 const timeStore = useTime();

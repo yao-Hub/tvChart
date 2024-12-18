@@ -17,8 +17,8 @@
       style="width: 168px"
     ></StepNumInput>
     <div class="tips">
-      <span>可用预付款：{{ userStore.margin_free }}</span>
-      <span>参考预付款：{{ referMargin }}</span>
+      <span>{{ $t("order.marginFree") }}：{{ userStore.margin_free }}</span>
+      <span>{{ $t("order.referencePrepayment") }}：{{ referMargin }}</span>
     </div>
     <el-slider
       v-if="!disabled"

@@ -44,12 +44,11 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import OneTransactions from "./oneTransactions.vue";
-// import TableSetting from './tableSetting.vue';
 import FontSize from "./FontSize/index.vue";
 import Language from "./Language/index.vue";
 import UpDowncolor from "./UpDowncolor/index.vue";
 import aboutUs from "./aboutUs.vue";
+import OneTransactions from "./oneTransactions.vue";
 import sendFeedback from "./sendFeedback.vue";
 import Theme from "./theme.vue";
 

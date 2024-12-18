@@ -15,6 +15,7 @@ import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 
 import i18n from "@/language/index";
+const t = i18n.global.t;
 
 type reqConfig = InternalAxiosRequestConfig<any> & {
   noNeedToken?: boolean;
@@ -35,10 +36,10 @@ let reLogin = false;
 let logging = false;
 
 const showTokenConfirm = () => {
-  ElMessageBox.confirm(i18n.global.t("invalid token"), "", {
+  ElMessageBox.confirm(t("invalid token"), "", {
     type: "warning",
-    confirmButtonText: i18n.global.t("reLogin"),
-    cancelButtonText: i18n.global.t("cancel"),
+    confirmButtonText: t("reLogin"),
+    cancelButtonText: t("cancel"),
   }).then(() => {
     reLogin = false;
     window.location.replace(window.location.origin + "/login");
@@ -194,7 +195,7 @@ service.interceptors.response.use(
     }
 
     ElNotification({
-      message: i18n.global.t(data.errmsg || "error"),
+      message: t(data.errmsg || "error"),
       type: "error",
     });
     return Promise.reject(data);
@@ -211,10 +212,7 @@ service.interceptors.response.use(
         return Promise.reject(err);
       }
       ElNotification({
-        message:
-          i18n.global.t(res.data.errmsg || res.data.msg) ||
-          res.data.msg ||
-          "error",
+        message: t(res.data.errmsg || res.data.msg) || res.data.msg || "error",
         type: "error",
       });
       return Promise.reject(err);

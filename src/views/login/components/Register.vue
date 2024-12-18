@@ -99,9 +99,11 @@ import { articleDetails, register, resQueryTradeLine } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import { computed, reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import VerificationCode from "./VerificationCode.vue";
 
+const { t } = useI18n();
 const router = useRouter();
 
 interface Props {
@@ -125,13 +127,13 @@ const rules = reactive<FormRules<typeof formState>>({
     {
       required: true,
       trigger: "blur",
-      message: "Please input your email!",
+      message: t("tip.emailRequired"),
     },
   ],
   code: [
     {
       required: true,
-      message: "Please input your code!",
+      message: t("tip.codeRequired"),
       trigger: "blur",
     },
   ],
@@ -207,10 +209,14 @@ import useClipboard from "vue-clipboard3";
 const { toClipboard } = useClipboard();
 const copy = async () => {
   try {
-    await toClipboard(`账号：${account.name};密码：${account.pass}`);
-    ElMessage.success("复制成功");
+    await toClipboard(
+      `${t("user.login")}：${account.name};${t("user.password")}：${
+        account.pass
+      }`
+    );
+    ElMessage.success(t("tip.copySucceed"));
   } catch (e) {
-    ElMessage.error("复制失败");
+    ElMessage.error(t("tip.copyFail"));
   }
 };
 

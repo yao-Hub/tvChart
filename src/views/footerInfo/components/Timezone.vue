@@ -2,7 +2,7 @@
   <div class="Timezone">
     <el-dropdown trigger="click" placement="top-start">
       <div class="face">
-        <span>当前时间：{{ currentTimezone }}</span>
+        <span>{{ $t("nowTime") }}：{{ currentTimezone }}</span>
         <BaseImg iconName="caretUp" />
       </div>
       <template #dropdown>

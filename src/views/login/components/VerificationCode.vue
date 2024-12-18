@@ -9,7 +9,9 @@
       >
         <span class="sendbtn">{{ $t("account.getCode") }}</span>
       </el-button>
-      <span v-if="showTimer">{{ leftTime }} 秒后可重新获取</span>
+      <span v-if="showTimer">{{
+        $t("tip.retakeCode", { time: leftTime })
+      }}</span>
     </template>
   </el-input>
 </template>

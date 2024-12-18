@@ -7,7 +7,7 @@
     append-to-body
   >
     <template #header>
-      <span class="header">更改密码</span>
+      <span class="header">{{ $t("account.resetPassword") }}</span>
     </template>
     <div class="Reset">
       <div class="Reset_title">
@@ -32,18 +32,18 @@
           <el-input
             v-model="formState.oldpass"
             autocomplete="off"
-            placeholder="enter old password"
+            :placeholder="t('tip.enterOldPwd')"
           />
         </el-form-item>
         <el-form-item prop="pass" label-position="top">
           <template #label>
-            {{ $t("user.newPassword") }} ({{ $t("tip.resetPassword") }})
+            {{ $t("user.newPassword") }} ({{ $t("tip.passwordFormatRule") }})
           </template>
           <el-input
             v-model="formState.pass"
             type="password"
             autocomplete="off"
-            placeholder="enter new password"
+            :placeholder="t('tip.enterNewPwd')"
           />
         </el-form-item>
 
@@ -52,7 +52,7 @@
             v-model="formState.checkPass"
             type="password"
             autocomplete="off"
-            placeholder="confirm new password"
+            :placeholder="t('tip.confirmPwd')"
           />
         </el-form-item>
 
@@ -61,7 +61,7 @@
             type="primary"
             style="width: 72px; height: 40px"
             @click="submit(formRef)"
-            >确认更改</el-button
+            >{{ $t("tip.confirmChange") }}</el-button
           >
         </el-form-item>
       </el-form>
@@ -108,7 +108,7 @@ const validatePass = (rule: any, value: any, callback: any) => {
     if (regex.test(value)) {
       callback();
     } else {
-      callback(new Error("must be 6-24 digits and letters, without spaces"));
+      callback(new Error(t("tip.passwordFormatRule")));
       return;
     }
     if (formState.checkPass !== "") {
@@ -119,9 +119,9 @@ const validatePass = (rule: any, value: any, callback: any) => {
 };
 const validatePass2 = (rule: any, value: any, callback: any) => {
   if (value === "") {
-    callback(new Error("Please input the password again"));
+    callback(new Error(t("tip.reInputPassword")));
   } else if (value !== formState.pass) {
-    callback(new Error("Two inputs don't match!"));
+    callback(new Error(t("tip.noSamePassword")));
   } else {
     callback();
   }

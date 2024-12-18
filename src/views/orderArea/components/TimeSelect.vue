@@ -19,25 +19,28 @@ import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const timeStore = useTime();
+
 const timezone = timeStore.settedTimezone;
 
 const shortcuts = [
   {
-    text: "本周",
+    text: t("time.thisWeek"),
     value: () => {
       return [dayjs().tz(timezone).startOf("week"), dayjs()];
     },
   },
   {
-    text: "本月",
+    text: t("time.thisMonth"),
     value: () => {
       return [dayjs().tz(timezone).startOf("month"), dayjs()];
     },
   },
   {
-    text: "今年",
+    text: t("time.thisYear"),
     value: () => {
       return [dayjs().tz(timezone).startOf("year"), dayjs()];
     },

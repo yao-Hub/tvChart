@@ -2,6 +2,7 @@ import * as orders from "api/order/index";
 import { ElMessageBox } from "element-plus";
 import { isNil } from "lodash";
 import { defineStore } from "pinia";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useChartAction } from "./chartAction";
 import { useDialog } from "./dialog";
@@ -113,10 +114,12 @@ export const useOrder = defineStore("order", {
     ) {
       const dialogStore = useDialog();
       const userStore = useUser();
+      const { t } = useI18n();
+
       if (!userStore.account.token) {
-        ElMessageBox.confirm("", "未登录", {
-          confirmButtonText: "去登录",
-          cancelButtonText: "取消",
+        ElMessageBox.confirm("", t("user.notLoggedIn"), {
+          confirmButtonText: t("user.logIn"),
+          cancelButtonText: t("cancel"),
           type: "warning",
         }).then(() => {
           const router = useRouter();
@@ -127,8 +130,8 @@ export const useOrder = defineStore("order", {
         return;
       }
       if (userStore.loginInfo?.trade_rights !== 1) {
-        ElMessageBox.alert("当前账户禁止交易", "无权限", {
-          confirmButtonText: "确认",
+        ElMessageBox.alert(t("user.prohibitTrading"), t("user.noAuthority"), {
+          confirmButtonText: t("ok"),
           type: "error",
         });
         return;

@@ -4,9 +4,9 @@
     v-show="model"
     :style="{ top: `${top}px`, left: `${left}px` }"
   >
-    <div class="item" @click="addOrder">新订单</div>
-    <div class="item" @click="addChart">新图表</div>
-    <div class="item" @click="showDialog">品种信息</div>
+    <div class="item" @click="addOrder">{{ $t("order.new") }}</div>
+    <div class="item" @click="addChart">{{ $t("chart.new") }}</div>
+    <div class="item" @click="showDialog">{{ $t("symbolInfo") }}</div>
   </div>
 
   <el-dialog
@@ -31,7 +31,7 @@
         </div>
       </div>
       <div class="timeTable">
-        <el-text class="secondaryTitle">交易时间</el-text>
+        <el-text class="secondaryTitle">{{ $t("transactionTime") }}</el-text>
         <el-table
           :data="tableData"
           :cell-style="{ height: '42px', 'padding-left': '16px' }"
@@ -59,12 +59,14 @@
 <script setup lang="ts">
 import { ISessionSymbolInfo } from "@/types/chart/index";
 import { computed, ref, watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { symbolDetail } from "api/symbols";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
 
+const { t } = useI18n();
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
 
@@ -92,21 +94,21 @@ const settlementTypeMap: Record<number, string> = {
   2: "满24小时结算", // 24H
 };
 const infoList: Iitem[] = [
-  { key: "symbol", label: "商品名称" },
-  { key: "path", label: "商品分类" },
-  { key: "digits", label: "小数位" },
-  { key: "contract_size", label: "合约数量" },
-  { key: "leverage", label: "杠杆" },
-  { key: "prepaidMode", label: "预付款模式" },
-  { key: "margin", label: "预付款" },
-  { key: "volume_min", label: "最小交易量" },
-  { key: "volume_max", label: "最大交易量" },
-  { key: "volume_step", label: "交易量步长" },
-  { key: "stops_level", label: "价格距离" },
-  { key: "buy_rate", label: "买入库存费率" },
-  { key: "sell_rate", label: "卖出库存费率" },
-  { key: "settlement_type", label: "库存费结算模式" },
-  { key: "fee", label: "手续费" },
+  { key: "symbol", label: t("symbolDetail.symbol") },
+  { key: "path", label: t("symbolDetail.path") },
+  { key: "digits", label: t("symbolDetail.digits") },
+  { key: "contract_size", label: t("symbolDetail.contract_size") },
+  { key: "leverage", label: t("symbolDetail.leverage") },
+  { key: "prepaidMode", label: t("symbolDetail.") },
+  { key: "margin", label: t("symbolDetail.margin") },
+  { key: "volume_min", label: t("symbolDetail.volume_min") },
+  { key: "volume_max", label: t("symbolDetail.volume_max") },
+  { key: "volume_step", label: t("symbolDetail.volume_step") },
+  { key: "stops_level", label: t("symbolDetail.stops_level") },
+  { key: "buy_rate", label: t("symbolDetail.buy_rate") },
+  { key: "sell_rate", label: t("symbolDetail.sell_rate") },
+  { key: "settlement_type", label: t("symbolDetail.settlement_type") },
+  { key: "fee", label: t("symbolDetail.fee") },
 ];
 
 const left = computed(() => {
@@ -178,7 +180,7 @@ const getValue = (key: Tkey) => {
       return pathList?.[0];
     case "prepaidMode":
       const leverage = info?.leverage;
-      return leverage ? "固定" : "动态";
+      return leverage ? t("prepaidMode.fixed") : t("prepaidMode.dynamic");
     case "settlement_type":
       const type = info?.settlement_type;
       return type ? settlementTypeMap[type] || "-" : "-";

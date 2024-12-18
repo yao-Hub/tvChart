@@ -2,7 +2,7 @@
   <div class="symbolList">
     <el-input
       v-model="input"
-      placeholder="搜索交易品种"
+      :placeholder="t('tip.searchSymbol')"
       @click="ifSearch = true"
       class="input"
     >
@@ -117,9 +117,13 @@
 <script setup lang="ts">
 import { IDepth } from "@/types/common";
 import { nextTick, ref, shallowRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
+
 import RightClickMenu from "./components/RightClickMenu.vue";
 import Search from "./components/Symbolsearch/index.vue";
 import Deep from "./components/deep/index.vue";
+
+const { t } = useI18n();
 
 interface DataSource {
   symbols: string;

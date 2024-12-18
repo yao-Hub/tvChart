@@ -43,7 +43,7 @@
             v-if="activeKey === 'marketOrder'"
             v-model="orderStore.dataFilter[activeKey].direction"
             clearable
-            placeholder="方向"
+            :placeholder="t('table.direction')"
           >
             <el-option value="buy" :label="$t('order.buy')"></el-option>
             <el-option value="sell" :label="$t('order.sell')"></el-option>
@@ -54,55 +54,55 @@
             v-if="activeKey === 'marketOrder'"
             v-model="orderStore.dataFilter[activeKey].pol"
             clearable
-            placeholder="盈亏"
+            :placeholder="t('table.profit')"
           >
-            <el-option value="profit" label="盈利"></el-option>
-            <el-option value="loss" label="亏损"></el-option>
+            <el-option value="profit" :label="t('table.profit')"></el-option>
+            <el-option value="loss" :label="t('table.loss')"></el-option>
           </el-select>
           <TimeSelect
             v-show="activeKey === 'pendingOrderHistory'"
             v-model:value="orderStore.dataFilter[activeKey].createTime"
-            style="width: 380px"
+            style="min-width: 380px"
             :pickerOption="{
-              startPlaceholder: '创建开始时间',
-              endPlaceholder: '创建结束时间',
+              startPlaceholder: t('table.createStartTime'),
+              endPlaceholder: t('table.createEndTime'),
             }"
             @timeRange="getTableDate(activeKey)"
-            >创建时间：</TimeSelect
+            >{{ $t("table.createTime") }}：</TimeSelect
           >
           <TimeSelect
             v-show="['marketOrderHistory'].includes(activeKey)"
-            style="width: 380px"
+            style="min-width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].addTime"
             :pickerOption="{
-              startPlaceholder: '建仓开始时间',
-              endPlaceholder: '建仓结束时间',
+              startPlaceholder: t('table.positionOpeningStartTime'),
+              endPlaceholder: t('table.positionOpeningEndTime'),
             }"
             @timeRange="getTableDate(activeKey)"
-            >建仓时间：</TimeSelect
+            >{{ $t("table.positionOpeningTime") }}：</TimeSelect
           >
           <TimeSelect
             v-show="['marketOrderHistory'].includes(activeKey)"
             initFill
-            style="width: 380px"
+            style="min-width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].closeTime"
             :pickerOption="{
-              startPlaceholder: '平仓开始时间',
-              endPlaceholder: '平仓结束时间',
+              startPlaceholder: t('table.positionClosingStartTime'),
+              endPlaceholder: t('table.positionClosingEndTime'),
             }"
             @timeRange="getTableDate(activeKey)"
-            >平仓时间：</TimeSelect
+            >{{ $t("table.positionClosingTime") }}：</TimeSelect
           >
           <TimeSelect
             v-show="['blanceRecord'].includes(activeKey)"
-            style="width: 380px"
+            style="min-width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].createTime"
             :pickerOption="{
-              startPlaceholder: '开始时间',
-              endPlaceholder: '结束时间',
+              startPlaceholder: t('table.startTime'),
+              endPlaceholder: t('table.endTime'),
             }"
             @timeRange="getTableDate(activeKey)"
-            >时间：</TimeSelect
+            >{{ $t("table.time") }}：</TimeSelect
           >
           <el-select
             :suffix-icon="SelectSuffixIcon"
@@ -110,10 +110,10 @@
             v-if="activeKey === 'blanceRecord'"
             v-model="orderStore.dataFilter[activeKey].pol"
             clearable
-            placeholder="类型"
+            :placeholder="t('table.blanceType')"
           >
-            <el-option value="profit" label="入金"></el-option>
-            <el-option value="loss" label="出金"></el-option>
+            <el-option value="profit" :label="t('table.deposit')"></el-option>
+            <el-option value="loss" :label="t('table.withdrawal')"></el-option>
           </el-select>
           <div class="rightOpera">
             <el-dropdown
@@ -122,16 +122,26 @@
               @command="closeMarketOrders"
             >
               <el-button type="primary">
-                <span class="label">批量平仓</span>
+                <span class="label">{{ $t("table.batchClose") }}</span>
                 <BaseImg class="caretDownIcon" iconName="caretDown" />
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
-                  <el-dropdown-item :command="1">所有持仓平仓</el-dropdown-item>
-                  <el-dropdown-item :command="2">所有多单平仓</el-dropdown-item>
-                  <el-dropdown-item :command="3">所有空单平仓</el-dropdown-item>
-                  <el-dropdown-item :command="4">盈利持仓平仓</el-dropdown-item>
-                  <el-dropdown-item :command="5">亏损持仓平仓</el-dropdown-item>
+                  <el-dropdown-item :command="1">{{
+                    $t("table.allPositionsClose")
+                  }}</el-dropdown-item>
+                  <el-dropdown-item :command="2">{{
+                    $t("table.closeAllLongPositions")
+                  }}</el-dropdown-item>
+                  <el-dropdown-item :command="3">{{
+                    $t("table.closeAllShortPositions")
+                  }}</el-dropdown-item>
+                  <el-dropdown-item :command="4">{{
+                    $t("table.closeProfitablePositions")
+                  }}</el-dropdown-item>
+                  <el-dropdown-item :command="5">{{
+                    $t("table.closeLosingPositions")
+                  }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
             </el-dropdown>
@@ -139,7 +149,7 @@
               type="primary"
               v-show="activeKey === 'pendingOrder'"
               @click="closePendingOrders(orderStore.orderData.pendingOrder)"
-              >全部撤单</el-button
+              >{{ $t("table.cancelAllOrders") }}</el-button
             >
           </div>
         </div>
@@ -188,7 +198,7 @@
                 formatTime(rowData[column.dataKey])
               }}</template>
               <template v-else-if="column.dataKey === 'volume'"
-                >{{ rowData.volume / 100 }}手</template
+                >{{ rowData.volume / 100 }}{{ $t("table.lot") }}</template
               >
               <template v-else-if="column.dataKey === 'type'">
                 <span
@@ -220,7 +230,11 @@
                 </span>
               </template>
               <template v-else-if="column.dataKey === 'blanceType'">
-                <span>{{ rowData.profit > 0 ? "入金" : "出金" }}</span>
+                <span>{{
+                  rowData.profit > 0
+                    ? $t("table.deposit")
+                    : $t("table.withdrawal")
+                }}</span>
               </template>
               <template v-else-if="column.dataKey === 'storage'">
                 <span :class="[getCellClass(rowData.storage)]">{{
@@ -244,14 +258,14 @@
                 </el-tooltip>
               </template>
               <template v-else-if="column.dataKey === 'positionAction'">
-                <el-tooltip content="平仓" placement="top">
+                <el-tooltip :content="t('table.closePosition')" placement="top">
                   <el-icon class="iconfont" @click="closeMarketOrder(rowData)">
                     <CloseBold />
                   </el-icon>
                 </el-tooltip>
               </template>
               <template v-else-if="column.dataKey === 'orderAction'">
-                <el-tooltip content="撤销" placement="top">
+                <el-tooltip :content="t('table.cancelOrder')" placement="top">
                   <el-icon class="iconfont" @click="delPendingOrder(rowData)">
                     <CloseBold />
                   </el-icon>
@@ -275,18 +289,24 @@
                   v-if="!pageLoading && activeKey === 'blanceRecord'"
                 >
                   <span class="blaRecFooter_item">
-                    <el-text type="info">净入金：</el-text>
+                    <el-text type="info"
+                      >{{ $t("table.netDeposit") }}：</el-text
+                    >
                     <el-text>{{ netDeposit }}</el-text>
                   </span>
                   <span class="blaRecFooter_item">
                     <el-text type="info"
-                      >累计入金（{{ accDeposit.len }}笔）：</el-text
+                      >{{ $t("table.totalDeposit") }}（{{ accDeposit.len }}
+                      {{ $t("table.transactions_deposit") }}）：</el-text
                     >
                     <el-text>{{ accDeposit.sum }}</el-text>
                   </span>
                   <span class="blaRecFooter_item">
                     <el-text type="info"
-                      >累计出金（{{ accWithdrawal.len }}笔）：</el-text
+                      >{{ $t("table.totalWithdrawal") }}（{{
+                        accWithdrawal.len
+                      }}
+                      {{ $t("table.transactions_withdrawal") }}）：</el-text
                     >
                     <el-text>{{ accWithdrawal.sum }}</el-text>
                   </span>
@@ -296,7 +316,7 @@
                   :style="{ width: MOHFWidth }"
                   v-if="!pageLoading && activeKey === 'marketOrderHistory'"
                 >
-                  <el-text type="info">合计：</el-text>
+                  <el-text type="info">{{ $t("table.Total") }}：</el-text>
                   <span :class="[getCellClass(+MOHProSum)]">
                     {{ MOHProSum }}</span
                   >
@@ -355,13 +375,11 @@ const timeStore = useTime();
 
 const state = reactive({
   menu: [
-    { label: "持仓", key: "marketOrder" },
-    { label: "挂单", key: "pendingOrder" },
-    // { label: "交易历史", key: "marketOrderHistory" },
-    { label: "历史", key: "marketOrderHistory" },
-    // { label: "挂单历史", key: "pendingOrderHistory" },
-    { label: "失效", key: "pendingOrderHistory" },
-    { label: "出入金记录", key: "blanceRecord" },
+    { label: t("table.marketOrder"), key: "marketOrder" },
+    { label: t("table.pendingOrder"), key: "pendingOrder" },
+    { label: t("table.marketOrderHistory"), key: "marketOrderHistory" },
+    { label: t("table.pendingOrderHistory"), key: "pendingOrderHistory" },
+    { label: t("table.blanceRecord"), key: "blanceRecord" },
   ],
   columns: cloneDeep(tableColumns),
   marketDialogVisible: false,
@@ -632,7 +650,7 @@ const closeMarketOrder = async (record: orders.resOrders) => {
       volume: record.volume,
     });
     if (res.data.action_success) {
-      ElMessage.success("平仓成功");
+      ElMessage.success(t("order.positionClosedSuccessfully"));
       orderStore.getMarketOrders();
       orderStore.getMarketOrderHistory();
       userStore.getLoginInfo();
@@ -644,16 +662,17 @@ const closeMarketOrder = async (record: orders.resOrders) => {
     foo();
     return;
   }
-  ElMessageBox.confirm("", "确定平仓").then(() => foo());
   if (ifOne === null) {
     dialogStore.disclaimers = true;
+    return;
   }
+  ElMessageBox.confirm("", t("order.confirmPositionClosure")).then(() => foo());
 };
 
 const closeMarketOrders = (command: number) => {
-  ElMessageBox.confirm("确定平仓").then(async () => {
+  ElMessageBox.confirm(t("order.confirmPositionClosure")).then(async () => {
     await orders.marketOrdersCloseMulti({ multi_type: command });
-    ElMessage.success("平仓成功");
+    ElMessage.success(t("order.positionClosedSuccessfully"));
   });
 };
 
@@ -663,8 +682,8 @@ const closePendingOrders = (data: orders.resOrders[]) => {
     return;
   }
   ElMessageBox.confirm(
-    `您将撤销以下选定的${data.length}个挂单，您想要继续吗？`,
-    `撤销挂单`
+    t("tip.confirmDelPendingOrders", { num: data.length }),
+    t("order.pendingOrderClosed")
   ).then(async () => {
     const list = data.map((item) => {
       return orders.delPendingOrders({
@@ -674,7 +693,7 @@ const closePendingOrders = (data: orders.resOrders[]) => {
     });
     const res = await Promise.all(list);
     if (res[0].data.action_success) {
-      ElMessage.success("撤销挂单成功");
+      ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
       orderStore.getPendingOrders();
       orderStore.getPendingOrderHistory();
     }
@@ -689,7 +708,7 @@ const delPendingOrder = async (record: orders.resOrders) => {
       symbol: record.symbol,
     });
     if (res.data.action_success) {
-      ElMessage.success("撤销挂单成功");
+      ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
       orderStore.getPendingOrders();
       orderStore.getPendingOrderHistory();
       return;
@@ -703,7 +722,9 @@ const delPendingOrder = async (record: orders.resOrders) => {
   }
 
   if (!orderStore.ifOne) {
-    ElMessageBox.confirm("", "确定撤销").then(() => foo());
+    ElMessageBox.confirm("", t("order.confirmPendingClosure")).then(() =>
+      foo()
+    );
     return;
   }
   foo();
