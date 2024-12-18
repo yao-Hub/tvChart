@@ -328,11 +328,11 @@ import { CloseBold } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { cloneDeep, minBy, set } from "lodash";
 import { computed, onMounted, reactive, ref } from "vue";
-
-import * as orders from "api/order/index";
+import { useI18n } from "vue-i18n";
 
 import * as orderTypes from "#/order";
 import { CLOSE_TYPE } from "@/constants/common";
+import * as orders from "api/order/index";
 import { getOrderType, getTradingDirection } from "utils/order/index";
 import { tableColumns } from "./config";
 
@@ -345,6 +345,8 @@ import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
 import TimeSelect from "./components/TimeSelect.vue";
+
+const { t } = useI18n();
 
 const userStore = useUser();
 const orderStore = useOrder();
@@ -483,7 +485,8 @@ const dataSource = computed(() => {
 const getCloseType = (e: orders.resHistoryOrders) => {
   const { close_type } = e;
   if (close_type !== undefined) {
-    return CLOSE_TYPE[close_type] || close_type;
+    const result = CLOSE_TYPE[close_type];
+    return result ? t(`order.${result}`) : close_type;
   }
   return "-";
 };

@@ -3,7 +3,6 @@ export default {
   nowLocale: "简体中文",
   lauguage: "语言",
   switchLanguage: "切换语言",
-
   welcomeToUTrader: "欢迎使用UTrader",
   company: "公司",
   aboutUs: "关于我们",
@@ -47,7 +46,7 @@ export default {
   submit: "提交",
   retract: "收起",
   expandReply: "展开回复",
-  platformResponse: "平台答复",
+  platformReply: "平台答复",
   and: "和",
   leftBook: "《",
   rightBook: "》",
@@ -132,6 +131,12 @@ export default {
     queryNode: "交易节点",
     diurnalVariation: "日变化",
     time: "时间",
+
+    manual: "手动",
+    tp: "止盈",
+    sl: "止损",
+    forcedLiquidation: "强平(预付款不足)",
+    reverseBuilding: "反向建仓",
   },
 
   confirmOrder: {

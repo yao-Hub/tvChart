@@ -1,5 +1,5 @@
-import zhCn from "element-plus/es/locale/lang/zh-cn";
 import en from "element-plus/es/locale/lang/en";
+import zhCn from "element-plus/es/locale/lang/zh-cn";
 
 export const LANGUAGE_LIST = {
   zh: zhCn,
@@ -59,11 +59,11 @@ export const ORDERMAP = {
 } as Record<string, number>;
 
 export const CLOSE_TYPE: Record<number, string> = {
-  0: "手动",
-  1: "止盈",
-  2: "止损",
-  3: "强平(预付款不足)",
-  4: "反向建仓",
+  0: "manual", // 手动
+  1: "tp", // 止盈
+  2: "sl", // 止损
+  3: "forcedLiquidation", // 强平(预付款不足)
+  4: "reverseBuilding", // 反向建仓
 };
 
 export const RESOLUTES: Record<string, string> = {

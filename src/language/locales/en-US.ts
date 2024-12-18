@@ -48,10 +48,10 @@ export default {
   submit: "submit",
   retract: "retract",
   expandReply: "expand reply",
-  platformResponse: "platform response",
   and: "and",
   leftBook: "<",
   rightBook: ">",
+  platformReply: "platform reply",
 
   user: {
     login: "user",
@@ -130,6 +130,12 @@ export default {
     queryNode: "query node",
     diurnalVariation: "vol",
     time: "time",
+
+    manual: "manual",
+    tp: "tp",
+    sl: "sl",
+    forcedLiquidation: "forced liquidation",
+    reverseBuilding: "reverse building",
   },
 
   tip: {

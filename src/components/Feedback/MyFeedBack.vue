@@ -49,7 +49,7 @@
 
         <div class="reply" v-show="item.ifExpand && item.feedbackReply">
           <div class="title">
-            <el-text>平台回复</el-text>
+            <el-text>{{ $t("platformReply") }}</el-text>
             <el-text type="info">{{ formatTime(item.replyTime) }}</el-text>
           </div>
           <el-text>{{ item.feedbackReply }}</el-text>

@@ -220,7 +220,10 @@ const initonReady = () => {
       }
 
       // 图表主题(正常是不用重新再这里改变的，但是如果自己更改了缓存，则需要这个)
-      widget.changeTheme(props.theme as library.ThemeName);
+      const chartTheme = widget.getTheme();
+      if (chartTheme !== props.theme) {
+        widget.changeTheme(props.theme as library.ThemeName);
+      }
 
       setTimeout(() => {
         emit("initChart", { id: props.chartId, widget });

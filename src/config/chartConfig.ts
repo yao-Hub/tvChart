@@ -198,7 +198,7 @@ export const datafeed = (id: string) => {
           const bars = orderBy_data.map((item) => {
             const time =
               resolution === "1D"
-                ? item.ctm * 1000 + 8 * 3600
+                ? item.ctm * 1000 + 8 * 60 * 60 * 1000
                 : item.ctm * 1000;
             return {
               ...item,
@@ -219,9 +219,9 @@ export const datafeed = (id: string) => {
               temBar[id] = cloneDeep(bar);
             }
           }
-          setTimeout(() => {
+          setTimeout(function () {
             onHistoryCallback(cloneDeep(bars));
-          });
+          }, 0);
         });
       } catch (error) {
         onHistoryCallback([], {

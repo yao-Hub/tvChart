@@ -7,7 +7,7 @@
       value: 'symbol',
       label: 'symbol',
     }"
-    placeholder="品种"
+    :placeholder="t('order.symbol')"
     style="width: 100%"
     v-bind="selectOption"
     filterable
@@ -23,19 +23,19 @@
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import { useSymbols } from "@/store/modules/symbols";
 import { computed, createApp, onMounted } from "vue";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const symbolsStore = useSymbols();
 
 interface Props {
-  title?: string;
-  type?: "tradeAllow" | "default";
+  symbolType?: "tradeAllow" | "default";
   selectOption?: object;
   subSymbol?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  title: "品种",
-  type: "default",
+  symbolType: "default",
 });
 
 const emit = defineEmits(["change"]);
@@ -69,7 +69,7 @@ const handleChange = (symbols: string[] | string) => {
 
 const symbols = computed(() => {
   // 可交易品种
-  if (props.type === "tradeAllow") {
+  if (props.symbolType === "tradeAllow") {
     return symbolsStore.symbols_tradeAllow;
   }
   return symbolsStore.symbols;
