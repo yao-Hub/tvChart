@@ -105,14 +105,6 @@ const formatTime = (time: number) => {
   word-break: break-all;
   line-height: 20px;
 }
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
 .header {
   font-weight: bold;
   font-size: 16px;
@@ -148,9 +140,6 @@ const formatTime = (time: number) => {
       display: flex;
       align-items: center;
       justify-content: center;
-      .loading {
-        animation: rotate 1s linear infinite;
-      }
     }
   }
   .time {

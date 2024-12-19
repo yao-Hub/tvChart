@@ -286,3 +286,15 @@ body {
 .greenWord {
   color: #2e9c76;
 }
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+.loading {
+  animation: rotate 1s linear infinite;
+}

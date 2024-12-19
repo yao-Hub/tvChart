@@ -259,16 +259,34 @@
               </template>
               <template v-else-if="column.dataKey === 'positionAction'">
                 <el-tooltip :content="t('table.closePosition')" placement="top">
-                  <el-icon class="iconfont" @click="closeMarketOrder(rowData)">
+                  <el-icon
+                    class="iconfont"
+                    @click="closeMarketOrder(rowData)"
+                    v-if="!marketCloseLodingMap[rowData.id]"
+                  >
                     <CloseBold />
                   </el-icon>
+                  <el-icon
+                    v-if="marketCloseLodingMap[rowData.id]"
+                    class="loading"
+                    ><Loading
+                  /></el-icon>
                 </el-tooltip>
               </template>
               <template v-else-if="column.dataKey === 'orderAction'">
                 <el-tooltip :content="t('table.cancelOrder')" placement="top">
-                  <el-icon class="iconfont" @click="delPendingOrder(rowData)">
+                  <el-icon
+                    class="iconfont"
+                    @click="delPendingOrder(rowData)"
+                    v-if="!pendingCloseLodingMap[rowData.id]"
+                  >
                     <CloseBold />
                   </el-icon>
+                  <el-icon
+                    v-if="pendingCloseLodingMap[rowData.id]"
+                    class="loading"
+                    ><Loading
+                  /></el-icon>
                 </el-tooltip>
               </template>
               <template v-else>
@@ -344,7 +362,6 @@
 </template>
 
 <script setup lang="ts">
-import { CloseBold } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { cloneDeep, minBy, set } from "lodash";
 import { computed, onMounted, reactive, ref } from "vue";
@@ -642,18 +659,25 @@ const getDays = (e: orders.resHistoryOrders) => {
 };
 
 // 市价单 单个平仓
+const marketCloseLodingMap = ref<Record<number, boolean>>({});
 const closeMarketOrder = async (record: orders.resOrders) => {
   async function foo() {
-    const res = await orders.marketOrdersClose({
-      symbol: record.symbol,
-      id: record.id,
-      volume: record.volume,
-    });
-    if (res.data.action_success) {
-      ElMessage.success(t("order.positionClosedSuccessfully"));
-      orderStore.getMarketOrders();
-      orderStore.getMarketOrderHistory();
-      userStore.getLoginInfo();
+    try {
+      marketCloseLodingMap.value[record.id] = true;
+      const res = await orders.marketOrdersClose({
+        symbol: record.symbol,
+        id: record.id,
+        volume: record.volume,
+      });
+      marketCloseLodingMap.value[record.id] = false;
+      if (res.data.action_success) {
+        ElMessage.success(t("order.positionClosedSuccessfully"));
+        orderStore.getMarketOrders();
+        orderStore.getMarketOrderHistory();
+        userStore.getLoginInfo();
+      }
+    } catch (error) {
+      marketCloseLodingMap.value[record.id] = false;
     }
   }
 
@@ -701,19 +725,27 @@ const closePendingOrders = (data: orders.resOrders[]) => {
 };
 
 // 删除单个挂单
+const pendingCloseLodingMap = ref<Record<number, boolean>>({});
 const delPendingOrder = async (record: orders.resOrders) => {
   async function foo() {
-    const res = await orders.delPendingOrders({
-      id: record.id,
-      symbol: record.symbol,
-    });
-    if (res.data.action_success) {
-      ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
-      orderStore.getPendingOrders();
-      orderStore.getPendingOrderHistory();
-      return;
+    try {
+      pendingCloseLodingMap.value[record.id] = true;
+      const res = await orders.delPendingOrders({
+        id: record.id,
+        symbol: record.symbol,
+      });
+      pendingCloseLodingMap.value[record.id] = false;
+
+      if (res.data.action_success) {
+        ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
+        orderStore.getPendingOrders();
+        orderStore.getPendingOrderHistory();
+        return;
+      }
+      ElMessage.error(res.data.err_text);
+    } catch (error) {
+      pendingCloseLodingMap.value[record.id] = false;
     }
-    ElMessage.error(res.data.err_text);
   }
 
   const ifOne = orderStore.getOneTrans();
@@ -904,22 +936,11 @@ onMounted(async () => {
     @include font_color("border");
   }
 }
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
 .loadingFooter {
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  .loading {
-    animation: rotate 1s linear infinite;
-  }
 }
 .blaRecFooter {
   height: 32px;
