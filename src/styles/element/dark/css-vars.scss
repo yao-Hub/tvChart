@@ -97,4 +97,13 @@ html.dark {
     background-color: rgba(255, 255, 255, 0.12);
     color: #fff;
   }
+
+  .el-radio-button {
+    --el-radio-button-checked-bg-color: rgba(0, 0, 0, 0.06);
+    --el-radio-button-checked-border-color: #2c2f35;
+  }
+  .el-radio-button__inner {
+    background: #0c0f15;
+    border-color: #2c2f35;
+  }
 }

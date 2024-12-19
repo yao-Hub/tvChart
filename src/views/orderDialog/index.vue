@@ -399,7 +399,7 @@ const valids = async () => {
   return result;
 };
 
-const directionType = ref(); // 交易方向
+const directionType = ref("buy"); // 交易方向
 const showConfirmModal = debounce(async (type: DirectionType) => {
   const valid = await valids();
   directionType.value = type;
