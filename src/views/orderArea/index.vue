@@ -57,7 +57,7 @@
             :placeholder="t('table.profit')"
           >
             <el-option value="profit" :label="t('table.profit')"></el-option>
-            <el-option value="loss" :label="t('table.loss')"></el-option>
+            <el-option value="loss" :label="t('order.loss')"></el-option>
           </el-select>
           <TimeSelect
             v-show="activeKey === 'pendingOrderHistory'"

@@ -119,10 +119,4 @@ const refreshDelay = () => {
     align-items: center;
   }
 }
-.redWord {
-  color: #ff4a61;
-}
-.greenWord {
-  color: #00c673;
-}
 </style>

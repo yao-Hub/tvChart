@@ -52,7 +52,7 @@
             v-model="formState.checkPass"
             type="password"
             autocomplete="off"
-            :placeholder="t('tip.confirmPwd')"
+            :placeholder="t('tip.confirm', { type: t('account.password') })"
           />
         </el-form-item>
 
@@ -61,7 +61,7 @@
             type="primary"
             style="width: 72px; height: 40px"
             @click="submit(formRef)"
-            >{{ $t("tip.confirmChange") }}</el-button
+            >{{ $t("tip.confirm", { type: t("modify") }) }}</el-button
           >
         </el-form-item>
       </el-form>

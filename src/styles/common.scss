@@ -145,7 +145,6 @@ a {
 }
 
 a:hover {
-  color: #f00;
   text-decoration: none;
   cursor: pointer;
 }
@@ -279,4 +278,11 @@ body {
 
 .horilineMoveBtn {
   background-image: url("@/assets/icons/light/icon_td1.svg");
+}
+
+.redWord {
+  color: #f53058;
+}
+.greenWord {
+  color: #2e9c76;
 }

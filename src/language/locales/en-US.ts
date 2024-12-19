@@ -4,6 +4,7 @@ export default {
   lauguage: "lauguage",
   switchLanguage: "switch language",
 
+  goHome: "go Home",
   welcomeToUTrader: "Welcome to UTrader",
   company: "company",
   aboutUs: "about us",
@@ -27,6 +28,7 @@ export default {
   error: "error",
   ok: "ok",
   cancel: "cancel",
+  modify: "modify",
   reLogin: "reLogin",
   loginSucceeded: "login succeeded",
   personalInformation: "personal information",
@@ -64,7 +66,6 @@ export default {
     login: "user",
     password: "password",
     email: "email",
-    confirmPassword: "confirm password",
     newPassword: "new Password",
     oldPassword: "old Password",
     nowPassword: "now password",
@@ -187,8 +188,12 @@ export default {
     codeRequired: "Please input your code!",
     serverRequired: "Please select tradingRoute!",
     loginRequired: "Please input your login!",
+    termRequired: "Please select a term",
+    noLessNowTime: "The time cannot be less than the current time",
     needLogin: "please Login",
+    failed: "{type} failed",
     succeed: "{type} succeed",
+    confirm: "confirm {type}",
     ifHasAcount:
       "If you already have a trading account, you can log in directly. If not, you can open a demo account",
     passwordFormatRule:
@@ -204,12 +209,11 @@ export default {
     copyFail: "copyFail",
     enterNewPwd: "enter new password",
     enterOldPwd: "enter old password",
-    confirmPwd: "confirm new password",
-    confirmChange: "confirmChange",
     retakeCode: "Retake in {time} second",
     confirmDelPendingOrders:
       "You are about to cancel the following selected {num} orders. Do you want to proceed?",
     minFastPoint: "At least {size} pips away from the market price",
+    need: "need",
   },
 
   time: {
@@ -295,5 +299,31 @@ export default {
     marketOrderHistory: "market order history",
     pendingOrderHistory: "pending order history",
     blanceRecord: "blance record",
+  },
+
+  dialog: {
+    createOrder: "create order",
+    marketOrder: "market order",
+    type: "type",
+    orderType: "orderType",
+    breakPrice: "breakPrice",
+    limitedPrice: "limitedPrice",
+    confirmBelow: "Please confirm your order information below",
+    back: "back",
+    createOrderSucceed:
+      "The order to {type} {volume} lots of {symbol} has been submitted.",
+    orderPrice: "order price",
+    closeVolume: "close volume",
+    reversePosition: "reverse position",
+    doublePosition: "double position",
+    closeByPrice: "marketOrder to close position",
+    closePosition: "close position",
+    confirmDouble: "Are you sure you want to double the current position?",
+    order: "order",
+    tradingVolume: "trading volume",
+    positionClosedSuccessfully: "Position Closed Successfully",
+    positionClosingFailed: "Position Closing Failed",
+    orderClose: "The order of {volume} lots of {symbol} has been closed",
+    pendingClosingSuccessfully: "pending Closing Successfully",
   },
 };

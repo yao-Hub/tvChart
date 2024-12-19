@@ -20,10 +20,10 @@ const flexDirection = computed(() => chartInitStore.state.chartFlexDirection);
 [data-theme="light"] .noActive {
   background-image: url("@/assets/icons/light/icon_7.svg");
 }
-[data-theme="light"] .noActive {
+[data-theme="light"] .active {
   background-image: url("@/assets/icons/light/icon_7a.svg");
 }
-[data-theme="dark"] .iconbox {
+[data-theme="dark"] .noActive {
   background-image: url("@/assets/icons/dark/icon_7.svg");
 }
 [data-theme="dark"] .active {

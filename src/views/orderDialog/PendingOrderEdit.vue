@@ -15,12 +15,20 @@
       <el-form :model="formState" :rules="rules" ref="orderFormRef">
         <el-row :gutter="24">
           <el-col :span="24">
-            <el-form-item prop="symbol" label="交易品种" label-position="top">
+            <el-form-item
+              prop="symbol"
+              :label="t('table.symbol')"
+              label-position="top"
+            >
               <el-input disabled :value="props.orderInfo.symbol"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-form-item prop="symbol" label="订单类型" label-position="top">
+            <el-form-item
+              prop="symbol"
+              :label="t('dialog.orderType')"
+              label-position="top"
+            >
               <el-input
                 disabled
                 :value="getOrderType(props.orderInfo.type)"
@@ -36,7 +44,9 @@
               :formOption="{
                 name: 'orderPrice',
                 label: `${
-                  formState.orderType.includes('Stop') ? '突破价' : '限价'
+                  formState.orderType.includes('Stop')
+                    ? t('dialog.breakPrice')
+                    : t('dialog.limitedPrice')
                 }`,
               }"
               :orderType="formState.orderType"
@@ -53,7 +63,10 @@
             <BreakLimit
               :disabled="!!orderInfo.order_price_time"
               v-model:value="formState.breakPrice"
-              :formOption="{ name: 'breakPrice', label: '突破价' }"
+              :formOption="{
+                name: 'breakPrice',
+                label: t('dialog.breakPrice'),
+              }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
               :quote="quote"
@@ -66,7 +79,10 @@
             <BreakLimit
               v-model:value="formState.limitedPrice"
               :breakPrice="formState.breakPrice"
-              :formOption="{ name: 'limitedPrice', label: '限价' }"
+              :formOption="{
+                name: 'limitedPrice',
+                label: t('dialog.limitedPrice'),
+              }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
               :quote="quote"
@@ -79,7 +95,7 @@
               :symbolInfo="symbolInfo"
               :quote="quote"
               :orderType="formState.orderType"
-              :formOption="{ name: 'volume', label: '平仓量' }"
+              :formOption="{ name: 'volume', label: t('dialog.closeVolume') }"
               :orderPrice="formState.orderPrice"
             ></Volume>
           </el-col>
@@ -118,15 +134,15 @@
           </el-col>
           <el-col :span="24">
             <div class="btns">
-              <el-button style="flex: 1" @click="delPendingOrder"
-                >删除</el-button
-              >
+              <el-button style="flex: 1" @click="delPendingOrder">{{
+                $t("delete")
+              }}</el-button>
               <el-button
                 style="flex: 1"
                 type="primary"
                 :loading="editing"
                 @click="confirmEdit"
-                >确认修改</el-button
+                >{{ $t("tip.confirm", { type: t("modify") }) }}</el-button
               >
             </div>
           </el-col>
@@ -140,6 +156,7 @@
 import dayjs from "dayjs";
 import { debounce, findKey } from "lodash";
 import { computed, nextTick, reactive, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { ORDERMAP } from "@/constants/common";
 import { resPendingOrders } from "api/order/index";
@@ -155,6 +172,8 @@ import Spread from "./components/spread.vue";
 
 import { useOrder } from "@/store/modules/order";
 import { useTime } from "@/store/modules/time";
+
+const { t } = useI18n();
 
 const timeStore = useTime();
 const orderStore = useOrder();
@@ -250,18 +269,18 @@ watch(
 // 期限规则
 const validDate = (rule: any, value: any, callback: any) => {
   if (!value) {
-    return callback(new Error("请选择期限"));
+    return callback(new Error(t("tip.termRequired")));
   }
   const timezone = timeStore.settedTimezone;
   const distanceFromNow = dayjs.unix(value).tz(timezone).fromNow();
   if (distanceFromNow.includes("ago") || distanceFromNow.includes("前")) {
-    return callback(new Error("时间不能小于当前时间"));
+    return callback(new Error(t("tip.noLessNowTime")));
   }
   callback();
 };
 const rules: FormRules<typeof formState> = {
-  orderType: [{ required: true, trigger: "change", message: "请选择订单类型" }],
-  volume: [{ required: true, trigger: "change", message: "请输入交易量" }],
+  orderType: [{ required: true, trigger: "change" }],
+  volume: [{ required: true, trigger: "change" }],
   dueDate: [{ required: true, trigger: "change", validator: validDate }],
   breakPrice: [{ required: true, trigger: "change" }],
   limitedPrice: [{ required: true, trigger: "change" }],
@@ -331,10 +350,12 @@ const confirmEdit = debounce(async () => {
         id: props.orderInfo.id,
       });
       if (res.data.action_success) {
-        ElMessage.success(`修改成功`);
+        ElMessage.success(t("tip.succeed", { type: t("modify") }));
         handleCancel();
       } else {
-        ElMessage.error(`修改失败：${res.data.err_text}`);
+        ElMessage.error(
+          `${t("tip.failed", { type: t("modify") })}：${res.data.err_text}`
+        );
       }
     }
   } finally {
@@ -346,18 +367,20 @@ import { delPendingOrders } from "api/order/index";
 import { ElMessageBox } from "element-plus";
 
 const delPendingOrder = () => {
-  ElMessageBox.confirm("", "确定删除").then(async () => {
-    const res = await delPendingOrders({
-      id: props.orderInfo.id,
-      symbol: props.orderInfo.symbol,
-    });
-    if (res.data.action_success) {
-      ElMessage.success("删除挂单成功");
-      handleCancel();
-      return;
+  ElMessageBox.confirm("", t("tip.confirm", { type: t("delete") })).then(
+    async () => {
+      const res = await delPendingOrders({
+        id: props.orderInfo.id,
+        symbol: props.orderInfo.symbol,
+      });
+      if (res.data.action_success) {
+        ElMessage.success(t("dialog.pendingClosingSuccessfully"));
+        handleCancel();
+        return;
+      }
+      ElMessage.error(res.data.err_text);
     }
-    ElMessage.error(res.data.err_text);
-  });
+  );
 };
 </script>
 

@@ -16,7 +16,7 @@
       modal-class="order_dialog_modal"
     >
       <template #header>
-        <span class="dialog_header">下单</span>
+        <span class="dialog_header">{{ $t("dialog.createOrder") }}</span>
       </template>
 
       <el-form
@@ -28,19 +28,19 @@
       >
         <el-row :gutter="24">
           <el-col :span="24">
-            <el-form-item prop="symbol" label="交易品种" label-position="top">
+            <el-form-item
+              prop="symbol"
+              :label="t('table.symbol')"
+              label-position="top"
+            >
               <SymbolSelect v-model="formState.symbol" subSymbol></SymbolSelect>
             </el-form-item>
           </el-col>
           <el-col :span="24">
-            <el-radio-group
-              v-model="formState.orderType"
-              fill="#EFEFEF"
-              text-color="#000"
-            >
-              <el-radio-button label="市价单" value="price" />
+            <el-radio-group v-model="formState.orderType">
+              <el-radio-button :label="t('dialog.marketOrder')" value="price" />
               <el-radio-button
-                label="挂单"
+                :label="t('table.pendingOrder')"
                 :value="
                   formState.orderType === 'price'
                     ? 'buyLimit'
@@ -51,11 +51,15 @@
             <div class="divider"></div>
           </el-col>
           <el-col :span="24" v-if="formState.orderType !== 'price'">
-            <el-form-item prop="orderType" label="类型" label-position="top">
+            <el-form-item
+              prop="orderType"
+              :label="t('dialog.type')"
+              label-position="top"
+            >
               <el-select
                 v-model="formState.orderType"
                 filterable
-                placeholder="订单类型"
+                :placeholder="t('dialog.orderType')"
               >
                 <el-option
                   v-for="item in orderTypeOptions"
@@ -72,7 +76,10 @@
           >
             <BreakLimit
               v-model:value="formState.breakPrice"
-              :formOption="{ name: 'breakPrice', label: '突破价' }"
+              :formOption="{
+                name: 'breakPrice',
+                label: t('dialog.breakPrice'),
+              }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
               :quote="quote"
@@ -87,7 +94,9 @@
               :formOption="{
                 name: 'orderPrice',
                 label: `${
-                  formState.orderType.includes('Stop') ? '突破价' : '限价'
+                  formState.orderType.includes('Stop')
+                    ? t('dialog.breakPrice')
+                    : t('dialog.limitedPrice')
                 }`,
               }"
               :orderType="formState.orderType"
@@ -103,7 +112,10 @@
             <BreakLimit
               v-model:value="formState.limitedPrice"
               :breakPrice="formState.breakPrice"
-              :formOption="{ name: 'limitedPrice', label: '限价' }"
+              :formOption="{
+                name: 'limitedPrice',
+                label: t('dialog.limitedPrice'),
+              }"
               :orderType="formState.orderType"
               :symbolInfo="symbolInfo"
               :quote="quote"
@@ -114,7 +126,7 @@
               v-model:volume="formState.volume"
               :symbolInfo="symbolInfo"
               :quote="quote"
-              :formOption="{ name: 'volume', label: '手数' }"
+              :formOption="{ name: 'volume', label: t('table.volume') }"
               :orderType="formState.orderType"
               :orderPrice="formState.orderPrice"
             ></Volume>
@@ -155,14 +167,14 @@
             <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
           </el-col>
           <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-            <el-button class="sellBtn" @click="showConfirmModal('sell')"
-              >卖出</el-button
-            >
+            <el-button class="sellBtn" @click="showConfirmModal('sell')">{{
+              $t("order.sell")
+            }}</el-button>
           </el-col>
           <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-            <el-button class="buyBtn" @click="showConfirmModal('buy')"
-              >买入</el-button
-            >
+            <el-button class="buyBtn" @click="showConfirmModal('buy')">{{
+              $t("order.buy")
+            }}</el-button>
           </el-col>
           <el-col :span="24" v-if="!['price'].includes(formState.orderType)">
             <el-button
@@ -172,7 +184,7 @@
               class="pendingBtn"
               :loading="pendingBtnLoading"
               @click="addPendingOrders"
-              >下单</el-button
+              >{{ $t("dialog.createOrder") }}</el-button
             >
           </el-col>
         </el-row>
@@ -181,38 +193,44 @@
       <!-- 市价单下单确认 -->
       <div v-show="priceConfirm" class="confirmBox">
         <BaseImg iconName="icon_recognise" class="icon" />
-        <el-text class="title">下单确认</el-text>
-        <el-text class="tip" type="info">请在下方确认您的下单信息</el-text>
+        <el-text class="title">{{
+          t("tip.confirm", { type: t("dialog.createOrder") })
+        }}</el-text>
+        <el-text class="tip" type="info">{{
+          $t("dialog.confirmBelow")
+        }}</el-text>
         <div class="infobox">
           <div class="infobox_item">
-            <el-text type="info">{{ $t("confirmOrder.symbol") }}</el-text>
+            <el-text type="info">{{ $t("table.symbol") }}</el-text>
             <el-text>{{ formState.symbol }}</el-text>
           </div>
           <div class="infobox_item">
-            <el-text type="info">{{ $t("confirmOrder.orderType") }}</el-text>
+            <el-text type="info">{{ $t("dialog.orderType") }}</el-text>
             <el-text>{{ $t(`order.${directionType}`) }}</el-text>
           </div>
           <div class="infobox_item">
-            <el-text type="info">{{ $t("confirmOrder.volume") }}</el-text>
+            <el-text type="info">{{ $t("table.volume") }}</el-text>
             <el-text>{{ formState.volume }}</el-text>
           </div>
           <div class="infobox_item">
-            <el-text type="info">{{ $t("confirmOrder.stopProfit") }}</el-text>
+            <el-text type="info">{{ $t("table.tp") }}</el-text>
             <el-text>{{ formState.stopProfit }}</el-text>
           </div>
           <div class="infobox_item">
-            <el-text type="info">{{ $t("confirmOrder.stopLoss") }}</el-text>
+            <el-text type="info">{{ $t("table.sl") }}</el-text>
             <el-text>{{ formState.stopLoss }}</el-text>
           </div>
         </div>
         <div class="btnGroup">
-          <el-button class="btn" @click="back">返回</el-button>
+          <el-button class="btn" @click="back">{{
+            $t("dialog.back")
+          }}</el-button>
           <el-button
             class="btn"
             type="primary"
             :loading="priceBtnLoading"
             @click="createPriceOrder"
-            >确认</el-button
+            >{{ $t("tip.confirm") }}</el-button
           >
         </div>
       </div>
@@ -223,6 +241,7 @@
 <script setup lang="ts">
 import { cloneDeep, debounce } from "lodash";
 import { computed, nextTick, reactive, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { DirectionType, OrderType } from "#/order";
 
@@ -236,6 +255,8 @@ import Volume from "./components/Volume.vue";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
 import { useSymbols } from "@/store/modules/symbols";
+
+const { t } = useI18n();
 
 const symbolsStore = useSymbols();
 const orderStore = useOrder();
@@ -326,11 +347,11 @@ const timeStore = useTime();
 const validDate = (rule: any, value: any, callback: any) => {
   const timezone = timeStore.settedTimezone;
   if (!value) {
-    return callback(new Error("请选择期限"));
+    return callback(new Error(t("tip.termRequired")));
   }
   const distanceFromNow = dayjs.unix(value).tz(timezone).fromNow();
   if (distanceFromNow.includes("ago") || distanceFromNow.includes("前")) {
-    return callback(new Error("时间不能小于当前时间"));
+    return callback(new Error(t("tip.noLessNowTime")));
   }
   callback();
 };
@@ -408,17 +429,19 @@ const createPriceOrder = debounce(async () => {
     const res = await marketOrdersAdd(updata);
     if (res.data.action_success) {
       ElNotification({
-        title: "下单成功",
-        message: `${directionType.value !== "buy" ? "卖出" : "买入"}${
-          formState.volume
-        }手${formState.symbol}的订单已提交。`,
+        title: t("tip.succeed", { type: t("dialog.createOrder") }),
+        message: t("dialog.createOrderSucceed", {
+          type: t(`order.${directionType.value}`),
+          volume: formState.volume,
+          symbol: formState.symbol,
+        }),
         type: "success",
       });
       back();
       handleCancel();
     } else {
       ElNotification.error({
-        title: "下单失败",
+        title: t("tip.failed", { type: t("dialog.createOrder") }),
         message: `${res.data.err_text}`,
       });
     }
@@ -456,10 +479,14 @@ const addPendingOrders = debounce(async () => {
       }
       const res = await pendingOrdersAdd(updata);
       if (res.data.action_success) {
-        ElMessage.success(`下单成功`);
+        ElMessage.success(t("tip.succeed", { type: t("dialog.createOrder") }));
         handleCancel();
       } else {
-        ElMessage.error(`下单失败：${res.data.err_text}`);
+        ElMessage.error(
+          `${t("tip.failed", { type: t("dialog.createOrder") })}：${
+            res.data.err_text
+          }`
+        );
       }
     }
   } finally {

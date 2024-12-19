@@ -5,9 +5,9 @@
         <BaseImg iconName="404" catalog="images" imgSuffix="jpg" />
       </template>
       <template #extra>
-        <el-button type="primary" @click="$router.push({ path: '/' })"
-          >Back Home</el-button
-        >
+        <el-button type="primary" @click="$router.push({ path: '/' })">{{
+          $t("goHome")
+        }}</el-button>
       </template>
     </el-result>
   </div>
