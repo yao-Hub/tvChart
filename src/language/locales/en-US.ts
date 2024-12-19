@@ -62,19 +62,6 @@ export default {
   symbolListArea: "Active trading varieties panel",
   orderArea: "Trading board",
 
-  user: {
-    login: "user",
-    password: "password",
-    email: "email",
-    newPassword: "new Password",
-    oldPassword: "old Password",
-    nowPassword: "now password",
-    notLoggedIn: "not Logged In",
-    logIn: "Log in",
-    prohibitTrading: "The current account is prohibited from trading",
-    noAuthority: "No authority",
-  },
-
   article: {
     readAgree: "Please read and agree",
     accountClause: "accountClause",
@@ -85,9 +72,11 @@ export default {
   },
 
   account: {
+    accountNum: "account Number",
     rememberMe: "Remember me",
     login: "Login",
     logout: "Logout",
+    copy: "copy",
     submit: "Submit",
     forgetPassword: "forget password?",
     noAccount: "Don't have an account?",
@@ -100,6 +89,15 @@ export default {
     retrievePassword: "retrieve Password",
     registerSucceed: "Simulated account created successfully",
     startUse: "Start using a simulated account",
+    password: "password",
+    email: "email",
+    newPassword: "new Password",
+    oldPassword: "old Password",
+    nowPassword: "now password",
+    notLoggedIn: "not Logged In",
+    logIn: "Log in",
+    prohibitTrading: "The current account is prohibited from trading",
+    noAuthority: "No authority",
   },
 
   axios: {

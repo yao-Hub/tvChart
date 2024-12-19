@@ -116,8 +116,8 @@ export const useOrder = defineStore("order", {
       const userStore = useUser();
       const t = i18n.global.t;
       if (!userStore.account.token) {
-        ElMessageBox.confirm("", t("user.notLoggedIn"), {
-          confirmButtonText: t("user.logIn"),
+        ElMessageBox.confirm("", t("account.notLoggedIn"), {
+          confirmButtonText: t("account.logIn"),
           cancelButtonText: t("cancel"),
           type: "warning",
         }).then(() => {
@@ -129,10 +129,14 @@ export const useOrder = defineStore("order", {
         return;
       }
       if (userStore.loginInfo?.trade_rights !== 1) {
-        ElMessageBox.alert(t("user.prohibitTrading"), t("user.noAuthority"), {
-          confirmButtonText: t("ok"),
-          type: "error",
-        });
+        ElMessageBox.alert(
+          t("account.prohibitTrading"),
+          t("account.noAuthority"),
+          {
+            confirmButtonText: t("ok"),
+            type: "error",
+          }
+        );
         return;
       }
       if (params) {

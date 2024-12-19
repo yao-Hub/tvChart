@@ -31,11 +31,11 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item :label="$t('user.login')" prop="login">
+      <el-form-item :label="$t('account.accountNum')" prop="login">
         <el-input v-model="formState.login" placeholder="Please input login" />
       </el-form-item>
 
-      <el-form-item :label="$t('user.password')" prop="password">
+      <el-form-item :label="$t('account.password')" prop="password">
         <el-input
           v-model="formState.password"
           type="password"

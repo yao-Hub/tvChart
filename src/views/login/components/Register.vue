@@ -22,7 +22,7 @@
         :rules="rules"
         ref="formRef"
       >
-        <el-form-item prop="email" :label="$t('user.email')">
+        <el-form-item prop="email" :label="$t('account.email')">
           <el-autocomplete
             v-model="formState.email"
             :fetch-suggestions="querySearch"
@@ -210,7 +210,7 @@ const { toClipboard } = useClipboard();
 const copy = async () => {
   try {
     await toClipboard(
-      `${t("user.login")}：${account.name};${t("user.password")}：${
+      `${t("account.accountnum")}：${account.name};${t("account.password")}：${
         account.pass
       }`
     );

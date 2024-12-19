@@ -22,7 +22,7 @@
         :rules="rules"
         label-position="top"
       >
-        <el-form-item prop="email" :label="$t('user.email')">
+        <el-form-item prop="email" :label="$t('account.email')">
           <el-autocomplete
             v-model="formState.email"
             :fetch-suggestions="querySearch"
@@ -39,7 +39,7 @@
           ></VerificationCode>
         </el-form-item>
 
-        <el-form-item :label="$t('user.newPassword')" prop="pass">
+        <el-form-item :label="$t('account.newPassword')" prop="pass">
           <el-input
             v-model="formState.pass"
             type="password"

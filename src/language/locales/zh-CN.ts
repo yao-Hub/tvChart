@@ -79,7 +79,7 @@ export default {
   },
 
   account: {
-    accountNumber: "账号",
+    accountNum: "账号",
     password: "密码",
     copy: "复制",
     rememberMe: "记住密码",
@@ -97,10 +97,6 @@ export default {
     retrievePassword: "找回密码",
     registerSucceed: "模拟账号创建成功",
     startUse: "开始使用模拟账号",
-  },
-  user: {
-    login: "账号",
-    password: "密码",
     email: "邮箱",
     newPassword: "新密码",
     oldPassword: "旧密码",

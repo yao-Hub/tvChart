@@ -25,7 +25,7 @@
         ref="formRef"
       >
         <el-form-item
-          :label="$t('user.nowPassword')"
+          :label="$t('account.nowPassword')"
           label-position="top"
           prop="oldpass"
         >
@@ -37,7 +37,7 @@
         </el-form-item>
         <el-form-item prop="pass" label-position="top">
           <template #label>
-            {{ $t("user.newPassword") }} ({{ $t("tip.passwordFormatRule") }})
+            {{ $t("account.newPassword") }} ({{ $t("tip.passwordFormatRule") }})
           </template>
           <el-input
             v-model="formState.pass"
