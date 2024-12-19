@@ -99,7 +99,7 @@ const infoList: Iitem[] = [
   { key: "digits", label: t("symbolDetail.digits") },
   { key: "contract_size", label: t("symbolDetail.contract_size") },
   { key: "leverage", label: t("symbolDetail.leverage") },
-  { key: "prepaidMode", label: t("symbolDetail.") },
+  { key: "prepaidMode", label: t("symbolDetail.prepaidMode") },
   { key: "margin", label: t("symbolDetail.margin") },
   { key: "volume_min", label: t("symbolDetail.volume_min") },
   { key: "volume_max", label: t("symbolDetail.volume_max") },

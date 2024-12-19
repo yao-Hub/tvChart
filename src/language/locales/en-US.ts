@@ -56,7 +56,7 @@ export default {
   rightBook: ">",
   platformReply: "platform reply",
   marketDepth: "Market depth",
-  symbolInfo: "symbolInfo",
+  symbolInfo: "symbol Info",
   transactionTime: "Transaction Time",
   nowTime: "nowTime",
   symbolListArea: "Active trading varieties panel",
@@ -109,6 +109,7 @@ export default {
     darkTheme: "Dark",
     lightTheme: "Light",
     ThemeColor: "Theme",
+    new: "new chart",
   },
 
   order: {
