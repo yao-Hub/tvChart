@@ -27,6 +27,7 @@
             :preview-src-list="item.feedbackFileIds"
             :initial-index="index"
             fit="cover"
+            loading="lazy"
           >
             <template #placeholder>
               <div class="placeholder">

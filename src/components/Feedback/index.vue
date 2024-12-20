@@ -26,6 +26,9 @@
       v-model:file-list="fileList"
       :action="action"
       list-type="picture-card"
+      :on-success="onSuccess"
+      :on-error="onError"
+      :auto-upload="false"
     >
       <div class="uploadPlus">
         <el-icon><Plus /></el-icon>
@@ -53,7 +56,7 @@
       <el-button @click="myFeedBackOpen = true">{{
         $t("myFeedback")
       }}</el-button>
-      <el-button type="primary" @click="handleOk">{{ $t("submit") }}</el-button>
+      <el-button type="primary" @click="handleOk" :loading="loading">{{ $t("submit") }}</el-button>
     </template>
   </el-dialog>
 
@@ -61,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import type { UploadFile, UploadInstance, UploadUserFile } from "element-plus";
+import type { UploadFile, UploadFiles, UploadInstance, UploadUserFile } from "element-plus";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -97,32 +100,66 @@ watch(
   }
 );
 
-import MyFeedBack from "./MyFeedBack.vue";
-const myFeedBackOpen = ref(false);
-
-import { saveFeedback } from "@/api/feedback";
-import { useNetwork } from "@/store/modules/network";
 import dayjs from "dayjs";
 import { ElMessage } from "element-plus";
+import { saveFeedback } from "@/api/feedback";
+import { useNetwork } from "@/store/modules/network";
+import MyFeedBack from "./MyFeedBack.vue";
+
+interface IResUpload {
+  data: {
+    fileId: string
+  }
+}
+
 const networkStore = useNetwork();
-const handleOk = async () => {
-  const feedbackFileIds = fileList.value?.map(
-    (item) => item.response.data.fileId
-  );
-  const updata = {
-    platform: "web",
-    brokerName: networkStore.currentLine!.brokerName,
-    lineName: networkStore.currentLine!.lineName,
-    feedbackContent: remark.value,
-    feedbackFileIds,
-    createTime: dayjs().unix(),
-  };
-  const res = await saveFeedback(updata);
-  ElMessage({
-    message: res.errmsg,
-    type: "success",
-  });
+const myFeedBackOpen = ref(false);
+const loading = ref(false);
+
+const submit = async (feedbackFileIds: string[] = []) => {
+  try {
+    const updata = {
+      platform: "web",
+      brokerName: networkStore.currentLine!.brokerName,
+      lineName: networkStore.currentLine!.lineName,
+      feedbackContent: remark.value,
+      feedbackFileIds,
+      createTime: dayjs().unix(),
+    };
+    const res = await saveFeedback(updata);
+    ElMessage({
+      message: res.errmsg,
+      type: "success",
+    });
+    loading.value = false;
   dialogStore.feedbackVisible = false;
+
+  } catch (error) {
+    loading.value = false;
+  }
+};
+
+const handleOk = async () => {
+  loading.value = true;
+  if (fileList.value.length) {
+    uploadRef.value?.submit();
+    return;
+  }
+  submit();
+};
+const onSuccess = (response: any, uploadFile: UploadFile, uploadFiles: UploadFiles) => {
+  const feedbackFileIds = uploadFiles.map(
+    (item) => (item.response as IResUpload).data.fileId
+  );
+  submit(feedbackFileIds);
+};
+
+const onError = (error: Error) => {
+  loading.value = false;
+  ElMessage({
+    message: t("tip.upLoadFileError"),
+    type: "error",
+  });
 };
 </script>
 

@@ -1,10 +1,10 @@
-import { defineConfig, loadEnv, ConfigEnv } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { resolve } from "path";
 import Components from "unplugin-vue-components/vite";
+import { ConfigEnv, defineConfig, loadEnv } from "vite";
 
-import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 import { visualizer } from "rollup-plugin-visualizer";
+import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
 import os from "os";
 
@@ -110,6 +110,16 @@ export default defineConfig((mode: ConfigEnv) => {
           changeOrigin: true,
           rewrite: (path) => {
             return path.replace(new RegExp("^" + "/client-api"), "");
+          },
+        },
+        "/http://120.79.80.70:8084": {
+          target: "/http://120.79.80.70:8084",
+          changeOrigin: true,
+          rewrite: (path) => {
+            return path.replace(
+              new RegExp("^" + "/http://120.79.80.70:8084"),
+              ""
+            );
           },
         },
       },

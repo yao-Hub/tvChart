@@ -217,6 +217,7 @@ export default {
     confirmDelPendingOrders: "您将撤销以下选定的{num}个挂单，您想要继续吗？",
     minFastPoint: "至少远离市价{size}点",
     need: "需",
+    upLoadFileError: "文件上传出错",
   },
 
   time: {
