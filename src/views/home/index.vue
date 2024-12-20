@@ -20,10 +20,8 @@ import { useLayout } from "@/store/modules/layout";
 import { useNetwork } from "@/store/modules/network";
 import { useOrder } from "@/store/modules/order";
 import { useRate } from "@/store/modules/rate";
-import { useSize } from "@/store/modules/size";
 import { useSocket } from "@/store/modules/socket";
 import { useSymbols } from "@/store/modules/symbols";
-import { useTheme } from "@/store/modules/theme";
 import { useUser } from "@/store/modules/user";
 import { useRoot } from "@/store/store";
 
@@ -42,10 +40,8 @@ const orderStore = useOrder();
 const networkStore = useNetwork();
 const socketStore = useSocket();
 const layoutStore = useLayout();
-const sizeStore = useSize();
 const chartLineStore = useChartLine();
 const symbolsStore = useSymbols();
-const themeStore = useTheme();
 const timeStore = useTime();
 const rateStore = useRate();
 
@@ -53,8 +49,6 @@ const rateStore = useRate();
 async function init() {
   try {
     chartInitStore.state.loading = true;
-    sizeStore.initSize(); // 初始化字体大小
-    themeStore.initTheme(); // 系统主题（亮色暗色）
 
     // 1.先拿到 交易线路
     await networkStore.getLines();

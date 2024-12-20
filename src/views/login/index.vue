@@ -13,17 +13,10 @@ import { virtualLine } from "api/account/index";
 import { ref } from "vue";
 
 import { useNetwork } from "@/store/modules/network";
-import { useSize } from "@/store/modules/size";
-import { useTheme } from "@/store/modules/theme";
 import { useUser } from "@/store/modules/user";
 
 const networkStore = useNetwork();
 const userStore = useUser();
-const sizeStore = useSize();
-const themeStore = useTheme();
-
-sizeStore.initSize();
-themeStore.initTheme();
 
 userStore.initAccount();
 

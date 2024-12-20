@@ -7,7 +7,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    BaseImg: typeof import('./src/components/BaseImg.vue')['default']
+    BaseImg: typeof import('./src/components/BaseImg/index.vue')['default']
     BaseTabs: typeof import('./src/components/BaseTabs/index.vue')['default']
     Disclaimers: typeof import('./src/components/Disclaimers.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
@@ -30,6 +30,7 @@ declare module 'vue' {
     ElInput: typeof import('element-plus/es')['ElInput']
     ElLink: typeof import('element-plus/es')['ElLink']
     ElOption: typeof import('element-plus/es')['ElOption']
+    ElProgress: typeof import('element-plus/es')['ElProgress']
     ElRadioButton: typeof import('element-plus/es')['ElRadioButton']
     ElRadioGroup: typeof import('element-plus/es')['ElRadioGroup']
     ElResult: typeof import('element-plus/es')['ElResult']
@@ -50,6 +51,8 @@ declare module 'vue' {
     FastAddOrder: typeof import('./src/components/FastAddOrder.vue')['default']
     Feedback: typeof import('./src/components/Feedback/index.vue')['default']
     HorizontalScrolling: typeof import('./src/components/HorizontalScrolling.vue')['default']
+    Icon: typeof import('./src/components/BaseImg/Icon.vue')['default']
+    Image: typeof import('./src/components/BaseImg/Image.vue')['default']
     MyFeedBack: typeof import('./src/components/Feedback/MyFeedBack.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

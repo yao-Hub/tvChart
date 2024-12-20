@@ -65,6 +65,13 @@ export default defineConfig((mode: ConfigEnv) => {
           rewrite: (path) =>
             path.replace(new RegExp("^" + env.VITE_HTTP_BASE_URL_admin), ""),
         },
+        [env.VITE_HTTP_URL_FILE]: {
+          target: "http://120.79.80.70:8084",
+          changeOrigin: true,
+          rewrite: (path) => {
+            return path.replace(new RegExp("^" + env.VITE_HTTP_URL_FILE), "");
+          },
+        },
         "/client-api-120-79-186-23-13556": {
           target: "http://120.79.186.23:13556",
           changeOrigin: true,
@@ -110,16 +117,6 @@ export default defineConfig((mode: ConfigEnv) => {
           changeOrigin: true,
           rewrite: (path) => {
             return path.replace(new RegExp("^" + "/client-api"), "");
-          },
-        },
-        "/http://120.79.80.70:8084": {
-          target: "/http://120.79.80.70:8084",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(
-              new RegExp("^" + "/http://120.79.80.70:8084"),
-              ""
-            );
           },
         },
       },

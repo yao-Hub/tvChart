@@ -3,7 +3,6 @@
     v-model="modal"
     width="486"
     :zIndex="11"
-    destroy-on-close
     append-to-body
   >
     <template #header>
@@ -17,9 +16,10 @@
       >
         <el-text>{{ item.feedbackContent }}</el-text>
         <div class="images">
-          <el-image
+          <BaseImg
             v-for="(src, index) in item.feedbackFileIds"
             style="width: 56px; height: 56px"
+            type="online"
             :src="src"
             :zoom-rate="1.2"
             :max-scale="7"
@@ -34,7 +34,7 @@
                 <el-icon class="loading"><Refresh /></el-icon>
               </div>
             </template>
-          </el-image>
+          </BaseImg>
         </div>
         <div class="time">
           <el-text type="info">{{ formatTime(item.createTime) }}</el-text>

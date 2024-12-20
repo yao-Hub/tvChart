@@ -7,8 +7,13 @@ import "dayjs/locale/en";
 
 import { LANGUAGE_LIST } from "@/constants/common";
 import { useSize } from "@/store/modules/size";
+import { useTheme } from "@/store/modules/theme";
 
+const themeStore = useTheme();
 const sizeStore = useSize();
+
+sizeStore.initSize(); // 初始化字体大小
+themeStore.initTheme(); // 系统主题（亮色暗色）
 
 // 国际化
 const I18n = useI18n();

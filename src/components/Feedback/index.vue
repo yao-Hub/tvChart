@@ -26,6 +26,8 @@
       v-model:file-list="fileList"
       :action="action"
       list-type="picture-card"
+      :disabled="loading"
+      :before-remove="beforeRemove"
       :on-success="onSuccess"
       :on-error="onError"
       :auto-upload="false"
@@ -56,7 +58,9 @@
       <el-button @click="myFeedBackOpen = true">{{
         $t("myFeedback")
       }}</el-button>
-      <el-button type="primary" @click="handleOk" :loading="loading">{{ $t("submit") }}</el-button>
+      <el-button type="primary" @click="handleOk" :loading="loading">{{
+        $t("submit")
+      }}</el-button>
     </template>
   </el-dialog>
 
@@ -64,8 +68,13 @@
 </template>
 
 <script setup lang="ts">
-import type { UploadFile, UploadFiles, UploadInstance, UploadUserFile } from "element-plus";
-import { computed, ref, watch } from "vue";
+import type {
+  UploadFile,
+  UploadFiles,
+  UploadInstance,
+  UploadUserFile,
+} from "element-plus";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useDialog } from "@/store/modules/dialog";
@@ -84,38 +93,31 @@ interface CustomUploadUserFile extends UploadUserFile {
 const remark = ref<string>("");
 const fileList = ref<CustomUploadUserFile[]>([]);
 const uploadRef = ref<UploadInstance>();
+const loading = ref(false);
 const action = computed(() => {
   return import.meta.env.VITE_HTTP_URL_admin + "/common/sysFile/upload";
 });
 const handleRemove = (file: UploadFile) => {
+  if (loading.value) {
+    return;
+  }
   uploadRef.value!.handleRemove(file);
 };
-watch(
-  () => dialogStore.feedbackVisible,
-  (val) => {
-    if (val) {
-      remark.value = "";
-      fileList.value = [];
-    }
-  }
-);
 
-import dayjs from "dayjs";
-import { ElMessage } from "element-plus";
 import { saveFeedback } from "@/api/feedback";
 import { useNetwork } from "@/store/modules/network";
+import dayjs from "dayjs";
+import { ElMessage } from "element-plus";
 import MyFeedBack from "./MyFeedBack.vue";
 
 interface IResUpload {
   data: {
-    fileId: string
-  }
+    fileId: string;
+  };
 }
 
 const networkStore = useNetwork();
 const myFeedBackOpen = ref(false);
-const loading = ref(false);
-
 const submit = async (feedbackFileIds: string[] = []) => {
   try {
     const updata = {
@@ -132,34 +134,47 @@ const submit = async (feedbackFileIds: string[] = []) => {
       type: "success",
     });
     loading.value = false;
-  dialogStore.feedbackVisible = false;
-
+    dialogStore.feedbackVisible = false;
   } catch (error) {
     loading.value = false;
   }
 };
-
 const handleOk = async () => {
   loading.value = true;
   if (fileList.value.length) {
-    uploadRef.value?.submit();
+    // 是否存在还没有上传的文件
+    const ifNoUpload = fileList.value.some((item) => !item.response);
+    if (ifNoUpload) {
+      uploadRef.value?.submit();
+      return;
+    }
+    const feedbackFileIds = fileList.value.map(
+      (item) => (item.response as IResUpload).data.fileId
+    );
+    submit(feedbackFileIds);
     return;
   }
   submit();
 };
-const onSuccess = (response: any, uploadFile: UploadFile, uploadFiles: UploadFiles) => {
+const onSuccess = (
+  response: any,
+  uploadFile: UploadFile,
+  uploadFiles: UploadFiles
+) => {
   const feedbackFileIds = uploadFiles.map(
     (item) => (item.response as IResUpload).data.fileId
   );
   submit(feedbackFileIds);
 };
-
 const onError = (error: Error) => {
   loading.value = false;
   ElMessage({
     message: t("tip.upLoadFileError"),
     type: "error",
   });
+};
+const beforeRemove = () => {
+  return !loading.value;
 };
 </script>
 

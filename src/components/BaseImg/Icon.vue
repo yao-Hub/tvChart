@@ -1,17 +1,16 @@
 <template>
-  <img :src="source" v-bind="option" />
+  <img :src="iconSrc" />
 </template>
 
 <script setup lang="ts">
-import { useTheme } from "@/store/modules/theme";
 import { computed } from "vue";
+import { useTheme } from "@/store/modules/theme";
 
 const themeStore = useTheme();
 
 interface Props {
   catalog?: string;
   iconName?: string;
-  option?: object;
   imgSuffix?: string;
   fullPath?: string;
 }
@@ -21,7 +20,7 @@ const props = withDefaults(defineProps<Props>(), {
   imgSuffix: "svg",
 });
 
-const source = computed(() => {
+const iconSrc = computed(() => {
   if (props.fullPath) {
     return props.fullPath;
   }
@@ -35,6 +34,7 @@ const source = computed(() => {
   }
   return "";
 });
+
 </script>
 
 <style lang="scss" scoped></style>
