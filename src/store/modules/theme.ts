@@ -1,145 +1,161 @@
 import { useDark, useToggle } from "@vueuse/core";
 import { defineStore } from "pinia";
+import { ref, watch } from "vue";
 import { useChartInit } from "./chartInit";
 
-interface State {
-  systemTheme: string; // 系统主题
-  upDownTheme: "upRedDownGreen" | "upGreenDownRed"; // 涨跌风格
-}
+type TsystemTheme = "light" | "dark"; // 系统主题
+type TupDownTheme = "upRedDownGreen" | "upGreenDownRed"; // 涨跌风格
 
-export const useTheme = defineStore("theme", {
-  state: (): State => {
-    return {
-      systemTheme: "light",
-      upDownTheme: "upRedDownGreen",
-    };
-  },
-  actions: {
-    initTheme() {
-      const stoTheme = localStorage.getItem("systemTheme") || "light";
-      const isDark = useDark();
-      if (stoTheme === "light" && isDark.value) {
-        useToggle(isDark)();
-      }
-      if (stoTheme === "dark" && !isDark.value) {
-        useToggle(isDark)();
-      }
-      this.systemTheme = stoTheme;
-      document.documentElement.setAttribute("data-theme", this.systemTheme);
+export const useTheme = defineStore("theme", () => {
+  const isDark = useDark();
+  const toggleDark = useToggle(isDark);
 
-      this.getUpDownTheme();
-    },
-    changeSystemTheme() {
-      const theme = this.systemTheme === "dark" ? "light" : "dark";
-      localStorage.setItem("systemTheme", theme);
-      this.initTheme();
-    },
-    setChartTheme() {
-      const chartInitStore = useChartInit();
+  const systemTheme = ref<TsystemTheme>("light");
+  const upDownTheme = ref<TupDownTheme>("upRedDownGreen");
+
+  watch(
+    () => isDark.value,
+    () => {
+      if (
+        (systemTheme.value === "light" && isDark.value) ||
+        (systemTheme.value === "dark" && !isDark.value)
+      ) {
+        initTheme();
+        setChartTheme();
+      }
+    }
+  );
+
+  const initTheme = () => {
+    const stoTheme = localStorage.getItem("systemTheme") || "light";
+    if (
+      (stoTheme === "light" && isDark.value) ||
+      (stoTheme === "dark" && !isDark.value)
+    ) {
+      toggleDark();
+    }
+    systemTheme.value = stoTheme as TsystemTheme;
+    document.documentElement.setAttribute("data-theme", systemTheme.value);
+
+    getUpDownTheme();
+  };
+  const changeSystemTheme = () => {
+    const theme = systemTheme.value === "dark" ? "light" : "dark";
+    localStorage.setItem("systemTheme", theme);
+    initTheme();
+  };
+  const setChartTheme = () => {
+    const chartInitStore = useChartInit();
+    chartInitStore.state.chartWidgetList.forEach((item) => {
+      item.widget?.changeTheme(systemTheme.value as "light" | "dark");
+    });
+  };
+  const getUpDownTheme = () => {
+    const type = localStorage.getItem("upDownTheme") as TupDownTheme;
+    if (type) {
+      upDownTheme.value = type;
+    }
+    return upDownTheme.value;
+  };
+  const setUpDownTheme = (type?: TupDownTheme) => {
+    if (type) {
+      upDownTheme.value = type;
+    }
+    document.documentElement.setAttribute("upDown-theme", upDownTheme.value);
+    localStorage.setItem("upDownTheme", upDownTheme.value);
+    const chartInitStore = useChartInit();
+
+    const red = "#F53058";
+    const green = "#2E9C76";
+    const lightRed = "rgba(242, 54, 69, 0.5)";
+    const lightGreen = "rgba(8, 153, 129, 0.5)";
+    const proRed = "#f5a6ae";
+    const proGreen = "#a9dcc3";
+
+    const downColor = upDownTheme.value === "upRedDownGreen" ? green : red;
+    const upColor = upDownTheme.value === "upRedDownGreen" ? red : green;
+
+    const upLightColor =
+      upDownTheme.value === "upRedDownGreen" ? lightGreen : lightRed;
+    const downLightColor =
+      upDownTheme.value === "upRedDownGreen" ? lightGreen : lightRed;
+
+    const upProjectionColor =
+      upDownTheme.value === "upRedDownGreen" ? proGreen : proRed;
+    const downProjectionColor =
+      upDownTheme.value === "upRedDownGreen" ? proRed : proGreen;
+
+    try {
       chartInitStore.state.chartWidgetList.forEach((item) => {
-        item.widget?.changeTheme(this.systemTheme as "light" | "dark");
-      });
-    },
-    getUpDownTheme() {
-      const type = localStorage.getItem("upDownTheme") as State["upDownTheme"];
-      if (type) {
-        this.upDownTheme = type;
-      }
-      return this.upDownTheme;
-    },
-    setUpDownTheme(type?: State["upDownTheme"]) {
-      if (type) {
-        this.upDownTheme = type;
-      }
-      document.documentElement.setAttribute("upDown-theme", this.upDownTheme);
-      localStorage.setItem("upDownTheme", this.upDownTheme);
-      const chartInitStore = useChartInit();
-
-      const red = "#F53058";
-      const green = "#2E9C76";
-      const lightRed = "rgba(242, 54, 69, 0.5)";
-      const lightGreen = "rgba(8, 153, 129, 0.5)";
-      const proRed = "#f5a6ae";
-      const proGreen = "#a9dcc3";
-
-      const downColor = this.upDownTheme === "upRedDownGreen" ? green : red;
-      const upColor = this.upDownTheme === "upRedDownGreen" ? red : green;
-
-      const upLightColor =
-        this.upDownTheme === "upRedDownGreen" ? lightGreen : lightRed;
-      const downLightColor =
-        this.upDownTheme === "upRedDownGreen" ? lightGreen : lightRed;
-
-      const upProjectionColor =
-        this.upDownTheme === "upRedDownGreen" ? proGreen : proRed;
-      const downProjectionColor =
-        this.upDownTheme === "upRedDownGreen" ? proRed : proGreen;
-
-      try {
-        chartInitStore.state.chartWidgetList.forEach((item) => {
-          item.widget?.applyOverrides({
-            "mainSeriesProperties.candleStyle.upColor": upColor,
-            "mainSeriesProperties.candleStyle.downColor": downColor,
-            "mainSeriesProperties.candleStyle.borderUpColor": upColor,
-            "mainSeriesProperties.candleStyle.borderDownColor": downColor,
-            "mainSeriesProperties.candleStyle.wickUpColor": upColor,
-            "mainSeriesProperties.candleStyle.wickDownColor": downColor,
-            "mainSeriesProperties.hollowCandleStyle.upColor": upColor,
-            "mainSeriesProperties.hollowCandleStyle.downColor": downColor,
-            "mainSeriesProperties.hollowCandleStyle.borderUpColor": upColor,
-            "mainSeriesProperties.hollowCandleStyle.borderDownColor": downColor,
-            "mainSeriesProperties.hollowCandleStyle.wickUpColor": upColor,
-            "mainSeriesProperties.hollowCandleStyle.wickDownColor": downColor,
-            "mainSeriesProperties.haStyle.upColor": upColor,
-            "mainSeriesProperties.haStyle.downColor": downColor,
-            "mainSeriesProperties.haStyle.borderUpColor": upColor,
-            "mainSeriesProperties.haStyle.borderDownColor": downColor,
-            "mainSeriesProperties.haStyle.wickUpColor": upColor,
-            "mainSeriesProperties.haStyle.wickDownColor": downColor,
-            "mainSeriesProperties.barStyle.upColor": upColor,
-            "mainSeriesProperties.barStyle.downColor": downColor,
-            "mainSeriesProperties.columnStyle.upColor": upLightColor,
-            "mainSeriesProperties.columnStyle.downColor": downLightColor,
-            "mainSeriesProperties.renkoStyle.upColor": upColor,
-            "mainSeriesProperties.renkoStyle.downColor": downColor,
-            "mainSeriesProperties.renkoStyle.borderUpColor": upColor,
-            "mainSeriesProperties.renkoStyle.borderDownColor": downColor,
-            "mainSeriesProperties.renkoStyle.wickUpColor": upColor,
-            "mainSeriesProperties.renkoStyle.wickDownColor": downColor,
-            "mainSeriesProperties.pbStyle.upColor": upColor,
-            "mainSeriesProperties.pbStyle.downColor": downColor,
-            "mainSeriesProperties.pbStyle.borderUpColor": upColor,
-            "mainSeriesProperties.pbStyle.borderDownColor": downColor,
-            "mainSeriesProperties.kagiStyle.upColor": upColor,
-            "mainSeriesProperties.kagiStyle.downColor": downColor,
-            "mainSeriesProperties.pnfStyle.upColor": upColor,
-            "mainSeriesProperties.pnfStyle.downColor": downColor,
-            "mainSeriesProperties.renkoStyle.upColorProjection":
-              upProjectionColor,
-            "mainSeriesProperties.renkoStyle.downColorProjection":
-              downProjectionColor,
-            "mainSeriesProperties.renkoStyle.borderUpColorProjection":
-              upProjectionColor,
-            "mainSeriesProperties.renkoStyle.borderDownColorProjection":
-              downProjectionColor,
-            "mainSeriesProperties.pbStyle.upColorProjection": upProjectionColor,
-            "mainSeriesProperties.pbStyle.downColorProjection":
-              downProjectionColor,
-            "mainSeriesProperties.pbStyle.borderUpColorProjection":
-              upProjectionColor,
-            "mainSeriesProperties.pbStyle.borderDownColorProjection":
-              downProjectionColor,
-            "mainSeriesProperties.kagiStyle.upColorProjection":
-              upProjectionColor,
-            "mainSeriesProperties.kagiStyle.downColorProjection":
-              downProjectionColor,
-            "mainSeriesProperties.pnfStyle.upColorProjection":
-              upProjectionColor,
-            "mainSeriesProperties.pnfStyle.downColorProjection":
-              downProjectionColor,
-          });
+        item.widget?.applyOverrides({
+          "mainSeriesProperties.candleStyle.upColor": upColor,
+          "mainSeriesProperties.candleStyle.downColor": downColor,
+          "mainSeriesProperties.candleStyle.borderUpColor": upColor,
+          "mainSeriesProperties.candleStyle.borderDownColor": downColor,
+          "mainSeriesProperties.candleStyle.wickUpColor": upColor,
+          "mainSeriesProperties.candleStyle.wickDownColor": downColor,
+          "mainSeriesProperties.hollowCandleStyle.upColor": upColor,
+          "mainSeriesProperties.hollowCandleStyle.downColor": downColor,
+          "mainSeriesProperties.hollowCandleStyle.borderUpColor": upColor,
+          "mainSeriesProperties.hollowCandleStyle.borderDownColor": downColor,
+          "mainSeriesProperties.hollowCandleStyle.wickUpColor": upColor,
+          "mainSeriesProperties.hollowCandleStyle.wickDownColor": downColor,
+          "mainSeriesProperties.haStyle.upColor": upColor,
+          "mainSeriesProperties.haStyle.downColor": downColor,
+          "mainSeriesProperties.haStyle.borderUpColor": upColor,
+          "mainSeriesProperties.haStyle.borderDownColor": downColor,
+          "mainSeriesProperties.haStyle.wickUpColor": upColor,
+          "mainSeriesProperties.haStyle.wickDownColor": downColor,
+          "mainSeriesProperties.barStyle.upColor": upColor,
+          "mainSeriesProperties.barStyle.downColor": downColor,
+          "mainSeriesProperties.columnStyle.upColor": upLightColor,
+          "mainSeriesProperties.columnStyle.downColor": downLightColor,
+          "mainSeriesProperties.renkoStyle.upColor": upColor,
+          "mainSeriesProperties.renkoStyle.downColor": downColor,
+          "mainSeriesProperties.renkoStyle.borderUpColor": upColor,
+          "mainSeriesProperties.renkoStyle.borderDownColor": downColor,
+          "mainSeriesProperties.renkoStyle.wickUpColor": upColor,
+          "mainSeriesProperties.renkoStyle.wickDownColor": downColor,
+          "mainSeriesProperties.pbStyle.upColor": upColor,
+          "mainSeriesProperties.pbStyle.downColor": downColor,
+          "mainSeriesProperties.pbStyle.borderUpColor": upColor,
+          "mainSeriesProperties.pbStyle.borderDownColor": downColor,
+          "mainSeriesProperties.kagiStyle.upColor": upColor,
+          "mainSeriesProperties.kagiStyle.downColor": downColor,
+          "mainSeriesProperties.pnfStyle.upColor": upColor,
+          "mainSeriesProperties.pnfStyle.downColor": downColor,
+          "mainSeriesProperties.renkoStyle.upColorProjection":
+            upProjectionColor,
+          "mainSeriesProperties.renkoStyle.downColorProjection":
+            downProjectionColor,
+          "mainSeriesProperties.renkoStyle.borderUpColorProjection":
+            upProjectionColor,
+          "mainSeriesProperties.renkoStyle.borderDownColorProjection":
+            downProjectionColor,
+          "mainSeriesProperties.pbStyle.upColorProjection": upProjectionColor,
+          "mainSeriesProperties.pbStyle.downColorProjection":
+            downProjectionColor,
+          "mainSeriesProperties.pbStyle.borderUpColorProjection":
+            upProjectionColor,
+          "mainSeriesProperties.pbStyle.borderDownColorProjection":
+            downProjectionColor,
+          "mainSeriesProperties.kagiStyle.upColorProjection": upProjectionColor,
+          "mainSeriesProperties.kagiStyle.downColorProjection":
+            downProjectionColor,
+          "mainSeriesProperties.pnfStyle.upColorProjection": upProjectionColor,
+          "mainSeriesProperties.pnfStyle.downColorProjection":
+            downProjectionColor,
         });
-      } catch (error) {}
-    },
-  },
+      });
+    } catch (error) {}
+  };
+  return {
+    systemTheme,
+    upDownTheme,
+    initTheme,
+    changeSystemTheme,
+    setChartTheme,
+    getUpDownTheme,
+    setUpDownTheme,
+  };
 });
