@@ -62,6 +62,7 @@ export const datafeed = (id: string) => {
       onSymbolResolvedCallback: Function,
       onResolveErrorCallback: Function
     ) => {
+      console.log("symbolName", symbolName);
       if (UID) {
         chartLineStore.unsubscribed(UID);
       }

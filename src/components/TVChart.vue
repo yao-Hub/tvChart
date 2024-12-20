@@ -6,12 +6,14 @@
 import { timezoneOptions } from "@/constants/timezone";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
+import { Ttime, useTime } from "@/store/modules/time";
 import * as library from "public/charting_library";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
+const timeStore = useTime();
 
 const { locale } = useI18n();
 
@@ -224,6 +226,11 @@ const initonReady = () => {
       if (chartTheme !== props.theme) {
         widget.changeTheme(props.theme as library.ThemeName);
       }
+
+      widget
+        .activeChart()
+        .getTimezoneApi()
+        .setTimezone(timeStore.settedTimezone as Ttime);
 
       setTimeout(() => {
         emit("initChart", { id: props.chartId, widget });

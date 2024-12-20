@@ -13,8 +13,9 @@ import { useI18n } from "vue-i18n";
 import { useChartInit } from "./chartInit";
 import { useStorage } from "./storage";
 
-const time = dayjs;
+export type Ttime = TimezoneId | CustomTimezoneId;
 
+const time = dayjs;
 time.extend(utc);
 time.extend(timezone);
 time.extend(relativeTime);
@@ -34,20 +35,21 @@ export const useTime = defineStore("time", () => {
     if (value === "zh") {
       dayjs.locale("zh-cn");
     }
-    setTimezone(userTimezone);
+    settedTimezone.value = userTimezone;
+    time.tz.setDefault(userTimezone);
   };
 
-  const setTimezone = (value: string) => {
-    settedTimezone.value = value;
-    time.tz.setDefault(value);
-    storageStore.setItem("timezone", value);
-    setChartTimezone(value as TimezoneId | CustomTimezoneId);
+  const setTimezone = (tz: string) => {
+    settedTimezone.value = tz;
+    time.tz.setDefault(tz);
+    storageStore.setItem("timezone", tz);
+    setChartTimezone(tz as Ttime);
   };
 
-  const setChartTimezone = (value: TimezoneId | CustomTimezoneId) => {
+  const setChartTimezone = (tz: Ttime) => {
     chartInitStore.state.chartWidgetList.forEach((item) => {
       if (item.widget) {
-        item.widget?.activeChart().getTimezoneApi().setTimezone(value);
+        item.widget?.activeChart().getTimezoneApi().setTimezone(tz);
       }
     });
   };
