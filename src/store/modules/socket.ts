@@ -212,13 +212,16 @@ export const useSocket = defineStore("socket", {
     },
 
     // 发送市场深度监听
-    emitQuoteDepth(symbols: string[]) {
+    emitQuoteDepth(symbols: string[], callback?: Function) {
       const userStore = useUser();
       if (this.socket) {
         this.socket.emit("subscribe_quote_depth", {
           server: userStore.account.server,
           symbols,
         });
+        if (callback) {
+          callback();
+        }
       } else {
         this.noExecuteList.push({
           fooName: "emitQuoteDepth",

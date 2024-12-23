@@ -3,4 +3,6 @@ export interface IDepth {
   ask_size: number;
   bid: number;
   bid_size: number;
+  askWidth: string;
+  bidWidth: string;
 }

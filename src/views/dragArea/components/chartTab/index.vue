@@ -1,7 +1,10 @@
 <template>
   <div
     class="chartTab"
-    :class="{ active: props.active && !props.noActiveStyle }"
+    :class="{
+      tabActive: props.active && !props.noActiveStyle,
+      tabHover: !props.noHoverStyle,
+    }"
     :data-id="props.id"
     @click="emit('tabClick', props.id)"
   >
@@ -95,6 +98,7 @@ interface Props {
   symbol?: string;
   interval?: string | number;
   noActiveStyle?: boolean;
+  noHoverStyle?: boolean;
 }
 const props = defineProps<Props>();
 
@@ -181,15 +185,18 @@ const resoluteItemSelect = (key: number) => {
   width: fit-content;
   border: 1px solid;
   border-bottom: none;
-  @include border_color("border");
   border-radius: 4px 4px 0px 0px;
+  @include border_color("background-active");
   @include background_color("background");
   // @include background_color("background-component");
 }
-.active {
+.tabActive {
   @include background_color("background-component");
   // @include background_color("background");
   border: none;
+}
+.tabHover:hover {
+  @include background_color("background-hover");
 }
 
 .el-dropdown-link {

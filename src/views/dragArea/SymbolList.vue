@@ -49,48 +49,61 @@
           :label="$t('order.symbol')"
           align="left"
           min-width="90"
-        />
-        <el-table-column
-          prop="bid"
-          :label="$t('order.sellPrice')"
-          align="right"
-          min-width="96"
         >
+        </el-table-column>
+
+        <el-table-column prop="bid" align="right" min-width="96">
+          <template #header>
+            <div class="table_header">
+              <span class="line">|</span>
+              <span>{{ $t("order.sellPrice") }}</span>
+            </div>
+          </template>
           <template #default="{ row }">
             <span :class="[quotesClass[row.symbols].bid]">
               {{ getPrice(row.symbols, "bid") }}
             </span>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="ask"
-          :label="$t('order.buyPrice')"
-          align="right"
-          min-width="96"
-        >
+
+        <el-table-column prop="ask" align="right" min-width="96">
+          <template #header>
+            <div class="table_header">
+              <span class="line">|</span>
+              <span>{{ $t("order.buyPrice") }}</span>
+            </div>
+          </template>
           <template #default="{ row }">
             <span :class="[quotesClass[row.symbols].ask]">
               {{ getPrice(row.symbols, "ask") }}
             </span>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="ctm_ms"
-          :label="$t('order.time')"
-          align="right"
-          min-width="88"
-        >
+
+        <el-table-column prop="ctm_ms" align="right" min-width="88">
+          <template #header>
+            <div class="table_header">
+              <span class="line">|</span>
+              <span>{{ $t("order.time") }}</span>
+            </div>
+          </template>
           <template #default="{ row }">
             {{ getTime(row.symbols) }}
           </template>
         </el-table-column>
+
         <el-table-column
           prop="variation"
-          :label="$t('order.diurnalVariation')"
           sortable="custom"
           align="right"
           min-width="90"
         >
+          <template #header>
+            <div class="table_header">
+              <span class="line">|</span>
+              <span>{{ $t("order.diurnalVariation") }}</span>
+            </div>
+          </template>
           <template #default="{ row }">
             <span :class="[getVariation(row.symbols).class]">
               {{ getVariation(row.symbols).value }}
@@ -349,23 +362,9 @@ const sortChange = ({ order, prop }: any) => {
 };
 
 // 只一个展开
-// 展开时订阅，收起时取消订阅
-import { useSocket } from "@/store/modules/socket";
-const socketStore = useSocket();
 const expandRowKeys = ref<any[]>([]);
 const expandChange = (row: any, expandedRows: any[]) => {
   // 展开时expandedRows.lenght > 0
-  if (expandedRows.length) {
-    socketStore.emitQuoteDepth([row.symbols]);
-    const unsubSymbols = expandedRows
-      .filter((e) => e.symbols !== row.symbols)
-      .map((item) => item.symbols);
-    if (unsubSymbols.length) {
-      socketStore.unSubQuoteDepth(unsubSymbols);
-    }
-  } else {
-    socketStore.unSubQuoteDepth([row.symbols]);
-  }
   expandRowKeys.value = expandedRows.length ? [row.symbols] : [];
 };
 </script>
@@ -402,7 +401,19 @@ const expandChange = (row: any, expandedRows: any[]) => {
   @include background_color("background");
 }
 
+:deep(.header-cell .cell) {
+  display: flex;
+  align-items: center;
+}
 :deep(.body-cell) {
-  border: none;
+  border: none !important;
+}
+.table_header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  .line {
+    @include font_color("border");
+  }
 }
 </style>

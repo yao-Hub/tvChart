@@ -45,7 +45,7 @@
             <template #header="{ column }">
               <div class="weekday_header">
                 <span>{{ column.label }}</span>
-                <div class="drag-line">|</div>
+                <div class="line">|</div>
               </div>
             </template>
           </el-table-column>
@@ -296,7 +296,7 @@ watchEffect(() => {
   padding: 0;
 }
 :deep(.el-table .cell) {
-  padding-left: 0;
+  padding: 0;
 }
 .weekday_header {
   position: relative;
@@ -307,9 +307,10 @@ watchEffect(() => {
   height: 42px;
   width: 100%;
   padding-left: 16px;
+  box-sizing: border-box;
   line-height: 42px;
 
-  .drag-line {
+  .line {
     position: absolute;
     top: 0;
     right: 0;

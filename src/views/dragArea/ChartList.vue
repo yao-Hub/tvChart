@@ -1,5 +1,10 @@
 <template>
-  <div class="charts">
+  <div
+    class="charts"
+    :style="{
+      padding: chartType === 'single' ? '0 4px 4px 4px' : '4px',
+    }"
+  >
     <HorizontalScrolling v-if="chartType === 'single'">
       <div class="tabs">
         <chartTab
@@ -31,10 +36,11 @@
         v-show="activedId === id || chartType === 'multiple'"
       >
         <chartTab
-          style="width: 100%"
+          style="width: 100%; border: none"
           v-if="chartType === 'multiple'"
           active
           noActiveStyle
+          noHoverStyle
           :symbol="symbol"
           :interval="interval"
           :id="id"
@@ -212,8 +218,6 @@ const tabClose = (id: string) => {
 .charts {
   box-sizing: border-box;
   @include background_color("background-component");
-  // padding: 0 4px 4px 4px;
-  padding: 4px;
   .tabs {
     display: flex;
     gap: 4px;

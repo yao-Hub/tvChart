@@ -1,8 +1,8 @@
 import { createI18n } from "vue-i18n";
-import zh from "./locales/zh-CN";
 import en from "./locales/en-US";
+import zh from "./locales/zh-CN";
 
-let language =
+const language =
   localStorage.getItem("language") || navigator.language.toLowerCase(); //  获取本地存储 || 根据浏览器语言设置
 
 const i18n = createI18n({

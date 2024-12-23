@@ -47,15 +47,17 @@ const tabClick = () => {
   box-sizing: border-box;
   border: 1px solid;
   border-bottom: none;
+  border-radius: 4px 4px 0px 0px;
   padding: 0 8px;
   @include border_color("border");
+  @include font_color("tabHoverTextColor");
   cursor: pointer;
   &:hover {
-    @include background_color("tabHover");
-    @include font_color("tabHoverTextColor");
+    @include background_color("background-hover");
   }
 }
 .baseTabs_active {
+  @include font_color("word");
   @include background_color("tabActive");
   border: none;
   font-weight: 500;

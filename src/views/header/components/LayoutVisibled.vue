@@ -1,6 +1,8 @@
 <template>
   <el-dropdown trigger="hover">
-    <div class="iconbox"></div>
+    <div class="iconbox">
+      <div class="triangle"></div>
+    </div>
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item>
@@ -44,6 +46,21 @@ const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
   &:hover {
     @include background_color("background-hover");
   }
+  .triangle {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 4px 4px 0 0; /* 设置三角形的大小 */
+  }
+}
+[data-theme="light"] .triangle {
+  border-color: transparent #63636a;
+}
+[data-theme="dark"] .triangle {
+  border-color: transparent #b0b1b3;
 }
 .item {
   min-width: 180px;

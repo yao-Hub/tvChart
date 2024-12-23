@@ -1,32 +1,32 @@
 <template>
   <div class="footerInfo">
     <div class="item">
-      <span>{{ $t("order.balance") }}：</span>
+      <el-text type="info">{{ $t("order.balance") }}：</el-text>
       <span>{{ loginInfo?.balance }} {{ loginInfo?.currency }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.equity") }}：</span>
+      <el-text type="info">{{ $t("order.equity") }}：</el-text>
       <span>{{ userStore.equity }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.Margin") }}：</span>
+      <el-text type="info">{{ $t("order.Margin") }}：</el-text>
       <span>{{ userStore.margin }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.marginFree") }}：</span>
+      <el-text type="info">{{ $t("order.marginFree") }}：</el-text>
       <span>{{ userStore.margin_free }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.marginLevel") }}：</span>
+      <el-text type="info">{{ $t("order.marginLevel") }}：</el-text>
       <span>{{ userStore.margin_level }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <span>{{ $t("order.TotalProfit") }}：</span>
+      <el-text type="info">{{ $t("order.TotalProfit") }}：</el-text>
       <span :class="[+profit > 0 ? 'redWord' : 'greenWord']">{{ profit }}</span>
     </div>
     <div class="item_end">
@@ -94,9 +94,6 @@ const profit = computed(() => {
     justify-content: center;
     align-items: center;
     padding: 0 8px;
-    & span:first-child {
-      @include font_color("word-gray");
-    }
   }
   .item_end {
     margin-left: auto;

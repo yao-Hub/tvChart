@@ -1,29 +1,18 @@
 import en from "element-plus/es/locale/lang/en";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
 
+export type TLANG = "zh" | "en";
+
 export const LANGUAGE_LIST = {
   zh: zhCn,
   en: en,
 };
 
-// 单选语言切换
-export const LOCALE_SINGLE_LIST = {
-  zh: "中",
-  en: "En",
-};
-
-// 单选语言切换
-export const LOCALE_LIST = {
+// 语言code
+export const LOCALE_MAP = {
   zh: "zh-cn",
-  en: "en",
-};
-
-// 图标按钮权重
-export const TOOLBAR_BTN_ORDER = {
-  Avatar: "-3",
-  AddOrder: "-2",
-  AddOrderSeparator: "-1",
-};
+  en: "en-us",
+} as Record<TLANG, string>;
 
 // 股票交易方向
 export const STOCKS_DIRECTION = {

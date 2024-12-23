@@ -10,6 +10,8 @@ import { decrypt, encrypt } from "utils/DES/JS";
 
 import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 
+import { LOCALE_MAP, TLANG } from "@/constants/common";
+
 import { useChartInit } from "@/store/modules/chartInit";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
@@ -90,6 +92,9 @@ if (storageId) {
 }
 
 const theme = localStorage.getItem("systemTheme") || "light";
+const currentLanguage = (localStorage.getItem("language") ||
+  navigator.language.toLowerCase()) as TLANG;
+const acceptLanguage = LOCALE_MAP[currentLanguage];
 
 const service = axios.create({
   timeout: 30 * 1000,
@@ -108,6 +113,7 @@ const service = axios.create({
     "x-u-app-theme": theme,
     // @ts-ignore
     "x-u-device-model": _OS_HOSTNAME_,
+    "accept-language": acceptLanguage,
   },
 });
 
