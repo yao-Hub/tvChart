@@ -6,12 +6,8 @@ const routes: RouteRecordRaw[] = [
   {
     path: PageEnum.LOGIN,
     component: () => import("@/views/login/index.vue"),
+    redirect: PageEnum.LOGIN_ACCOUNTS,
     children: [
-      {
-        path: "",
-        meta: { depth: 1 },
-        component: () => import("@/views/login/components/Accounts.vue"),
-      },
       {
         path: PageEnum.LOGIN_ACCOUNTS,
         meta: { depth: 1 },

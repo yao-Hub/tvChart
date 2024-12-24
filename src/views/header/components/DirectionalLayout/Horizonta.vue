@@ -2,8 +2,8 @@
   <el-tooltip :content="$t('HorizontalLayout')">
     <div
       class="iconbox"
-      :class="[flexDirection === 'row' ? 'active' : 'noActive']"
-      @click="chartInitStore.setChartFlexDirection('row')"
+      :class="[flexDirection === 'column' ? 'active' : 'noActive']"
+      @click="chartInitStore.setChartFlexDirection('column')"
     ></div>
   </el-tooltip>
 </template>

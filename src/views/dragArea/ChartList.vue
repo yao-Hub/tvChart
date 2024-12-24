@@ -2,7 +2,7 @@
   <div
     class="charts"
     :style="{
-      padding: chartType === 'single' ? '0 4px 4px 4px' : '4px',
+      // paddingTop: chartType === 'single' ? '0' : '4px',
     }"
   >
     <HorizontalScrolling v-if="chartType === 'single'">
@@ -21,22 +21,21 @@
       </div>
     </HorizontalScrolling>
     <div
-      :class="[
-        'charts_container',
-        chartType === 'single' ? 'chart_sin' : 'chart_mul',
-      ]"
+      class="charts_container"
       :style="{
         flexDirection: chartInitStore.state.chartFlexDirection,
       }"
     >
       <div
         class="charts_container_item"
-        v-for="{ id, symbol, interval } in chartInitStore.state.chartWidgetList"
+        v-for="({ id, symbol, interval }, index) in chartInitStore.state
+          .chartWidgetList"
         :key="id"
         v-show="activedId === id || chartType === 'multiple'"
       >
         <chartTab
           style="width: 100%; border: none"
+          :style="{ marginLeft: index === 0 ? '12px' : '0' }"
           v-if="chartType === 'multiple'"
           active
           noActiveStyle
@@ -50,10 +49,7 @@
           @tabClose="tabClose"
         ></chartTab>
         <TVChart
-          :style="{
-            height:
-              chartType === 'single' ? '100%' : 'calc(100% - var(--size))',
-          }"
+          style="flex: 1"
           :chartId="id"
           :loading="
             chartSubStore.chartsLoading || chartInitStore.state.chartLoading[id]
@@ -218,32 +214,35 @@ const tabClose = (id: string) => {
 .charts {
   box-sizing: border-box;
   @include background_color("background-component");
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  float: left;
+  width: 100%;
+  margin-left: -16px;
   .tabs {
     display: flex;
     gap: 4px;
+    margin-left: 12px;
     @include background_color("background");
   }
 
   .charts_container {
+    flex: 1;
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 4px;
     box-sizing: border-box;
     @include background_color("background-component");
+    // width: 100%;
+    // height: 100%;
 
     &_item {
       flex: 1;
       min-width: 316px;
-      position: relative;
-      // @include background_color("background-component");
+      display: flex;
+      flex-direction: column;
     }
-  }
-  .chart_sin {
-    height: calc(100% - var(--size) - 4px);
-    margin-top: 4px;
-  }
-  .chart_mul {
-    height: calc(100% - 4px);
   }
 }
 </style>

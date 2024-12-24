@@ -109,7 +109,7 @@
 import { PageEnum } from "@/constants/pageEnum";
 import { Search } from "@element-plus/icons-vue";
 import type { FormInstance, FormRules } from "element-plus";
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -188,6 +188,9 @@ const serviceArticleUrl = ref("");
 
 const happyStart = async () => {
   try {
+    if (disabled.value) {
+      return;
+    }
     const target = networkStore.queryTradeLines.find(
       (e) => e.lineName === formState.server
     );
@@ -227,14 +230,16 @@ onMounted(() => {
   if (query.server) {
     formState.server = String(query.server);
   }
-  document.addEventListener("keydown", function (event) {
-    if (disabled.value) {
-      return;
-    }
-    if (event.key === "Enter") {
-      happyStart();
-    }
-  });
+  document.addEventListener("keydown", handleKeydown);
+});
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === "Enter") {
+    happyStart();
+  }
+}
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeydown);
 });
 </script>
 

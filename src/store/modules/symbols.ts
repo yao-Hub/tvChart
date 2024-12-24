@@ -27,7 +27,7 @@ export const useSymbols = defineStore("symbols", () => {
   // 全部品种
   const getAllSymbol = async () => {
     const res = await allSymbols();
-    symbols.value = res.data;
+    symbols.value = res.data || [];
   };
 
   // 所有品种报价
@@ -45,7 +45,7 @@ export const useSymbols = defineStore("symbols", () => {
   //自选品种
   const getMySymbols = async () => {
     const res = await optionalQuery();
-    mySymbols.value = res.data;
+    mySymbols.value = res.data || [];
   };
   const mySymbols_sort = computed(() => {
     return orderBy(mySymbols.value, ["sort"]);

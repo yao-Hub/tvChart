@@ -2,8 +2,8 @@
   <el-tooltip :content="$t('VerticaLayout')">
     <div
       class="iconbox"
-      :class="[flexDirection === 'column' ? 'active' : 'noActive']"
-      @click="chartInitStore.setChartFlexDirection('column')"
+      :class="[flexDirection === 'row' ? 'active' : 'noActive']"
+      @click="chartInitStore.setChartFlexDirection('row')"
     ></div>
   </el-tooltip>
 </template>

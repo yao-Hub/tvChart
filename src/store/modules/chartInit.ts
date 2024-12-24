@@ -43,19 +43,23 @@ export const useChartInit = defineStore("chartInit", () => {
   watch(
     () => state.chartLayoutType,
     (type) => {
-      state.chartWidgetList.forEach((item) => {
-        if (item.widget) {
-          const leftToolHidden = item.widget
-            .activeChart()
-            .getCheckableActionState("drawingToolbarAction");
-          if (
-            (type === "single" && !leftToolHidden) ||
-            (type === "multiple" && leftToolHidden)
-          ) {
-            item.widget.activeChart().executeActionById("drawingToolbarAction");
+      try {
+        state.chartWidgetList.forEach((item) => {
+          if (item.widget) {
+            const leftToolHidden = item.widget
+              .activeChart()
+              .getCheckableActionState("drawingToolbarAction");
+            if (
+              (type === "single" && !leftToolHidden) ||
+              (type === "multiple" && leftToolHidden)
+            ) {
+              item.widget
+                .activeChart()
+                .executeActionById("drawingToolbarAction");
+            }
           }
-        }
-      });
+        });
+      } catch (e) {}
     }
   );
 

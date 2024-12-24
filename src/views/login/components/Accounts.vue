@@ -49,7 +49,7 @@
 import { PageEnum } from "@/constants/pageEnum";
 import { AccountListItem, useUser } from "@/store/modules/user";
 import { orderBy } from "lodash";
-import { onBeforeMount, onMounted, ref } from "vue";
+import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -136,12 +136,16 @@ const goLogin = (account?: { login: string; server: string }) => {
   router.push({ path: PageEnum.LOGIN_HOME, query: account });
 };
 
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === "Enter") {
+    happyStart();
+  }
+}
 onMounted(() => {
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-      happyStart();
-    }
-  });
+  document.addEventListener("keydown", handleKeydown);
+});
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeydown);
 });
 </script>
 

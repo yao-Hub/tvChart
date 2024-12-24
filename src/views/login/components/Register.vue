@@ -171,6 +171,9 @@ const account = reactive({
 });
 const submit = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
+  if (!btnDisabled.value) {
+    return;
+  }
   formEl.validate(async (valid) => {
     if (valid) {
       const { code, email } = formState;
@@ -185,18 +188,6 @@ const submit = (formEl: FormInstance | undefined) => {
     }
   });
 };
-
-import { onMounted } from "vue";
-onMounted(() => {
-  if (!btnDisabled.value) {
-    return;
-  }
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-      submit(formRef.value);
-    }
-  });
-});
 
 const start = () => {
   if (ifSuccess.value) {
@@ -223,6 +214,19 @@ const copy = async () => {
 const back = () => {
   router.back();
 };
+
+import { onMounted, onUnmounted } from "vue";
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === "Enter") {
+    submit(formRef.value);
+  }
+}
+onMounted(() => {
+  document.addEventListener("keydown", handleKeydown);
+});
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeydown);
+});
 </script>
 
 <style lang="scss" scoped>

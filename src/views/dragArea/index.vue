@@ -12,7 +12,7 @@
         data-minWidth="350"
         v-if="layoutStore.chartsVisable"
       >
-        <div class="handle" style="padding-top: 4px"></div>
+        <BaseImg class="handle" iconName="icon_drag1"></BaseImg>
         <ChartList v-if="!chartInitStore.state.loading" class="container_item">
         </ChartList>
       </div>
@@ -24,7 +24,7 @@
         data-initW="480"
         v-if="layoutStore.symbolsVisable"
       >
-        <div class="handle" style="padding-top: 8px"></div>
+        <BaseImg class="handle" iconName="icon_drag1"></BaseImg>
         <SymbolList class="container_item"></SymbolList>
       </div>
     </div>
@@ -41,7 +41,7 @@
         data-minWidth="445"
         v-if="layoutStore.orderAreaVisable"
       >
-        <div class="handle"></div>
+        <BaseImg class="handle" iconName="icon_drag1"></BaseImg>
         <OrderArea
           v-if="!chartInitStore.state.loading"
           class="container_item"
@@ -94,13 +94,11 @@ const layoutStore = useLayout();
         height: calc(var(--size) + 4px);
         width: 16px;
         cursor: grab;
-        background-image: url("@/assets/icons/light/icon_drag1.svg");
-        background-repeat: no-repeat;
-        background-position: center;
-        background-clip: content-box;
+        padding: 8px 0;
         float: left;
         box-sizing: border-box;
-        @include background_color("background-component");
+        position: relative;
+        z-index: 9;
       }
     }
   }

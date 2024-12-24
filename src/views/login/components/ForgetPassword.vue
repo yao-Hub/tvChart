@@ -158,6 +158,9 @@ const validateForm = () => {
 watch(() => formState, validateForm, { deep: true });
 
 const resetPwd = async () => {
+  if (!formValid.value) {
+    return;
+  }
   const { code, email, pass, checkPass } = formState;
   await emailPasswordUpdate({
     server: props.lineInfo.lineName,
@@ -173,16 +176,17 @@ const back = () => {
   router.back();
 };
 
-import { onMounted } from "vue";
-onMounted(() => {
-  if (!formValid.value) {
-    return;
+import { onMounted, onUnmounted } from "vue";
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === "Enter") {
+    resetPwd();
   }
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-      resetPwd();
-    }
-  });
+}
+onMounted(() => {
+  document.addEventListener("keydown", handleKeydown);
+});
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeydown);
 });
 </script>
 

@@ -151,13 +151,17 @@ const submit = (formEl: FormInstance | undefined) => {
   });
 };
 
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key === "Enter") {
+    submit(formRef.value);
+  }
+}
 onMounted(() => {
-  document.addEventListener("keydown", function (event) {
-    if (event.key === "Enter") {
-      submit(formRef.value);
-    }
-  });
+  document.addEventListener("keydown", handleKeydown);
+});
+onUnmounted(() => {
+  document.removeEventListener("keydown", handleKeydown);
 });
 </script>
 
