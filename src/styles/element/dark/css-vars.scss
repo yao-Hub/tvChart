@@ -106,4 +106,9 @@ html.dark {
     background: #0c0f15;
     border-color: #2c2f35;
   }
+
+  .el-checkbox {
+    --el-checkbox-text-color: #b0b1b3;
+    --el-checkbox-checked-text-color: #b0b1b3;
+  }
 }

@@ -47,7 +47,7 @@ export default {
   modify: "修改",
   submit: "提交",
 
-  noAccount: "已有交易账号，可直接登录，如没有，可开模",
+  noAccount: "已有交易账号，可直接登录，如没有，可开设模拟账号",
   logAccount: "登录您的账号",
   manageAccount: "管理账号",
   brokerName: "经纪商名称",

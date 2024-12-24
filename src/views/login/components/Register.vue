@@ -78,7 +78,7 @@
       <span class="tipSav">{{ $t("tip.keepPasswordSave") }}</span>
       <div class="copyBox">
         <div class="item">
-          <el-text type="info">{{ $t("account.accountNumber") }}： </el-text>
+          <el-text type="info">{{ $t("account.accountNum") }}： </el-text>
           <el-text>{{ account.name }}</el-text>
         </div>
         <div class="item">

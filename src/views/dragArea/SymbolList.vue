@@ -343,12 +343,18 @@ const rowContextmenu = (row: any, column: any, event: MouseEvent) => {
 
 // 排序日变化
 const sortChange = ({ order, prop }: any) => {
+  const arr = dataSource.value.map((item) => {
+    return {
+      ...item,
+      variation: getVariation(item.symbols).value.replace("%", ""),
+    };
+  });
   let result: any;
   if (order === "ascending") {
-    result = orderBy(dataSource.value, [prop], ["asc"]);
+    result = orderBy(arr, [prop], ["asc"]);
   }
   if (order === "descending") {
-    result = orderBy(dataSource.value, [prop], ["desc"]);
+    result = orderBy(arr, [prop], ["desc"]);
   }
   if (order === null) {
     result = originSource.value;

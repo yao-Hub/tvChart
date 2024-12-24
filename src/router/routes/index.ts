@@ -6,6 +6,11 @@ const modules: Record<string, { default: RouteRecordRaw }> = import.meta.glob(
   "./modules/**/*.ts",
   { eager: true }
 );
+declare module "vue-router" {
+  interface RouteMeta {
+    depth?: number;
+  }
+}
 
 // modules routes
 const routes: RouteRecordRaw[] = [];

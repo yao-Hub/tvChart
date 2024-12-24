@@ -44,6 +44,7 @@
             v-model="formState.pass"
             type="password"
             placeholder="enter new password"
+            show-password
           />
         </el-form-item>
 
@@ -52,6 +53,7 @@
             v-model="formState.checkPass"
             type="password"
             placeholder="confirm new password"
+            show-password
           />
         </el-form-item>
 

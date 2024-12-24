@@ -12,9 +12,8 @@
         >
           <div class="item_left">
             <BaseImg class="icon" :fullPath="getLogo(account.server)" />
-            <span>{{ account.server }} |</span>
-            <span>{{ account.login }} |</span>
-            <span>{{ account.blance }}</span>
+            <span class="textEllipsis">{{ account.server }}</span>
+            <span class="textEllipsis">{{ account.login }}</span>
           </div>
           <div class="item_right">
             <el-icon v-if="account.actived && !ifOpera">
@@ -186,6 +185,18 @@ onMounted(() => {
       display: flex;
       gap: 4px;
       align-items: center;
+      span {
+        max-width: 120px;
+        padding-right: 8px;
+        margin-right: 8px;
+        display: block;
+        border-right: 1px solid;
+        @include border_color("word");
+        &:last-child {
+          border: none;
+        }
+      }
+
       .icon {
         border-radius: 50%;
         width: 20px;
