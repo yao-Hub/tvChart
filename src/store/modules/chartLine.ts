@@ -43,26 +43,23 @@ export const useChartLine = defineStore("chartLine", {
             const bartime = bar.time;
             const high = bar.high;
             const low = bar.low;
-            const open = bar.open;
             const volume = bar.volume || 0;
-            if (!bartime || bartime < d.ctm_ms) {
-              const newHigh = !high || high < d.bid ? d.bid : high;
-              const newLow = !low || low > d.bid ? d.bid : low;
-              this.newbar[subscriberUID] = {
-                ...d,
-                time: d.ctm * 1000,
-                close: +d.bid,
-                high: +newHigh,
-                low: +newLow,
-                volume: volume + 1,
-              };
-              if (open) {
-                this.newbar[subscriberUID].open = +open;
-              }
-              this.subscribed[UID].onRealtimeCallback(
-                this.newbar[subscriberUID]
-              );
+            const newHigh = !high || high < d.bid ? d.bid : high;
+            const newLow = !low || low > d.bid ? d.bid : low;
+            let result = {
+              ...d,
+              ...bar,
+              close: +d.bid,
+              high: +newHigh,
+              low: +newLow,
+              volume: volume + 1,
+              time: bartime,
+            };
+            if (!bartime || bartime < d.ctm * 1000) {
+              result.time = d.ctm * 1000;
             }
+            this.newbar[subscriberUID] = { ...result };
+            this.subscribed[UID].onRealtimeCallback(this.newbar[subscriberUID]);
           }
         }
       });

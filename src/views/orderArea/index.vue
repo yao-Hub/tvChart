@@ -67,7 +67,7 @@
               startPlaceholder: t('table.createStartTime'),
               endPlaceholder: t('table.createEndTime'),
             }"
-            @timeRange="getTableDate(activeKey)"
+            @timeChange="getTableData('pendingOrderHistory')"
             >{{ $t("table.createTime") }}：</TimeSelect
           >
           <TimeSelect
@@ -78,7 +78,7 @@
               startPlaceholder: t('table.positionOpeningStartTime'),
               endPlaceholder: t('table.positionOpeningEndTime'),
             }"
-            @timeRange="getTableDate(activeKey)"
+            @timeChange="getTableData('marketOrderHistory')"
             >{{ $t("table.positionOpeningTime") }}：</TimeSelect
           >
           <TimeSelect
@@ -90,7 +90,7 @@
               startPlaceholder: t('table.positionClosingStartTime'),
               endPlaceholder: t('table.positionClosingEndTime'),
             }"
-            @timeRange="getTableDate(activeKey)"
+            @timeChange="getTableData('marketOrderHistory')"
             >{{ $t("table.positionClosingTime") }}：</TimeSelect
           >
           <TimeSelect
@@ -101,7 +101,7 @@
               startPlaceholder: t('table.startTime'),
               endPlaceholder: t('table.endTime'),
             }"
-            @timeRange="getTableDate(activeKey)"
+            @timeChange="getTableData('blanceRecord')"
             >{{ $t("table.time") }}：</TimeSelect
           >
           <el-select
@@ -298,48 +298,53 @@
               </template>
             </template>
             <template #footer>
-              <el-scrollbar>
-                <div class="loadingFooter" v-if="pageLoading">
-                  <el-icon class="loading"><Loading /></el-icon>
-                </div>
-                <div
-                  class="blaRecFooter"
-                  v-if="!pageLoading && activeKey === 'blanceRecord'"
-                >
-                  <span class="blaRecFooter_item">
-                    <el-text type="info"
-                      >{{ $t("table.netDeposit") }}：</el-text
-                    >
-                    <el-text>{{ netDeposit }}</el-text>
-                  </span>
-                  <span class="blaRecFooter_item">
-                    <el-text type="info"
-                      >{{ $t("table.totalDeposit") }}（{{ accDeposit.len }}
-                      {{ $t("table.transactions_deposit") }}）：</el-text
-                    >
-                    <el-text>{{ accDeposit.sum }}</el-text>
-                  </span>
-                  <span class="blaRecFooter_item">
-                    <el-text type="info"
-                      >{{ $t("table.totalWithdrawal") }}（{{
-                        accWithdrawal.len
-                      }}
-                      {{ $t("table.transactions_withdrawal") }}）：</el-text
-                    >
-                    <el-text>{{ accWithdrawal.sum }}</el-text>
-                  </span>
-                </div>
-                <div
-                  class="MOHFooter"
-                  :style="{ width: MOHFWidth }"
-                  v-if="!pageLoading && activeKey === 'marketOrderHistory'"
-                >
-                  <el-text type="info">{{ $t("table.Total") }}：</el-text>
-                  <span :class="[getCellClass(+MOHProSum)]">
-                    {{ MOHProSum }}</span
+              <div class="loadingFooter" v-if="pageLoading">
+                <el-icon class="loading"><Loading /></el-icon>
+              </div>
+              <div
+                class="blaRecFooter"
+                v-if="!pageLoading && activeKey === 'blanceRecord'"
+              >
+                <span class="blaRecFooter_item">
+                  <el-text type="info">{{ $t("table.netDeposit") }}：</el-text>
+                  <el-text>{{ netDeposit }}</el-text>
+                </span>
+                <span class="blaRecFooter_item">
+                  <el-text type="info"
+                    >{{ $t("table.totalDeposit") }}（{{ accDeposit.len }}
+                    {{ $t("table.transactions_deposit") }}）：</el-text
                   >
-                </div>
-              </el-scrollbar>
+                  <el-text>{{ accDeposit.sum }}</el-text>
+                </span>
+                <span class="blaRecFooter_item">
+                  <el-text type="info"
+                    >{{ $t("table.totalWithdrawal") }}（{{ accWithdrawal.len }}
+                    {{ $t("table.transactions_withdrawal") }}）：</el-text
+                  >
+                  <el-text>{{ accWithdrawal.sum }}</el-text>
+                </span>
+              </div>
+              <div
+                class="MOHFooter"
+                :style="{ width: MOHFWidth }"
+                v-if="
+                  !pageLoading &&
+                  activeKey === 'marketOrderHistory' &&
+                  dataSource.length
+                "
+              >
+                <el-text type="info">{{ $t("table.Total") }}：</el-text>
+                <span :class="[getCellClass(+MOHProSum)]">
+                  {{ MOHProSum }}</span
+                >
+              </div>
+            </template>
+            <template #empty>
+              <el-empty :image-size="80">
+                <template #image>
+                  <BaseImg iconName="icon_empty"></BaseImg>
+                </template>
+              </el-empty>
             </template>
           </el-table-v2>
         </template>
@@ -814,7 +819,7 @@ const getQuote = () => {
   return orderStore.currentQuotes[state.orderInfo.symbol] || {};
 };
 
-const getTableDate = (type: string) => {
+const getTableData = (type: string) => {
   switch (type) {
     case "marketOrder":
       orderStore.getMarketOrders();

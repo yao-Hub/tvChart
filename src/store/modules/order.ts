@@ -233,15 +233,13 @@ export const useOrder = defineStore("order", {
       try {
         this.dataLoading.marketOrder = true;
         const res = await orders.openningOrders();
-        if (res.data) {
-          res.data = res.data.map((item, index) => {
-            return {
-              ...item,
-              key: index,
-            };
-          });
-          this.orderData.marketOrder = res.data || [];
-        }
+        res.data = (res.data || []).map((item, index) => {
+          return {
+            ...item,
+            key: index,
+          };
+        });
+        this.orderData.marketOrder = res.data;
       } finally {
         this.dataLoading.marketOrder = false;
       }
@@ -252,15 +250,13 @@ export const useOrder = defineStore("order", {
       try {
         this.dataLoading.pendingOrder = true;
         const res = await orders.pendingOrders();
-        if (res.data) {
-          res.data = res.data.map((item, index) => {
-            return {
-              ...item,
-              key: index,
-            };
-          });
-          this.orderData.pendingOrder = res.data || [];
-        }
+        res.data = (res.data || []).map((item, index) => {
+          return {
+            ...item,
+            key: index,
+          };
+        });
+        this.orderData.pendingOrder = res.data;
       } finally {
         this.dataLoading.pendingOrder = false;
       }
@@ -301,6 +297,7 @@ export const useOrder = defineStore("order", {
       try {
         this.dataLoading.marketOrderHistory = true;
         const { addTime, closeTime } = this.dataFilter.marketOrderHistory;
+        console.log("addTime, closeTime", addTime, closeTime);
         const [open_begin_time, open_end_time] = addTime;
         const [close_begin_time, close_end_time] = closeTime;
         const updata: orders.reqHistoryOrders = {
