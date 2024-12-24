@@ -8,6 +8,10 @@ const routes: RouteRecordRaw[] = [
     component: () => import("@/views/login/index.vue"),
     children: [
       {
+        path: "",
+        component: () => import("@/views/login/components/Accounts.vue"),
+      },
+      {
         path: PageEnum.LOGIN_HOME,
         component: () => import("@/views/login/components/Login.vue"),
       },
