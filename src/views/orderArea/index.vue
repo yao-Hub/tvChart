@@ -40,7 +40,7 @@
           <el-select
             :suffix-icon="SelectSuffixIcon"
             style="width: 130px"
-            v-if="activeKey === 'marketOrder'"
+            v-if="['marketOrder', 'pendingOrder'].includes(activeKey)"
             v-model="orderStore.dataFilter[activeKey].direction"
             clearable
             :placeholder="t('table.direction')"
