@@ -168,10 +168,49 @@ export const useOrder = defineStore("order", {
       return this.ifQuick;
     },
 
-    async initTableData() {
+    async getData(type: string) {
       const userStore = useUser();
+      switch (type) {
+        case "order_opened":
+          await Promise.all([this.getMarketOrders(), userStore.getLoginInfo()]);
+          break;
+        case "order_closed":
+          await Promise.all([
+            this.getMarketOrders(),
+            this.getMarketOrderHistory(),
+            this.getBlanceRecord(),
+            userStore.getLoginInfo(),
+          ]);
+          break;
+        case "order_modified":
+          await this.getMarketOrders();
+          break;
+        case "pending_order_opened":
+        case "pending_order_modified":
+          await this.getPendingOrders();
+          break;
+        case "pending_order_deleted":
+          await Promise.all([
+            this.getPendingOrders(),
+            this.getPendingOrderHistory(),
+          ]);
+          break;
+        case "pending_order_dealt":
+          await Promise.all([
+            this.getMarketOrders(),
+            this.getPendingOrders(),
+            userStore.getLoginInfo(),
+          ]);
+          break;
+        case "balance_order_added":
+          await Promise.all([this.getBlanceRecord(), userStore.getLoginInfo()]);
+          break;
+        default:
+          break;
+      }
+    },
+    async initTableData() {
       const socketStore = useSocket();
-
       await Promise.all([
         this.getMarketOrders(),
         this.getPendingOrders(),
@@ -181,50 +220,7 @@ export const useOrder = defineStore("order", {
       ]);
 
       socketStore.orderChanges(async (type: string) => {
-        switch (type) {
-          case "order_opened":
-            await Promise.all([
-              this.getMarketOrders(),
-              userStore.getLoginInfo(),
-            ]);
-            break;
-          case "order_closed":
-            await Promise.all([
-              this.getMarketOrders(),
-              this.getMarketOrderHistory(),
-              this.getBlanceRecord(),
-              userStore.getLoginInfo(),
-            ]);
-            break;
-          case "order_modified":
-            await this.getMarketOrders();
-            break;
-          case "pending_order_opened":
-          case "pending_order_modified":
-            await this.getPendingOrders();
-            break;
-          case "pending_order_deleted":
-            await Promise.all([
-              this.getPendingOrders(),
-              this.getPendingOrderHistory(),
-            ]);
-            break;
-          case "pending_order_dealt":
-            await Promise.all([
-              this.getMarketOrders(),
-              this.getPendingOrders(),
-              userStore.getLoginInfo(),
-            ]);
-            break;
-          case "balance_order_added":
-            await Promise.all([
-              this.getBlanceRecord(),
-              userStore.getLoginInfo(),
-            ]);
-            break;
-          default:
-            break;
-        }
+        this.getData(type);
       });
     },
 

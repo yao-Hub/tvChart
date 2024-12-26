@@ -226,19 +226,6 @@ const domVisableOption = {
     "sellStopLimit",
   ],
 } as Record<string, string[]>;
-for (const i in formState) {
-  if (!domVisableOption[i]) {
-    domVisableOption[i] = [
-      "",
-      "buyLimit",
-      "sellLimit",
-      "buyStop",
-      "sellStop",
-      "buyStopLimit",
-      "sellStopLimit",
-    ];
-  }
-}
 // 重置表单 自动填充
 watch(
   () => modal.value,
@@ -350,6 +337,7 @@ const confirmEdit = debounce(async () => {
         id: props.orderInfo.id,
       });
       if (res.data.action_success) {
+        orderStore.getData("pending_order_modified");
         ElMessage.success(t("tip.succeed", { type: t("modify") }));
         handleCancel();
       } else {
@@ -374,6 +362,7 @@ const delPendingOrder = () => {
         symbol: props.orderInfo.symbol,
       });
       if (res.data.action_success) {
+        orderStore.getData("pending_order_deleted");
         ElMessage.success(t("dialog.pendingClosingSuccessfully"));
         handleCancel();
         return;

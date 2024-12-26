@@ -1,6 +1,7 @@
 <template>
   <div>
     <el-dialog
+      :key="freshKey"
       v-model="dialogStore.orderDialogVisible"
       class="order_dialog scrollList"
       width="450"
@@ -239,8 +240,8 @@
 </template>
 
 <script setup lang="ts">
-import { cloneDeep, debounce } from "lodash";
-import { computed, nextTick, reactive, ref, watch } from "vue";
+import { debounce, eq } from "lodash";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { DirectionType, OrderType } from "#/order";
@@ -309,28 +310,35 @@ const domVisableOption = {
 } as Record<string, string[]>;
 
 // 重置表单 自动填充
-watch(
-  () => dialogStore.orderDialogVisible,
-  async (val) => {
-    if (val) {
-      await nextTick();
-      orderFormRef.value?.resetFields();
-      const initState = cloneDeep(orderStore.initOrderState);
-      orderStore.initOrderState.symbol = "";
+const initForm = () => {
+  const initState = orderStore.initOrderState;
+  formState.symbol = initState.symbol || chartInitStore.getDefaultSymbol();
+  // 快捷交易买入卖出直接弹到确认订单
+  if (initState.mode === "confirm") {
+    formState.orderType = "price";
+    formState.volume = initState.volume;
+    showConfirmModal(initState.directionType);
+  }
+};
+onMounted(() => {
+  initForm();
+});
+onUnmounted(() => {
+  orderStore.initOrderState = { symbol: "" };
+});
 
-      formState.symbol = initState.symbol || chartInitStore.getDefaultSymbol();
-      if (initState.mode === "confirm") {
-        formState.orderType = "price";
-        formState.volume = initState.volume;
-        showConfirmModal(initState.directionType);
-        return;
-      }
-      formState.orderType = "price";
-      back();
-      setTimeout(() => {});
-    }
+const freshKey = ref(0);
+
+// 右键菜单新图表时初始化数据
+watch(
+  () => orderStore.initOrderState,
+  (nowState, preState) => {
+    const ifEq = eq(nowState, preState);
+    !ifEq && (freshKey.value = +!freshKey.value);
+    initForm();
   }
 );
+
 // 订单类型
 const orderTypeOptions = [
   { value: "buyLimit", label: "buy limit" },
@@ -437,6 +445,7 @@ const createPriceOrder = debounce(async () => {
         }),
         type: "success",
       });
+      orderStore.getData("order_opened");
       back();
       handleCancel();
     } else {
@@ -479,6 +488,7 @@ const addPendingOrders = debounce(async () => {
       }
       const res = await pendingOrdersAdd(updata);
       if (res.data.action_success) {
+        orderStore.getData("pending_order_opened");
         ElMessage.success(t("tip.succeed", { type: t("dialog.createOrder") }));
         handleCancel();
       } else {

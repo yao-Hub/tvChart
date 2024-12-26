@@ -6,17 +6,16 @@
     <div class="container" v-if="depths.length">
       <div class="box">
         <div class="item" v-for="item in depths">
-          <span class="pre-value">{{ item.ask_size }}</span>
-          <span class="last-value">{{ item.ask }}</span>
-          <div class="ask" :style="{ width: item.askWidth }"></div>
-        </div>
-      </div>
-
-      <div class="box">
-        <div class="item" v-for="item in depths">
           <span class="pre-value">{{ item.bid }}</span>
           <span class="last-value">{{ item.bid_size }}</span>
           <div class="bid" :style="{ width: item.bidWidth }"></div>
+        </div>
+      </div>
+      <div class="box">
+        <div class="item" v-for="item in depths">
+          <span class="pre-value">{{ item.ask_size }}</span>
+          <span class="last-value">{{ item.ask }}</span>
+          <div class="ask" :style="{ width: item.askWidth }"></div>
         </div>
       </div>
     </div>
@@ -140,22 +139,22 @@ onUnmounted(() => {
 }
 .ask {
   position: absolute;
-  right: 0;
-  bottom: -8px;
-  height: 8px;
-  border-radius: 4px;
-  z-index: 1;
-  @include background_color("up");
-  transition: width 1s ease-in-out;
-}
-.bid {
-  position: absolute;
   bottom: -8px;
   height: 8px;
   left: 0;
   border-radius: 4px;
   z-index: 1;
   @include background_color("down");
+  transition: width 1s ease-in-out;
+}
+.bid {
+  position: absolute;
+  right: 0;
+  bottom: -8px;
+  height: 8px;
+  border-radius: 4px;
+  z-index: 1;
+  @include background_color("up");
   transition: width 1s ease-in-out;
 }
 </style>

@@ -381,7 +381,6 @@ import { tableColumns } from "./config";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useTime } from "@/store/modules/time";
-import { useUser } from "@/store/modules/user";
 
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
@@ -390,7 +389,6 @@ import TimeSelect from "./components/TimeSelect.vue";
 
 const { t } = useI18n();
 
-const userStore = useUser();
 const orderStore = useOrder();
 const dialogStore = useDialog();
 const timeStore = useTime();
@@ -677,9 +675,7 @@ const closeMarketOrder = async (record: orders.resOrders) => {
       marketCloseLodingMap.value[record.id] = false;
       if (res.data.action_success) {
         ElMessage.success(t("order.positionClosedSuccessfully"));
-        orderStore.getMarketOrders();
-        orderStore.getMarketOrderHistory();
-        userStore.getLoginInfo();
+        orderStore.getData("order_closed");
       }
     } catch (error) {
       marketCloseLodingMap.value[record.id] = false;
@@ -723,8 +719,8 @@ const closePendingOrders = (data: orders.resOrders[]) => {
     const res = await Promise.all(list);
     if (res[0].data.action_success) {
       ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
-      orderStore.getPendingOrders();
-      orderStore.getPendingOrderHistory();
+      orderStore.getData("order_closed");
+      orderStore.getData("pending_order_deleted");
     }
   });
 };
@@ -743,8 +739,7 @@ const delPendingOrder = async (record: orders.resOrders) => {
 
       if (res.data.action_success) {
         ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
-        orderStore.getPendingOrders();
-        orderStore.getPendingOrderHistory();
+        orderStore.getData("pending_order_deleted");
         return;
       }
       ElMessage.error(res.data.err_text);

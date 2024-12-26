@@ -99,4 +99,8 @@
 .el-radio-button {
   --el-radio-button-checked-bg-color: #f0f0f0;
   --el-radio-button-checked-border-color: #dee2e9;
+  --el-radio-button-checked-text-color: #000;
+}
+.el-radio-button__inner {
+  color: #63636a;
 }

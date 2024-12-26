@@ -1,8 +1,8 @@
 <template>
   <div class="spread">
-    <span class="sellWord">{{ quote?.bid.toFixed(props.digits) }}</span>
+    <span class="sellWord">{{ quote?.bid?.toFixed(props.digits) }}</span>
     <div class="spread_point">{{ $t("order.spread") }} {{ spread }}</div>
-    <span class="buyWord">{{ quote?.ask.toFixed(props.digits) }}</span>
+    <span class="buyWord">{{ quote?.ask?.toFixed(props.digits) }}</span>
   </div>
 </template>
 

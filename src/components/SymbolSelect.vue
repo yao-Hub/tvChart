@@ -72,6 +72,6 @@ const symbols = computed(() => {
   if (props.symbolType === "tradeAllow") {
     return symbolsStore.symbols_tradeAllow;
   }
-  return symbolsStore.symbols;
+  return symbolsStore.haveQuoteSymbols;
 });
 </script>

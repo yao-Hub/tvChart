@@ -25,7 +25,7 @@ const { t } = useI18n();
 dayjs.extend(relativeTime);
 const timeStore = useTime();
 
-const dateFormat = "YY-MM-DD HH:mm";
+const dateFormat = "YY-MM-DD HH:mm:ss";
 
 // Can not select days before today
 // const disabledDate = (current: Dayjs) => {

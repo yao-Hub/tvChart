@@ -49,8 +49,8 @@ export const ORDERMAP = {
 
 export const CLOSE_TYPE: Record<number, string> = {
   0: "manual", // 手动
-  1: "tp", // 止盈
-  2: "sl", // 止损
+  1: "sl", // 止盈
+  2: "tp", // 止损
   3: "forcedLiquidation", // 强平(预付款不足)
   4: "reverseBuilding", // 反向建仓
 };

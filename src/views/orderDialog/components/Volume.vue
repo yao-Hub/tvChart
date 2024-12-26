@@ -39,7 +39,7 @@ import { useTheme } from "@/store/modules/theme";
 import { useUser } from "@/store/modules/user";
 import { round } from "utils/common/index";
 import type { CSSProperties } from "vue";
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 
 const rateStore = useRate();
 const userStore = useUser();
@@ -64,11 +64,11 @@ const step = computed(() => {
   return props.symbolInfo ? props.symbolInfo.volume_step / 100 : 1;
 });
 
-// 单笔最小手数
+// 单笔最小手数(volume_step/100)
 const min = computed(() => {
   const symbol = props.symbolInfo;
   if (symbol) {
-    const volume_min = symbol.volume_min / 100;
+    const volume_min = symbol.volume_step / 100;
     return volume_min;
   }
   return 0;
@@ -91,13 +91,17 @@ const rate = computed(() => {
   let result = 1;
   if (symbolInfo) {
     const rateMap = rateStore.getSymbolRate(symbolInfo.symbol);
-    if (orderType === "price") {
-      result = rateMap.bid_rate;
-    } else {
-      result = orderType.includes("buy") ? rateMap.ask_rate : rateMap.bid_rate;
+    if (rateMap) {
+      if (orderType === "price") {
+        result = rateMap?.bid_rate;
+      } else {
+        result = orderType.includes("buy")
+          ? rateMap.ask_rate
+          : rateMap.bid_rate;
+      }
     }
   }
-  return result;
+  return result || 1;
 });
 
 // 预付款(以买入计算)
@@ -131,6 +135,12 @@ const referMargin = computed(() => {
   return "-";
 });
 
+onMounted(() => {
+  if (model.value === "") {
+    model.value = min.value;
+  }
+});
+
 const checkVolume = () => {
   const value = model.value;
   if (!value || Number(value) < min.value) {
@@ -140,14 +150,6 @@ const checkVolume = () => {
     model.value = max.value.toString();
   }
 };
-
-watch(
-  () => min.value,
-  (value) => {
-    model.value = value.toString();
-  },
-  { deep: true }
-);
 
 // 进度条
 const percentage = ref<number>(0);
@@ -192,6 +194,7 @@ watch(
   },
   { deep: true, immediate: true }
 );
+// 滑块滚动计算所需手数
 const sliderInput = (percentage: Arrayable<number>) => {
   // 固定杠杆
   // 手数 =（margin_free[可用预付款]*percentage[滑块百分比]）/（(self.bid[市价] * contractSize[合约数量]) / leverage[固定的杠杆倍数]）* 汇率

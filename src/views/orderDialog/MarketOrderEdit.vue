@@ -153,10 +153,13 @@
 
 <script setup lang="ts">
 import { IQuote } from "#/chart/index";
+import { useOrder } from "@/store/modules/order";
 import { resOrders } from "api/order/index";
 import { computed, nextTick, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Spread from "./components/spread.vue";
+
+const orderStore = useOrder();
 
 const { t } = useI18n();
 
@@ -283,6 +286,7 @@ const closeOrder = async () => {
         symbol,
       }),
     });
+    orderStore.getData("order_closed");
     handleCancel();
     confirmCancel();
   } else {
@@ -307,6 +311,7 @@ const doubleHoldings = async (reverse?: boolean) => {
         symbol,
       }),
     });
+    orderStore.getData("order_opened");
     handleCancel();
     confirmCancel();
   } else {
@@ -331,6 +336,7 @@ const reversePosition = async () => {
       }),
       type: "success",
     });
+    orderStore.getData("order_closed");
     handleCancel();
     confirmCancel();
   } else {
@@ -381,6 +387,7 @@ const modify = debounce(async () => {
     modifyLoading.value = true;
     const res = await editopenningOrders(updata);
     if (res.data.action_success) {
+      orderStore.getData("order_modified");
       ElMessage.success(t("tip.succeed", { type: t("modify") }));
       handleCancel();
     } else {

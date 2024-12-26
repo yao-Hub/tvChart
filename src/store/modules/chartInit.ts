@@ -185,11 +185,8 @@ export const useChartInit = defineStore("chartInit", () => {
   function intLayoutType() {
     const type = storageStore.getItem("chartLayoutType");
     state.chartLayoutType = type || "single";
-
-    const storageId = storageStore.getItem("activeChartId");
-    if (storageId) {
-      state.activeChartId = storageId;
-    }
+    const storageId = storageStore.getItem("activeChartId") || "chart_1";
+    state.activeChartId = storageId;
   }
   // 设置图表布局（单个多个）
   function setLayoutType(type: State["chartLayoutType"]) {
