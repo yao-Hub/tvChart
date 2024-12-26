@@ -18,11 +18,28 @@ export const useSymbols = defineStore("symbols", () => {
   const orderStore = useOrder();
   const socketStore = useSocket();
 
+  // 全部品种
   const symbols = ref<ISessionSymbolInfo[]>([]);
 
+  // 自选品种;
   const mySymbols = ref<reqOptionalQuery[]>([]);
 
+  // 下单时选择的品种
   const selectSymbols = ref<string[]>([]);
+
+  // 可交易品种
+  const symbols_tradeAllow = computed(() => {
+    return symbols.value.filter((e) => e.trade_allow === 1);
+  });
+
+  // 有报价的品种
+  const haveQuoteSymbols = computed(() => {
+    const result = symbols.value.filter((item) => {
+      const quote = orderStore.currentQuotes[item.symbol];
+      return quote && (quote.ask || quote.bid);
+    });
+    return result;
+  });
 
   // 全部品种
   const getAllSymbol = async () => {
@@ -38,15 +55,13 @@ export const useSymbols = defineStore("symbols", () => {
     });
   };
 
-  const symbols_tradeAllow = computed(() => {
-    return symbols.value.filter((e) => e.trade_allow === 1);
-  });
-
-  //自选品种
+  // 自选品种
   const getMySymbols = async () => {
     const res = await optionalQuery();
     mySymbols.value = res.data || [];
   };
+
+  // 排序自选品种
   const mySymbols_sort = computed(() => {
     return orderBy(mySymbols.value, ["sort"]);
   });
@@ -67,6 +82,8 @@ export const useSymbols = defineStore("symbols", () => {
     }, 200),
     { deep: true }
   );
+
+  // 需要监听的品种
   const subSymbols = computed(() => {
     const arr = [
       ...orderSymbols.value,
@@ -107,5 +124,6 @@ export const useSymbols = defineStore("symbols", () => {
     getMySymbols,
     mySymbols_sort,
     symbols_tradeAllow,
+    haveQuoteSymbols,
   };
 });

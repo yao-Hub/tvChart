@@ -186,7 +186,7 @@ const resoluteItemSelect = (key: number) => {
   border: 1px solid;
   border-bottom: none;
   border-radius: 4px 4px 0px 0px;
-  @include border_color("background-active");
+  @include border_color("tabActive");
   @include background_color("background");
   // @include background_color("background-component");
 }

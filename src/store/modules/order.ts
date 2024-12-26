@@ -297,7 +297,6 @@ export const useOrder = defineStore("order", {
       try {
         this.dataLoading.marketOrderHistory = true;
         const { addTime, closeTime } = this.dataFilter.marketOrderHistory;
-        console.log("addTime, closeTime", addTime, closeTime);
         const [open_begin_time, open_end_time] = addTime;
         const [close_begin_time, close_end_time] = closeTime;
         const updata: orders.reqHistoryOrders = {

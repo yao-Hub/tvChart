@@ -63,13 +63,13 @@ html.dark {
 
   .el-dropdown-menu__item:not(.is-disabled):focus,
   .el-dropdown-menu__item:not(.is-disabled):hover {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: #383d47;
     color: #fff;
   }
 
   .el-select-dropdown__item.is-hovering {
     color: #fff;
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: #383d47;
   }
 
   .el-slider {
@@ -94,12 +94,12 @@ html.dark {
 
   .el-autocomplete-suggestion li.highlighted,
   .el-autocomplete-suggestion li:hover {
-    background-color: rgba(255, 255, 255, 0.12);
+    background-color: #383d47;
     color: #fff;
   }
 
   .el-radio-button {
-    --el-radio-button-checked-bg-color: rgba(0, 0, 0, 0.06);
+    --el-radio-button-checked-bg-color: #f0f0f0;
     --el-radio-button-checked-border-color: #2c2f35;
   }
   .el-radio-button__inner {

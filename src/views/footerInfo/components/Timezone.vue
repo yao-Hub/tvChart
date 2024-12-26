@@ -26,10 +26,13 @@
 
 <script lang="ts" setup>
 import { ITimezone, timezoneOptions } from "@/constants/timezone";
+import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
+import timezone from "dayjs/plugin/timezone";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
-import { useTime } from "@/store/modules/time";
+dayjs.extend(timezone);
+
 const timeStore = useTime();
 
 const currentTimezone = computed(() => {

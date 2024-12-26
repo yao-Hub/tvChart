@@ -5,7 +5,10 @@
       // paddingTop: chartType === 'single' ? '0' : '4px',
     }"
   >
-    <HorizontalScrolling v-if="chartType === 'single'">
+    <HorizontalScrolling
+      v-if="chartType === 'single'"
+      style="margin-left: 12px"
+    >
       <div class="tabs">
         <chartTab
           v-for="chart in chartInitStore.state.chartWidgetList"
@@ -223,7 +226,6 @@ const tabClose = (id: string) => {
   .tabs {
     display: flex;
     gap: 4px;
-    margin-left: 12px;
     @include background_color("background");
   }
 
@@ -234,8 +236,6 @@ const tabClose = (id: string) => {
     gap: 4px;
     box-sizing: border-box;
     @include background_color("background-component");
-    // width: 100%;
-    // height: 100%;
 
     &_item {
       flex: 1;

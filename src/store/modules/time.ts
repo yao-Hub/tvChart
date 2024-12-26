@@ -15,19 +15,18 @@ import { useStorage } from "./storage";
 
 export type Ttime = TimezoneId | CustomTimezoneId;
 
-const time = dayjs;
-time.extend(utc);
-time.extend(timezone);
-time.extend(relativeTime);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(relativeTime);
 export const useTime = defineStore("time", () => {
   const I18n = useI18n();
   const value = I18n.locale.value;
   const storageStore = useStorage();
   const chartInitStore = useChartInit();
-  const settedTimezone = ref(time.tz.guess());
+  const settedTimezone = ref(dayjs.tz.guess());
 
   const initTime = () => {
-    const userTimezone = storageStore.getItem("timezone") || time.tz.guess();
+    const userTimezone = storageStore.getItem("timezone") || dayjs.tz.guess();
     // 日期语言
     if (value === "en") {
       dayjs.locale("en");
@@ -36,12 +35,10 @@ export const useTime = defineStore("time", () => {
       dayjs.locale("zh-cn");
     }
     settedTimezone.value = userTimezone;
-    time.tz.setDefault(userTimezone);
   };
 
   const setTimezone = (tz: string) => {
     settedTimezone.value = tz;
-    time.tz.setDefault(tz);
     storageStore.setItem("timezone", tz);
     setChartTimezone(tz as Ttime);
   };
@@ -55,7 +52,7 @@ export const useTime = defineStore("time", () => {
   };
 
   return {
-    time,
+    time: dayjs,
     initTime,
     setTimezone,
     settedTimezone,

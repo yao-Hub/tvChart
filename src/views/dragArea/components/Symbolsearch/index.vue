@@ -3,6 +3,7 @@
     <el-scrollbar v-if="!input && !showSymbols">
       <Block
         v-for="item in listState.menu"
+        v-show="getTotal(item.type) > 0"
         :title="item.value"
         type="count"
         :total="getTotal(item.type)"
@@ -76,7 +77,7 @@ const props = defineProps<Props>();
 
 // 所有品种
 const allSymbols = computed(() => {
-  return symbolsStore.symbols.map((item: ISessionSymbolInfo) => {
+  return symbolsStore.haveQuoteSymbols.map((item: ISessionSymbolInfo) => {
     return {
       ...item,
       loading: false,
@@ -94,7 +95,7 @@ const filterSymbols = computed(() => {
 import { resSymbolAllPath, symbolAllPath } from "api/symbols/index";
 const listState = reactive({
   menu: [] as Array<any>,
-  pathMap: {} as Record<string, any>,
+  pathMap: {} as Record<string, SymbolListItem[]>,
   loading: false,
 });
 
@@ -106,7 +107,7 @@ onMounted(async () => {
   listState.loading = false;
 });
 
-// 获取各个分类下品种数量
+// 具体分类
 watch(
   () => [allSymbols.value, listState.menu],
   ([symbols, menu]) => {

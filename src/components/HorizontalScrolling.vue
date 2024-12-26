@@ -83,7 +83,7 @@ onUpdated(() => {
 .scrolling {
   display: flex;
   align-items: center;
-  overflow: hidden; /* 隐藏溢出部分 */
+  overflow: hidden;
   justify-content: space-between;
   gap: 2px;
 }

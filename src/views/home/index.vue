@@ -64,6 +64,8 @@ async function init() {
   } catch (error) {
     chartInitStore.state.loading = false;
   } finally {
+    timeStore.initTime(); // 初始化时间语言和时区
+
     socketStore.initSocket(); // 初始化socket
     chartLineStore.initSubLineAndQuote(); // 监听k线和报价
     socketStore.emitRate(); // 监听汇率
@@ -78,7 +80,6 @@ async function init() {
     // 4.确定了布局才去初始化各个模块位置
     initDragResizeArea();
     chartInitStore.loadChartList(); // 加载图表
-    timeStore.initTime(); // 初始化时间语言和时区
     // 记忆动作（没什么用(>^ω^<)喵）
     const rootStore = useRoot();
     if (rootStore.cacheAction) {

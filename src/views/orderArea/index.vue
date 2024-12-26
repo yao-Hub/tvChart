@@ -61,7 +61,7 @@
           </el-select>
           <TimeSelect
             v-show="activeKey === 'pendingOrderHistory'"
-            v-model:value="orderStore.dataFilter[activeKey].createTime"
+            v-if:value="orderStore.dataFilter[activeKey].createTime"
             style="min-width: 380px"
             :pickerOption="{
               startPlaceholder: t('table.createStartTime'),
@@ -71,7 +71,7 @@
             >{{ $t("table.createTime") }}：</TimeSelect
           >
           <TimeSelect
-            v-show="['marketOrderHistory'].includes(activeKey)"
+            v-if="['marketOrderHistory'].includes(activeKey)"
             style="min-width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].addTime"
             :pickerOption="{
@@ -82,7 +82,7 @@
             >{{ $t("table.positionOpeningTime") }}：</TimeSelect
           >
           <TimeSelect
-            v-show="['marketOrderHistory'].includes(activeKey)"
+            v-if="['marketOrderHistory'].includes(activeKey)"
             initFill
             style="min-width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].closeTime"
@@ -94,7 +94,7 @@
             >{{ $t("table.positionClosingTime") }}：</TimeSelect
           >
           <TimeSelect
-            v-show="['blanceRecord'].includes(activeKey)"
+            v-if="['blanceRecord'].includes(activeKey)"
             style="min-width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].createTime"
             :pickerOption="{

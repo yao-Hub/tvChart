@@ -4,10 +4,11 @@
       <slot></slot>
     </span>
     <el-date-picker
-      v-model="timeRange"
+      v-model="model"
       type="datetimerange"
       :shortcuts="shortcuts"
       v-bind="props.pickerOption"
+      :value-format="dateFormat"
       @change="timeChange"
     />
     <BaseImg iconName="caretDown" />
@@ -18,77 +19,108 @@
 import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { onMounted, ref } from "vue";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
+
+import { computed, onMounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 const timeStore = useTime();
-
-const timezone = timeStore.settedTimezone;
-
-const shortcuts = [
-  {
-    text: t("time.thisWeek"),
-    value: () => {
-      return [dayjs().tz(timezone).startOf("week"), dayjs()];
-    },
-  },
-  {
-    text: t("time.thisMonth"),
-    value: () => {
-      return [dayjs().tz(timezone).startOf("month"), dayjs()];
-    },
-  },
-  {
-    text: t("time.thisYear"),
-    value: () => {
-      return [dayjs().tz(timezone).startOf("year"), dayjs()];
-    },
-  },
-];
+dayjs.extend(utc);
+dayjs.extend(timezone);
 dayjs.extend(relativeTime);
-
 interface Props {
   initFill?: boolean;
   pickerOption?: object;
 }
 
-const props = defineProps<Props>();
+type TTime = Array<string>;
 
 const dateFormat = "YYYY-MM-DD HH:mm:ss";
-const timeRange = ref<string[]>([]);
-const model = defineModel<any[]>("value");
+const props = defineProps<Props>();
+const emit = defineEmits(["timeChange"]);
+
+const model = defineModel<TTime>("value", { default: () => [] });
+
+const nowTZ = computed(() => {
+  return timeStore.settedTimezone;
+});
+const shortcuts = computed(() => [
+  {
+    text: t("time.thisWeek"),
+    value: () => {
+      return [
+        dayjs().tz(nowTZ.value).startOf("week"),
+        dayjs().tz(nowTZ.value).format(dateFormat),
+      ];
+    },
+  },
+  {
+    text: t("time.thisMonth"),
+    value: () => {
+      return [
+        dayjs().tz(nowTZ.value).startOf("month").format(dateFormat),
+        dayjs().tz(nowTZ.value).format(dateFormat),
+      ];
+    },
+  },
+  {
+    text: t("time.thisYear"),
+    value: () => {
+      return [
+        dayjs().tz(nowTZ.value).startOf("year").format(dateFormat),
+        dayjs().tz(nowTZ.value).format(dateFormat),
+      ];
+    },
+  },
+]);
 
 const initializeTimeRange = async () => {
   if (props.initFill) {
     const monday = dayjs()
-      .tz(timezone)
       .startOf("week")
       .startOf("day")
+      .tz(nowTZ.value)
       .format(dateFormat); // 当前周一的日期
-    const today = dayjs().tz(timezone).format(dateFormat);
+    const today = dayjs().tz(nowTZ.value).format(dateFormat);
     model.value = [monday, today];
-    timeRange.value = [monday, today];
-    emit("timeRange");
+    // currentData.value = [monday, today];
   }
 };
+
+const timeChange = (value: string[]) => {
+  // currentData.value = value || [];
+};
+
 onMounted(() => {
   initializeTimeRange();
 });
 
-const emit = defineEmits(["timeRange"]);
-
-const timeChange = (value: any) => {
-  if (value !== null) {
-    const [st, et] = value;
-    const startDate = dayjs(st).tz(timezone).format(dateFormat);
-    const endDate = dayjs(et).tz(timezone).format(dateFormat);
-    model.value = [startDate, endDate];
-  } else {
-    model.value = [];
+watch(
+  () => model.value,
+  () => {
+    emit("timeChange");
   }
-  emit("timeRange");
-};
+);
+
+// 缓存时间 用户操作组件的时间;
+// const currentData = ref<string[]>([]);
+// watch(
+//   () => nowTZ.value,
+//   () => {
+//     const [st, et] = model.value;
+//     if (st && et) {
+//       const startDate = dayjs(st).tz(nowTZ.value).format(dateFormat);
+//       const endDate = dayjs(et).tz(nowTZ.value).format(dateFormat);
+//       model.value = [startDate, endDate];
+//       console.log(et, endDate);
+//     }
+//   },
+//   {
+//     immediate: true,
+//   }
+// );
 </script>
 
 <style lang="scss" scoped>
