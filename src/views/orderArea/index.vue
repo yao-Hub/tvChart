@@ -542,15 +542,7 @@ const getNowPrice = (e: orders.resOrders) => {
   try {
     const currentQuote = orderStore.currentQuotes[e.symbol];
     const type = getTradingDirection(e.type);
-    const result = type === "buy" ? currentQuote.bid : currentQuote.ask;
-    const id = e.id;
-    const data = orderStore.orderData[activeKey.value];
-    if (data) {
-      const index = data.findIndex((e) => e.id === id);
-      if (index) {
-        set(data, [index, "now_price"], +result);
-      }
-    }
+    const result = type === "buy" ? currentQuote.ask : currentQuote.bid;
     if (e.digits) {
       return result.toFixed(e.digits);
     }

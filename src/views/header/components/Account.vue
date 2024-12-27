@@ -161,12 +161,23 @@ const changeLogin = (account: any) => {
       item.ifLogin = item.login === login && item.server === server;
     });
     closeDropdown();
-    await userStore.login({
-      login,
-      password,
-      server,
-    });
-    chartInitStore.systemRefresh();
+    await userStore.login(
+      {
+        login,
+        password,
+        server,
+      },
+      ({ ending, success }) => {
+        if (ending) {
+          success
+            ? chartInitStore.systemRefresh()
+            : router.push({
+                path: PageEnum.LOGIN_HOME,
+                query: { login, server },
+              });
+        }
+      }
+    );
   }, 200);
 };
 

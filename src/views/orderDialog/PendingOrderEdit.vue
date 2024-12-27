@@ -3,9 +3,9 @@
     <el-dialog
       align-center
       width="464"
-      v-model="modal"
+      v-model="model"
       @close="handleCancel"
-      :z-index="13"
+      :zIndex="13"
       destroy-on-close
       append-to-body
     >
@@ -183,10 +183,10 @@ interface Props {
 }
 const props = defineProps<Props>();
 const emit = defineEmits();
-const modal = defineModel("visible", { type: Boolean, default: false });
+const model = defineModel("visible", { type: Boolean, default: false });
 const handleCancel = () => {
   orderFormRef.value?.resetFields();
-  modal.value = false;
+  model.value = false;
 };
 
 /** 表单处理 */
@@ -228,7 +228,7 @@ const domVisableOption = {
 } as Record<string, string[]>;
 // 重置表单 自动填充
 watch(
-  () => modal.value,
+  () => model.value,
   async (val) => {
     if (val) {
       const timezone = timeStore.settedTimezone;

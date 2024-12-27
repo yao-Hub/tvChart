@@ -98,7 +98,6 @@ const layoutStore = useLayout();
         float: left;
         box-sizing: border-box;
         position: relative;
-        z-index: 9;
       }
     }
   }

@@ -129,13 +129,11 @@ onUnmounted(() => {
   position: absolute;
   left: 0;
   top: 0;
-  z-index: 2;
 }
 .last-value {
   position: absolute;
   right: 0;
   top: 0;
-  z-index: 2;
 }
 .ask {
   position: absolute;
@@ -143,7 +141,6 @@ onUnmounted(() => {
   height: 8px;
   left: 0;
   border-radius: 4px;
-  z-index: 1;
   @include background_color("down");
   transition: width 1s ease-in-out;
 }
@@ -153,7 +150,6 @@ onUnmounted(() => {
   bottom: -8px;
   height: 8px;
   border-radius: 4px;
-  z-index: 1;
   @include background_color("up");
   transition: width 1s ease-in-out;
 }

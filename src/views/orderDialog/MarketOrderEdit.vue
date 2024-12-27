@@ -3,9 +3,9 @@
     <el-dialog
       align-center
       width="464"
-      v-model="modal"
+      v-model="model"
       @close="handleCancel"
-      :z-index="13"
+      :zIndex="13"
       destroy-on-close
       append-to-body
     >
@@ -109,7 +109,7 @@
       </template>
     </el-dialog>
 
-    <el-dialog :width="464" v-model="confirmOpen" align-center :z-index="14">
+    <el-dialog :width="464" v-model="confirmOpen" align-center :zIndex="14">
       <template #header>
         <span v-if="confirmType === 'close'">{{
           $t("tip.confirm", { type: t("dialog.closePosition") })
@@ -170,9 +170,9 @@ interface Props {
 const props = defineProps<Props>();
 const emit = defineEmits();
 
-const modal = defineModel("visible", { type: Boolean, default: false });
+const model = defineModel("visible", { type: Boolean, default: false });
 const handleCancel = () => {
-  modal.value = false;
+  model.value = false;
 };
 
 /** 当前品种 */
@@ -233,7 +233,7 @@ const step = computed(() => {
 });
 
 watch(
-  () => modal.value,
+  () => model.value,
   async (val) => {
     await nextTick();
     if (val && closeFormRef.value && stopFormRef.value) {
