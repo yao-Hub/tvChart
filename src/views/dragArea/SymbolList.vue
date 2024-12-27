@@ -314,9 +314,11 @@ const getVariation = (symbol: string) => {
   if (quote) {
     const close = quote.close;
     const open = quote.open;
-    const variation = round(((close - open) / open) * 100, 2);
-    result.value = `${variation}%`;
-    result.class = +variation > 0 ? " buyWord" : " sellWord";
+    if (close && open) {
+      const variation = round(((close - open) / open) * 100, 2);
+      result.value = `${variation}%`;
+      result.class = +variation > 0 ? " buyWord" : " sellWord";
+    }
   }
   return result;
 };
