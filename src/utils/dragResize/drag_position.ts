@@ -1,13 +1,11 @@
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useStorage } from "@/store/modules/storage";
-import { useTheme } from "@/store/modules/theme";
 import { debounce } from "lodash";
 import Sortable from "sortablejs";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
-const themeStore = useTheme();
 const storageStore = useStorage();
 
 const moving = {
@@ -69,8 +67,7 @@ function initDragArea() {
       onEnd: () => {
         setTimeout(() => {
           refreshLayout(); // fix：拖拽完剩一个拖拽层时样式不对
-          chartInitStore.loadCharts();
-          themeStore.setChartTheme();
+          chartInitStore.chartRefresh();
         }, 200);
       },
       store: {

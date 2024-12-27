@@ -41,17 +41,21 @@ export const useChartLine = defineStore("chartLine", {
           const bar = this.newbar[subscriberUID];
           if (bar && d.symbol === symbol) {
             const bartime = bar.time;
-            const high = bar.high;
-            const low = bar.low;
+            let high = bar.high;
+            let low = bar.low;
             const volume = bar.volume || 0;
-            const newHigh = !high || high < d.bid ? d.bid : high;
-            const newLow = !low || low > d.bid ? d.bid : low;
+            if (!high || +high < +d.bid) {
+              high = d.bid;
+            }
+            if (!low || +low > +d.bid) {
+              low = d.bid;
+            }
             let result = {
               ...d,
               ...bar,
               close: +d.bid,
-              high: +newHigh,
-              low: +newLow,
+              high: +high,
+              low: +low,
               volume: volume + 1,
               time: bartime,
             };
@@ -59,7 +63,7 @@ export const useChartLine = defineStore("chartLine", {
               result.time = d.ctm * 1000;
             }
             this.newbar[subscriberUID] = { ...result };
-            this.subscribed[UID].onRealtimeCallback(this.newbar[subscriberUID]);
+            this.subscribed[UID].onRealtimeCallback(result);
           }
         }
       });
@@ -69,32 +73,34 @@ export const useChartLine = defineStore("chartLine", {
           const item = this.subscribed[UID];
           const symbol = item.symbolInfo.name;
           const subscriberUID = UID.split("@")[1];
-          const bar = this.newbar[subscriberUID];
-          if (bar && d.symbol === symbol && +item.resolution == d.period_type) {
-            const barTime = bar.time;
+          const nowBar = this.newbar[subscriberUID];
+          if (
+            nowBar &&
+            d.symbol === symbol &&
+            +item.resolution == d.period_type
+          ) {
+            const nowbarTime = nowBar.time;
             for (let i = 0; i < d.klines.length; i++) {
               const line = d.klines[i];
-              const { close, open, volume, high, low } = line;
-              const dTime = line.ctm * 1000;
-              this.newbar[subscriberUID] = {
+              const { close, open, volume, high, low, ctm } = line;
+              const dTime = ctm * 1000;
+              let result = {
                 close,
                 open,
                 volume,
                 high,
                 low,
-                time: bar.time,
+                time: dTime,
               };
-              if (!barTime || barTime <= dTime) {
-                this.newbar[subscriberUID].time = dTime;
+              if (!nowbarTime || nowbarTime <= dTime) {
+                this.newbar[subscriberUID] = { ...result };
               }
               orderStore.currentQuotes[d.symbol]["close"] = close;
               orderStore.currentQuotes[d.symbol]["open"] = open;
               orderStore.currentQuotes[d.symbol]["high"] = high;
               orderStore.currentQuotes[d.symbol]["low"] = low;
               orderStore.currentQuotes[d.symbol]["volume"] = volume;
-              this.subscribed[UID].onRealtimeCallback(
-                this.newbar[subscriberUID]
-              );
+              this.subscribed[UID].onRealtimeCallback(result);
             }
           }
         }

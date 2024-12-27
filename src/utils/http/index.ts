@@ -63,7 +63,7 @@ const handleTokenErr = debounce(async () => {
       password,
       server,
     });
-    useChartInit().refresh();
+    useChartInit().systemRefresh();
   } catch (e) {
     showTokenConfirm();
   } finally {

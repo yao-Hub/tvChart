@@ -34,6 +34,7 @@
         v-for="({ id, symbol, interval }, index) in chartInitStore.state
           .chartWidgetList"
         :key="id"
+        :id="id"
         v-show="activedId === id || chartType === 'multiple'"
       >
         <chartTab
@@ -54,6 +55,7 @@
         <TVChart
           style="flex: 1"
           :chartId="id"
+          :key="chartInitStore.state.chartFreshKeys[id]"
           :loading="
             chartSubStore.chartsLoading || chartInitStore.state.chartLoading[id]
           "
@@ -177,10 +179,9 @@ onMounted(() => {
     onStart: () => {
       chartInitStore.saveCharts();
     },
-    onEnd: function () {
-      setTimeout(() => {
-        chartInitStore.loadCharts();
-      }, 500);
+    onEnd: (evt: any) => {
+      const id = evt.item.id;
+      chartInitStore.chartRefresh(id);
     },
   });
 

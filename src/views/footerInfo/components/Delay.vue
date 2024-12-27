@@ -60,7 +60,7 @@ const changeNode = (name: string) => {
   userStore.changeCurrentAccountOption({
     queryNode: name,
   });
-  chartInitStore.refresh();
+  chartInitStore.systemRefresh();
 };
 const socketStore = useSocket();
 const currentDelay = computed(() => {

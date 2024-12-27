@@ -9,7 +9,6 @@
       :shortcuts="shortcuts"
       v-bind="props.pickerOption"
       :value-format="dateFormat"
-      @change="timeChange"
     />
     <BaseImg iconName="caretDown" />
   </div>
@@ -85,12 +84,7 @@ const initializeTimeRange = async () => {
       .format(dateFormat); // 当前周一的日期
     const today = dayjs().tz(nowTZ.value).format(dateFormat);
     model.value = [monday, today];
-    // currentData.value = [monday, today];
   }
-};
-
-const timeChange = (value: string[]) => {
-  // currentData.value = value || [];
 };
 
 onMounted(() => {
@@ -104,8 +98,6 @@ watch(
   }
 );
 
-// 缓存时间 用户操作组件的时间;
-// const currentData = ref<string[]>([]);
 // watch(
 //   () => nowTZ.value,
 //   () => {
@@ -116,9 +108,6 @@ watch(
 //       model.value = [startDate, endDate];
 //       console.log(et, endDate);
 //     }
-//   },
-//   {
-//     immediate: true,
 //   }
 // );
 </script>

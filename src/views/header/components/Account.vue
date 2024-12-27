@@ -166,7 +166,7 @@ const changeLogin = (account: any) => {
       password,
       server,
     });
-    chartInitStore.refresh();
+    chartInitStore.systemRefresh();
   }, 200);
 };
 

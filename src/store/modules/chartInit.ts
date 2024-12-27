@@ -22,6 +22,7 @@ interface State {
   activeChartId: string; // 当前激活的chart
   globalRefresh: boolean; // 是否全局刷新
   ifFinishLoad: Record<string, boolean>; // 图表是否渲染完成
+  chartFreshKeys: Record<string, number>; // 图表刷新
 }
 
 export const useChartInit = defineStore("chartInit", () => {
@@ -37,6 +38,7 @@ export const useChartInit = defineStore("chartInit", () => {
     chartFlexDirection: "row",
     globalRefresh: false,
     ifFinishLoad: {},
+    chartFreshKeys: {},
   });
 
   // 单图表显示工具栏 多图表隐藏
@@ -63,8 +65,18 @@ export const useChartInit = defineStore("chartInit", () => {
     }
   );
 
-  // 刷新
-  function refresh() {
+  function chartRefresh(id?: string) {
+    if (id) {
+      state.chartFreshKeys[id] = +!state.chartFreshKeys[id];
+    } else {
+      for (const i in state.chartFreshKeys) {
+        state.chartFreshKeys[i] = +!state.chartFreshKeys[i];
+      }
+    }
+  }
+
+  // 系统刷新
+  function systemRefresh() {
     state.globalRefresh = true;
     setTimeout(() => {
       state.globalRefresh = false;
@@ -276,7 +288,8 @@ export const useChartInit = defineStore("chartInit", () => {
 
   return {
     state,
-    refresh,
+    chartRefresh,
+    systemRefresh,
     createChartWidget,
     getChartWidget,
     removeChartWidget,

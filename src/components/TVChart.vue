@@ -173,6 +173,8 @@ const initonReady = () => {
     custom_timezones: timezoneOptions as library.CustomAliasedTimezone[],
   };
 
+  chartInitStore.state.chartFreshKeys[props.chartId] = 0;
+
   // 读取缓存数据
   const savedData = chartInitStore.getChartSavedData(props.chartId);
   if (savedData) {
