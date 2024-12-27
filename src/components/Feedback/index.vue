@@ -2,7 +2,8 @@
   <el-dialog
     v-model="dialogStore.feedbackVisible"
     width="486"
-    :zIndex="10"
+    :zIndex="dialogStore.zIndex"
+    @open="dialogStore.incrementZIndex"
     destroy-on-close
     append-to-body
   >
@@ -68,6 +69,7 @@
 </template>
 
 <script setup lang="ts">
+import { useDialog } from "@/store/modules/dialog";
 import type {
   UploadFile,
   UploadFiles,
@@ -77,10 +79,8 @@ import type {
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { useDialog } from "@/store/modules/dialog";
-
-const { t } = useI18n();
 const dialogStore = useDialog();
+const { t } = useI18n();
 
 interface CustomUploadUserFile extends UploadUserFile {
   response: {

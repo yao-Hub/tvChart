@@ -2,7 +2,8 @@
   <el-dialog
     v-model="modalOpen"
     width="486"
-    :zIndex="10"
+    :zIndex="dialogStore.zIndex"
+    @open="dialogStore.incrementZIndex"
     destroy-on-close
     append-to-body
   >
@@ -70,12 +71,14 @@
 </template>
 
 <script setup lang="ts">
+import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { passwordReset } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
 import { reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
+const dialogStore = useDialog();
 const networkStore = useNetwork();
 const { t } = useI18n();
 

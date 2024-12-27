@@ -182,8 +182,8 @@ export const useUser = defineStore("user", {
         ending,
         success,
       }: {
-        ending: boolean;
-        success: boolean;
+        ending?: boolean;
+        success?: boolean;
       }) => void
     ) {
       if (callback) {

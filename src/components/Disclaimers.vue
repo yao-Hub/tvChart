@@ -2,7 +2,8 @@
   <el-dialog
     v-model="dialogStore.disclaimers"
     width="900"
-    :zIndex="10"
+    :zIndex="dialogStore.zIndex"
+    @open="dialogStore.incrementZIndex"
     destroy-on-close
     :show-close="false"
     :close-on-press-escape="false"

@@ -59,7 +59,13 @@
     </template>
   </el-dropdown>
 
-  <el-dialog v-model="modalOpen" width="486" :zIndex="10" destroy-on-close>
+  <el-dialog
+    v-model="modalOpen"
+    width="486"
+    :zIndex="dialogStore.zIndex"
+    @open="dialogStore.incrementZIndex"
+    destroy-on-close
+  >
     <template #header>
       <span class="header">{{ $t("personalInformation") }}</span>
     </template>
@@ -97,6 +103,7 @@
 <script setup lang="ts">
 import { PageEnum } from "@/constants/pageEnum";
 import { useChartInit } from "@/store/modules/chartInit";
+import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 import type { DropdownInstance } from "element-plus";
@@ -112,6 +119,7 @@ const networkStore = useNetwork();
 const chartInitStore = useChartInit();
 const userStore = useUser();
 const router = useRouter();
+const dialogStore = useDialog();
 
 const accounts = ref<any[]>([]);
 watch(

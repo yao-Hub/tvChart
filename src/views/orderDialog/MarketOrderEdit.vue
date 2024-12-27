@@ -5,7 +5,8 @@
       width="464"
       v-model="model"
       @close="handleCancel"
-      :zIndex="13"
+      :zIndex="dialogStore.zIndex"
+      @open="dialogStore.incrementZIndex"
       destroy-on-close
       append-to-body
     >
@@ -109,7 +110,13 @@
       </template>
     </el-dialog>
 
-    <el-dialog :width="464" v-model="confirmOpen" align-center :zIndex="14">
+    <el-dialog
+      :width="464"
+      v-model="confirmOpen"
+      align-center
+      :zIndex="dialogStore.zIndex"
+      @open="dialogStore.incrementZIndex"
+    >
       <template #header>
         <span v-if="confirmType === 'close'">{{
           $t("tip.confirm", { type: t("dialog.closePosition") })
@@ -153,12 +160,14 @@
 
 <script setup lang="ts">
 import { IQuote } from "#/chart/index";
+import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { resOrders } from "api/order/index";
 import { computed, nextTick, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Spread from "./components/spread.vue";
 
+const dialogStore = useDialog();
 const orderStore = useOrder();
 
 const { t } = useI18n();

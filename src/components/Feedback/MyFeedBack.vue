@@ -2,7 +2,8 @@
   <el-dialog
     v-model="modal"
     width="486"
-    :zIndex="11"
+    :zIndex="dialogStore.zIndex"
+    @open="dialogStore.incrementZIndex"
     append-to-body
   >
     <template #header>
@@ -62,7 +63,11 @@
 </template>
 
 <script setup lang="ts">
+import { useDialog } from "@/store/modules/dialog";
 import { ref, watch } from "vue";
+
+const dialogStore = useDialog();
+
 const modal = defineModel("open", { type: Boolean, default: false });
 
 import { myfeedback, resFeedback } from "api/feedback";

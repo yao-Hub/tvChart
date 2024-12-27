@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useDialog } from "@/store/modules/dialog";
+import { computed } from "vue";
 // import { ElMessage } from "element-plus";
 
 const dialogStore = useDialog();
@@ -38,6 +38,6 @@ const menuLeft = computed(() => dialogStore.floatMenuParams.clientX);
 <style scoped lang="scss">
 .FloatMenu {
   position: fixed;
-  z-index: 1000;
+  z-index: 2;
 }
 </style>

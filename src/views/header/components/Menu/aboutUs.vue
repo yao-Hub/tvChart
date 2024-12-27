@@ -7,7 +7,8 @@
   <el-dialog
     v-model="open"
     width="486"
-    :zIndex="10"
+    :zIndex="dialogStore.zIndex"
+    @open="dialogStore.incrementZIndex"
     destroy-on-close
     append-to-body
     @close="open = false"
@@ -45,7 +46,9 @@
 </template>
 
 <script setup lang="ts">
+import { useDialog } from "@/store/modules/dialog";
 import { ref } from "vue";
+const dialogStore = useDialog();
 const open = ref<boolean>(false);
 const emit = defineEmits(["closeDropdown"]);
 

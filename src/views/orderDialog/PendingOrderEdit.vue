@@ -5,7 +5,8 @@
       width="464"
       v-model="model"
       @close="handleCancel"
-      :zIndex="13"
+      :zIndex="dialogStore.zIndex"
+      @open="dialogStore.incrementZIndex"
       destroy-on-close
       append-to-body
     >
@@ -170,11 +171,13 @@ import Term from "./components/Term.vue";
 import Volume from "./components/Volume.vue";
 import Spread from "./components/spread.vue";
 
+import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useTime } from "@/store/modules/time";
 
 const { t } = useI18n();
 
+const dialogStore = useDialog();
 const timeStore = useTime();
 const orderStore = useOrder();
 interface Props {

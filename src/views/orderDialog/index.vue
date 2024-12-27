@@ -5,14 +5,14 @@
       v-model="dialogStore.orderDialogVisible"
       class="order_dialog scrollList"
       width="450"
-      :zIndex="10"
+      :zIndex="dialogStore.zIndex"
+      @open="dialogStore.incrementZIndex"
       :modal="false"
       :close-on-click-modal="false"
       draggable
       overflow
       align-center
       destroy-on-close
-      append-to-body
       @close="handleCancel"
       modal-class="order_dialog_modal"
     >
