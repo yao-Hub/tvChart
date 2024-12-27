@@ -3,8 +3,7 @@
     v-model="dialogStore.feedbackVisible"
     width="486"
     :zIndex="dialogStore.zIndex"
-    @open="dialogStore.incrementZIndex"
-    destroy-on-close
+    @open="onOpen"
     append-to-body
   >
     <template #header>
@@ -27,6 +26,7 @@
       v-model:file-list="fileList"
       :action="action"
       list-type="picture-card"
+      accept="image/*"
       :disabled="loading"
       :before-remove="beforeRemove"
       :on-success="onSuccess"
@@ -89,6 +89,12 @@ interface CustomUploadUserFile extends UploadUserFile {
     };
   };
 }
+
+const onOpen = () => {
+  dialogStore.incrementZIndex();
+  remark.value = "";
+  fileList.value = [];
+};
 
 const remark = ref<string>("");
 const fileList = ref<CustomUploadUserFile[]>([]);

@@ -30,11 +30,6 @@
             fit="cover"
             loading="lazy"
           >
-            <template #placeholder>
-              <div class="placeholder">
-                <el-icon class="loading"><Refresh /></el-icon>
-              </div>
-            </template>
           </BaseImg>
         </div>
         <div class="time">
@@ -140,13 +135,6 @@ const formatTime = (time: number) => {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    .placeholder {
-      width: 100%;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
   }
   .time {
     display: flex;

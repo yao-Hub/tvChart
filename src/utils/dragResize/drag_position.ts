@@ -742,7 +742,4 @@ export function initDragResizeArea() {
   initDemosPosition();
   operaHoriLine();
   operaVertLine();
-  window.addEventListener("resize", () => {
-    resizeUpdate();
-  });
 }

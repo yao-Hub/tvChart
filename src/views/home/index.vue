@@ -26,7 +26,10 @@ import { useSymbols } from "@/store/modules/symbols";
 import { useUser } from "@/store/modules/user";
 import { useRoot } from "@/store/store";
 
-import { initDragResizeArea } from "utils/dragResize/drag_position";
+import {
+  initDragResizeArea,
+  resizeUpdate,
+} from "utils/dragResize/drag_position";
 
 import { useTime } from "@/store/modules/time";
 import dragArea from "../dragArea/index.vue";
@@ -93,6 +96,9 @@ async function init() {
 }
 onMounted(() => {
   init();
+  window.addEventListener("resize", () => {
+    resizeUpdate();
+  });
 });
 
 watch(
@@ -105,6 +111,9 @@ watch(
 import { onBeforeRouteLeave } from "vue-router";
 onBeforeRouteLeave((to, from, next) => {
   chartInitStore.saveCharts();
+  window.removeEventListener("resize", () => {
+    resizeUpdate();
+  });
   next();
 });
 </script>

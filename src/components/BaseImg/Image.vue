@@ -2,14 +2,14 @@
   <div class="base_Image" v-if="!ifError && !path">
     <el-progress
       type="circle"
-      color="#fff"
       :percentage="percentage"
+      color="#fff"
       :width="20"
       :stroke-width="2"
       :show-text="false"
-    />
+    ></el-progress>
   </div>
-  <el-image v-else v-bind="props" :src="path" class="image"> </el-image>
+  <el-image v-else v-bind="props" :src="path" class="image"></el-image>
 </template>
 
 <script setup lang="ts">
@@ -72,5 +72,8 @@ watchEffect(() => {
 .image {
   width: 100%;
   height: 100%;
+}
+:deep(.el-progress-circle svg path:first-child) {
+  stroke: #000;
 }
 </style>
