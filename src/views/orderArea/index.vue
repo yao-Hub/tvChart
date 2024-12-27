@@ -492,7 +492,7 @@ const getCellClass = (num: number) => {
 const dataSource = computed(() => {
   const active = activeKey.value;
   const originData = cloneDeep(orderStore.orderData[active]);
-  const selectSymbols = orderStore.dataFilter[active].symbol || [];
+  const symbols = orderStore.dataFilter[active].symbol || [];
   const direction = orderStore.dataFilter[active].direction;
   const pol = orderStore.dataFilter[active].pol;
   let result: orders.resOrders[] = [];
@@ -501,8 +501,8 @@ const dataSource = computed(() => {
       let symbolResult = true;
       let directionResult = true;
       let polResult = true;
-      if (selectSymbols.length) {
-        symbolResult = selectSymbols.includes(item.symbol);
+      if (symbols.length) {
+        symbolResult = symbols.includes(item.symbol);
       }
       if (direction) {
         directionResult = direction === getTradingDirection(item.type);

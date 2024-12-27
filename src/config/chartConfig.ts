@@ -165,6 +165,7 @@ export const datafeed = (id: string) => {
         symbolInfo,
         resolution,
       });
+      symbolsStore.chartSymbols.push(symbolInfo.name);
     },
 
     //渲染历史数据

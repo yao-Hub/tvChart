@@ -27,6 +27,9 @@ export const useSymbols = defineStore("symbols", () => {
   // 下单时选择的品种
   const selectSymbols = ref<string[]>([]);
 
+  // 图表的品种
+  const chartSymbols = ref<string[]>([]);
+
   // 可交易品种
   const symbols_tradeAllow = computed(() => {
     return symbols.value.filter((e) => e.trade_allow === 1);
@@ -66,7 +69,7 @@ export const useSymbols = defineStore("symbols", () => {
     return orderBy(mySymbols.value, ["sort"]);
   });
 
-  // 除图表外需监听的品种
+  // 订单区域涉及的品种
   let orderSymbols = ref<string[]>([]);
   watch(
     () => orderStore.orderData,
@@ -89,6 +92,7 @@ export const useSymbols = defineStore("symbols", () => {
       ...orderSymbols.value,
       ...mySymbols.value.map((item) => item.symbols),
       ...selectSymbols.value,
+      ...chartSymbols.value,
     ];
     const result = uniq(compact(arr)).sort();
     return result;
@@ -121,6 +125,7 @@ export const useSymbols = defineStore("symbols", () => {
     symbols,
     mySymbols,
     selectSymbols,
+    chartSymbols,
     getMySymbols,
     mySymbols_sort,
     symbols_tradeAllow,

@@ -147,7 +147,6 @@ interface DataSource {
   ctm_ms?: number;
 }
 const dataSource = shallowRef<DataSource[]>([]);
-const originSource = ref<DataSource[]>([]);
 const depths = ref<Record<string, IDepth[]>>({});
 
 // 获取自选品种
@@ -162,11 +161,10 @@ const getQuery = async (fromHttp?: boolean) => {
   if (fromHttp) {
     await symbolsStore.getMySymbols();
   }
-  dataSource.value = symbolsStore.mySymbols_sort;
+  dataSource.value = cloneDeep(symbolsStore.mySymbols_sort);
   dataSource.value.forEach((item) => {
     quotesClass.value[item.symbols] = { ask: "", bid: "" };
   });
-  originSource.value = cloneDeep(symbolsStore.mySymbols_sort);
   tableLoading.value = false;
   await nextTick();
 
@@ -359,7 +357,7 @@ const sortChange = ({ order, prop }: any) => {
     result = orderBy(arr, [prop], ["desc"]);
   }
   if (order === null) {
-    result = originSource.value;
+    result = symbolsStore.mySymbols_sort;
     createSortable();
   }
   if (order && sortBox.value) {

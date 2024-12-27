@@ -171,9 +171,11 @@ export const useOrder = defineStore("order", {
     async getData(type: string) {
       const userStore = useUser();
       switch (type) {
+        // 监听订单已建仓
         case "order_opened":
           await Promise.all([this.getMarketOrders(), userStore.getLoginInfo()]);
           break;
+        // 监听订单已平仓
         case "order_closed":
           await Promise.all([
             this.getMarketOrders(),
@@ -182,19 +184,26 @@ export const useOrder = defineStore("order", {
             userStore.getLoginInfo(),
           ]);
           break;
+        // 监听订单已修改（止盈止损）
         case "order_modified":
           await this.getMarketOrders();
           break;
+        // 监听挂单已创建
+        // 监听挂单已更新;
+        // 监听 stop limit 挂单 已触及 stop
         case "pending_order_opened":
         case "pending_order_modified":
+        case "pending_order_valided":
           await this.getPendingOrders();
           break;
+        // 监听挂单已删除
         case "pending_order_deleted":
           await Promise.all([
             this.getPendingOrders(),
             this.getPendingOrderHistory(),
           ]);
           break;
+        // 监听挂单已成交
         case "pending_order_dealt":
           await Promise.all([
             this.getMarketOrders(),
@@ -202,6 +211,7 @@ export const useOrder = defineStore("order", {
             userStore.getLoginInfo(),
           ]);
           break;
+        // 监听出入金
         case "balance_order_added":
           await Promise.all([this.getBlanceRecord(), userStore.getLoginInfo()]);
           break;

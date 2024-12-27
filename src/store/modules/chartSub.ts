@@ -1,4 +1,4 @@
-import { ISessionSymbolInfo, ITVSymbolInfo } from "@/types/chart/index";
+import { ITVSymbolInfo } from "@/types/chart/index";
 import { defineStore } from "pinia";
 import { IChartingLibraryWidget } from "public/charting_library";
 import { keydownList } from "utils/keydown";
@@ -6,7 +6,6 @@ import { useSocket } from "./socket";
 
 type TcacheItem = ITVSymbolInfo & { resolution: string };
 interface State {
-  symbols: ISessionSymbolInfo[];
   barsCache: Map<string, TcacheItem>;
   chartsLoading: boolean;
 }
@@ -20,15 +19,9 @@ interface TurnSocket {
 export const useChartSub = defineStore("chartSub", {
   state: (): State => {
     return {
-      symbols: [],
       barsCache: new Map(),
       chartsLoading: false,
     };
-  },
-  getters: {
-    tradeAllowSymbols(state) {
-      return state.symbols.filter((e) => e.trade_allow === 1);
-    },
   },
   actions: {
     // k线图监听k线和报价
