@@ -1,242 +1,238 @@
 <template>
-  <div>
-    <el-dialog
-      :key="freshKey"
-      v-model="dialogStore.orderDialogVisible"
-      class="order_dialog scrollList"
-      width="450"
-      :zIndex="dialogStore.zIndex"
-      @open="dialogStore.incrementZIndex"
-      :modal="false"
-      :close-on-click-modal="false"
-      draggable
-      overflow
-      align-center
-      destroy-on-close
-      @close="handleCancel"
-      modal-class="order_dialog_modal"
+  <el-dialog
+    v-if="dialogStore.orderDialogVisible"
+    :key="freshKey"
+    v-model="dialogStore.orderDialogVisible"
+    class="order_dialog scrollList"
+    width="450"
+    :zIndex="dialogStore.zIndex"
+    :modal="false"
+    :close-on-click-modal="false"
+    draggable
+    overflow
+    align-center
+    modal-class="order_dialog_modal"
+  >
+    <template #header>
+      <span class="dialog_header">{{ $t("dialog.createOrder") }}</span>
+    </template>
+
+    <el-form
+      v-show="!priceConfirm"
+      :model="formState"
+      :rules="rules"
+      ref="orderFormRef"
+      style="margin-top: 32px"
     >
-      <template #header>
-        <span class="dialog_header">{{ $t("dialog.createOrder") }}</span>
-      </template>
-
-      <el-form
-        v-show="!priceConfirm"
-        :model="formState"
-        :rules="rules"
-        ref="orderFormRef"
-        style="margin-top: 32px"
-      >
-        <el-row :gutter="24">
-          <el-col :span="24">
-            <el-form-item
-              prop="symbol"
-              :label="t('table.symbol')"
-              label-position="top"
+      <el-row :gutter="24">
+        <el-col :span="24">
+          <el-form-item
+            prop="symbol"
+            :label="t('table.symbol')"
+            label-position="top"
+          >
+            <SymbolSelect v-model="formState.symbol" subSymbol></SymbolSelect>
+          </el-form-item>
+        </el-col>
+        <el-col :span="24">
+          <el-radio-group v-model="formState.orderType">
+            <el-radio-button :label="t('dialog.marketOrder')" value="price" />
+            <el-radio-button
+              :label="t('table.pendingOrder')"
+              :value="
+                formState.orderType === 'price'
+                  ? 'buyLimit'
+                  : formState.orderType
+              "
+            />
+          </el-radio-group>
+          <div class="divider"></div>
+        </el-col>
+        <el-col :span="24" v-if="formState.orderType !== 'price'">
+          <el-form-item
+            prop="orderType"
+            :label="t('dialog.type')"
+            label-position="top"
+          >
+            <el-select
+              v-model="formState.orderType"
+              filterable
+              :placeholder="t('dialog.orderType')"
             >
-              <SymbolSelect v-model="formState.symbol" subSymbol></SymbolSelect>
-            </el-form-item>
-          </el-col>
-          <el-col :span="24">
-            <el-radio-group v-model="formState.orderType">
-              <el-radio-button :label="t('dialog.marketOrder')" value="price" />
-              <el-radio-button
-                :label="t('table.pendingOrder')"
-                :value="
-                  formState.orderType === 'price'
-                    ? 'buyLimit'
-                    : formState.orderType
-                "
+              <el-option
+                v-for="item in orderTypeOptions"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
               />
-            </el-radio-group>
-            <div class="divider"></div>
-          </el-col>
-          <el-col :span="24" v-if="formState.orderType !== 'price'">
-            <el-form-item
-              prop="orderType"
-              :label="t('dialog.type')"
-              label-position="top"
-            >
-              <el-select
-                v-model="formState.orderType"
-                filterable
-                :placeholder="t('dialog.orderType')"
-              >
-                <el-option
-                  v-for="item in orderTypeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col
-            :span="24"
-            v-if="domVisableOption.breakPrice.includes(formState.orderType)"
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col
+          :span="24"
+          v-if="domVisableOption.breakPrice.includes(formState.orderType)"
+        >
+          <BreakLimit
+            v-model:value="formState.breakPrice"
+            :formOption="{
+              name: 'breakPrice',
+              label: t('dialog.breakPrice'),
+            }"
+            :orderType="formState.orderType"
+            :symbolInfo="symbolInfo"
+            :quote="quote"
+          ></BreakLimit>
+        </el-col>
+        <el-col
+          :span="24"
+          v-if="domVisableOption.orderPrice.includes(formState.orderType)"
+        >
+          <Price
+            v-model:value="formState.orderPrice"
+            :formOption="{
+              name: 'orderPrice',
+              label: `${
+                formState.orderType.includes('Stop')
+                  ? t('dialog.breakPrice')
+                  : t('dialog.limitedPrice')
+              }`,
+            }"
+            :orderType="formState.orderType"
+            :symbolInfo="symbolInfo"
+            :quote="quote"
           >
-            <BreakLimit
-              v-model:value="formState.breakPrice"
-              :formOption="{
-                name: 'breakPrice',
-                label: t('dialog.breakPrice'),
-              }"
-              :orderType="formState.orderType"
-              :symbolInfo="symbolInfo"
-              :quote="quote"
-            ></BreakLimit>
-          </el-col>
-          <el-col
-            :span="24"
-            v-if="domVisableOption.orderPrice.includes(formState.orderType)"
-          >
-            <Price
-              v-model:value="formState.orderPrice"
-              :formOption="{
-                name: 'orderPrice',
-                label: `${
-                  formState.orderType.includes('Stop')
-                    ? t('dialog.breakPrice')
-                    : t('dialog.limitedPrice')
-                }`,
-              }"
-              :orderType="formState.orderType"
-              :symbolInfo="symbolInfo"
-              :quote="quote"
-            >
-            </Price>
-          </el-col>
-          <el-col
-            :span="24"
-            v-if="domVisableOption.limitedPrice.includes(formState.orderType)"
-          >
-            <BreakLimit
-              v-model:value="formState.limitedPrice"
-              :breakPrice="formState.breakPrice"
-              :formOption="{
-                name: 'limitedPrice',
-                label: t('dialog.limitedPrice'),
-              }"
-              :orderType="formState.orderType"
-              :symbolInfo="symbolInfo"
-              :quote="quote"
-            ></BreakLimit>
-          </el-col>
-          <el-col :span="24">
-            <Volume
-              v-model:volume="formState.volume"
-              :symbolInfo="symbolInfo"
-              :quote="quote"
-              :formOption="{ name: 'volume', label: t('table.volume') }"
-              :orderType="formState.orderType"
-              :orderPrice="formState.orderPrice"
-            ></Volume>
-          </el-col>
-          <el-col :span="12">
-            <StopLossProfit
-              style="width: 168px"
-              type="stopLoss"
-              v-model:price="formState.stopLoss"
-              :volume="formState.volume"
-              :symbolInfo="symbolInfo"
-              :quote="quote"
-              :orderPrice="formState.orderPrice"
-              :orderType="formState.orderType"
-              :limitedPrice="formState.limitedPrice"
-            ></StopLossProfit>
-          </el-col>
-          <el-col :span="12">
-            <StopLossProfit
-              style="width: 168px"
-              type="stopProfit"
-              v-model:price="formState.stopProfit"
-              :volume="formState.volume"
-              :symbolInfo="symbolInfo"
-              :quote="quote"
-              :orderPrice="formState.orderPrice"
-              :orderType="formState.orderType"
-              :limitedPrice="formState.limitedPrice"
-            ></StopLossProfit>
-          </el-col>
-          <el-col
-            :span="24"
-            v-if="domVisableOption.dueDate.includes(formState.orderType)"
-          >
-            <Term v-model:term="formState.dueDate"></Term>
-          </el-col>
-          <el-col :span="24">
-            <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
-          </el-col>
-          <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-            <el-button class="sellBtn" @click="showConfirmModal('sell')">{{
-              $t("order.sell")
-            }}</el-button>
-          </el-col>
-          <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-            <el-button class="buyBtn" @click="showConfirmModal('buy')">{{
-              $t("order.buy")
-            }}</el-button>
-          </el-col>
-          <el-col :span="24" v-if="!['price'].includes(formState.orderType)">
-            <el-button
-              :class="[
-                formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
-              ]"
-              class="pendingBtn"
-              :loading="pendingBtnLoading"
-              @click="addPendingOrders"
-              >{{ $t("dialog.createOrder") }}</el-button
-            >
-          </el-col>
-        </el-row>
-      </el-form>
-
-      <!-- 市价单下单确认 -->
-      <div v-show="priceConfirm" class="confirmBox">
-        <BaseImg iconName="icon_recognise" class="icon" />
-        <el-text class="title">{{
-          t("tip.confirm", { type: t("dialog.createOrder") })
-        }}</el-text>
-        <el-text class="tip" type="info">{{
-          $t("dialog.confirmBelow")
-        }}</el-text>
-        <div class="infobox">
-          <div class="infobox_item">
-            <el-text type="info">{{ $t("table.symbol") }}</el-text>
-            <el-text>{{ formState.symbol }}</el-text>
-          </div>
-          <div class="infobox_item">
-            <el-text type="info">{{ $t("dialog.orderType") }}</el-text>
-            <el-text>{{ $t(`order.${directionType}`) }}</el-text>
-          </div>
-          <div class="infobox_item">
-            <el-text type="info">{{ $t("table.volume") }}</el-text>
-            <el-text>{{ formState.volume }}</el-text>
-          </div>
-          <div class="infobox_item">
-            <el-text type="info">{{ $t("table.tp") }}</el-text>
-            <el-text>{{ formState.stopProfit }}</el-text>
-          </div>
-          <div class="infobox_item">
-            <el-text type="info">{{ $t("table.sl") }}</el-text>
-            <el-text>{{ formState.stopLoss }}</el-text>
-          </div>
-        </div>
-        <div class="btnGroup">
-          <el-button class="btn" @click="back">{{
-            $t("dialog.back")
+          </Price>
+        </el-col>
+        <el-col
+          :span="24"
+          v-if="domVisableOption.limitedPrice.includes(formState.orderType)"
+        >
+          <BreakLimit
+            v-model:value="formState.limitedPrice"
+            :breakPrice="formState.breakPrice"
+            :formOption="{
+              name: 'limitedPrice',
+              label: t('dialog.limitedPrice'),
+            }"
+            :orderType="formState.orderType"
+            :symbolInfo="symbolInfo"
+            :quote="quote"
+          ></BreakLimit>
+        </el-col>
+        <el-col :span="24">
+          <Volume
+            v-model:volume="formState.volume"
+            :symbolInfo="symbolInfo"
+            :quote="quote"
+            :formOption="{ name: 'volume', label: t('table.volume') }"
+            :orderType="formState.orderType"
+            :orderPrice="formState.orderPrice"
+          ></Volume>
+        </el-col>
+        <el-col :span="12">
+          <StopLossProfit
+            style="width: 168px"
+            type="stopLoss"
+            v-model:price="formState.stopLoss"
+            :volume="formState.volume"
+            :symbolInfo="symbolInfo"
+            :quote="quote"
+            :orderPrice="formState.orderPrice"
+            :orderType="formState.orderType"
+            :limitedPrice="formState.limitedPrice"
+          ></StopLossProfit>
+        </el-col>
+        <el-col :span="12">
+          <StopLossProfit
+            style="width: 168px"
+            type="stopProfit"
+            v-model:price="formState.stopProfit"
+            :volume="formState.volume"
+            :symbolInfo="symbolInfo"
+            :quote="quote"
+            :orderPrice="formState.orderPrice"
+            :orderType="formState.orderType"
+            :limitedPrice="formState.limitedPrice"
+          ></StopLossProfit>
+        </el-col>
+        <el-col
+          :span="24"
+          v-if="domVisableOption.dueDate.includes(formState.orderType)"
+        >
+          <Term v-model:term="formState.dueDate"></Term>
+        </el-col>
+        <el-col :span="24">
+          <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
+        </el-col>
+        <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
+          <el-button class="sellBtn" @click="showConfirmModal('sell')">{{
+            $t("order.sell")
           }}</el-button>
+        </el-col>
+        <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
+          <el-button class="buyBtn" @click="showConfirmModal('buy')">{{
+            $t("order.buy")
+          }}</el-button>
+        </el-col>
+        <el-col :span="24" v-if="!['price'].includes(formState.orderType)">
           <el-button
-            class="btn"
-            type="primary"
-            :loading="priceBtnLoading"
-            @click="createPriceOrder"
-            >{{ $t("tip.confirm") }}</el-button
+            :class="[
+              formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
+            ]"
+            class="pendingBtn"
+            :loading="pendingBtnLoading"
+            @click="addPendingOrders"
+            >{{ $t("dialog.createOrder") }}</el-button
           >
+        </el-col>
+      </el-row>
+    </el-form>
+
+    <!-- 市价单下单确认 -->
+    <div v-show="priceConfirm" class="confirmBox">
+      <BaseImg iconName="icon_recognise" class="icon" />
+      <el-text class="title">{{
+        t("tip.confirm", { type: t("dialog.createOrder") })
+      }}</el-text>
+      <el-text class="tip" type="info">{{
+        $t("dialog.confirmBelow")
+      }}</el-text>
+      <div class="infobox">
+        <div class="infobox_item">
+          <el-text type="info">{{ $t("table.symbol") }}</el-text>
+          <el-text>{{ formState.symbol }}</el-text>
+        </div>
+        <div class="infobox_item">
+          <el-text type="info">{{ $t("dialog.orderType") }}</el-text>
+          <el-text>{{ $t(`order.${directionType}`) }}</el-text>
+        </div>
+        <div class="infobox_item">
+          <el-text type="info">{{ $t("table.volume") }}</el-text>
+          <el-text>{{ formState.volume }}</el-text>
+        </div>
+        <div class="infobox_item">
+          <el-text type="info">{{ $t("table.tp") }}</el-text>
+          <el-text>{{ formState.stopProfit }}</el-text>
+        </div>
+        <div class="infobox_item">
+          <el-text type="info">{{ $t("table.sl") }}</el-text>
+          <el-text>{{ formState.stopLoss }}</el-text>
         </div>
       </div>
-    </el-dialog>
-  </div>
+      <div class="btnGroup">
+        <el-button class="btn" @click="back">{{
+          $t("dialog.back")
+        }}</el-button>
+        <el-button
+          class="btn"
+          type="primary"
+          :loading="priceBtnLoading"
+          @click="createPriceOrder"
+          >{{ $t("tip.confirm") }}</el-button
+        >
+      </div>
+    </div>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -267,7 +263,7 @@ const chartInitStore = useChartInit();
 import { useDialog } from "@/store/modules/dialog";
 const dialogStore = useDialog();
 const handleCancel = () => {
-  dialogStore.closeOrderDialog();
+  dialogStore.closeDialog("orderDialogVisible");
 };
 
 /** 表单处理 */

@@ -10,9 +10,9 @@
   </div>
 
   <el-dialog
+    v-if="dialogVisible"
     v-model="dialogVisible"
     width="900"
-    :before-close="handleClose"
     :footer="null"
   >
     <template #header>
@@ -162,13 +162,14 @@ const getDetail = async () => {
     ifError.value = true;
   }
 };
+
+import { useDialog } from "@/store/modules/dialog";
+const dialogStore = useDialog();
 const dialogVisible = ref<boolean>(false);
 const showDialog = () => {
+  dialogStore.incrementZIndex();
   dialogVisible.value = true;
   getDetail();
-};
-const handleClose = () => {
-  dialogVisible.value = false;
 };
 
 const getValue = (key: Tkey) => {

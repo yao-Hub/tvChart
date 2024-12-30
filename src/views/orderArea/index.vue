@@ -13,7 +13,7 @@
         <div class="header_right">
           <div
             class="feedback textEllipsis"
-            @click="dialogStore.feedbackVisible = true"
+            @click="dialogStore.openDialog('feedbackVisible')"
           >
             <BaseImg class="logo" iconName="icon_17" />
             <el-text type="info">{{ $t("feedback") }}</el-text>
@@ -680,7 +680,7 @@ const closeMarketOrder = async (record: orders.resOrders) => {
     return;
   }
   if (ifOne === null) {
-    dialogStore.disclaimers = true;
+    dialogStore.openDialog("disclaimersVisible");
     return;
   }
   ElMessageBox.confirm("", t("order.confirmPositionClosure")).then(() => foo());
@@ -742,7 +742,7 @@ const delPendingOrder = async (record: orders.resOrders) => {
 
   const ifOne = orderStore.getOneTrans();
   if (ifOne === null) {
-    dialogStore.disclaimers = true;
+    dialogStore.openDialog("disclaimersVisible");
   }
 
   if (!orderStore.ifOne) {
@@ -759,9 +759,11 @@ const rowProps = ({ rowData }: any) => {
   return {
     ondblclick: () => {
       if (activeKey.value === "marketOrder") {
+        dialogStore.incrementZIndex();
         state.marketDialogVisible = true;
       }
       if (activeKey.value === "pendingOrder") {
+        dialogStore.incrementZIndex();
         state.pendingDialogVisible = true;
       }
       state.orderInfo = rowData;

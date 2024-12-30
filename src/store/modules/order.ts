@@ -142,7 +142,7 @@ export const useOrder = defineStore("order", {
       if (params) {
         this.initOrderState = { ...params };
       }
-      dialogStore.showOrderDialog();
+      dialogStore.openDialog("orderDialogVisible");
     },
 
     // 设置一键交易状态

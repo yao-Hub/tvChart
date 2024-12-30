@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    v-if="dialogStore.feedbackVisible"
     v-model="dialogStore.feedbackVisible"
     width="486"
     :zIndex="dialogStore.zIndex"
@@ -56,9 +57,7 @@
     </el-upload>
 
     <template #footer>
-      <el-button @click="myFeedBackOpen = true">{{
-        $t("myFeedback")
-      }}</el-button>
+      <el-button @click="openMyfeedback">{{ $t("myFeedback") }}</el-button>
       <el-button type="primary" @click="handleOk" :loading="loading">{{
         $t("submit")
       }}</el-button>
@@ -91,7 +90,6 @@ interface CustomUploadUserFile extends UploadUserFile {
 }
 
 const onOpen = () => {
-  dialogStore.incrementZIndex();
   remark.value = "";
   fileList.value = [];
 };
@@ -140,7 +138,7 @@ const submit = async (feedbackFileIds: string[] = []) => {
       type: "success",
     });
     loading.value = false;
-    dialogStore.feedbackVisible = false;
+    dialogStore.closeDialog("feedbackVisible");
   } catch (error) {
     loading.value = false;
   }
@@ -181,6 +179,10 @@ const onError = (error: Error) => {
 };
 const beforeRemove = () => {
   return !loading.value;
+};
+const openMyfeedback = () => {
+  dialogStore.incrementZIndex();
+  myFeedBackOpen.value = true;
 };
 </script>
 

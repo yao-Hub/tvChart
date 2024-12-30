@@ -1,11 +1,9 @@
 <template>
   <el-dialog
+    v-if="modalOpen"
     v-model="modalOpen"
     width="486"
     :zIndex="dialogStore.zIndex"
-    @open="dialogStore.incrementZIndex"
-    destroy-on-close
-    append-to-body
   >
     <template #header>
       <span class="header">{{ $t("account.resetPassword") }}</span>

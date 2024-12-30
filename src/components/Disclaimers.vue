@@ -1,9 +1,9 @@
 <template>
   <el-dialog
-    v-model="dialogStore.disclaimers"
+    v-if="dialogStore.disclaimersVisible"
+    v-model="dialogStore.disclaimersVisible"
     width="900"
     :zIndex="dialogStore.zIndex"
-    @open="dialogStore.incrementZIndex"
     destroy-on-close
     :show-close="false"
     :close-on-press-escape="false"
@@ -55,7 +55,7 @@ const agree = ref<boolean>(false);
 
 const handleOk = (e: MouseEvent) => {
   if (agree.value) {
-    dialogStore.disclaimers = false;
+    dialogStore.closeDialog("disclaimersVisible");
     orderStore.setOneTrans(true);
     return;
   }
@@ -66,7 +66,7 @@ const handleOk = (e: MouseEvent) => {
 };
 
 const handleCancle = () => {
-  dialogStore.disclaimers = false;
+  dialogStore.closeDialog("disclaimersVisible");
   orderStore.setOneTrans(false);
 };
 </script>

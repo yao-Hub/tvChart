@@ -6,7 +6,7 @@
   </div>
 
   <FloatMenu></FloatMenu>
-  <OrderDialog v-if="dialogStore.orderDialogVisible"></OrderDialog>
+  <OrderDialog></OrderDialog>
   <Feedback></Feedback>
   <Disclaimers></Disclaimers>
 </template>
@@ -16,7 +16,6 @@ import { nextTick, onMounted, watch } from "vue";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartLine } from "@/store/modules/chartLine";
-import { useDialog } from "@/store/modules/dialog";
 import { useLayout } from "@/store/modules/layout";
 import { useNetwork } from "@/store/modules/network";
 import { useOrder } from "@/store/modules/order";
@@ -48,7 +47,6 @@ const chartLineStore = useChartLine();
 const symbolsStore = useSymbols();
 const timeStore = useTime();
 const rateStore = useRate();
-const dialogStore = useDialog();
 
 // 初始化 注意调用顺序
 async function init() {

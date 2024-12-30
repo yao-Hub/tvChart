@@ -27,7 +27,7 @@ const emit = defineEmits(["closeDropdown"]);
 const beforeChange = () => {
   emit("closeDropdown");
   if (!orderStore.ifOne) {
-    dialogStore.disclaimers = true;
+    dialogStore.openDialog("disclaimersVisible");
     return false;
   }
   orderStore.setOneTrans(false);

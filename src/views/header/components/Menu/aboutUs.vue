@@ -5,13 +5,10 @@
   </div>
 
   <el-dialog
+    v-if="open"
     v-model="open"
     width="486"
     :zIndex="dialogStore.zIndex"
-    @open="dialogStore.incrementZIndex"
-    destroy-on-close
-    append-to-body
-    @close="open = false"
   >
     <template #header>
       <span class="header">{{ $t("aboutUs") }}</span>
@@ -54,6 +51,7 @@ const emit = defineEmits(["closeDropdown"]);
 
 const handleClick = () => {
   emit("closeDropdown");
+  dialogStore.incrementZIndex();
   open.value = true;
 };
 </script>

@@ -1,14 +1,11 @@
 <template>
   <div>
     <el-dialog
+      v-if="model"
       align-center
       width="464"
       v-model="model"
-      @close="handleCancel"
       :zIndex="dialogStore.zIndex"
-      @open="dialogStore.incrementZIndex"
-      destroy-on-close
-      append-to-body
     >
       <template #header>
         <span class="dialog_header">ID: {{ props.orderInfo.id }}</span>
@@ -111,11 +108,11 @@
     </el-dialog>
 
     <el-dialog
+      v-if="confirmOpen"
       :width="464"
       v-model="confirmOpen"
       align-center
       :zIndex="dialogStore.zIndex"
-      @open="dialogStore.incrementZIndex"
     >
       <template #header>
         <span v-if="confirmType === 'close'">{{
@@ -180,9 +177,6 @@ const props = defineProps<Props>();
 const emit = defineEmits();
 
 const model = defineModel("visible", { type: Boolean, default: false });
-const handleCancel = () => {
-  model.value = false;
-};
 
 /** 当前品种 */
 import { useSymbols } from "@/store/modules/symbols";
@@ -270,6 +264,7 @@ const handleConfirm = debounce(
     if (!formEl) return;
     formEl.validate((valid) => {
       if (valid) {
+        dialogStore.incrementZIndex();
         confirmType.value = type;
         confirmOpen.value = true;
       }
@@ -296,7 +291,7 @@ const closeOrder = async () => {
       }),
     });
     orderStore.getData("order_closed");
-    handleCancel();
+    model.value = false;
     confirmCancel();
   } else {
     ElNotification.error({
@@ -321,7 +316,7 @@ const doubleHoldings = async (reverse?: boolean) => {
       }),
     });
     orderStore.getData("order_opened");
-    handleCancel();
+    model.value = false;
     confirmCancel();
   } else {
     ElNotification.error({
@@ -346,7 +341,7 @@ const reversePosition = async () => {
       type: "success",
     });
     orderStore.getData("order_closed");
-    handleCancel();
+   model.value = false;
     confirmCancel();
   } else {
     ElNotification.error({
@@ -398,7 +393,7 @@ const modify = debounce(async () => {
     if (res.data.action_success) {
       orderStore.getData("order_modified");
       ElMessage.success(t("tip.succeed", { type: t("modify") }));
-      handleCancel();
+      model.value = false;
     } else {
       ElMessage.error(
         res.data.err_text || t("tip.failed", { type: t("modify") })

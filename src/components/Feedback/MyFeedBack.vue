@@ -1,10 +1,9 @@
 <template>
   <el-dialog
-    v-model="modal"
+    v-if="model"
+    v-model="model"
     width="486"
     :zIndex="dialogStore.zIndex"
-    @open="dialogStore.incrementZIndex"
-    append-to-body
   >
     <template #header>
       <span class="header">{{ $t("myFeedback") }}</span>
@@ -63,7 +62,7 @@ import { ref, watch } from "vue";
 
 const dialogStore = useDialog();
 
-const modal = defineModel("open", { type: Boolean, default: false });
+const model = defineModel("open", { type: Boolean, default: false });
 
 import { myfeedback, resFeedback } from "api/feedback";
 type commentList = resFeedback & {
@@ -73,7 +72,7 @@ type commentList = resFeedback & {
 const commentList = ref<Array<commentList>>([]);
 const loading = ref(false);
 watch(
-  () => modal.value,
+  () => model.value,
   async (val) => {
     if (val) {
       loading.value = true;

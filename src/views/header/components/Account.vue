@@ -42,7 +42,7 @@
         <el-divider direction="vertical" />
         <el-text
           type="info"
-          @click="resetPasswordOpen = true"
+          @click="openResetPwd"
           v-if="userStore.account.server === 'utrader-demo'"
           >{{ $t("changePassword") }}</el-text
         >
@@ -60,10 +60,10 @@
   </el-dropdown>
 
   <el-dialog
+    v-if="modalOpen"
     v-model="modalOpen"
     width="486"
     :zIndex="dialogStore.zIndex"
-    @open="dialogStore.incrementZIndex"
     destroy-on-close
   >
     <template #header>
@@ -208,7 +208,13 @@ const getLogo = (server: string) => {
 const modalOpen = ref<boolean>(false);
 const showModal = () => {
   closeDropdown();
+  dialogStore.incrementZIndex();
   modalOpen.value = true;
+};
+
+const openResetPwd = () => {
+  dialogStore.incrementZIndex();
+  resetPasswordOpen.value = true;
 };
 </script>
 

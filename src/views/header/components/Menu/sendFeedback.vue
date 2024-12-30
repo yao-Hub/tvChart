@@ -12,7 +12,7 @@ const dialogStore = useDialog();
 const emit = defineEmits(["closeDropdown"]);
 const handleClick = () => {
   emit("closeDropdown");
-  dialogStore.feedbackVisible = true;
+  dialogStore.openDialog("feedbackVisible");
 };
 </script>
 <style lang="scss" scoped>

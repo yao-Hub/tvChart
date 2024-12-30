@@ -9,16 +9,17 @@ interface FloatMenuParams {
 interface State {
   orderDialogVisible: boolean; // 订单弹窗的显示
   floatMenuParams: FloatMenuParams; // 订单线加号按钮菜单
-  disclaimers: boolean; // 快捷交易声明弹窗
+  disclaimersVisible: boolean; // 快捷交易声明弹窗
   feedbackVisible: boolean; // 我的反馈弹窗
-  // zIndexList: number[]; // z-index控制
   zIndex: number;
 }
+
+type TVisible = "orderDialogVisible" | "disclaimersVisible" | "feedbackVisible";
 
 export const useDialog = defineStore("dialog", {
   state: (): State => {
     return {
-      disclaimers: false,
+      disclaimersVisible: false,
       orderDialogVisible: false, // 订单弹窗
       feedbackVisible: false,
       floatMenuParams: {
@@ -30,11 +31,12 @@ export const useDialog = defineStore("dialog", {
     };
   },
   actions: {
-    showOrderDialog() {
-      this.orderDialogVisible = true;
+    openDialog(type: TVisible) {
+      this.incrementZIndex();
+      this[type] = true;
     },
-    closeOrderDialog() {
-      this.orderDialogVisible = false;
+    closeDialog(type: TVisible) {
+      this[type] = false;
     },
     incrementZIndex() {
       this.zIndex++;
