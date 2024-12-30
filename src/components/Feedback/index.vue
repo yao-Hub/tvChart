@@ -4,8 +4,9 @@
     v-model="dialogStore.feedbackVisible"
     width="486"
     :zIndex="dialogStore.zIndex"
-    @open="onOpen"
+    @close="onClose"
     append-to-body
+    destroy-on-close
   >
     <template #header>
       <span class="header">{{ $t("feedback") }}</span>
@@ -22,19 +23,23 @@
     />
 
     <el-upload
+      :class="{ hideUpload: fileList.length >= fileLimit }"
       ref="uploadRef"
       style="margin-top: 8px"
       v-model:file-list="fileList"
       :action="action"
       list-type="picture-card"
       accept="image/*"
+      multiple
+      :limit="fileLimit"
       :disabled="loading"
       :before-remove="beforeRemove"
       :on-success="onSuccess"
       :on-error="onError"
+      :on-exceed="onExceed"
       :auto-upload="false"
     >
-      <div class="uploadPlus">
+      <div>
         <el-icon><Plus /></el-icon>
       </div>
       <template #file="{ file }">
@@ -81,6 +86,8 @@ import { useI18n } from "vue-i18n";
 const dialogStore = useDialog();
 const { t } = useI18n();
 
+const fileLimit = 6;
+
 interface CustomUploadUserFile extends UploadUserFile {
   response: {
     data: {
@@ -89,7 +96,7 @@ interface CustomUploadUserFile extends UploadUserFile {
   };
 }
 
-const onOpen = () => {
+const onClose = () => {
   remark.value = "";
   fileList.value = [];
 };
@@ -184,8 +191,19 @@ const openMyfeedback = () => {
   dialogStore.incrementZIndex();
   myFeedBackOpen.value = true;
 };
+const onExceed = () => {
+  ElMessage({
+    message: t("tip.upLoadFileExceed", { num: fileLimit }),
+    type: "warning",
+  });
+};
 </script>
 
+<style lang="scss">
+.hideUpload .el-upload-list .el-upload--picture-card {
+  display: none;
+}
+</style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 

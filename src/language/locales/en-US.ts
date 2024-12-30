@@ -213,7 +213,8 @@ export default {
       "You are about to cancel the following selected {num} orders. Do you want to proceed?",
     minFastPoint: "At least {size} pips away from the market price",
     need: "need",
-    upLoadFileError: "File upload error"
+    upLoadFileError: "File upload error",
+    upLoadFileExceed: "Up to {num} images can be uploaded",
   },
 
   time: {

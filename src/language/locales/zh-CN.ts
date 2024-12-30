@@ -327,6 +327,7 @@ export default {
     positionClosingFailed: "仓位关闭失败",
     orderClose: "{volume}手{symbol}的订单已关闭",
     pendingClosingSuccessfully: "删除挂单成功",
+    upLoadFileExceed: "最多上传{num}张图片",
   },
 
   "invalid token": "登录过期",
