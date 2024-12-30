@@ -2,6 +2,10 @@
   <div class="login">
     <BaseImg class="title" iconName="title" imgSuffix="png" />
     <span class="welcome">{{ $t("welcomeToUTrader") }}</span>
+    <div class="functionalArea">
+      <Theme></Theme>
+      <Language></Language>
+    </div>
     <router-view v-slot="{ Component }">
       <div class="container">
         <transition :name="direction" mode="out-in">
@@ -21,6 +25,9 @@ import { useRouter } from "vue-router";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
+
+import Language from "./components/Language.vue";
+import Theme from "./components/Theme.vue";
 
 const router = useRouter();
 
@@ -86,6 +93,14 @@ watch(
     top: 32px;
     width: 176px;
     height: 36px;
+  }
+  .functionalArea {
+    position: absolute;
+    top: 32px;
+    right: 72px;
+    display: flex;
+    gap: 16px;
+    align-items: center;
   }
   .container {
     position: absolute;

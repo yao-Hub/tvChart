@@ -1,49 +1,78 @@
+:root {
+  --light-1: #fff;
+  --light-2: #eef2f6;
+  --light-3: #f0f0f0;
+  --light-4: #d8dadc;
+  --light-5: #dee2e9;
+  --light-6: #e8ebf0;
+  --light-7: #efefef;
+  --light-8: #f1f3f6;
+  --light-9: #94959b;
+  --light-10: #63636a;
+  --light-11: #333;
+
+  --dark-1: #000;
+  --dark-2: #323745;
+  --dark-3: #1d222d;
+  --dark-4: #1b1f29;
+  --dark-5: #1a1d23;
+  --dark-6: #383d47;
+  --dark-7: #56585c;
+  --dark-8: #818588;
+  --dark-9: #b0b1b3;
+  --dark-10: #bec2c9;
+  --dark-11: #d1d4dc;
+
+  --color-1: #f6f8fb;
+  --color-2: #e28602;
+  --color-3: #f4b201;
+}
 $systemThemes: (
   light: (
-    background: #fff,
-    background-component: #eef2f6,
-    background-dialog: #f6f8fb,
-    background-hover: #f0f0f0,
-    background-active: #d8dadc,
-    background-table-active: #e28602,
-    background-login-container: #fff,
-    primary-active: #e28602,
-    primary: #f4b201,
-    border: #dee2e9,
-    word: #000,
-    word-info: #63636a,
-    word-gray: #94959b,
-    closeBtn: #333333,
-    tabActive: #e8ebf0,
-    tabHover: #efefef,
-    tabHoverTextColor: #63636a,
-    btnDisabled: #bec2c9,
-    inputDisabled: #eef2f6,
-    table-colored: #f1f3f6,
+    background: var(--light-1),
+    background-component: var(--light-2),
+    background-dialog: var(--color-1),
+    background-hover: var(--light-3),
+    background-active: var(--light-4),
+    background-table-active: var(--color-2),
+    background-login-container: var(--light-1),
+    primary-active: var(--color-2),
+    primary: var(--color-2),
+    border: var(--light-5),
+    word: var(--dark-1),
+    word-info: var(--light-10),
+    word-gray: var(--light-9),
+    closeBtn: var(--light-11),
+    tabActive: var(--light-6),
+    tabHover: var(--light-7),
+    tabHoverTextColor: var(--light-10),
+    btnDisabled: var(--dark-8),
+    inputDisabled: var(--light-2),
+    table-colored: var(--light-8),
     box-shadow: 0px 12px 32px 8px rgba(8, 22, 46, 0.24),
   ),
   dark: (
-    background: #0c0f15,
-    background-component: #323745,
-    background-dialog: #1d222d,
-    background-hover: #1a1d23,
-    background-active: #383d47,
-    background-table-active: #f6f8fb,
-    background-login-container: #1d222d,
-    primary: #f4b201,
-    primary-active: #e28602,
-    border: #56585c,
-    word: #fff,
-    word-info: #b0b1b3,
-    word-gray: #818588,
-    closeBtn: #d1d4dc,
-    tabActive: #323745,
-    tabHover: #1a1d23,
-    tabHoverTextColor: #b0b1b3,
-    btnDisabled: #bec2c9,
-    inputDisabled: #eef2f6,
-    table-colored: #1b1f29,
-    box-shadow: 0px 12px 32px 8px #000000,
+    background: var(--dark-1),
+    background-component: var(--dark-2),
+    background-dialog: var(--dark-3),
+    background-hover: var(--dark-5),
+    background-active: var(--dark-6),
+    background-table-active: var(--color-1),
+    background-login-container: var(--dark-3),
+    primary: var(--color-3),
+    primary-active: var(--color-2),
+    border: var(--dark-7),
+    word: var(--light-1),
+    word-info: var(--dark-9),
+    word-gray: var(--dark-8),
+    closeBtn: var(--dark-11),
+    tabActive: var(--dark-2),
+    tabHover: var(--dark-5),
+    tabHoverTextColor: var(--dark-9),
+    btnDisabled: var(--dark-10),
+    inputDisabled: var(--light-2),
+    table-colored: var(--dark-4),
+    box-shadow: 0px 12px 32px 8px var(--dark-1),
   ),
 );
 
