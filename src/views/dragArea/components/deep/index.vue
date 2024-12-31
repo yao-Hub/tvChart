@@ -6,15 +6,15 @@
     <div class="container" v-if="depths.length">
       <div class="box">
         <div class="item" v-for="item in depths">
-          <span class="pre-value">{{ item.bid }}</span>
-          <span class="last-value">{{ item.bid_size }}</span>
+          <span class="pre-value">{{ item.bid_size }}</span>
+          <span class="last-value">{{ item.bid }}</span>
           <div class="bid" :style="{ width: item.bidWidth }"></div>
         </div>
       </div>
       <div class="box">
         <div class="item" v-for="item in depths">
-          <span class="pre-value">{{ item.ask_size }}</span>
-          <span class="last-value">{{ item.ask }}</span>
+          <span class="pre-value">{{ item.ask }}</span>
+          <span class="last-value">{{ item.ask_size }}</span>
           <div class="ask" :style="{ width: item.askWidth }"></div>
         </div>
       </div>
