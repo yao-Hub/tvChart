@@ -286,6 +286,16 @@ export const useChartInit = defineStore("chartInit", () => {
     state.ifFinishLoad[id] = !!ifFinish;
   }
 
+  function $reset() {
+    state.chartWidgetList = [];
+    state.chartLayoutType = "single";
+    state.chartLoading = {};
+    state.activeChartId = "chart_1";
+    state.chartFlexDirection = "row";
+    state.ifFinishLoad = {};
+    state.chartFreshKeys = {};
+  }
+
   return {
     state,
     chartRefresh,
@@ -308,5 +318,6 @@ export const useChartInit = defineStore("chartInit", () => {
     getDefaultSymbol,
     setChartLoadingEndType,
     ifAllChartLoadingEnd,
+    $reset,
   };
 });

@@ -47,3 +47,10 @@ export function selectMatchItem(
   });
   return resArr;
 }
+
+export function ifNumber(value?: string): boolean {
+  if (value === undefined || value === "") {
+    return false;
+  }
+  return !isNaN(Number(value));
+}

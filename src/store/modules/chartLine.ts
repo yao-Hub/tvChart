@@ -1,7 +1,7 @@
-import { useOrder } from "@/store/modules/order";
 import * as types from "@/types/chart/index";
 import { sortBy } from "lodash";
 import { defineStore } from "pinia";
+import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
 interface ISubSCribed {
   onRealtimeCallback: Function;
@@ -26,7 +26,7 @@ export const useChartLine = defineStore("chartLine", {
   actions: {
     initSubLineAndQuote() {
       const socketStore = useSocket();
-      const orderStore = useOrder();
+      const quotesStore = useQuotes();
 
       const setHigh = (bid: number, high?: number) => {
         if (!high) {
@@ -54,15 +54,17 @@ export const useChartLine = defineStore("chartLine", {
       };
 
       socketStore.subQuote((d) => {
-        const oldQuote = orderStore.currentQuotes[d.symbol];
-        const result = {
+        const oldQuote = quotesStore.qoutes[d.symbol];
+
+        quotesStore.setClass(d);
+
+        quotesStore.qoutes[d.symbol] = {
           ...oldQuote,
           ...d,
           close: d.bid,
           high: setHigh(d.bid, oldQuote.high),
           low: setHigh(d.bid, oldQuote.low),
         };
-        orderStore.currentQuotes[d.symbol] = result;
         for (const UID in this.subscribed) {
           const item = this.subscribed[UID];
           const symbol = item.symbolInfo.name;
@@ -121,11 +123,11 @@ export const useChartLine = defineStore("chartLine", {
             }
             this.newbar[subscriberUID] = { ...result };
             this.subscribed[UID].onRealtimeCallback(result);
-            orderStore.currentQuotes[d.symbol]["close"] = close;
-            orderStore.currentQuotes[d.symbol]["open"] = open;
-            orderStore.currentQuotes[d.symbol]["high"] = high;
-            orderStore.currentQuotes[d.symbol]["low"] = low;
-            orderStore.currentQuotes[d.symbol]["volume"] = volume;
+            quotesStore.qoutes[d.symbol]["close"] = close;
+            quotesStore.qoutes[d.symbol]["open"] = open;
+            quotesStore.qoutes[d.symbol]["high"] = high;
+            quotesStore.qoutes[d.symbol]["low"] = low;
+            quotesStore.qoutes[d.symbol]["volume"] = volume;
           }
         }
       });

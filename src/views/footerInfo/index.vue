@@ -27,7 +27,12 @@
     <el-divider direction="vertical" />
     <div class="item">
       <el-text type="info">{{ $t("order.TotalProfit") }}：</el-text>
-      <span :class="[+profit > 0 ? 'redWord' : 'greenWord']">{{ profit }}</span>
+      <span
+        :class="[
+          +orderStore.allMarketOrderProfit > 0 ? 'redWord' : 'greenWord',
+        ]"
+        >{{ orderStore.allMarketOrderProfit }}</span
+      >
     </div>
     <div class="item_end">
       <Timezone></Timezone>
@@ -38,7 +43,6 @@
 </template>
 
 <script setup lang="ts">
-import { round } from "utils/common/index";
 import { computed } from "vue";
 
 import { useOrder } from "@/store/modules/order";
@@ -51,22 +55,6 @@ const userStore = useUser();
 const orderStore = useOrder();
 
 const loginInfo = computed(() => userStore.loginInfo);
-
-// 总盈亏
-const profit = computed(() => {
-  try {
-    if (!loginInfo.value) {
-      return "-";
-    }
-    const currentPosition = orderStore.orderData.marketOrder;
-    const sum = currentPosition?.reduce((accumulator, currentValue) => {
-      return accumulator + Number(currentValue.profit);
-    }, 0);
-    return round(sum || 0, 2);
-  } catch (error) {
-    return "-";
-  }
-});
 </script>
 
 <style lang="scss" scoped>

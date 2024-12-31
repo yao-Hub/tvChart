@@ -51,10 +51,13 @@ export const useTime = defineStore("time", () => {
     });
   };
 
+  function $reset() {}
+
   return {
     time: dayjs,
     initTime,
     setTimezone,
     settedTimezone,
+    $reset,
   };
 });

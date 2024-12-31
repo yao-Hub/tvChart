@@ -60,7 +60,7 @@
             </div>
           </template>
           <template #default="{ row }">
-            <span :class="[quotesClass[row.symbols].bid]">
+            <span :class="getClass(row, 'bid')">
               {{ getPrice(row.symbols, "bid") }}
             </span>
           </template>
@@ -74,7 +74,7 @@
             </div>
           </template>
           <template #default="{ row }">
-            <span :class="[quotesClass[row.symbols].ask]">
+            <span :class="getClass(row, 'ask')">
               {{ getPrice(row.symbols, "ask") }}
             </span>
           </template>
@@ -105,8 +105,8 @@
             </div>
           </template>
           <template #default="{ row }">
-            <span :class="[getVariation(row.symbols).class]">
-              {{ getVariation(row.symbols).value }}
+            <span :class="[quotesStore.getVariation(row.symbols).class]">
+              {{ quotesStore.getVariation(row.symbols).value }}
             </span>
           </template>
         </el-table-column>
@@ -136,6 +136,10 @@ import RightClickMenu from "./components/RightClickMenu.vue";
 import Search from "./components/Symbolsearch/index.vue";
 import Deep from "./components/deep/index.vue";
 
+import { useQuotes } from "@/store/modules/quotes";
+
+const quotesStore = useQuotes();
+
 const { t } = useI18n();
 
 interface DataSource {
@@ -162,9 +166,6 @@ const getQuery = async (fromHttp?: boolean) => {
     await symbolsStore.getMySymbols();
   }
   dataSource.value = cloneDeep(symbolsStore.mySymbols_sort);
-  dataSource.value.forEach((item) => {
-    quotesClass.value[item.symbols] = { ask: "", bid: "" };
-  });
   tableLoading.value = false;
   await nextTick();
 
@@ -237,44 +238,18 @@ const closeSearch = () => {
   getQuery();
 };
 
-// 报价样式 实时数据
-import { IQuote } from "#/chart/index";
-import { useOrder } from "@/store/modules/order";
-import { eq } from "lodash";
-const orderStore = useOrder();
-const temQuotes = ref<Record<string, IQuote>>({});
-const quotesClass = ref<Record<string, { ask: string; bid: string }>>({});
-watch(
-  () => orderStore.currentQuotes,
-  (quotes) => {
-    dataSource.value.forEach((item) => {
-      const symbol = item.symbols;
-      const newQuote = cloneDeep(quotes[symbol]);
-      const oldQuote = temQuotes.value[symbol];
-      const ifEq = eq(newQuote, oldQuote);
-      if (ifEq) {
-        return;
-      }
-      const nowBid = newQuote.bid;
-      const nowAsk = newQuote.ask;
-      if (oldQuote && quotesClass.value[symbol]) {
-        const oldBid = oldQuote.bid;
-        const oldAsk = oldQuote.ask;
-        quotesClass.value[symbol].ask =
-          oldAsk > nowAsk ? "sellWord" : "buyWord";
-        quotesClass.value[symbol].bid =
-          oldBid > nowBid ? "sellWord" : "buyWord";
-      }
-      temQuotes.value[symbol] = newQuote;
-    });
-  },
-  {
-    deep: true,
-    immediate: true,
+const getClass = (rowData: DataSource, type: "ask" | "bid") => {
+  const classes = quotesStore.quotesClass;
+  const { symbols } = rowData;
+  if (classes[symbols]) {
+    return classes[symbols][type];
   }
-);
+  return "";
+};
+
+// 报价样式 实时数据
 const getPrice = (symbol: string, type: "bid" | "ask") => {
-  const quotes = orderStore.currentQuotes;
+  const quotes = quotesStore.qoutes;
   const target = quotes[symbol];
   if (target) {
     const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
@@ -291,7 +266,7 @@ import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 const timeStore = useTime();
 const getTime = (symbol: string) => {
-  const quotes = orderStore.currentQuotes;
+  const quotes = quotesStore.qoutes;
   const target = quotes[symbol];
   if (target) {
     const timezone = timeStore.settedTimezone;
@@ -299,26 +274,6 @@ const getTime = (symbol: string) => {
     return dayjs(time).tz(timezone).format("HH:mm:ss");
   }
   return "-";
-};
-
-// 日变化
-import { round } from "utils/common/index";
-const getVariation = (symbol: string) => {
-  const result = {
-    class: "",
-    value: "-",
-  };
-  const quote = orderStore.currentQuotes[symbol];
-  if (quote) {
-    const close = quote.close;
-    const open = quote.open;
-    if (close && open) {
-      const variation = round(((close - open) / open) * 100, 2);
-      result.value = `${variation}%`;
-      result.class = +variation > 0 ? " buyWord" : " sellWord";
-    }
-  }
-  return result;
 };
 
 const menuVisible = ref(false);
@@ -346,7 +301,7 @@ const sortChange = ({ order, prop }: any) => {
   const arr = dataSource.value.map((item) => {
     return {
       ...item,
-      variation: getVariation(item.symbols).value.replace("%", ""),
+      variation: quotesStore.getVariation(item.symbols).value.replace("%", ""),
     };
   });
   let result: any;

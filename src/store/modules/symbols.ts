@@ -12,11 +12,13 @@ import {
 } from "api/symbols/index";
 
 import { useOrder } from "./order";
+import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
 
 export const useSymbols = defineStore("symbols", () => {
   const orderStore = useOrder();
   const socketStore = useSocket();
+  const quotesStore = useQuotes();
 
   // 全部品种
   const symbols = ref<ISessionSymbolInfo[]>([]);
@@ -38,7 +40,7 @@ export const useSymbols = defineStore("symbols", () => {
   // 有报价的品种
   const haveQuoteSymbols = computed(() => {
     const result = symbols.value.filter((item) => {
-      const quote = orderStore.currentQuotes[item.symbol];
+      const quote = quotesStore.qoutes[item.symbol];
       return quote && (quote.ask || quote.bid);
     });
     return result;
@@ -54,7 +56,7 @@ export const useSymbols = defineStore("symbols", () => {
   const getAllSymbolQuotes = async () => {
     const quotes = await allSymbolQuotes();
     quotes.data.forEach((item) => {
-      orderStore.currentQuotes[item.symbol] = item;
+      quotesStore.qoutes[item.symbol] = item;
     });
   };
 
@@ -119,6 +121,13 @@ export const useSymbols = defineStore("symbols", () => {
     }
   );
 
+  function $reset() {
+    symbols.value = [];
+    mySymbols.value = [];
+    selectSymbols.value = [];
+    chartSymbols.value = [];
+  }
+
   return {
     getAllSymbol,
     getAllSymbolQuotes,
@@ -130,5 +139,6 @@ export const useSymbols = defineStore("symbols", () => {
     mySymbols_sort,
     symbols_tradeAllow,
     haveQuoteSymbols,
+    $reset,
   };
 });

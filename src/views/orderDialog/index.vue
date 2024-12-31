@@ -194,9 +194,7 @@
       <el-text class="title">{{
         t("tip.confirm", { type: t("dialog.createOrder") })
       }}</el-text>
-      <el-text class="tip" type="info">{{
-        $t("dialog.confirmBelow")
-      }}</el-text>
+      <el-text class="tip" type="info">{{ $t("dialog.confirmBelow") }}</el-text>
       <div class="infobox">
         <div class="infobox_item">
           <el-text type="info">{{ $t("table.symbol") }}</el-text>
@@ -220,9 +218,7 @@
         </div>
       </div>
       <div class="btnGroup">
-        <el-button class="btn" @click="back">{{
-          $t("dialog.back")
-        }}</el-button>
+        <el-button class="btn" @click="back">{{ $t("dialog.back") }}</el-button>
         <el-button
           class="btn"
           type="primary"
@@ -237,7 +233,7 @@
 
 <script setup lang="ts">
 import { debounce, eq } from "lodash";
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { DirectionType, OrderType } from "#/order";
@@ -251,6 +247,7 @@ import Volume from "./components/Volume.vue";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
+import { useQuotes } from "@/store/modules/quotes";
 import { useSymbols } from "@/store/modules/symbols";
 
 const { t } = useI18n();
@@ -258,6 +255,7 @@ const { t } = useI18n();
 const symbolsStore = useSymbols();
 const orderStore = useOrder();
 const chartInitStore = useChartInit();
+const quotesStore = useQuotes();
 
 /** 弹窗处理 */
 import { useDialog } from "@/store/modules/dialog";
@@ -316,22 +314,23 @@ const initForm = () => {
     showConfirmModal(initState.directionType);
   }
 };
-onMounted(() => {
-  initForm();
-});
-onUnmounted(() => {
-  orderStore.initOrderState = { symbol: "" };
-});
 
 const freshKey = ref(0);
 
 // 右键菜单新图表时初始化数据
 watch(
-  () => orderStore.initOrderState,
-  (nowState, preState) => {
+  () => [orderStore.initOrderState, dialogStore.orderDialogVisible],
+  (nowValue, oldValue) => {
+    const [nowState, nowVisible] = nowValue;
+    const [preState] = oldValue;
     const ifEq = eq(nowState, preState);
     !ifEq && (freshKey.value = +!freshKey.value);
-    initForm();
+    if (nowVisible) {
+      initForm();
+    }
+    if (!nowVisible) {
+      orderStore.initOrderState = { symbol: "" };
+    }
   }
 );
 
@@ -366,24 +365,16 @@ const rules: FormRules<typeof formState> = {
 };
 
 /** 当前品种 */
-import { IQuote } from "#/chart/index";
 const symbolInfo = computed(() => {
   return symbolsStore.symbols.find((e) => e.symbol === formState.symbol);
 });
 
 /** 当前报价 */
-const quote = ref<IQuote>();
-watch(
-  () => [orderStore.currentQuotes, formState.symbol],
-  () => {
-    const quotes = orderStore.currentQuotes;
-    const formSymbol = formState.symbol;
-    if (quotes && quotes[formSymbol]) {
-      quote.value = quotes[formSymbol];
-    }
-  },
-  { immediate: true, deep: true }
-);
+const quote = computed(() => {
+  const quotes = quotesStore.qoutes;
+  const symbol = formState.symbol;
+  return quotes[symbol];
+});
 
 // 确认市价单
 const priceConfirm = ref(false);

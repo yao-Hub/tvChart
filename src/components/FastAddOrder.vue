@@ -41,6 +41,7 @@ import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
+import { useQuotes } from "@/store/modules/quotes";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTheme } from "@/store/modules/theme";
 
@@ -49,6 +50,7 @@ const dialogStore = useDialog();
 const orderStore = useOrder();
 const themeStore = useTheme();
 const symbolsStore = useSymbols();
+const quotesStore = useQuotes();
 
 // 样式
 const styles = {
@@ -167,8 +169,8 @@ const ask = computed(() => {
 
 const getQuotes = (type: "bid" | "ask", symbol: string) => {
   const digits = symbolInfo.value?.digits;
-  if (orderStore.currentQuotes[symbol] && digits) {
-    return orderStore.currentQuotes[symbol][type].toFixed(digits);
+  if (quotesStore.qoutes[symbol] && digits) {
+    return quotesStore.qoutes[symbol][type].toFixed(digits);
   }
   return "-";
 };

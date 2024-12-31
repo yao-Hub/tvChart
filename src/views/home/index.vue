@@ -47,6 +47,7 @@ const chartLineStore = useChartLine();
 const symbolsStore = useSymbols();
 const timeStore = useTime();
 const rateStore = useRate();
+const rootStore = useRoot();
 
 // 初始化 注意调用顺序
 async function init() {
@@ -84,7 +85,6 @@ async function init() {
     initDragResizeArea();
     chartInitStore.loadChartList(); // 加载图表
     // 记忆动作（没什么用(>^ω^<)喵）
-    const rootStore = useRoot();
     if (rootStore.cacheAction) {
       rootStore[rootStore.cacheAction]();
       rootStore.clearCacheAction();
@@ -92,6 +92,8 @@ async function init() {
     chartInitStore.state.loading = false;
   }
 }
+
+// 浏览器页面变化布局随之变化
 onMounted(() => {
   init();
   window.addEventListener("resize", () => {
@@ -99,13 +101,19 @@ onMounted(() => {
   });
 });
 
+// 全局刷新重置store 热更新
 watch(
   () => chartInitStore.state.globalRefresh,
-  (val) => {
-    val && init();
+  async (val) => {
+    if (val) {
+      await rootStore.resetAllStore();
+      init();
+    }
   }
 );
 
+// 离开页面保存图表操作
+// 撤销监听 resize
 import { onBeforeRouteLeave } from "vue-router";
 onBeforeRouteLeave((to, from, next) => {
   chartInitStore.saveCharts();

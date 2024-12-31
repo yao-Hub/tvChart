@@ -149,6 +149,8 @@ export const useTheme = defineStore("theme", () => {
       });
     } catch (error) {}
   };
+
+  function $reset() {}
   return {
     systemTheme,
     upDownTheme,
@@ -157,5 +159,6 @@ export const useTheme = defineStore("theme", () => {
     setChartTheme,
     getUpDownTheme,
     setUpDownTheme,
+    $reset,
   };
 });

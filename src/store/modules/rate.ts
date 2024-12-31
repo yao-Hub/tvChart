@@ -51,11 +51,15 @@ export const useRate = defineStore("rate", () => {
       currentRates.value[e.symbol] = e;
     });
   };
+  function $reset() {
+    currentRates.value = {};
+  }
 
   return {
     getAllRates,
     getSymbolRate,
     subRate,
     currentRates,
+    $reset,
   };
 });

@@ -219,7 +219,7 @@
                 getOrderPrice(rowData)
               }}</template>
               <template v-else-if="column.dataKey === 'profit'">
-                <span :class="[getCellClass(rowData.profit), 'profitcell']">
+                <span :class="[getCellClass(getProfit(rowData)), 'profitcell']">
                   <span v-if="activeKey === 'marketOrder'">{{
                     getProfit(rowData)
                   }}</span>
@@ -237,12 +237,12 @@
                 }}</span>
               </template>
               <template v-else-if="column.dataKey === 'storage'">
-                <span :class="[getCellClass(rowData.storage)]">{{
+                <span :class="[getCellClass(+rowData.storage)]">{{
                   rowData.storage
                 }}</span>
               </template>
               <template v-else-if="column.dataKey === 'fee'">
-                <span :class="[getCellClass(rowData.fee)]">{{
+                <span :class="[getCellClass(+rowData.fee)]">{{
                   rowData.fee
                 }}</span>
               </template>
@@ -353,14 +353,14 @@
     <MarketOrderEdit
       v-model:visible="state.marketDialogVisible"
       :orderInfo="state.orderInfo"
-      :quote="getQuote()"
+      :quote="quote"
     >
     </MarketOrderEdit>
 
     <PendingOrderEdit
       v-model:visible="state.pendingDialogVisible"
       :orderInfo="state.orderInfo"
-      :quote="getQuote()"
+      :quote="quote"
     >
     </PendingOrderEdit>
   </div>
@@ -368,18 +368,20 @@
 
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from "element-plus";
-import { cloneDeep, minBy, set } from "lodash";
+import { cloneDeep, minBy } from "lodash";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import * as orderTypes from "#/order";
 import { CLOSE_TYPE } from "@/constants/common";
 import * as orders from "api/order/index";
+import { ifNumber } from "utils/common/index";
 import { getOrderType, getTradingDirection } from "utils/order/index";
 import { tableColumns } from "./config";
 
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
+import { useQuotes } from "@/store/modules/quotes";
 import { useTime } from "@/store/modules/time";
 
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
@@ -392,6 +394,7 @@ const { t } = useI18n();
 const orderStore = useOrder();
 const dialogStore = useDialog();
 const timeStore = useTime();
+const quotesStore = useQuotes();
 
 const state = reactive({
   menu: [
@@ -482,12 +485,18 @@ const accWithdrawal = computed(() => {
   };
 });
 
-const getCellClass = (num: number) => {
-  if (!num) {
+const getCellClass = (num: number | string) => {
+  if (typeof num === "string") {
+    if (!ifNumber(num)) {
+      return "";
+    }
+  }
+  if (+num === 0) {
     return "";
   }
-  return num > 0 ? "buyWord" : "sellWord";
+  return +num > 0 ? "buyWord" : "sellWord";
 };
+
 // 筛选过滤
 const dataSource = computed(() => {
   const active = activeKey.value;
@@ -540,7 +549,7 @@ const formatTime = (timestamp: string) => {
 // 获取现价
 const getNowPrice = (e: orders.resOrders) => {
   try {
-    const currentQuote = orderStore.currentQuotes[e.symbol];
+    const currentQuote = quotesStore.qoutes[e.symbol];
     const type = getTradingDirection(e.type);
     const result = type === "buy" ? currentQuote.ask : currentQuote.bid;
     if (e.digits) {
@@ -561,46 +570,14 @@ const getOrderPrice = (e: orders.resPendingOrders) => {
 };
 
 // 获取盈亏
-import { useRate } from "@/store/modules/rate";
-import { watch } from "vue";
-const rateStore = useRate();
-const getProfit = (e: orders.resOrders) => {
-  try {
-    let result: string | number = "";
-    const type = getTradingDirection(e.type);
-    const currentQuote = orderStore.currentQuotes[e.symbol];
-    // 持仓多单时，close_price = 现价卖价
-    // 持仓空单时，close_price = 现价买价
-    const closePrice = type === "buy" ? currentQuote.bid : currentQuote.ask;
-    const rateMap = rateStore.getSymbolRate(e.symbol);
-    const rate = type === "buy" ? rateMap.ask_rate : rateMap.bid_rate;
-    const { contract_size, storage, fee, open_price, volume, id } = e;
-    // 建仓合约价值 = open_price X contract_size X volume / 100
-    const buildingPrice = (open_price * contract_size * volume) / 100;
-    // 平仓合约价值 = close_price X contract_size X volume / 100
-    const closingPrice = (closePrice * contract_size * volume) / 100;
-    // buy时 : profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
-    // sell时 : profit = 建仓合约价值 - 平仓合约价值 + 手续费 + 过夜费
-    const direction =
-      type === "buy"
-        ? closingPrice - buildingPrice
-        : buildingPrice - closingPrice;
-    result = ((direction + (storage || 0) + (fee || 0)) * rate).toFixed(2);
-    e.profit = +result;
-    const data = orderStore.orderData[activeKey.value];
-    if (data) {
-      const index = data.findIndex((e) => e.id === id);
-      if (index) {
-        set(data, [index, "profit"], +result);
-      }
-    }
-    return result;
-  } catch (error) {
-    return "";
-  }
+const getProfit = ({ id }: orders.resOrders) => {
+  const data = orderStore.marketOrderProfit;
+  const target = data.find((e) => e.id === id);
+  return target?.profit || "-";
 };
 
 // 交易历史盈亏合计位置
+import { watch } from "vue";
 const MOHFWidth = ref("");
 const tableXScroll = ref(0);
 watch(
@@ -804,9 +781,11 @@ const endReached = async () => {
   }
 };
 
-const getQuote = () => {
-  return orderStore.currentQuotes[state.orderInfo.symbol] || {};
-};
+const quote = computed(() => {
+  const quotes = quotesStore.qoutes;
+  const symbol = state.orderInfo.symbol;
+  return quotes[symbol] || {};
+});
 
 const getTableData = (type: string) => {
   switch (type) {

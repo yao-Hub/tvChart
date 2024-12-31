@@ -30,7 +30,24 @@ nextTick(async () => {
     }
   }
 });
+
+const resetAllStore = async () => {
+  const moduleFiles: any = import.meta.glob("./modules/*.ts");
+  for (const path in moduleFiles) {
+    if (Object.prototype.hasOwnProperty.call(moduleFiles, path)) {
+      const modules = await moduleFiles[path]();
+      for (const i in modules) {
+        const storeItem = modules[i]();
+        storeItem.$reset();
+        setTimeout(() => {
+          console.log("storeItemnow", storeItem);
+        });
+      }
+    }
+  }
+};
+
 export const useRoot = defineStore("root", {
   state: () => allStates,
-  actions: allActions,
+  actions: { ...allActions, resetAllStore },
 });

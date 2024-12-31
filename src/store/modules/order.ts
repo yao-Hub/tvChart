@@ -6,12 +6,17 @@ import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
 import { useChartAction } from "./chartAction";
 import { useDialog } from "./dialog";
+import { useQuotes } from "./quotes";
+import { useRate } from "./rate";
 import { useSocket } from "./socket";
 import { useStorage } from "./storage";
 import { useUser } from "./user";
 
+import { getTradingDirection } from "utils/order/index";
+
 import * as types from "#/chart/index";
 import * as orderTypes from "#/order";
+import { ifNumber } from "@/utils/common";
 
 type ModeType = "create" | "confirm";
 type SymbolType = string;
@@ -31,14 +36,6 @@ type OrderStateWithDirectionRequired<T extends ModeType> = T extends "confirm"
     };
 
 interface State {
-  quotesClass: Record<
-    string,
-    {
-      ask: string;
-      bid: string;
-    }
-  >;
-  currentQuotes: Record<string, types.IQuote>;
   initOrderState: OrderStateWithDirectionRequired<ModeType>;
   currentKline: Record<string, types.ILine>;
   orderData: orderTypes.TableData;
@@ -52,8 +49,6 @@ interface State {
 export const useOrder = defineStore("order", {
   state: (): State => {
     return {
-      quotesClass: {},
-      currentQuotes: {},
       initOrderState: { symbol: "" },
       currentKline: {},
       orderData: {
@@ -106,6 +101,63 @@ export const useOrder = defineStore("order", {
       ifOne: false, // 一键交易
       ifQuick: true, // 快捷交易(图表是否显示快捷交易组件)
     };
+  },
+
+  getters: {
+    // 持仓盈亏
+    marketOrderProfit(state) {
+      const marketOrder = state.orderData.marketOrder || [];
+      const quotesStore = useQuotes();
+      const rateStore = useRate();
+
+      const result = marketOrder.map((item) => {
+        const {
+          contract_size,
+          storage,
+          fee,
+          open_price,
+          volume,
+          id,
+          symbol,
+          type,
+        } = item;
+        let profit: string | number = "";
+        const direction = getTradingDirection(type);
+        const currentQuote = quotesStore.qoutes[symbol];
+        // 持仓多单时，close_price = 现价卖价
+        // 持仓空单时，close_price = 现价买价
+        const closePrice =
+          direction === "buy" ? currentQuote.bid : currentQuote.ask;
+        const rateMap = rateStore.getSymbolRate(symbol);
+        const rate = direction === "buy" ? rateMap.ask_rate : rateMap.bid_rate;
+        // 建仓合约价值 = open_price X contract_size X volume / 100
+        const buildingPrice = (open_price * contract_size * volume) / 100;
+        // 平仓合约价值 = close_price X contract_size X volume / 100
+        const closingPrice = (closePrice * contract_size * volume) / 100;
+        // buy时 : profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
+        // sell时 : profit = 建仓合约价值 - 平仓合约价值 + 手续费 + 过夜费
+        const value =
+          direction === "buy"
+            ? closingPrice - buildingPrice
+            : buildingPrice - closingPrice;
+        profit = ((value + (storage || 0) + (fee || 0)) * rate).toFixed(2);
+        return {
+          id,
+          profit,
+        };
+      });
+      return result;
+    },
+
+    // 合计盈亏
+    allMarketOrderProfit() {
+      // @ts-ignore
+      const result = this.marketOrderProfit.reduce((pre, next) => {
+        const profit = ifNumber(next.profit) ? +next.profit : 0;
+        return pre + profit;
+      }, 0);
+      return result.toFixed(2);
+    },
   },
 
   actions: {
@@ -220,6 +272,7 @@ export const useOrder = defineStore("order", {
       }
     },
     async initTableData() {
+      // this.subOrder();
       const socketStore = useSocket();
       await Promise.all([
         this.getMarketOrders(),

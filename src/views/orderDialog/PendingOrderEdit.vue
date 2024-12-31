@@ -281,18 +281,13 @@ const symbolInfo = computed(() => {
 });
 
 /** 当前报价 */
-const quote = ref<IQuote>();
-watch(
-  () => [orderStore.currentQuotes, formState.symbol],
-  () => {
-    const quotes = orderStore.currentQuotes;
-    const formSymbol = formState.symbol;
-    if (quotes && quotes[formSymbol]) {
-      quote.value = quotes[formSymbol];
-    }
-  },
-  { immediate: true, deep: true }
-);
+import { useQuotes } from "@/store/modules/quotes";
+const quotesStore = useQuotes();
+const quote = computed(() => {
+  const quotes = quotesStore.qoutes;
+  const symbol = formState.symbol;
+  return quotes[symbol];
+});
 
 /** 下单 */
 const valids = async () => {
