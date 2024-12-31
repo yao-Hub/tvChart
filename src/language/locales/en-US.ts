@@ -215,6 +215,8 @@ export default {
     need: "need",
     upLoadFileError: "File upload error",
     upLoadFileExceed: "Up to {num} images can be uploaded",
+    noData: "No data available at the moment",
+    addMySymbol: "Custom varieties can be added through the search box above",
   },
 
   time: {

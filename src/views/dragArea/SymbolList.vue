@@ -24,7 +24,7 @@
         v-if="!ifSearch"
         ref="table"
         :data="dataSource"
-        :style="{ width: '100%', height: '100%' }"
+        :style="{ width: '100%', height: '100% ' }"
         :header-row-style="{
           height: '32px',
         }"
@@ -110,6 +110,13 @@
             </span>
           </template>
         </el-table-column>
+
+        <template #empty>
+          <div class="emptyBox">
+            <el-text type="info">{{ $t("tip.noData") }}</el-text>
+            <el-text type="info">{{ $t("tip.addMySymbol") }}</el-text>
+          </div>
+        </template>
       </el-table>
 
       <Search
@@ -356,6 +363,15 @@ const expandChange = (row: any, expandedRows: any[]) => {
   box-sizing: border-box;
   border-radius: 4px;
   overflow: hidden;
+}
+
+.emptyBox {
+  display: flex;
+  flex-direction: column;
+
+  span {
+    height: 32px;
+  }
 }
 
 .searchList {

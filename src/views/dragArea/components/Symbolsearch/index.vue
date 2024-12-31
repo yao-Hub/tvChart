@@ -1,7 +1,13 @@
 <template>
   <div v-loading="listState.loading" class="searchList">
     <el-scrollbar v-if="!input && !showSymbols">
+      <el-empty v-if="!listState.menu.length" :image-size="80">
+        <template #image>
+          <BaseImg iconName="icon_empty"></BaseImg>
+        </template>
+      </el-empty>
       <Block
+        v-else
         v-for="item in listState.menu"
         v-show="getTotal(item.type) > 0"
         :title="item.value"
@@ -100,11 +106,15 @@ const listState = reactive({
 });
 
 onMounted(async () => {
-  listState.loading = true;
-  // 获取分类
-  const allPathRes = await symbolAllPath();
-  listState.menu = allPathRes.data;
-  listState.loading = false;
+  try {
+    listState.loading = true;
+    // 获取分类
+    const allPathRes = await symbolAllPath();
+    listState.menu = allPathRes.data;
+    listState.loading = false;
+  } catch (error) {
+    listState.loading = false;
+  }
 });
 
 // 具体分类

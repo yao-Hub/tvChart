@@ -145,6 +145,7 @@ const submit = async (feedbackFileIds: string[] = []) => {
       type: "success",
     });
     loading.value = false;
+    onClose();
     dialogStore.closeDialog("feedbackVisible");
   } catch (error) {
     loading.value = false;

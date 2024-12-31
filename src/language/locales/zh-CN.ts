@@ -219,6 +219,8 @@ export default {
     minFastPoint: "至少远离市价{size}点",
     need: "需",
     upLoadFileError: "文件上传出错",
+    noData: "暂无数据",
+    addMySymbol: "可通过上方搜索框添加自选品种",
   },
 
   time: {

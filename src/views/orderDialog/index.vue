@@ -232,7 +232,7 @@
 </template>
 
 <script setup lang="ts">
-import { debounce, eq } from "lodash";
+import { cloneDeep, debounce, eq } from "lodash";
 import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -246,9 +246,11 @@ import Term from "./components/Term.vue";
 import Volume from "./components/Volume.vue";
 
 import { useChartInit } from "@/store/modules/chartInit";
+import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
 import { useSymbols } from "@/store/modules/symbols";
+import { useTime } from "@/store/modules/time";
 
 const { t } = useI18n();
 
@@ -256,13 +258,8 @@ const symbolsStore = useSymbols();
 const orderStore = useOrder();
 const chartInitStore = useChartInit();
 const quotesStore = useQuotes();
-
-/** 弹窗处理 */
-import { useDialog } from "@/store/modules/dialog";
 const dialogStore = useDialog();
-const handleCancel = () => {
-  dialogStore.closeDialog("orderDialogVisible");
-};
+const timeStore = useTime();
 
 /** 表单处理 */
 import type { FormInstance, FormRules } from "element-plus";
@@ -278,7 +275,7 @@ interface FormState {
   breakPrice: string;
   limitedPrice: string;
 }
-const formState = reactive<FormState>({
+const originState: FormState = {
   symbol: "",
   orderType: "price",
   volume: "",
@@ -288,7 +285,8 @@ const formState = reactive<FormState>({
   dueDate: "",
   breakPrice: "",
   limitedPrice: "",
-});
+};
+const formState = reactive<FormState>(cloneDeep(originState));
 const domVisableOption = {
   orderPrice: ["buyLimit", "sellLimit", "buyStop", "sellStop"],
   breakPrice: ["buyStopLimit", "sellStopLimit"],
@@ -328,9 +326,6 @@ watch(
     if (nowVisible) {
       initForm();
     }
-    if (!nowVisible) {
-      orderStore.initOrderState = { symbol: "" };
-    }
   }
 );
 
@@ -344,9 +339,7 @@ const orderTypeOptions = [
   { value: "sellStopLimit", label: "sell stop limit" },
 ];
 // 期限规则
-import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
-const timeStore = useTime();
 const validDate = (rule: any, value: any, callback: any) => {
   const timezone = timeStore.settedTimezone;
   if (!value) {
@@ -490,6 +483,13 @@ const addPendingOrders = debounce(async () => {
     pendingBtnLoading.value = false;
   }
 }, 20);
+
+/** 弹窗处理 */
+const handleCancel = () => {
+  Object.assign(formState, originState);
+  orderStore.initOrderState = { symbol: "" };
+  dialogStore.closeDialog("orderDialogVisible");
+};
 </script>
 
 <style lang="scss">
