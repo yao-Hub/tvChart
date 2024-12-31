@@ -109,7 +109,6 @@ export const useOrder = defineStore("order", {
       const marketOrder = state.orderData.marketOrder || [];
       const quotesStore = useQuotes();
       const rateStore = useRate();
-
       const result = marketOrder.map((item) => {
         const {
           contract_size,
@@ -121,30 +120,38 @@ export const useOrder = defineStore("order", {
           symbol,
           type,
         } = item;
-        let profit: string | number = "";
-        const direction = getTradingDirection(type);
-        const currentQuote = quotesStore.qoutes[symbol];
-        // 持仓多单时，close_price = 现价卖价
-        // 持仓空单时，close_price = 现价买价
-        const closePrice =
-          direction === "buy" ? currentQuote.bid : currentQuote.ask;
-        const rateMap = rateStore.getSymbolRate(symbol);
-        const rate = direction === "buy" ? rateMap.ask_rate : rateMap.bid_rate;
-        // 建仓合约价值 = open_price X contract_size X volume / 100
-        const buildingPrice = (open_price * contract_size * volume) / 100;
-        // 平仓合约价值 = close_price X contract_size X volume / 100
-        const closingPrice = (closePrice * contract_size * volume) / 100;
-        // buy时 : profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
-        // sell时 : profit = 建仓合约价值 - 平仓合约价值 + 手续费 + 过夜费
-        const value =
-          direction === "buy"
-            ? closingPrice - buildingPrice
-            : buildingPrice - closingPrice;
-        profit = ((value + (storage || 0) + (fee || 0)) * rate).toFixed(2);
-        return {
-          id,
-          profit,
-        };
+        try {
+          let profit: string | number = "";
+          const direction = getTradingDirection(type);
+          const currentQuote = quotesStore.qoutes[symbol];
+          // 持仓多单时，close_price = 现价卖价
+          // 持仓空单时，close_price = 现价买价
+          const closePrice =
+            direction === "buy" ? currentQuote.bid : currentQuote.ask;
+          const rateMap = rateStore.getSymbolRate(symbol);
+          const rate =
+            direction === "buy" ? rateMap.ask_rate : rateMap.bid_rate;
+          // 建仓合约价值 = open_price X contract_size X volume / 100
+          const buildingPrice = (open_price * contract_size * volume) / 100;
+          // 平仓合约价值 = close_price X contract_size X volume / 100
+          const closingPrice = (closePrice * contract_size * volume) / 100;
+          // buy时 : profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
+          // sell时 : profit = 建仓合约价值 - 平仓合约价值 + 手续费 + 过夜费
+          const value =
+            direction === "buy"
+              ? closingPrice - buildingPrice
+              : buildingPrice - closingPrice;
+          profit = ((value + (storage || 0) + (fee || 0)) * rate).toFixed(2);
+          return {
+            id,
+            profit,
+          };
+        } catch (error) {
+          return {
+            id,
+            profit: "-",
+          };
+        }
       });
       return result;
     },
