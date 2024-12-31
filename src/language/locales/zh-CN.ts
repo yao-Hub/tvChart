@@ -192,6 +192,7 @@ export default {
     passwordRequired: "请输入密码",
     emailRequired: "请输入邮箱",
     serverRequired: "请选择交易节点",
+    codeRequired: "请输入验证码",
     loginRequired: "请输入账号",
     termRequired: "请选择期限",
     volumeRequired: "请输入手数",
