@@ -18,13 +18,14 @@
 
 <script setup lang="ts">
 import Decimal from "decimal.js";
+import { isNil } from "lodash";
 
 interface Props {
   disabled?: boolean;
   valid?: boolean;
   step?: string | number;
-  customAdd?: () => string | void;
-  customSub?: () => void | string;
+  customAdd?: () => string | number;
+  customSub?: () => string | number;
 }
 const props = withDefaults(defineProps<Props>(), {
   step: 1,
@@ -40,19 +41,24 @@ const input = () => {
 };
 
 const handleSubtract = () => {
-  let result = Decimal.sub(model.value || 0, +props.step).toString();
+  let result: string | number = Decimal.sub(
+    model.value || 0,
+    +props.step
+  ).toString();
   if (props.customSub) {
     const value = props.customSub();
-    result = value || result;
+    result = isNil(value) ? result : value;
   }
   model.value = result;
   emit("sub", result);
 };
 const handleAdd = () => {
-  let result = new Decimal(+props.step).plus(model.value || 0).toString();
+  let result: string | number = new Decimal(+props.step)
+    .plus(model.value || 0)
+    .toString();
   if (props.customAdd) {
     const value = props.customAdd();
-    result = value || result;
+    result = isNil(value) ? result : value;
   }
   model.value = result;
   emit("plus", result);

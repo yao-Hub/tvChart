@@ -39,7 +39,7 @@ const changeColor = (theme: "upRedDownGreen" | "upGreenDownRed") => {
 
 <style lang="scss" scoped>
 .colorsItem {
-  width: 150px;
+  min-width: 150px;
   display: flex;
   gap: 10px;
   align-items: center;

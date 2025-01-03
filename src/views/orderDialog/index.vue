@@ -12,6 +12,7 @@
     overflow
     align-center
     modal-class="order_dialog_modal"
+    @close="handleCancel"
   >
     <template #header>
       <span class="dialog_header">{{ $t("dialog.createOrder") }}</span>
@@ -366,7 +367,7 @@ const symbolInfo = computed(() => {
 const quote = computed(() => {
   const quotes = quotesStore.qoutes;
   const symbol = formState.symbol;
-  return quotes[symbol];
+  return quotes[symbol] || {};
 });
 
 // 确认市价单

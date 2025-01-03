@@ -3,20 +3,19 @@
     <template #label>
       <div class="title">
         <span style="white-space: nowrap">{{ titleMap[props.type] }}</span>
-        <el-tooltip :content="`${minPoint}`" placement="top" v-if="!rangeTip">
-          <el-text class="textEllipsis" style="width: 130px" type="info">{{
-            minPoint
-          }}</el-text>
+        <el-tooltip :content="minPoint" placement="top" v-if="!price">
+          <el-text class="textEllipsis" type="info">{{ minPoint }}</el-text>
         </el-tooltip>
-        <el-text :type="ifError ? 'danger' : 'info'" v-if="rangeTip && price">{{
+        <el-text :type="ifError ? 'danger' : 'info'" v-if="price">{{
           rangeTip
         }}</el-text>
       </div>
     </template>
     <StepNumInput
       v-model:value="price"
-      :customSub="initPrice"
-      :customAdd="initPrice"
+      :step="step"
+      :customSub="customCal"
+      :customAdd="customCal"
       :valid="ifError"
     ></StepNumInput>
     <el-form-item>
@@ -31,25 +30,29 @@
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { useRate } from "@/store/modules/rate";
 import { round } from "utils/common/index";
-import { computed, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 const rateStore = useRate();
 
+const step = 0.5;
+
 const titleMap = {
   stopLoss: t("order.sl"),
   stopProfit: t("order.tp"),
 };
+
 interface Props {
   type: "stopLoss" | "stopProfit";
   symbolInfo?: ISessionSymbolInfo;
-  quote?: IQuote;
+  quote: IQuote;
   orderType: string;
   orderPrice: string | number | null;
   volume: string | number;
   limitedPrice?: string | number;
 }
+
 const props = defineProps<Props>();
 const price = defineModel<string>("price", { default: "" });
 
@@ -65,104 +68,83 @@ const minPoint = computed(() => {
 
 // 获取止盈止损范围
 const getRange = () => {
-  const leadOption: Record<string, any> = {
-    price: props.quote?.ask,
-    buyLimit: props.orderPrice,
-    sellLimit: props.orderPrice,
-    buyStop: props.orderPrice,
-    sellStop: props.orderPrice,
-    buyStopLimit: props.limitedPrice,
-    sellStopLimit: props.limitedPrice,
-  };
-  if (props.symbolInfo) {
-    const digits = props.symbolInfo.digits;
-    const stopsLevel = props.symbolInfo.stops_level;
-    const point = stopsLevel / Math.pow(10, +digits);
-    stopsLevel / Math.pow(10, +digits);
-    const lead = +leadOption[props.orderType] || 0;
-    const down = +round(lead - point, digits);
-    const up = +round(lead + point, digits);
-    return [down, up];
-  }
-  return [0, 0];
-};
-
-const initPrice = () => {
-  if (price.value === "") {
-    const [down, up] = getRange();
-    if (props.type === "stopLoss") {
-      return String(down);
+  try {
+    const type = props.orderType;
+    const ask = props.quote.ask;
+    const bid = props.quote.bid;
+    if (!ask || !bid) {
+      return null;
     }
-    if (props.type === "stopProfit") {
-      return String(up);
+    // 不同订单类型基数选取
+    const baseNumMap: Record<string, any> = {
+      sellPrice: ask,
+      buyPrice: bid,
+      buyLimit: props.orderPrice,
+      sellLimit: props.orderPrice,
+      buyStop: props.orderPrice,
+      sellStop: props.orderPrice,
+      buyStopLimit: props.limitedPrice,
+      sellStopLimit: props.limitedPrice,
+    };
+    const baseNum = [undefined, null, ""].includes(baseNumMap[type])
+      ? null
+      : +baseNumMap[type];
+    let maxTP = "";
+    let minTP = "";
+    let maxSL = "";
+    let minSL = "";
+    if (props.symbolInfo && baseNum) {
+      const { digits, stops_level } = props.symbolInfo;
+      // 距离
+      const distance = stops_level / Math.pow(10, digits);
+      // 点差
+      const spread = ask - bid;
+      switch (type) {
+        case "buyPrice":
+          minTP = round(baseNum + distance, digits);
+          maxSL = round(baseNum - distance, digits);
+          break;
+        case "sellPrice":
+          minSL = round(baseNum + distance, digits);
+          maxTP = round(baseNum - distance, digits);
+          break;
+        case "buyLimit":
+          minTP = round(baseNum - spread + distance, digits);
+          maxSL = round(baseNum - spread - distance, digits);
+          break;
+        case "sellLimit":
+          minSL = round(baseNum + spread + distance, digits);
+          maxTP = round(baseNum + spread - distance, digits);
+          break;
+        case "buyStop":
+          minTP = round(baseNum - spread + distance, digits);
+          maxSL = round(baseNum - spread - distance, digits);
+          break;
+        case "sellStop":
+          minSL = round(baseNum + spread + distance, digits);
+          maxTP = round(baseNum + spread - distance, digits);
+          break;
+        case "buyStopLimit":
+          minTP = round(baseNum - spread + distance, digits);
+          maxSL = round(baseNum - spread - distance, digits);
+          break;
+        case "sellStopLimit":
+          minSL = round(baseNum + spread + distance, digits);
+          maxTP = round(baseNum + spread - distance, digits);
+          break;
+        default:
+          break;
+      }
     }
+    return {
+      maxTP,
+      minTP,
+      maxSL,
+      minSL,
+    };
+  } catch (error) {
+    return null;
   }
-  return false;
-};
-
-const rangeTip = ref("");
-const ifError = ref(false);
-const setHelp = () => {
-  if (["", null, undefined].includes(price.value)) {
-    return "";
-  }
-  const value = price.value;
-  const orderType = props.orderType.toLowerCase();
-  const [down, up] = getRange();
-  const ifLoss = props.type === "stopLoss";
-  let range = "";
-  let valid = true;
-  switch (orderType) {
-    case "buyprice":
-      if (ifLoss) {
-        range = `≤ ${down}`;
-        value && (valid = +value <= down);
-      }
-      if (!ifLoss) {
-        range = `≥ ${up}`;
-        value && (valid = +value >= up);
-      }
-      break;
-    case "sellprice":
-      if (ifLoss) {
-        range = `≥ ${up}`;
-        value && (valid = +value >= up);
-      }
-      if (!ifLoss) {
-        range = `≤ ${down}`;
-        value && (valid = +value <= down);
-      }
-      break;
-    case "buylimit":
-    case "buystop":
-    case "buystoplimit":
-      if (ifLoss) {
-        range = `≤ ${down}`;
-        value && (valid = +value <= down);
-      }
-      if (!ifLoss) {
-        range = `≥ ${up}`;
-        value && (valid = +value >= up);
-      }
-      break;
-    case "selllimit":
-    case "sellstop":
-    case "sellstoplimit":
-      if (ifLoss) {
-        range = `≥ ${down}`;
-        value && (valid = +value >= down);
-      }
-      if (!ifLoss) {
-        range = `≤ ${up}`;
-        value && (valid = +value <= up);
-      }
-      break;
-    default:
-      range = "";
-      break;
-  }
-  rangeTip.value = range;
-  ifError.value = !valid;
 };
 
 watch(
@@ -174,11 +156,70 @@ watch(
     props.orderPrice,
     props.limitedPrice,
   ],
-  () => setHelp(),
+  () => setRange(),
   {
     deep: true,
   }
 );
+onMounted(() => setRange());
+
+// 止盈止损范围提示
+const rangeTip = ref("");
+const ifError = ref(false);
+const setRange = () => {
+  if (["", null, undefined].includes(price.value)) {
+    rangeTip.value = "";
+    ifError.value = false;
+    return;
+  }
+  const range = getRange();
+  if (range === null) {
+    rangeTip.value = "";
+    ifError.value = true;
+    return;
+  }
+  let tip = "";
+  let valid = true;
+  const { maxTP, minTP, maxSL, minSL } = range;
+  const value = +price.value;
+  if (props.type === "stopLoss") {
+    if (minSL) {
+      tip = `≥ ${minSL}`;
+      valid = value >= +minSL;
+    }
+    if (maxSL) {
+      tip = `≤ ${maxSL}`;
+      valid = value <= +maxSL;
+    }
+  }
+  if (props.type === "stopProfit") {
+    if (minTP) {
+      tip = `≥ ${minTP}`;
+      valid = value >= +minTP;
+    }
+    if (maxTP) {
+      tip = `≤ ${maxTP}`;
+      valid = value <= +maxTP;
+    }
+  }
+  rangeTip.value = tip;
+  ifError.value = !valid;
+};
+
+const customCal = () => {
+  if (price.value === "") {
+    const range = getRange();
+    if (range !== null) {
+      const { maxTP, minTP, maxSL, minSL } = range;
+      if (props.type === "stopLoss") {
+        return maxSL || minSL || null;
+      }
+      if (props.type === "stopProfit") {
+        return maxTP || minTP || null;
+      }
+    }
+  }
+};
 
 /**
  * openPrice：    建仓价
@@ -242,6 +283,5 @@ const profit = computed(() => {
   width: 100%;
   display: flex;
   justify-content: space-between;
-  gap: 20px;
 }
 </style>

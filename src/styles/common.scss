@@ -160,10 +160,6 @@ span {
   font-size: var(--font-size);
 }
 
-input:disabled {
-  @include background_color("inputDisabled");
-}
-
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none !important;
@@ -281,10 +277,10 @@ body {
 }
 
 .redWord {
-  color: #f53058;
+  color: var(--color-4);
 }
 .greenWord {
-  color: #2e9c76;
+  color: var(--color-7);
 }
 
 @keyframes rotate {

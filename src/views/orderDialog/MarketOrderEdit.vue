@@ -1,11 +1,13 @@
 <template>
   <div>
     <el-dialog
+      class="order_dialog scrollList"
       v-if="model"
       align-center
       width="464"
       v-model="model"
       :zIndex="dialogStore.zIndex"
+      @close="handleCancel"
     >
       <template #header>
         <span class="dialog_header">ID: {{ props.orderInfo.id }}</span>
@@ -76,7 +78,7 @@
                 v-model:price="stopFormState.stopLoss"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
-                :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}price`"
+                :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
@@ -87,7 +89,7 @@
                 v-model:price="stopFormState.stopProfit"
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
-                :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}price`"
+                :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
                 :orderPrice="props.orderInfo.order_price"
                 :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
@@ -160,7 +162,7 @@ import { IQuote } from "#/chart/index";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { resOrders } from "api/order/index";
-import { computed, nextTick, reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import Spread from "./components/spread.vue";
 
@@ -237,11 +239,8 @@ const step = computed(() => {
 
 watch(
   () => model.value,
-  async (val) => {
-    await nextTick();
-    if (val && closeFormRef.value && stopFormRef.value) {
-      closeFormRef.value.resetFields();
-      stopFormRef.value.resetFields();
+  (val) => {
+    if (val) {
       closeFormState.volume = (props.orderInfo.volume / 100).toString();
       stopFormState.stopLoss = props.orderInfo.sl_price.toString();
       stopFormState.stopProfit = props.orderInfo.tp_price.toString();
@@ -291,7 +290,7 @@ const closeOrder = async () => {
       }),
     });
     orderStore.getData("order_closed");
-    model.value = false;
+    handleCancel();
     confirmCancel();
   } else {
     ElNotification.error({
@@ -316,7 +315,7 @@ const doubleHoldings = async (reverse?: boolean) => {
       }),
     });
     orderStore.getData("order_opened");
-    model.value = false;
+    handleCancel();
     confirmCancel();
   } else {
     ElNotification.error({
@@ -341,7 +340,7 @@ const reversePosition = async () => {
       type: "success",
     });
     orderStore.getData("order_closed");
-   model.value = false;
+    handleCancel();
     confirmCancel();
   } else {
     ElNotification.error({
@@ -393,7 +392,7 @@ const modify = debounce(async () => {
     if (res.data.action_success) {
       orderStore.getData("order_modified");
       ElMessage.success(t("tip.succeed", { type: t("modify") }));
-      model.value = false;
+      handleCancel();
     } else {
       ElMessage.error(
         res.data.err_text || t("tip.failed", { type: t("modify") })
@@ -432,15 +431,21 @@ const getProfit = () => {
     return "";
   }
 };
+
+const handleCancel = () => {
+  closeFormRef.value?.resetFields();
+  stopFormRef.value?.resetFields();
+  model.value = false;
+};
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 .up {
-  @include background_color("upHover");
+  @include background_color("upLight");
 }
 .down {
-  @include background_color("downHover");
+  @include background_color("downLight");
 }
 .dialog_header {
   font-weight: bold;

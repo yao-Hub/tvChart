@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    class="order_dialog scrollList"
     v-if="model"
     align-center
     width="464"
@@ -49,7 +50,7 @@
             }"
             :orderType="formState.orderType"
             :symbolInfo="symbolInfo"
-            :quote="quote"
+            :quote="props.quote"
           >
           </Price>
         </el-col>
@@ -67,7 +68,7 @@
             }"
             :orderType="formState.orderType"
             :symbolInfo="symbolInfo"
-            :quote="quote"
+            :quote="props.quote"
           ></BreakLimit>
         </el-col>
         <el-col
@@ -83,7 +84,7 @@
             }"
             :orderType="formState.orderType"
             :symbolInfo="symbolInfo"
-            :quote="quote"
+            :quote="props.quote"
           ></BreakLimit>
         </el-col>
         <el-col :span="24">
@@ -91,7 +92,7 @@
             disabled
             v-model:volume="formState.volume"
             :symbolInfo="symbolInfo"
-            :quote="quote"
+            :quote="props.quote"
             :orderType="formState.orderType"
             :formOption="{ name: 'volume', label: t('dialog.closeVolume') }"
             :orderPrice="formState.orderPrice"
@@ -103,7 +104,7 @@
             v-model:price="formState.stopLoss"
             :volume="formState.volume"
             :symbolInfo="symbolInfo"
-            :quote="quote"
+            :quote="props.quote"
             :orderPrice="formState.orderPrice"
             :orderType="formState.orderType"
             :limitedPrice="formState.limitedPrice"
@@ -115,7 +116,7 @@
             v-model:price="formState.stopProfit"
             :volume="formState.volume"
             :symbolInfo="symbolInfo"
-            :quote="quote"
+            :quote="props.quote"
             :orderPrice="formState.orderPrice"
             :orderType="formState.orderType"
             :limitedPrice="formState.limitedPrice"
@@ -152,7 +153,7 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
 import { debounce, findKey } from "lodash";
-import { computed, nextTick, reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { ORDERMAP } from "@/constants/common";
@@ -228,10 +229,9 @@ const domVisableOption = {
 // 重置表单 自动填充
 watch(
   () => model.value,
-  async (val) => {
+  (val) => {
     if (val) {
       const timezone = timeStore.settedTimezone;
-      await nextTick();
       const orderType = findKey(ORDERMAP, (o) => o === props.orderInfo.type);
       if (orderType) {
         formState.orderType = orderType;
@@ -245,9 +245,7 @@ watch(
         .unix();
       formState.limitedPrice = props.orderInfo.trigger_price;
       formState.breakPrice = props.orderInfo.order_price;
-      setTimeout(() => {
-        formState.orderPrice = String(props.orderInfo.order_price);
-      }, 200);
+      formState.orderPrice = String(props.orderInfo.order_price);
     }
   }
 );
@@ -278,15 +276,6 @@ import { useSymbols } from "@/store/modules/symbols";
 const symbolsStore = useSymbols();
 const symbolInfo = computed(() => {
   return symbolsStore.symbols.find((e) => e.symbol === formState.symbol);
-});
-
-/** 当前报价 */
-import { useQuotes } from "@/store/modules/quotes";
-const quotesStore = useQuotes();
-const quote = computed(() => {
-  const quotes = quotesStore.qoutes;
-  const symbol = formState.symbol;
-  return quotes[symbol];
 });
 
 /** 下单 */

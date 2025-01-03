@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { round } from "utils/common/index";
-import { computed, nextTick, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
 interface Props {
   disabled?: boolean;
@@ -75,13 +75,11 @@ const initPrice = () => {
       return orderType.includes("limit") ? result_2 : result_1;
     }
   }
-  return false;
 };
 watch(
   () => [props.symbolInfo, props.orderType],
-  async () => {
+  () => {
     if (props.symbolInfo && props.orderType && !props.disabled) {
-      await nextTick();
       price.value = initPrice() || "";
     }
   },
@@ -92,7 +90,7 @@ watch(
 );
 const customCalc = () => {
   if (price.value === "") {
-    initPrice();
+    price.value = initPrice() || "";
   }
 };
 

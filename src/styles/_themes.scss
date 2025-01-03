@@ -26,6 +26,15 @@
   --color-1: #f6f8fb;
   --color-2: #e28602;
   --color-3: #f4b201;
+
+  --color-4: #f53058;
+  --color-5: #f75173;
+  --color-6: #ce284a;
+  --color-7: #2e9c76;
+  --color-8: #50ac8c;
+  --color-9: #278363;
+  --color-10: #cee5e1;
+  --color-11: #f6d0db;
 }
 $systemThemes: (
   light: (
@@ -78,19 +87,23 @@ $systemThemes: (
 
 $updwonThemes: (
   upRedDownGreen: (
-    up: #f53058,
-    upHover: #f75173,
-    upActive: #ce284a,
-    down: #2e9c76,
-    downHover: #50ac8c,
-    downActive: #278363,
+    up: var(--color-4),
+    upHover: var(--color-5),
+    upActive: var(--color-6),
+    upLight: var(--color-11),
+    down: var(--color-7),
+    downHover: var(--color-8),
+    downActive: var(--color-9),
+    downLight: var(--color-10),
   ),
   upGreenDownRed: (
-    up: #2e9c76,
-    upHover: #50ac8c,
-    upActive: #278363,
-    down: #f53058,
-    downHover: #f75173,
-    downActive: #ce284a,
+    up: var(--color-7),
+    upHover: var(--color-8),
+    upActive: var(--color-9),
+    upLight: var(--color-10),
+    down: var(--color-4),
+    downHover: var(--color-5),
+    downActive: var(--color-6),
+    downLight: var(--color-11),
   ),
 );
