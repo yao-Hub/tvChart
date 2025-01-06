@@ -10,10 +10,9 @@
       :min="min"
       :max="max"
       :disabled="disabled"
-      @blur="checkVolume"
       @sub="percentage = 0"
       @plus="percentage = 0"
-      @input="percentage = 0"
+      @input="handleInput"
       style="width: 168px"
     ></StepNumInput>
     <div class="tips">
@@ -121,16 +120,6 @@ onUnmounted(() => {
   model.value = "";
 });
 
-const checkVolume = () => {
-  const value = model.value;
-  if (!value || Number(value) < min.value) {
-    model.value = min.value.toString();
-  }
-  if (value && Number(value) > max.value) {
-    model.value = max.value.toString();
-  }
-};
-
 // 进度条
 const percentage = ref<number>(0);
 // 底部数字样式
@@ -182,6 +171,21 @@ const sliderInput = (percentage: Arrayable<number>) => {
     const prec = +percentage / 100;
     model.value = round(volumeMax * prec, digits);
   }
+};
+
+const handleInput = (value: string | number) => {
+  if (props.symbolInfo) {
+    const { digits } = props.symbolInfo;
+    const regex = new RegExp(`^\\d*(\\.\\d{0,${digits}})?$`);
+    const str = String(value);
+    if (!regex.test(str)) {
+      model.value = str
+        .replace(/[^0-9.]/g, "") // 移除非法字符
+        .replace(/(\..*?)\..*/g, "$1") // 只保留第一个小数点
+        .replace(new RegExp(`^(\\d+)(\\.\\d{${digits}}).*`), "$1$2");
+    }
+  }
+  percentage.value = 0;
 };
 </script>
 
