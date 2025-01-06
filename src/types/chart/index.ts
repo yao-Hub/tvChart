@@ -70,19 +70,20 @@ export interface ISessionSymbolInfo {
   trade_allow: number; // 是否能交易，1=是。
   ttimes: Array<Array<TimeUnit>>; // 交易时间段。休闭市设定
   holidays: []; // 假期。 休闭市设定
-  session?: string;
-  leverage: number;
-  fee: number;
-  storage: number;
+  session?: string; // 交易时间段
+  leverage: number; // 固定的杠杆倍数
+  fee: number; // 1手固定的手续费金额
+  storage: number; // 过夜费
   description: string;
   buy_rate: number;
-  currency: string;
+  currency: string; // 后币种
+  pre_currency: string; // 前币种
   sell_rate: number;
-  settlement_btime: number;
-  settlement_etime: number;
-  settlement_type: number;
-  status: number;
-  utrader_trade_allow: number;
+  settlement_btime: number; // 结算时段的开始时间
+  settlement_etime: number; // 结算时段的结束时间
+  settlement_type: number; // 1=休市结算，2=满24小时结算
+  status: number; // 1=启用
+  utrader_trade_allow: number; // 1=utrader开发交易许可
 }
 
 export interface PeriodParams {

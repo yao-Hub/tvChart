@@ -219,9 +219,14 @@
                 getOrderPrice(rowData)
               }}</template>
               <template v-else-if="column.dataKey === 'profit'">
-                <span :class="[getCellClass(getProfit(rowData)), 'profitcell']">
+                <span
+                  :class="[
+                    getCellClass(getMarketOrderProfit(rowData)),
+                    'profitcell',
+                  ]"
+                >
                   <span v-if="activeKey === 'marketOrder'">{{
-                    getProfit(rowData)
+                    getMarketOrderProfit(rowData)
                   }}</span>
                   <span v-else-if="activeKey === 'blanceRecord'">{{
                     rowData.profit > 0 ? `+${rowData.profit}` : rowData.profit
@@ -550,14 +555,14 @@ const formatTime = (timestamp: string) => {
 const getNowPrice = (e: orders.resOrders) => {
   try {
     const currentQuote = quotesStore.qoutes[e.symbol];
-    const type = getTradingDirection(e.type);
+    const direction = getTradingDirection(e.type);
     let result: number;
     if (activeKey.value === "marketOrder") {
-      result = type === "buy" ? currentQuote.bid : currentQuote.ask;
+      result = direction === "buy" ? currentQuote.bid : currentQuote.ask;
     } else if (activeKey.value === "pendingOrder") {
-      result = type === "buy" ? currentQuote.ask : currentQuote.bid;
+      result = direction === "buy" ? currentQuote.ask : currentQuote.bid;
     } else {
-      result = type === "buy" ? currentQuote.ask : currentQuote.bid;
+      result = direction === "buy" ? currentQuote.ask : currentQuote.bid;
     }
     if (e.digits) {
       return result.toFixed(e.digits);
@@ -577,10 +582,23 @@ const getOrderPrice = (e: orders.resPendingOrders) => {
 };
 
 // 获取盈亏
-const getProfit = ({ id }: orders.resOrders) => {
-  const data = orderStore.marketOrderProfit;
-  const target = data.find((e) => e.id === id);
-  return target?.profit || "-";
+const getMarketOrderProfit = (rowData: orders.resOrders) => {
+  const { volume, symbol, open_price, type, fee, storage } = rowData;
+  const currentQuote = quotesStore.qoutes[symbol];
+  const closePrice = type ? currentQuote.bid : currentQuote.ask;
+  const direction = getTradingDirection(type);
+  const result = orderStore.getProfit(
+    {
+      symbol,
+      closePrice,
+      buildPrice: open_price,
+      volume: volume / 100,
+      fee,
+      storage,
+    },
+    direction
+  );
+  return result;
 };
 
 // 交易历史盈亏合计位置
@@ -742,6 +760,7 @@ const delPendingOrder = async (record: orders.resOrders) => {
 const rowProps = ({ rowData }: any) => {
   return {
     ondblclick: () => {
+      state.orderInfo = rowData;
       if (activeKey.value === "marketOrder") {
         dialogStore.incrementZIndex();
         state.marketDialogVisible = true;
@@ -750,7 +769,6 @@ const rowProps = ({ rowData }: any) => {
         dialogStore.incrementZIndex();
         state.pendingDialogVisible = true;
       }
-      state.orderInfo = rowData;
     },
   };
 };

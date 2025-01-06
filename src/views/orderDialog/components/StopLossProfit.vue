@@ -3,10 +3,10 @@
     <template #label>
       <div class="title">
         <span style="white-space: nowrap">{{ titleMap[props.type] }}</span>
-        <el-tooltip :content="minPoint" placement="top" v-if="!price">
+        <el-tooltip :content="minPoint" placement="top" v-if="!rangeTip">
           <el-text class="textEllipsis" type="info">{{ minPoint }}</el-text>
         </el-tooltip>
-        <el-text :type="ifError ? 'danger' : 'info'" v-if="price">{{
+        <el-text :type="ifError ? 'danger' : 'info'" v-if="rangeTip">{{
           rangeTip
         }}</el-text>
       </div>
@@ -28,13 +28,16 @@
 
 <script setup lang="ts">
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
-import { useRate } from "@/store/modules/rate";
 import { round } from "utils/common/index";
 import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
+// import { useRate } from "@/store/modules/rate";
+import { useOrder } from "@/store/modules/order";
+
+const orderStore = useOrder();
 const { t } = useI18n();
-const rateStore = useRate();
+// const rateStore = useRate();
 
 const step = 0.5;
 
@@ -67,6 +70,7 @@ const minPoint = computed(() => {
 });
 
 // 获取止盈止损范围
+// 逻辑见 utrader2024/01_管理过程/架构图和流程图/预付款及盈亏计算方案.pdf
 const getRange = () => {
   try {
     const type = props.orderType;
@@ -135,13 +139,14 @@ const getRange = () => {
         default:
           break;
       }
+      return {
+        maxTP,
+        minTP,
+        maxSL,
+        minSL,
+      };
     }
-    return {
-      maxTP,
-      minTP,
-      maxSL,
-      minSL,
-    };
+    return null;
   } catch (error) {
     return null;
   }
@@ -221,54 +226,31 @@ const customCal = () => {
   }
 };
 
-/**
- * openPrice：    建仓价
- * closePrice：   平仓价（市价单->持仓多单时：closePrice = 现价卖价、持仓空单时，closePrice = 现价买价；止盈止损价）
- * contractSize： 订单品种合约数量
- * volume：       手数
- * fee：          手续费
- * storage：      库存费
- * 建仓合约价值 = open_price * contract_size *volume / 100
- * 平仓合约价值 = close_price *contract_size * volume / 100
- * buy时: profit = （平仓合约价值 - 建仓合约价值 + 库存费 +  手续费） * 利率
- * sell时: profit = （建仓合约价值 - 平仓合约价值 + 库存费 +  手续费） * 利率
- **/
-
 //  盈亏
 const profit = computed(() => {
-  const type = props.orderType.toLowerCase();
-  const ifBuy = type.includes("buy");
-  const ifSell = type.includes("sell");
+  const type = props.orderType;
+  const text = type.match(/sell|buy/);
   // 止盈止损为空并且没有确定方向不计算
-  if (["", null, undefined].includes(price.value) || (!ifBuy && !ifSell)) {
+  if (["", null, undefined].includes(price.value) || !text) {
     return "";
   }
-  const ask = props.quote?.ask;
-  const bid = props.quote?.bid;
-  let open_price;
-  if (type.includes("price")) {
-    open_price = ifBuy ? ask : bid;
-  } else {
-    open_price = props.orderPrice;
-  }
-  if (props.symbolInfo && open_price) {
-    let result: number | null = null;
-    const volume = +props.volume;
-    const { contract_size, storage, fee, digits, symbol } = props.symbolInfo;
-    const buildingPrice = +open_price * contract_size * volume; // 建仓合约价值
-    const closingPrice = +price.value * contract_size * volume; // 平仓合约价值
-
-    const rateMap = rateStore.getSymbolRate(symbol);
-    const rate = ifBuy ? rateMap.ask_rate : rateMap.bid_rate;
-    if (ifBuy) {
-      result = (closingPrice - buildingPrice + fee || 0 + storage || 0) * rate;
-    }
-    if (ifSell) {
-      result = (buildingPrice - closingPrice + fee || 0 + storage || 0) * rate;
-    }
-    if (result) {
-      return result.toFixed(digits);
-    }
+  const buildPrice = ["buyStopLimit", "sellStopLimit"].includes(type)
+    ? props.limitedPrice
+    : props.orderPrice;
+  const closePrice = +price.value;
+  const volume = +props.volume;
+  if (buildPrice && props.symbolInfo) {
+    const direction = text[0] as "sell" | "buy";
+    const profit = orderStore.getProfit(
+      {
+        symbol: props.symbolInfo.symbol,
+        buildPrice: +buildPrice,
+        closePrice,
+        volume,
+      },
+      direction
+    );
+    return profit;
   }
   return "";
 });

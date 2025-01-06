@@ -1,6 +1,5 @@
 import * as types from "#/chart/index";
 import { alllRates } from "api/symbols/index";
-import dayjs from "dayjs";
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { useSocket } from "./socket";
@@ -24,24 +23,43 @@ export const useRate = defineStore("rate", () => {
     });
   };
 
-  // 查找symbol的汇率
-  const getSymbolRate = (symbol: string): types.IRate => {
-    let result = {
-      symbol,
-      bid_rate: 1,
-      ask_rate: 1,
-      update_time: dayjs().valueOf(),
+  type TRateKey = "user_pre" | "pre_user" | "last_user" | "user_last";
+  type IRate = {
+    [key in TRateKey]: {
+      bid_rate: number;
+      ask_rate: number;
+    };
+  };
+  // 获取symbol的汇率
+  const getRate = (symbol: string): IRate => {
+    const result = {
+      user_pre: { bid_rate: 1, ask_rate: 1 },
+      pre_user: { bid_rate: 1, ask_rate: 1 },
+      last_user: { bid_rate: 1, ask_rate: 1 },
+      user_last: { bid_rate: 1, ask_rate: 1 },
     };
     const loginInfo = userStore.loginInfo;
-    const logCur = loginInfo?.currency;
     const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
-    const symCur = symbolInfo?.currency;
-    if (logCur && symCur) {
-      if (logCur === symCur) {
-        return result;
+    const userCur = loginInfo?.currency; // 账户币种
+    const preCur = symbolInfo?.pre_currency; // 前币种
+    const lastCur = symbolInfo?.currency; // 后币种
+
+    const rates = currentRates.value;
+    if (userCur && preCur) {
+      if (userCur !== preCur) {
+        const pre_user = `${preCur}${userCur}`;
+        const user_pre = `${userCur}${preCur}`;
+        result.pre_user = rates[pre_user] || 1;
+        result.user_pre = rates[user_pre] || 1;
       }
-      const currency = `${symCur}${logCur}`;
-      return currentRates.value[currency];
+    }
+    if (userCur && lastCur) {
+      if (userCur !== lastCur) {
+        const last_user = `${lastCur}${userCur}`;
+        const user_last = `${userCur}${lastCur}`;
+        result.last_user = rates[last_user] || 1;
+        result.user_last = rates[user_last] || 1;
+      }
     }
     return result;
   };
@@ -57,7 +75,7 @@ export const useRate = defineStore("rate", () => {
 
   return {
     getAllRates,
-    getSymbolRate,
+    getRate,
     subRate,
     currentRates,
     $reset,

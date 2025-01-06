@@ -24,7 +24,7 @@
 <script setup lang="ts">
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { round } from "utils/common/index";
-import { computed, ref, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 
 interface Props {
   disabled?: boolean;
@@ -153,6 +153,10 @@ const valid = () => {
   range.value = result;
   ifError.value = !vaild;
 };
+
+onUnmounted(() => {
+  price.value = "";
+});
 </script>
 
 <style lang="scss" scoped>

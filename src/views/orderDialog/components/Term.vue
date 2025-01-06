@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { onMounted } from "vue";
+import { onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -29,5 +29,8 @@ onMounted(() => {
   if (!model.value) {
     model.value = dayjs().day(6).hour(23).minute(59).second(59).unix();
   }
+});
+onUnmounted(() => {
+  model.value = "";
 });
 </script>

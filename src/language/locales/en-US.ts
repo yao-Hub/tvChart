@@ -217,6 +217,8 @@ export default {
     upLoadFileExceed: "Up to {num} images can be uploaded",
     noData: "No data available at the moment",
     addMySymbol: "Custom varieties can be added through the search box above",
+    reversePosition:
+      "Are you sure you want to close the current position and simultaneously open a position of the same size in the opposite direction?",
   },
 
   time: {

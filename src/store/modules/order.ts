@@ -1,22 +1,21 @@
 import i18n from "@/language/index";
-import * as orders from "api/order/index";
 import { ElMessageBox } from "element-plus";
-import { isNil } from "lodash";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
+
 import { useChartAction } from "./chartAction";
 import { useDialog } from "./dialog";
-import { useQuotes } from "./quotes";
 import { useRate } from "./rate";
 import { useSocket } from "./socket";
 import { useStorage } from "./storage";
+import { useSymbols } from "./symbols";
 import { useUser } from "./user";
-
-import { getTradingDirection } from "utils/order/index";
 
 import * as types from "#/chart/index";
 import * as orderTypes from "#/order";
-import { ifNumber } from "@/utils/common";
+import * as orders from "api/order/index";
+
+import { isNil } from "lodash";
 
 type ModeType = "create" | "confirm";
 type SymbolType = string;
@@ -101,70 +100,6 @@ export const useOrder = defineStore("order", {
       ifOne: false, // 一键交易
       ifQuick: true, // 快捷交易(图表是否显示快捷交易组件)
     };
-  },
-
-  getters: {
-    // 持仓盈亏
-    marketOrderProfit(state) {
-      const marketOrder = state.orderData.marketOrder || [];
-      const quotesStore = useQuotes();
-      const rateStore = useRate();
-      const result = marketOrder.map((item) => {
-        const {
-          contract_size,
-          storage,
-          fee,
-          open_price,
-          volume,
-          id,
-          symbol,
-          type,
-        } = item;
-        try {
-          let profit: string | number = "";
-          const direction = getTradingDirection(type);
-          const currentQuote = quotesStore.qoutes[symbol];
-          // 持仓多单时，close_price = 现价卖价
-          // 持仓空单时，close_price = 现价买价
-          const closePrice =
-            direction === "buy" ? currentQuote.bid : currentQuote.ask;
-          const rateMap = rateStore.getSymbolRate(symbol);
-          const rate =
-            direction === "buy" ? rateMap.ask_rate : rateMap.bid_rate;
-          // 建仓合约价值 = open_price X contract_size X volume / 100
-          const buildingPrice = (open_price * contract_size * volume) / 100;
-          // 平仓合约价值 = close_price X contract_size X volume / 100
-          const closingPrice = (closePrice * contract_size * volume) / 100;
-          // buy时 : profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
-          // sell时 : profit = 建仓合约价值 - 平仓合约价值 + 手续费 + 过夜费
-          const value =
-            direction === "buy"
-              ? closingPrice - buildingPrice
-              : buildingPrice - closingPrice;
-          profit = ((value + (storage || 0) + (fee || 0)) * rate).toFixed(2);
-          return {
-            id,
-            profit,
-          };
-        } catch (error) {
-          return {
-            id,
-            profit: "-",
-          };
-        }
-      });
-      return result;
-    },
-
-    // 合计盈亏
-    allMarketOrderProfit() {
-      // @ts-ignore
-      const result = this.marketOrderProfit.reduce((pre, next) => {
-        const profit = ifNumber(next.profit) ? +next.profit : 0;
-        return pre + profit;
-      }, 0);
-      return result.toFixed(2);
-    },
   },
 
   actions: {
@@ -279,7 +214,6 @@ export const useOrder = defineStore("order", {
       }
     },
     async initTableData() {
-      // this.subOrder();
       const socketStore = useSocket();
       await Promise.all([
         this.getMarketOrders(),
@@ -420,6 +354,143 @@ export const useOrder = defineStore("order", {
       } finally {
         this.dataLoading.blanceRecord = false;
       }
+    },
+
+    /** 获取盈亏
+     * @param params {
+     *  symbol: 品种
+     *  closePrice: 平仓价格
+     *  buildPrice: 建仓价格
+     *  volume: 手数
+     *  fee: 手续费(可选)
+     *  storage: 过夜费(可选)
+     * }
+     * @param direction: buy or sell
+     * @returns string
+     * @description
+     * 后币种 === 账户币种 ->
+     *  buy: 盈亏=(平仓价格-建仓价格)*手数*合约数量;
+     *  sell:盈亏=(建仓价格-平仓价格)*手数*合约数量
+     * 前品种 === 账户币种 ->
+     *  buy: 盈亏=(平仓价格-建仓价格)*手数*合约数量/平仓价格;
+     *  sell:盈亏=(建仓价格-平仓价格)*手数*合约数量/平仓价格
+     * 其他(买卖单) ->
+     *  buy: 盈亏=(平仓价格-建仓价格)*手数*合约数量*品种币种(后)与账户币种汇率；
+     *  sell:盈亏=(建仓价格-平仓价格)*手数*合约数量*品种币种(后)与账户币种汇率
+     */
+    getProfit(
+      params: {
+        symbol: string;
+        closePrice: number;
+        buildPrice: number;
+        volume: number;
+        fee?: number;
+        storage?: number;
+      },
+      direction: "sell" | "buy"
+    ): string {
+      const userStore = useUser();
+      const symbolsStore = useSymbols();
+      const rateStore = useRate();
+      const {
+        symbol,
+        closePrice,
+        buildPrice,
+        volume,
+        fee = 0,
+        storage = 0,
+      } = params;
+
+      const rates = rateStore.getRate(symbol);
+      const loginInfo = userStore.loginInfo;
+      const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
+      if (symbolInfo) {
+        const { currency, pre_currency, contract_size, digits } = symbolInfo;
+        const userCur = loginInfo?.currency; // 账户币种
+        const stateMachine = {
+          last_user: {
+            buy: (closePrice - buildPrice) * volume * contract_size,
+            sell: (buildPrice - closePrice) * volume * contract_size,
+          },
+          pre_user: {
+            buy:
+              (closePrice - buildPrice) * volume * (contract_size / closePrice),
+            sell:
+              (buildPrice - closePrice) * volume * (contract_size / closePrice),
+          },
+          normal: {
+            buy:
+              (closePrice - buildPrice) *
+              volume *
+              contract_size *
+              rates.last_user.ask_rate,
+            sell:
+              (buildPrice - closePrice) *
+              volume *
+              contract_size *
+              rates.last_user.bid_rate,
+          },
+        };
+        const type =
+          currency === userCur
+            ? "last_user"
+            : pre_currency === userCur
+            ? "pre_user"
+            : "normal";
+        const result = stateMachine[type][direction];
+        return (result - fee - storage).toFixed(digits);
+      }
+      return "-";
+    },
+
+    /** 参考预付款
+     * @param params { symbol: 品种; volume: 手数; bulidPrice: 建仓价格 }
+     * @returns string
+     * @description
+     * 有杠杆时：
+     * 品种前币种 === 账户币种
+     *  是： 预付款 = 手数 * 合约数量  / 杠杆
+     *  否： 品种后币种 === 账户币种
+     *        是： 预付款  = 手数 * 合约数量 * 建仓价格 / 杠杆
+     *        否： 预付款 = 手数 * 合约数量 * 前币种与账户币种汇率 / 杠杆
+     * 无杠杆时
+     *  margin * 手数
+     */
+    getReferMargin(
+      params: {
+        symbol: string;
+        volume: string | number;
+        bulidPrice: string | number;
+      },
+      direction: "sell" | "buy"
+    ) {
+      const { symbol, volume, bulidPrice } = params;
+      const rateStore = useRate();
+      const symbolsStore = useSymbols();
+      const userStore = useUser();
+
+      const rates = rateStore.getRate(symbol).pre_user;
+      const rate = direction === "buy" ? rates.ask_rate : rates.bid_rate;
+
+      const loginInfo = userStore.loginInfo;
+      const userCur = loginInfo?.currency; // 账户币种
+      const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
+      if (symbolInfo) {
+        const { currency, pre_currency, contract_size, leverage, margin } =
+          symbolInfo;
+        if (leverage) {
+          if (pre_currency === userCur) {
+            return (+volume * contract_size) / leverage;
+          }
+          if (currency === userCur) {
+            console.log(volume, contract_size, bulidPrice, leverage);
+            return (+volume * contract_size * +bulidPrice) / leverage;
+          }
+          return (+volume * contract_size * +bulidPrice * rate) / leverage;
+        }
+        return margin * +volume;
+      }
+      return "-";
     },
   },
 

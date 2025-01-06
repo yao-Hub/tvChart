@@ -33,17 +33,22 @@
 </template>
 
 <script setup lang="ts">
+import type { CSSProperties } from "vue";
+import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
-import { useRate } from "@/store/modules/rate";
+
+import { useOrder } from "@/store/modules/order";
+import { useQuotes } from "@/store/modules/quotes";
 import { useTheme } from "@/store/modules/theme";
 import { useUser } from "@/store/modules/user";
-import { round } from "utils/common/index";
-import type { CSSProperties } from "vue";
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { round } from "@/utils/common";
 
-const rateStore = useRate();
+const quotesStore = useQuotes();
 const userStore = useUser();
 const themeStore = useTheme();
+const orderStore = useOrder();
+
 type Arrayable<T> = T | T[];
 interface Props {
   disabled?: boolean;
@@ -66,9 +71,9 @@ const step = computed(() => {
 
 // 单笔最小手数(volume_step/100)
 const min = computed(() => {
-  const symbol = props.symbolInfo;
-  if (symbol) {
-    const volume_min = symbol.volume_step / 100;
+  const symbolInfo = props.symbolInfo;
+  if (symbolInfo) {
+    const volume_min = symbolInfo.volume_step / 100;
     return volume_min;
   }
   return 0;
@@ -76,61 +81,33 @@ const min = computed(() => {
 
 // 单笔最大手数
 const max = computed(() => {
-  const symbol = props.symbolInfo;
-  if (symbol) {
-    const volume_max = symbol.volume_max / 100;
+  const symbolInfo = props.symbolInfo;
+  if (symbolInfo) {
+    const volume_max = symbolInfo.volume_max / 100;
     return volume_max;
   }
   return 0;
 });
 
-// 汇率
-const rate = computed(() => {
-  const orderType = props.orderType.toLowerCase();
-  const symbolInfo = props.symbolInfo;
-  let result = 1;
-  if (symbolInfo) {
-    const rateMap = rateStore.getSymbolRate(symbolInfo.symbol);
-    if (rateMap) {
-      if (orderType === "price") {
-        result = rateMap?.bid_rate;
-      } else {
-        result = orderType.includes("buy")
-          ? rateMap.ask_rate
-          : rateMap.bid_rate;
-      }
-    }
-  }
-  return result || 1;
-});
-
-// 预付款(以买入计算)
-// 固定保证金时：referMargin = margin（1手固定的预付款金额） * 需保证金手数
-// 固定杠杆时：referMargin = open_price（下单价格） * contract_size （合约数量）/ leverage * 需保证金手数  * 汇率
-// open_price（下单价格）： 市价单 = bid，挂单 = 限价[orderPrice]
+// 预付款
 const referMargin = computed(() => {
-  let result;
-  const orderType = props.orderType.toLowerCase();
   const symbolInfo = props.symbolInfo;
-  const volume = model.value;
-  let open_price;
-  open_price = orderType === "price" ? props.quote?.bid : props.orderPrice;
-  if (symbolInfo && volume) {
-    if (open_price) {
-      const leverage = symbolInfo.leverage;
-      const contract_size = symbolInfo.contract_size;
-      const margin = symbolInfo.margin;
-      const digits = symbolInfo.digits;
-      // 固定保证金时
-      result = margin * +volume;
-      // 固定杠杆时：
-      if (leverage) {
-        result =
-          ((+open_price * contract_size) / leverage) * +volume * rate.value;
-      }
-      return round(result, digits);
-    }
-    return "-";
+  if (symbolInfo) {
+    const symbol = symbolInfo.symbol;
+    const currentQuote = quotesStore.qoutes[symbol];
+    const direction = props.orderType.includes("sell") ? "sell" : "buy";
+    const bulidPrice =
+      direction === "sell" ? currentQuote.bid : currentQuote.ask;
+    const volume = model.value;
+    const referMargin = orderStore.getReferMargin(
+      {
+        symbol,
+        volume,
+        bulidPrice,
+      },
+      direction
+    );
+    return referMargin === "-" ? "-" : round(referMargin, symbolInfo.digits);
   }
   return "-";
 });
@@ -139,6 +116,9 @@ onMounted(() => {
   if (model.value === "") {
     model.value = min.value;
   }
+});
+onUnmounted(() => {
+  model.value = "";
 });
 
 const checkVolume = () => {
@@ -194,34 +174,13 @@ watch(
   },
   { deep: true, immediate: true }
 );
-// 滑块滚动计算所需手数
+// 滑块手数：可用预付款最大的可交易手数*百分比
 const sliderInput = (percentage: Arrayable<number>) => {
-  // 固定杠杆
-  // 手数 =（margin_free[可用预付款]*percentage[滑块百分比]）/（(self.bid[市价] * contractSize[合约数量]) / leverage[固定的杠杆倍数]）* 汇率
-
-  // 固定保证金
-  // 手数 =（margin_free[可用预付款]*percentage[滑块百分比]）/ margin[ 1手固定的预付款金额]
   if (props.symbolInfo) {
-    let result;
-    const leverage = props.symbolInfo.leverage;
-    const margin_free = +userStore.margin_free;
-    const bid = props.quote?.bid;
-    const contractSize = props.symbolInfo.contract_size;
-    const margin = props.symbolInfo.margin;
-    const digits = props.symbolInfo.digits;
-    const per = +percentage / 100;
-    if (leverage) {
-      if (bid) {
-        result =
-          ((margin_free * per) / ((bid * contractSize) / leverage)) *
-          rate.value;
-      }
-    } else {
-      result = (margin_free * per) / margin;
-    }
-    if (result) {
-      model.value = result.toFixed(digits);
-    }
+    const { margin, digits } = props.symbolInfo;
+    const volumeMax = +userStore.margin_free / margin;
+    const prec = +percentage / 100;
+    model.value = round(volumeMax * prec, digits);
   }
 };
 </script>

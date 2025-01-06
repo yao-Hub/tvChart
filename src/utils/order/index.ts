@@ -15,7 +15,7 @@ export const getTradingDirection = (e: string | number) => {
       }
     }
   }
-  return "";
+  return "buy";
 };
 
 // 获取订单类型

@@ -64,8 +64,8 @@
               >
             </el-col>
             <el-col :span="24" v-if="closeFormState.volume">
-              <div class="profit" :class="[profitClass]">
-                {{ t("order.expectedGrossProfit") }}: {{ getProfit() }}
+              <div class="profitBox" :class="[profitClass]">
+                {{ t("order.expectedGrossProfit") }}: {{ nowProfit }}
               </div>
             </el-col>
           </el-form>
@@ -79,7 +79,7 @@
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
                 :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
-                :orderPrice="props.orderInfo.order_price"
+                :orderPrice="props.orderInfo.open_price"
                 :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
             </el-col>
@@ -90,7 +90,7 @@
                 :symbolInfo="symbolInfo"
                 :quote="props.quote"
                 :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
-                :orderPrice="props.orderInfo.order_price"
+                :orderPrice="props.orderInfo.open_price"
                 :volume="props.orderInfo.volume / 100"
               ></StopLossProfit>
             </el-col>
@@ -120,33 +120,41 @@
         <span v-if="confirmType === 'close'">{{
           $t("tip.confirm", { type: t("dialog.closePosition") })
         }}</span>
-        <span v-if="confirmType === 'reverse'">{{
-          $t("dialog.reversePosition")
-        }}</span>
+        <div v-if="confirmType === 'reverse'" class="reverseTitle">
+          <span>{{ $t("dialog.reversePosition") }}</span>
+          <span class="reverseTitle_tip">{{ $t("tip.reversePosition") }}</span>
+        </div>
         <span v-if="confirmType === 'double'">{{
           $t("dialog.confirmDouble")
         }}</span>
       </template>
-      <el-row :gutter="24" style="gap: 16px; flex-wrap: wrap; margin-top: 24px">
-        <el-col :span="9"
-          >{{ $t("dialog.order") }}ID：{{ props.orderInfo.id }}</el-col
-        >
-        <el-col :span="9"
-          >{{ $t("table.symbol") }}：{{ props.orderInfo.symbol }}</el-col
-        >
-        <el-col :span="9"
-          >{{ $t("dialog.orderType") }}：{{
+      <el-row style="margin-top: 24px">
+        <el-col :span="12">
+          <el-text type="info">{{ $t("dialog.order") }}ID：</el-text>
+          <el-text>{{ props.orderInfo.id }}</el-text>
+        </el-col>
+        <el-col :span="12">
+          <el-text type="info">{{ $t("table.symbol") }}：</el-text>
+          <el-text>{{ props.orderInfo.symbol }}</el-text>
+        </el-col>
+      </el-row>
+      <el-row style="margin: 16px 0 24px 0">
+        <el-col :span="12">
+          <el-text type="info">{{ $t("dialog.orderType") }}：</el-text>
+          <el-text>{{
             $t(
               `order.${
                 confirmType === "reverse" ? reverseType : transactionType
               }`
             )
-          }}</el-col
-        >
-        <el-col :span="9"
-          >{{ $t("dialog.tradingVolume") }}：{{ closeFormState.volume }}</el-col
-        >
+          }}</el-text>
+        </el-col>
+        <el-col :span="12">
+          <el-text type="info">{{ $t("dialog.tradingVolume") }}：</el-text>
+          <el-text>{{ closeFormState.volume }}</el-text>
+        </el-col>
       </el-row>
+
       <template #footer>
         <el-button @click="confirmCancel">{{ $t("cancel") }}</el-button>
         <el-button type="primary" @click="okCancel" :loading="confirmLoading">{{
@@ -405,32 +413,32 @@ const modify = debounce(async () => {
 
 // 获取盈亏
 const profitClass = ref("");
-const getProfit = () => {
+const nowProfit = computed(() => {
   try {
-    const volume = +closeFormState.volume;
-    let result: string | number = "";
-    const type = getTradingDirection(props.orderInfo.type);
-    // 持仓多单时，close_price = 现价卖价
-    // 持仓空单时，close_price = 现价买价
-    const closePrice = type === "buy" ? props.quote.bid : props.quote.ask;
-    const { contract_size, storage, fee, open_price } = props.orderInfo;
-    // 建仓合约价值 = open_price X contract_size X volume / 100
-    const buildingPrice = (open_price * contract_size * volume) / 100;
-    // 平仓合约价值 = close_price X contract_size X volume / 100
-    const closingPrice = (closePrice * contract_size * volume) / 100;
-    // buy时 : profit = 平仓合约价值 - 建仓合约价值 + 手续费 + 过夜费
-    // sell时 : profit = 建仓合约价值 - 平仓合约价值 + 手续费 + 过夜费
-    const direction =
-      type === "buy"
-        ? closingPrice - buildingPrice
-        : buildingPrice - closingPrice;
-    result = (direction + (storage || 0) + (fee || 0)).toFixed(2);
-    profitClass.value = +result > 0 ? "up" : "down";
-    return result;
+    const volume = closeFormState.volume;
+    if (volume === "") {
+      return "-";
+    }
+    const { storage, fee, open_price, type, symbol } = props.orderInfo;
+    const direction = getTradingDirection(type);
+    const closePrice = direction === "buy" ? props.quote.bid : props.quote.ask;
+    const profit = orderStore.getProfit(
+      {
+        symbol,
+        closePrice,
+        buildPrice: open_price,
+        storage,
+        fee,
+        volume: +volume,
+      },
+      direction
+    );
+    profitClass.value = +profit > 0 ? "up" : "down";
+    return profit;
   } catch (error) {
-    return "";
+    return "-";
   }
-};
+});
 
 const handleCancel = () => {
   closeFormRef.value?.resetFields();
@@ -474,9 +482,18 @@ const handleCancel = () => {
   width: var(--size);
   height: var(--size);
 }
-.profit {
+.profitBox {
   padding: 5px 0;
   text-align: center;
   margin-top: 4px;
+}
+.reverseTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  &_tip {
+    line-height: 18px;
+    @include font_color("word-gray");
+  }
 }
 </style>
