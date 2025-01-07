@@ -6,10 +6,10 @@
   >
     <StepNumInput
       v-model:value="model"
-      :step="step"
-      :min="min"
-      :max="max"
+      :min="minVolume"
       :disabled="disabled"
+      :customSub="customSub"
+      :customAdd="customAdd"
       @sub="percentage = 0"
       @plus="percentage = 0"
       @input="handleInput"
@@ -67,26 +67,26 @@ const model = defineModel<string | number>("volume", { default: "" });
 const step = computed(() => {
   return props.symbolInfo ? props.symbolInfo.volume_step / 100 : 1;
 });
-
-// 单笔最小手数(volume_step/100)
-const min = computed(() => {
-  const symbolInfo = props.symbolInfo;
-  if (symbolInfo) {
-    const volume_min = symbolInfo.volume_step / 100;
-    return volume_min;
-  }
-  return 0;
+const digits = computed(() => {
+  return props.symbolInfo ? props.symbolInfo.digits : 2;
+});
+// 单笔最小手数
+const minVolume = computed(() => {
+  return props.symbolInfo ? props.symbolInfo.volume_min / 100 : 0;
 });
 
-// 单笔最大手数
-const max = computed(() => {
-  const symbolInfo = props.symbolInfo;
-  if (symbolInfo) {
-    const volume_max = symbolInfo.volume_max / 100;
-    return volume_max;
-  }
-  return 0;
-});
+const customSub = () => {
+  const result = orderStore.volumeSub(
+    +model.value,
+    step.value,
+    minVolume.value
+  );
+  return round(result, digits.value);
+};
+const customAdd = () => {
+  const result = orderStore.volumeAdd(+model.value, step.value);
+  return round(result, digits.value);
+};
 
 // 预付款
 const referMargin = computed(() => {
@@ -106,14 +106,14 @@ const referMargin = computed(() => {
       },
       direction
     );
-    return referMargin === "-" ? "-" : round(referMargin, symbolInfo.digits);
+    return referMargin === "-" ? "-" : round(referMargin, digits.value);
   }
   return "-";
 });
 
 onMounted(() => {
   if (model.value === "") {
-    model.value = min.value;
+    model.value = minVolume.value;
   }
 });
 onUnmounted(() => {
@@ -166,23 +166,28 @@ watch(
 // 滑块手数：可用预付款最大的可交易手数*百分比
 const sliderInput = (percentage: Arrayable<number>) => {
   if (props.symbolInfo) {
-    const { margin, digits } = props.symbolInfo;
+    const { margin } = props.symbolInfo;
     const volumeMax = +userStore.margin_free / margin;
     const prec = +percentage / 100;
-    model.value = round(volumeMax * prec, digits);
+    let result = volumeMax * prec;
+    // 需满足是step的倍数
+    let remainder = result % step.value;
+    if (remainder !== 0) {
+      result += step.value - remainder;
+    }
+    model.value = round(result, digits.value);
   }
 };
 
 const handleInput = (value: string | number) => {
   if (props.symbolInfo) {
-    const { digits } = props.symbolInfo;
-    const regex = new RegExp(`^\\d*(\\.\\d{0,${digits}})?$`);
+    const regex = new RegExp(`^\\d*(\\.\\d{0,${digits.value}})?$`);
     const str = String(value);
     if (!regex.test(str)) {
       model.value = str
         .replace(/[^0-9.]/g, "") // 移除非法字符
         .replace(/(\..*?)\..*/g, "$1") // 只保留第一个小数点
-        .replace(new RegExp(`^(\\d+)(\\.\\d{${digits}}).*`), "$1$2");
+        .replace(new RegExp(`^(\\d+)(\\.\\d{${digits.value}}).*`), "$1$2");
     }
   }
   percentage.value = 0;

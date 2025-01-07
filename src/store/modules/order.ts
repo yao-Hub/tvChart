@@ -1,4 +1,5 @@
 import i18n from "@/language/index";
+import Decimal from "decimal.js";
 import { ElMessageBox } from "element-plus";
 import { defineStore } from "pinia";
 import { useRouter } from "vue-router";
@@ -491,6 +492,33 @@ export const useOrder = defineStore("order", {
         return margin * +volume;
       }
       return "-";
+    },
+
+    // 手数增加
+    volumeAdd(value: number, step: number) {
+      let dValue = new Decimal(value);
+      let dStep = new Decimal(step);
+      let result = dValue.plus(dStep);
+      // 需满足是step的倍数
+      let remainder = result.mod(dStep);
+      if (remainder.toNumber() !== 0) {
+        result = dValue.plus(dStep.sub(remainder));
+      }
+      return result.toNumber();
+    },
+
+    // 手数减少
+    volumeSub(value: number, step: number, min?: number) {
+      let dValue = new Decimal(value);
+      let dStep = new Decimal(step);
+      let result = dValue.sub(dStep);
+      let remainder = result.mod(dStep);
+      if (!isNil(min) && result.toNumber() < min) {
+        result = new Decimal(min);
+      } else if (remainder.toNumber() !== 0) {
+        result = dValue.sub(remainder);
+      }
+      return result.toNumber();
     },
   },
 

@@ -178,9 +178,9 @@ const getQuotes = (type: "bid" | "ask", symbol: string) => {
 // 下单手数
 const volume = ref<string>("");
 // 单笔最小手数
-const minVolume = ref<string>("0");
+const minVolume = ref<number>(0);
 // 单笔最大手数
-const maxVolume = ref<string>("0");
+const maxVolume = ref<number>(0);
 
 // 当前品种
 const symbolInfo = ref<ISessionSymbolInfo>();
@@ -188,9 +188,9 @@ watchEffect(() => {
   const info = symbolsStore.symbols.find((e) => e.symbol === nowSymbol.value);
   if (info) {
     symbolInfo.value = info;
-    minVolume.value = (info.volume_min / 100).toString();
-    maxVolume.value = (info.volume_max / 100).toString();
-    volume.value = minVolume.value;
+    minVolume.value = info.volume_min / 100;
+    maxVolume.value = info.volume_max / 100;
+    volume.value = String(minVolume.value);
   }
 });
 
@@ -198,16 +198,17 @@ const step = computed(() => {
   return symbolInfo.value ? symbolInfo.value.volume_step / 100 : 1;
 });
 
-import { accAdd, accSub } from "utils/arithmetic";
 const addNum = () => {
-  volume.value = accAdd(+volume.value, step.value).toString();
+  const result = orderStore.volumeAdd(+volume.value, step.value);
+  volume.value = String(result);
 };
 const reduceNum = () => {
-  const result = accSub(+volume.value, step.value);
-  if (+result <= 0) {
-    return;
-  }
-  volume.value = result.toString();
+  const result = orderStore.volumeSub(
+    +volume.value,
+    step.value,
+    minVolume.value
+  );
+  volume.value = String(result);
 };
 
 const regex = /^-?\d+(\.\d+)?$/;
@@ -221,11 +222,11 @@ const valid = () => {
     ElMessage.error("请输入正确的数字格式");
     return false;
   }
-  if (value < minVolume.value) {
+  if (+value < minVolume.value) {
     ElMessage.error(`不能小于单笔最小手数${minVolume.value}`);
     return false;
   }
-  if (value > maxVolume.value) {
+  if (+value > maxVolume.value) {
     ElMessage.error(`不能大于单笔最大手数${maxVolume.value}`);
     return false;
   }
