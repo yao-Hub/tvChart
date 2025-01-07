@@ -591,11 +591,11 @@ const getMarketOrderProfit = (rowData: orders.resOrders) => {
     const result = orderStore.getProfit(
       {
         symbol,
-        closePrice,
-        buildPrice: open_price,
+        closePrice: +closePrice,
+        buildPrice: +open_price,
         volume: volume / 100,
-        fee,
-        storage,
+        fee: +fee,
+        storage: +storage,
       },
       direction
     );

@@ -406,7 +406,7 @@ export const useOrder = defineStore("order", {
       const loginInfo = userStore.loginInfo;
       const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
       if (symbolInfo) {
-        const { currency, pre_currency, contract_size, digits } = symbolInfo;
+        const { currency, pre_currency, contract_size } = symbolInfo;
         const userCur = loginInfo?.currency; // 账户币种
         const stateMachine = {
           last_user: {
@@ -439,7 +439,7 @@ export const useOrder = defineStore("order", {
             ? "pre_user"
             : "normal";
         const result = stateMachine[type][direction];
-        return (result - fee - storage).toFixed(digits);
+        return (result - fee - storage).toFixed(2);
       }
       return "-";
     },

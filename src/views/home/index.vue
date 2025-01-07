@@ -64,6 +64,7 @@ async function init() {
       symbolsStore.getAllSymbolQuotes(),
       rateStore.getAllRates(),
       orderStore.initTableData(),
+      userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
     ]);
   } catch (error) {
     chartInitStore.state.loading = false;
@@ -74,7 +75,6 @@ async function init() {
     chartLineStore.initSubLineAndQuote(); // 监听k线和报价
     socketStore.emitRate(); // 监听汇率
     rateStore.subRate(); // 监听汇率
-    userStore.getLoginInfo({ emitSocket: true }); // 获取个人信息
     orderStore.getQuickTrans();
     // 3.拿到缓存信息才能确定历史页面布局
     layoutStore.initLayout(); // 布局显示隐藏

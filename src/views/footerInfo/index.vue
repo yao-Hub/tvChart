@@ -27,7 +27,7 @@
     <el-divider direction="vertical" />
     <div class="item">
       <el-text type="info">{{ $t("order.TotalProfit") }}：</el-text>
-      <span :class="[profitTotal > 0 ? 'redWord' : 'greenWord']">{{
+      <span :class="[+profitTotal > 0 ? 'redWord' : 'greenWord']">{{
         profitTotal
       }}</span>
     </div>
@@ -49,6 +49,7 @@ import { useUser } from "@/store/modules/user";
 
 import { getTradingDirection } from "utils/order/index";
 
+import { round } from "@/utils/common";
 import Delay from "./components/Delay.vue";
 import Timezone from "./components/Timezone.vue";
 
@@ -83,7 +84,8 @@ const profitTotal = computed(() => {
     }
     return 0;
   });
-  return profitList.reduce((pre, next) => pre + next, 0);
+  const result = profitList.reduce((pre, next) => pre + next, 0);
+  return round(result, 2);
 });
 </script>
 
