@@ -25,6 +25,7 @@
       :marks="marks"
       :max="20"
       :format-tooltip="formatTooltip"
+      placement="right"
       style="width: 145px; margin-left: 10px; margin-bottom: 20px"
       @input="sliderInput"
     />
