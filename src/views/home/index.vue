@@ -116,10 +116,10 @@ watch(
 // 撤销监听 resize
 import { onBeforeRouteLeave } from "vue-router";
 onBeforeRouteLeave((to, from, next) => {
-  chartInitStore.saveCharts();
   window.removeEventListener("resize", () => {
     resizeUpdate();
   });
+  chartInitStore.saveCharts();
   next();
 });
 </script>

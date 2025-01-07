@@ -40,6 +40,7 @@
 </template>
 
 <script setup lang="ts">
+import { get, isNil } from "lodash";
 import { computed } from "vue";
 
 import { useOrder } from "@/store/modules/order";
@@ -62,20 +63,25 @@ const profitTotal = computed(() => {
   const profitList = data.map((item) => {
     const { volume, symbol, open_price, type, fee, storage } = item;
     const currentQuote = quotesStore.qoutes[symbol];
-    const closePrice = type ? currentQuote.bid : currentQuote.ask;
-    const direction = getTradingDirection(type);
-    const result = orderStore.getProfit(
-      {
-        symbol,
-        closePrice,
-        buildPrice: open_price,
-        volume: volume / 100,
-        fee,
-        storage,
-      },
-      direction
-    );
-    return result === "-" ? 0 : +result;
+    const closePrice = type
+      ? get(currentQuote, "bid")
+      : get(currentQuote, "ask");
+    if (!isNil(closePrice)) {
+      const direction = getTradingDirection(type);
+      const result = orderStore.getProfit(
+        {
+          symbol,
+          closePrice,
+          buildPrice: open_price,
+          volume: volume / 100,
+          fee,
+          storage,
+        },
+        direction
+      );
+      return result === "-" ? 0 : +result;
+    }
+    return 0;
   });
   return profitList.reduce((pre, next) => pre + next, 0);
 });

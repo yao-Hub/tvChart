@@ -1,5 +1,5 @@
 import * as types from "@/types/chart/index";
-import { sortBy } from "lodash";
+import { get, isNil, sortBy } from "lodash";
 import { defineStore } from "pinia";
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
@@ -29,7 +29,7 @@ export const useChartLine = defineStore("chartLine", {
       const quotesStore = useQuotes();
 
       const setHigh = (bid: number, high?: number) => {
-        if (!high) {
+        if (isNil(high)) {
           return bid;
         }
         if (high < bid) {
@@ -41,7 +41,7 @@ export const useChartLine = defineStore("chartLine", {
         return bid;
       };
       const setLow = (bid: number, low?: number) => {
-        if (!low) {
+        if (isNil(low)) {
           return bid;
         }
         if (low > bid) {
@@ -62,8 +62,8 @@ export const useChartLine = defineStore("chartLine", {
           ...oldQuote,
           ...d,
           close: d.bid,
-          high: setHigh(d.bid, oldQuote.high),
-          low: setHigh(d.bid, oldQuote.low),
+          high: setHigh(d.bid, get(oldQuote, "high")),
+          low: setHigh(d.bid, get(oldQuote, "low")),
         };
         for (const UID in this.subscribed) {
           const item = this.subscribed[UID];

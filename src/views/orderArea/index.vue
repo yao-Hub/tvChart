@@ -373,7 +373,7 @@
 
 <script setup lang="ts">
 import { ElMessage, ElMessageBox } from "element-plus";
-import { cloneDeep, minBy } from "lodash";
+import { cloneDeep, get, isNil, minBy } from "lodash";
 import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -585,20 +585,23 @@ const getOrderPrice = (e: orders.resPendingOrders) => {
 const getMarketOrderProfit = (rowData: orders.resOrders) => {
   const { volume, symbol, open_price, type, fee, storage } = rowData;
   const currentQuote = quotesStore.qoutes[symbol];
-  const closePrice = type ? currentQuote.bid : currentQuote.ask;
-  const direction = getTradingDirection(type);
-  const result = orderStore.getProfit(
-    {
-      symbol,
-      closePrice,
-      buildPrice: open_price,
-      volume: volume / 100,
-      fee,
-      storage,
-    },
-    direction
-  );
-  return result;
+  const closePrice = type ? get(currentQuote, "bid") : get(currentQuote, "ask");
+  if (!isNil(closePrice)) {
+    const direction = getTradingDirection(type);
+    const result = orderStore.getProfit(
+      {
+        symbol,
+        closePrice,
+        buildPrice: open_price,
+        volume: volume / 100,
+        fee,
+        storage,
+      },
+      direction
+    );
+    return result;
+  }
+  return "-";
 };
 
 // 交易历史盈亏合计位置
