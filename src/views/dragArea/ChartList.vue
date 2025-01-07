@@ -18,7 +18,10 @@
         ></chartTab>
       </div>
     </HorizontalScrolling>
-    <div class="charts_container" :style="chartInitStore.chartStyles">
+    <div
+      class="charts_container scrollList"
+      :style="chartInitStore.chartStyles"
+    >
       <div
         class="charts_container_item"
         v-for="({ id, symbol, interval }, index) in chartInitStore.state
@@ -224,9 +227,10 @@ const tabClose = (id: string) => {
   .charts_container {
     flex: 1;
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: 4px;
     box-sizing: border-box;
+    overflow-y: auto;
     @include background_color("background-component");
 
     &_item {

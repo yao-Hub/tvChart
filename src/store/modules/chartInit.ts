@@ -28,6 +28,8 @@ export const useChartInit = defineStore("chartInit", () => {
   const symbolStore = useSymbols();
   const storageStore = useStorage();
 
+  const chartMaxLength = 9;
+
   const state = reactive<State>({
     chartWidgetList: [],
     loading: true,
@@ -42,9 +44,15 @@ export const useChartInit = defineStore("chartInit", () => {
   const chartStyles = computed(() => {
     const text = state.chartLayoutType.match(/row|column/);
     if (text) {
-      return {
+      const flowX = text[0] === "row" ? "auto" : "hidden";
+      const flowY = text[0] === "column" ? "auto" : "hidden";
+      const result = {
         flexDirection: text[0] as CSSProperties["flexDirection"],
+        flexWrap: "nowrap" as CSSProperties["flexWrap"],
+        overflowX: flowX as CSSProperties["overflowX"],
+        overflowY: flowY as CSSProperties["overflowY"],
       };
+      return result;
     }
   });
 
@@ -125,16 +133,17 @@ export const useChartInit = defineStore("chartInit", () => {
     const chartLineStore = useChartLine();
     chartLineStore.removeChartSub(id);
 
-    setTimeout(() => {
-      const firstChart = state.chartWidgetList[0];
-      if (id === state.activeChartId) {
-        state.activeChartId = firstChart.id;
-      }
-    });
+    const firstChart = state.chartWidgetList[0];
+    if (id === state.activeChartId) {
+      state.activeChartId = firstChart.id;
+    }
   }
 
   // 增加一个图表
   function addChart(symbol?: string) {
+    if (state.chartWidgetList.length >= chartMaxLength) {
+      return;
+    }
     const ids = state.chartWidgetList.map((item) => +item.id.split("_")[1]);
     const minId = Math.min(...ids) as number;
     const maxId = Math.max(...ids) as number;
