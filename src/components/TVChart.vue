@@ -173,6 +173,7 @@ const initonReady = () => {
     custom_timezones: timezoneOptions as library.CustomAliasedTimezone[],
   };
 
+  // 图表刷新key
   chartInitStore.state.chartFreshKeys[props.chartId] = 0;
 
   // 读取缓存数据
@@ -186,6 +187,7 @@ const initonReady = () => {
     widgetOptions
   );
 
+  // 图表开始加载标志
   chartInitStore.setChartLoadingEndType(props.chartId);
 
   widget?.onChartReady(() => {
@@ -229,6 +231,7 @@ const initonReady = () => {
         widget.changeTheme(props.theme as library.ThemeName);
       }
 
+      // 图表时区初始化设置
       widget
         .activeChart()
         .getTimezoneApi()

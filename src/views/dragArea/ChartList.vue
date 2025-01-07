@@ -2,7 +2,7 @@
   <div class="charts">
     <HorizontalScrolling
       v-if="chartType === 'single'"
-      style="margin-left: 12px"
+      style="margin-left: 12px; width: calc(100% - 12px)"
     >
       <div class="tabs">
         <chartTab
@@ -31,8 +31,11 @@
         v-show="activedId === id || chartType !== 'single'"
       >
         <chartTab
-          style="width: 100%; border: none"
-          :style="{ marginLeft: index === 0 ? '12px' : '0' }"
+          :style="{
+            marginLeft: index === 0 ? '12px' : '0',
+            width: index === 0 ? 'calc(100% - 12px)' : '100%',
+            border: 'none',
+          }"
           v-if="chartType !== 'single'"
           active
           noActiveStyle

@@ -57,10 +57,11 @@
 </template>
 
 <script setup lang="ts">
-import { ISessionSymbolInfo } from "@/types/chart/index";
+import { isNil } from "lodash";
 import { computed, ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { ISessionSymbolInfo } from "@/types/chart/index";
 import { symbolDetail } from "api/symbols";
 
 import { useChartInit } from "@/store/modules/chartInit";
@@ -174,20 +175,29 @@ const showDialog = () => {
 
 const getValue = (key: Tkey) => {
   const info = symbolInfo.value;
-  switch (key) {
-    // 分类
-    case "path":
-      const pathList = info?.path.split("/") || [];
-      return pathList?.[0];
-    case "prepaidMode":
-      const leverage = info?.leverage;
-      return leverage ? t("prepaidMode.fixed") : t("prepaidMode.dynamic");
-    case "settlement_type":
-      const type = info?.settlement_type;
-      return type ? settlementTypeMap[type] || "-" : "-";
-    default:
-      return info ? info[key] : "-";
+  if (info) {
+    switch (key) {
+      // 分类
+      case "path":
+        const pathList = info.path.split("/") || [];
+        return pathList?.[0];
+      case "prepaidMode":
+        const leverage = info.leverage;
+        return leverage ? t("prepaidMode.dynamic") : t("prepaidMode.fixed");
+      case "settlement_type":
+        const type = info.settlement_type;
+        return type ? settlementTypeMap[type] || "-" : "-";
+      case "volume_max":
+      case "volume_min":
+      case "volume_step":
+        const value = info[key];
+        return isNil(value) ? "-" : +value / 100;
+        break;
+      default:
+        return info ? info[key] : "-";
+    }
   }
+  return "-";
 };
 
 import { useTime } from "@/store/modules/time";

@@ -58,8 +58,8 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 单图表显示工具栏 多图表隐藏
   watch(
-    () => state.chartLayoutType,
-    (type) => {
+    () => [state.chartLayoutType, state.chartWidgetList.length],
+    ([type, length]) => {
       try {
         state.chartWidgetList.forEach((item) => {
           if (item.widget) {
@@ -68,7 +68,8 @@ export const useChartInit = defineStore("chartInit", () => {
               .getCheckableActionState("drawingToolbarAction");
             if (
               (type === "single" && !leftToolHidden) ||
-              (type === "multiple" && leftToolHidden)
+              (type === "multiple" && leftToolHidden) ||
+              (length === 1 && !leftToolHidden)
             ) {
               item.widget
                 .activeChart()
