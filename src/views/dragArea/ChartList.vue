@@ -1,10 +1,5 @@
 <template>
-  <div
-    class="charts"
-    :style="{
-      // paddingTop: chartType === 'single' ? '0' : '4px',
-    }"
-  >
+  <div class="charts">
     <HorizontalScrolling
       v-if="chartType === 'single'"
       style="margin-left: 12px"
@@ -23,24 +18,19 @@
         ></chartTab>
       </div>
     </HorizontalScrolling>
-    <div
-      class="charts_container"
-      :style="{
-        flexDirection: chartInitStore.state.chartFlexDirection,
-      }"
-    >
+    <div class="charts_container" :style="chartInitStore.chartStyles">
       <div
         class="charts_container_item"
         v-for="({ id, symbol, interval }, index) in chartInitStore.state
           .chartWidgetList"
         :key="id"
         :id="id"
-        v-show="activedId === id || chartType === 'multiple'"
+        v-show="activedId === id || chartType !== 'single'"
       >
         <chartTab
           style="width: 100%; border: none"
           :style="{ marginLeft: index === 0 ? '12px' : '0' }"
-          v-if="chartType === 'multiple'"
+          v-if="chartType !== 'single'"
           active
           noActiveStyle
           noHoverStyle

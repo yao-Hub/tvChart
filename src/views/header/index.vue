@@ -29,11 +29,11 @@
 
 <script setup lang="ts">
 import Account from "./components/Account.vue";
+import HorizontalLayout from "./components/ChartLayout/Horizonta.vue";
 import MultipleLayout from "./components/ChartLayout/Multiple.vue";
 import SingleLayout from "./components/ChartLayout/Single.vue";
+import VerticalLayout from "./components/ChartLayout/Vertical.vue";
 import CreateChart from "./components/CreateChart.vue";
-import HorizontalLayout from "./components/DirectionalLayout/Horizonta.vue";
-import VerticalLayout from "./components/DirectionalLayout/Vertical.vue";
 import FastTransation from "./components/FastTransation.vue";
 import LayoutVisibled from "./components/LayoutVisibled.vue";
 import Menu from "./components/Menu/index.vue";

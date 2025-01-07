@@ -4,7 +4,7 @@ import {
   IChartingLibraryWidget,
   ResolutionString,
 } from "public/charting_library";
-import { computed, reactive, watch } from "vue";
+import { CSSProperties, computed, reactive, watch } from "vue";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
 
@@ -15,8 +15,7 @@ interface State {
     symbol: string;
     interval?: ResolutionString;
   }[];
-  chartLayoutType: "single" | "multiple";
-  chartFlexDirection: "row" | "column";
+  chartLayoutType: "single" | "multiple" | "row" | "column";
   loading: Boolean; // 整个图表区域的加载
   chartLoading: Record<string, boolean>; // 各个图表的加载状态
   activeChartId: string; // 当前激活的chart
@@ -35,10 +34,18 @@ export const useChartInit = defineStore("chartInit", () => {
     chartLayoutType: "single",
     chartLoading: {},
     activeChartId: "chart_1",
-    chartFlexDirection: "row",
     globalRefresh: false,
     ifFinishLoad: {},
     chartFreshKeys: {},
+  });
+
+  const chartStyles = computed(() => {
+    const text = state.chartLayoutType.match(/row|column/);
+    if (text) {
+      return {
+        flexDirection: text[0] as CSSProperties["flexDirection"],
+      };
+    }
   });
 
   // 单图表显示工具栏 多图表隐藏
@@ -193,27 +200,17 @@ export const useChartInit = defineStore("chartInit", () => {
     }
   }
 
-  // 初始化图表布局（单个多个）
+  // 初始化图表布局
   function intLayoutType() {
     const type = storageStore.getItem("chartLayoutType");
     state.chartLayoutType = type || "single";
     const storageId = storageStore.getItem("activeChartId") || "chart_1";
     state.activeChartId = storageId;
   }
-  // 设置图表布局（单个多个）
+  // 设置图表布局
   function setLayoutType(type: State["chartLayoutType"]) {
     state.chartLayoutType = type;
     storageStore.setItem("chartLayoutType", type);
-  }
-  // 初始化图表布局方向（row or column）
-  function intChartFlexDirection() {
-    const type = storageStore.getItem("chartFlexDirection");
-    state.chartFlexDirection = type || "row";
-  }
-  // 设置图表布局方向（row or column）
-  function setChartFlexDirection(type: State["chartFlexDirection"]) {
-    state.chartFlexDirection = type;
-    storageStore.setItem("chartFlexDirection", type);
   }
 
   // 保存图表状态
@@ -291,13 +288,13 @@ export const useChartInit = defineStore("chartInit", () => {
     state.chartLayoutType = "single";
     state.chartLoading = {};
     state.activeChartId = "chart_1";
-    state.chartFlexDirection = "row";
     state.ifFinishLoad = {};
     state.chartFreshKeys = {};
   }
 
   return {
     state,
+    chartStyles,
     chartRefresh,
     systemRefresh,
     createChartWidget,
@@ -309,8 +306,6 @@ export const useChartInit = defineStore("chartInit", () => {
     changeChartInterval,
     intLayoutType,
     setLayoutType,
-    intChartFlexDirection,
-    setChartFlexDirection,
     saveCharts,
     loadChartList,
     getChartSavedData,

@@ -78,7 +78,6 @@ async function init() {
     orderStore.getQuickTrans();
     // 3.拿到缓存信息才能确定历史页面布局
     layoutStore.initLayout(); // 布局显示隐藏
-    chartInitStore.intChartFlexDirection(); // 横向 or 纵向
     chartInitStore.intLayoutType(); // 单图表 or 多图表
     await nextTick();
     // 4.确定了布局才去初始化各个模块位置

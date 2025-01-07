@@ -3,7 +3,7 @@
     <div
       class="iconbox"
       :class="[flexDirection === 'row' ? 'active' : 'noActive']"
-      @click="chartInitStore.setChartFlexDirection('row')"
+      @click="chartInitStore.setLayoutType('row')"
     ></div>
   </el-tooltip>
 </template>
@@ -13,7 +13,7 @@ import { useChartInit } from "@/store/modules/chartInit";
 import { computed } from "vue";
 
 const chartInitStore = useChartInit();
-const flexDirection = computed(() => chartInitStore.state.chartFlexDirection);
+const flexDirection = computed(() => chartInitStore.state.chartLayoutType);
 </script>
 
 <style lang="scss" scoped>
