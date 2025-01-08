@@ -217,20 +217,29 @@ watch(
   () => model.value,
   (val) => {
     if (val) {
+      const {
+        type,
+        volume,
+        sl_price,
+        tp_price,
+        symbol,
+        time_expiration,
+        trigger_price,
+        order_price,
+      } = props.orderInfo;
+
       const timezone = timeStore.settedTimezone;
-      const orderType = findKey(ORDERMAP, (o) => o === props.orderInfo.type);
+      const orderType = findKey(ORDERMAP, (o) => o === type);
       if (orderType) {
         formState.orderType = orderType;
       }
-      formState.symbol = props.orderInfo.symbol;
-      formState.volume = props.orderInfo.volume / 100;
-      formState.stopLoss = String(props.orderInfo.sl_price);
-      formState.stopProfit = String(props.orderInfo.tp_price);
-      formState.dueDate = dayjs(props.orderInfo.time_expiration)
-        .tz(timezone)
-        .unix();
-      formState.limitedPrice = props.orderInfo.trigger_price;
-      formState.orderPrice = String(props.orderInfo.order_price);
+      formState.symbol = symbol;
+      formState.volume = volume / 100;
+      formState.stopLoss = sl_price ? String(sl_price) : "";
+      formState.stopProfit = tp_price ? String(tp_price) : "";
+      formState.dueDate = dayjs(time_expiration).tz(timezone).unix();
+      formState.limitedPrice = trigger_price;
+      formState.orderPrice = String(order_price);
     }
   }
 );

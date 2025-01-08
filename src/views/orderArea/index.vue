@@ -298,7 +298,7 @@
                 {{
                   [null, undefined, ""].includes(rowData[column.dataKey])
                     ? "-"
-                    : rowData[column.dataKey]
+                    : rowData[column.dataKey] || "-"
                 }}
               </template>
             </template>
@@ -602,7 +602,9 @@ const getMarketOrderProfit = (rowData: orders.resOrders) => {
     const target = orderStore.orderData.marketOrder.find(
       (e: orders.resOrders) => e.id === rowData.id
     );
-    target!.profit = +result;
+    if (target) {
+      target.profit = +result;
+    }
     return result;
   }
   return "-";

@@ -249,9 +249,10 @@ watch(
   () => model.value,
   (val) => {
     if (val) {
-      closeFormState.volume = (props.orderInfo.volume / 100).toString();
-      stopFormState.stopLoss = props.orderInfo.sl_price.toString();
-      stopFormState.stopProfit = props.orderInfo.tp_price.toString();
+      const { volume, sl_price, tp_price } = props.orderInfo;
+      closeFormState.volume = (volume / 100).toString();
+      stopFormState.stopLoss = sl_price ? String(sl_price) : "";
+      stopFormState.stopProfit = tp_price ? String(tp_price) : "";
     }
   }
 );
