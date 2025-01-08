@@ -4,6 +4,7 @@
     v-model="modalOpen"
     width="486"
     :zIndex="dialogStore.zIndex"
+    @close="onClose"
   >
     <template #header>
       <span class="header">{{ $t("account.resetPassword") }}</span>
@@ -73,7 +74,7 @@ import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { passwordReset } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
-import { reactive, ref, watch } from "vue";
+import { reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 const dialogStore = useDialog();
@@ -94,12 +95,9 @@ const formState = reactive<FormState>({
   oldpass: "",
 });
 const formRef = ref<FormInstance>();
-watch(
-  () => modalOpen.value,
-  () => {
-    formRef.value && formRef.value.resetFields();
-  }
-);
+const onClose = () => {
+  formRef.value && formRef.value.resetFields();
+};
 const validatePass = (rule: any, value: any, callback: any) => {
   if (value === "") {
     callback(new Error("Please input the password"));
@@ -147,6 +145,7 @@ const submit = (formEl: FormInstance | undefined) => {
         message: t("tip.succeed", { type: t("account.resetPassword") }),
         type: "success",
       });
+      onClose();
       modalOpen.value = false;
     }
   });

@@ -10,10 +10,10 @@
     </div>
     <div class="Register_main" v-if="!ifSuccess">
       <div class="Register_main_title">
-        <BaseImg iconName="logo@3x" imgSuffix="png" />
+        <BaseImg class="img" type="online" :src="lineInfo.lineLogo" />
         <div class="Register_main_title_right">
-          <span class="up">{{ props.lineInfo.lineName }}</span>
-          <span class="down">{{ props.lineInfo.brokerName }}</span>
+          <span class="up">{{ lineInfo.lineName }}</span>
+          <span class="down">{{ lineInfo.brokerName }}</span>
         </div>
       </div>
       <el-form
@@ -95,21 +95,39 @@
 </template>
 
 <script setup lang="ts">
-import { articleDetails, register, resQueryTradeLine } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
 import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+
 import VerificationCode from "./VerificationCode.vue";
 
-const { t } = useI18n();
-const router = useRouter();
+import { articleDetails, register } from "api/account/index";
 
-interface Props {
-  lineInfo: resQueryTradeLine;
-}
-const props = defineProps<Props>();
+import { useNetwork } from "@/store/modules/network";
+
+const { t } = useI18n();
+
+const router = useRouter();
+const route = useRoute();
+
+const networkStore = useNetwork();
+
+const lineInfo = computed(() => {
+  const server = route.params.server;
+  const target = networkStore.queryTradeLines.find(
+    (e) => e.lineName === server
+  );
+  if (target) {
+    return target;
+  }
+  return {
+    lineName: "",
+    brokerName: "",
+    lineLogo: "",
+  };
+});
 
 interface FormState {
   email: string;
@@ -139,7 +157,9 @@ const rules = reactive<FormRules<typeof formState>>({
   ],
 });
 
+// 开户条款
 const accountClauseUrl = ref("");
+// 数据保护政策
 const dataPolicyUrl = ref("");
 (async function getProtoco() {
   const [accountClause, dataPolicy] = await Promise.all([
@@ -178,7 +198,7 @@ const submit = (formEl: FormInstance | undefined) => {
     if (valid) {
       const { code, email } = formState;
       const res = await register({
-        server: props.lineInfo.lineName,
+        server: lineInfo.value.lineName,
         email,
         verify_code: code,
       });
@@ -190,10 +210,8 @@ const submit = (formEl: FormInstance | undefined) => {
 };
 
 const start = () => {
-  if (ifSuccess.value) {
-    ifSuccess.value = !ifSuccess.value;
-    return;
-  }
+  ifSuccess.value = false;
+  back();
 };
 
 import useClipboard from "vue-clipboard3";
@@ -227,6 +245,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeydown);
 });
+
+// import { onBeforeRouteUpdate } from "vue-router";
 </script>
 
 <style lang="scss" scoped>
@@ -255,7 +275,7 @@ onUnmounted(() => {
       display: flex;
       height: 68px;
       margin-bottom: 24px;
-      img {
+      .img {
         width: 64px;
         height: 64px;
         margin-right: 16px;

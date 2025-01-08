@@ -179,6 +179,7 @@ export interface resQueryTradeLine {
   lineLogo: string; // 显示图像
   brokerCode: string; // 经纪商编码
   lineCode: string; // 交易线路编码
+  isOfficial: string; //	是否官方模拟服务器 0:否 1:是
 }
 
 // 查询所有交易线路

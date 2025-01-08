@@ -10,10 +10,10 @@
     </div>
     <div class="forget_main">
       <div class="forget_main_title">
-        <BaseImg iconName="logo@3x" imgSuffix="png" />
+        <BaseImg class="img" type="online" :src="lineInfo.lineLogo" />
         <div class="forget_main_title_right">
-          <span class="up">{{ props.lineInfo.lineName }}</span>
-          <span class="down">{{ props.lineInfo.brokerName }}</span>
+          <span class="up">{{ lineInfo.lineName }}</span>
+          <span class="down">{{ lineInfo.brokerName }}</span>
         </div>
       </div>
       <el-form
@@ -70,22 +70,37 @@
 </template>
 
 <script setup lang="ts">
-import { emailPasswordUpdate, resQueryTradeLine } from "api/account/index";
+import { emailPasswordUpdate } from "api/account/index";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElMessage } from "element-plus";
-import { reactive, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+
+import { useNetwork } from "@/store/modules/network";
 
 import VerificationCode from "./VerificationCode.vue";
 
 const { t } = useI18n();
 const router = useRouter();
+const route = useRoute();
 
-interface Props {
-  lineInfo: resQueryTradeLine;
-}
-const props = defineProps<Props>();
+const networkStore = useNetwork();
+
+const lineInfo = computed(() => {
+  const server = route.params.server;
+  const target = networkStore.queryTradeLines.find(
+    (e) => e.lineName === server
+  );
+  if (target) {
+    return target;
+  }
+  return {
+    lineName: "",
+    brokerName: "",
+    lineLogo: "",
+  };
+});
 
 const querySearch = (queryString: string, cb: any) => {
   let res: { value: string }[];
@@ -163,7 +178,7 @@ const resetPwd = async () => {
   }
   const { code, email, pass, checkPass } = formState;
   await emailPasswordUpdate({
-    server: props.lineInfo.lineName,
+    server: lineInfo.value.lineName,
     email,
     verify_code: code,
     new_password: pass,
@@ -214,7 +229,7 @@ onUnmounted(() => {
       display: flex;
       height: 68px;
       margin-bottom: 37px;
-      img {
+      .img {
         width: 64px;
         height: 64px;
         margin-right: 16px;

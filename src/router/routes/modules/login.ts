@@ -20,11 +20,13 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: PageEnum.LOGIN_FORGETPASSWORD,
+        name: "ForgetPassword",
         meta: { depth: 3 },
         component: () => import("@/views/login/components/ForgetPassword.vue"),
       },
       {
         path: PageEnum.LOGIN_REGISTER,
+        name: "Register",
         meta: { depth: 3 },
         component: () => import("@/views/login/components/Register.vue"),
       },

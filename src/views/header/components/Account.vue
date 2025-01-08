@@ -40,16 +40,10 @@
           $t("personalInformation")
         }}</el-text>
         <el-divider direction="vertical" />
-        <el-text
-          type="info"
-          @click="openResetPwd"
-          v-if="userStore.account.server === 'utrader-demo'"
-          >{{ $t("changePassword") }}</el-text
-        >
-        <el-divider
-          direction="vertical"
-          v-if="userStore.account.server === 'utrader-demo'"
-        />
+        <el-text type="info" v-if="ifSimulatedServer" @click="openResetPwd">{{
+          $t("changePassword")
+        }}</el-text>
+        <el-divider direction="vertical" v-if="ifSimulatedServer" />
         <el-text type="info" @click="$router.push({ path: PageEnum.LOGIN })">{{
           $t("addAccount")
         }}</el-text>
@@ -107,7 +101,7 @@ import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 import type { DropdownInstance } from "element-plus";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
@@ -122,6 +116,21 @@ const router = useRouter();
 const dialogStore = useDialog();
 
 const accounts = ref<any[]>([]);
+
+// 是否是官方模拟服务器
+const ifSimulatedServer = computed(() => {
+  if (networkStore.server) {
+    const target = networkStore.queryTradeLines.find(
+      (e) => e.lineName === networkStore.server
+    );
+    if (target) {
+      return target.isOfficial === "1";
+    }
+    return false;
+  }
+  return false;
+});
+
 watch(
   () => userStore.accountList,
   (list) => {
@@ -213,6 +222,7 @@ const showModal = () => {
 };
 
 const openResetPwd = () => {
+  closeDropdown();
   dialogStore.incrementZIndex();
   resetPasswordOpen.value = true;
 };

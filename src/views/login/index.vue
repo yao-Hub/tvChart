@@ -10,7 +10,7 @@
       <div class="container">
         <transition :name="direction" mode="out-in">
           <div class="main" :key="Component">
-            <component :is="Component" :lineInfo="lineInfo" />
+            <component :is="Component" />
           </div>
         </transition>
       </div>
@@ -19,7 +19,6 @@
 </template>
 
 <script setup lang="ts">
-import { virtualLine } from "api/account/index";
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
@@ -36,19 +35,9 @@ const userStore = useUser();
 
 userStore.initAccount();
 
-const lineInfo = ref({
-  lineName: "", // 交易线路名称
-  brokerName: "", // 经纪商名称
-  lineLogo: "", // 显示图像
-  brokerCode: "", // 经纪商编码
-  lineCode: "", // 交易线路编码
-});
-
-// 获取虚拟线路的信息 用于注册和更改密码（目前只能更改虚拟账号的密码）
-virtualLine().then((res) => {
-  lineInfo.value = res.data;
-});
+// 查询交易线路列表
 networkStore.getLines();
+
 const direction = ref("slide-forward");
 watch(
   () => router.currentRoute.value,

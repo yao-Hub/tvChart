@@ -53,7 +53,7 @@
           />
           <span
             class="link"
-            v-if="formState.server === 'utrader-demo'"
+            v-if="ifSimulatedServer"
             @click="goForgetPassword"
             >{{ $t("account.forgetPassword") }}</span
           >
@@ -71,7 +71,7 @@
         >
       </el-form-item>
 
-      <el-form-item>
+      <el-form-item v-if="ifSimulatedServer">
         <div class="login-form-account">
           <span> {{ $t("account.noAccount") }}&nbsp;</span>
           <el-text type="primary" style="cursor: pointer" @click="goRegister">{{
@@ -172,6 +172,20 @@ const ifloginBack = computed(() => {
   return userStore.accountList.length;
 });
 
+// 是否是官方模拟服务器
+const ifSimulatedServer = computed(() => {
+  if (formState.server) {
+    const target = networkStore.queryTradeLines.find(
+      (e) => e.lineName === formState.server
+    );
+    if (target) {
+      return target.isOfficial === "1";
+    }
+    return false;
+  }
+  return false;
+});
+
 import { articleDetails, protocolAgree } from "api/account/index";
 // 隐私协议
 const privacyPolicyUrl = ref("");
@@ -215,10 +229,10 @@ const goAccount = () => {
   router.push({ path: PageEnum.LOGIN_ACCOUNTS });
 };
 const goRegister = () => {
-  router.push({ path: PageEnum.LOGIN_REGISTER });
+  router.push({ name: "Register", params: { server: formState.server } });
 };
 const goForgetPassword = () => {
-  router.push({ path: PageEnum.LOGIN_FORGETPASSWORD });
+  router.push({ name: "ForgetPassword", params: { server: formState.server } });
 };
 
 onMounted(() => {
