@@ -588,17 +588,16 @@ const getMarketOrderProfit = (rowData: orders.resOrders) => {
   const closePrice = type ? get(currentQuote, "bid") : get(currentQuote, "ask");
   if (!isNil(closePrice)) {
     const direction = getTradingDirection(type);
-    const result = orderStore.getProfit(
-      {
-        symbol,
-        closePrice: +closePrice,
-        buildPrice: +open_price,
-        volume: volume / 100,
-        fee: +fee,
-        storage: +storage,
-      },
-      direction
-    );
+    const params = {
+      symbol,
+      closePrice: +closePrice,
+      buildPrice: +open_price,
+      volume: volume / 100,
+      fee: +fee,
+      storage: +storage,
+    };
+    console.log(params)
+    const result = orderStore.getProfit(params, direction);
     const target = orderStore.orderData.marketOrder.find(
       (e: orders.resOrders) => e.id === rowData.id
     );
