@@ -54,37 +54,19 @@
           >
           </Price>
         </el-col>
-        <!-- 不是6 7都能改 是6 7考虑是否到达突破价 到达突破价不能改 只能改限价 -->
-        <el-col
-          :span="24"
-          v-if="domVisableOption.breakPrice.includes(formState.orderType)"
-        >
-          <BreakLimit
-            :disabled="!!orderInfo.order_price_time"
-            v-model:value="formState.breakPrice"
-            :formOption="{
-              name: 'breakPrice',
-              label: t('dialog.breakPrice'),
-            }"
-            :orderType="formState.orderType"
-            :symbolInfo="symbolInfo"
-            :quote="props.quote"
-          ></BreakLimit>
-        </el-col>
         <el-col
           :span="24"
           v-if="domVisableOption.limitedPrice.includes(formState.orderType)"
         >
           <BreakLimit
             v-model:value="formState.limitedPrice"
-            :breakPrice="formState.breakPrice"
+            :orderPrice="formState.orderPrice"
             :formOption="{
               name: 'limitedPrice',
               label: t('dialog.limitedPrice'),
             }"
             :orderType="formState.orderType"
             :symbolInfo="symbolInfo"
-            :quote="props.quote"
           ></BreakLimit>
         </el-col>
         <el-col :span="24">
@@ -199,7 +181,6 @@ interface FormState {
   stopProfit: string;
   orderPrice: string;
   dueDate: string | number;
-  breakPrice: string | number;
   limitedPrice: string | number;
 }
 const formState = reactive<FormState>({
@@ -210,12 +191,17 @@ const formState = reactive<FormState>({
   stopProfit: "",
   orderPrice: "",
   dueDate: "",
-  breakPrice: "",
   limitedPrice: "",
 });
 const domVisableOption = {
-  orderPrice: ["buyLimit", "sellLimit", "buyStop", "sellStop"],
-  breakPrice: ["buyStopLimit", "sellStopLimit"],
+  orderPrice: [
+    "buyLimit",
+    "sellLimit",
+    "buyStop",
+    "sellStop",
+    "buyStopLimit",
+    "sellStopLimit",
+  ],
   limitedPrice: ["buyStopLimit", "sellStopLimit"],
   dueDate: [
     "buyLimit",
@@ -244,7 +230,6 @@ watch(
         .tz(timezone)
         .unix();
       formState.limitedPrice = props.orderInfo.trigger_price;
-      formState.breakPrice = props.orderInfo.order_price;
       formState.orderPrice = String(props.orderInfo.order_price);
     }
   }
@@ -266,7 +251,6 @@ const rules: FormRules<typeof formState> = {
   orderType: [{ required: true, trigger: "change" }],
   volume: [{ required: true, trigger: "change" }],
   dueDate: [{ required: true, trigger: "change", validator: validDate }],
-  breakPrice: [{ required: true, trigger: "change" }],
   limitedPrice: [{ required: true, trigger: "change" }],
 };
 
@@ -307,7 +291,6 @@ const confirmEdit = debounce(async () => {
       };
       if (["buyStopLimit", "sellStopLimit"].includes(formState.orderType)) {
         updata.trigger_price = +formState.limitedPrice;
-        updata.order_price = +formState.breakPrice;
       }
       if (formState.stopLoss !== "") {
         updata.sl = +formState.stopLoss;

@@ -13,8 +13,9 @@
         :step="step"
         style="width: 168px"
         :valid="ifError"
-        :customSub="customCalc"
-        :customAdd="customCalc"
+        :customSub="initPrice"
+        :customAdd="initPrice"
+        @input="handleInput"
       ></StepNumInput>
       <el-text :type="ifError ? 'danger' : 'info'">{{ range }}</el-text>
     </div>
@@ -22,20 +23,19 @@
 </template>
 
 <script setup lang="ts">
-import { IQuote, ISessionSymbolInfo } from "#/chart/index";
-import { round } from "utils/common/index";
-import { computed, onUnmounted, ref, watch } from "vue";
+import { ISessionSymbolInfo } from "#/chart/index";
+import { limitdigit, round } from "utils/common/index";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 interface Props {
   disabled?: boolean;
   symbolInfo?: ISessionSymbolInfo;
   orderType: string;
-  quote?: IQuote;
   formOption: {
     name: string;
     label: string;
   };
-  breakPrice?: string | number;
+  orderPrice: string | number;
 }
 const props = defineProps<Props>();
 
@@ -46,117 +46,91 @@ const step = computed(() => {
   return props.symbolInfo ? 1 / Math.pow(10, props.symbolInfo.digits) : 1;
 });
 
-// 突破价计算
-const breakPrice = () => {
-  if (props.quote && props.symbolInfo) {
-    const type = props.orderType;
-    const price = type.includes("buy") ? props.quote.ask : props.quote.bid;
-    const stopsLevel = props.symbolInfo.stops_level;
-    const digits = props.symbolInfo.digits;
-    const buyPrice = price - (1 / Math.pow(10, digits)) * stopsLevel;
-    const sellPrice = price + (1 / Math.pow(10, digits)) * stopsLevel;
-    return type.includes("buy")
-      ? round(buyPrice, digits)
-      : round(sellPrice, digits);
-  }
-  return "";
-};
-
-// 限价计算
-const limitPrice = () => {
-  const breakPrice = props.breakPrice;
-  if (props.symbolInfo && breakPrice !== undefined && breakPrice !== "") {
-    const type = props.orderType;
-    const stopsLevel = props.symbolInfo.stops_level;
-    const digits = props.symbolInfo.digits;
-    const buyPrice = +breakPrice - (1 / Math.pow(10, digits)) * stopsLevel;
-    const sellPrice = +breakPrice + (1 / Math.pow(10, digits)) * stopsLevel;
-    return type.includes("buy")
-      ? round(buyPrice, digits)
-      : round(sellPrice, digits);
-  }
-  return "";
-};
-
-// 初始化价格
-const initPrice = () => {
-  const name = props.formOption.name;
-  if (name === "breakPrice") {
-    return breakPrice();
-  }
-  if (name === "limitedPrice") {
-    return limitPrice();
-  }
-  return false;
-};
-watch(
-  () => [props.symbolInfo, props.orderType],
-  () => {
-    if (props.symbolInfo && props.orderType && !props.disabled) {
-      price.value = initPrice() || "";
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  }
-);
-// 限价初始化
-watch(
-  () => props.breakPrice,
-  () => {
-    if (
-      props.formOption.name === "limitedPrice" &&
-      price.value === "" &&
-      !props.disabled
-    ) {
-      price.value = limitPrice() || "";
-    }
-  }
-);
-const customCalc = () => {
-  if (price.value === "") {
-    initPrice();
-  }
-};
-
 const ifError = ref(false);
 const range = ref("");
+
+const getRange = (type: string) => {
+  let result = {
+    max: "",
+    min: "",
+  };
+  try {
+    if (props.symbolInfo && props.orderPrice) {
+      const { digits, stops_level } = props.symbolInfo;
+      const distance = stops_level / Math.pow(10, digits);
+      switch (type) {
+        case "buyStopLimit":
+          result.max = round(+props.orderPrice - distance, digits);
+          break;
+        case "sellStopLimit":
+          result.min = round(+props.orderPrice + distance, digits);
+          break;
+        default:
+          break;
+      }
+    }
+    return result;
+  } catch (error) {
+    return result;
+  }
+};
+
+const setRange = () => {
+  const { max, min } = getRange(props.orderType);
+  if (max) {
+    range.value = `<= ${max}`;
+  }
+  if (min) {
+    range.value = `>= ${min}`;
+  }
+};
+
 watch(
-  () => [props.orderType, props.quote, price.value, props.breakPrice],
-  () => valid(),
+  () => [props.symbolInfo, props.orderType, props.orderPrice],
+  () => {
+    setRange();
+  },
   { deep: true }
 );
 
-const valid = () => {
-  let result = "";
-  let vaild = true;
-  const name = props.formOption.name;
-  const label = props.formOption.label;
-  const type = props.orderType.toLocaleLowerCase();
-  if (name === "breakPrice") {
-    const contrastVal = breakPrice();
-    vaild = type.includes("buy")
-      ? +price.value >= +contrastVal
-      : +price.value <= +contrastVal;
-    const size = type.includes("buy") ? "≥" : "≤";
-    result = `${label} ${size} ${contrastVal}`;
+watch(
+  () => [range.value, price.value],
+  () => {
+    if (price.value) {
+      const { max, min } = getRange(props.orderType);
+      if (max && +price.value > +max) {
+        ifError.value = true;
+      } else if (min && +price.value < +min) {
+        ifError.value = true;
+      } else {
+        ifError.value = false;
+      }
+    } else {
+      ifError.value = false;
+    }
   }
-  if (name === "limitedPrice" && props.breakPrice) {
-    const contrastVal = limitPrice();
-    vaild = type.includes("buy")
-      ? +price.value <= +contrastVal
-      : +price.value >= +contrastVal;
-    const size = type.includes("buy") ? "≤" : "≥";
-    result = `${label} ${size} ${contrastVal}`;
+);
+
+// 初始化价格
+const initPrice = () => {
+  if (price.value === "") {
+    const { max, min } = getRange(props.orderType);
+    price.value = max || min || step.value;
   }
-  range.value = result;
-  ifError.value = !vaild;
 };
+
+onMounted(() => {
+  initPrice();
+  setRange();
+});
 
 onUnmounted(() => {
   price.value = "";
 });
+
+const handleInput = (value: string | number) => {
+  price.value = limitdigit(value, 2);
+};
 </script>
 
 <style lang="scss" scoped>

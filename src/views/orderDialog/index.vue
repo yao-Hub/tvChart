@@ -71,21 +71,6 @@
         </el-col>
         <el-col
           :span="24"
-          v-if="domVisableOption.breakPrice.includes(formState.orderType)"
-        >
-          <BreakLimit
-            v-model:value="formState.breakPrice"
-            :formOption="{
-              name: 'breakPrice',
-              label: t('dialog.breakPrice'),
-            }"
-            :orderType="formState.orderType"
-            :symbolInfo="symbolInfo"
-            :quote="quote"
-          ></BreakLimit>
-        </el-col>
-        <el-col
-          :span="24"
           v-if="domVisableOption.orderPrice.includes(formState.orderType)"
         >
           <Price
@@ -110,14 +95,13 @@
         >
           <BreakLimit
             v-model:value="formState.limitedPrice"
-            :breakPrice="formState.breakPrice"
+            :orderPrice="formState.orderPrice"
             :formOption="{
               name: 'limitedPrice',
               label: t('dialog.limitedPrice'),
             }"
             :orderType="formState.orderType"
             :symbolInfo="symbolInfo"
-            :quote="quote"
           ></BreakLimit>
         </el-col>
         <el-col :span="24">
@@ -273,7 +257,6 @@ interface FormState {
   stopProfit: string;
   orderPrice: string;
   dueDate: string;
-  breakPrice: string;
   limitedPrice: string;
 }
 const originState: FormState = {
@@ -284,13 +267,18 @@ const originState: FormState = {
   stopProfit: "",
   orderPrice: "",
   dueDate: "",
-  breakPrice: "",
   limitedPrice: "",
 };
 const formState = reactive<FormState>(cloneDeep(originState));
 const domVisableOption = {
-  orderPrice: ["buyLimit", "sellLimit", "buyStop", "sellStop"],
-  breakPrice: ["buyStopLimit", "sellStopLimit"],
+  orderPrice: [
+    "buyLimit",
+    "sellLimit",
+    "buyStop",
+    "sellStop",
+    "buyStopLimit",
+    "sellStopLimit",
+  ],
   limitedPrice: ["buyStopLimit", "sellStopLimit"],
   dueDate: [
     "buyLimit",
@@ -354,7 +342,6 @@ const validDate = (rule: any, value: any, callback: any) => {
 };
 const rules: FormRules<typeof formState> = {
   dueDate: [{ required: true, trigger: "change", validator: validDate }],
-  breakPrice: [{ required: true, trigger: "change" }],
   limitedPrice: [{ required: true, trigger: "change" }],
 };
 
@@ -459,7 +446,6 @@ const addPendingOrders = debounce(async () => {
       };
       if (["buyStopLimit", "sellStopLimit"].includes(formState.orderType)) {
         updata.trigger_price = +formState.limitedPrice;
-        updata.order_price = +formState.breakPrice;
       }
       if (formState.stopLoss !== "") {
         updata.sl = +formState.stopLoss;

@@ -1,4 +1,4 @@
-<!-- 普通挂单的价格计算 2，3,4,5 -->
+<!-- 普通挂单的价格计算 -->
 <template>
   <el-form-item
     label-position="top"
@@ -13,8 +13,9 @@
         :step="step"
         style="width: 168px"
         :valid="ifError"
-        :customSub="customCalc"
-        :customAdd="customCalc"
+        :customSub="initPrice"
+        :customAdd="initPrice"
+        @input="handleInput"
       ></StepNumInput>
       <el-text :type="ifError ? 'danger' : 'info'">{{ range }}</el-text>
     </div>
@@ -23,8 +24,8 @@
 
 <script setup lang="ts">
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
-import { round } from "utils/common/index";
-import { computed, onUnmounted, ref, watch } from "vue";
+import { limitdigit, round } from "utils/common/index";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 interface Props {
   disabled?: boolean;
@@ -35,112 +36,128 @@ interface Props {
     name: string;
     label: string;
   };
-  breakPrice?: string;
 }
 const props = defineProps<Props>();
 
 const price = defineModel<string | number>("value", { default: "" });
+
+const ifError = ref(false);
+const range = ref("");
 
 // 步长
 const step = computed(() => {
   return props.symbolInfo ? props.symbolInfo.volume_step / 100 : 1;
 });
 
-const getLeed = () => {
-  if (props.quote && props.symbolInfo) {
-    const price = props.orderType.includes("buy")
-      ? props.quote.ask
-      : props.quote.bid;
-    const stopsLevel = props.symbolInfo.stops_level;
-    const digits = props.symbolInfo.digits;
-    const result_1 = +price - stopsLevel / Math.pow(10, digits);
-    const result_2 = +price + stopsLevel / Math.pow(10, digits);
-    return {
-      result_1: round(result_1, digits),
-      result_2: round(result_2, digits),
-    };
+const getRange = (type: string) => {
+  let result = {
+    max: "",
+    min: "",
+  };
+  try {
+    if (props.symbolInfo) {
+      const ask = props.quote?.ask;
+      const bid = props.quote?.bid;
+      const { digits, stops_level } = props.symbolInfo;
+      // 距离
+      const distance = stops_level / Math.pow(10, digits);
+      switch (type) {
+        case "buyLimit":
+          if (ask) {
+            result.max = round(ask - distance, digits);
+          }
+          break;
+        case "sellLimit":
+          if (bid) {
+            result.min = round(bid + distance, digits);
+          }
+          break;
+        case "buyStop":
+          if (ask) {
+            result.min = round(ask + distance, digits);
+          }
+          break;
+        case "sellStop":
+          if (bid) {
+            result.max = round(bid - distance, digits);
+          }
+          break;
+        case "buyStopLimit":
+          if (ask) {
+            result.min = round(ask + distance, digits);
+          }
+          break;
+        case "sellStopLimit":
+          if (bid) {
+            result.max = round(bid - distance, digits);
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    return result;
+  } catch (error) {
+    return result;
+  }
+};
+
+const setRange = () => {
+  const { max, min } = getRange(props.orderType);
+  if (max) {
+    range.value = `<= ${max}`;
+  }
+  if (min) {
+    range.value = `>= ${min}`;
   }
 };
 
 // 初始化价格
 const initPrice = () => {
-  const orderType = props.orderType.toLowerCase();
-  const leed = getLeed();
-  if (leed) {
-    const { result_1, result_2 } = leed;
-    if (orderType.includes("buy")) {
-      return orderType.includes("limit") ? result_1 : result_2;
-    }
-    if (orderType.includes("sell")) {
-      return orderType.includes("limit") ? result_2 : result_1;
-    }
-  }
-};
-watch(
-  () => [props.symbolInfo, props.orderType],
-  () => {
-    if (props.symbolInfo && props.orderType && !props.disabled) {
-      price.value = initPrice() || "";
-    }
-  },
-  {
-    deep: true,
-    immediate: true,
-  }
-);
-const customCalc = () => {
   if (price.value === "") {
-    price.value = initPrice() || "";
+    const { max, min } = getRange(props.orderType);
+    price.value = max || min || step.value;
   }
 };
 
-const ifError = ref(false);
-const range = ref("");
 watch(
-  () => [props.orderType, props.quote, price.value],
-  () => valid(),
+  () => [props.symbolInfo, props.orderType, props.quote],
+  () => {
+    setRange();
+  },
   { deep: true }
 );
 
-const valid = () => {
-  let size = "";
-  let val: string | number = "";
-  let valid = true;
-  const leed = getLeed();
-  const type = props.orderType.toLowerCase();
-  const value = price.value;
-  if (leed) {
-    const { result_1, result_2 } = leed;
-    if (type.includes("buy")) {
-      if (["buylimit", "selllimit"].includes(type)) {
-        value && (valid = +value <= +result_1);
-        size = "≤";
-        val = result_1;
+watch(
+  () => [range.value, price.value],
+  () => {
+    if (price.value) {
+      const { max, min } = getRange(props.orderType);
+      if (max && +price.value > +max) {
+        ifError.value = true;
+      } else if (min && +price.value < +min) {
+        ifError.value = true;
       } else {
-        value && (valid = +value >= +result_1);
-        size = "≥";
-        val = result_2;
+        ifError.value = false;
       }
-    }
-    if (type.includes("sell")) {
-      if (["buylimit", "selllimit"].includes(type)) {
-        value && (valid = +value >= +result_1);
-        size = "≥";
-        val = result_2;
-      } else {
-        value && (valid = +value <= +result_1);
-        size = "≤";
-        val = result_1;
-      }
+    } else {
+      ifError.value = false;
     }
   }
-  range.value = `${props.formOption.label}${size}${val}`;
-  ifError.value = !valid;
-};
+);
+
+onMounted(() => {
+  initPrice();
+  setRange();
+});
 
 onUnmounted(() => {
   price.value = "";
 });
+
+const handleInput = (value: string | number) => {
+  price.value = limitdigit(value, 2);
+};
 </script>
 
 <style lang="scss" scoped>
