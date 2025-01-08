@@ -70,7 +70,6 @@ async function init() {
     chartInitStore.state.loading = false;
   } finally {
     timeStore.initTime(); // 初始化时间语言和时区
-
     socketStore.initSocket(); // 初始化socket
     chartLineStore.initSubLineAndQuote(); // 监听k线和报价
     socketStore.emitRate(); // 监听汇率

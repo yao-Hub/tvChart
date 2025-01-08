@@ -247,13 +247,15 @@ const profit = computed(() => {
   const closePrice = +price.value;
   const volume = +props.volume;
   if (buildPrice && props.symbolInfo) {
+    const { symbol, fee } = props.symbolInfo;
     const direction = text[0] as "sell" | "buy";
     const profit = orderStore.getProfit(
       {
-        symbol: props.symbolInfo.symbol,
+        symbol,
         buildPrice: +buildPrice,
         closePrice,
         volume,
+        fee: fee * volume,
       },
       direction
     );

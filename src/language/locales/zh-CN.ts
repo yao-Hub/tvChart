@@ -186,6 +186,10 @@ export default {
     fixed: "固定",
     dynamic: "动态",
   },
+  settlementType: {
+    closed: "休市结算",
+    hours: "满24小时结算",
+  },
 
   tip: {
     usernameRequired: "请输入账号",

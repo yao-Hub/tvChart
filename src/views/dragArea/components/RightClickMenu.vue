@@ -91,8 +91,8 @@ interface Iitem {
   label: string;
 }
 const settlementTypeMap: Record<number, string> = {
-  1: "休市结算", // Market Closed
-  2: "满24小时结算", // 24H
+  1: "closed", // Market Closed
+  2: "hours", // 24H
 };
 const infoList: Iitem[] = [
   { key: "symbol", label: t("symbolDetail.symbol") },
@@ -185,8 +185,9 @@ const getValue = (key: Tkey) => {
         const leverage = info.leverage;
         return leverage ? t("prepaidMode.dynamic") : t("prepaidMode.fixed");
       case "settlement_type":
-        const type = info.settlement_type;
-        return type ? settlementTypeMap[type] || "-" : "-";
+        const settlementType = info.settlement_type;
+        const type = settlementTypeMap[settlementType];
+        return type ? t(`settlementType.${type}`) : "-";
       case "volume_max":
       case "volume_min":
       case "volume_step":

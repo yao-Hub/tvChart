@@ -180,6 +180,11 @@ export default {
     dynamic: "dynamic",
   },
 
+  settlementType: {
+    closed: "Market Closed",
+    hours: "24H",
+  },
+
   tip: {
     usernameRequired: "Please input your username",
     passwordRequired: "Please input your password",
