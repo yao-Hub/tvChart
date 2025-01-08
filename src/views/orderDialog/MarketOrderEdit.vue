@@ -258,7 +258,7 @@ watch(
 
 import { marketOrdersClose } from "api/order/index";
 import { ElMessage, ElNotification } from "element-plus";
-import { debounce } from "lodash";
+import { debounce, get, isNil } from "lodash";
 const confirmOpen = ref(false);
 const confirmLoading = ref(false);
 const confirmCancel = () => {
@@ -421,20 +421,24 @@ const nowProfit = computed(() => {
     }
     const { storage, fee, open_price, type, symbol } = props.orderInfo;
     const direction = getTradingDirection(type);
-    const closePrice = direction === "buy" ? props.quote.bid : props.quote.ask;
-    const profit = orderStore.getProfit(
-      {
-        symbol,
-        closePrice,
-        buildPrice: open_price,
-        storage,
-        fee,
-        volume: +volume,
-      },
-      direction
-    );
-    profitClass.value = +profit > 0 ? "up" : "down";
-    return profit;
+    const closePrice =
+      direction === "buy" ? get(props.quote, "ask") : get(props.quote, "bid");
+    if (!isNil(closePrice)) {
+      const profit = orderStore.getProfit(
+        {
+          symbol,
+          closePrice: +closePrice,
+          buildPrice: +open_price,
+          volume: +volume,
+          fee,
+          storage,
+        },
+        direction
+      );
+      profitClass.value = +profit > 0 ? "up" : "down";
+      return profit;
+    }
+    return "-";
   } catch (error) {
     return "-";
   }
