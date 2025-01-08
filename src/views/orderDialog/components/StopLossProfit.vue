@@ -29,7 +29,7 @@
 <script setup lang="ts">
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { round } from "utils/common/index";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 // import { useRate } from "@/store/modules/rate";
@@ -58,6 +58,9 @@ interface Props {
 
 const props = defineProps<Props>();
 const price = defineModel<string>("price", { default: "" });
+
+const rangeTip = ref("");
+const ifError = ref(false);
 
 // 至少远离市价点数
 const minPoint = computed(() => {
@@ -152,65 +155,69 @@ const getRange = () => {
   }
 };
 
-watch(
-  () => [
-    props.orderType,
-    props.symbolInfo,
-    props.quote,
-    price.value,
-    props.orderPrice,
-    props.limitedPrice,
-  ],
-  () => setRange(),
-  {
-    deep: true,
-  }
-);
-onMounted(() => setRange());
-
 // 止盈止损范围提示
-const rangeTip = ref("");
-const ifError = ref(false);
 const setRange = () => {
-  if (["", null, undefined].includes(price.value)) {
-    rangeTip.value = "";
-    ifError.value = false;
-    return;
-  }
   const range = getRange();
   if (range === null) {
     rangeTip.value = "";
-    ifError.value = true;
     return;
   }
   let tip = "";
-  let valid = true;
   const { maxTP, minTP, maxSL, minSL } = range;
-  const value = +price.value;
   if (props.type === "stopLoss") {
     if (minSL) {
       tip = `≥ ${minSL}`;
-      valid = value >= +minSL;
     }
     if (maxSL) {
       tip = `≤ ${maxSL}`;
-      valid = value <= +maxSL;
     }
   }
   if (props.type === "stopProfit") {
     if (minTP) {
       tip = `≥ ${minTP}`;
-      valid = value >= +minTP;
     }
     if (maxTP) {
       tip = `≤ ${maxTP}`;
-      valid = value <= +maxTP;
     }
   }
   rangeTip.value = tip;
-  ifError.value = !valid;
 };
 
+// 校验
+watch(
+  () => [rangeTip.value, price.value],
+  () => {
+    if (price.value) {
+      const range = getRange();
+      if (range) {
+        const { maxTP, minTP, maxSL, minSL } = range;
+        let valid = true;
+        const value = +price.value;
+        if (props.type === "stopLoss") {
+          if (minSL) {
+            valid = value >= +minSL;
+          }
+          if (maxSL) {
+            valid = value <= +maxSL;
+          }
+        }
+        if (props.type === "stopProfit") {
+          if (minTP) {
+            valid = value >= +minTP;
+          }
+          if (maxTP) {
+            valid = value <= +maxTP;
+          }
+        }
+        ifError.value = !valid;
+      }
+    } else {
+      ifError.value = false;
+    }
+  }
+);
+
+// 自动填充
 const customCal = () => {
   if (price.value === "") {
     const range = getRange();
@@ -254,6 +261,21 @@ const profit = computed(() => {
   }
   return "";
 });
+
+watch(
+  () => [
+    props.orderType,
+    props.symbolInfo,
+    props.quote,
+    price.value,
+    props.orderPrice,
+    props.limitedPrice,
+  ],
+  () => setRange(),
+  {
+    deep: true,
+  }
+);
 </script>
 
 <style lang="scss" scoped>

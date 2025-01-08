@@ -13,8 +13,8 @@
         :step="step"
         style="width: 168px"
         :valid="ifError"
-        :customSub="initPrice"
-        :customAdd="initPrice"
+        :customSub="customCalc"
+        :customAdd="customCalc"
         @input="handleInput"
       ></StepNumInput>
       <el-text :type="ifError ? 'danger' : 'info'">{{ range }}</el-text>
@@ -93,6 +93,7 @@ watch(
   { deep: true }
 );
 
+// 校验
 watch(
   () => [range.value, price.value],
   () => {
@@ -116,6 +117,13 @@ const initPrice = () => {
   if (price.value === "") {
     const { max, min } = getRange(props.orderType);
     price.value = max || min || step.value;
+  }
+};
+
+const customCalc = () => {
+  if (price.value === "") {
+    const { max, min } = getRange(props.orderType);
+    return max || min || step.value;
   }
 };
 
