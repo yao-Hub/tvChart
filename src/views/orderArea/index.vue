@@ -596,7 +596,6 @@ const getMarketOrderProfit = (rowData: orders.resOrders) => {
       fee: +fee,
       storage: +storage,
     };
-    console.log(params)
     const result = orderStore.getProfit(params, direction);
     const target = orderStore.orderData.marketOrder.find(
       (e: orders.resOrders) => e.id === rowData.id
