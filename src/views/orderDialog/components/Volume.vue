@@ -6,7 +6,7 @@
   >
     <StepNumInput
       v-model:value="model"
-      :min="minVolume"
+      :min="step"
       :disabled="disabled"
       :customSub="customSub"
       :customAdd="customAdd"
@@ -40,14 +40,18 @@ import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
+import { useRate } from "@/store/modules/rate";
 import { useTheme } from "@/store/modules/theme";
 import { useUser } from "@/store/modules/user";
-import { round } from "@/utils/common";
+
+import { limitdigit, round } from "@/utils/common";
+import { isNil } from "lodash";
 
 const quotesStore = useQuotes();
 const userStore = useUser();
 const themeStore = useTheme();
 const orderStore = useOrder();
+const rateStore = useRate();
 
 type Arrayable<T> = T | T[];
 interface Props {
@@ -64,29 +68,21 @@ interface Props {
 const props = defineProps<Props>();
 const model = defineModel<string | number>("volume", { default: "" });
 
-// 步长
+// 步长 (单笔最小手数)
 const step = computed(() => {
   return props.symbolInfo ? props.symbolInfo.volume_step / 100 : 1;
 });
 const digits = computed(() => {
   return props.symbolInfo ? props.symbolInfo.digits : 2;
 });
-// 单笔最小手数
-const minVolume = computed(() => {
-  return props.symbolInfo ? props.symbolInfo.volume_min / 100 : 0;
-});
 
 const customSub = () => {
-  const result = orderStore.volumeSub(
-    +model.value,
-    step.value,
-    minVolume.value
-  );
-  return round(result, digits.value);
+  const result = orderStore.volumeSub(+model.value, step.value, step.value);
+  return round(result, 2);
 };
 const customAdd = () => {
   const result = orderStore.volumeAdd(+model.value, step.value);
-  return round(result, digits.value);
+  return round(result, 2);
 };
 
 // 预付款
@@ -114,7 +110,7 @@ const referMargin = computed(() => {
 
 onMounted(() => {
   if (model.value === "") {
-    model.value = minVolume.value;
+    model.value = step.value;
   }
 });
 onUnmounted(() => {
@@ -164,33 +160,48 @@ watch(
   },
   { deep: true, immediate: true }
 );
-// 滑块手数：可用预付款最大的可交易手数*百分比
+// 滑块百分比计算手数
 const sliderInput = (percentage: Arrayable<number>) => {
   if (props.symbolInfo) {
-    const { margin } = props.symbolInfo;
-    const volumeMax = +userStore.margin_free / margin;
-    const prec = +percentage / 100;
-    let result = volumeMax * prec;
-    // 需满足是step的倍数
-    let remainder = result % step.value;
-    if (remainder !== 0) {
-      result += step.value - remainder;
+    const ratio = +percentage / 100;
+    const { margin, leverage, contract_size, pre_currency, currency, symbol } =
+      props.symbolInfo;
+    let volume = 0;
+    const ratioMargin = +userStore.margin_free * ratio;
+    // 固定杠杆时
+    if (leverage) {
+      // 每手预付款
+      let singleMargin = contract_size / leverage;
+
+      const openPrice =
+        props.orderType === "price" ? props.quote?.bid : props.orderPrice;
+      const loginInfo = userStore.loginInfo;
+      const userCur = loginInfo?.currency;
+      if (!isNil(openPrice)) {
+        // 汇率转化
+        if (userCur !== pre_currency && userCur === currency) {
+          singleMargin = singleMargin * +openPrice;
+        } else {
+          const rate = rateStore.getRate(symbol).pre_user.bid_rate;
+          singleMargin = singleMargin * rate;
+        }
+        volume = ratioMargin / singleMargin;
+      }
+    } else {
+      // 固定保证金
+      volume = ratioMargin / margin;
     }
-    model.value = round(result, digits.value);
+    // 需满足是step的倍数
+    let remainder = volume % step.value;
+    if (remainder !== 0) {
+      volume -= remainder;
+    }
+    model.value = round(volume, 2);
   }
 };
 
 const handleInput = (value: string | number) => {
-  if (props.symbolInfo) {
-    const regex = new RegExp(`^\\d*(\\.\\d{0,${digits.value}})?$`);
-    const str = String(value);
-    if (!regex.test(str)) {
-      model.value = str
-        .replace(/[^0-9.]/g, "") // 移除非法字符
-        .replace(/(\..*?)\..*/g, "$1") // 只保留第一个小数点
-        .replace(new RegExp(`^(\\d+)(\\.\\d{${digits.value}}).*`), "$1$2");
-    }
-  }
+  model.value = limitdigit(value, 2);
   percentage.value = 0;
 };
 </script>

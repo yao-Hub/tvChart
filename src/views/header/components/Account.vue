@@ -190,7 +190,7 @@ const changeLogin = (account: any) => {
 };
 
 const logout = () => {
-  userStore.logoutCurrentAccount();
+  userStore.Logout();
   router.replace({ path: PageEnum.LOGIN });
 };
 

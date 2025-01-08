@@ -599,6 +599,10 @@ const getMarketOrderProfit = (rowData: orders.resOrders) => {
       },
       direction
     );
+    const target = orderStore.orderData.marketOrder.find(
+      (e: orders.resOrders) => e.id === rowData.id
+    );
+    target!.profit = +result;
     return result;
   }
   return "-";

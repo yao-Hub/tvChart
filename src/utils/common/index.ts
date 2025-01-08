@@ -54,3 +54,16 @@ export function ifNumber(value?: string): boolean {
   }
   return !isNaN(Number(value));
 }
+
+// 限制小数位数
+export function limitdigit(value: string | number, digits: number) {
+  const regex = new RegExp(`^\\d*(\\.\\d{0,${digits}})?$`);
+  const str = String(value);
+  if (!regex.test(str)) {
+    return str
+      .replace(/[^0-9.]/g, "") // 移除非法字符
+      .replace(/(\..*?)\..*/g, "$1") // 只保留第一个小数点
+      .replace(new RegExp(`^(\\d+)(\\.\\d{${digits}}).*`), "$1$2");
+  }
+  return value;
+}

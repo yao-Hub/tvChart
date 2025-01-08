@@ -56,8 +56,8 @@ export const useUser = defineStore("user", {
         return "-";
       }
       const orderStore = useOrder();
-      const currentPosition = orderStore.orderData.marketOrder;
-      const sum = currentPosition?.reduce((accumulator, currentValue) => {
+      const currentPosition = orderStore.orderData.marketOrder || [];
+      const sum = currentPosition.reduce((accumulator, currentValue) => {
         return accumulator + currentValue.profit;
       }, 0);
       return round(+state.loginInfo.balance + (sum || 0), 2);
@@ -96,7 +96,7 @@ export const useUser = defineStore("user", {
       }
       return "";
     },
-    logoutCurrentAccount() {
+    Logout() {
       this.changeCurrentAccountOption({
         ifLogin: false,
       });

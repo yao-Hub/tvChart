@@ -476,7 +476,7 @@ export const useOrder = defineStore("order", {
       const loginInfo = userStore.loginInfo;
       const userCur = loginInfo?.currency; // 账户币种
       const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
-      if (symbolInfo) {
+      if (symbolInfo && volume) {
         const { currency, pre_currency, contract_size, leverage, margin } =
           symbolInfo;
         if (leverage) {
@@ -484,7 +484,6 @@ export const useOrder = defineStore("order", {
             return (+volume * contract_size) / leverage;
           }
           if (currency === userCur) {
-            console.log(volume, contract_size, bulidPrice, leverage);
             return (+volume * contract_size * +bulidPrice) / leverage;
           }
           return (+volume * contract_size * +bulidPrice * rate) / leverage;
