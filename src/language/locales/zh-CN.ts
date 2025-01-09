@@ -310,6 +310,10 @@ export default {
     marketOrderHistory: "历史",
     pendingOrderHistory: "失效",
     blanceRecord: "出入金记录",
+    log: "日志",
+    source: "来源",
+    date: "日期",
+    content: "内容",
   },
 
   dialog: {

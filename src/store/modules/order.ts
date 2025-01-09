@@ -57,6 +57,7 @@ export const useOrder = defineStore("order", {
         pendingOrderHistory: [],
         marketOrderHistory: [],
         blanceRecord: [],
+        log: [],
       },
       dataLoading: {
         marketOrder: false,
@@ -64,6 +65,7 @@ export const useOrder = defineStore("order", {
         pendingOrderHistory: false,
         marketOrderHistory: false,
         blanceRecord: false,
+        log: false,
       },
       dataEnding: {
         marketOrder: false,
@@ -71,6 +73,7 @@ export const useOrder = defineStore("order", {
         pendingOrderHistory: false,
         marketOrderHistory: false,
         blanceRecord: false,
+        log: false,
       },
       dataFilter: {
         marketOrder: {
@@ -96,6 +99,11 @@ export const useOrder = defineStore("order", {
         blanceRecord: {
           createTime: [],
           pol: null,
+        },
+        log: {
+          date: "",
+          source: "",
+          type: "",
         },
       },
       ifOne: false, // 一键交易
@@ -356,6 +364,9 @@ export const useOrder = defineStore("order", {
         this.dataLoading.blanceRecord = false;
       }
     },
+
+    // 查询日志
+    async getLog() {},
 
     /** 获取盈亏
      * @param params {

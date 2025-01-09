@@ -127,7 +127,7 @@ watch(
   @include border_color("border");
   padding: 0 8px;
   &:hover {
-    @include border_color("primary");
+    border-color: var(--el-border-color-hover);
   }
 }
 :deep(.el-date-editor.el-input__wrapper) {

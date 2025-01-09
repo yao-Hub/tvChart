@@ -461,4 +461,27 @@ export const tableColumns: Record<TableDataKey, IColumn[]> = {
       align: "right",
     },
   ],
+  log: [
+    {
+      title: t("table.time"),
+      dataKey: "time",
+      key: "time",
+      width: 200,
+      align: "left",
+    },
+    {
+      title: t("table.source"),
+      dataKey: "source",
+      key: "source",
+      width: 120,
+      align: "right",
+    },
+    {
+      title: t("table.content"),
+      dataKey: "content",
+      key: "content",
+      width: 500,
+      align: "right",
+    },
+  ],
 };

@@ -5,7 +5,8 @@ export type TableDataKey =
   | "pendingOrder"
   | "pendingOrderHistory"
   | "marketOrderHistory"
-  | "blanceRecord";
+  | "blanceRecord"
+  | "log";
 export type TableData = {
   [K in TableDataKey]: resOrders[];
 };

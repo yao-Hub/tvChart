@@ -25,7 +25,7 @@
       <HorizontalScrolling style="margin-bottom: 8px">
         <div class="filter">
           <SymbolSelect
-            v-if="activeKey !== 'blanceRecord'"
+            v-if="!['blanceRecord', 'log'].includes(activeKey)"
             style="width: 200px; flex-shrink: 0; height: 32px"
             v-model="orderStore.dataFilter[activeKey].symbol"
             :selectOption="{
@@ -59,7 +59,7 @@
             <el-option value="profit" :label="t('order.profit')"></el-option>
             <el-option value="loss" :label="t('order.loss')"></el-option>
           </el-select>
-          <TimeSelect
+          <TimeRange
             v-show="activeKey === 'pendingOrderHistory'"
             v-if:value="orderStore.dataFilter[activeKey].createTime"
             style="min-width: 380px"
@@ -68,9 +68,9 @@
               endPlaceholder: t('table.createEndTime'),
             }"
             @timeChange="getTableData('pendingOrderHistory')"
-            >{{ $t("table.createTime") }}：</TimeSelect
+            >{{ $t("table.createTime") }}：</TimeRange
           >
-          <TimeSelect
+          <TimeRange
             v-if="['marketOrderHistory'].includes(activeKey)"
             style="min-width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].addTime"
@@ -79,9 +79,9 @@
               endPlaceholder: t('table.positionOpeningEndTime'),
             }"
             @timeChange="getTableData('marketOrderHistory')"
-            >{{ $t("table.positionOpeningTime") }}：</TimeSelect
+            >{{ $t("table.positionOpeningTime") }}：</TimeRange
           >
-          <TimeSelect
+          <TimeRange
             v-if="['marketOrderHistory'].includes(activeKey)"
             initFill
             style="min-width: 380px"
@@ -91,9 +91,9 @@
               endPlaceholder: t('table.positionClosingEndTime'),
             }"
             @timeChange="getTableData('marketOrderHistory')"
-            >{{ $t("table.positionClosingTime") }}：</TimeSelect
+            >{{ $t("table.positionClosingTime") }}：</TimeRange
           >
-          <TimeSelect
+          <TimeRange
             v-if="['blanceRecord'].includes(activeKey)"
             style="min-width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].createTime"
@@ -102,7 +102,7 @@
               endPlaceholder: t('table.endTime'),
             }"
             @timeChange="getTableData('blanceRecord')"
-            >{{ $t("table.time") }}：</TimeSelect
+            >{{ $t("table.time") }}：</TimeRange
           >
           <el-select
             :suffix-icon="SelectSuffixIcon"
@@ -115,6 +115,39 @@
             <el-option value="profit" :label="t('table.deposit')"></el-option>
             <el-option value="loss" :label="t('table.withdrawal')"></el-option>
           </el-select>
+          <DataPicker
+            v-if="activeKey === 'log'"
+            v-model="orderStore.dataFilter[activeKey].date"
+            @timeChange="getTableData('log')"
+          >
+            <span>{{ $t("table.date") }}：</span>
+          </DataPicker>
+          <el-select
+            v-if="activeKey === 'log'"
+            v-model="orderStore.dataFilter[activeKey].type"
+            multiple
+            clearable
+            @change="getTableData('log')"
+          >
+            <el-option value="Warning" label="Warning"></el-option>
+            <el-option value="Error" label="Error"></el-option>
+            <el-option value="Info" label="Info"></el-option>
+          </el-select>
+          <el-select
+            v-if="activeKey === 'log'"
+            v-model="orderStore.dataFilter[activeKey].source"
+            multiple
+            clearable
+            @change="getTableData('log')"
+          >
+            <el-option value="network" label="Network"></el-option>
+            <el-option value="Trades" label="Trades"></el-option>
+            <el-option value="History" label="History"></el-option>
+            <el-option value="Audit" label="Audit"></el-option>
+            <el-option value="Security" label="Security"></el-option>
+            <el-option value="Application" label="Application"></el-option>
+          </el-select>
+
           <div class="rightOpera">
             <el-dropdown
               trigger="click"
@@ -386,7 +419,8 @@ import { useTime } from "@/store/modules/time";
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
-import TimeSelect from "./components/TimeSelect.vue";
+import DataPicker from "./components/DataPicker.vue";
+import TimeRange from "./components/TimeRange.vue";
 
 const { t } = useI18n();
 
@@ -402,6 +436,7 @@ const state = reactive({
     { label: t("table.marketOrderHistory"), key: "marketOrderHistory" },
     { label: t("table.pendingOrderHistory"), key: "pendingOrderHistory" },
     { label: t("table.blanceRecord"), key: "blanceRecord" },
+    // { label: t("table.log"), key: "log" },
   ],
   columns: cloneDeep(tableColumns),
   marketDialogVisible: false,
@@ -828,6 +863,9 @@ const getTableData = (type: string) => {
       break;
     case "blanceRecord":
       orderStore.getBlanceRecord();
+      break;
+    case "log":
+      orderStore.getLog();
       break;
     default:
       break;
