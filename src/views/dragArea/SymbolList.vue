@@ -289,9 +289,6 @@ const pos = ref({
   top: 0,
 });
 const menuSymbol = ref("");
-document.addEventListener("mouseup", () => {
-  menuVisible.value = false;
-});
 const rowContextmenu = (row: any, column: any, event: MouseEvent) => {
   event.preventDefault();
   menuSymbol.value = row.symbols;

@@ -13,6 +13,7 @@
     v-if="dialogVisible"
     v-model="dialogVisible"
     width="900"
+    :zIndex="dialogStore.zIndex"
     :footer="null"
   >
     <template #header>
@@ -139,13 +140,15 @@ const top = computed(() => {
   return props.pos.top;
 });
 
+document.addEventListener("mouseup", () => {
+  model.value = false;
+});
+
 const addOrder = () => {
   orderStore.createOrder({ symbol: props.symbol });
-  model.value = false;
 };
 const addChart = () => {
   chartInitStore.addChart(props.symbol);
-  model.value = false;
 };
 
 const symbolInfo = ref<ISessionSymbolInfo>();
@@ -250,7 +253,7 @@ watchEffect(() => {
 
 .rightClickMenu {
   position: absolute;
-  z-index: 2;
+  z-index: 999;
   border-radius: 4px;
   @include box_shadow();
   overflow: hidden;
