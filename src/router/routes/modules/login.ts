@@ -1,4 +1,8 @@
 import { PageEnum } from "@/constants/pageEnum";
+import Accounts from "@/views/login/components/Accounts.vue";
+import ForgetPassword from "@/views/login/components/ForgetPassword.vue";
+import Login from "@/views/login/components/Login.vue";
+import Register from "@/views/login/components/Register.vue";
 import type { RouteRecordRaw } from "vue-router";
 
 // 路由规则
@@ -11,24 +15,24 @@ const routes: RouteRecordRaw[] = [
       {
         path: PageEnum.LOGIN_ACCOUNTS,
         meta: { depth: 1 },
-        component: () => import("@/views/login/components/Accounts.vue"),
+        component: Accounts,
       },
       {
         path: PageEnum.LOGIN_HOME,
         meta: { depth: 2 },
-        component: () => import("@/views/login/components/Login.vue"),
+        component: Login,
       },
       {
         path: PageEnum.LOGIN_FORGETPASSWORD,
         name: "ForgetPassword",
         meta: { depth: 3 },
-        component: () => import("@/views/login/components/ForgetPassword.vue"),
+        component: ForgetPassword,
       },
       {
         path: PageEnum.LOGIN_REGISTER,
         name: "Register",
         meta: { depth: 3 },
-        component: () => import("@/views/login/components/Register.vue"),
+        component: Register,
       },
     ],
   },

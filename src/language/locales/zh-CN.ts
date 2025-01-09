@@ -183,8 +183,8 @@ export default {
   },
 
   prepaidMode: {
-    fixed: "固定",
-    dynamic: "动态",
+    fixed: "固定值",
+    dynamic: "固定杠杆",
   },
   settlementType: {
     closed: "休市结算",

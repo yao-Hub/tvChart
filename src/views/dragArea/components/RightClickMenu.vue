@@ -176,24 +176,25 @@ const showDialog = () => {
 const getValue = (key: Tkey) => {
   const info = symbolInfo.value;
   if (info) {
+    const leverage = info.leverage;
     switch (key) {
       // 分类
       case "path":
         const pathList = info.path.split("/") || [];
         return pathList?.[0];
       case "prepaidMode":
-        const leverage = info.leverage;
         return leverage ? t("prepaidMode.dynamic") : t("prepaidMode.fixed");
       case "settlement_type":
         const settlementType = info.settlement_type;
         const type = settlementTypeMap[settlementType];
         return type ? t(`settlementType.${type}`) : "-";
+      case "margin":
+        return leverage ? "--" : info.margin;
       case "volume_max":
       case "volume_min":
       case "volume_step":
         const value = info[key];
         return isNil(value) ? "-" : +value / 100;
-        break;
       default:
         return info ? info[key] : "-";
     }
