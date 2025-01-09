@@ -78,6 +78,7 @@ async function init() {
     chartInitStore.intLayoutType(); // 单图表 or 多图表
     // 4.确定了布局才去初始化各个模块位置
     initDragResizeArea();
+    console.log("loadChart");
     chartInitStore.loadChartList(); // 加载图表
     // 记忆动作（没什么用(>^ω^<)喵）
     if (rootStore.cacheAction) {

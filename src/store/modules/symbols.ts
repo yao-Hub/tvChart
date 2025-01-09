@@ -49,6 +49,7 @@ export const useSymbols = defineStore("symbols", () => {
   // 全部品种
   const getAllSymbol = async () => {
     const res = await allSymbols();
+    console.log("getAllSymbol");
     symbols.value = res.data || [];
   };
 
