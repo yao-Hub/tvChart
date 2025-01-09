@@ -439,18 +439,6 @@ export const useOrder = defineStore("order", {
             ? "pre_user"
             : "normal";
         const result = stateMachine[type][direction];
-        console.log(
-          type,
-          direction,
-          result,
-          fee,
-          storage,
-          closePrice,
-          buildPrice,
-          volume,
-          contract_size,
-          rates
-        );
         return (result + fee + storage).toFixed(2);
       }
       return "-";

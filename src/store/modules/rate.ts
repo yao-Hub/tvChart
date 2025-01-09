@@ -38,6 +38,7 @@ export const useRate = defineStore("rate", () => {
       last_user: { bid_rate: 1, ask_rate: 1 },
       user_last: { bid_rate: 1, ask_rate: 1 },
     };
+    const originItem = { bid_rate: 1, ask_rate: 1 };
     const loginInfo = userStore.loginInfo;
     const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
     const userCur = loginInfo?.currency; // 账户币种
@@ -49,16 +50,16 @@ export const useRate = defineStore("rate", () => {
       if (userCur !== preCur) {
         const pre_user = `${preCur}${userCur}`;
         const user_pre = `${userCur}${preCur}`;
-        result.pre_user = rates[pre_user] || 1;
-        result.user_pre = rates[user_pre] || 1;
+        result.pre_user = rates[pre_user] || { ...originItem };
+        result.user_pre = rates[user_pre] || { ...originItem };
       }
     }
     if (userCur && lastCur) {
       if (userCur !== lastCur) {
         const last_user = `${lastCur}${userCur}`;
         const user_last = `${userCur}${lastCur}`;
-        result.last_user = rates[last_user] || 1;
-        result.user_last = rates[user_last] || 1;
+        result.last_user = rates[last_user] || { ...originItem };
+        result.user_last = rates[user_last] || { ...originItem };
       }
     }
     return result;
