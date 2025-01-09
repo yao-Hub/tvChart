@@ -189,43 +189,49 @@ export const datafeed = (id: string) => {
           count,
           limit_ctm: periodParams.to,
         };
-        klineHistory(updata).then((res) => {
-          const data = res.data;
-          if (data.length === 0) {
-            onHistoryCallback([], {
+        klineHistory(updata)
+          .then((res) => {
+            const data = res.data;
+            if (data.length === 0) {
+              onHistoryCallback([], {
+                noData: true,
+              });
+              return;
+            }
+            const orderBy_data = orderBy(data, "ctm");
+            const bars = orderBy_data.map((item) => {
+              const time =
+                resolution === "1D"
+                  ? (item.ctm + 8 * 3600) * 1000
+                  : item.ctm * 1000;
+              return {
+                ...item,
+                time,
+              };
+            });
+            const bar = maxBy(bars, "ctm");
+            if (bar) {
+              const barTime = bar.time;
+              if (subId) {
+                const newbarTime = get(chartLineStore.newbar, [subId, "time"]);
+                if (!newbarTime || barTime > newbarTime) {
+                  chartLineStore.newbar[subId] = {
+                    ...bar,
+                  };
+                }
+              } else {
+                temBar[id] = cloneDeep(bar);
+              }
+            }
+            setTimeout(() => {
+              onHistoryCallback(bars);
+            }, 0);
+          })
+          .catch((error) => {
+            onErrorCallback("error", {
               noData: true,
             });
-            return;
-          }
-          const orderBy_data = orderBy(data, "ctm");
-          const bars = orderBy_data.map((item) => {
-            const time =
-              resolution === "1D"
-                ? (item.ctm + 8 * 3600) * 1000
-                : item.ctm * 1000;
-            return {
-              ...item,
-              time,
-            };
           });
-          const bar = maxBy(bars, "ctm");
-          if (bar) {
-            const barTime = bar.time;
-            if (subId) {
-              const newbarTime = get(chartLineStore.newbar, [subId, "time"]);
-              if (!newbarTime || barTime > newbarTime) {
-                chartLineStore.newbar[subId] = {
-                  ...bar,
-                };
-              }
-            } else {
-              temBar[id] = cloneDeep(bar);
-            }
-          }
-          setTimeout(() => {
-            onHistoryCallback(bars);
-          }, 0);
-        });
       } catch (error) {
         onHistoryCallback([], {
           noData: true,
