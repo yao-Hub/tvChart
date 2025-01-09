@@ -66,8 +66,6 @@ async function init() {
       orderStore.initTableData(),
       userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
     ]);
-  } catch (error) {
-    chartInitStore.state.loading = false;
   } finally {
     timeStore.initTime(); // 初始化时间语言和时区
     socketStore.initSocket(); // 初始化socket
