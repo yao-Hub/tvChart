@@ -40,14 +40,10 @@
 </template>
 
 <script setup lang="ts">
-import { get, isNil } from "lodash";
 import { computed } from "vue";
 
 import { useOrder } from "@/store/modules/order";
-import { useQuotes } from "@/store/modules/quotes";
 import { useUser } from "@/store/modules/user";
-
-import { getTradingDirection } from "utils/order/index";
 
 import { round } from "@/utils/common";
 import Delay from "./components/Delay.vue";
@@ -55,35 +51,13 @@ import Timezone from "./components/Timezone.vue";
 
 const userStore = useUser();
 const orderStore = useOrder();
-const quotesStore = useQuotes();
 
 const loginInfo = computed(() => userStore.loginInfo);
 
 const profitTotal = computed(() => {
-  const data = orderStore.orderData.marketOrder;
-  const profitList = data.map((item) => {
-    const { volume, symbol, open_price, type, fee, storage } = item;
-    const currentQuote = quotesStore.qoutes[symbol];
-    const closePrice = type
-      ? get(currentQuote, "bid")
-      : get(currentQuote, "ask");
-    if (!isNil(closePrice)) {
-      const direction = getTradingDirection(type);
-      const result = orderStore.getProfit(
-        {
-          symbol,
-          closePrice,
-          buildPrice: open_price,
-          volume: volume / 100,
-          fee,
-          storage,
-        },
-        direction
-      );
-      return result === "-" ? 0 : +result;
-    }
-    return 0;
-  });
+  const profitList = orderStore.orderData.marketOrder.map(
+    (item) => item.profit
+  );
   const result = profitList.reduce((pre, next) => pre + next, 0);
   return round(result, 2);
 });

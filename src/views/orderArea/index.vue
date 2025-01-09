@@ -219,19 +219,13 @@
                 getOrderPrice(rowData)
               }}</template>
               <template v-else-if="column.dataKey === 'profit'">
-                <span
-                  :class="[
-                    getCellClass(getMarketOrderProfit(rowData)),
-                    'profitcell',
-                  ]"
-                >
-                  <span v-if="activeKey === 'marketOrder'">{{
-                    getMarketOrderProfit(rowData)
-                  }}</span>
-                  <span v-else-if="activeKey === 'blanceRecord'">{{
+                <span :class="[getCellClass(rowData.profit), 'profitcell']">
+                  <span v-if="activeKey === 'blanceRecord'">{{
                     rowData.profit > 0 ? `+${rowData.profit}` : rowData.profit
                   }}</span>
-                  <span v-else>{{ rowData.profit }}</span>
+                  <span v-else>{{
+                    isNil(rowData.profit) ? "-" : rowData.profit
+                  }}</span>
                 </span>
               </template>
               <template v-else-if="column.dataKey === 'blanceType'">
@@ -581,32 +575,31 @@ const getOrderPrice = (e: orders.resPendingOrders) => {
   return e.order_price;
 };
 
-// 获取盈亏
-const getMarketOrderProfit = (rowData: orders.resOrders) => {
-  const { volume, symbol, open_price, type, fee, storage } = rowData;
-  const currentQuote = quotesStore.qoutes[symbol];
-  const closePrice = type ? get(currentQuote, "bid") : get(currentQuote, "ask");
-  if (!isNil(closePrice)) {
-    const direction = getTradingDirection(type);
-    const params = {
-      symbol,
-      closePrice: +closePrice,
-      buildPrice: +open_price,
-      volume: volume / 100,
-      fee: +fee,
-      storage: +storage,
-    };
-    const result = orderStore.getProfit(params, direction);
-    const target = orderStore.orderData.marketOrder.find(
-      (e: orders.resOrders) => e.id === rowData.id
-    );
-    if (target) {
-      target.profit = +result;
-    }
-    return result;
-  }
-  return "-";
-};
+// 市价单盈亏
+watch(
+  () => quotesStore.qoutes,
+  (qoutes) => {
+    orderStore.orderData.marketOrder.forEach((item) => {
+      const { volume, symbol, open_price, type, fee, storage } = item;
+      const quote = qoutes[symbol];
+      const closePrice = type ? get(quote, "bid") : get(quote, "ask");
+      if (!isNil(closePrice)) {
+        const direction = getTradingDirection(type);
+        const params = {
+          symbol,
+          closePrice: +closePrice,
+          buildPrice: +open_price,
+          volume: volume / 100,
+          fee: +fee,
+          storage: +storage,
+        };
+        const result = orderStore.getProfit(params, direction);
+        item.profit = +result;
+      }
+    });
+  },
+  { deep: true }
+);
 
 // 交易历史盈亏合计位置
 import { watch } from "vue";
