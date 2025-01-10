@@ -85,7 +85,7 @@ async function init() {
     symbolsStore.getAllSymbolQuotes(),
     rateStore.getAllRates(),
     // orderStore.initTableData(),
-    userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
+    // userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
   ])
     .then(() => {})
     .catch(() => {})
