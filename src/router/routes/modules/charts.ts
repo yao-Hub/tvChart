@@ -8,14 +8,14 @@ const routes: RouteRecordRaw[] = [
     name: "chart",
     component: () => import("@/views/home/index.vue"),
   },
-  {
-    path: "/test",
-    name: "test",
-    component: () => import("@/views/test.vue"),
-    meta: {
-      passGuard: true,
-    },
-  },
+  // {
+  //   path: "/test",
+  //   name: "test",
+  //   component: () => import("@/views/test.vue"),
+  //   meta: {
+  //     passGuard: true,
+  //   },
+  // },
 ];
 
 export default routes;

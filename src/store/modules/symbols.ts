@@ -47,29 +47,17 @@ export const useSymbols = defineStore("symbols", () => {
   });
 
   // 全部品种
-  const getAllSymbol = () => {
-    return new Promise((resolve, reject) => {
-      allSymbols()
-        .then((res) => {
-          console.log("getAllSymbol");
-          symbols.value = res.data || [];
-          resolve(symbols.value);
-        })
-        .catch((e) => reject(e));
-    });
+  const getAllSymbol = async () => {
+    const res = await allSymbols();
+    console.log("getAllSymbol");
+    symbols.value = res.data || [];
   };
 
   // 所有品种报价
-  const getAllSymbolQuotes = () => {
-    return new Promise((resolve, reject) => {
-      allSymbolQuotes()
-        .then((res) => {
-          res.data.forEach((item) => {
-            quotesStore.qoutes[item.symbol] = item;
-          });
-          resolve(res.data);
-        })
-        .catch((e) => reject(e));
+  const getAllSymbolQuotes = async () => {
+    const quotes = await allSymbolQuotes();
+    quotes.data.forEach((item) => {
+      quotesStore.qoutes[item.symbol] = item;
     });
   };
 

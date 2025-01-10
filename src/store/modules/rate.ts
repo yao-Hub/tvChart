@@ -16,16 +16,10 @@ export const useRate = defineStore("rate", () => {
   const currentRates = ref<currentRates>({});
 
   // 所有汇率
-  const getAllRates = () => {
-    return new Promise((resolve, reject) => {
-      alllRates()
-        .then((res) => {
-          res.data.forEach((item) => {
-            currentRates.value[item.symbol] = item;
-          });
-          resolve(res.data);
-        })
-        .catch((e) => reject(e));
+  const getAllRates = async () => {
+    const rates = await alllRates();
+    rates.data.forEach((item) => {
+      currentRates.value[item.symbol] = item;
     });
   };
 

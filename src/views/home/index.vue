@@ -80,8 +80,8 @@ async function init() {
     // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
     userStore.initAccount();
     await networkStore.initNode();
+    await symbolsStore.getAllSymbol();
     await Promise.all([
-      symbolsStore.getAllSymbol(),
       symbolsStore.getAllSymbolQuotes(),
       rateStore.getAllRates(),
       orderStore.initTableData(),
