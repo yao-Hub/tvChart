@@ -91,7 +91,9 @@ export const useChartLine = defineStore("chartLine", {
             this.newbar[subscriberUID] = { ...result };
             setTimeout(
               throttle(() => {
-                this.subscribed[UID].onRealtimeCallback(result);
+                if (this.subscribed[UID]) {
+                  this.subscribed[UID].onRealtimeCallback(result);
+                }
               }, 1000)
             );
           }
