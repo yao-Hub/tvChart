@@ -222,18 +222,24 @@ export const useOrder = defineStore("order", {
           break;
       }
     },
-    async initTableData() {
-      const socketStore = useSocket();
-      await Promise.all([
-        this.getMarketOrders(),
-        this.getPendingOrders(),
-        this.getMarketOrderHistory(),
-        this.getPendingOrderHistory(),
-        this.getBlanceRecord(),
-      ]);
 
-      socketStore.orderChanges(async (type: string) => {
-        this.getData(type);
+    // 初始化底部订单数据
+    initTableData() {
+      return new Promise((resolve, reject) => {
+        const socketStore = useSocket();
+        // 监听socket的订单事件
+        socketStore.orderChanges(async (type: string) => {
+          this.getData(type);
+        });
+        Promise.all([
+          this.getMarketOrders(),
+          this.getPendingOrders(),
+          this.getMarketOrderHistory(),
+          this.getPendingOrderHistory(),
+          this.getBlanceRecord(),
+        ])
+          .then((res) => resolve(res))
+          .catch((e) => reject(e));
       });
     },
 

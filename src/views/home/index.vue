@@ -73,25 +73,23 @@ const initRender = () => {
 
 // 初始化 注意调用顺序
 async function init() {
-  chartInitStore.state.loading = true;
-
-  // 1.先拿到 交易线路
-  await networkStore.getLines();
-  // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
-  userStore.initAccount();
-  await networkStore.initNode();
-  Promise.all([
-    symbolsStore.getAllSymbol(),
-    symbolsStore.getAllSymbolQuotes(),
-    rateStore.getAllRates(),
-    // orderStore.initTableData(),
-    // userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
-  ])
-    .then(() => {})
-    .catch(() => {})
-    .finally(() => {
-      initRender();
-    });
+  try {
+    chartInitStore.state.loading = true;
+    // 1.先拿到 交易线路
+    await networkStore.getLines();
+    // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
+    userStore.initAccount();
+    await networkStore.initNode();
+    await Promise.all([
+      symbolsStore.getAllSymbol(),
+      symbolsStore.getAllSymbolQuotes(),
+      rateStore.getAllRates(),
+      orderStore.initTableData(),
+      userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
+    ]);
+  } finally {
+    initRender();
+  }
 }
 
 // 浏览器页面变化布局随之变化

@@ -101,22 +101,28 @@ export const useUser = defineStore("user", {
         ifLogin: false,
       });
     },
-    async getLoginInfo(params?: { emitSocket?: boolean }) {
-      this.loginInfo = null;
-      const res = await loginInfo({
-        login: this.account!.login,
+    getLoginInfo(params?: { emitSocket?: boolean }) {
+      return new Promise((resolve, reject) => {
+        this.loginInfo = null;
+        loginInfo({
+          login: this.account!.login,
+        })
+          .then((res) => {
+            this.loginInfo = res.data;
+            this.changeCurrentAccountOption({
+              blance: res.data.balance ?? "-",
+            });
+            if (params && params.emitSocket) {
+              const socketStore = useSocket();
+              socketStore.sendToken({
+                login: res.data.login,
+                token: this.account.token,
+              });
+            }
+            resolve(res.data);
+          })
+          .catch((e) => reject(e));
       });
-      this.loginInfo = res.data;
-      this.changeCurrentAccountOption({
-        blance: res.data.balance ?? "-",
-      });
-      if (params && params.emitSocket) {
-        const socketStore = useSocket();
-        socketStore.sendToken({
-          login: res.data.login,
-          token: this.account.token,
-        });
-      }
     },
 
     storageAccount() {
