@@ -39,9 +39,6 @@ const resetAllStore = async () => {
       for (const i in modules) {
         const storeItem = modules[i]();
         storeItem.$reset();
-        setTimeout(() => {
-          console.log("storeItemnow", storeItem);
-        });
       }
     }
   }

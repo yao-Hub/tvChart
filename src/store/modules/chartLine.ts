@@ -1,5 +1,5 @@
 import * as types from "@/types/chart/index";
-import { get, isNil, sortBy } from "lodash";
+import { get, isNil, sortBy, throttle } from "lodash";
 import { defineStore } from "pinia";
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
@@ -89,7 +89,11 @@ export const useChartLine = defineStore("chartLine", {
               result.time = d.ctm * 1000;
             }
             this.newbar[subscriberUID] = { ...result };
-            this.subscribed[UID].onRealtimeCallback(result);
+            setTimeout(
+              throttle(() => {
+                this.subscribed[UID].onRealtimeCallback(result);
+              }, 1000)
+            );
           }
         }
       });
