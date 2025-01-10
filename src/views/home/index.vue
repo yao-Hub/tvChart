@@ -89,7 +89,9 @@ async function init() {
   ])
     .then(() => {})
     .catch(() => {})
-    .finally(() => initRender());
+    .finally(() => {
+      initRender();
+    });
 }
 
 // 浏览器页面变化布局随之变化
