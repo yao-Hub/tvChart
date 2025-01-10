@@ -49,44 +49,47 @@ const timeStore = useTime();
 const rateStore = useRate();
 const rootStore = useRoot();
 
+const initRender = () => {
+  timeStore.initTime(); // 初始化时间语言和时区
+  socketStore.initSocket(); // 初始化socket
+  chartLineStore.initSubLineAndQuote(); // 监听k线和报价
+  socketStore.emitRate(); // 监听汇率
+  rateStore.subRate(); // 监听汇率
+  orderStore.getQuickTrans();
+  // 3.拿到缓存信息才能确定历史页面布局
+  layoutStore.initLayout(); // 布局显示隐藏
+  chartInitStore.intLayoutType(); // 单图表 or 多图表
+  // 4.确定了布局才去初始化各个模块位置
+  initDragResizeArea();
+  console.log("loadChart");
+  chartInitStore.loadChartList(); // 加载图表
+  // 记忆动作（没什么用(>^ω^<)喵）
+  if (rootStore.cacheAction) {
+    rootStore[rootStore.cacheAction]();
+    rootStore.clearCacheAction();
+  }
+  chartInitStore.state.loading = false;
+};
+
 // 初始化 注意调用顺序
 async function init() {
-  try {
-    chartInitStore.state.loading = true;
+  chartInitStore.state.loading = true;
 
-    // 1.先拿到 交易线路
-    await networkStore.getLines();
-    // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
-    userStore.initAccount();
-    await networkStore.initNode();
-    await Promise.all([
-      symbolsStore.getAllSymbol(),
-      symbolsStore.getAllSymbolQuotes(),
-      rateStore.getAllRates(),
-      orderStore.initTableData(),
-      userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
-    ]);
-  } finally {
-    timeStore.initTime(); // 初始化时间语言和时区
-    socketStore.initSocket(); // 初始化socket
-    chartLineStore.initSubLineAndQuote(); // 监听k线和报价
-    socketStore.emitRate(); // 监听汇率
-    rateStore.subRate(); // 监听汇率
-    orderStore.getQuickTrans();
-    // 3.拿到缓存信息才能确定历史页面布局
-    layoutStore.initLayout(); // 布局显示隐藏
-    chartInitStore.intLayoutType(); // 单图表 or 多图表
-    // 4.确定了布局才去初始化各个模块位置
-    initDragResizeArea();
-    console.log("loadChart");
-    chartInitStore.loadChartList(); // 加载图表
-    // 记忆动作（没什么用(>^ω^<)喵）
-    if (rootStore.cacheAction) {
-      rootStore[rootStore.cacheAction]();
-      rootStore.clearCacheAction();
-    }
-    chartInitStore.state.loading = false;
-  }
+  // 1.先拿到 交易线路
+  await networkStore.getLines();
+  // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
+  userStore.initAccount();
+  await networkStore.initNode();
+  Promise.all([
+    symbolsStore.getAllSymbol(),
+    symbolsStore.getAllSymbolQuotes(),
+    rateStore.getAllRates(),
+    orderStore.initTableData(),
+    userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
+  ])
+    .then(() => {})
+    .catch(() => {})
+    .finally(() => initRender());
 }
 
 // 浏览器页面变化布局随之变化
