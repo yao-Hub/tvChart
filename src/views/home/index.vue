@@ -82,10 +82,10 @@ async function init() {
   await networkStore.initNode();
   Promise.all([
     symbolsStore.getAllSymbol(),
-    // symbolsStore.getAllSymbolQuotes(),
-    // rateStore.getAllRates(),
+    symbolsStore.getAllSymbolQuotes(),
+    rateStore.getAllRates(),
     // orderStore.initTableData(),
-    // userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
+    userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
   ])
     .then(() => {})
     .catch(() => {})
