@@ -210,7 +210,7 @@ const happyStart = async () => {
     );
     if (target) {
       protocolAgree({
-        protocolName: "2",
+        columnCodes: ["privacy-policy", "service-article"],
         brokerName: target.brokerName,
         lineName: target.lineName,
         login: formState.login,

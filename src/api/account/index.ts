@@ -243,7 +243,7 @@ export const articleDetails = (data: IReqArticle) => {
 };
 
 interface IReqProtocolAgree {
-  protocolName: string; //	协议名称
+  columnCodes: string[]; //	协议名称
   brokerName: string; //	经纪商
   lineName: string; //	交易线路
   login: string; //	登录名

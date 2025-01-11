@@ -103,7 +103,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import VerificationCode from "./VerificationCode.vue";
 
-import { articleDetails, register } from "api/account/index";
+import { articleDetails, protocolAgree, register } from "api/account/index";
 
 import { useNetwork } from "@/store/modules/network";
 
@@ -194,9 +194,21 @@ const submit = (formEl: FormInstance | undefined) => {
   if (!btnDisabled.value) {
     return;
   }
+
   formEl.validate(async (valid) => {
     if (valid) {
       const { code, email } = formState;
+      const target = networkStore.queryTradeLines.find(
+        (e) => e.lineName === lineInfo.value.lineName
+      );
+      if (target) {
+        protocolAgree({
+          columnCodes: ["accountClause", "dataPolicy"],
+          brokerName: lineInfo.value.brokerName,
+          lineName: lineInfo.value.lineName,
+          login: email,
+        });
+      }
       const res = await register({
         server: lineInfo.value.lineName,
         email,
