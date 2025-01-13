@@ -538,5 +538,6 @@ export const useOrder = defineStore("order", {
     getPendingOrderHistory: 300,
     getMarketOrderHistory: 300,
     getBlanceRecord: 300,
+    getData: 300,
   },
 });

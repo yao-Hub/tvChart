@@ -127,6 +127,7 @@ export const useSymbols = defineStore("symbols", () => {
     mySymbols.value = [];
     selectSymbols.value = [];
     chartSymbols.value = [];
+    orderSymbols.value = [];
   }
 
   return {
