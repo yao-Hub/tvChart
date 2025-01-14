@@ -111,14 +111,14 @@ function toggle(visible: boolean) {
   flex-direction: column;
   width: 100%;
   &_item {
-    height: var(--size);
+    height: var(--height);
     padding: 0 15px;
     box-sizing: border-box;
     cursor: pointer;
     display: flex;
     align-items: center;
     &:hover {
-      @include background_color("border");
+      @include background_color("background-hover");
     }
   }
 }

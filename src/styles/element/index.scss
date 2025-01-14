@@ -90,7 +90,7 @@
   background-color: #dee2e9;
 }
 .el-divider--horizontal {
-  margin: 4px 0;
+  margin: 8px 0;
 }
 .el-message-box {
   background-color: #f6f8fb;
@@ -107,4 +107,7 @@
 .el-segmented {
   --el-segmented-item-selected-bg-color: #dee2e9;
   --el-segmented-bg-color: #fff;
+}
+.el-dropdown__popper.el-popper {
+  box-shadow: 0px 12px 32px 8px rgba(8, 22, 46, 0.24);
 }

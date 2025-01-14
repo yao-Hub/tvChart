@@ -86,8 +86,9 @@ export const useTheme = defineStore("theme", () => {
       upDownTheme.value === "upRedDownGreen" ? proRed : proGreen;
 
     try {
+      console.log(upDownTheme.value);
       chartInitStore.state.chartWidgetList.forEach((item) => {
-        item.widget?.applyOverrides({
+        item.widget!.applyOverrides({
           "mainSeriesProperties.candleStyle.upColor": upColor,
           "mainSeriesProperties.candleStyle.downColor": downColor,
           "mainSeriesProperties.candleStyle.borderUpColor": upColor,

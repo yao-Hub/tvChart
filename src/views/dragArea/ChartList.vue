@@ -160,8 +160,10 @@ const initChart = ({
   // );
 
   // 涨跌颜色
-  themeStore.setUpDownTheme();
   themeStore.setChartTheme();
+  setTimeout(() => {
+    themeStore.setUpDownTheme();
+  });
   // 创建顶部栏快捷下单按钮
   chartActionStore.addOrderBtn(id);
   // 图表已经加载完毕

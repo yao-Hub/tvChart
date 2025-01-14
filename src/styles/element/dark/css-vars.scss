@@ -61,6 +61,9 @@ html.dark {
     background-color: #1d222d;
   }
 
+  .el-dropdown__popper.el-popper {
+    box-shadow: 0px 12px 32px 8px #000000;
+  }
   .el-dropdown-menu__item:not(.is-disabled):focus,
   .el-dropdown-menu__item:not(.is-disabled):hover {
     background-color: #383d47;
@@ -89,7 +92,7 @@ html.dark {
   }
 
   .el-divider--horizontal {
-    margin: 4px 0;
+    margin: 8px 0;
   }
 
   .el-autocomplete-suggestion li.highlighted,

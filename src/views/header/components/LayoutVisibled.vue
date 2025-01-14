@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown trigger="hover">
+  <el-dropdown trigger="hover" placement="bottom-start">
     <div class="iconbox">
       <div class="triangle"></div>
     </div>
@@ -7,15 +7,15 @@
       <el-dropdown-menu>
         <el-dropdown-item>
           <div class="item" @click="() => layoutChange('symbolsVisable')">
-            <el-icon><Select v-if="layoutStore.symbolsVisable" /></el-icon>
             <span>{{ $t("symbolListArea") }}</span>
+            <BaseImg iconName="select" v-if="layoutStore.symbolsVisable" />
           </div>
         </el-dropdown-item>
 
         <el-dropdown-item>
           <div class="item" @click="() => layoutChange('orderAreaVisable')">
-            <el-icon><Select v-if="layoutStore.orderAreaVisable" /></el-icon>
             <span>{{ $t("orderArea") }}</span>
+            <BaseImg iconName="select" v-if="layoutStore.orderAreaVisable" />
           </div>
         </el-dropdown-item>
       </el-dropdown-menu>
@@ -67,6 +67,7 @@ const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
   height: 32px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   @include font_color("word");
   box-sizing: border-box;
 }
