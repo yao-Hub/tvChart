@@ -219,8 +219,8 @@ const initonReady = () => {
         chartInitStore.state.activeChartId = props.chartId;
       });
 
-      // 增加策略
-      if (!savedData) {
+      // 增加策略 第一个图表增加指标
+      if (!savedData && chartInitStore.state.chartWidgetList.length === 1) {
         widget.activeChart().createStudy("MACD");
         widget.activeChart().createStudy("Moving Average Double");
       }
