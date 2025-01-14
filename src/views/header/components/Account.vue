@@ -1,6 +1,10 @@
 <template>
-  <el-dropdown trigger="contextmenu" ref="dropdown">
-    <div class="info" @click="openDropdown">
+  <el-dropdown
+    trigger="contextmenu"
+    ref="dropdown"
+    @visible-change="visible = $event"
+  >
+    <div class="info" @click="toogleDropdown">
       <div class="left">
         <div class="top">
           <el-text>{{ networkStore.server }}</el-text>
@@ -107,6 +111,7 @@ import { useRouter } from "vue-router";
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
 
 const dropdown = ref<DropdownInstance>();
+const visible = ref(false);
 const resetPasswordOpen = ref(false);
 
 const networkStore = useNetwork();
@@ -146,14 +151,13 @@ watch(
   { deep: true }
 );
 
-const openDropdown = () => {
+const toogleDropdown = () => {
   if (!dropdown.value) return;
-  dropdown.value.handleOpen();
-};
-
-const closeDropdown = () => {
-  if (!dropdown.value) return;
-  dropdown.value.handleClose();
+  if (visible.value) {
+    dropdown.value.handleClose();
+  } else {
+    dropdown.value.handleOpen();
+  }
 };
 
 const delAccount = (account: any) => {
@@ -177,7 +181,7 @@ const changeLogin = (account: any) => {
     userStore.accountList.forEach((item) => {
       item.ifLogin = item.login === login && item.server === server;
     });
-    closeDropdown();
+    toogleDropdown();
     await userStore.login(
       {
         login,
@@ -216,13 +220,13 @@ const getLogo = (server: string) => {
 
 const modalOpen = ref<boolean>(false);
 const showModal = () => {
-  closeDropdown();
+  toogleDropdown();
   dialogStore.incrementZIndex();
   modalOpen.value = true;
 };
 
 const openResetPwd = () => {
-  closeDropdown();
+  toogleDropdown();
   dialogStore.incrementZIndex();
   resetPasswordOpen.value = true;
 };
