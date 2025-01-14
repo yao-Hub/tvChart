@@ -75,6 +75,7 @@
     <el-icon
       @click.stop="emit('tabClose', props.id)"
       style="margin-left: auto; cursor: pointer"
+      v-if="!props.hideCloseBtn"
     >
       <Close />
     </el-icon>
@@ -99,6 +100,7 @@ interface Props {
   interval?: string | number;
   noActiveStyle?: boolean;
   noHoverStyle?: boolean;
+  hideCloseBtn?: boolean;
 }
 const props = defineProps<Props>();
 

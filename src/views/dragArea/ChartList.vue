@@ -11,6 +11,7 @@
           :symbol="chart.symbol"
           :interval="chart.interval"
           :id="chart.id"
+          :hide-close-btn="chartInitStore.state.chartWidgetList.length === 1"
           @tabClick="chartTabClick(chart.id)"
           @symbolCommand="symbolCommand"
           @resolutionCommand="resolutionCommand"
@@ -40,6 +41,7 @@
           active
           noActiveStyle
           noHoverStyle
+          :hide-close-btn="chartInitStore.state.chartWidgetList.length === 1"
           :symbol="symbol"
           :interval="interval"
           :id="id"
