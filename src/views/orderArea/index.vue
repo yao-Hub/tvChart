@@ -711,12 +711,11 @@ const closeMarketOrder = async (record: orders.resOrders) => {
     }
   }
 
-  const ifOne = orderStore.getOneTrans();
   if (orderStore.ifOne) {
     foo();
     return;
   }
-  if (ifOne === null) {
+  if (orderStore.ifOne === null) {
     dialogStore.openDialog("disclaimersVisible");
     return;
   }
@@ -777,8 +776,7 @@ const delPendingOrder = async (record: orders.resOrders) => {
     }
   }
 
-  const ifOne = orderStore.getOneTrans();
-  if (ifOne === null) {
+  if (orderStore.ifOne === null) {
     dialogStore.openDialog("disclaimersVisible");
   }
 

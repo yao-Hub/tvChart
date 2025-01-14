@@ -26,10 +26,20 @@ export const useQuotes = defineStore("qoutes", () => {
       const oldAsk = oldQuote.ask;
       const oldBid = oldQuote.bid;
       if (oldAsk && ask) {
-        result.ask = oldAsk > ask ? "sellWord" : "buyWord";
+        if (oldAsk > ask) {
+          result.ask = "sellWord";
+        }
+        if (oldAsk < ask) {
+          result.ask = "buyWord";
+        }
       }
       if (oldBid && bid) {
-        result.bid = oldBid > bid ? "sellWord" : "buyWord";
+        if (oldBid > bid) {
+          result.bid = "sellWord";
+        }
+        if (oldBid < bid) {
+          result.bid = "buyWord";
+        }
       }
     }
     quotesClass.value[symbol] = result;

@@ -233,8 +233,7 @@ const valid = () => {
   return true;
 };
 const addOrder = async (type: DirectionType) => {
-  const ifOne = orderStore.getOneTrans();
-  if (ifOne === null) {
+  if (orderStore.ifOne === null) {
     dialogStore.openDialog("disclaimersVisible");
     return;
   }

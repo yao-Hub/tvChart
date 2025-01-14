@@ -64,10 +64,7 @@ export const useUser = defineStore("user", {
     },
     // 预付款
     margin(state) {
-      if (!state.loginInfo) {
-        return "-";
-      }
-      return state.loginInfo.margin;
+      return state.loginInfo?.margin || "-";
     },
     // 可用预付款
     margin_free() {

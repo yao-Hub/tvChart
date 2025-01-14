@@ -106,7 +106,7 @@ export const useOrder = defineStore("order", {
           type: "",
         },
       },
-      ifOne: false, // 一键交易
+      ifOne: null, // 一键交易
       ifQuick: true, // 快捷交易(图表是否显示快捷交易组件)
     };
   },

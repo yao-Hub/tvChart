@@ -55,7 +55,8 @@ const initRender = () => {
   chartLineStore.initSubLineAndQuote(); // 监听k线和报价
   socketStore.emitRate(); // 监听汇率
   rateStore.subRate(); // 监听汇率
-  orderStore.getQuickTrans();
+  orderStore.getQuickTrans(); //  快捷交易
+  orderStore.getOneTrans(); //一键交易
   // 3.拿到缓存信息才能确定历史页面布局
   layoutStore.initLayout(); // 布局显示隐藏
   chartInitStore.intLayoutType(); // 单图表 or 多图表
