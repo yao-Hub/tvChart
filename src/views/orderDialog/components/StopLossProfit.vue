@@ -6,9 +6,12 @@
         <el-tooltip :content="minPoint" placement="top" v-if="!rangeTip">
           <el-text class="textEllipsis" type="info">{{ minPoint }}</el-text>
         </el-tooltip>
-        <el-text :type="ifError ? 'danger' : 'info'" v-if="rangeTip">{{
-          rangeTip
-        }}</el-text>
+        <el-text
+          class="textEllipsis"
+          :type="ifError ? 'danger' : 'info'"
+          v-if="rangeTip"
+          >{{ rangeTip }}</el-text
+        >
       </div>
     </template>
     <StepNumInput
@@ -20,7 +23,7 @@
       @input="handleInput"
     ></StepNumInput>
     <el-form-item>
-      <span class="tip" v-if="profit"
+      <span class="tip textEllipsis" v-if="profit"
         >{{ $t("order.expectedGrossProfit") }}: {{ profit }}</span
       >
     </el-form-item>
