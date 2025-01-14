@@ -1,5 +1,5 @@
 import * as types from "@/types/chart/index";
-import { get, isNil, sortBy, throttle } from "lodash";
+import { get, isNil, sortBy } from "lodash";
 import { defineStore } from "pinia";
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
@@ -9,12 +9,11 @@ interface ISubSCribed {
   resolution: string;
 }
 
+type Tbar = Partial<types.ISocketQuote> &
+  Partial<types.IQuote> & { time: number };
 interface IState {
   subscribed: Record<string, ISubSCribed>;
-  newbar: Record<
-    string,
-    Partial<types.ISocketQuote> & Partial<types.IQuote> & { time: number }
-  >;
+  newbar: Record<string, Tbar>;
 }
 export const useChartLine = defineStore("chartLine", {
   state: (): IState => {
@@ -24,6 +23,14 @@ export const useChartLine = defineStore("chartLine", {
     };
   },
   actions: {
+    updateSubscribed(UID: string, data: Tbar) {
+      setTimeout(() => {
+        if (this.subscribed[UID]) {
+          this.subscribed[UID].onRealtimeCallback(data);
+        }
+      });
+    },
+
     initSubLineAndQuote() {
       const socketStore = useSocket();
       const quotesStore = useQuotes();
@@ -83,19 +90,10 @@ export const useChartLine = defineStore("chartLine", {
               high: +high,
               low: +low,
               volume: volume + 1,
-              time: d.ctm * 1000,
+              time: bartime,
             };
-            if (!bartime || bartime < d.ctm * 1000) {
-              result.time = d.ctm * 1000;
-            }
             this.newbar[subscriberUID] = { ...result };
-            setTimeout(
-              throttle(() => {
-                if (this.subscribed[UID]) {
-                  this.subscribed[UID].onRealtimeCallback(result);
-                }
-              }, 1000)
-            );
+            this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
           }
         }
       });
@@ -114,7 +112,7 @@ export const useChartLine = defineStore("chartLine", {
             const nowbarTime = nowBar.time;
             const lines = sortBy(d.klines, ["ctm"]);
             const line = lines.slice(-1)[0];
-            const { close, open, volume, high, low, ctm } = line;
+            const { close, open, high, low, ctm, volume } = line;
             const dTime = ctm * 1000;
             const result = {
               close,
@@ -128,7 +126,7 @@ export const useChartLine = defineStore("chartLine", {
               result.time = dTime;
             }
             this.newbar[subscriberUID] = { ...result };
-            this.subscribed[UID].onRealtimeCallback(result);
+            this.updateSubscribed(UID, result);
             quotesStore.qoutes[d.symbol]["close"] = close;
             quotesStore.qoutes[d.symbol]["open"] = open;
             quotesStore.qoutes[d.symbol]["high"] = high;

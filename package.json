@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "pro": "vite --mode production --open",
-    "build": "vue-tsc && vite build",
-    "build:dev": "vue-tsc && vite build --mode development",
-    "build:test": "vue-tsc && vite build --mode test",
+    "build": "vite build",
+    "build:dev": "vite build --mode development",
+    "build:test": "vite build --mode test",
     "preview": "vite preview --open",
     "preview:dev": "vite preview --mode development --open",
     "lint": "eslint --ext .js,.vue,.ts src",
