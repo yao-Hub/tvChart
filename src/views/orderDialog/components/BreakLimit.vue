@@ -137,7 +137,10 @@ onUnmounted(() => {
 });
 
 const handleInput = (value: string | number) => {
-  price.value = limitdigit(value, 2);
+  if (props.symbolInfo) {
+    const { digits } = props.symbolInfo;
+    price.value = limitdigit(value, digits);
+  }
 };
 </script>
 

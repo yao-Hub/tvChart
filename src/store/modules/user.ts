@@ -58,7 +58,7 @@ export const useUser = defineStore("user", {
       const orderStore = useOrder();
       const currentPosition = orderStore.orderData.marketOrder || [];
       const sum = currentPosition.reduce((accumulator, currentValue) => {
-        return accumulator + currentValue.profit;
+        return accumulator + +currentValue.profit;
       }, 0);
       return round(+state.loginInfo.balance + (sum || 0), 2);
     },

@@ -254,7 +254,7 @@
               <template v-else-if="column.dataKey === 'profit'">
                 <span :class="[getCellClass(rowData.profit), 'profitcell']">
                   <span v-if="activeKey === 'blanceRecord'">{{
-                    rowData.profit > 0 ? `+${rowData.profit}` : rowData.profit
+                    +rowData.profit > 0 ? `+${rowData.profit}` : rowData.profit
                   }}</span>
                   <span v-else>{{
                     isNil(rowData.profit) ? "-" : rowData.profit
@@ -493,14 +493,14 @@ const profits = computed(() => {
 // 净入金：
 const netDeposit = computed(() => {
   return profits.value.reduce((pre, next) => {
-    return accAdd(pre, next);
+    return accAdd(+pre, +next);
   }, 0);
 });
 // 累计入金：
 const accDeposit = computed(() => {
   const list = profits.value.filter((item) => +item > 0);
   const sum = list.reduce((pre, next) => {
-    return accAdd(pre, next);
+    return accAdd(+pre, +next);
   }, 0);
   return {
     len: list.length,
@@ -511,7 +511,7 @@ const accDeposit = computed(() => {
 const accWithdrawal = computed(() => {
   const list = profits.value.filter((item) => +item < 0);
   const sum = list.reduce((pre, next) => {
-    return accAdd(pre, next);
+    return accAdd(+pre, +next);
   }, 0);
   return {
     len: list.length,
@@ -551,10 +551,10 @@ const dataSource = computed(() => {
         directionResult = direction === getTradingDirection(item.type);
       }
       if (pol && pol === "profit") {
-        polResult = item.profit > 0;
+        polResult = +item.profit > 0;
       }
       if (pol && pol === "loss") {
-        polResult = item.profit < 0;
+        polResult = +item.profit < 0;
       }
       return symbolResult && directionResult && polResult;
     });
@@ -629,7 +629,7 @@ watch(
           storage: +storage,
         };
         const result = orderStore.getProfit(params, direction);
-        item.profit = +result;
+        item.profit = result;
       }
     });
   },
@@ -675,7 +675,7 @@ const tableScroll = (e: ScrollParams) => {
 // 交易历史盈亏合计
 const MOHProSum = computed(() => {
   const sum = dataSource.value.reduce((pre, next) => {
-    return pre + next.profit;
+    return pre + +next.profit;
   }, 0);
   return sum.toFixed(2);
 });

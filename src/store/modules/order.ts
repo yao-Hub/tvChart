@@ -17,6 +17,7 @@ import * as orderTypes from "#/order";
 import * as orders from "api/order/index";
 
 import { isNil } from "lodash";
+import { round } from "utils/common/index";
 
 type ModeType = "create" | "confirm";
 type SymbolType = string;
@@ -450,7 +451,7 @@ export const useOrder = defineStore("order", {
             ? "pre_user"
             : "normal";
         const result = stateMachine[type][direction];
-        return (result + fee + storage).toFixed(2);
+        return round(result + fee + storage, 2);
       }
       return "-";
     },

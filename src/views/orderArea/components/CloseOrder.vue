@@ -44,12 +44,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, watch } from "vue";
 import { throttle } from "lodash";
+import { computed, reactive, watch } from "vue";
 
-import { getTradingDirection } from "utils/order/index";
 import { TableDataKey } from "#/order";
 import { resOrders } from "api/order/index";
+import { getTradingDirection } from "utils/order/index";
 
 import { useOrder } from "@/store/modules/order";
 
@@ -156,10 +156,10 @@ const getTitleTooltip = throttle((data: resOrders[]) => {
     let loss = false;
 
     if (state.pol.includes("profit")) {
-      profit = item.profit > 0;
+      profit = +item.profit > 0;
     }
     if (state.pol.includes("loss")) {
-      loss = item.profit < 0;
+      loss = +item.profit < 0;
     }
     return rightDec && (profit || loss);
   });

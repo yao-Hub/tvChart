@@ -54,9 +54,9 @@ const orderStore = useOrder();
 
 const loginInfo = computed(() => userStore.loginInfo);
 
-const profitTotal = computed(() => {
+const profitTotal = computed<string>(() => {
   const profitList = orderStore.orderData.marketOrder.map(
-    (item) => item.profit
+    (item) => +item.profit
   );
   const result = profitList.reduce((pre, next) => pre + next, 0);
   return round(result, 2);

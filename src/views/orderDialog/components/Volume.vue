@@ -91,7 +91,7 @@ const referMargin = computed(() => {
   if (symbolInfo) {
     const symbol = symbolInfo.symbol;
     const currentQuote = quotesStore.qoutes[symbol];
-    const direction = props.orderType.includes("sell") ? "sell" : "buy";
+    const direction = props.orderType.includes("buy") ? "buy" : "sell";
     const bulidPrice =
       direction === "sell" ? currentQuote.bid : currentQuote.ask;
     const volume = model.value;

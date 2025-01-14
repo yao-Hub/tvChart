@@ -64,7 +64,7 @@ export interface resOrders {
   close_time: number; // 	平仓时间
   storage: number; // 	过夜费
   fee: number; // 	手续费
-  profit: number; // 	浮动盈亏
+  profit: number | string; // 	浮动盈亏
   comment: string; // 	备注评论
   now_price?: number; // 现价
 }

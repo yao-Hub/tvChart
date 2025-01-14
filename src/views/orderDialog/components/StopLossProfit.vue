@@ -17,6 +17,7 @@
       :customSub="customCal"
       :customAdd="customCal"
       :valid="ifError"
+      @input="handleInput"
     ></StepNumInput>
     <el-form-item>
       <span class="tip" v-if="profit"
@@ -32,12 +33,10 @@ import { round } from "utils/common/index";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-// import { useRate } from "@/store/modules/rate";
 import { useOrder } from "@/store/modules/order";
 
 const orderStore = useOrder();
 const { t } = useI18n();
-// const rateStore = useRate();
 
 const step = 0.5;
 
@@ -57,7 +56,7 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-const price = defineModel<string>("price", { default: "" });
+const price = defineModel<string | number>("price", { default: "" });
 
 const rangeTip = ref("");
 const ifError = ref(false);
@@ -238,7 +237,7 @@ const profit = computed(() => {
   const type = props.orderType;
   const text = type.match(/sell|buy/);
   // 止盈止损为空并且没有确定方向不计算
-  if (["", null, undefined].includes(price.value) || !text) {
+  if (price.value === "" || !text) {
     return "";
   }
   const buildPrice = ["buyStopLimit", "sellStopLimit"].includes(type)
@@ -278,6 +277,14 @@ watch(
     deep: true,
   }
 );
+
+import { limitdigit } from "utils/common/index";
+const handleInput = (value: string | number) => {
+  if (props.symbolInfo) {
+    const { digits } = props.symbolInfo;
+    price.value = limitdigit(value, digits);
+  }
+};
 </script>
 
 <style lang="scss" scoped>

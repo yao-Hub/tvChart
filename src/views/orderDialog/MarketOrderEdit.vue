@@ -423,7 +423,7 @@ const nowProfit = computed(() => {
     const { storage, fee, open_price, type, symbol } = props.orderInfo;
     const direction = getTradingDirection(type);
     const closePrice =
-      direction === "buy" ? get(props.quote, "ask") : get(props.quote, "bid");
+      direction === "buy" ? get(props.quote, "bid") : get(props.quote, "ask");
     if (!isNil(closePrice)) {
       const profit = orderStore.getProfit(
         {
