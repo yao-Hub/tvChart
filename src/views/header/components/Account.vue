@@ -48,9 +48,11 @@
           $t("changePassword")
         }}</el-text>
         <el-divider direction="vertical" v-if="ifSimulatedServer" />
-        <el-text type="info" @click="$router.push({ path: PageEnum.LOGIN })">{{
-          $t("addAccount")
-        }}</el-text>
+        <el-text
+          type="info"
+          @click="$router.push({ path: PageEnum.LOGIN_HOME })"
+          >{{ $t("addAccount") }}</el-text
+        >
         <el-divider direction="vertical" />
         <span @click="logout">{{ $t("logOut") }}</span>
       </div>

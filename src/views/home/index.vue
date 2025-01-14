@@ -75,7 +75,9 @@ const initRender = () => {
 // 初始化 注意调用顺序
 async function init() {
   try {
+    console.log("init");
     chartInitStore.state.loading = true;
+    await rootStore.resetAllStore();
     // 1.先拿到 交易线路
     await networkStore.getLines();
     // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
@@ -106,7 +108,6 @@ watch(
   () => chartInitStore.state.globalRefresh,
   async (val) => {
     if (val) {
-      await rootStore.resetAllStore();
       init();
     }
   }
