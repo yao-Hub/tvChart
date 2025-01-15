@@ -33,10 +33,12 @@
       </p>
     </div>
     <div class="footer" slot="footer">
-      <el-checkbox v-model="agree" label="我接受这些条款条约" />
+      <el-checkbox v-model="agree">
+        <span>我接受这些条款条约</span>
+      </el-checkbox>
       <div class="footer_btnGroup">
-        <el-button @click="handleCancle">取消</el-button>
-        <el-button type="primary" @click="handleOk">接受</el-button>
+        <el-button class="btn" @click="handleCancle">取消</el-button>
+        <el-button class="btn" type="primary" @click="handleOk">接受</el-button>
       </div>
     </div>
   </el-dialog>
@@ -75,7 +77,7 @@ const handleCancle = () => {
 @import "@/styles/_handle.scss";
 .header {
   font-weight: bold;
-  font-size: 16px;
+  font-size: var(--icon-size);
   @include border_color("border");
 }
 .disclaimers {
@@ -107,5 +109,8 @@ const handleCancle = () => {
     display: flex;
     gap: 5px;
   }
+}
+.btn {
+  height: var(--height);
 }
 </style>

@@ -355,7 +355,7 @@ const expandChange = (row: any, expandedRows: any[]) => {
 .container {
   width: 100%;
   // 减去顶部搜索框的高度 - padding
-  height: calc(100% - var(--size) - 8px);
+  height: calc(100% - var(--component-size) - 8px);
   margin-top: 8px;
   box-sizing: border-box;
   border-radius: 4px;

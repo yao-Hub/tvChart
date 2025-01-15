@@ -405,14 +405,7 @@ export const useOrder = defineStore("order", {
       const userStore = useUser();
       const symbolsStore = useSymbols();
       const rateStore = useRate();
-      const {
-        symbol,
-        closePrice,
-        buildPrice,
-        volume,
-        fee = 0,
-        storage = 0,
-      } = params;
+      const { symbol, closePrice, buildPrice, volume, fee, storage } = params;
 
       const rates = rateStore.getRate(symbol);
       const loginInfo = userStore.loginInfo;
@@ -451,7 +444,7 @@ export const useOrder = defineStore("order", {
             ? "pre_user"
             : "normal";
         const result = stateMachine[type][direction];
-        return round(result + fee + storage, 2);
+        return round(result + (fee || 0) + (storage || 0), 2);
       }
       return "-";
     },

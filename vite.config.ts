@@ -112,6 +112,16 @@ export default defineConfig((mode: ConfigEnv) => {
             );
           },
         },
+        "/client-api-120-79-80-70-8555": {
+          target: "http://120.79.80.70:8555",
+          changeOrigin: true,
+          rewrite: (path) => {
+            return path.replace(
+              new RegExp("^" + "/client-api-120-79-80-70-8555"),
+              ""
+            );
+          },
+        },
         "/client-api": {
           target: "http://120.79.186.23:13556",
           changeOrigin: true,

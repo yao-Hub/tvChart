@@ -91,7 +91,7 @@ const layoutStore = useLayout();
       }
 
       .handle {
-        height: calc(var(--size) + 4px);
+        height: calc(var(--component-size) + 4px);
         width: 16px;
         cursor: grab;
         padding: 8px 0;

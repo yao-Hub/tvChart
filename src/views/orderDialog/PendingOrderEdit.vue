@@ -50,7 +50,7 @@
             }"
             :orderType="formState.orderType"
             :symbolInfo="symbolInfo"
-            :quote="props.quote"
+            :quote="quote"
           >
           </Price>
         </el-col>
@@ -74,7 +74,7 @@
             disabled
             v-model:volume="formState.volume"
             :symbolInfo="symbolInfo"
-            :quote="props.quote"
+            :quote="quote"
             :orderType="formState.orderType"
             :formOption="{ name: 'volume', label: t('dialog.closeVolume') }"
             :orderPrice="formState.orderPrice"
@@ -86,7 +86,7 @@
             v-model:price="formState.stopLoss"
             :volume="formState.volume"
             :symbolInfo="symbolInfo"
-            :quote="props.quote"
+            :quote="quote"
             :orderPrice="formState.orderPrice"
             :orderType="formState.orderType"
             :limitedPrice="formState.limitedPrice"
@@ -98,7 +98,7 @@
             v-model:price="formState.stopProfit"
             :volume="formState.volume"
             :symbolInfo="symbolInfo"
-            :quote="props.quote"
+            :quote="quote"
             :orderPrice="formState.orderPrice"
             :orderType="formState.orderType"
             :limitedPrice="formState.limitedPrice"
@@ -111,7 +111,7 @@
           <Term v-model:term="formState.dueDate"></Term>
         </el-col>
         <el-col :span="24">
-          <Spread :quote="props.quote" :digits="symbolInfo?.digits"></Spread>
+          <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
         </el-col>
         <el-col :span="24">
           <div class="btns">
@@ -161,7 +161,6 @@ const timeStore = useTime();
 const orderStore = useOrder();
 interface Props {
   orderInfo: resPendingOrders;
-  quote: IQuote;
 }
 const props = defineProps<Props>();
 const emit = defineEmits();
@@ -212,6 +211,15 @@ const domVisableOption = {
     "sellStopLimit",
   ],
 } as Record<string, string[]>;
+
+import { useQuotes } from "@/store/modules/quotes";
+const quotesStore = useQuotes();
+const quote = computed(() => {
+  const quotes = quotesStore.qoutes;
+  const symbol = props.orderInfo.symbol;
+  return quotes[symbol] || {};
+});
+
 // 重置表单 自动填充
 watch(
   () => model.value,
@@ -264,7 +272,6 @@ const rules: FormRules<typeof formState> = {
 };
 
 /** 当前品种 */
-import { IQuote } from "#/chart/index";
 import { useSymbols } from "@/store/modules/symbols";
 const symbolsStore = useSymbols();
 const symbolInfo = computed(() => {

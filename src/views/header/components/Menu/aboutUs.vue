@@ -9,9 +9,16 @@
     v-model="open"
     width="486"
     :zIndex="dialogStore.zIndex"
+    append-to-body
+    :show-close="false"
   >
     <template #header>
-      <span class="header">{{ $t("aboutUs") }}</span>
+      <div class="header">
+        <span class="title">{{ $t("aboutUs") }}</span>
+        <el-icon class="icon" @click="open = false">
+          <CloseBold />
+        </el-icon>
+      </div>
     </template>
     <el-row>
       <el-col :span="24">
@@ -72,9 +79,18 @@ const handleClick = () => {
   margin-top: 20px;
 }
 .header {
-  font-weight: bold;
-  font-size: 16px;
-  @include font_color("word");
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .title {
+    font-weight: bold;
+    font-size: var(--icon-size);
+    @include font_color("word");
+  }
+  .icon {
+    cursor: pointer;
+  }
 }
 :deep(.el-text.el-text--info) {
   width: 44px;

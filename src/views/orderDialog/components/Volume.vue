@@ -101,7 +101,6 @@ const referMargin = computed(() => {
         volume,
         bulidPrice,
       },
-      direction
     );
     return referMargin === "-" ? "-" : round(referMargin, digits.value);
   }
@@ -216,5 +215,8 @@ const handleInput = (value: string | number) => {
   height: 40px;
   justify-content: space-between;
   line-height: normal;
+  span {
+    font-size: var(--tip-size);
+  }
 }
 </style>

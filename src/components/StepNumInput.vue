@@ -8,10 +8,10 @@
     :class="{ danger: valid }"
   >
     <template #prefix>
-      <span class="btn" @click="handleSubtract()">-</span>
+      <BaseImg class="btn" iconName="icon_sub" @click="handleSubtract()" />
     </template>
     <template #suffix>
-      <span class="btn" @click="handleAdd()">+</span>
+      <BaseImg class="btn" iconName="icon_plus" @click="handleAdd()" />
     </template>
   </el-input>
 </template>
@@ -67,8 +67,9 @@ const handleAdd = () => {
 
 <style lang="scss" scoped>
 .btn {
+  width: 18px;
+  height: 18px;
   cursor: pointer;
-  font-size: 16px;
   box-sizing: border-box;
   -moz-user-select: none;
   -o-user-select: none;

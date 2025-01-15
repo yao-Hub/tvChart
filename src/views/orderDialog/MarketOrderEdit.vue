@@ -7,6 +7,7 @@
       width="464"
       v-model="model"
       :zIndex="dialogStore.zIndex"
+      draggable
       @close="handleCancel"
     >
       <template #header>
@@ -50,10 +51,7 @@
               </div>
             </el-form-item>
             <el-col :span="24">
-              <Spread
-                :quote="props.quote"
-                :digits="symbolInfo?.digits"
-              ></Spread>
+              <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
             </el-col>
             <el-col :span="24">
               <el-button
@@ -77,10 +75,10 @@
                 type="stopLoss"
                 v-model:price="stopFormState.stopLoss"
                 :symbolInfo="symbolInfo"
-                :quote="props.quote"
+                :quote="quote"
                 :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
                 :orderPrice="props.orderInfo.open_price"
-                :volume="props.orderInfo.volume / 100"
+                :volume="+props.orderInfo.volume / 100"
               ></StopLossProfit>
             </el-col>
             <el-col :span="12">
@@ -88,10 +86,10 @@
                 type="stopProfit"
                 v-model:price="stopFormState.stopProfit"
                 :symbolInfo="symbolInfo"
-                :quote="props.quote"
+                :quote="quote"
                 :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
                 :orderPrice="props.orderInfo.open_price"
-                :volume="props.orderInfo.volume / 100"
+                :volume="+props.orderInfo.volume / 100"
               ></StopLossProfit>
             </el-col>
           </el-row>
@@ -166,9 +164,10 @@
 </template>
 
 <script setup lang="ts">
-import { IQuote } from "#/chart/index";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
+import { useQuotes } from "@/store/modules/quotes";
+
 import { resOrders } from "api/order/index";
 import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -176,17 +175,23 @@ import Spread from "./components/spread.vue";
 
 const dialogStore = useDialog();
 const orderStore = useOrder();
+const quotesStore = useQuotes();
 
 const { t } = useI18n();
 
 interface Props {
   orderInfo: resOrders;
-  quote: IQuote;
 }
 const props = defineProps<Props>();
 const emit = defineEmits();
 
 const model = defineModel("visible", { type: Boolean, default: false });
+
+const quote = computed(() => {
+  const quotes = quotesStore.qoutes;
+  const symbol = props.orderInfo.symbol;
+  return quotes[symbol] || {};
+});
 
 /** 当前品种 */
 import { useSymbols } from "@/store/modules/symbols";
@@ -423,13 +428,13 @@ const nowProfit = computed(() => {
     const { storage, fee, open_price, type, symbol } = props.orderInfo;
     const direction = getTradingDirection(type);
     const closePrice =
-      direction === "buy" ? get(props.quote, "bid") : get(props.quote, "ask");
+      direction === "buy" ? get(quote.value, "bid") : get(quote.value, "ask");
     if (!isNil(closePrice)) {
       const profit = orderStore.getProfit(
         {
           symbol,
-          closePrice: +closePrice,
-          buildPrice: +open_price,
+          closePrice: closePrice,
+          buildPrice: open_price,
           volume: +volume,
           fee,
           storage,
@@ -484,8 +489,8 @@ const handleCancel = () => {
 }
 .opearBtn {
   cursor: pointer;
-  width: var(--size);
-  height: var(--size);
+  width: var(--component-size);
+  height: var(--component-size);
 }
 .profitBox {
   padding: 5px 0;

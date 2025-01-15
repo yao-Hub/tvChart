@@ -59,6 +59,7 @@
               v-model="formState.orderType"
               filterable
               :placeholder="t('dialog.orderType')"
+              :suffix-icon="SelectSuffixIcon"
             >
               <el-option
                 v-for="item in orderTypeOptions"
@@ -223,6 +224,7 @@ import { useI18n } from "vue-i18n";
 
 import { DirectionType, OrderType } from "#/order";
 
+import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import BreakLimit from "./components/BreakLimit.vue";
 import Price from "./components/Price.vue";
 import Spread from "./components/spread.vue";
@@ -475,6 +477,7 @@ const addPendingOrders = debounce(async () => {
 const handleCancel = () => {
   Object.assign(formState, originState);
   orderStore.initOrderState = { symbol: "" };
+  back();
   dialogStore.closeDialog("orderDialogVisible");
 };
 </script>
@@ -493,6 +496,12 @@ const handleCancel = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+:deep(.el-select__wrapper) {
+  height: var(--height);
+}
+:deep(.el-input__wrapper) {
+  height: var(--height);
+}
 :deep(.el-col) {
   padding: 0;
 }
@@ -539,7 +548,7 @@ const handleCancel = () => {
   }
   .title {
     font-size: 18px;
-    margin-top: 16px;
+    margin-top: 8px;
   }
   .tip {
     margin-top: 8px;
@@ -549,7 +558,7 @@ const handleCancel = () => {
     width: 100%;
     padding: 16px;
     box-sizing: border-box;
-    @include background_color("background-component");
+    @include background_color("background");
     display: grid;
     grid-template-columns: 50% 50%;
     grid-row-gap: 8px;
@@ -567,6 +576,7 @@ const handleCancel = () => {
     gap: 16px;
     .btn {
       flex: 1;
+      height: var(--height);
     }
   }
 }

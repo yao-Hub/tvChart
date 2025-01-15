@@ -119,4 +119,8 @@ html.dark {
     --el-segmented-bg-color: #000;
     --el-segmented-item-selected-bg-color: #2c2f35;
   }
+
+  .el-form-item--label-top .el-form-item__label {
+    margin-bottom: 4px;
+  }
 }

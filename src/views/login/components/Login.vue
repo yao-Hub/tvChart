@@ -67,6 +67,7 @@
           :disabled="disabled"
           size="large"
           @click="happyStart"
+          :loading="loading"
           >{{ $t("account.login") }}</el-button
         >
       </el-form-item>

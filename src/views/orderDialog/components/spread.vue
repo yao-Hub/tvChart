@@ -1,7 +1,10 @@
 <template>
   <div class="spread">
     <span class="sellWord">{{ quote?.bid?.toFixed(props.digits) }}</span>
-    <div class="spread_point">{{ $t("order.spread") }} {{ spread }}</div>
+    <div class="spread_point">
+      <span class="title">{{ $t("order.spread") }} {{ spread }}</span>
+      <BaseImg class="icon" iconName="icon_arrow"></BaseImg>
+    </div>
     <span class="buyWord">{{ quote?.ask?.toFixed(props.digits) }}</span>
   </div>
 </template>
@@ -32,34 +35,16 @@ const spread = computed(() => {
 @import "@/styles/_handle.scss";
 
 .spread_point {
-  @include font_color("word-gray");
-  border-bottom: 1px solid;
-  @include border_color("word-gray");
   min-width: 60px;
-  text-align: center;
-  position: relative;
-  padding-bottom: 3px;
-  &::before {
-    content: "";
-    display: block;
-    width: 1px;
-    height: 4px;
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    @include background_color("word-gray");
-    transform: rotate(45deg) translateY(1px) translateX(1px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  .title {
+    font-size: var(--tip-size);
+    @include font_color("word-gray");
   }
-  &::after {
-    content: "";
-    display: block;
-    width: 1px;
-    height: 4px;
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    @include background_color("word-gray");
-    transform: rotate(-45deg) translateY(1px) translateX(-1px);
+  .icon {
+    width: 60px;
   }
 }
 .spread {

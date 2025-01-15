@@ -266,7 +266,7 @@ watchEffect(() => {
     cursor: pointer;
     padding: 10px 0px 10px 16px;
     width: 120px;
-    height: var(--size);
+    height: var(--component-size);
     box-sizing: border-box;
     &:hover {
       @include background_color("background-hover");

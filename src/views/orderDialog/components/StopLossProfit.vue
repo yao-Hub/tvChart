@@ -257,7 +257,7 @@ const profit = computed(() => {
         buildPrice: +buildPrice,
         closePrice,
         volume,
-        fee: fee * volume,
+        fee: -(fee * volume),
       },
       direction
     );

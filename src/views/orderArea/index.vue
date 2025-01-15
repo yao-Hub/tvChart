@@ -201,7 +201,7 @@
             :cell-props="{
               style: { padding: '0 16px' },
             }"
-            :width="width"
+            :width="Math.floor(width)"
             :height="getTableHeight(height)"
             :footer-height="
               pageLoading ||
@@ -385,14 +385,12 @@
     <MarketOrderEdit
       v-model:visible="state.marketDialogVisible"
       :orderInfo="state.orderInfo"
-      :quote="quote"
     >
     </MarketOrderEdit>
 
     <PendingOrderEdit
       v-model:visible="state.pendingDialogVisible"
       :orderInfo="state.orderInfo"
-      :quote="quote"
     >
     </PendingOrderEdit>
   </div>
@@ -617,7 +615,7 @@ watch(
     orderStore.orderData.marketOrder.forEach((item) => {
       const { volume, symbol, open_price, type, fee, storage } = item;
       const quote = qoutes[symbol];
-      const closePrice = type ? get(quote, "bid") : get(quote, "ask");
+      const closePrice = type ? get(quote, "ask") : get(quote, "bid");
       if (!isNil(closePrice)) {
         const direction = getTradingDirection(type);
         const params = {
@@ -625,8 +623,8 @@ watch(
           closePrice: +closePrice,
           buildPrice: +open_price,
           volume: volume / 100,
-          fee: +fee,
-          storage: +storage,
+          fee,
+          storage,
         };
         const result = orderStore.getProfit(params, direction);
         item.profit = result;
@@ -839,12 +837,6 @@ const endReached = async () => {
   }
 };
 
-const quote = computed(() => {
-  const quotes = quotesStore.qoutes;
-  const symbol = state.orderInfo.symbol;
-  return quotes[symbol] || {};
-});
-
 const getTableData = (type: string) => {
   switch (type) {
     case "marketOrder":
@@ -903,7 +895,7 @@ onMounted(async () => {
     display: flex;
     box-sizing: border-box;
     width: 100%;
-    height: var(--size);
+    height: var(--component-size);
     &_right {
       flex: 1;
       height: 100%;

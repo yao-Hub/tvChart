@@ -2,25 +2,28 @@
 
 :root {
   --font-size: 14px;
-  --icon-size: 16px;
+  --icon-size: 18px;
 }
 
 [data-size="small"] {
   --font-size: 12px;
   --icon-size: 16px;
-  --size: var(--el-component-size-small);
+  --tip-size: 12px;
+  --component-size: var(--el-component-size-small);
   --height: 32px;
 }
 [data-size="default"] {
   --font-size: 14px;
   --icon-size: 18px;
-  --size: var(--el-component-size);
+  --tip-size: 12px;
+  --component-size: var(--el-component-size);
   --height: 40px;
 }
 [data-size="large"] {
   --font-size: 16px;
   --icon-size: 20px;
-  --size: var(--el-component-size-large);
+  --tip-size: 14px;
+  --component-size: var(--el-component-size-large);
   --height: 48px;
 }
 

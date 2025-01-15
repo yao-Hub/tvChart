@@ -181,7 +181,7 @@ const resoluteItemSelect = (key: number) => {
   display: flex;
   padding: 0 8px;
   box-sizing: border-box;
-  height: var(--size);
+  height: var(--component-size);
   align-items: center;
   gap: 8px;
   width: fit-content;
