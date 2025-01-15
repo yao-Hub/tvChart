@@ -436,7 +436,7 @@ export const useOrder = defineStore("order", {
               (closePrice - buildPrice) *
               volume *
               contract_size *
-              rates.last_user.ask_rate,
+              rates.last_user.bid_rate,
             sell:
               (buildPrice - closePrice) *
               volume *
@@ -469,21 +469,18 @@ export const useOrder = defineStore("order", {
      * 无杠杆时
      *  margin * 手数
      */
-    getReferMargin(
-      params: {
-        symbol: string;
-        volume: string | number;
-        bulidPrice: string | number;
-      },
-      direction: "sell" | "buy"
-    ) {
+    getReferMargin(params: {
+      symbol: string;
+      volume: string | number;
+      bulidPrice: string | number;
+    }) {
       const { symbol, volume, bulidPrice } = params;
       const rateStore = useRate();
       const symbolsStore = useSymbols();
       const userStore = useUser();
 
       const rates = rateStore.getRate(symbol).pre_user;
-      const rate = direction === "buy" ? rates.ask_rate : rates.bid_rate;
+      const rate = rates.bid_rate;
 
       const loginInfo = userStore.loginInfo;
       const userCur = loginInfo?.currency; // 账户币种

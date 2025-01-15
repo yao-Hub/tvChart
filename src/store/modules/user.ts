@@ -63,23 +63,27 @@ export const useUser = defineStore("user", {
       return round(+state.loginInfo.balance + (sum || 0), 2);
     },
     // 预付款
-    margin(state) {
+    margin(state): string | number {
       return state.loginInfo?.margin || "-";
     },
     // 可用预付款
     margin_free() {
-      if (this.equity !== "-" && this.margin !== "-") {
-        return round(Number(this.equity) - Number(this.margin), 2);
+      // @ts-ignore
+      const nowMargin = this.margin === "-" ? 0 : this.margin;
+      if (this.equity !== "-") {
+        return round(Number(this.equity) - Number(nowMargin), 2);
       }
       return "-";
     },
-    // 预付款水平
+    // 预付款比例
     margin_level() {
-      if (+this.margin === 0) {
+      // @ts-ignore
+      const nowMargin = this.margin === "-" ? 0 : this.margin;
+      if (nowMargin === 0) {
         return 0;
       }
-      if (this.equity !== "-" && this.margin !== "-") {
-        return round((+this.equity / +this.margin) * 100, 2);
+      if (this.equity !== "-") {
+        return round((+this.equity / +nowMargin) * 100, 2);
       }
       return "-";
     },
