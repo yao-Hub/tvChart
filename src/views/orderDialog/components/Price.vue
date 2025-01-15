@@ -105,10 +105,10 @@ const getRange = (type: string) => {
 const setRange = () => {
   const { max, min } = getRange(props.orderType);
   if (max) {
-    range.value = `<= ${max}`;
+    range.value = `≤ ${max}`;
   }
   if (min) {
-    range.value = `>= ${min}`;
+    range.value = `≥ ${min}`;
   }
 };
 

@@ -278,6 +278,7 @@ watch(
   () => setRange(),
   {
     deep: true,
+    immediate: true,
   }
 );
 

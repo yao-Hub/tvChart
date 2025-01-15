@@ -45,16 +45,16 @@ const depths = defineModel<IDepth[]>("depths", { default: [] });
 onMounted(() => {
   socketStore.emitQuoteDepth([props.symbol]);
   // 再次打开的初始化过渡效果
-  depths.value.forEach((item) => {
-    const askWidth = item.askWidth;
-    const bidWidth = item.bidWidth;
-    item.askWidth = "0%";
-    item.bidWidth = "0%";
-    setTimeout(() => {
-      item.askWidth = askWidth;
-      item.bidWidth = bidWidth;
-    });
-  });
+  // depths.value.forEach((item) => {
+  //   const askWidth = item.askWidth;
+  //   const bidWidth = item.bidWidth;
+  //   item.askWidth = "0%";
+  //   item.bidWidth = "0%";
+  //   setTimeout(() => {
+  //     item.askWidth = askWidth;
+  //     item.bidWidth = bidWidth;
+  //   });
+  // });
   socketStore.subQuoteDepth((symbol, quotes) => {
     if (symbol === props.symbol) {
       const maxBidSize = maxBy(quotes, "bid_size")!.bid_size;
@@ -68,19 +68,19 @@ onMounted(() => {
           bidWidth,
         };
       });
-      // 初始化的过渡效果
-      if (!depths.value.length) {
-        depths.value = quotes.map((item) => {
-          return {
-            ...item,
-            askWidth: "0%",
-            bidWidth: "0%",
-          };
-        });
-      }
-      setTimeout(() => {
-        depths.value = formatQuotes;
-      });
+      // // 初始化的过渡效果
+      // if (!depths.value.length) {
+      //   depths.value = quotes.map((item) => {
+      //     return {
+      //       ...item,
+      //       askWidth: "0%",
+      //       bidWidth: "0%",
+      //     };
+      //   });
+      // }
+      // setTimeout(() => {
+      depths.value = formatQuotes;
+      // });
     }
   });
 });

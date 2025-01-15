@@ -241,8 +241,7 @@ const tabClose = (id: string) => {
     @include background_color("background-component");
 
     &_item {
-      flex: 1;
-      min-width: 316px;
+      flex: 1 1 calc(50% - 4px);
       display: flex;
       flex-direction: column;
     }
