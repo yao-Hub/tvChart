@@ -79,6 +79,8 @@
                 :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
                 :orderPrice="props.orderInfo.open_price"
                 :volume="+props.orderInfo.volume / 100"
+                :fee="props.orderInfo.fee"
+                :storage="props.orderInfo.storage"
               ></StopLossProfit>
             </el-col>
             <el-col :span="12">
@@ -90,6 +92,8 @@
                 :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
                 :orderPrice="props.orderInfo.open_price"
                 :volume="+props.orderInfo.volume / 100"
+                :fee="props.orderInfo.fee"
+                :storage="props.orderInfo.storage"
               ></StopLossProfit>
             </el-col>
           </el-row>

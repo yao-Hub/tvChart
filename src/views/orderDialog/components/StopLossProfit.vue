@@ -56,6 +56,8 @@ interface Props {
   orderPrice: string | number | null;
   volume: string | number;
   limitedPrice?: string | number;
+  fee?: number;
+  storage?: number;
 }
 
 const props = defineProps<Props>();
@@ -251,16 +253,21 @@ const profit = computed(() => {
   if (buildPrice && props.symbolInfo) {
     const { symbol, fee } = props.symbolInfo;
     const direction = text[0] as "sell" | "buy";
-    const profit = orderStore.getProfit(
-      {
-        symbol,
-        buildPrice: +buildPrice,
-        closePrice,
-        volume,
-        fee: -(fee * volume),
-      },
-      direction
-    );
+    const params = {
+      symbol,
+      buildPrice: +buildPrice,
+      closePrice,
+      volume,
+      fee: -(fee * volume),
+      storage: 0,
+    };
+    if (!isNil(props.fee)) {
+      params.fee = props.fee;
+    }
+    if (!isNil(props.storage)) {
+      params.storage = props.storage;
+    }
+    const profit = orderStore.getProfit(params, direction);
     return profit;
   }
   return "";
@@ -282,6 +289,7 @@ watch(
   }
 );
 
+import { isNil } from "lodash";
 import { limitdigit } from "utils/common/index";
 const handleInput = (value: string | number) => {
   if (props.symbolInfo) {
