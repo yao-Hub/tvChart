@@ -140,34 +140,6 @@ export const datafeed = (id: string) => {
       });
     },
 
-    //实时更新
-    subscribeBars: (
-      symbolInfo: types.ITVSymbolInfo,
-      resolution: string,
-      onRealtimeCallback: Function,
-      subscriberUID: string,
-      onResetCacheNeededCallback: Function
-    ) => {
-      if (!UID && temBar[id]) {
-        const endBar = temBar[id];
-        chartLineStore.newbar[subscriberUID] = cloneDeep(endBar);
-        delete temBar[id];
-      }
-      UID = `${id}@${subscriberUID}`;
-      subId = subscriberUID;
-      chartLineStore.subscribed[UID] = {
-        onRealtimeCallback,
-        resolution,
-        symbolInfo,
-      };
-      chartSubStore.subChartKlineQuote({
-        subscriberUID,
-        symbolInfo,
-        resolution,
-      });
-      symbolsStore.chartSymbols.push(symbolInfo.name);
-    },
-
     //渲染历史数据
     getBars: (
       symbolInfo: types.ITVSymbolInfo,
@@ -219,9 +191,8 @@ export const datafeed = (id: string) => {
                     ...bar,
                   };
                 }
-              } else {
-                temBar[id] = cloneDeep(bar);
               }
+              temBar[id] = cloneDeep(bar);
             }
             setTimeout(() => {
               onHistoryCallback(bars);
@@ -237,6 +208,47 @@ export const datafeed = (id: string) => {
           noData: true,
         });
       }
+    },
+
+    //实时更新
+    subscribeBars: (
+      symbolInfo: types.ITVSymbolInfo,
+      resolution: string,
+      onRealtimeCallback: Function,
+      subscriberUID: string,
+      onResetCacheNeededCallback: Function
+    ) => {
+      const endBar = temBar[id];
+      // 初始化没有UID
+      if (!UID && endBar) {
+        chartLineStore.newbar[subscriberUID] = cloneDeep(endBar);
+      }
+      // 更改了图表周期或者品种之后再次触发
+      if (UID && endBar) {
+        chartLineStore.newbar[subscriberUID] = cloneDeep(endBar);
+      }
+      UID = `${id}@${subscriberUID}`;
+      subId = subscriberUID;
+
+      const subscribed = chartLineStore.subscribed;
+      for (const ID in subscribed) {
+        const chartId = ID.split("@")[0];
+        if (chartId === id) {
+          chartLineStore.unsubscribed(ID);
+        }
+      }
+
+      chartLineStore.subscribed[UID] = {
+        onRealtimeCallback,
+        resolution,
+        symbolInfo,
+      };
+      chartSubStore.subChartKlineQuote({
+        subscriberUID,
+        symbolInfo,
+        resolution,
+      });
+      symbolsStore.chartSymbols.push(symbolInfo.name);
     },
 
     //取消订阅,撤销掉某条线的实时更新

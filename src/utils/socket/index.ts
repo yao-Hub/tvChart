@@ -1,4 +1,5 @@
 import { useSocket } from "@/store/modules/socket";
+import { ElMessage } from "element-plus";
 import { io, Socket } from "socket.io-client";
 
 class SingletonSocket {
@@ -23,17 +24,22 @@ class SingletonSocket {
 
   setupSocketEvents(): void {
     if (this.instance) {
-      this.instance!.on("connect", () => {
+      this.instance.on("connect", () => {
         console.log(`main socket Connected to server`);
       });
 
-      this.instance!.on("disconnect", (reason: string) => {
+      this.instance.on("disconnect", (reason: string) => {
         // 手动断开
         if (reason === "io client disconnect") {
           console.log("Disconnected from server");
         } else {
           console.log("Connection lost, trying to reconnect...");
         }
+      });
+
+      this.instance.on("connect_error", (error) => {
+        console.error("connect_error:", error);
+        ElMessage.error("Socekt Connect Error");
       });
     }
   }

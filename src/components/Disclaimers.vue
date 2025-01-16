@@ -8,6 +8,7 @@
     :show-close="false"
     :close-on-press-escape="false"
     :close-on-click-modal="false"
+    @close="agree = false"
   >
     <template #header>
       <span class="header">一键交易-免责声明</span>
@@ -68,8 +69,9 @@ const handleOk = (e: MouseEvent) => {
 };
 
 const handleCancle = () => {
-  dialogStore.closeDialog("disclaimersVisible");
+  agree.value = false;
   orderStore.setOneTrans(false);
+  dialogStore.closeDialog("disclaimersVisible");
 };
 </script>
 

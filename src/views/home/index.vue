@@ -103,9 +103,9 @@ onMounted(() => {
 // 全局刷新重置store 热更新
 watch(
   () => chartInitStore.state.globalRefresh,
-  (val) => {
+  async (val) => {
     if (val) {
-      rootStore.resetAllStore();
+      await rootStore.resetAllStore();
       init();
     }
   }
@@ -114,12 +114,12 @@ watch(
 // 离开页面保存图表操作
 // 撤销监听 resize
 import { onBeforeRouteLeave } from "vue-router";
-onBeforeRouteLeave((to, from, next) => {
+onBeforeRouteLeave(async (to, from, next) => {
   window.removeEventListener("resize", () => {
     resizeUpdate();
   });
   chartInitStore.saveCharts();
-  rootStore.resetAllStore();
+  await rootStore.resetAllStore();
   next();
 });
 </script>
