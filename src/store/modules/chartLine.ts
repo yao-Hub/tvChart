@@ -1,5 +1,5 @@
 import * as types from "@/types/chart/index";
-import { get, isNil, sortBy } from "lodash";
+import { get, isNil, sortBy, throttle } from "lodash";
 import { defineStore } from "pinia";
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
@@ -60,43 +60,47 @@ export const useChartLine = defineStore("chartLine", {
         return bid;
       };
 
-      socketStore.subQuote((d) => {
-        const oldQuote = quotesStore.qoutes[d.symbol];
+      socketStore.subQuote(
+        throttle((d) => {
+          const oldQuote = quotesStore.qoutes[d.symbol];
 
-        quotesStore.setClass(d);
+          // 涨跌颜色
+          quotesStore.setClass(d);
 
-        quotesStore.qoutes[d.symbol] = {
-          ...oldQuote,
-          ...d,
-          close: d.bid,
-          high: setHigh(d.bid, get(oldQuote, "high")),
-          low: setHigh(d.bid, get(oldQuote, "low")),
-        };
-        for (const UID in this.subscribed) {
-          const item = this.subscribed[UID];
-          const symbol = item.symbolInfo.name;
-          const subscriberUID = UID.split("@")[1];
-          const bar = this.newbar[subscriberUID];
-          if (bar && d.symbol === symbol) {
-            const bartime = bar.time;
-            const high = setHigh(d.bid, bar.high);
-            const low = setLow(d.bid, bar.low);
-            const volume = bar.volume || 0;
-            let result = {
-              open: bar.open,
-              ask: d.ask,
-              bid: d.bid,
-              close: +d.bid,
-              high: +high,
-              low: +low,
-              volume: volume + 1,
-              time: bartime,
-            };
-            this.newbar[subscriberUID] = { ...result };
-            this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
+          // 存储
+          quotesStore.qoutes[d.symbol] = {
+            ...oldQuote,
+            ...d,
+            close: d.bid,
+            high: setHigh(d.bid, get(oldQuote, "high")),
+            low: setHigh(d.bid, get(oldQuote, "low")),
+          };
+          for (const UID in this.subscribed) {
+            const item = this.subscribed[UID];
+            const symbol = item.symbolInfo.name;
+            const subscriberUID = UID.split("@")[1];
+            const bar = this.newbar[subscriberUID];
+            if (bar && d.symbol === symbol) {
+              const bartime = bar.time;
+              const high = setHigh(d.bid, bar.high);
+              const low = setLow(d.bid, bar.low);
+              const volume = bar.volume || 0;
+              let result = {
+                open: bar.open,
+                ask: d.ask,
+                bid: d.bid,
+                close: +d.bid,
+                high: +high,
+                low: +low,
+                volume: volume + 1,
+                time: bartime,
+              };
+              this.newbar[subscriberUID] = { ...result };
+              this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
+            }
           }
-        }
-      });
+        }, 250)
+      );
 
       socketStore.subKline((d) => {
         for (const UID in this.subscribed) {
@@ -111,27 +115,29 @@ export const useChartLine = defineStore("chartLine", {
           ) {
             const nowbarTime = nowBar.time;
             const lines = sortBy(d.klines, ["ctm"]);
-            const line = lines.slice(-1)[0];
-            const { close, open, high, low, ctm, volume } = line;
-            const dTime = ctm * 1000;
-            const result = {
-              close,
-              open,
-              volume,
-              high,
-              low,
-              time: nowbarTime,
-            };
-            if (!nowbarTime || nowbarTime < dTime) {
-              result.time = dTime;
-            }
-            this.newbar[subscriberUID] = { ...result };
-            this.updateSubscribed(UID, result);
-            quotesStore.qoutes[d.symbol]["close"] = close;
-            quotesStore.qoutes[d.symbol]["open"] = open;
-            quotesStore.qoutes[d.symbol]["high"] = high;
-            quotesStore.qoutes[d.symbol]["low"] = low;
-            quotesStore.qoutes[d.symbol]["volume"] = volume;
+            // const line = lines.slice(-1)[0];
+            lines.forEach((line) => {
+              const { close, open, high, low, ctm, volume } = line;
+              const dTime = ctm * 1000;
+              const result = {
+                close,
+                open,
+                volume,
+                high,
+                low,
+                time: nowbarTime,
+              };
+              if (!nowbarTime || nowbarTime < dTime) {
+                result.time = dTime;
+              }
+              this.newbar[subscriberUID] = { ...result };
+              this.updateSubscribed(UID, result);
+              quotesStore.qoutes[d.symbol]["close"] = close;
+              quotesStore.qoutes[d.symbol]["open"] = open;
+              quotesStore.qoutes[d.symbol]["high"] = high;
+              quotesStore.qoutes[d.symbol]["low"] = low;
+              quotesStore.qoutes[d.symbol]["volume"] = volume;
+            });
           }
         }
       });

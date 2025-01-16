@@ -1,6 +1,6 @@
 import i18n from "@/language/index";
 import { ElMessage } from "element-plus";
-import { assign } from "lodash";
+import { assign, findKey } from "lodash";
 import { defineStore } from "pinia";
 import CryptoJS from "utils/AES";
 import { useI18n } from "vue-i18n";
@@ -199,33 +199,42 @@ export const useUser = defineStore("user", {
         return Promise.reject();
       }
       try {
-        const res = await Promise.any(
-          nodeList.map(async (item) => {
-            networkStore.nodeName = item.nodeName;
-            // socket地址确定
-            const res = await Login(updata);
-            return Promise.resolve({
-              ...updata,
-              queryNode: item.nodeName,
-              token: res.data.token,
-            });
-          })
-        );
         const socketStore = useSocket();
-        socketStore.initSocket();
-        const { queryNode, token } = res;
-        // 缓存登录信息
-        this.addAccount({
-          ...updata,
-          queryNode,
-          token,
-          ifLogin: true,
+        // 选择连接延迟最低的网络节点
+        socketStore.getDelay(async (params: { ending: boolean }) => {
+          if (params.ending) {
+            const timeList = Object.values(socketStore.delayMap) as number[];
+            const minTime = Math.min(...timeList);
+            const uri = findKey(socketStore.delayMap, (o) => o === minTime);
+            const nodeName = networkStore.nodeList.find(
+              (e) => e.webWebsocket === uri
+            )?.nodeName;
+            if (nodeName) {
+              // 长连接主socket
+              socketStore.initSocket();
+              networkStore.nodeName = nodeName;
+              const res = await Login(updata);
+              const token = res.data.token;
+              // 缓存登录信息
+              this.addAccount({
+                ...updata,
+                queryNode: nodeName,
+                token,
+                ifLogin: true,
+              });
+              // 发送登录状态
+              socketStore.sendToken({ login: updata.login, token });
+              if (callback) {
+                callback({ ending: true, success: true });
+              }
+              ElMessage.success(i18n.global.t("loginSucceeded"));
+              return;
+            }
+            if (callback) {
+              callback({ ending: true, success: false });
+            }
+          }
         });
-        socketStore.sendToken({ login: updata.login, token });
-        if (callback) {
-          callback({ ending: true, success: true });
-        }
-        ElMessage.success(i18n.global.t("loginSucceeded"));
       } catch (error) {
         if (callback) {
           callback({ ending: true, success: false });

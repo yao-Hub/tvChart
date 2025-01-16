@@ -17,11 +17,13 @@
         >
           <div class="delayItem" @click="changeNode(node.nodeName)">
             <div class="left">
-              <BaseImg
-                class="selectIcon"
-                iconName="select"
-                v-if="node.nodeName === networkStore.currentNode?.nodeName"
-              />
+              <div class="icon">
+                <BaseImg
+                  class="selectIcon"
+                  iconName="select"
+                  v-if="node.nodeName === networkStore.currentNode?.nodeName"
+                />
+              </div>
               <span class="textEllipsis">
                 {{ node.nodeName }}
               </span>
@@ -117,6 +119,11 @@ const refreshDelay = () => {
     display: flex;
     gap: 5px;
     align-items: center;
+    .icon {
+      display: flex;
+      align-items: center;
+      margin-right: 8px;
+    }
   }
 }
 </style>

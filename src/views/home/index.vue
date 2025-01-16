@@ -50,8 +50,8 @@ const rateStore = useRate();
 const rootStore = useRoot();
 
 const initRender = () => {
-  timeStore.initTime(); // 初始化时间语言和时区
   socketStore.initSocket(); // 初始化socket
+  timeStore.initTime(); // 初始化时间语言和时区
   chartLineStore.initSubLineAndQuote(); // 监听k线和报价
   socketStore.emitRate(); // 监听汇率
   rateStore.subRate(); // 监听汇率
@@ -62,7 +62,6 @@ const initRender = () => {
   chartInitStore.intLayoutType(); // 单图表 or 多图表
   // 4.确定了布局才去初始化各个模块位置
   initDragResizeArea();
-  console.log("loadChart");
   chartInitStore.loadChartList(); // 加载图表
   // 记忆动作（没什么用(>^ω^<)喵）
   if (rootStore.cacheAction) {
@@ -77,14 +76,13 @@ async function init() {
   try {
     console.log("init");
     chartInitStore.state.loading = true;
-    await rootStore.resetAllStore();
     // 1.先拿到 交易线路
     await networkStore.getLines();
     // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
     userStore.initAccount();
     await networkStore.initNode();
     await symbolsStore.getAllSymbol();
-    await Promise.all([
+    Promise.all([
       symbolsStore.getAllSymbolQuotes(),
       rateStore.getAllRates(),
       orderStore.initTableData(),
@@ -106,8 +104,9 @@ onMounted(() => {
 // 全局刷新重置store 热更新
 watch(
   () => chartInitStore.state.globalRefresh,
-  async (val) => {
+  (val) => {
     if (val) {
+      rootStore.resetAllStore();
       init();
     }
   }
@@ -121,6 +120,7 @@ onBeforeRouteLeave((to, from, next) => {
     resizeUpdate();
   });
   chartInitStore.saveCharts();
+  rootStore.resetAllStore();
   next();
 });
 </script>
