@@ -50,7 +50,6 @@ const rateStore = useRate();
 const rootStore = useRoot();
 
 const initRender = () => {
-  socketStore.initSocket(); // 初始化socket
   timeStore.initTime(); // 初始化时间语言和时区
   chartLineStore.initSubLineAndQuote(); // 监听k线和报价
   socketStore.emitRate(); // 监听汇率

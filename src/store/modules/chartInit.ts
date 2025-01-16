@@ -5,6 +5,7 @@ import {
   ResolutionString,
 } from "public/charting_library";
 import { CSSProperties, computed, reactive, watch } from "vue";
+import { useSocket } from "./socket";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
 
@@ -27,6 +28,7 @@ interface State {
 export const useChartInit = defineStore("chartInit", () => {
   const symbolStore = useSymbols();
   const storageStore = useStorage();
+  const socketStore = useSocket();
 
   const chartMaxLength = 9;
 
@@ -55,6 +57,19 @@ export const useChartInit = defineStore("chartInit", () => {
       return result;
     }
   });
+
+  // 等待图表初始化完毕才去调用socket数据
+  watch(
+    () => state.ifFinishLoad,
+    (obj) => {
+      const values = Object.values(obj);
+      const ifAllFinish = values.some((e) => !!e);
+      if (ifAllFinish) {
+        socketStore.initSocket(); // 初始化socket
+      }
+    },
+    { deep: true }
+  );
 
   // 单图表显示工具栏 多图表隐藏
   watch(

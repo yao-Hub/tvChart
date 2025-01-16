@@ -305,7 +305,7 @@ const sortChange = ({ order, prop }: any) => {
   const arr = dataSource.value.map((item) => {
     return {
       ...item,
-      variation: quotesStore.getVariation(item.symbols).value.replace("%", ""),
+      variation: +quotesStore.getVariation(item.symbols).value.replace("%", ""),
     };
   });
   let result: any;
