@@ -140,7 +140,7 @@ const top = computed(() => {
   return props.pos.top;
 });
 
-document.addEventListener("mouseup", () => {
+document.addEventListener("click", () => {
   model.value = false;
 });
 
