@@ -275,13 +275,6 @@ body {
   background-image: url("@/assets/icons/light/icon_td1.svg");
 }
 
-.redWord {
-  color: var(--color-4);
-}
-.greenWord {
-  color: var(--color-7);
-}
-
 @keyframes rotate {
   from {
     transform: rotate(0deg);

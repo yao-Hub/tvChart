@@ -27,7 +27,7 @@
     <el-divider direction="vertical" />
     <div class="item">
       <el-text type="info">{{ $t("order.TotalProfit") }}：</el-text>
-      <span :class="[+profitTotal > 0 ? 'redWord' : 'greenWord']">{{
+      <span :class="[+profitTotal > 0 ? 'buyWord' : 'sellWord']">{{
         profitTotal
       }}</span>
     </div>

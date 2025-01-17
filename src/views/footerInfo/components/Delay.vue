@@ -128,4 +128,10 @@ const refreshDelay = () => {
     }
   }
 }
+.redWord {
+  color: var(--color-4);
+}
+.greenWord {
+  color: var(--color-7);
+}
 </style>
