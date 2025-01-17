@@ -201,7 +201,7 @@ const serviceArticleUrl = ref("");
   serviceArticleUrl.value = serviceArticle.data.url;
 })();
 
-const happyStart = async () => {
+const happyStart = () => {
   try {
     if (disabled.value) {
       return;
@@ -217,10 +217,12 @@ const happyStart = async () => {
         login: formState.login,
       });
     }
-    await userStore.login(formState, ({ ending }) => {
+    userStore.login(formState, ({ ending, success }) => {
       loading.value = !ending;
+      if (ending && success) {
+        router.push({ path: "/" });
+      }
     });
-    router.push({ path: "/" });
   } catch (e) {
     loading.value = false;
   }

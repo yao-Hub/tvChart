@@ -310,5 +310,14 @@ export const useSocket = defineStore("socket", {
         }
       });
     },
+
+    $reset() {
+      if (this.socket) {
+        this.socket.close();
+      }
+      this.socket = null;
+      this.delayMap = {};
+      this.noExecuteList = [];
+    },
   },
 });

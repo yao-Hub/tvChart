@@ -230,7 +230,7 @@ export const useUser = defineStore("user", {
                   }
                   ElMessage.success(i18n.global.t("loginSucceeded"));
                 })
-                .catch((error) => {
+                .catch(() => {
                   if (callback) {
                     callback({ ending: true, success: false });
                   }
