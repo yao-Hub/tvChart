@@ -66,9 +66,11 @@ const changeNode = (name: string) => {
 };
 const socketStore = useSocket();
 const currentDelay = computed(() => {
-  const currentWsUri = networkStore.currentNode?.webWebsocket || "";
-  const delay = get(socketStore.delayMap, currentWsUri) || "-";
-  return delay;
+  const currentWsUri = networkStore.currentNode?.webWebsocket;
+  if (currentWsUri) {
+    return get(socketStore.delayMap, currentWsUri) || "-";
+  }
+  return "-";
 });
 const getDelay = (uri: string) => {
   const delay = get(socketStore.delayMap, uri) || "-";

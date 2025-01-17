@@ -73,7 +73,6 @@ const initRender = () => {
 // 初始化 注意调用顺序
 async function init() {
   try {
-    console.log("init");
     chartInitStore.state.loading = true;
     // 1.先拿到 交易线路
     await networkStore.getLines();

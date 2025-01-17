@@ -179,29 +179,28 @@ const changeLogin = (account: any) => {
     return;
   }
   chartInitStore.saveCharts();
-  setTimeout(async () => {
-    userStore.accountList.forEach((item) => {
-      item.ifLogin = item.login === login && item.server === server;
-    });
-    toogleDropdown();
-    await userStore.login(
-      {
-        login,
-        password,
-        server,
-      },
-      ({ ending, success }) => {
-        if (ending) {
-          success
-            ? chartInitStore.systemRefresh()
-            : router.push({
-                path: PageEnum.LOGIN_HOME,
-                query: { login, server },
-              });
+  toogleDropdown();
+  chartInitStore.state.loading = true;
+  userStore.login(
+    {
+      login,
+      password,
+      server,
+    },
+    ({ ending, success }) => {
+      if (ending) {
+        if (success) {
+          chartInitStore.systemRefresh();
+        } else {
+          chartInitStore.state.loading = false;
+          router.push({
+            path: PageEnum.LOGIN_HOME,
+            query: { login, server },
+          });
         }
       }
-    );
-  }, 200);
+    }
+  );
 };
 
 const logout = () => {

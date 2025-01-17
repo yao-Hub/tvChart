@@ -59,9 +59,6 @@ export const useSocket = defineStore("socket", {
             this[item.fooName](item.options);
           }
         }
-        setTimeout(() => {
-          this.getDelay();
-        }, 1000);
       }
     },
 

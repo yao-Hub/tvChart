@@ -66,6 +66,7 @@ export const useChartInit = defineStore("chartInit", () => {
       const ifAllFinish = values.some((e) => !e);
       if (!ifAllFinish && socketStore.socket === null) {
         socketStore.initSocket(); // 初始化socket
+        socketStore.getDelay();
       }
     },
     { deep: true }
