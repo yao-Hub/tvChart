@@ -690,7 +690,9 @@ const getDays = (e: orders.resHistoryOrders) => {
 
 // 市价单 单个平仓
 const marketCloseLodingMap = ref<Record<number, boolean>>({});
-const closeMarketOrder = async (record: orders.resOrders) => {
+const closeMarketOrder = async (
+  record: orders.resOrders & orders.resPendingOrders
+) => {
   async function foo() {
     try {
       marketCloseLodingMap.value[record.id] = true;
@@ -717,9 +719,13 @@ const closeMarketOrder = async (record: orders.resOrders) => {
     dialogStore.openDialog("disclaimersVisible");
     return;
   }
-  ElMessageBox.confirm("", t("order.confirmPositionClosure")).then(() => foo());
+  state.orderInfo = record;
+  dialogStore.incrementZIndex();
+  state.marketDialogVisible = true;
+  // ElMessageBox.confirm("", t("order.confirmPositionClosure")).then(() => foo());
 };
 
+// 全部关闭市价单
 const closeMarketOrders = (command: number) => {
   ElMessageBox.confirm(t("order.confirmPositionClosure")).then(async () => {
     await orders.marketOrdersCloseMulti({ multi_type: command });
@@ -754,37 +760,23 @@ const closePendingOrders = (data: orders.resOrders[]) => {
 // 删除单个挂单
 const pendingCloseLodingMap = ref<Record<number, boolean>>({});
 const delPendingOrder = async (record: orders.resOrders) => {
-  async function foo() {
-    try {
-      pendingCloseLodingMap.value[record.id] = true;
-      const res = await orders.delPendingOrders({
-        id: record.id,
-        symbol: record.symbol,
-      });
-      pendingCloseLodingMap.value[record.id] = false;
+  try {
+    pendingCloseLodingMap.value[record.id] = true;
+    const res = await orders.delPendingOrders({
+      id: record.id,
+      symbol: record.symbol,
+    });
+    pendingCloseLodingMap.value[record.id] = false;
 
-      if (res.data.action_success) {
-        ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
-        orderStore.getData("pending_order_deleted");
-        return;
-      }
-      ElMessage.error(res.data.err_text);
-    } catch (error) {
-      pendingCloseLodingMap.value[record.id] = false;
+    if (res.data.action_success) {
+      ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
+      orderStore.getData("pending_order_deleted");
+      return;
     }
+    ElMessage.error(res.data.err_text);
+  } catch (error) {
+    pendingCloseLodingMap.value[record.id] = false;
   }
-
-  if (orderStore.ifOne === null) {
-    dialogStore.openDialog("disclaimersVisible");
-  }
-
-  if (!orderStore.ifOne) {
-    ElMessageBox.confirm("", t("order.confirmPendingClosure")).then(() =>
-      foo()
-    );
-    return;
-  }
-  foo();
 };
 
 // 双击行

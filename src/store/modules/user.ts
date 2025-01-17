@@ -213,21 +213,28 @@ export const useUser = defineStore("user", {
               // 长连接主socket
               socketStore.initSocket();
               networkStore.nodeName = nodeName;
-              const res = await Login(updata);
-              const token = res.data.token;
-              // 缓存登录信息
-              this.addAccount({
-                ...updata,
-                queryNode: nodeName,
-                token,
-                ifLogin: true,
-              });
-              // 发送登录状态
-              socketStore.sendToken({ login: updata.login, token });
-              if (callback) {
-                callback({ ending: true, success: true });
-              }
-              ElMessage.success(i18n.global.t("loginSucceeded"));
+              Login(updata)
+                .then((res) => {
+                  const token = res.data.token;
+                  // 缓存登录信息
+                  this.addAccount({
+                    ...updata,
+                    queryNode: nodeName,
+                    token,
+                    ifLogin: true,
+                  });
+                  // 发送登录状态
+                  socketStore.sendToken({ login: updata.login, token });
+                  if (callback) {
+                    callback({ ending: true, success: true });
+                  }
+                  ElMessage.success(i18n.global.t("loginSucceeded"));
+                })
+                .catch((error) => {
+                  if (callback) {
+                    callback({ ending: true, success: false });
+                  }
+                });
               return;
             }
             if (callback) {
