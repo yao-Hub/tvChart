@@ -33,7 +33,7 @@ const props = withDefaults(defineProps<Props>(), {
 const model = defineModel<string | number>("value");
 const emit = defineEmits(["blur", "sub", "plus", "input"]);
 
-const blur = (value: FocusEvent) => {
+const blur = (e: FocusEvent) => {
   emit("blur", model.value);
 };
 const input = (value: string | number) => {

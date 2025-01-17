@@ -320,6 +320,7 @@ export const useChartInit = defineStore("chartInit", () => {
 
   return {
     state,
+    chartMaxLength,
     chartStyles,
     chartRefresh,
     systemRefresh,

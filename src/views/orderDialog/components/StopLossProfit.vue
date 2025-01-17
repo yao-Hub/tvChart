@@ -21,6 +21,7 @@
       :customAdd="customCal"
       :valid="ifError"
       @input="handleInput"
+      @blur="handleBlur"
     ></StepNumInput>
     <el-form-item>
       <span class="tip textEllipsis" v-if="profit"
@@ -303,6 +304,28 @@ const handleInput = (value: string | number) => {
   if (props.symbolInfo) {
     const { digits } = props.symbolInfo;
     price.value = limitdigit(value, digits);
+  }
+};
+const handleBlur = (value: string | number) => {
+  if (value && props.symbolInfo) {
+    const { digits } = props.symbolInfo;
+    const str = value.toString();
+    const parts = str.split(".");
+    if (parts.length === 2) {
+      const integerPart = parts[0];
+      let decimalPart = parts[1];
+      while (decimalPart.length < digits) {
+        decimalPart += "0";
+      }
+      price.value = integerPart + "." + decimalPart;
+    }
+    if (parts.length === 1) {
+      let decimalPart = "";
+      for (let i = 0; i < digits; i++) {
+        decimalPart += "0";
+      }
+      price.value = `${value}.${decimalPart}`;
+    }
   }
 };
 </script>
