@@ -4,12 +4,7 @@ import { computed, ref, watch } from "vue";
 
 import { TableDataKey } from "#/order";
 import { ISessionSymbolInfo } from "@/types/chart/index";
-import {
-  allSymbolQuotes,
-  allSymbols,
-  optionalQuery,
-  reqOptionalQuery,
-} from "api/symbols/index";
+import { allSymbols, optionalQuery, reqOptionalQuery } from "api/symbols/index";
 
 import { useOrder } from "./order";
 import { useQuotes } from "./quotes";
@@ -40,7 +35,7 @@ export const useSymbols = defineStore("symbols", () => {
   // 有报价的品种
   const haveQuoteSymbols = computed(() => {
     const result = symbols.value.filter((item) => {
-      const quote = quotesStore.qoutes[item.symbol];
+      const quote = quotesStore.initAllQoutes[item.symbol];
       return quote && (quote.ask || quote.bid);
     });
     return result;
@@ -49,16 +44,7 @@ export const useSymbols = defineStore("symbols", () => {
   // 全部品种
   const getAllSymbol = async () => {
     const res = await allSymbols();
-    console.log("getAllSymbol");
     symbols.value = res.data || [];
-  };
-
-  // 所有品种报价
-  const getAllSymbolQuotes = async () => {
-    const quotes = await allSymbolQuotes();
-    quotes.data.forEach((item) => {
-      quotesStore.qoutes[item.symbol] = item;
-    });
   };
 
   // 自选品种
@@ -132,7 +118,6 @@ export const useSymbols = defineStore("symbols", () => {
 
   return {
     getAllSymbol,
-    getAllSymbolQuotes,
     symbols,
     mySymbols,
     selectSymbols,

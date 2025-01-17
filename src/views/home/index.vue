@@ -19,6 +19,7 @@ import { useChartLine } from "@/store/modules/chartLine";
 import { useLayout } from "@/store/modules/layout";
 import { useNetwork } from "@/store/modules/network";
 import { useOrder } from "@/store/modules/order";
+import { useQuotes } from "@/store/modules/quotes";
 import { useRate } from "@/store/modules/rate";
 import { useSocket } from "@/store/modules/socket";
 import { useSymbols } from "@/store/modules/symbols";
@@ -47,6 +48,7 @@ const chartLineStore = useChartLine();
 const symbolsStore = useSymbols();
 const timeStore = useTime();
 const rateStore = useRate();
+const quotesStore = useQuotes();
 const rootStore = useRoot();
 
 const initRender = () => {
@@ -81,7 +83,7 @@ async function init() {
     await networkStore.initNode();
     await symbolsStore.getAllSymbol();
     Promise.all([
-      symbolsStore.getAllSymbolQuotes(),
+      quotesStore.getAllSymbolQuotes(),
       rateStore.getAllRates(),
       orderStore.initTableData(),
       userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息

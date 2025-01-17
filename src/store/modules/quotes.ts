@@ -1,4 +1,5 @@
 import * as types from "#/chart/index";
+import { allSymbolQuotes } from "api/symbols/index";
 import { defineStore } from "pinia";
 import { round } from "utils/common/index";
 import { ref } from "vue";
@@ -13,6 +14,16 @@ interface IClass {
 export const useQuotes = defineStore("qoutes", () => {
   const qoutes = ref<Record<string, types.IQuote>>({});
   const quotesClass = ref<IClass>({});
+  const initAllQoutes = ref<Record<string, types.IQuote>>({});
+
+  // 所有品种报价
+  const getAllSymbolQuotes = async () => {
+    const res = await allSymbolQuotes();
+    res.data.forEach((item) => {
+      qoutes.value[item.symbol] = item;
+      initAllQoutes.value[item.symbol] = item;
+    });
+  };
 
   // 设置ask,bid涨跌颜色
   const setClass = (quote: types.ISocketQuote) => {
@@ -67,6 +78,7 @@ export const useQuotes = defineStore("qoutes", () => {
   function $reset() {
     qoutes.value = {};
     quotesClass.value = {};
+    initAllQoutes.value = {};
   }
 
   return {
@@ -74,6 +86,8 @@ export const useQuotes = defineStore("qoutes", () => {
     quotesClass,
     setClass,
     getVariation,
+    getAllSymbolQuotes,
+    initAllQoutes,
     $reset,
   };
 });
