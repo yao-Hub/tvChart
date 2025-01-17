@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 import type { CSSProperties } from "vue";
-import { computed, onMounted, onUnmounted, reactive, ref, watch } from "vue";
+import { computed, onUnmounted, reactive, ref, watch } from "vue";
 
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 
@@ -95,23 +95,26 @@ const referMargin = computed(() => {
     const bulidPrice =
       direction === "sell" ? currentQuote.bid : currentQuote.ask;
     const volume = model.value;
-    const referMargin = orderStore.getReferMargin(
-      {
-        symbol,
-        volume,
-        bulidPrice,
-      },
-    );
+    const referMargin = orderStore.getReferMargin({
+      symbol,
+      volume,
+      bulidPrice,
+    });
     return referMargin === "-" ? "-" : round(referMargin, digits.value);
   }
   return "-";
 });
 
-onMounted(() => {
-  if (model.value === "") {
-    model.value = step.value;
-  }
-});
+watch(
+  () => props.symbolInfo?.symbol,
+  (val) => {
+    if (val) {
+      model.value = step.value;
+    }
+  },
+  { deep: true, immediate: true }
+);
+
 onUnmounted(() => {
   model.value = "";
 });
