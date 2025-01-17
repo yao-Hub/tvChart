@@ -63,8 +63,8 @@ export const useChartInit = defineStore("chartInit", () => {
     () => state.ifFinishLoad,
     (obj) => {
       const values = Object.values(obj);
-      const ifAllFinish = values.some((e) => !!e);
-      if (ifAllFinish) {
+      const ifAllFinish = values.some((e) => !e);
+      if (!ifAllFinish && socketStore.socket === null) {
         socketStore.initSocket(); // 初始化socket
       }
     },

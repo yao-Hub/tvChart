@@ -1,5 +1,5 @@
 import * as types from "@/types/chart/index";
-import { get, isNil, sortBy, throttle } from "lodash";
+import { get, isNil, set, sortBy, throttle } from "lodash";
 import { defineStore } from "pinia";
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
@@ -15,6 +15,8 @@ interface IState {
   subscribed: Record<string, ISubSCribed>;
   newbar: Record<string, Tbar>;
 }
+
+type TAction = (symbol: string, qData: types.ISocketQuote) => void;
 export const useChartLine = defineStore("chartLine", {
   state: (): IState => {
     return {
@@ -60,47 +62,74 @@ export const useChartLine = defineStore("chartLine", {
         return bid;
       };
 
-      socketStore.subQuote(
-        throttle((d) => {
-          const oldQuote = quotesStore.qoutes[d.symbol];
+      // 品种更新订阅集合
+      const actionMap: Record<string, TAction> = {};
 
+      // 订阅接收处理
+      const updateQoute: TAction = throttle(
+        (symbol, qData) => {
+          const oldQuote = quotesStore.qoutes[symbol];
           // 涨跌颜色
-          quotesStore.setClass(d);
-
-          // 存储
-          quotesStore.qoutes[d.symbol] = {
+          quotesStore.setClass(qData);
+          // 发送报价全局
+          quotesStore.qoutes[symbol] = {
             ...oldQuote,
-            ...d,
-            close: d.bid,
-            high: setHigh(d.bid, get(oldQuote, "high")),
-            low: setHigh(d.bid, get(oldQuote, "low")),
+            ...qData,
+            close: qData.bid,
+            high: setHigh(qData.bid, get(oldQuote, "high")),
+            low: setHigh(qData.bid, get(oldQuote, "low")),
           };
+          // 更新k线
           for (const UID in this.subscribed) {
             const item = this.subscribed[UID];
-            const symbol = item.symbolInfo.name;
+            const itemSymbol = item.symbolInfo.name;
             const subscriberUID = UID.split("@")[1];
             const bar = this.newbar[subscriberUID];
-            if (bar && d.symbol === symbol) {
-              const bartime = bar.time;
-              const high = setHigh(d.bid, bar.high);
-              const low = setLow(d.bid, bar.low);
-              const volume = bar.volume || 0;
-              let result = {
-                open: bar.open,
-                ask: d.ask,
-                bid: d.bid,
-                close: +d.bid,
-                high: +high,
-                low: +low,
-                volume: volume + 1,
-                time: bartime,
-              };
-              this.newbar[subscriberUID] = { ...result };
+            if (bar && itemSymbol === symbol) {
               this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
             }
           }
-        }, 250)
+        },
+        300,
+        { trailing: true }
       );
+
+      // 接收socket 发布
+      socketStore.subQuote((d) => {
+        const dSymbol = d.symbol;
+        // 订阅
+        if (!actionMap[dSymbol]) {
+          set(actionMap, [dSymbol], updateQoute);
+        }
+
+        // 图表最新k柱的信息处理
+        for (const UID in this.subscribed) {
+          const item = this.subscribed[UID];
+          const itemSymbol = item.symbolInfo.name;
+          const subscriberUID = UID.split("@")[1];
+          const bar = this.newbar[subscriberUID];
+          if (bar && itemSymbol === dSymbol) {
+            const bartime = bar.time;
+            const high = setHigh(d.bid, bar.high);
+            const low = setLow(d.bid, bar.low);
+            const volume = bar.volume || 0;
+            let result = {
+              open: bar.open,
+              ask: d.ask,
+              bid: d.bid,
+              close: +d.bid,
+              high: +high,
+              low: +low,
+              volume: volume + 1,
+              time: bartime,
+            };
+            this.newbar[subscriberUID] = { ...result };
+          }
+        }
+
+        // 触发订阅
+        actionMap[dSymbol](dSymbol, d);
+      });
 
       socketStore.subKline((d) => {
         for (const UID in this.subscribed) {
