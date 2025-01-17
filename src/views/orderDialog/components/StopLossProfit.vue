@@ -88,6 +88,7 @@ const getRange = () => {
     }
     // 不同订单类型基数选取
     const baseNumMap: Record<string, any> = {
+      price: ask,
       sellPrice: ask,
       buyPrice: bid,
       buyLimit: props.orderPrice,
@@ -116,6 +117,7 @@ const getRange = () => {
           maxSL = round(baseNum - distance, digits);
           break;
         case "sellPrice":
+        case "price":
           minSL = round(baseNum + distance, digits);
           maxTP = round(baseNum - distance, digits);
           break;
@@ -160,7 +162,13 @@ const getRange = () => {
 };
 
 // 止盈止损范围提示
-const setRange = () => {
+const setRangeTip = () => {
+  const type = props.orderType;
+  const text = type.match(/sell|buy/);
+  // 没有确定方向不提示
+  if (!text) {
+    return "";
+  }
   const range = getRange();
   if (range === null) {
     rangeTip.value = "";
@@ -282,7 +290,7 @@ watch(
     props.orderPrice,
     props.limitedPrice,
   ],
-  () => setRange(),
+  () => setRangeTip(),
   {
     deep: true,
     immediate: true,
