@@ -44,10 +44,10 @@
           $t("personalInformation")
         }}</el-text>
         <el-divider direction="vertical" />
-        <el-text type="info" v-if="ifSimulatedServer" @click="openResetPwd">{{
+        <el-text type="info" @click="openResetPwd">{{
           $t("changePassword")
         }}</el-text>
-        <el-divider direction="vertical" v-if="ifSimulatedServer" />
+        <el-divider direction="vertical" />
         <el-text
           type="info"
           @click="$router.push({ path: PageEnum.LOGIN_HOME })"
@@ -107,7 +107,7 @@ import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 import type { DropdownInstance } from "element-plus";
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
@@ -123,20 +123,6 @@ const router = useRouter();
 const dialogStore = useDialog();
 
 const accounts = ref<any[]>([]);
-
-// 是否是官方模拟服务器
-const ifSimulatedServer = computed(() => {
-  if (networkStore.server) {
-    const target = networkStore.queryTradeLines.find(
-      (e) => e.lineName === networkStore.server
-    );
-    if (target) {
-      return target.isOfficial === "1";
-    }
-    return false;
-  }
-  return false;
-});
 
 watch(
   () => userStore.accountList,
