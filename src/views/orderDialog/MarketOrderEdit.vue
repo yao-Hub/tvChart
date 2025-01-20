@@ -287,7 +287,7 @@ const handleConfirm = debounce(
       }
     });
   },
-  20
+  200
 );
 
 // 平仓操作
@@ -386,7 +386,7 @@ const okCancel = debounce(async () => {
   } catch (error) {
     confirmLoading.value = false;
   }
-}, 20);
+}, 200);
 
 // 修改止盈止损
 import { editopenningOrders, reqEditOpeningOrders } from "api/order/index";
@@ -419,7 +419,7 @@ const modify = debounce(async () => {
   } finally {
     modifyLoading.value = false;
   }
-}, 20);
+}, 200);
 
 // 获取盈亏
 const profitClass = ref("");

@@ -384,7 +384,7 @@ const showConfirmModal = debounce(async (type: DirectionType) => {
   if (valid) {
     priceConfirm.value = true;
   }
-}, 20);
+}, 200);
 
 // 市价单下单
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
@@ -427,7 +427,7 @@ const createPriceOrder = debounce(async () => {
   } finally {
     priceBtnLoading.value = false;
   }
-}, 20);
+}, 200);
 
 // 挂单下单
 import { ORDERMAP } from "@/constants/common";
@@ -471,7 +471,7 @@ const addPendingOrders = debounce(async () => {
   } finally {
     pendingBtnLoading.value = false;
   }
-}, 20);
+}, 200);
 
 /** 弹窗处理 */
 const handleCancel = () => {

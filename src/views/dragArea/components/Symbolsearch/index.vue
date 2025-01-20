@@ -200,7 +200,7 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
   } finally {
     listItem.loading = false;
   }
-}, 20);
+}, 200);
 
 // 是否是已经添加的品种
 const getCheckType = (symbol: string) => {

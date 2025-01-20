@@ -331,7 +331,7 @@ const confirmEdit = debounce(async () => {
   } finally {
     editing.value = false;
   }
-}, 20);
+}, 200);
 
 import { delPendingOrders } from "api/order/index";
 import { ElMessageBox } from "element-plus";
