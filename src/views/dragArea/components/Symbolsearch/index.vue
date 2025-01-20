@@ -76,7 +76,6 @@ const symbolsStore = useSymbols();
 
 interface Props {
   input: string;
-  mySymbols?: any[];
   hideStar?: boolean;
 }
 const props = defineProps<Props>();
@@ -144,7 +143,7 @@ const getCount = (type: string) => {
   if (listState.pathMap[type]) {
     const filterList = listState.pathMap[type].filter((item: any) => {
       const index = symbolsStore.mySymbols.findIndex(
-        (e) => e.symbols === item.symbol
+        (e) => e.symbol === item.symbol
       );
       return index > -1;
     });
@@ -155,7 +154,7 @@ const getCount = (type: string) => {
 
 import { ISessionSymbolInfo } from "@/types/chart/index";
 import { addOptionalQuery, delOptionalQuery } from "api/symbols/index";
-import { cloneDeep, debounce } from "lodash";
+import { debounce } from "lodash";
 type SymbolListItem = ISessionSymbolInfo & { loading: boolean };
 const symbolList = ref<SymbolListItem[]>([]);
 const showSymbols = ref(false);
@@ -177,30 +176,20 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
       case "cancel":
         await delOptionalQuery({ symbols: [listItem.symbol] });
         const index = symbolsStore.mySymbols.findIndex(
-          (e) => e.symbols === listItem.symbol
+          (e) => e.symbol === listItem.symbol
         );
         symbolsStore.mySymbols.splice(index, 1);
         break;
       case "add":
-        if (props.mySymbols) {
-          const mySymbols = cloneDeep(props.mySymbols);
-          mySymbols.unshift({
-            symbols: listItem.symbol,
-          });
-          const symbols = mySymbols.map((item, index) => {
-            return {
-              symbol: item.symbols,
-              sort: index,
-              topSort: item.topSort || "",
-            };
-          });
-          await addOptionalQuery({ symbols });
-          symbolsStore.mySymbols.unshift({
-            symbols: listItem.symbol,
-            sort: 0,
-            topSort: 0,
-          });
-        }
+        symbolsStore.mySymbols.unshift({
+          symbol: listItem.symbol,
+          sort: 0,
+          topSort: null,
+        });
+        symbolsStore.mySymbols.forEach((item, index) => {
+          item.sort = index;
+        });
+        await addOptionalQuery({ symbols: symbolsStore.mySymbols });
         break;
       default:
         break;
@@ -215,7 +204,7 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
 
 // 是否是已经添加的品种
 const getCheckType = (symbol: string) => {
-  const index = symbolsStore.mySymbols.findIndex((e) => e.symbols === symbol);
+  const index = symbolsStore.mySymbols.findIndex((e) => e.symbol === symbol);
   return index > -1;
 };
 

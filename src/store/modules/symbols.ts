@@ -79,7 +79,7 @@ export const useSymbols = defineStore("symbols", () => {
   const subSymbols = computed(() => {
     const arr = [
       ...orderSymbols.value,
-      ...mySymbols.value.map((item) => item.symbols),
+      ...mySymbols.value.map((item) => item.symbol),
       ...selectSymbols.value,
       ...chartSymbols.value,
     ];

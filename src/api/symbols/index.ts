@@ -29,9 +29,9 @@ export const allSymbols = () => {
   });
 };
 export interface reqOptionalQuery {
-  symbols: string; //	品种
+  symbol: string; //	品种
   sort: number; //	排序
-  topSort: number; //	置顶排序
+  topSort: number | null; //	置顶排序
 }
 
 export const allSymbolQuotes = () => {
@@ -105,7 +105,7 @@ interface reqAddOptionalQuery {
   symbols: {
     symbol: string;
     sort: string | number;
-    topSort: string | number;
+    topSort: number | null;
   }[];
 }
 export const addOptionalQuery = (data: reqAddOptionalQuery) => {

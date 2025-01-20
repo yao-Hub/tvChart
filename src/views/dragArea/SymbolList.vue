@@ -30,7 +30,7 @@
         }"
         header-cell-class-name="header-cell"
         cell-class-name="body-cell"
-        row-key="symbols"
+        row-key="symbol"
         :expand-row-keys="expandRowKeys"
         @row-contextmenu="rowContextmenu"
         @sort-change="sortChange"
@@ -39,13 +39,13 @@
         <el-table-column type="expand" width="26">
           <template #default="{ row }">
             <Deep
-              :symbol="row.symbols"
-              v-model:depths="depths[row.symbols]"
+              :symbol="row.symbol"
+              v-model:depths="depths[row.symbol]"
             ></Deep>
           </template>
         </el-table-column>
         <el-table-column
-          prop="symbols"
+          prop="symbol"
           :label="$t('order.symbol')"
           align="left"
           min-width="90"
@@ -61,7 +61,7 @@
           </template>
           <template #default="{ row }">
             <span :class="getClass(row, 'bid')">
-              {{ getPrice(row.symbols, "bid") }}
+              {{ getPrice(row.symbol, "bid") }}
             </span>
           </template>
         </el-table-column>
@@ -75,7 +75,7 @@
           </template>
           <template #default="{ row }">
             <span :class="getClass(row, 'ask')">
-              {{ getPrice(row.symbols, "ask") }}
+              {{ getPrice(row.symbol, "ask") }}
             </span>
           </template>
         </el-table-column>
@@ -88,7 +88,7 @@
             </div>
           </template>
           <template #default="{ row }">
-            {{ getTime(row.symbols) }}
+            {{ getTime(row.symbol) }}
           </template>
         </el-table-column>
 
@@ -105,8 +105,8 @@
             </div>
           </template>
           <template #default="{ row }">
-            <span :class="[quotesStore.getVariation(row.symbols).class]">
-              {{ quotesStore.getVariation(row.symbols).value }}
+            <span :class="[quotesStore.getVariation(row.symbol).class]">
+              {{ quotesStore.getVariation(row.symbol).value }}
             </span>
           </template>
         </el-table-column>
@@ -119,12 +119,7 @@
         </template>
       </el-table>
 
-      <Search
-        class="searchList"
-        :input="input"
-        v-if="ifSearch"
-        :mySymbols="dataSource"
-      ></Search>
+      <Search class="searchList" :input="input" v-if="ifSearch"></Search>
     </div>
     <RightClickMenu
       v-model:visible="menuVisible"
@@ -150,11 +145,11 @@ const quotesStore = useQuotes();
 const { t } = useI18n();
 
 interface DataSource {
-  symbols: string;
+  symbol: string;
   bid?: string | number;
   ask?: string | number;
   variation?: string | number;
-  topSort?: string | number;
+  topSort: number | null;
   ctm_ms?: number;
 }
 const dataSource = shallowRef<DataSource[]>([]);
@@ -179,7 +174,7 @@ const getQuery = async (fromHttp?: boolean) => {
   // 拖拽
   const trs = document.querySelectorAll(".el-table__body tbody .el-table__row");
   trs.forEach((tr, index) => {
-    tr.setAttribute("data-id", `${dataSource.value[index].symbols}`);
+    tr.setAttribute("data-id", `${dataSource.value[index].symbol}`);
   });
   createSortable();
 };
@@ -215,22 +210,15 @@ const createSortable = () => {
         const movedItem = arr.splice(evt.oldDraggableIndex, 1)[0];
         arr.splice(evt.newDraggableIndex, 0, movedItem);
         dataSource.value = arr;
-      },
-      store: {
-        set: function (sortable: any) {
-          const order = sortable.toArray();
-          const symbols = order.map((item: string, index: number) => {
-            const topSort = dataSource.value.find(
-              (e) => e.symbols === item
-            )?.topSort;
-            return {
-              symbol: item,
-              sort: index,
-              topSort,
-            };
-          });
-          editOptionalQuery({ symbols });
-        },
+        const symbols = arr.map((item, index) => {
+          return {
+            symbol: item.symbol,
+            sort: index,
+            topSort: item.topSort,
+          };
+        });
+        editOptionalQuery({ symbols });
+        symbolsStore.mySymbols = symbols;
       },
     });
   }
@@ -247,9 +235,9 @@ const closeSearch = () => {
 
 const getClass = (rowData: DataSource, type: "ask" | "bid") => {
   const classes = quotesStore.quotesClass;
-  const { symbols } = rowData;
-  if (classes[symbols]) {
-    return classes[symbols][type];
+  const { symbol } = rowData;
+  if (classes[symbol]) {
+    return classes[symbol][type];
   }
   return "";
 };
@@ -291,7 +279,7 @@ const pos = ref({
 const menuSymbol = ref("");
 const rowContextmenu = (row: any, column: any, event: MouseEvent) => {
   event.preventDefault();
-  menuSymbol.value = row.symbols;
+  menuSymbol.value = row.symbol;
   const symbolList = document.querySelector(".symbolList");
   const { top, left } = symbolList!.getBoundingClientRect();
   const { clientX, clientY } = event;
@@ -305,7 +293,7 @@ const sortChange = ({ order, prop }: any) => {
   const arr = dataSource.value.map((item) => {
     return {
       ...item,
-      variation: +quotesStore.getVariation(item.symbols).value.replace("%", ""),
+      variation: +quotesStore.getVariation(item.symbol).value.replace("%", ""),
     };
   });
   let result: any;
@@ -330,7 +318,7 @@ const sortChange = ({ order, prop }: any) => {
 const expandRowKeys = ref<any[]>([]);
 const expandChange = (row: any, expandedRows: any[]) => {
   // 展开时expandedRows.lenght > 0
-  expandRowKeys.value = expandedRows.length ? [row.symbols] : [];
+  expandRowKeys.value = expandedRows.length ? [row.symbol] : [];
 };
 </script>
 
