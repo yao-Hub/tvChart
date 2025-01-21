@@ -145,19 +145,15 @@ const searchInput = ref("");
 
 const nowResolution = computed(() => {
   if (props.interval) {
-    const val = RESOLUTES[props.interval];
-    const timeTYpe = val.split(" ")[1];
-    const timeVal = val.split(" ")[0];
-    return `${timeVal}${t(`resolute.${timeTYpe}`)}`;
+    const interval = RESOLUTES[props.interval];
+    return t(`resolute.${interval}`);
   }
 });
 const resolutes = computed(() => {
   const result: any = {};
   for (const i in RESOLUTES) {
-    const item = RESOLUTES[i];
-    const timeTYpe = item.split(" ")[1];
-    const timeVal = item.split(" ")[0];
-    result[i] = `${timeVal}${t(`resolute.${timeTYpe}`)}`;
+    const interval = RESOLUTES[i];
+    result[i] = t(`resolute.${interval}`);
   }
   return result;
 });

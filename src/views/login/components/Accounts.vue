@@ -159,14 +159,15 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 .accounts {
-  padding: 56px;
+  padding: 32px;
   position: relative;
   height: 100%;
   box-sizing: border-box;
   overflow: auto;
+  display: flex;
+  flex-direction: column;
   .plogin {
-    font-weight: bold;
-    font-size: 28px;
+    font-size: 24px;
     height: 40px;
     line-height: 40px;
     display: block;
@@ -179,6 +180,8 @@ onUnmounted(() => {
     @include font_color("word-gray");
   }
   .list {
+    flex-shrink: 0;
+    // flex-basis: 1;
     margin-top: 40px;
     max-height: 168px;
     border: 1px solid;
@@ -227,17 +230,20 @@ onUnmounted(() => {
     width: 100%;
     font-size: 16px;
     font-weight: 400;
+    flex-shrink: 0;
   }
 
   .footer {
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 120px;
     gap: 24px;
     width: 100%;
     font-size: 14px;
-    font-weight: 400;
+    box-sizing: border-box;
+    height: 80px;
+    margin-top: auto;
+    align-items: center;
+    flex-shrink: 0;
     span {
       cursor: pointer;
       &:hover {

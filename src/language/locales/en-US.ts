@@ -241,11 +241,15 @@ export default {
   },
 
   resolute: {
-    days: "Day",
-    weeks: "Week",
-    months: "Month",
-    hours: "Hour",
-    minutes: "Minute",
+    "1 days": "1 Day",
+    "1 weeks": "1 Week",
+    "1 months": "1 Month",
+    "1 hours": "1 Hour",
+    "4 hours": "4 Hour",
+    "1 minutes": "1 Minute",
+    "5 minutes": "5 Minute",
+    "15 minutes": "15 Minute",
+    "30 minutes": "30 Minute",
   },
 
   table: {

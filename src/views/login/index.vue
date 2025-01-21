@@ -107,10 +107,10 @@ watch(
   }
   .container {
     position: absolute;
-    right: 13.33%;
+    right: 15%;
     top: 15%;
     width: 512px;
-    height: 75%;
+    height: 648px;
     .main {
       width: 100%;
       height: 100%;
@@ -118,8 +118,6 @@ watch(
       @include box-shadow;
       border-radius: 8px;
       box-sizing: border-box;
-      // padding: 32px 32px 56px 32px;
-      // overflow: auto;
     }
   }
 }

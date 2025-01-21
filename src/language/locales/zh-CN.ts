@@ -243,11 +243,15 @@ export default {
   },
 
   resolute: {
-    days: "日",
-    weeks: "周",
-    months: "月",
-    hours: "时",
-    minutes: "分",
+    "1 days": "日线",
+    "1 weeks": "周线",
+    "1 months": "月线",
+    "1 hours": "1小时",
+    "4 hours": "4小时",
+    "1 minutes": "1分",
+    "5 minutes": "5分",
+    "15 minutes": "15分",
+    "30 minutes": "30分",
   },
 
   table: {

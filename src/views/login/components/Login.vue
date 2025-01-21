@@ -64,10 +64,9 @@
 
       <el-form-item>
         <el-button
-          style="width: 100%"
+          class="login-form-button"
           type="primary"
           :disabled="disabled"
-          size="large"
           @click="happyStart"
           :loading="loading"
           >{{ $t("account.login") }}</el-button
@@ -264,14 +263,13 @@ onUnmounted(() => {
 <style scoped lang="scss">
 @import "@/styles/_handle.scss";
 .Login {
-  padding: 0 32px 0 32px;
+  padding: 0 32px;
   position: relative;
   height: calc(100% - 56px);
   overflow: auto;
   box-sizing: border-box;
   .plogin {
-    font-weight: bold;
-    font-size: 28px;
+    font-size: 24px;
     height: 40px;
     line-height: 40px;
     display: block;

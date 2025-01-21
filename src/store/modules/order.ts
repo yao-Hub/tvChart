@@ -492,7 +492,7 @@ export const useOrder = defineStore("order", {
           if (currency === userCur) {
             return (+volume * contract_size * +bulidPrice) / leverage;
           }
-          return (+volume * contract_size * +bulidPrice * rate) / leverage;
+          return (+volume * contract_size * rate) / leverage;
         }
         return margin * +volume;
       }
