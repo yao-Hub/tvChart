@@ -1,5 +1,5 @@
 <template>
-  <div class="login">
+  <div class="home">
     <BaseImg class="title" iconName="title" imgSuffix="png" />
     <span class="welcome">{{ $t("welcomeToUTrader") }}</span>
     <div class="functionalArea">
@@ -53,14 +53,14 @@ watch(
 
 <style lang="scss">
 @import "@/styles/_handle.scss";
-[data-theme="light"] .login {
+[data-theme="light"] .home {
   background-image: url("@/assets/images/light/loginBg@2x.png");
 }
-[data-theme="dark"] .login {
+[data-theme="dark"] .home {
   background-image: url("@/assets/images/dark/loginBg@2x.png");
 }
 
-.login {
+.home {
   width: 100vw;
   height: 100vh;
   min-width: 1280px;
@@ -85,7 +85,7 @@ watch(
   }
   .functionalArea {
     position: absolute;
-    top: 32px;
+    top: 4%;
     right: 72px;
     display: flex;
     gap: 16px;
@@ -94,10 +94,9 @@ watch(
   .container {
     position: absolute;
     right: 13.33%;
-    top: 50%;
-    transform: translate(0, -50%);
+    top: 15%;
     width: 512px;
-    height: 648px;
+    height: 75%;
     .main {
       width: 100%;
       height: 100%;
@@ -105,6 +104,8 @@ watch(
       @include box-shadow;
       border-radius: 8px;
       box-sizing: border-box;
+      // padding: 32px 32px 56px 32px;
+      // overflow: auto;
     }
   }
 }

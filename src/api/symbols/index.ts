@@ -10,7 +10,7 @@ enum Api {
   AddMySymbols = "/my/optional_add",
   EditMySymbols = "/my/optional_update",
   SymbolDetail = "/symbol/one_symbol",
-  AllRates = "rate/all_rates",
+  AllRates = "/rate/all_rates",
 }
 
 // 获取交易商线路的所有交易品种

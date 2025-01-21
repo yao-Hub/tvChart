@@ -1,5 +1,5 @@
 <template>
-  <div class="accounts">
+  <div class="accounts scrollList">
     <span class="plogin">{{ $t("logAccount") }}</span>
     <span class="padd">{{ $t("noAccount") }}</span>
 
@@ -161,6 +161,9 @@ onUnmounted(() => {
 .accounts {
   padding: 56px;
   position: relative;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: auto;
   .plogin {
     font-weight: bold;
     font-size: 28px;
@@ -227,9 +230,10 @@ onUnmounted(() => {
   }
 
   .footer {
-    margin-top: 152px;
     display: flex;
     justify-content: center;
+    align-items: center;
+    height: 120px;
     gap: 24px;
     width: 100%;
     font-size: 14px;

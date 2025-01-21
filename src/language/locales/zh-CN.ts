@@ -387,6 +387,8 @@ export default {
   "insufficient margin": "保证金不足",
   "invalid order id": "无效的订单号",
   "invalid sl tp": "无效的止盈止损",
+  "invalid trigger_price": "无效的触发价格",
+  "invalid order_price": "无效的挂单价格",
   "invalid trigger price": "无效的触发价格",
   "invalid order price": "无效的挂单价格",
   "invalid time_expiration": "无效的过期时间",

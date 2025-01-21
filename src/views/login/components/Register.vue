@@ -1,7 +1,7 @@
 <template>
-  <div class="Register">
-    <div class="Register_header">
-      <div class="Register_header_goback" @click="back">
+  <div class="Register scrollList">
+    <div class="goback">
+      <div @click="back">
         <el-icon>
           <BaseImg iconName="turnleft" />
         </el-icon>
@@ -257,30 +257,33 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("keydown", handleKeydown);
 });
-
-// import { onBeforeRouteUpdate } from "vue-router";
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
 .Register {
+  padding: 0 32px 0 32px;
   position: relative;
-  &_header {
+  box-sizing: border-box;
+  overflow: auto;
+  height: 100%;
+  .goback {
     width: 100%;
-    height: 56px;
+    height: 50px;
+    @include background_color("background");
     display: flex;
     align-items: center;
-    padding-left: 32px;
-    box-sizing: border-box;
-    &_goback {
-      cursor: pointer;
+    position: sticky;
+    z-index: 9;
+    top: 0;
+    div {
       display: flex;
       gap: 4px;
+      cursor: pointer;
     }
   }
   &_main {
-    padding: 40px 32px;
     width: 100%;
     box-sizing: border-box;
     &_title {
@@ -311,7 +314,7 @@ onUnmounted(() => {
     height: 48px;
     border-radius: 8px;
     font-weight: 400;
-    margin-top: 40px;
+    margin: 40px 0;
     font-size: 16px;
   }
   .success-card {

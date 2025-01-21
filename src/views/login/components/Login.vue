@@ -1,10 +1,12 @@
 <template>
-  <div class="Login">
-    <div class="back" @click="goAccount" v-if="ifloginBack">
-      <el-icon>
-        <BaseImg iconName="turnleft" />
-      </el-icon>
-      <span>{{ $t("back") }}</span>
+  <div class="Login scrollList">
+    <div class="back" v-if="ifloginBack">
+      <div @click="goAccount">
+        <el-icon>
+          <BaseImg iconName="turnleft" />
+        </el-icon>
+        <span>{{ $t("back") }}</span>
+      </div>
     </div>
     <span class="plogin">{{ $t("logAccount") }}</span>
     <span class="padd">{{ $t("noAccount") }}</span>
@@ -81,28 +83,27 @@
         </div>
       </el-form-item>
     </el-form>
-
-    <div class="article">
-      <span class="word">{{ $t("article.loginsee") }}</span>
-      <el-link
-        type="primary"
-        target="_blank"
-        :href="serviceArticleUrl"
-        :underline="false"
-        >{{ $t("leftBook") }}{{ $t("article.userAgreement")
-        }}{{ $t("rightBook") }}</el-link
-      >
-      <span class="word"> {{ $t("and") }} </span>
-      <el-link
-        type="primary"
-        target="_blank"
-        :href="privacyPolicyUrl"
-        :underline="false"
-        >{{ $t("leftBook") }}{{ $t("article.privacyPolicy")
-        }}{{ $t("rightBook") }}</el-link
-      >
-      <span></span>
-    </div>
+  </div>
+  <div class="article">
+    <span class="word">{{ $t("article.loginsee") }}</span>
+    <el-link
+      type="primary"
+      target="_blank"
+      :href="serviceArticleUrl"
+      :underline="false"
+      >{{ $t("leftBook") }}{{ $t("article.userAgreement")
+      }}{{ $t("rightBook") }}</el-link
+    >
+    <span class="word"> {{ $t("and") }} </span>
+    <el-link
+      type="primary"
+      target="_blank"
+      :href="privacyPolicyUrl"
+      :underline="false"
+      >{{ $t("leftBook") }}{{ $t("article.privacyPolicy")
+      }}{{ $t("rightBook") }}</el-link
+    >
+    <span></span>
   </div>
 </template>
 
@@ -263,7 +264,26 @@ onUnmounted(() => {
 <style scoped lang="scss">
 @import "@/styles/_handle.scss";
 .Login {
-  padding: 56px 32px 0 32px;
+  padding: 0 32px 0 32px;
+  position: relative;
+  height: calc(100% - 56px);
+  overflow: auto;
+  box-sizing: border-box;
+  .back {
+    width: 100%;
+    height: 50px;
+    @include background_color("background");
+    display: flex;
+    align-items: center;
+    position: sticky;
+    z-index: 9;
+    top: 0;
+    div {
+      display: flex;
+      gap: 4px;
+      cursor: pointer;
+    }
+  }
   .plogin {
     font-weight: bold;
     font-size: 28px;
@@ -278,18 +298,10 @@ onUnmounted(() => {
     display: block;
     @include font_color("word-gray");
   }
-  .back {
-    display: flex;
-    position: absolute;
-    top: 18px;
-    gap: 4px;
-    left: 32px;
-    cursor: pointer;
-  }
 }
 
 .login-form {
-  margin-top: 32px;
+  margin-top: 24px;
   width: 100%;
   font-size: 16px !important;
   &-remember {
@@ -323,7 +335,7 @@ onUnmounted(() => {
   position: absolute;
   bottom: 0;
   left: 0;
-  padding: 16px 32px;
+  height: 56px;
   width: 100%;
   box-sizing: border-box;
   display: flex;
@@ -331,6 +343,7 @@ onUnmounted(() => {
   flex-wrap: wrap;
   justify-content: center;
   gap: 8px;
+  margin-top: auto;
 }
 [data-theme="light"] .article {
   background-color: #fff9eb;

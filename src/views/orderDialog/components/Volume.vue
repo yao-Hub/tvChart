@@ -72,9 +72,6 @@ const model = defineModel<string | number>("volume", { default: "" });
 const step = computed(() => {
   return props.symbolInfo ? props.symbolInfo.volume_step / 100 : 1;
 });
-const digits = computed(() => {
-  return props.symbolInfo ? props.symbolInfo.digits : 2;
-});
 
 const customSub = () => {
   const result = orderStore.volumeSub(+model.value, step.value, step.value);
@@ -100,7 +97,7 @@ const referMargin = computed(() => {
       volume,
       bulidPrice,
     });
-    return referMargin === "-" ? "-" : round(referMargin, digits.value);
+    return referMargin === "-" ? "-" : round(referMargin, 2);
   }
   return "-";
 });

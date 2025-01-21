@@ -1,71 +1,70 @@
 <template>
-  <div class="forget">
-    <div class="forget_header">
-      <div class="forget_header_goback" @click="back">
+  <div class="forget scrollList">
+    <div class="goback">
+      <div @click="back">
         <el-icon>
           <BaseImg iconName="turnleft" />
         </el-icon>
         <span>{{ $t("back") }}</span>
       </div>
     </div>
-    <div class="forget_main">
-      <div class="forget_main_title">
-        <BaseImg class="img" type="online" :src="lineInfo.lineLogo" />
-        <div class="forget_main_title_right">
-          <span class="up">{{ lineInfo.lineName }}</span>
-          <span class="down">{{ lineInfo.brokerName }}</span>
-        </div>
+    <div class="forget_title">
+      <BaseImg class="img" type="online" :src="lineInfo.lineLogo" />
+      <div class="forget_title_right">
+        <span class="up">{{ lineInfo.lineName }}</span>
+        <span class="down">{{ lineInfo.brokerName }}</span>
       </div>
-      <el-form
-        ref="formRef"
-        :model="formState"
-        :rules="rules"
-        label-position="top"
-      >
-        <el-form-item prop="email" :label="$t('account.email')">
-          <el-autocomplete
-            v-model="formState.email"
-            :fetch-suggestions="querySearch"
-            :trigger-on-focus="false"
-            clearable
-            placeholder="input email"
-          />
-        </el-form-item>
-
-        <el-form-item prop="code" :label="$t('account.verificationCode')">
-          <VerificationCode
-            v-model:value="formState.code"
-            :email="formState.email"
-          ></VerificationCode>
-        </el-form-item>
-
-        <el-form-item :label="$t('account.newPassword')" prop="pass">
-          <el-input
-            v-model="formState.pass"
-            type="password"
-            placeholder="enter new password"
-            show-password
-          />
-        </el-form-item>
-
-        <el-form-item prop="checkPass">
-          <el-input
-            v-model="formState.checkPass"
-            type="password"
-            placeholder="confirm new password"
-            show-password
-          />
-        </el-form-item>
-
-        <el-button
-          type="primary"
-          class="submit-button"
-          :disabled="!formValid"
-          @click="resetPwd"
-          >{{ $t("account.resetPassword") }}</el-button
-        >
-      </el-form>
     </div>
+    <el-form
+      class="forget_form"
+      ref="formRef"
+      :model="formState"
+      :rules="rules"
+      label-position="top"
+    >
+      <el-form-item prop="email" :label="$t('account.email')">
+        <el-autocomplete
+          v-model="formState.email"
+          :fetch-suggestions="querySearch"
+          :trigger-on-focus="false"
+          clearable
+          placeholder="input email"
+        />
+      </el-form-item>
+
+      <el-form-item prop="code" :label="$t('account.verificationCode')">
+        <VerificationCode
+          v-model:value="formState.code"
+          :email="formState.email"
+        ></VerificationCode>
+      </el-form-item>
+
+      <el-form-item :label="$t('account.newPassword')" prop="pass">
+        <el-input
+          v-model="formState.pass"
+          type="password"
+          placeholder="enter new password"
+          show-password
+        />
+      </el-form-item>
+
+      <el-form-item prop="checkPass">
+        <el-input
+          v-model="formState.checkPass"
+          type="password"
+          placeholder="confirm new password"
+          show-password
+        />
+      </el-form-item>
+
+      <el-button
+        type="primary"
+        class="submit-button"
+        :disabled="!formValid"
+        @click="resetPwd"
+        >{{ $t("account.resetPassword") }}</el-button
+      >
+    </el-form>
   </div>
 </template>
 
@@ -79,7 +78,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import { useNetwork } from "@/store/modules/network";
 
-import VerificationCode from "./VerificationCode.vue";
+import { PageEnum } from "@/constants/pageEnum";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -185,6 +184,10 @@ const resetPwd = async () => {
     confirm_password: checkPass,
   });
   ElMessage.success(t("tip.resetPwdSuccess"));
+  router.push({
+    path: PageEnum.LOGIN_HOME,
+    query: { server: lineInfo.value.lineName },
+  });
 };
 
 const back = () => {
@@ -209,44 +212,48 @@ onUnmounted(() => {
 @import "@/styles/_handle.scss";
 
 .forget {
-  display: flex;
-  flex-direction: column;
-  &_header {
+  padding: 0 32px 0 32px;
+  overflow: auto;
+  box-sizing: border-box;
+  height: 100%;
+  .goback {
     width: 100%;
-    height: 56px;
+    height: 50px;
+    @include background_color("background");
     display: flex;
     align-items: center;
-    margin-left: 32px;
-    &_goback {
-      cursor: pointer;
+    top: 0;
+    position: sticky;
+    z-index: 9;
+    div {
       display: flex;
       gap: 4px;
+      cursor: pointer;
     }
   }
-  &_main {
-    padding: 24px 32px;
-    &_title {
+  &_title {
+    display: flex;
+    height: 68px;
+    .img {
+      width: 64px;
+      height: 64px;
+      margin-right: 16px;
+      border-radius: 50%;
+    }
+    &_right {
       display: flex;
-      height: 68px;
-      margin-bottom: 37px;
-      .img {
-        width: 64px;
-        height: 64px;
-        margin-right: 16px;
-        border-radius: 50%;
+      flex-direction: column;
+      justify-content: space-around;
+      .up {
+        font-size: 16px;
       }
-      &_right {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
-        .up {
-          font-size: 16px;
-        }
-        .down {
-          @include font_color("word-gray");
-        }
+      .down {
+        @include font_color("word-gray");
       }
     }
+  }
+  &_form {
+    margin-top: 24px;
   }
   .submit-button {
     width: 100%;

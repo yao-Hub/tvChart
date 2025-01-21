@@ -21,7 +21,7 @@
         class="demo nested-1"
         data-id="demo_2"
         data-minWidth="360"
-        data-initW="480"
+        data-initW="600"
         v-if="layoutStore.symbolsVisable"
       >
         <BaseImg class="handle" iconName="icon_drag1"></BaseImg>

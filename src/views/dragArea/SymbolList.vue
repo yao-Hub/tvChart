@@ -48,7 +48,7 @@
           prop="symbol"
           :label="$t('order.symbol')"
           align="left"
-          min-width="90"
+          width="80"
         >
         </el-table-column>
 
@@ -66,7 +66,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="ask" align="right" min-width="96">
+        <el-table-column prop="ask" align="right" min-width="80">
           <template #header>
             <div class="table_header">
               <span class="line">|</span>
@@ -96,7 +96,7 @@
           prop="variation"
           sortable="custom"
           align="right"
-          min-width="90"
+          min-width="80"
         >
           <template #header>
             <div class="table_header">
