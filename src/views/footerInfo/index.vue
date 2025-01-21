@@ -40,12 +40,12 @@
 </template>
 
 <script setup lang="ts">
+import Decimal from "decimal.js";
 import { computed } from "vue";
 
 import { useOrder } from "@/store/modules/order";
 import { useUser } from "@/store/modules/user";
 
-import { round } from "@/utils/common";
 import Delay from "./components/Delay.vue";
 import Timezone from "./components/Timezone.vue";
 
@@ -54,12 +54,14 @@ const orderStore = useOrder();
 
 const loginInfo = computed(() => userStore.loginInfo);
 
-const profitTotal = computed<string>(() => {
+const profitTotal = computed(() => {
   const profitList = orderStore.orderData.marketOrder.map(
-    (item) => +item.profit
+    (item) => new Decimal(+item.profit)
   );
-  const result = profitList.reduce((pre, next) => pre + next, 0);
-  return round(result, 2);
+  const result = profitList.reduce((pre, next) => {
+    return pre.plus(next);
+  }, new Decimal(0));
+  return result.toNumber().toFixed(2);
 });
 </script>
 

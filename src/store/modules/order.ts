@@ -1,4 +1,5 @@
 import i18n from "@/language/index";
+import dayjs from "dayjs";
 import Decimal from "decimal.js";
 import { ElMessageBox } from "element-plus";
 import { defineStore } from "pinia";
@@ -49,6 +50,9 @@ interface State {
 
 export const useOrder = defineStore("order", {
   state: (): State => {
+    const dateFormat = "YYYY-MM-DD HH:mm:ss";
+    const monday = dayjs().startOf("week").startOf("day").format(dateFormat);
+    const today = dayjs().format(dateFormat);
     return {
       initOrderState: { symbol: "" },
       currentKline: {},
@@ -95,7 +99,7 @@ export const useOrder = defineStore("order", {
           symbol: [],
           createTime: [],
           addTime: [],
-          closeTime: [],
+          closeTime: [monday, today],
         },
         blanceRecord: {
           createTime: [],
@@ -524,11 +528,11 @@ export const useOrder = defineStore("order", {
   },
 
   debounce: {
-    getMarketOrders: 300,
-    getPendingOrders: 300,
-    getPendingOrderHistory: 300,
-    getMarketOrderHistory: 300,
-    getBlanceRecord: 300,
-    getData: 300,
+    getMarketOrders: 1200,
+    getPendingOrders: 1200,
+    getPendingOrderHistory: 1200,
+    getMarketOrderHistory: 1200,
+    getBlanceRecord: 1200,
+    getData: 1200,
   },
 });

@@ -52,7 +52,7 @@
         >
         </el-table-column>
 
-        <el-table-column prop="bid" align="right" min-width="96">
+        <el-table-column prop="bid" align="right" min-width="80">
           <template #header>
             <div class="table_header">
               <span class="line">|</span>

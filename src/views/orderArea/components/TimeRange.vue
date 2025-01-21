@@ -21,7 +21,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
-import { computed, onMounted, watch } from "vue";
+import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -30,7 +30,6 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(relativeTime);
 interface Props {
-  initFill?: boolean;
   pickerOption?: object;
 }
 
@@ -74,22 +73,6 @@ const shortcuts = computed(() => [
     },
   },
 ]);
-
-const initializeTimeRange = async () => {
-  if (props.initFill) {
-    const monday = dayjs()
-      .startOf("week")
-      .startOf("day")
-      .tz(nowTZ.value)
-      .format(dateFormat); // 当前周一的日期
-    const today = dayjs().tz(nowTZ.value).format(dateFormat);
-    model.value = [monday, today];
-  }
-};
-
-onMounted(() => {
-  initializeTimeRange();
-});
 
 watch(
   () => model.value,

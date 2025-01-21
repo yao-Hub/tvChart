@@ -60,8 +60,8 @@
             <el-option value="loss" :label="t('order.loss')"></el-option>
           </el-select>
           <TimeRange
-            v-show="activeKey === 'pendingOrderHistory'"
-            v-if:value="orderStore.dataFilter[activeKey].createTime"
+            v-if="activeKey === 'pendingOrderHistory'"
+            v-model:value="orderStore.dataFilter[activeKey].createTime"
             style="min-width: 380px"
             :pickerOption="{
               startPlaceholder: t('table.createStartTime'),
@@ -83,7 +83,6 @@
           >
           <TimeRange
             v-if="['marketOrderHistory'].includes(activeKey)"
-            initFill
             style="min-width: 380px"
             v-model:value="orderStore.dataFilter[activeKey].closeTime"
             :pickerOption="{
