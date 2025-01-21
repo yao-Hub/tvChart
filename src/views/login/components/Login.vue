@@ -1,6 +1,6 @@
 <template>
   <div class="Login scrollList">
-    <div class="back" v-if="ifloginBack">
+    <div class="goback" v-if="ifloginBack">
       <div @click="goAccount">
         <el-icon>
           <BaseImg iconName="turnleft" />
@@ -269,21 +269,6 @@ onUnmounted(() => {
   height: calc(100% - 56px);
   overflow: auto;
   box-sizing: border-box;
-  .back {
-    width: 100%;
-    height: 50px;
-    @include background_color("background");
-    display: flex;
-    align-items: center;
-    position: sticky;
-    z-index: 9;
-    top: 0;
-    div {
-      display: flex;
-      gap: 4px;
-      cursor: pointer;
-    }
-  }
   .plogin {
     font-weight: bold;
     font-size: 28px;

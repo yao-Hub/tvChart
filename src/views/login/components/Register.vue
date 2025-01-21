@@ -268,21 +268,6 @@ onUnmounted(() => {
   box-sizing: border-box;
   overflow: auto;
   height: 100%;
-  .goback {
-    width: 100%;
-    height: 50px;
-    @include background_color("background");
-    display: flex;
-    align-items: center;
-    position: sticky;
-    z-index: 9;
-    top: 0;
-    div {
-      display: flex;
-      gap: 4px;
-      cursor: pointer;
-    }
-  }
   &_main {
     width: 100%;
     box-sizing: border-box;

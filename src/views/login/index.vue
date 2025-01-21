@@ -8,7 +8,7 @@
     </div>
     <router-view v-slot="{ Component }">
       <div class="container">
-        <transition :name="direction" mode="out-in">
+        <transition :name="direction" mode="out-in" appear>
           <div class="main" :key="Component">
             <component :is="Component" />
           </div>
@@ -59,7 +59,21 @@ watch(
 [data-theme="dark"] .home {
   background-image: url("@/assets/images/dark/loginBg@2x.png");
 }
-
+.goback {
+  width: 100%;
+  height: 50px;
+  @include background_color("background");
+  display: flex;
+  align-items: center;
+  position: sticky;
+  z-index: 9;
+  top: 0;
+  div {
+    display: flex;
+    gap: 4px;
+    cursor: pointer;
+  }
+}
 .home {
   width: 100vw;
   height: 100vh;
