@@ -9,6 +9,7 @@
       :shortcuts="shortcuts"
       v-bind="props.pickerOption"
       :value-format="dateFormat"
+      :default-time="defaultTime"
     />
     <BaseImg iconName="caretDown" />
   </div>
@@ -40,6 +41,11 @@ const props = defineProps<Props>();
 const emit = defineEmits(["timeChange"]);
 
 const model = defineModel<TTime>("value", { default: () => [] });
+
+const defaultTime: [Date, Date] = [
+  new Date(2000, 1, 1, 0, 0, 0),
+  new Date(2000, 2, 1, 23, 59, 59),
+]; // '00:00:00', '23:59:59'
 
 const nowTZ = computed(() => {
   return timeStore.settedTimezone;
