@@ -70,7 +70,7 @@ const handleTokenErr = debounce(async () => {
   // } finally {
   //   logging = false;
   // }
-}, 1000);
+}, 3000);
 
 const ifLocal = import.meta.env.MODE === "development";
 
