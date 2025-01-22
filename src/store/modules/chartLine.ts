@@ -62,7 +62,7 @@ export const useChartLine = defineStore("chartLine", {
         return bid;
       };
 
-      // 品种更新订阅集合
+      // 商品更新订阅集合
       const actionMap: Record<string, TAction> = {};
 
       // 订阅接收处理

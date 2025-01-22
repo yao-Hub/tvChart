@@ -2,7 +2,7 @@
   <el-tooltip :content="$t('MultiGrapMode')">
     <div
       class="iconbox"
-      :class="[type === 'multiple' ? 'active' : 'noActive']"
+      :class="[type === 'multiple' ? 'multipleActive' : 'multipleNoActive']"
       @click="chartInitStore.setLayoutType('multiple')"
     ></div>
   </el-tooltip>
@@ -19,17 +19,17 @@ const type = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-[data-theme="light"] .noActive {
+[data-theme="light"] .multipleNoActive {
   background-image: url("@/assets/icons/light/icon_5.svg");
 }
-[data-theme="light"] .active {
+[data-theme="light"] .multipleActive {
   background-image: url("@/assets/icons/light/icon_5a.svg");
 }
 
-[data-theme="dark"] .noActive {
+[data-theme="dark"] .multipleNoActive {
   background-image: url("@/assets/icons/dark/icon_5.svg");
 }
-[data-theme="dark"] .active {
+[data-theme="dark"] .multipleActive {
   background-image: url("@/assets/icons/dark/icon_5a.svg");
 }
 </style>

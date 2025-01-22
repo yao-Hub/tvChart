@@ -10,7 +10,6 @@ import { CustomTimezoneId, TimezoneId } from "public/charting_library";
 import i18n from "@/language/index";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-// import { useI18n } from "vue-i18n";
 import { useChartInit } from "./chartInit";
 import { useStorage } from "./storage";
 

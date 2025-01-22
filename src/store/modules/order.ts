@@ -375,7 +375,7 @@ export const useOrder = defineStore("order", {
 
     /** 获取盈亏
      * @param params {
-     *  symbol: 品种
+     *  symbol: 商品
      *  closePrice: 平仓价格
      *  buildPrice: 建仓价格
      *  volume: 手数
@@ -388,12 +388,12 @@ export const useOrder = defineStore("order", {
      * 后币种 === 账户币种 ->
      *  buy: 盈亏=(平仓价格-建仓价格)*手数*合约数量;
      *  sell:盈亏=(建仓价格-平仓价格)*手数*合约数量
-     * 前品种 === 账户币种 ->
+     * 前商品 === 账户币种 ->
      *  buy: 盈亏=(平仓价格-建仓价格)*手数*合约数量/平仓价格;
      *  sell:盈亏=(建仓价格-平仓价格)*手数*合约数量/平仓价格
      * 其他(买卖单) ->
-     *  buy: 盈亏=(平仓价格-建仓价格)*手数*合约数量*品种币种(后)与账户币种汇率；
-     *  sell:盈亏=(建仓价格-平仓价格)*手数*合约数量*品种币种(后)与账户币种汇率
+     *  buy: 盈亏=(平仓价格-建仓价格)*手数*合约数量*商品币种(后)与账户币种汇率；
+     *  sell:盈亏=(建仓价格-平仓价格)*手数*合约数量*商品币种(后)与账户币种汇率
      */
     getProfit(
       params: {
@@ -454,13 +454,13 @@ export const useOrder = defineStore("order", {
     },
 
     /** 参考预付款
-     * @param params { symbol: 品种; volume: 手数; bulidPrice: 建仓价格 }
+     * @param params { symbol: 商品; volume: 手数; bulidPrice: 建仓价格 }
      * @returns string
      * @description
      * 有杠杆时：
-     * 品种前币种 === 账户币种
+     * 商品前币种 === 账户币种
      *  是： 预付款 = 手数 * 合约数量  / 杠杆
-     *  否： 品种后币种 === 账户币种
+     *  否： 商品后币种 === 账户币种
      *        是： 预付款  = 手数 * 合约数量 * 建仓价格 / 杠杆
      *        否： 预付款 = 手数 * 合约数量 * 前币种与账户币种汇率 / 杠杆
      * 无杠杆时

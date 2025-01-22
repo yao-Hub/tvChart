@@ -86,7 +86,7 @@ if (storageId) {
   window.localStorage.setItem("uuid", uuid);
 }
 
-const theme = localStorage.getItem("systemTheme") || "light";
+const theme = localStorage.getItem("systemTheme") || "dark";
 const currentLanguage = (localStorage.getItem("language") ||
   navigator.language.toLowerCase()) as TLANG;
 const acceptLanguage = LOCALE_MAP[currentLanguage];

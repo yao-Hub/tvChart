@@ -67,7 +67,7 @@ watch(
 .goback {
   width: 100%;
   height: 50px;
-  @include background_color("background");
+  @include background_color("background-login-container");
   display: flex;
   align-items: center;
   position: sticky;

@@ -78,7 +78,7 @@ async function init() {
     chartInitStore.state.loading = true;
     // 1.先拿到 交易线路
     await networkStore.getLines();
-    // 2.拿到节点才能去定位缓存信息，获取品种、节点、socket地址、订单情况
+    // 2.拿到节点才能去定位缓存信息，获取商品、节点、socket地址、订单情况
     userStore.initAccount();
     await networkStore.initNode();
     await symbolsStore.getAllSymbol();

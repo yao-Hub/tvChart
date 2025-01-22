@@ -26,6 +26,7 @@ html.dark {
     --el-table-bg-color: #000;
     --el-table-text-color: #fff;
     --el-table-header-text-color: #b0b1b3;
+    --el-table-tr-bg-color: #000;
   }
   .el-table__expand-icon {
     content: url("@/assets/icons/dark/caretDown.svg");
@@ -38,11 +39,12 @@ html.dark {
   .table_v2_Header {
     background-color: #1b1f29;
   }
-  .el-table-v2__row:nth-child(even) {
-    background-color: #1b1f29;
+  .el-table-v2__row {
+    background-color: #000;
   }
   .el-table-v2 {
     --el-table-header-text-color: #b0b1b3;
+    --el-table-tr-bg-color: #fff;
   }
 
   .el-input__wrapper {

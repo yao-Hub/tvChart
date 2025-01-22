@@ -229,6 +229,7 @@ const tabClose = (id: string) => {
     display: flex;
     gap: 4px;
     @include background_color("background");
+    margin-bottom: 2px;
   }
 
   .charts_container {

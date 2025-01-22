@@ -197,7 +197,7 @@ const initonReady = () => {
       // 快捷键监听
       chartSubStore.subscribeKeydown(widget);
 
-      // 监听品种变化
+      // 监听商品变化
       widget
         .activeChart()
         .onSymbolChanged()

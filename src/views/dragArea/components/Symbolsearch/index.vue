@@ -80,7 +80,7 @@ interface Props {
 }
 const props = defineProps<Props>();
 
-// 所有品种
+// 所有商品
 const allSymbols = computed(() => {
   return symbolsStore.haveQuoteSymbols.map((item: ISessionSymbolInfo) => {
     return {
@@ -90,7 +90,7 @@ const allSymbols = computed(() => {
   });
 });
 
-// 输入查找品种
+// 输入查找商品
 import { selectMatchItem } from "utils/common/index";
 const filterSymbols = computed(() => {
   return selectMatchItem(allSymbols.value, props.input, "symbol");
@@ -138,7 +138,7 @@ const getTotal = (type: string) => {
   }
   return 0;
 };
-// 各个分类下的已选品种数量
+// 各个分类下的已选商品数量
 const getCount = (type: string) => {
   if (listState.pathMap[type]) {
     const filterList = listState.pathMap[type].filter((item: any) => {
@@ -168,7 +168,7 @@ const getSymbolsDetail = (type: string) => {
   currentType.value = type;
 };
 
-// 新增删除自选品种
+// 新增删除自选商品
 const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
   try {
     listItem.loading = true;
@@ -202,7 +202,7 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
   }
 }, 200);
 
-// 是否是已经添加的品种
+// 是否是已经添加的商品
 const getCheckType = (symbol: string) => {
   const index = symbolsStore.mySymbols.findIndex((e) => e.symbol === symbol);
   return index > -1;

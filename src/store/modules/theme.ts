@@ -10,7 +10,7 @@ export const useTheme = defineStore("theme", () => {
   const isDark = useDark();
   const toggleDark = useToggle(isDark);
 
-  const systemTheme = ref<TsystemTheme>("light");
+  const systemTheme = ref<TsystemTheme>("dark");
   const upDownTheme = ref<TupDownTheme>("upRedDownGreen");
 
   watch(
@@ -27,7 +27,7 @@ export const useTheme = defineStore("theme", () => {
   );
 
   const initTheme = () => {
-    const stoTheme = localStorage.getItem("systemTheme") || "light";
+    const stoTheme = localStorage.getItem("systemTheme") || "dark";
     if (
       (stoTheme === "light" && isDark.value) ||
       (stoTheme === "dark" && !isDark.value)
@@ -86,7 +86,6 @@ export const useTheme = defineStore("theme", () => {
       upDownTheme.value === "upRedDownGreen" ? proRed : proGreen;
 
     try {
-      console.log(upDownTheme.value);
       chartInitStore.state.chartWidgetList.forEach((item) => {
         item.widget!.applyOverrides({
           "mainSeriesProperties.candleStyle.upColor": upColor,

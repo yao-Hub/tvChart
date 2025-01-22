@@ -271,7 +271,7 @@ const rules: FormRules<typeof formState> = {
   limitedPrice: [{ required: true, trigger: "change" }],
 };
 
-/** 当前品种 */
+/** 当前商品 */
 import { useSymbols } from "@/store/modules/symbols";
 const symbolsStore = useSymbols();
 const symbolInfo = computed(() => {

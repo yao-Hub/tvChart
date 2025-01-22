@@ -6,3 +6,13 @@
 #drawing-toolbar {
   transform: translateY(-3px);
 }
+
+/* : root: not (.theme-dark) — for the light theme
+.theme-dark: root — for the dark theme */
+
+/* :root:not(.theme-dark) {
+  --tv-color-platform-background: #fff;
+}
+.theme-dark :root {
+  --tv-color-platform-background: #000;
+} */

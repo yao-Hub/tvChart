@@ -21,7 +21,7 @@
             </el-icon>
             <div
               class="delIcon"
-              v-if="ifOpera && !account.ifLogin"
+              v-if="ifOpera"
               @click.stop="delAccount(account)"
             ></div>
           </div>

@@ -5,17 +5,9 @@
     @visible-change="visible = $event"
   >
     <div class="info" @click="toogleDropdown">
-      <div class="left">
-        <div class="top">
-          <el-text>{{ networkStore.server }}</el-text>
-          <el-divider direction="vertical" />
-          <el-text>{{ userStore.account.login }}</el-text>
-        </div>
-        <el-text class="balance"
-          >{{ userStore.loginInfo?.balance }}
-          {{ userStore.loginInfo?.currency }}</el-text
-        >
-      </div>
+      <el-text>{{ networkStore.server }}</el-text>
+      <el-divider direction="vertical" />
+      <el-text>{{ userStore.account.login }}</el-text>
       <BaseImg class="caretDownIcon" iconName="caretDown" />
     </div>
     <template #dropdown>
@@ -34,6 +26,8 @@
           <span>{{ item.login }}</span>
           <span>|</span>
           <span>{{ item.blance }}</span>
+          <span>|</span>
+          <span>{{ item.currency }}</span>
           <div class="del" @click.stop="delAccount(item)">
             <div class="delIcon" v-show="item.hover && !item.ifLogin"></div>
           </div>
@@ -254,26 +248,6 @@ const openResetPwd = () => {
   padding: 5px 0;
   box-sizing: border-box;
   cursor: pointer;
-  .left {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-end;
-    gap: 4px;
-    height: 100%;
-
-    .top {
-      display: flex;
-      align-items: center;
-    }
-
-    .balance {
-      font-weight: 500;
-      text-align: right;
-      display: block;
-      width: 100%;
-    }
-  }
 }
 
 .aList {

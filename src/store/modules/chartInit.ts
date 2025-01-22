@@ -188,14 +188,14 @@ export const useChartInit = defineStore("chartInit", () => {
     return "";
   }
 
-  // 默认品种（初始化的品种）
+  // 默认商品（初始化的商品）
   function getDefaultSymbol() {
     const firstSymbol = symbolStore.symbols[0]?.symbol;
     const chartSymbol = getChartSymbol(state.activeChartId);
     return chartSymbol || firstSymbol;
   }
 
-  // 设置图表显示品种
+  // 设置图表显示商品
   function changeChartSymbol(params: { id: string; symbol: string }) {
     const { id, symbol } = params;
     const target = state.chartWidgetList.find((e) => e.id === id);

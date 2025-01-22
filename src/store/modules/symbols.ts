@@ -15,24 +15,24 @@ export const useSymbols = defineStore("symbols", () => {
   const socketStore = useSocket();
   const quotesStore = useQuotes();
 
-  // 全部品种
+  // 全部商品
   const symbols = ref<ISessionSymbolInfo[]>([]);
 
-  // 自选品种;
+  // 自选商品;
   const mySymbols = ref<reqOptionalQuery[]>([]);
 
-  // 下单时选择的品种
+  // 下单时选择的商品
   const selectSymbols = ref<string[]>([]);
 
-  // 图表的品种
+  // 图表的商品
   const chartSymbols = ref<string[]>([]);
 
-  // 可交易品种
+  // 可交易商品
   const symbols_tradeAllow = computed(() => {
     return symbols.value.filter((e) => e.trade_allow === 1);
   });
 
-  // 有报价的品种
+  // 有报价的商品
   const haveQuoteSymbols = computed(() => {
     const result = symbols.value.filter((item) => {
       const quote = quotesStore.initAllQoutes[item.symbol];
@@ -41,24 +41,24 @@ export const useSymbols = defineStore("symbols", () => {
     return result;
   });
 
-  // 全部品种
+  // 全部商品
   const getAllSymbol = async () => {
     const res = await allSymbols();
     symbols.value = res.data || [];
   };
 
-  // 自选品种
+  // 自选商品
   const getMySymbols = async () => {
     const res = await optionalQuery();
     mySymbols.value = res.data || [];
   };
 
-  // 排序自选品种
+  // 排序自选商品
   const mySymbols_sort = computed(() => {
     return orderBy(mySymbols.value, ["sort"]);
   });
 
-  // 订单区域涉及的品种
+  // 订单区域涉及的商品
   let orderSymbols = ref<string[]>([]);
   watch(
     () => orderStore.orderData,
@@ -75,7 +75,7 @@ export const useSymbols = defineStore("symbols", () => {
     { deep: true }
   );
 
-  // 需要监听的品种
+  // 需要监听的商品
   const subSymbols = computed(() => {
     const arr = [
       ...orderSymbols.value,
@@ -91,9 +91,9 @@ export const useSymbols = defineStore("symbols", () => {
     (nextList, preList) => {
       const preSet = new Set(preList);
       const nextSet = new Set(nextList);
-      // 增加的品种;
+      // 增加的商品;
       const added = nextList.filter((item) => !preSet.has(item));
-      // 减少的品种;
+      // 减少的商品;
       const removed = preList.filter((item) => !nextSet.has(item));
       if (added.length) {
         added.forEach((symbol) => {

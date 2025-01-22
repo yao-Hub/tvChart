@@ -19,6 +19,7 @@ interface IAccount {
   password: string;
 }
 export type AccountListItem = IAccount & {
+  currency?: string;
   blance: number | string;
   token: string;
   ifLogin: boolean;
@@ -110,6 +111,7 @@ export const useUser = defineStore("user", {
       this.loginInfo = res.data;
       this.changeCurrentAccountOption({
         blance: res.data.balance ?? "-",
+        currency: res.data.currency ?? "-",
       });
       if (params && params.emitSocket) {
         const socketStore = useSocket();

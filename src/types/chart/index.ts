@@ -16,7 +16,7 @@ export interface ISocketKlineNew {
 export interface IQuote {
   ctm_ms: number; //	时间，毫秒级
   ctm: number; //	时间
-  symbol: string; //	品种编码
+  symbol: string; //	商品编码
   ask: number; //	买价
   bid: number; //	卖价
   server: string; //	经济商交易线路编码
@@ -57,8 +57,8 @@ export interface ITVSymbolInfo {
 
 export interface ISessionSymbolInfo {
   id: number; // 时间，毫秒级
-  symbol: string; // 品种编码
-  path: string; // 品种路径
+  symbol: string; // 商品编码
+  path: string; // 商品路径
   digits: number; // 报价位数
   volume_min: number; // 单笔交易最小手数，1=0.01手
   volume_step: number; // 单笔交易手数的最小步值。5=0.05手，即手数只能是0.05的倍数

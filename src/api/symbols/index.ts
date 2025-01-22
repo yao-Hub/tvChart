@@ -13,7 +13,7 @@ enum Api {
   AllRates = "/rate/all_rates",
 }
 
-// 获取交易商线路的所有交易品种
+// 获取交易商线路的所有交易商品
 export interface TimeInfo {
   symbol: string;
   week_day: number;
@@ -29,7 +29,7 @@ export const allSymbols = () => {
   });
 };
 export interface reqOptionalQuery {
-  symbol: string; //	品种
+  symbol: string; //	商品
   sort: number; //	排序
   topSort: number | null; //	置顶排序
 }
@@ -51,7 +51,7 @@ export const alllRates = () => {
   });
 };
 
-// 根据品种编码查询品种信息;
+// 根据商品编码查询商品信息;
 interface IOneSymbol {
   symbol: string;
 }
@@ -64,9 +64,9 @@ export const symbolDetail = (data: IOneSymbol) => {
   });
 };
 
-// 查询品种分类
+// 查询商品分类
 export interface resSymbolAllPath {
-  type: string; //	品种类别
+  type: string; //	商品类别
   value: string; //	tab显示名称
 }
 export const symbolAllPath = () => {

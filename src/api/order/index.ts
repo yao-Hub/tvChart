@@ -17,7 +17,7 @@ enum Api {
 }
 
 export interface ReqOrderAdd {
-  symbol: string; // 	品种
+  symbol: string; // 	商品
   type: number; // 	操作方向。0=buy，1=sell
   volume: number; // 	手数。1=0.01手
   sl?: number; // 	止损价。1=0.01手
@@ -26,7 +26,7 @@ export interface ReqOrderAdd {
 }
 
 interface ResOrderAdd {
-  symbol: string; // 	品种
+  symbol: string; // 	商品
   type: number; // 	操作方向。0=buy，1=sell
   volume: number; // 	手数
   sl: number; // 	操作方向。0=buy，1=sell
@@ -40,10 +40,10 @@ interface ResOrderAdd {
 export interface resOrders {
   id: number; // 	订单ID
   time_setup: number; // 	订单创建时间，即记录插入时间。挂单成交后 time_setup 与 open_time 不一样
-  symbol: string; // 	订单交易品种
-  digits: number; // 	订单交易品种报价小数位数
+  symbol: string; // 	订单交易商品
+  digits: number; // 	订单交易商品报价小数位数
   currency_digits: number; // 	订单法币小数位数
-  contract_size: number; // 	订单品种合约数量
+  contract_size: number; // 	订单商品合约数量
   state: number; // 	预留字段
   reason: string; // 	预留字段
   time_expiration: number; // 	过期时间。挂单创建后有效
@@ -70,13 +70,13 @@ export interface resOrders {
 }
 
 interface reqMarketClose {
-  symbol: string; //	品种
+  symbol: string; //	商品
   id: number; //	订单ID
   volume: number; //	平仓手数。1=0.01手
 }
 
 interface resMarketClose {
-  symbol: string; //	品种
+  symbol: string; //	商品
   id: number; //	订单ID
   volume: number; //	手数
   action_success: boolean; // 是否操作成功
@@ -84,7 +84,7 @@ interface resMarketClose {
 }
 
 export interface reqPendingOrdersAdd {
-  symbol: string; // 	品种
+  symbol: string; // 	商品
   type: number; // 	挂单类型
   order_price: number; // 	挂单价格。
   trigger_price?: number; // 	回调触及价格。type=6、7 时必填
@@ -95,7 +95,7 @@ export interface reqPendingOrdersAdd {
 }
 
 interface resPendingOrdersAdd {
-  symbol: string; //	品种
+  symbol: string; //	商品
   type: number; //	挂单类型
   order_price: number; //	挂单价格。
   trigger_price?: number; //	回调触及价格。type=6、7 时必填
@@ -113,16 +113,16 @@ export interface reqHistoryPendingOrders {
   begin_time?: string; // 	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
   end_time?: string; // 	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
   count?: number; // 	最大200
-  symbol?: string; // 	品种
+  symbol?: string; // 	商品
 }
 
 export interface resPendingOrders {
   id: number; //	订单ID
   time_setup: number; //	订单创建时间，即记录插入时间。挂单成交后 time_setup 与 open_time 不一样
-  symbol: string; //	订单交易品种
-  digits: number; //	订单交易品种报价小数位数
+  symbol: string; //	订单交易商品
+  digits: number; //	订单交易商品报价小数位数
   currency_digits: number; //	订单法币小数位数
-  contract_size: number; //	订单品种合约数量
+  contract_size: number; //	订单商品合约数量
   state: number; //	预留字段
   reason: string; //	预留字段
   time_expiration: number; //	过期时间。挂单创建后有效
@@ -155,7 +155,7 @@ export interface reqHistoryOrders {
   close_begin_time?: string; //	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
   close_end_time?: string; //	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
   count?: number; //	最大2000
-  symbol?: string; //	品种
+  symbol?: string; //	商品
   types?: number[]; // 类型筛选，默认 [0,1]
   setup_begin_time?: string; // 创建时间的最小值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
   setup_end_time?: string; // 创建时间的最大值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
@@ -164,10 +164,10 @@ export interface resHistoryOrders {
   id: number; //	订单ID
   login: number; //	订单账户
   time_setup: number; //	订单创建时间，即记录插入时间。挂单成交后 time_setup 与 open_time 不一样
-  symbol: string; //	订单交易品种
-  digits: number; //	订单交易品种报价小数位数
+  symbol: string; //	订单交易商品
+  digits: number; //	订单交易商品报价小数位数
   currency_digits: number; //	订单法币小数位数
-  contract_size: number; //	订单品种合约数量
+  contract_size: number; //	订单商品合约数量
   state: number; //	预留字段
   reason: string; //	预留字段
   time_expiration: number; //	过期时间。挂单创建后有效
@@ -195,25 +195,25 @@ export interface resHistoryOrders {
 
 interface reqDelPendingOrders {
   id: number; //	要修改的订单ID
-  symbol: string; //	品种
+  symbol: string; //	商品
 }
 
 interface resDelPendingOrders {
   login: number; //	订单账户
   id: number; //	修改的订单ID
-  symbol: string; //	品种
+  symbol: string; //	商品
   action_success: boolean; //	是否操作成功
   err_text: string; //	失败原因。需映射成国际化语言
 }
 export interface reqEditOpeningOrders {
-  symbol: string; //	品种
+  symbol: string; //	商品
   id: number; //	订单ID
   sl?: number; //	止损价
   tp?: number; //	止盈价
 }
 interface resEditOpeningOrders {
   login: number; //	订单账户
-  symbol: string; //	品种
+  symbol: string; //	商品
   id: number; //	订单ID
   sl: number; //	最新止损价
   tp: number; //	最新止盈价

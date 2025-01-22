@@ -2,7 +2,7 @@
   <el-tooltip :content="$t('SingleImageMode')">
     <div
       class="iconbox"
-      :class="[type === 'single' ? 'active' : 'noActive']"
+      :class="[type === 'single' ? 'singleActive' : 'singleNoActive']"
       @click="chartInitStore.setLayoutType('single')"
     ></div>
   </el-tooltip>
@@ -20,17 +20,17 @@ const type = computed(() => {
 </script>
 
 <style lang="scss" scoped>
-[data-theme="light"] .noActive {
+[data-theme="light"] .singleNoActive {
   background-image: url("@/assets/icons/light/icon_4.svg");
 }
-[data-theme="light"] .active {
+[data-theme="light"] .singleActive {
   background-image: url("@/assets/icons/light/icon_4a.svg");
 }
 
-[data-theme="dark"] .noActive {
+[data-theme="dark"] .singleNoActive {
   background-image: url("@/assets/icons/dark/icon_4.svg");
 }
-[data-theme="dark"] .active {
+[data-theme="dark"] .singleActive {
   background-image: url("@/assets/icons/dark/icon_4a.svg");
 }
 </style>

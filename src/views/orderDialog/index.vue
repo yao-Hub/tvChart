@@ -347,7 +347,7 @@ const rules: FormRules<typeof formState> = {
   limitedPrice: [{ required: true, trigger: "change" }],
 };
 
-/** 当前品种 */
+/** 当前商品 */
 const symbolInfo = computed(() => {
   return symbolsStore.symbols.find((e) => e.symbol === formState.symbol);
 });

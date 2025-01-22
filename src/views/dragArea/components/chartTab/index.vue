@@ -114,7 +114,7 @@ const emit = defineEmits([
 const symbolDropdown = ref<DropdownInstance>();
 const resolutionDropdown = ref<DropdownInstance>();
 const symbolVisible = ref(false);
-// 品种下拉菜单显示隐藏
+// 商品下拉菜单显示隐藏
 const toggleSymbolDropdown = () => {
   if (!props.active) {
     emit("tabClick", props.id);
@@ -176,22 +176,13 @@ const resoluteItemSelect = (key: number) => {
 .chartTab {
   display: flex;
   padding: 0 8px;
-  box-sizing: border-box;
   height: var(--component-size);
   align-items: center;
   gap: 8px;
-  width: fit-content;
-  border: 1px solid;
-  border-bottom: none;
-  border-radius: 4px 4px 0px 0px;
-  @include border_color("tabActive");
   @include background_color("background");
-  // @include background_color("background-component");
 }
 .tabActive {
   @include background_color("background-component");
-  // @include background_color("background");
-  border: none;
 }
 .tabHover:hover {
   @include background_color("background-hover");

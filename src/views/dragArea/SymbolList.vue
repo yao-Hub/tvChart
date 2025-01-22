@@ -52,13 +52,12 @@
         >
         </el-table-column>
 
-        <el-table-column prop="bid" align="right" min-width="80">
-          <template #header>
-            <div class="table_header">
-              <span class="line">|</span>
-              <span>{{ $t("order.sellPrice") }}</span>
-            </div>
-          </template>
+        <el-table-column
+          prop="bid"
+          align="right"
+          min-width="85"
+          :label="t('order.sellPrice')"
+        >
           <template #default="{ row }">
             <span :class="getClass(row, 'bid')">
               {{ getPrice(row.symbol, "bid") }}
@@ -66,13 +65,12 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="ask" align="right" min-width="80">
-          <template #header>
-            <div class="table_header">
-              <span class="line">|</span>
-              <span>{{ $t("order.buyPrice") }}</span>
-            </div>
-          </template>
+        <el-table-column
+          prop="ask"
+          align="right"
+          min-width="85"
+          :label="t('order.buyPrice')"
+        >
           <template #default="{ row }">
             <span :class="getClass(row, 'ask')">
               {{ getPrice(row.symbol, "ask") }}
@@ -80,13 +78,12 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="ctm_ms" align="right" min-width="88">
-          <template #header>
-            <div class="table_header">
-              <span class="line">|</span>
-              <span>{{ $t("order.time") }}</span>
-            </div>
-          </template>
+        <el-table-column
+          prop="ctm_ms"
+          align="right"
+          min-width="88"
+          :label="t('order.time')"
+        >
           <template #default="{ row }">
             {{ getTime(row.symbol) }}
           </template>
@@ -96,14 +93,9 @@
           prop="variation"
           sortable="custom"
           align="right"
-          min-width="80"
+          min-width="90"
+          :label="t('order.diurnalVariation')"
         >
-          <template #header>
-            <div class="table_header">
-              <span class="line">|</span>
-              <span>{{ $t("order.diurnalVariation") }}</span>
-            </div>
-          </template>
           <template #default="{ row }">
             <span :class="[quotesStore.getVariation(row.symbol).class]">
               {{ quotesStore.getVariation(row.symbol).value }}
@@ -155,7 +147,7 @@ interface DataSource {
 const dataSource = shallowRef<DataSource[]>([]);
 const depths = ref<Record<string, IDepth[]>>({});
 
-// 获取自选品种
+// 获取自选商品
 import { useSymbols } from "@/store/modules/symbols";
 import { useUser } from "@/store/modules/user";
 import { cloneDeep, orderBy } from "lodash";
@@ -363,19 +355,11 @@ const expandChange = (row: any, expandedRows: any[]) => {
   @include background_color("background");
 }
 
-:deep(.header-cell .cell) {
-  display: flex;
-  align-items: center;
-}
+// :deep(.header-cell .cell) {
+//   display: flex;
+//   align-items: center;
+// }
 :deep(.body-cell) {
   border: none !important;
-}
-.table_header {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  .line {
-    @include font_color("border");
-  }
 }
 </style>

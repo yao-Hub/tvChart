@@ -200,7 +200,7 @@ const quote = computed(() => {
   return quotes[symbol] || {};
 });
 
-/** 当前品种 */
+/** 当前商品 */
 import { useSymbols } from "@/store/modules/symbols";
 const symbolsStore = useSymbols();
 const symbolInfo = computed(() => {

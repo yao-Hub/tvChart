@@ -43,7 +43,7 @@ const formatTime = (time: number) => {
   return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
 };
 
-// 品种切换还未初始化，但是数据已经先到达，存储最新的那个bar
+// 商品切换还未初始化，但是数据已经先到达，存储最新的那个bar
 let temBar: Record<string, ResLineInfo> = {};
 
 export const datafeed = (id: string) => {
@@ -223,7 +223,7 @@ export const datafeed = (id: string) => {
       if (!UID && endBar) {
         chartLineStore.newbar[subscriberUID] = cloneDeep(endBar);
       }
-      // 更改了图表周期或者品种之后再次触发
+      // 更改了图表周期或者商品之后再次触发
       if (UID && endBar) {
         chartLineStore.newbar[subscriberUID] = cloneDeep(endBar);
       }
@@ -256,7 +256,7 @@ export const datafeed = (id: string) => {
       // chartSubStore.unsubChartKlineQuote(subscriberUID);
     },
 
-    // 查找品种（商品）
+    // 查找商品（商品）
     // searchSymbols: (
     //   userInput: string,
     //   exchange: string,

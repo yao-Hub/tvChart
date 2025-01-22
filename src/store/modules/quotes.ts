@@ -16,7 +16,7 @@ export const useQuotes = defineStore("qoutes", () => {
   const quotesClass = ref<IClass>({});
   const initAllQoutes = ref<Record<string, types.IQuote>>({});
 
-  // 所有品种报价
+  // 所有商品报价
   const getAllSymbolQuotes = async () => {
     const res = await allSymbolQuotes();
     res.data.forEach((item) => {

@@ -182,7 +182,7 @@ const minVolume = ref<number>(0);
 // 单笔最大手数
 const maxVolume = ref<number>(0);
 
-// 当前品种
+// 当前商品
 const symbolInfo = ref<ISessionSymbolInfo>();
 watchEffect(() => {
   const info = symbolsStore.symbols.find((e) => e.symbol === nowSymbol.value);

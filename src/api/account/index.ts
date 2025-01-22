@@ -17,10 +17,10 @@ export interface Order {
   id: number; //	订单ID
   login: number; //	订单账户
   time_setup: number; //	订单创建时间，即记录插入时间。挂单成交后 time_setup 与 open_time 不一样
-  symbol: string; //	订单交易品种
-  digits: number; //	订单交易品种报价小数位数
+  symbol: string; //	订单交易商品
+  digits: number; //	订单交易商品报价小数位数
   currency_digits: number; //	订单法币小数位数
-  contract_size: number; //	订单品种合约数量
+  contract_size: number; //	订单商品合约数量
   state: number; //	预留字段
   reason: string; //	预留字段
   time_expiration: number; //	过期时间。挂单创建后有效
