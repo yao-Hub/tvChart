@@ -63,7 +63,10 @@
             </el-col>
             <el-col :span="24" v-if="closeFormState.volume">
               <div class="profitBox" :class="[profitClass]">
-                {{ t("order.expectedGrossProfit") }}: {{ nowProfit }}
+                <el-text
+                  >{{ t("order.expectedGrossProfit") }}:
+                  {{ nowProfit }}</el-text
+                >
               </div>
             </el-col>
           </el-form>
