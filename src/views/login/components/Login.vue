@@ -43,6 +43,7 @@
           type="password"
           placeholder="Please input password"
           show-password
+          ref="pwd"
         />
       </el-form-item>
 
@@ -239,11 +240,13 @@ const goForgetPassword = () => {
   router.push({ name: "ForgetPassword", params: { server: formState.server } });
 };
 
+const pwd = ref();
 onMounted(() => {
   // 记住密码自动填充
   if (query.login) {
     formState.login = String(query.login);
     formState.remember = false;
+    pwd.value.focus();
   }
   if (query.server) {
     formState.server = String(query.server);
