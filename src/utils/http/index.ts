@@ -12,7 +12,6 @@ import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 
 import { LOCALE_MAP, TLANG } from "@/constants/common";
 
-import { useChartInit } from "@/store/modules/chartInit";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 
@@ -34,7 +33,7 @@ type resConfig = AxiosRequestConfig<any> & {
   needLogin?: boolean;
 };
 
-let reLogin = false;
+// let reLogin = false;
 let logging = false;
 
 const showTokenConfirm = () => {
@@ -43,33 +42,35 @@ const showTokenConfirm = () => {
     confirmButtonText: t("reLogin"),
     cancelButtonText: t("cancel"),
   }).then(() => {
-    reLogin = false;
+    // reLogin = false;
     window.location.replace(window.location.origin + "/login");
   });
 };
 
 const handleTokenErr = debounce(async () => {
-  if (reLogin) {
-    showTokenConfirm();
-    return;
-  }
-  reLogin = true;
-  const userStore = useUser();
-  const { login, password, server } = userStore.account;
-  try {
-    logging = true;
-    await userStore.login({
-      login,
-      password,
-      server,
-    });
-    useChartInit().systemRefresh();
-  } catch (e) {
-    showTokenConfirm();
-  } finally {
-    logging = false;
-  }
-}, 3000);
+  showTokenConfirm();
+  logging = false;
+  // if (reLogin) {
+  //   showTokenConfirm();
+  //   return;
+  // }
+  // reLogin = true;
+  // const userStore = useUser();
+  // const { login, password, server } = userStore.account;
+  // try {
+  //   logging = true;
+  //   await userStore.login({
+  //     login,
+  //     password,
+  //     server,
+  //   });
+  //   useChartInit().systemRefresh();
+  // } catch (e) {
+  //   showTokenConfirm();
+  // } finally {
+  //   logging = false;
+  // }
+}, 1000);
 
 const ifLocal = import.meta.env.MODE === "development";
 
@@ -197,6 +198,7 @@ service.interceptors.response.use(
       data.errmsg.includes("invalid token")
     ) {
       config.url && handleTokenErr();
+      logging = true;
       return Promise.reject(data);
     }
 

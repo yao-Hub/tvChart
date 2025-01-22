@@ -102,7 +102,7 @@
 
 <script setup lang="ts">
 import { PageEnum } from "@/constants/pageEnum";
-import { useChartInit } from "@/store/modules/chartInit";
+// import { useChartInit } from "@/store/modules/chartInit";
 import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
@@ -117,7 +117,7 @@ const visible = ref(false);
 const resetPasswordOpen = ref(false);
 
 const networkStore = useNetwork();
-const chartInitStore = useChartInit();
+// const chartInitStore = useChartInit();
 const userStore = useUser();
 const router = useRouter();
 const dialogStore = useDialog();
@@ -153,40 +153,45 @@ const delAccount = (account: any) => {
 };
 
 const changeLogin = (account: any) => {
-  const { login, password, server, ifLogin, remember } = account;
+  const { login, server, ifLogin } = account;
   if (ifLogin) {
     return;
   }
-  if (!remember) {
-    router.push({
-      path: PageEnum.LOGIN_HOME,
-      query: { login, server },
-    });
-    return;
-  }
-  chartInitStore.saveCharts();
-  toogleDropdown();
-  chartInitStore.state.loading = true;
-  userStore.login(
-    {
-      login,
-      password,
-      server,
-    },
-    ({ ending, success }) => {
-      if (ending) {
-        if (success) {
-          chartInitStore.systemRefresh();
-        } else {
-          chartInitStore.state.loading = false;
-          router.push({
-            path: PageEnum.LOGIN_HOME,
-            query: { login, server },
-          });
-        }
-      }
-    }
-  );
+  router.push({
+    path: PageEnum.LOGIN_HOME,
+    query: { login, server },
+  });
+
+  // if (!remember) {
+  //   router.push({
+  //     path: PageEnum.LOGIN_HOME,
+  //     query: { login, server },
+  //   });
+  //   return;
+  // }
+  // chartInitStore.saveCharts();
+  // toogleDropdown();
+  // chartInitStore.state.loading = true;
+  // userStore.login(
+  //   {
+  //     login,
+  //     password,
+  //     server,
+  //   },
+  //   ({ ending, success }) => {
+  //     if (ending) {
+  //       if (success) {
+  //         chartInitStore.systemRefresh();
+  //       } else {
+  //         chartInitStore.state.loading = false;
+  //         router.push({
+  //           path: PageEnum.LOGIN_HOME,
+  //           query: { login, server },
+  //         });
+  //       }
+  //     }
+  //   }
+  // );
 };
 
 const logout = () => {

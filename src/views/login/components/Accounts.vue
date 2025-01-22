@@ -107,19 +107,19 @@ const happyStart = async () => {
     }
     const account = list.value.find((item) => item.actived);
     if (account) {
-      const { remember, login, server } = account;
-      if (remember) {
-        await userStore.login(account, ({ ending, success }) => {
-          loading.value = !ending;
-          if (ending) {
-            success
-              ? router.push({ path: PageEnum.CHART })
-              : goLogin({ login, server });
-          }
-        });
-      } else {
-        goLogin({ login, server });
-      }
+      const { login, server } = account;
+      // if (remember) {
+      //   await userStore.login(account, ({ ending, success }) => {
+      //     loading.value = !ending;
+      //     if (ending) {
+      //       success
+      //         ? router.push({ path: PageEnum.CHART })
+      //         : goLogin({ login, server });
+      //     }
+      //   });
+      // } else {
+      goLogin({ login, server });
+      // }
     }
   } catch (e) {
     loading.value = false;

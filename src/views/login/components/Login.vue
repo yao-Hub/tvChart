@@ -48,13 +48,14 @@
 
       <el-form-item>
         <div class="login-form-remember">
-          <el-checkbox
+          <!-- <el-checkbox
             class="link"
             v-model="formState.remember"
             :label="$t('account.rememberMe')"
-          />
+          /> -->
           <span
             class="link"
+            style="margin-left: auto"
             v-if="ifSimulatedServer"
             @click="goForgetPassword"
             >{{ $t("account.forgetPassword") }}</span
@@ -137,7 +138,7 @@ const formState = reactive<FormState>({
   server: "",
   login: "",
   password: "",
-  remember: true,
+  remember: false,
 });
 const loading = ref(false);
 const ruleFormRef = ref<FormInstance>();

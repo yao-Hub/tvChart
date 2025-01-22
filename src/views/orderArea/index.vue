@@ -250,6 +250,12 @@
               <template v-else-if="column.dataKey === 'order_price'">{{
                 getOrderPrice(rowData)
               }}</template>
+              <template v-else-if="column.dataKey === 'tp_price'">{{
+                formatPrice(rowData.tp_price, rowData.digits)
+              }}</template>
+              <template v-else-if="column.dataKey === 'sl_price'">{{
+                formatPrice(rowData.sl_price, rowData.digits)
+              }}</template>
               <template v-else-if="column.dataKey === 'profit'">
                 <span :class="[getCellClass(rowData.profit), 'profitcell']">
                   <span v-if="activeKey === 'blanceRecord'">{{
@@ -480,6 +486,10 @@ const getTableHeight = (height: number) => {
   return ["marketOrderHistory"].includes(activeKey.value)
     ? Math.min((dataSource.value.length + 2) * 32, height)
     : height;
+};
+
+const formatPrice = (price: number, digits: number) => {
+  return price ? price.toFixed(digits) : "-";
 };
 
 // 出入金记录底部合计

@@ -48,7 +48,7 @@
           prop="symbol"
           :label="$t('order.symbol')"
           align="left"
-          width="80"
+          width="85"
         >
         </el-table-column>
 
