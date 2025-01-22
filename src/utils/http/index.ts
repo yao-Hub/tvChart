@@ -11,6 +11,7 @@ import { decrypt, encrypt } from "utils/DES/JS";
 import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 
 import { LOCALE_MAP, TLANG } from "@/constants/common";
+import { generateUUID } from "@/utils/common";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
@@ -76,13 +77,6 @@ const ifLocal = import.meta.env.MODE === "development";
 
 const controller = new AbortController();
 
-function generateUUID() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0,
-      v = c == "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
 let uuid;
 const storageId = window.localStorage.getItem("uuid");
 if (storageId) {

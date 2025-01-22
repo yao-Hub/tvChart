@@ -80,6 +80,8 @@ import { useNetwork } from "@/store/modules/network";
 
 import { PageEnum } from "@/constants/pageEnum";
 
+import VerificationCode from "./VerificationCode.vue";
+
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();

@@ -8,7 +8,9 @@
         <span>{{ $t("back") }}</span>
       </div>
     </div>
-    <span class="plogin">{{ $t("logAccount") }}</span>
+    <span class="plogin" :style="{ marginTop: ifloginBack ? '' : '24px' }">{{
+      $t("logAccount")
+    }}</span>
     <span class="padd">{{ $t("noAccount") }}</span>
     <el-form
       ref="ruleFormRef"
@@ -75,7 +77,7 @@
         >
       </el-form-item>
 
-      <el-form-item v-if="ifSimulatedServer">
+      <el-form-item>
         <div class="login-form-account">
           <span> {{ $t("account.noAccount") }}&nbsp;</span>
           <el-text type="primary" style="cursor: pointer" @click="goRegister">{{
@@ -111,7 +113,7 @@
 <script setup lang="ts">
 import { PageEnum } from "@/constants/pageEnum";
 import { Search } from "@element-plus/icons-vue";
-import type { FormInstance, FormRules } from "element-plus";
+import { ElMessage, type FormInstance, type FormRules } from "element-plus";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -234,7 +236,13 @@ const goAccount = () => {
   router.push({ path: PageEnum.LOGIN_ACCOUNTS });
 };
 const goRegister = () => {
-  router.push({ name: "Register", params: { server: formState.server } });
+  const target = networkStore.queryTradeLines.find((e) => e.isOfficial === "1");
+  if (target) {
+    const server = target.lineName;
+    router.push({ name: "Register", params: { server } });
+  } else {
+    ElMessage.warning(t("tip.noSimuServer"));
+  }
 };
 const goForgetPassword = () => {
   router.push({ name: "ForgetPassword", params: { server: formState.server } });
@@ -277,6 +285,7 @@ onUnmounted(() => {
     height: 40px;
     line-height: 40px;
     display: block;
+    // margin-top: 24px;
   }
   .padd {
     font-weight: 400;

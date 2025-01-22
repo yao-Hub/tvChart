@@ -115,12 +115,11 @@ watch(
 // 离开页面保存图表操作
 // 撤销监听 resize
 import { onBeforeRouteLeave } from "vue-router";
-onBeforeRouteLeave(async (to, from, next) => {
+onBeforeRouteLeave((to, from, next) => {
   window.removeEventListener("resize", () => {
     resizeUpdate();
   });
   chartInitStore.saveCharts();
-  await rootStore.resetAllStore();
   next();
 });
 </script>

@@ -7,9 +7,10 @@ import utc from "dayjs/plugin/utc";
 
 import { CustomTimezoneId, TimezoneId } from "public/charting_library";
 
+import i18n from "@/language/index";
 import { defineStore } from "pinia";
 import { ref } from "vue";
-import { useI18n } from "vue-i18n";
+// import { useI18n } from "vue-i18n";
 import { useChartInit } from "./chartInit";
 import { useStorage } from "./storage";
 
@@ -18,12 +19,12 @@ export type Ttime = TimezoneId | CustomTimezoneId;
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(relativeTime);
+
 export const useTime = defineStore("time", () => {
-  const I18n = useI18n();
-  const value = I18n.locale.value;
   const storageStore = useStorage();
   const chartInitStore = useChartInit();
   const settedTimezone = ref(dayjs.tz.guess());
+  const value = i18n.global.locale.value;
 
   const initTime = () => {
     const userTimezone = storageStore.getItem("timezone") || dayjs.tz.guess();

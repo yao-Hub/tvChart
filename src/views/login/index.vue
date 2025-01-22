@@ -24,6 +24,7 @@ import { useRouter } from "vue-router";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
+import { useRoot } from "@/store/store";
 
 import Language from "./components/Language.vue";
 import Theme from "./components/Theme.vue";
@@ -32,11 +33,15 @@ const router = useRouter();
 
 const networkStore = useNetwork();
 const userStore = useUser();
+const rootStore = useRoot();
 
-userStore.initAccount();
+(async function init() {
+  await rootStore.resetAllStore();
+  userStore.initAccount();
 
-// 查询交易线路列表
-networkStore.getLines();
+  // 查询交易线路列表
+  networkStore.getLines();
+})();
 
 const direction = ref("slide-forward");
 watch(
