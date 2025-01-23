@@ -176,16 +176,24 @@ export const useOrder = defineStore("order", {
       return this.ifQuick;
     },
 
-    async getData(type: string) {
+    getData(type: string) {
       const userStore = useUser();
       switch (type) {
+        // 单个平仓
+        case "single_marketOrder_close":
+          Promise.all([
+            this.getMarketOrderHistory(),
+            this.getBlanceRecord(),
+            userStore.getLoginInfo(),
+          ]);
+          break;
         // 监听订单已建仓
         case "order_opened":
-          await Promise.all([this.getMarketOrders(), userStore.getLoginInfo()]);
+          Promise.all([this.getMarketOrders(), userStore.getLoginInfo()]);
           break;
         // 监听订单已平仓
         case "order_closed":
-          await Promise.all([
+          Promise.all([
             this.getMarketOrders(),
             this.getMarketOrderHistory(),
             this.getBlanceRecord(),
@@ -194,7 +202,7 @@ export const useOrder = defineStore("order", {
           break;
         // 监听订单已修改（止盈止损）
         case "order_modified":
-          await this.getMarketOrders();
+          this.getMarketOrders();
           break;
         // 监听挂单已创建
         // 监听挂单已更新;
@@ -202,18 +210,15 @@ export const useOrder = defineStore("order", {
         case "pending_order_opened":
         case "pending_order_modified":
         case "pending_order_valided":
-          await this.getPendingOrders();
+          this.getPendingOrders();
           break;
         // 监听挂单已删除
         case "pending_order_deleted":
-          await Promise.all([
-            this.getPendingOrders(),
-            this.getPendingOrderHistory(),
-          ]);
+          Promise.all([this.getPendingOrders(), this.getPendingOrderHistory()]);
           break;
         // 监听挂单已成交
         case "pending_order_dealt":
-          await Promise.all([
+          Promise.all([
             this.getMarketOrders(),
             this.getPendingOrders(),
             userStore.getLoginInfo(),
@@ -221,7 +226,7 @@ export const useOrder = defineStore("order", {
           break;
         // 监听出入金
         case "balance_order_added":
-          await Promise.all([this.getBlanceRecord(), userStore.getLoginInfo()]);
+          Promise.all([this.getBlanceRecord(), userStore.getLoginInfo()]);
           break;
         default:
           break;

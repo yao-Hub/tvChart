@@ -213,19 +213,26 @@
             @scroll="tableScroll"
             fixed
           >
-            <template #header-cell="{ column }">
-              <div class="header-box">
+            <template #header-cell="{ column, columnIndex }">
+              <div
+                class="header-box"
+                @mouseenter="headerMouseenter(columnIndex)"
+                @mouseleave="headerMouseLeave"
+              >
                 <div>{{ column.title || "" }}</div>
                 <div
                   class="drag-line"
-                  v-if="column.key !== 'action'"
+                  v-show="
+                    column.key !== 'action' &&
+                    dragLineList.includes(columnIndex)
+                  "
                   @mousedown="(e: Event) => mousedown(e, column.dataKey)"
                 >
                   |
                 </div>
               </div>
             </template>
-            <template #cell="{ column, rowData }">
+            <template #cell="{ column, rowData, rowIndex }">
               <template v-if="column.dataKey.includes('time')">{{
                 formatTime(rowData[column.dataKey])
               }}</template>
@@ -298,7 +305,7 @@
                 <el-tooltip :content="t('table.closePosition')" placement="top">
                   <el-icon
                     class="iconfont"
-                    @click="closeMarketOrder(rowData)"
+                    @click="closeMarketOrder(rowData, rowIndex)"
                     v-if="!marketCloseLodingMap[rowData.id]"
                   >
                     <CloseBold />
@@ -314,7 +321,7 @@
                 <el-tooltip :content="t('table.cancelOrder')" placement="top">
                   <el-icon
                     class="iconfont"
-                    @click="delPendingOrder(rowData)"
+                    @click="delPendingOrder(rowData, rowIndex)"
                     v-if="!pendingCloseLodingMap[rowData.id]"
                   >
                     <CloseBold />
@@ -448,6 +455,7 @@ const state = reactive({
 });
 const activeKey = ref<orderTypes.TableDataKey>("marketOrder");
 
+const dragLineList = ref<number[]>([]);
 // 拖动改变列宽相关逻辑
 const columnRefresh = (x: any, fileKey: string) => {
   const index = state.columns[activeKey.value].findIndex(
@@ -464,6 +472,7 @@ const columnRefresh = (x: any, fileKey: string) => {
 };
 
 let isResizing = false;
+let isEnter = false;
 let lastX = 0;
 let currentKey = "";
 const mousedown = (e: any, dataKey: string) => {
@@ -480,7 +489,27 @@ document.addEventListener("mousemove", (e) => {
 });
 document.addEventListener("mouseup", () => {
   isResizing = false;
+  if (!isEnter) {
+    dragLineList.value = [];
+  }
 });
+const headerMouseenter = (index: number) => {
+  isEnter = true;
+  if (isResizing) {
+    return;
+  }
+  dragLineList.value.push(index);
+  if (index !== 0) {
+    dragLineList.value.push(index - 1);
+  }
+};
+const headerMouseLeave = () => {
+  isEnter = false;
+  if (isResizing) {
+    return;
+  }
+  dragLineList.value = [];
+};
 
 const getTableHeight = (height: number) => {
   return ["marketOrderHistory"].includes(activeKey.value)
@@ -700,7 +729,8 @@ const getDays = (e: orders.resHistoryOrders) => {
 // 市价单 单个平仓
 const marketCloseLodingMap = ref<Record<number, boolean>>({});
 const closeMarketOrder = async (
-  record: orders.resOrders & orders.resPendingOrders
+  record: orders.resOrders & orders.resPendingOrders,
+  index: number
 ) => {
   async function foo() {
     try {
@@ -713,7 +743,8 @@ const closeMarketOrder = async (
       marketCloseLodingMap.value[record.id] = false;
       if (res.data.action_success) {
         ElMessage.success(t("order.positionClosedSuccessfully"));
-        orderStore.getData("order_closed");
+        orderStore.orderData.marketOrder.splice(index, 1);
+        orderStore.getData("single_marketOrder_close");
       }
     } catch (error) {
       marketCloseLodingMap.value[record.id] = false;
@@ -731,7 +762,6 @@ const closeMarketOrder = async (
   state.orderInfo = record;
   dialogStore.incrementZIndex();
   state.marketDialogVisible = true;
-  // ElMessageBox.confirm("", t("order.confirmPositionClosure")).then(() => foo());
 };
 
 // 全部关闭市价单
@@ -768,7 +798,7 @@ const closePendingOrders = (data: orders.resOrders[]) => {
 
 // 删除单个挂单
 const pendingCloseLodingMap = ref<Record<number, boolean>>({});
-const delPendingOrder = async (record: orders.resOrders) => {
+const delPendingOrder = async (record: orders.resOrders, index: number) => {
   try {
     pendingCloseLodingMap.value[record.id] = true;
     const res = await orders.delPendingOrders({
@@ -779,7 +809,8 @@ const delPendingOrder = async (record: orders.resOrders) => {
 
     if (res.data.action_success) {
       ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
-      orderStore.getData("pending_order_deleted");
+      orderStore.orderData.pendingOrder.splice(index, 1);
+      orderStore.getPendingOrderHistory();
       return;
     }
     ElMessage.error(res.data.err_text);
