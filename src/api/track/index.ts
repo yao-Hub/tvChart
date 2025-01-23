@@ -25,14 +25,14 @@ interface ITrackAction {
   userAgent: string; // 	Http请求中的User-Agent
   location?: string; // 	用户的地理位置信息
   ipAddress?: string; // 	用户IP地址
-  properties?: {
-    prePage: string; //  上一个页面 （可选）
-    deviceType: string; //  设备类型 如 ： mobile （可选）
+  properties: {
+    prePage?: string; //  上一个页面 （可选）
+    deviceType?: string; //  设备类型 如 ： mobile （可选）
     deviceModel: string; //  设备型号：如iPhone 14 （可选）
     deviceInfo: string; //  如操作系统、浏览器版本等
     appVersion: string; //  应用版本 如 “3.2.1”
-    latitude: string; //  纬度 39.9042 （可选）
-    longitude: string; //  经度 116.4074 （可选）
+    latitude?: string; //  纬度 39.9042 （可选）
+    longitude?: string; //  经度 116.4074 （可选）
     deviceBrand: string; //  设备品牌
     platform: string; //  平台 如：Android, iOS, WEB
     server: string; //  交易服务器名称

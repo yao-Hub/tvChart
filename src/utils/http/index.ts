@@ -128,6 +128,11 @@ service.interceptors.request.use(
     if (action.startsWith("/")) {
       action = action.slice(1);
     }
+    if (config.urlType && config.urlType === "admin") {
+      const actionList = action.split("/");
+      actionList.splice(0, 1);
+      action = actionList.join("/");
+    }
     let baseURL = "";
     const networkStore = useNetwork();
     const webApi = networkStore.currentNode?.webApi;

@@ -10,6 +10,7 @@
       v-bind="props.pickerOption"
       :value-format="dateFormat"
       :default-time="defaultTime"
+      @clear="model = []"
     />
     <BaseImg iconName="caretDown" />
   </div>
@@ -84,7 +85,8 @@ watch(
   () => model.value,
   () => {
     emit("timeChange");
-  }
+  },
+  { deep: true }
 );
 
 // watch(

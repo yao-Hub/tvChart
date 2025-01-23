@@ -92,17 +92,6 @@
             @timeChange="getTableData('marketOrderHistory')"
             >{{ $t("table.positionClosingTime") }}：</TimeRange
           >
-          <TimeRange
-            v-if="['blanceRecord'].includes(activeKey)"
-            style="min-width: 380px"
-            v-model:value="orderStore.dataFilter[activeKey].createTime"
-            :pickerOption="{
-              startPlaceholder: t('table.startTime'),
-              endPlaceholder: t('table.endTime'),
-            }"
-            @timeChange="getTableData('blanceRecord')"
-            >{{ $t("table.time") }}：</TimeRange
-          >
           <el-select
             :suffix-icon="SelectSuffixIcon"
             style="width: 130px"
@@ -114,6 +103,17 @@
             <el-option value="profit" :label="t('table.deposit')"></el-option>
             <el-option value="loss" :label="t('table.withdrawal')"></el-option>
           </el-select>
+          <TimeRange
+            v-if="['blanceRecord'].includes(activeKey)"
+            style="min-width: 380px"
+            v-model:value="orderStore.dataFilter[activeKey].createTime"
+            :pickerOption="{
+              startPlaceholder: t('table.startTime'),
+              endPlaceholder: t('table.endTime'),
+            }"
+            @timeChange="getTableData('blanceRecord')"
+            >{{ $t("table.time") }}：</TimeRange
+          >
           <DataPicker
             v-if="activeKey === 'log'"
             v-model="orderStore.dataFilter[activeKey].date"
