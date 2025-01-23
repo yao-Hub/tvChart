@@ -1,5 +1,6 @@
 import { useUser } from "@/store/modules/user";
 import { useVersion } from "@/store/modules/version";
+import { generateUUID } from "@/utils/common";
 import { TAction, trackAction } from "api/track/index";
 
 interface ITrackAgre {
@@ -10,9 +11,9 @@ interface ITrackAgre {
 export function sendTrack(params: ITrackAgre) {
   const { actionType, actionObject } = params;
   const versionStore = useVersion();
-  const actionId = versionStore.deviceId;
+  const actionId = generateUUID();
   const actionTime = new Date().getTime();
-  const deviceId = window.localStorage.getItem("uuid") as string;
+  const deviceId = versionStore.deviceId;
   const userAgent = navigator.userAgent;
   const userStore = useUser();
   const loginInfo = userStore.loginInfo;
