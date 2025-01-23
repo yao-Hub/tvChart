@@ -1,15 +1,18 @@
+import type { RouteRecordRaw } from "vue-router";
+
 import { PageEnum } from "@/constants/pageEnum";
+
 import Accounts from "@/views/login/components/Accounts.vue";
 import ForgetPassword from "@/views/login/components/ForgetPassword.vue";
 import Login from "@/views/login/components/Login.vue";
 import Register from "@/views/login/components/Register.vue";
-import type { RouteRecordRaw } from "vue-router";
+import Main from "@/views/login/index.vue";
 
 // 路由规则
 const routes: RouteRecordRaw[] = [
   {
     path: PageEnum.LOGIN,
-    component: () => import("@/views/login/index.vue"),
+    component: Main,
     redirect: PageEnum.LOGIN_ACCOUNTS,
     children: [
       {

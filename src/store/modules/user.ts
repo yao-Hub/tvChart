@@ -5,8 +5,8 @@ import { defineStore } from "pinia";
 import CryptoJS from "utils/AES";
 import { useI18n } from "vue-i18n";
 
-import { Login, loginInfo, UserInfo } from "api/account/index";
-import { round } from "utils/common/index";
+import { Login, loginInfo, UserInfo } from "api/account";
+import { round } from "utils/common";
 
 import { useNetwork } from "./network";
 import { useOrder } from "./order";

@@ -1,5 +1,5 @@
 <template>
-  <div class="base_Image" v-if="!ifError && !path">
+  <div class="base_Image" v-if="!ifError && !path && props.progress">
     <el-progress
       type="circle"
       :percentage="percentage"
@@ -17,6 +17,7 @@ import axios from "axios";
 import { ref, watchEffect } from "vue";
 interface Props {
   src: string;
+  progress?: boolean;
 }
 
 const props = defineProps<Props>();

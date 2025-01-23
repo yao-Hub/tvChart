@@ -11,7 +11,7 @@ import { decrypt, encrypt } from "utils/DES/JS";
 import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 
 import { LOCALE_MAP, TLANG } from "@/constants/common";
-import { generateUUID } from "@/utils/common";
+// import { generateUUID } from "@/utils/common";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
@@ -77,14 +77,7 @@ const ifLocal = import.meta.env.MODE === "development";
 
 const controller = new AbortController();
 
-let uuid;
-const storageId = window.localStorage.getItem("uuid");
-if (storageId) {
-  uuid = storageId;
-} else {
-  uuid = generateUUID();
-  window.localStorage.setItem("uuid", uuid);
-}
+const uuid = window.localStorage.getItem("uuid");
 
 const theme = localStorage.getItem("systemTheme") || "dark";
 const currentLanguage = (localStorage.getItem("language") ||

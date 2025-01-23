@@ -71,7 +71,7 @@
           class="login-form-button"
           type="primary"
           :disabled="disabled"
-          @click="happyStart"
+          @click="happyStart('loginBtn')"
           :loading="loading"
           >{{ $t("account.login") }}</el-button
         >
@@ -120,6 +120,8 @@ import { useRoute, useRouter } from "vue-router";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
+
+import { sendTrack } from "@/utils/track";
 
 const { t } = useI18n();
 
@@ -205,7 +207,7 @@ const serviceArticleUrl = ref("");
   serviceArticleUrl.value = serviceArticle.data.url;
 })();
 
-const happyStart = () => {
+const happyStart = (actionObject: string) => {
   try {
     if (disabled.value) {
       return;
@@ -219,11 +221,17 @@ const happyStart = () => {
         brokerName: target.brokerName,
         lineName: target.lineName,
         login: formState.login,
+      }).catch((e) => {
+        loading.value = false;
       });
     }
     userStore.login(formState, ({ ending, success }) => {
       loading.value = !ending;
       if (ending && success) {
+        sendTrack({
+          actionType: "signUp",
+          actionObject,
+        });
         router.push({ path: "/" });
       }
     });
@@ -264,7 +272,7 @@ onMounted(() => {
 
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === "Enter") {
-    happyStart();
+    happyStart("keydown");
   }
 }
 onUnmounted(() => {

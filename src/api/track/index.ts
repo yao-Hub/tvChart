@@ -4,7 +4,7 @@ enum Api {
   Action = "/track/track/user/action",
 }
 
-type TAction =
+export type TAction =
   | "enter"
   | "back"
   | "slide"

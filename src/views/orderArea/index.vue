@@ -879,7 +879,9 @@ onMounted(async () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+.baseTabs .baseTabs_item:nth-of-type(1) {
+  border-radius: 0 4px 0 0;
+}
 :deep(.el-table-v2__header-cell) {
   text-overflow: ellipsis;
   overflow: hidden;

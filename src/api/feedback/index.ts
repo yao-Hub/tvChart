@@ -1,7 +1,7 @@
 import request from "utils/http";
 enum Api {
-  SaveFeedback = "/feedback/save_feedback",
-  Myfeedback = "/feedback/select_my_feedback",
+  SaveFeedback = "/admin/feedback/save_feedback",
+  Myfeedback = "/admin/feedback/select_my_feedback",
 }
 interface reqSaveFeedback {
   platform: string;

@@ -88,7 +88,7 @@ watch(
   position: relative;
   overflow: hidden;
   .welcome {
-    position: absolute;
+    position: fixed;
     left: 18.65%;
     top: 20%;
     font-size: 40px;
@@ -96,14 +96,14 @@ watch(
     height: 648px;
   }
   .title {
-    position: absolute;
+    position: fixed;
     left: 72px;
     top: 32px;
     width: 176px;
     height: 36px;
   }
   .functionalArea {
-    position: absolute;
+    position: fixed;
     top: 4%;
     right: 72px;
     display: flex;
@@ -111,7 +111,7 @@ watch(
     align-items: center;
   }
   .container {
-    position: absolute;
+    position: fixed;
     right: 15%;
     top: 15%;
     width: 512px;

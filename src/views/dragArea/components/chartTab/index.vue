@@ -180,6 +180,7 @@ const resoluteItemSelect = (key: number) => {
   align-items: center;
   gap: 8px;
   @include background_color("background");
+      box-sizing: border-box;
 }
 .tabActive {
   @include background_color("background-component");

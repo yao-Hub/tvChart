@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, watch } from "vue";
+import { onMounted, onUnmounted, watch } from "vue";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartLine } from "@/store/modules/chartLine";
@@ -61,8 +61,6 @@ const initRender = () => {
   // 3.拿到缓存信息才能确定历史页面布局
   layoutStore.initLayout(); // 布局显示隐藏
   chartInitStore.intLayoutType(); // 单图表 or 多图表
-  // 4.确定了布局才去初始化各个模块位置
-  initDragResizeArea();
   chartInitStore.loadChartList(); // 加载图表
   // 记忆动作（没什么用(>^ω^<)喵）
   if (rootStore.cacheAction) {
@@ -70,6 +68,10 @@ const initRender = () => {
     rootStore.clearCacheAction();
   }
   chartInitStore.state.loading = false;
+  setTimeout(() => {
+    // 初始化各个模块位置
+    initDragResizeArea();
+  });
 };
 
 // 初始化 注意调用顺序
@@ -96,9 +98,11 @@ async function init() {
 // 浏览器页面变化布局随之变化
 onMounted(() => {
   init();
-  window.addEventListener("resize", () => {
-    resizeUpdate();
-  });
+  window.addEventListener("resize", resizeUpdate);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", resizeUpdate);
 });
 
 // 全局刷新重置store 热更新
@@ -116,9 +120,6 @@ watch(
 // 撤销监听 resize
 import { onBeforeRouteLeave } from "vue-router";
 onBeforeRouteLeave((to, from, next) => {
-  window.removeEventListener("resize", () => {
-    resizeUpdate();
-  });
   chartInitStore.saveCharts();
   next();
 });

@@ -11,7 +11,11 @@
           @click="selectAccount(account)"
         >
           <div class="item_left">
-            <BaseImg class="icon" :fullPath="getLogo(account.server)" />
+            <BaseImg
+              class="icon"
+              :src="getLogo(account.server)"
+              type="online"
+            />
             <span class="textEllipsis">{{ account.server }}</span>
             <span class="textEllipsis">{{ account.login }}</span>
           </div>

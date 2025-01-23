@@ -4,14 +4,14 @@ enum Api {
   Login = "/login",
   LoginInfo = "/my/login_info",
   PasswordReset = "/my/password_update",
-  QueryTradeLine = "/server/queryTradeLine",
-  Register = "/my/sign_up",
-  QueryNode = "/server/queryNode",
-  VirtualLine = "/my/virtual_line_query",
-  EmailPasswordUpdate = "/my/email_password_update",
-  SendEmail = "/my/sendEmail",
-  ArticleDetails = "/column/select_trade_column",
-  ProtocolAgree = "/protocol/protocol_agree",
+  QueryTradeLine = "/admin/server/queryTradeLine",
+  Register = "/admin/my/sign_up",
+  QueryNode = "/admin/server/queryNode",
+  VirtualLine = "/admin/my/virtual_line_query",
+  EmailPasswordUpdate = "/admin/my/email_password_update",
+  SendEmail = "/admin/my/sendEmail",
+  ArticleDetails = "/admin/column/select_trade_column",
+  ProtocolAgree = "/admin/protocol/protocol_agree",
 }
 export interface Order {
   id: number; //	订单ID
