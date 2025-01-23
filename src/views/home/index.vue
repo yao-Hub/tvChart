@@ -8,11 +8,13 @@
   <FloatMenu></FloatMenu>
   <OrderDialog></OrderDialog>
   <Feedback></Feedback>
-  <Disclaimers></Disclaimers>
+  <DisclaimersZh v-if="locale === 'zh'"></DisclaimersZh>
+  <DisclaimersEn v-if="locale === 'en'"></DisclaimersEn>
 </template>
 
 <script setup lang="ts">
 import { onMounted, onUnmounted, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartLine } from "@/store/modules/chartLine";
@@ -50,6 +52,10 @@ const timeStore = useTime();
 const rateStore = useRate();
 const quotesStore = useQuotes();
 const rootStore = useRoot();
+
+const I18n = useI18n();
+const { locale } = I18n;
+console.log(locale.value);
 
 const initRender = () => {
   timeStore.initTime(); // 初始化时间语言和时区
