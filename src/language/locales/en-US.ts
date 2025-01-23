@@ -225,6 +225,7 @@ export default {
     reversePosition:
       "Are you sure you want to close the current position and simultaneously open a position of the same size in the opposite direction?",
     noSimuServer: "Unable to find official simulation server",
+    addMyOption: "Add Varieties",
   },
 
   time: {

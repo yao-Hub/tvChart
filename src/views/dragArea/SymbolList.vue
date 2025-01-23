@@ -105,8 +105,14 @@
 
         <template #empty>
           <div class="emptyBox">
-            <el-text type="info">{{ $t("tip.noData") }}</el-text>
-            <el-text type="info">{{ $t("tip.addMySymbol") }}</el-text>
+            <BaseImg iconName="icon_empty"></BaseImg>
+            <div class="tipWords">
+              <span>{{ $t("tip.noData") }}</span>
+              <span>{{ $t("tip.addMySymbol") }}</span>
+            </div>
+            <el-button type="primary" @click="ifSearch = true" class="addBtn">{{
+              $t("tip.addMyOption")
+            }}</el-button>
           </div>
         </template>
       </el-table>
@@ -345,9 +351,18 @@ const expandChange = (row: any, expandedRows: any[]) => {
 .emptyBox {
   display: flex;
   flex-direction: column;
-
-  span {
-    height: 32px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 60px;
+  .tipWords {
+    @include font_color("word-info");
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .addBtn {
+    min-width: 86px;
+    margin-top: 8px;
   }
 }
 
@@ -355,11 +370,11 @@ const expandChange = (row: any, expandedRows: any[]) => {
   @include background_color("background");
 }
 
-// :deep(.header-cell .cell) {
-//   display: flex;
-//   align-items: center;
-// }
 :deep(.body-cell) {
   border: none !important;
+}
+
+:deep(.el-table__empty-text) {
+  line-height: normal;
 }
 </style>

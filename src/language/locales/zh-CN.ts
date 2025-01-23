@@ -227,6 +227,7 @@ export default {
     addMySymbol: "可通过上方搜索框添加自选商品",
     reversePosition: "确定关闭当前持仓并同时以相反方向开立同等大小心头寸吗？",
     noSimuServer: "找不到官方模拟服务器",
+    addMyOption: "添加自选",
   },
 
   time: {

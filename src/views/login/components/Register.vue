@@ -45,18 +45,18 @@
             <el-link
               type="primary"
               @click.stop
-              :href="accountClauseUrl"
               target="_blank"
               :underline="false"
+              @click="goProtocol('accountClause')"
               >&nbsp;{{ $t("article.accountClause") }}&nbsp;</el-link
             >
             <span>{{ $t("and") }}</span>
             <el-link
               type="primary"
               @click.stop
-              :href="dataPolicyUrl"
               target="_blank"
               :underline="false"
+              @click="goProtocol('dataPolicy')"
               >&nbsp;{{ $t("article.dataPolicy") }}&nbsp;</el-link
             >
           </el-checkbox>
@@ -103,7 +103,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import VerificationCode from "./VerificationCode.vue";
 
-import { articleDetails, protocolAgree, register } from "api/account/index";
+import { protocolAgree, register } from "api/account/index";
 
 import { useNetwork } from "@/store/modules/network";
 
@@ -157,18 +157,15 @@ const rules = reactive<FormRules<typeof formState>>({
   ],
 });
 
-// 开户条款
-const accountClauseUrl = ref("");
-// 数据保护政策
-const dataPolicyUrl = ref("");
-(async function getProtoco() {
-  const [accountClause, dataPolicy] = await Promise.all([
-    articleDetails({ columnCode: "accountClause", articleCode: "" }),
-    articleDetails({ columnCode: "dataPolicy", articleCode: "" }),
-  ]);
-  accountClauseUrl.value = accountClause.data.url;
-  dataPolicyUrl.value = dataPolicy.data.url;
-})();
+const goProtocol = (columnCode: string) => {
+  const { href } = router.resolve({
+    name: "protocol",
+    query: {
+      columnCode,
+    },
+  });
+  window.open(href, "_blank");
+};
 
 const querySearch = (queryString: string, cb: any) => {
   let res: { value: string }[];

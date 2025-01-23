@@ -92,8 +92,8 @@
     <el-link
       type="primary"
       target="_blank"
-      :href="serviceArticleUrl"
       :underline="false"
+      @click="goProtocol('service-article')"
       >{{ $t("leftBook") }}{{ $t("article.userAgreement")
       }}{{ $t("rightBook") }}</el-link
     >
@@ -101,8 +101,8 @@
     <el-link
       type="primary"
       target="_blank"
-      :href="privacyPolicyUrl"
       :underline="false"
+      @click="goProtocol('privacy-policy')"
       >{{ $t("leftBook") }}{{ $t("article.privacyPolicy")
       }}{{ $t("rightBook") }}</el-link
     >
@@ -193,19 +193,17 @@ const ifSimulatedServer = computed(() => {
   return false;
 });
 
-import { articleDetails, protocolAgree } from "api/account/index";
-// 隐私协议
-const privacyPolicyUrl = ref("");
-// 用户协议
-const serviceArticleUrl = ref("");
-(async function getProtoco() {
-  const [privacyPolicy, serviceArticle] = await Promise.all([
-    articleDetails({ columnCode: "privacy-policy", articleCode: "" }),
-    articleDetails({ columnCode: "service-article", articleCode: "" }),
-  ]);
-  privacyPolicyUrl.value = privacyPolicy.data.url;
-  serviceArticleUrl.value = serviceArticle.data.url;
-})();
+import { protocolAgree } from "api/account/index";
+
+const goProtocol = (columnCode: string) => {
+  const { href } = router.resolve({
+    name: "protocol",
+    query: {
+      columnCode,
+    },
+  });
+  window.open(href, "_blank");
+};
 
 const happyStart = (actionObject: string) => {
   try {

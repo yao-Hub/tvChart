@@ -55,7 +55,6 @@ const rootStore = useRoot();
 
 const I18n = useI18n();
 const { locale } = I18n;
-console.log(locale.value);
 
 const initRender = () => {
   timeStore.initTime(); // 初始化时间语言和时区
