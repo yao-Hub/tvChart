@@ -71,7 +71,7 @@ const handleOk = (e: MouseEvent) => {
   }
   ElMessage({
     type: "warning",
-    message: `请先勾选同意条款`,
+    message: `Please check the agreement terms first`,
   });
 };
 
