@@ -4,7 +4,13 @@
     label-position="top"
     :prop="props.formOption.name"
     :label="props.formOption.label"
-    :rules="[{ required: true, trigger: ['change', 'blur'] }]"
+    :rules="[
+      {
+        required: true,
+        trigger: ['change', 'blur'],
+        message: t('tip.required', { label: props.formOption.label }),
+      },
+    ]"
   >
     <div style="width: 100%; display: flex; gap: 16px">
       <StepNumInput
@@ -26,6 +32,9 @@
 import { IQuote, ISessionSymbolInfo } from "#/chart/index";
 import { limitdigit, round } from "utils/common/index";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 interface Props {
   disabled?: boolean;

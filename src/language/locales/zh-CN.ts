@@ -235,6 +235,7 @@ export default {
     reversePosition: "确定关闭当前持仓并同时以相反方向开立同等大小心头寸吗？",
     noSimuServer: "找不到官方模拟服务器",
     addMyOption: "添加自选",
+    required: "{label}不能为空",
   },
 
   time: {

@@ -344,7 +344,6 @@ const validDate = (rule: any, value: any, callback: any) => {
 };
 const rules: FormRules<typeof formState> = {
   dueDate: [{ required: true, trigger: "change", validator: validDate }],
-  limitedPrice: [{ required: true, trigger: "change" }],
 };
 
 /** 当前商品 */
