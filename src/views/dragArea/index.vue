@@ -12,7 +12,9 @@
         data-minWidth="350"
         v-if="layoutStore.chartsVisable"
       >
-        <BaseImg class="handle" iconName="icon_drag1"></BaseImg>
+        <div class="handle">
+          <BaseImg iconName="icon_drag1"></BaseImg>
+        </div>
         <ChartList v-if="!chartInitStore.state.loading" class="container_item">
         </ChartList>
       </div>
@@ -24,7 +26,10 @@
         data-initW="600"
         v-if="layoutStore.symbolsVisable"
       >
-        <BaseImg class="handle" iconName="icon_drag1"></BaseImg>
+        <div class="handle">
+          <BaseImg iconName="icon_drag1"></BaseImg>
+        </div>
+
         <SymbolList class="container_item"></SymbolList>
       </div>
     </div>
@@ -41,7 +46,9 @@
         data-minWidth="445"
         v-if="layoutStore.orderAreaVisable"
       >
-        <BaseImg class="handle" iconName="icon_drag1"></BaseImg>
+        <div class="handle">
+          <BaseImg iconName="icon_drag1"></BaseImg>
+        </div>
         <OrderArea
           v-if="!chartInitStore.state.loading"
           class="container_item"
@@ -91,13 +98,20 @@ const layoutStore = useLayout();
       }
 
       .handle {
-        height: calc(var(--component-size) + 4px);
+        height: var(--height);
         width: 16px;
         cursor: grab;
-        padding: 8px 0;
         float: left;
-        box-sizing: border-box;
         position: relative;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        img {
+          height: 22px;
+          width: 11px;
+        }
       }
     }
   }

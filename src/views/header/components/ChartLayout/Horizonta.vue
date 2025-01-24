@@ -1,8 +1,10 @@
 <template>
   <el-tooltip :content="$t('HorizontalLayout')">
     <div
-      class="iconbox"
-      :class="[flexDirection === 'column' ? 'columnActive' : 'columnNoActive']"
+      :class="[
+        flexDirection === 'column' ? 'columnActive' : 'columnNoActive',
+        'iconbox',
+      ]"
       @click="chartInitStore.setLayoutType('column')"
     ></div>
   </el-tooltip>
@@ -16,7 +18,7 @@ const chartInitStore = useChartInit();
 const flexDirection = computed(() => chartInitStore.state.chartLayoutType);
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 [data-theme="light"] .columnNoActive {
   background-image: url("@/assets/icons/light/icon_6.svg");
 }

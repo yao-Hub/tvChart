@@ -1,8 +1,10 @@
 <template>
   <el-tooltip :content="$t('MultiGrapMode')">
     <div
-      class="iconbox"
-      :class="[type === 'multiple' ? 'multipleActive' : 'multipleNoActive']"
+      :class="[
+        type === 'multiple' ? 'multipleActive' : 'multipleNoActive',
+        'iconbox',
+      ]"
       @click="chartInitStore.setLayoutType('multiple')"
     ></div>
   </el-tooltip>
@@ -18,7 +20,7 @@ const type = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 [data-theme="light"] .multipleNoActive {
   background-image: url("@/assets/icons/light/icon_5.svg");
 }
