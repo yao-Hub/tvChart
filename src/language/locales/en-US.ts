@@ -13,10 +13,6 @@ export default {
   QuickTransactions: "Quick Transactions",
   lightTheme: "LightTheme",
   shortcutkey: "Shortcut",
-  SingleImageMode: "Single Image Mode",
-  MultiGrapMode: "Multi Graph Mode",
-  HorizontalLayout: "Horizontal Layout",
-  VerticaLayout: "Vertical Layout",
   createChart: "Create Chart",
   chartList: "Chart List",
   symbolList: "Symbol List",
@@ -62,6 +58,12 @@ export default {
   symbolListArea: "Active trading varieties panel",
   orderArea: "Trading board",
 
+  layout: {
+    single: "Single Image Mode",
+    multiple: "Multi Graph Mode",
+    column: "Horizontal Layout",
+    row: "Vertical Layout",
+  },
   article: {
     readAgree: "Please read and agree",
     accountClause: "AccountClause",

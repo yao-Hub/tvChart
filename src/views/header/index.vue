@@ -15,10 +15,7 @@
         </div>
         <div class="tool_divider"></div>
         <div class="tools_2">
-          <SingleLayout></SingleLayout>
-          <MultipleLayout></MultipleLayout>
-          <HorizontalLayout></HorizontalLayout>
-          <VerticalLayout></VerticalLayout>
+          <ChartLayouts></ChartLayouts>
           <CreateChart></CreateChart>
         </div>
       </div>
@@ -29,10 +26,7 @@
 
 <script setup lang="ts">
 import Account from "./components/Account.vue";
-import HorizontalLayout from "./components/ChartLayout/Horizonta.vue";
-import MultipleLayout from "./components/ChartLayout/Multiple.vue";
-import SingleLayout from "./components/ChartLayout/Single.vue";
-import VerticalLayout from "./components/ChartLayout/Vertical.vue";
+import ChartLayouts from "./components/ChartLayouts.vue";
 import CreateChart from "./components/CreateChart.vue";
 import FastTransation from "./components/FastTransation.vue";
 import LayoutVisibled from "./components/LayoutVisibled.vue";

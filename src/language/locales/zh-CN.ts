@@ -20,10 +20,10 @@ export default {
   updownColor: "涨跌颜色",
   upRedDownGreen: "红涨绿跌",
   upGreenDownRed: "绿涨红跌",
-  SingleImageMode: "单图模式",
-  MultiGrapMode: "多图模式",
-  HorizontalLayout: "横向布局",
-  VerticaLayout: "纵向布局",
+  // SingleImageMode: "单图模式",
+  // MultiGrapMode: "多图模式",
+  // HorizontalLayout: "横向布局",
+  // VerticaLayout: "纵向布局",
   createChart: "增加图表",
 
   chartList: "图表列表",
@@ -76,6 +76,13 @@ export default {
     loginsee: "登录视为您已阅读并同意",
     userAgreement: "用户协议",
     privacyPolicy: "隐私政策",
+  },
+
+  layout: {
+    single: "单图模式",
+    multiple: "多图模式",
+    column: "横向布局",
+    row: "纵向布局",
   },
 
   account: {
