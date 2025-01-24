@@ -1,12 +1,8 @@
 <template>
   <el-tooltip :content="$t('MultiGrapMode')">
-    <div
-      :class="[
-        type === 'multiple' ? 'multipleActive' : 'multipleNoActive',
-        'iconbox',
-      ]"
-      @click="chartInitStore.setLayoutType('multiple')"
-    ></div>
+    <div class="iconbox" @click="chartInitStore.setLayoutType('multiple')">
+      <BaseImg :iconName="type === 'multiple' ? 'icon_5a' : 'icon_5'"></BaseImg>
+    </div>
   </el-tooltip>
 </template>
 
@@ -20,18 +16,4 @@ const type = computed(() => {
 });
 </script>
 
-<style lang="scss">
-[data-theme="light"] .multipleNoActive {
-  background-image: url("@/assets/icons/light/icon_5.svg");
-}
-[data-theme="light"] .multipleActive {
-  background-image: url("@/assets/icons/light/icon_5a.svg");
-}
-
-[data-theme="dark"] .multipleNoActive {
-  background-image: url("@/assets/icons/dark/icon_5.svg");
-}
-[data-theme="dark"] .multipleActive {
-  background-image: url("@/assets/icons/dark/icon_5a.svg");
-}
-</style>
+<style lang="scss"></style>

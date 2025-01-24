@@ -51,9 +51,9 @@ const orderStore = useOrder();
   padding: 2px;
   cursor: pointer;
   box-sizing: border-box;
-  background-repeat: no-repeat;
-  background-size: var(--icon-size);
-  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   &:hover {
     @include background_color("background-hover");
   }

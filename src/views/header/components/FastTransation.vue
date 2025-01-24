@@ -1,11 +1,9 @@
 <!-- 快捷交易 -->
 <template>
   <el-tooltip :content="t('QuickTransactions')">
-    <div
-      class="iconbox"
-      :class="[orderStore.ifQuick ? 'active' : 'noActive']"
-      @click="handleClick"
-    ></div>
+    <div class="iconbox" @click="handleClick">
+      <BaseImg :iconName="orderStore.ifQuick ? 'icon_3a' : 'icon_3'"></BaseImg>
+    </div>
   </el-tooltip>
 </template>
 
@@ -29,18 +27,4 @@ const handleClick = () => {
 };
 </script>
 
-<style lang="scss" scoped>
-[data-theme="light"] .noActive {
-  background-image: url("@/assets/icons/light/icon_3.svg");
-}
-[data-theme="light"] .active {
-  background-image: url("@/assets/icons/light/icon_3a.svg");
-}
-
-[data-theme="dark"] .noActive {
-  background-image: url("@/assets/icons/dark/icon_3.svg");
-}
-[data-theme="dark"] .active {
-  background-image: url("@/assets/icons/dark/icon_3a.svg");
-}
-</style>
+<style lang="scss" scoped></style>

@@ -1,6 +1,8 @@
 <template>
   <el-tooltip :content="`${$t('createChart')} ${content}`">
-    <div class="iconbox" @click="chartInitStore.addChart()"></div>
+    <div class="iconbox" @click="chartInitStore.addChart()">
+      <BaseImg iconName="icon_8"></BaseImg>
+    </div>
   </el-tooltip>
 </template>
 
@@ -17,13 +19,4 @@ const content = computed(() => {
 });
 </script>
 
-<style lang="scss" scoped>
-@import "@/styles/_handle.scss";
-
-.iconbox {
-  background-image: url("@/assets/icons/light/icon_8.svg");
-  &:hover {
-    @include background_color("background-hover");
-  }
-}
-</style>
+<style lang="scss" scoped></style>

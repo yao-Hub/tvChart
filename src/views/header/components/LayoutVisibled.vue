@@ -1,6 +1,7 @@
 <template>
   <el-dropdown trigger="hover" placement="bottom-start">
     <div class="iconbox">
+      <BaseImg iconName="icon_1"></BaseImg>
       <div class="triangle"></div>
     </div>
     <template #dropdown>
@@ -41,20 +42,14 @@ const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
-.iconbox {
-  background-image: url("@/assets/icons/light/icon_1.svg");
-  &:hover {
-    @include background_color("background-hover");
-  }
-  .triangle {
-    position: absolute;
-    bottom: 4px;
-    right: 4px;
-    width: 0;
-    height: 0;
-    border-style: solid;
-    border-width: 4px 4px 0 0; /* 设置三角形的大小 */
-  }
+.triangle {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 4px 4px 0 0; /* 设置三角形的大小 */
 }
 [data-theme="light"] .triangle {
   border-color: transparent #63636a;

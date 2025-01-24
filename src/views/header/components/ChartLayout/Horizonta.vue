@@ -1,12 +1,8 @@
 <template>
   <el-tooltip :content="$t('HorizontalLayout')">
-    <div
-      :class="[
-        flexDirection === 'column' ? 'columnActive' : 'columnNoActive',
-        'iconbox',
-      ]"
-      @click="chartInitStore.setLayoutType('column')"
-    ></div>
+    <div class="iconbox" @click="chartInitStore.setLayoutType('column')">
+      <BaseImg :iconName="type === 'column' ? 'icon_6a' : 'icon_6'"></BaseImg>
+    </div>
   </el-tooltip>
 </template>
 
@@ -15,20 +11,7 @@ import { useChartInit } from "@/store/modules/chartInit";
 import { computed } from "vue";
 
 const chartInitStore = useChartInit();
-const flexDirection = computed(() => chartInitStore.state.chartLayoutType);
+const type = computed(() => chartInitStore.state.chartLayoutType);
 </script>
 
-<style lang="scss">
-[data-theme="light"] .columnNoActive {
-  background-image: url("@/assets/icons/light/icon_6.svg");
-}
-[data-theme="light"] .columnActive {
-  background-image: url("@/assets/icons/light/icon_6a.svg");
-}
-[data-theme="dark"] .columnNoActive {
-  background-image: url("@/assets/icons/dark/icon_6.svg");
-}
-[data-theme="dark"] .columnActive {
-  background-image: url("@/assets/icons/dark/icon_6a.svg");
-}
-</style>
+<style lang="scss"></style>
