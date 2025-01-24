@@ -271,8 +271,17 @@ body {
   }
 }
 
-.horilineMoveBtn {
+:not(.dark) .horilineMoveBtn {
   background-image: url("@/assets/icons/light/icon_td1.svg");
+}
+:not(.dark) .vertlineMoveBtn {
+  background-image: url("@/assets/icons/light/icon_td2.svg");
+}
+.dark .horilineMoveBtn {
+  background-image: url("@/assets/icons/dark/icon_td1.svg");
+}
+.dark .vertlineMoveBtn {
+  background-image: url("@/assets/icons/dark/icon_td2.svg");
 }
 
 @keyframes rotate {

@@ -16,6 +16,10 @@ const iconHover = {
   horizontalLine: false,
   verticalLine: false,
 };
+const moveBtnMouseEnter = {
+  horizontalLine: false,
+  verticalLine: false,
+};
 
 const minWidth = 300;
 const minHeight = 150;
@@ -259,17 +263,19 @@ function createHoriLine(addNum: number) {
     moveBtn.style.userSelect = "none";
     moveBtn.style.borderRadius = "2px";
     moveBtn.addEventListener("mouseover", function () {
-      iconHover.verticalLine = true;
+      moveBtnMouseEnter.horizontalLine = true;
+      iconHover.horizontalLine = true;
       moveBtn.style.padding = "4px 6px";
       moveBtn.style.backgroundColor = "rgba(232, 235, 240, 1)";
     });
     moveBtn.addEventListener("mouseout", function () {
-      if (moving.verticalLine) {
+      moveBtnMouseEnter.horizontalLine = false;
+      if (moving.horizontalLine) {
         return;
       }
       moveBtn.style.backgroundColor = "";
       moveBtn.style.padding = "0";
-      iconHover.verticalLine = false;
+      iconHover.horizontalLine = false;
     });
     moveBtn.addEventListener("mousedown", function (e) {
       e.preventDefault();
@@ -278,13 +284,13 @@ function createHoriLine(addNum: number) {
     line.appendChild(moveBtn);
 
     line.addEventListener("mouseover", function () {
-      if (iconHover.verticalLine) {
+      if (iconHover.horizontalLine) {
         return;
       }
       line.style.backgroundColor = lineColor;
     });
     line.addEventListener("mouseout", function () {
-      if (moving.verticalLine) {
+      if (moving.horizontalLine) {
         return;
       }
       line.style.backgroundColor = "";
@@ -295,15 +301,17 @@ function createHoriLine(addNum: number) {
         .forEach((item) => {
           (item as HTMLElement).style.display = "none";
         });
-      moving.verticalLine = true;
+      moving.horizontalLine = true;
       startY = e.pageY;
       resizeVertical(e);
     });
     document.addEventListener("mouseup", function () {
-      moveBtn.style.backgroundColor = "";
-      moveBtn.style.padding = "0";
-      moving.verticalLine = false;
-      iconHover.verticalLine = false;
+      moving.horizontalLine = false;
+      iconHover.horizontalLine = false;
+      if (!moveBtnMouseEnter.horizontalLine) {
+        moveBtn.style.backgroundColor = "";
+        moveBtn.style.padding = "0";
+      }
       document
         .querySelectorAll(".resize_handler_horizontal")
         .forEach((item) => {
@@ -458,20 +466,64 @@ function createVertLine(addNum: number) {
     line.style.zIndex = "1";
     line.style.transition = "background-color 0.5s ease";
 
+    const moveBtn = document.createElement("div");
+    moveBtn.className = "vertlineMoveBtn";
+    moveBtn.style.width = `${lineWidth}px`;
+    moveBtn.style.height = `28px`;
+    moveBtn.style.backgroundSize = "4px 28px";
+    moveBtn.style.backgroundRepeat = "no-repeat";
+    moveBtn.style.backgroundPosition = "center";
+    moveBtn.style.position = "absolute";
+    moveBtn.style.top = "50%";
+    moveBtn.style.left = "50%";
+    moveBtn.style.transform = "translate(-50%, -50%)";
+    moveBtn.style.zIndex = "2";
+    moveBtn.style.transition = "all 0.3s ease";
+    moveBtn.style.userSelect = "none";
+    moveBtn.style.borderRadius = "2px";
+    moveBtn.addEventListener("mouseover", function () {
+      moveBtnMouseEnter.verticalLine = true;
+      iconHover.verticalLine = true;
+      moveBtn.style.padding = "6px 4px";
+      moveBtn.style.backgroundColor = "rgba(232, 235, 240, 1)";
+    });
+    moveBtn.addEventListener("mouseout", function () {
+      moveBtnMouseEnter.verticalLine = false;
+      if (moving.verticalLine) {
+        return;
+      }
+      moveBtn.style.backgroundColor = "";
+      moveBtn.style.padding = "0";
+      iconHover.verticalLine = false;
+    });
+    moveBtn.addEventListener("mousedown", function (e) {
+      e.preventDefault();
+    });
+
+    line.appendChild(moveBtn);
+
     line.addEventListener("mouseover", function () {
+      if (iconHover.verticalLine) {
+        return;
+      }
       line.style.backgroundColor = lineColor;
     });
     line.addEventListener("mouseout", function () {
-      if (moving.horizontalLine) {
+      if (moving.verticalLine) {
         return;
       }
       line.style.backgroundColor = "";
     });
     document.addEventListener("mouseup", function () {
-      moving.horizontalLine = false;
+      moving.verticalLine = false;
+      iconHover.verticalLine = false;
+      if (!moveBtnMouseEnter.verticalLine) {
+        moveBtn.style.backgroundColor = "";
+        moveBtn.style.padding = "0";
+      }
     });
     line.addEventListener("mousedown", (e) => {
-      moving.horizontalLine = true;
+      moving.verticalLine = true;
       resizeHorizontal(e);
     });
     document.querySelector(".dragArea")?.appendChild(line);

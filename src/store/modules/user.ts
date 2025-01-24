@@ -84,7 +84,7 @@ export const useUser = defineStore("user", {
         return 0;
       }
       if (this.equity !== "-") {
-        return round((+this.equity / +nowMargin) * 100, 2);
+        return round((+this.equity / +nowMargin) * 100, 2) + "%";
       }
       return "-";
     },
