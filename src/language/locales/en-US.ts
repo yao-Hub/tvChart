@@ -262,6 +262,7 @@ export default {
     symbol: "Symbol",
     direction: "Direction",
     openingTime: "OpeningTime",
+    pendingAddTime: "OpeningTime",
     volume: "Volume",
     tp: "tp",
     sl: "sl",

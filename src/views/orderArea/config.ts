@@ -142,7 +142,7 @@ export const tableColumns: Record<TableDataKey, IColumn[]> = {
       align: "right",
     },
     {
-      title: t("table.openingTime"),
+      title: t("table.pendingAddTime"),
       dataKey: "time_setup",
       key: "time_setup",
       width: 200,

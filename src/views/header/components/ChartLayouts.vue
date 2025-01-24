@@ -1,12 +1,6 @@
 <template>
   <div v-for="item in layoutList">
-    <el-tooltip
-      :content="
-        $t(`layout.${item.type}`) +
-        chartInitStore.state.chartLayoutType +
-        JSON.stringify(chartInitStore.state.chartLayoutType === item.type)
-      "
-    >
+    <el-tooltip :content="$t(`layout.${item.type}`)">
       <div class="iconbox" @click="chartInitStore.setLayoutType(item.type)">
         <BaseImg :iconName="getIcon(item)"></BaseImg>
       </div>

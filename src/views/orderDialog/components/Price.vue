@@ -46,7 +46,7 @@ const range = ref("");
 
 // 步长
 const step = computed(() => {
-  return props.symbolInfo ? props.symbolInfo.volume_step / 100 : 1;
+  return props.symbolInfo ? 50 / Math.pow(10, props.symbolInfo.digits) : 0.5;
 });
 
 const getRange = (type: string) => {

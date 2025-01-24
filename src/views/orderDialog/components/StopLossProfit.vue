@@ -42,8 +42,6 @@ import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
 const { t } = useI18n();
 
-const step = 0.5;
-
 const titleMap = {
   stopLoss: t("order.sl"),
   stopProfit: t("order.tp"),
@@ -66,6 +64,11 @@ const price = defineModel<string | number>("price", { default: "" });
 
 const rangeTip = ref("");
 const ifError = ref(false);
+
+// 步长
+const step = computed(() => {
+  return props.symbolInfo ? 50 / Math.pow(10, props.symbolInfo.digits) : 0.5;
+});
 
 // 至少远离市价点数
 const minPoint = computed(() => {

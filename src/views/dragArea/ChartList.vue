@@ -25,18 +25,12 @@
     >
       <div
         class="charts_container_item"
-        v-for="({ id, symbol, interval }, index) in chartInitStore.state
-          .chartWidgetList"
+        v-for="{ id, symbol, interval } in chartInitStore.state.chartWidgetList"
         :key="id"
         :id="id"
         v-show="activedId === id || chartType !== 'single'"
       >
         <chartTab
-          :style="{
-            marginLeft: index === 0 ? '12px' : '0',
-            width: index === 0 ? 'calc(100% - 12px)' : '100%',
-            border: 'none',
-          }"
           v-if="chartType !== 'single'"
           active
           noActiveStyle

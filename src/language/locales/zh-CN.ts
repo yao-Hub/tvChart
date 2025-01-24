@@ -269,6 +269,7 @@ export default {
     symbol: "交易商品",
     direction: "方向",
     openingTime: "建仓时间",
+    pendingAddTime: "挂单时间",
     volume: "手数",
     tp: "止盈",
     sl: "止损",

@@ -236,9 +236,9 @@
               <template v-if="column.dataKey.includes('time')">{{
                 formatTime(rowData[column.dataKey])
               }}</template>
-              <template v-else-if="column.dataKey === 'volume'"
-                >{{ rowData.volume / 100 }}{{ $t("table.lot") }}</template
-              >
+              <template v-else-if="column.dataKey === 'volume'">{{
+                rowData.volume / 100
+              }}</template>
               <template v-else-if="column.dataKey === 'type'">
                 <span
                   :class="[rowData.type % 2 === 0 ? 'buyWord' : 'sellWord']"
@@ -672,7 +672,7 @@ watch(
       }
     });
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 
 // 交易历史盈亏合计位置

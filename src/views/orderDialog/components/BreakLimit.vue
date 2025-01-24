@@ -43,7 +43,7 @@ const price = defineModel<string | number>("value", { default: "" });
 
 // 步长
 const step = computed(() => {
-  return props.symbolInfo ? 1 / Math.pow(10, props.symbolInfo.digits) : 1;
+  return props.symbolInfo ? 50 / Math.pow(10, props.symbolInfo.digits) : 0.5;
 });
 
 const ifError = ref(false);
