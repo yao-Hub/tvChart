@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_30</title>
+    <g id="icon_30" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="01-图标/浅色版/基础样式#通用/布局">
+            <g id="编组" transform="translate(1.000000, 1.000000)" stroke="#94959B" stroke-width="1.4">
+                <path d="M0,8 C0,12.41828 3.58172,16 8,16 C11.0827002,16 13.7581578,14.2563964 15.0939737,11.7015884 L11.0939737,11.7015884 M16,8 C16,3.58172 12.41828,0 8,0 C4.94935011,0 2.29751879,1.70753611 0.948124411,4.21898995 L4.94812441,4.21898995" id="形状"></path>
+            </g>
+            <path d="M6,9 L10,5 L10,9 L12,9 L8,13 L8,9 L6,9 Z" id="形状结合" fill="#94959B"></path>
+        </g>
+    </g>
+</svg>

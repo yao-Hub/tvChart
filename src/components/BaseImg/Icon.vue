@@ -1,5 +1,5 @@
 <template>
-  <img :src="iconSrc + '?v=' + Date.now()" />
+  <img :src="iconSrc" />
 </template>
 
 <script setup lang="ts">
@@ -26,11 +26,11 @@ const iconSrc = computed(() => {
   }
   if (props.iconName) {
     const theme = themeStore.systemTheme;
-    const result = new URL(
-      `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
-      import.meta.url
-    ).href;
-    console.log("Generated iconSrc:", result);
+    const result = `/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
+    // const result = new URL(
+    //   `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
+    //   import.meta.url
+    // ).href;
     return result;
   }
   return "";
