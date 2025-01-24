@@ -10,7 +10,7 @@
       v-bind="props.pickerOption"
       :value-format="dateFormat"
       :default-time="defaultTime"
-      @clear="model = []"
+      @change="handleChange"
     />
     <BaseImg iconName="caretDown" />
   </div>
@@ -23,7 +23,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
 
-import { computed, watch } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -81,13 +81,10 @@ const shortcuts = computed(() => [
   },
 ]);
 
-watch(
-  () => model.value,
-  () => {
-    emit("timeChange");
-  },
-  { deep: true }
-);
+const handleChange = (value: TTime) => {
+  model.value = value || [];
+  emit("timeChange");
+};
 
 // watch(
 //   () => nowTZ.value,

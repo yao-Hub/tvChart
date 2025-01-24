@@ -251,6 +251,9 @@
                   >{{ getOrderType(rowData.type) }}</span
                 ></template
               >
+              <template v-else-if="column.dataKey === 'open_price'">{{
+                formatPrice(rowData.open_price, rowData.digits)
+              }}</template>
               <template v-else-if="column.dataKey === 'now_price'">{{
                 getNowPrice(rowData)
               }}</template>
