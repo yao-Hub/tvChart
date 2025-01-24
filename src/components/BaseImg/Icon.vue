@@ -1,10 +1,10 @@
 <template>
-  <img :src="iconSrc" />
+  <img :src="iconSrc + '?v=' + Date.now()" />
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
 import { useTheme } from "@/store/modules/theme";
+import { computed } from "vue";
 
 const themeStore = useTheme();
 
@@ -30,11 +30,11 @@ const iconSrc = computed(() => {
       `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
       import.meta.url
     ).href;
+    console.log("Generated iconSrc:", result);
     return result;
   }
   return "";
 });
-
 </script>
 
 <style lang="scss" scoped></style>
