@@ -13,6 +13,10 @@ import { computed } from "vue";
 const chartInitStore = useChartInit();
 
 const type = computed(() => {
+  console.log(
+    "chartInitStore.state.chartLayoutType",
+    chartInitStore.state.chartLayoutType
+  );
   return chartInitStore.state.chartLayoutType;
 });
 </script>

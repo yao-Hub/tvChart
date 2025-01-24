@@ -6,11 +6,10 @@
     placement="bottom-end"
   >
     <div class="menu">
-      <div
-        class="menuIcon"
-        :class="{ menuIcon_active: visible }"
+      <BaseImg
+        :iconName="visible ? 'menuactive' : 'menu'"
         @click="toggle(true)"
-      ></div>
+      ></BaseImg>
     </div>
     <template #dropdown>
       <div class="dropdownbox">
@@ -73,18 +72,6 @@ function toggle(visible: boolean) {
 :deep(.el-dropdown) {
   height: 100%;
 }
-[data-theme="light"] .menuIcon {
-  background-image: url("@/assets/icons/light/menu.svg");
-  &_active {
-    background-image: url("@/assets/icons/light/menuactive.svg");
-  }
-}
-[data-theme="dark"] .menuIcon {
-  background-image: url("@/assets/icons/dark/menu.svg");
-  &_active {
-    background-image: url("@/assets/icons/dark/menuactive.svg");
-  }
-}
 .menu {
   width: 48px;
   height: 48px;
@@ -93,12 +80,7 @@ function toggle(visible: boolean) {
   justify-content: center;
   box-sizing: border-box;
   padding: 8px;
-  .menuIcon {
-    background-repeat: no-repeat;
-    background-size: var(--icon-size);
-    background-position: center;
-    width: 32px;
-    height: 32px;
+  img {
     cursor: pointer;
     &:hover {
       @include background_color("background-hover");

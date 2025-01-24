@@ -291,7 +291,6 @@ onUnmounted(() => {
     height: 40px;
     line-height: 40px;
     display: block;
-    // margin-top: 24px;
   }
   .padd {
     font-weight: 400;

@@ -217,6 +217,10 @@ const initonReady = () => {
       // 监听鼠标按下
       widget.subscribe("mouse_down", () => {
         chartInitStore.state.activeChartId = props.chartId;
+        const bodyBox = document.querySelector(".bodyBox") as HTMLElement;
+        if (bodyBox) {
+          bodyBox.click();
+        }
       });
 
       // 增加策略 第一个图表增加指标

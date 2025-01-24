@@ -10,6 +10,7 @@
   <Feedback></Feedback>
   <DisclaimersZh v-if="locale === 'zh'"></DisclaimersZh>
   <DisclaimersEn v-if="locale === 'en'"></DisclaimersEn>
+  <div class="bodyBox"></div>
 </template>
 
 <script setup lang="ts">
@@ -137,5 +138,12 @@ onBeforeRouteLeave((to, from, next) => {
   flex-direction: column;
   position: relative;
   overflow: auto;
+}
+.bodyBox {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 0;
 }
 </style>
