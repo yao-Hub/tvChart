@@ -32,10 +32,6 @@ const iconSrc = computed(() => {
       `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
       import.meta.url
     ).href;
-    console.log(
-      `${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
-      result
-    );
     return result;
   }
   return "";
