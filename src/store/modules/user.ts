@@ -26,13 +26,13 @@ export type AccountListItem = IAccount & {
   queryNode: string;
   remember?: boolean;
 };
-interface State {
+interface IState {
   accountList: Array<AccountListItem>;
   loginInfo: UserInfo | null;
 }
 
 export const useUser = defineStore("user", {
-  state: (): State => ({
+  state: (): IState => ({
     accountList: [],
     loginInfo: null,
   }),

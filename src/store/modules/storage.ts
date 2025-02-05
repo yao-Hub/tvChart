@@ -1,9 +1,19 @@
+import { TableTabKey } from "#/order";
+import { get, set } from "lodash";
 import { defineStore } from "pinia";
 import { useNetwork } from "./network";
 import { useUser } from "./user";
-import { get, set } from "lodash";
+
+export interface IState {
+  columnsMap: {
+    [key in TableTabKey]?: Record<string, number>;
+  };
+}
 
 export const useStorage = defineStore("storage", {
+  state: (): IState => ({
+    columnsMap: {},
+  }),
   actions: {
     getUtrader(): Record<string, any> {
       let result = {};
@@ -61,6 +71,13 @@ export const useStorage = defineStore("storage", {
     },
     saveMap(value: any) {
       localStorage.setItem("utrader", JSON.stringify(value));
+    },
+    saveOrderTableColumn(tableKey: TableTabKey, field: string, width: number) {
+      if (Object.keys(this.columnsMap).length === 0) {
+        this.columnsMap = this.getItem("tableColumns") || {};
+      }
+      set(this.columnsMap, [tableKey, field], width);
+      this.setItem("tableColumns", this.columnsMap);
     },
   },
 });

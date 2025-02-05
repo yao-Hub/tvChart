@@ -1,6 +1,6 @@
 import { resOrders } from "api/order/index";
 
-export type TableDataKey =
+export type TableTabKey =
   | "marketOrder"
   | "pendingOrder"
   | "pendingOrderHistory"
@@ -8,7 +8,7 @@ export type TableDataKey =
   | "blanceRecord"
   | "log";
 export type TableData = {
-  [K in TableDataKey]: resOrders[];
+  [K in TableTabKey]: resOrders[];
 };
 
 export type OrderType =

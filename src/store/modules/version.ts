@@ -1,12 +1,12 @@
 import { generateUUID } from "@/utils/common";
 import { defineStore } from "pinia";
 
-interface State {
+interface IState {
   version: string;
   deviceId: string;
 }
 export const useVersion = defineStore("version", {
-  state: (): State => ({
+  state: (): IState => ({
     // @ts-ignore
     version: _VERSION_,
     deviceId: "",

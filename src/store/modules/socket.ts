@@ -25,7 +25,7 @@ type TFooname =
   | "unSubRate"
   | "unSubQuoteDepth";
 
-interface State {
+interface IState {
   socket: Socket | null;
   delayMap: Record<string, string | number>; // 各个网路节点延迟
   instance: SingletonSocket;
@@ -40,7 +40,7 @@ interface ChartProps {
   symbol: string;
 }
 export const useSocket = defineStore("socket", {
-  state: (): State => ({
+  state: (): IState => ({
     instance: new SingletonSocket(),
     socket: null,
     delayMap: {},

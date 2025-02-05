@@ -47,7 +47,7 @@
 import { throttle } from "lodash";
 import { computed, reactive, watch } from "vue";
 
-import { TableDataKey } from "#/order";
+import { TableTabKey } from "#/order";
 import { resOrders } from "api/order/index";
 import { getTradingDirection } from "utils/order/index";
 
@@ -56,11 +56,11 @@ import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
 
 interface Props {
-  orderType: TableDataKey;
+  orderType: TableTabKey;
 }
 const props = defineProps<Props>();
 
-interface State {
+interface IState {
   direction: string[];
   pol: string[];
   indeterminate: boolean;
@@ -85,7 +85,7 @@ const polOptions: Array<Option> = [
 ];
 const allLen = directionOptions.length + polOptions.length;
 
-const state: State = reactive({
+const state: IState = reactive({
   direction: [],
   pol: [],
   indeterminate: false,

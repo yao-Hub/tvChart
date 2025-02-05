@@ -9,7 +9,7 @@ import { useSocket } from "./socket";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
 
-interface State {
+interface IState {
   chartWidgetList: {
     widget?: IChartingLibraryWidget;
     id: string;
@@ -32,7 +32,7 @@ export const useChartInit = defineStore("chartInit", () => {
 
   const chartMaxLength = 9;
 
-  const state = reactive<State>({
+  const state = reactive<IState>({
     chartWidgetList: [],
     loading: true,
     chartLayoutType: "single",
@@ -234,7 +234,7 @@ export const useChartInit = defineStore("chartInit", () => {
     state.activeChartId = storageId;
   }
   // 设置图表布局
-  function setLayoutType(type: State["chartLayoutType"]) {
+  function setLayoutType(type: IState["chartLayoutType"]) {
     state.chartLayoutType = type;
     storageStore.setItem("chartLayoutType", type);
   }

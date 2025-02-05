@@ -5,7 +5,7 @@ import { keydownList } from "utils/keydown";
 import { useSocket } from "./socket";
 
 type TcacheItem = ITVSymbolInfo & { resolution: string };
-interface State {
+interface IState {
   barsCache: Map<string, TcacheItem>;
   chartsLoading: boolean;
 }
@@ -17,7 +17,7 @@ interface TurnSocket {
 }
 
 export const useChartSub = defineStore("chartSub", {
-  state: (): State => {
+  state: (): IState => {
     return {
       barsCache: new Map(),
       chartsLoading: false,

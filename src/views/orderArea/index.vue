@@ -427,6 +427,7 @@ import { tableColumns } from "./config";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
+import { IState as storageState, useStorage } from "@/store/modules/storage";
 import { useTime } from "@/store/modules/time";
 
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
@@ -441,6 +442,20 @@ const orderStore = useOrder();
 const dialogStore = useDialog();
 const timeStore = useTime();
 const quotesStore = useQuotes();
+const storageStore = useStorage();
+
+const storageColumns: storageState["columnsMap"] =
+  storageStore.getItem("tableColumns") || {};
+for (const i in storageColumns) {
+  const tabKey = i as orderTypes.TableTabKey;
+  const options = storageColumns[tabKey];
+  for (const op in options) {
+    const target = tableColumns[tabKey].find((e) => e.dataKey === op);
+    if (target) {
+      target.width = options[op];
+    }
+  }
+}
 
 const state = reactive({
   menu: [
@@ -456,7 +471,7 @@ const state = reactive({
   pendingDialogVisible: false,
   orderInfo: {} as orders.resOrders & orders.resPendingOrders,
 });
-const activeKey = ref<orderTypes.TableDataKey>("marketOrder");
+const activeKey = ref<orderTypes.TableTabKey>("marketOrder");
 
 const dragLineList = ref<number[]>([]);
 // 拖动改变列宽相关逻辑
@@ -471,7 +486,9 @@ const columnRefresh = (x: any, fileKey: string) => {
     return;
   }
   const nowW = nowCol.width + x;
-  nowCol.width = Math.max(nowW, minNowW);
+  const result = Math.max(nowW, minNowW);
+  nowCol.width = result;
+  storageStore.saveOrderTableColumn(activeKey.value, fileKey, result);
 };
 
 let isResizing = false;

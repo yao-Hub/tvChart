@@ -27,7 +27,6 @@ const iconSrc = computed(() => {
   if (props.iconName) {
     const theme = themeStore.systemTheme;
     // const result = `/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
-    // const path = `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
     const result = new URL(
       `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
       import.meta.url

@@ -7,12 +7,12 @@ import { useChartInit } from "./chartInit";
 import { useOrder } from "./order";
 
 import FastAddOrder from "@/components/FastAddOrder.vue";
-interface State {
+interface IState {
   cacheAction: string;
 }
 
 export const useChartAction = defineStore("chartAction", {
-  state: (): State => {
+  state: (): IState => {
     return {
       // 即将执行的动作
       cacheAction: "",

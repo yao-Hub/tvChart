@@ -6,7 +6,7 @@ interface FloatMenuParams {
   clientY: number;
 }
 
-interface State {
+interface IState {
   orderDialogVisible: boolean; // 订单弹窗的显示
   floatMenuParams: FloatMenuParams; // 订单线加号按钮菜单
   disclaimersVisible: boolean; // 快捷交易声明弹窗
@@ -17,7 +17,7 @@ interface State {
 type TVisible = "orderDialogVisible" | "disclaimersVisible" | "feedbackVisible";
 
 export const useDialog = defineStore("dialog", {
-  state: (): State => {
+  state: (): IState => {
     return {
       disclaimersVisible: false,
       orderDialogVisible: false, // 订单弹窗

@@ -1,14 +1,14 @@
 import { defineStore } from "pinia";
 import { useStorage } from "./storage";
 
-interface State {
+interface IState {
   chartsVisable: boolean;
   symbolsVisable: boolean;
   orderAreaVisable: boolean;
 }
 
 export const useLayout = defineStore("layout", {
-  state: (): State => {
+  state: (): IState => {
     return {
       chartsVisable: true,
       symbolsVisable: true,

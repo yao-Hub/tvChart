@@ -1,4 +1,4 @@
-import { TableDataKey } from "#/order";
+import { TableTabKey } from "#/order";
 import i18n from "@/language/index";
 
 const t = i18n.global.t;
@@ -11,7 +11,7 @@ interface IColumn {
   minWidth?: number;
 }
 
-export const tableColumns: Record<TableDataKey, IColumn[]> = {
+export const tableColumns: Record<TableTabKey, IColumn[]> = {
   marketOrder: [
     {
       title: t("table.id"),

@@ -1,13 +1,13 @@
-import { defineStore } from "pinia";
 import {
-  queryTradeLine,
-  resQueryTradeLine,
-  resQueryNode,
   queryNode,
+  queryTradeLine,
+  resQueryNode,
+  resQueryTradeLine,
 } from "api/account/index";
+import { defineStore } from "pinia";
 import { useUser } from "./user";
 
-interface State {
+interface IState {
   server: string;
   nodeName: string;
   nodeList: resQueryNode[];
@@ -15,7 +15,7 @@ interface State {
 }
 
 export const useNetwork = defineStore("network", {
-  state: (): State => {
+  state: (): IState => {
     return {
       server: "",
       nodeName: "",

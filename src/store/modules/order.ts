@@ -37,19 +37,19 @@ type OrderStateWithDirectionRequired<T extends ModeType> = T extends "confirm"
       mode?: T;
     };
 
-interface State {
+interface IState {
   initOrderState: OrderStateWithDirectionRequired<ModeType>;
   currentKline: Record<string, types.ILine>;
   orderData: orderTypes.TableData;
-  dataLoading: Record<orderTypes.TableDataKey, boolean>;
-  dataEnding: Record<orderTypes.TableDataKey, boolean>;
-  dataFilter: Record<orderTypes.TableDataKey, any>;
+  dataLoading: Record<orderTypes.TableTabKey, boolean>;
+  dataEnding: Record<orderTypes.TableTabKey, boolean>;
+  dataFilter: Record<orderTypes.TableTabKey, any>;
   ifOne: boolean | null;
   ifQuick: boolean;
 }
 
 export const useOrder = defineStore("order", {
-  state: (): State => {
+  state: (): IState => {
     const dateFormat = "YYYY-MM-DD HH:mm:ss";
     const monday = dayjs().startOf("week").startOf("day").format(dateFormat);
     const today = dayjs().format(dateFormat);
