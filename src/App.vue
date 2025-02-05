@@ -32,6 +32,7 @@ const value = I18n.locale.value as keyof typeof LANGUAGE_LIST;
 const locale = computed(() => {
   return LANGUAGE_LIST[value];
 });
+console.log("import.meta.url", import.meta.url);
 </script>
 
 <template>
