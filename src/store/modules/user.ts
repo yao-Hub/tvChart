@@ -206,41 +206,51 @@ export const useUser = defineStore("user", {
         socketStore.getDelay(async (params: { ending: boolean }) => {
           if (params.ending) {
             const timeList = Object.values(socketStore.delayMap) as number[];
-            const minTime = Math.min(...timeList);
-            const uri = findKey(socketStore.delayMap, (o) => o === minTime);
-            const nodeName = networkStore.nodeList.find(
-              (e) => e.webWebsocket === uri
-            )?.nodeName;
-            if (nodeName) {
-              // 长连接主socket
-              socketStore.initSocket();
-              networkStore.nodeName = nodeName;
-              Login(updata)
-                .then((res) => {
-                  const token = res.data.token;
-                  // 缓存登录信息
-                  this.addAccount({
-                    ...updata,
-                    queryNode: nodeName,
-                    token,
-                    ifLogin: true,
+            // 排序
+            timeList.sort((a, b) => a - b);
+
+            // 递归
+            const process = (index: number) => {
+              if (index >= timeList.length) {
+                if (callback) {
+                  callback({ ending: true, success: false });
+                }
+                return;
+              }
+              const time = timeList[index];
+              const uri = findKey(socketStore.delayMap, (o) => o === time);
+              const nodeName = networkStore.nodeList.find(
+                (e) => e.webWebsocket === uri
+              )?.nodeName;
+              if (nodeName) {
+                // 长连接主socket
+                socketStore.initSocket();
+                networkStore.nodeName = nodeName;
+                Login(updata)
+                  .then((res) => {
+                    const token = res.data.token;
+                    // 缓存登录信息
+                    this.addAccount({
+                      ...updata,
+                      queryNode: nodeName,
+                      token,
+                      ifLogin: true,
+                    });
+                    // 发送登录状态
+                    socketStore.sendToken({ login: updata.login, token });
+                    if (callback) {
+                      callback({ ending: true, success: true });
+                    }
+                    ElMessage.success(i18n.global.t("loginSucceeded"));
+                  })
+                  .catch(() => {
+                    process(index + 1);
                   });
-                  // 发送登录状态
-                  socketStore.sendToken({ login: updata.login, token });
-                  if (callback) {
-                    callback({ ending: true, success: true });
-                  }
-                  ElMessage.success(i18n.global.t("loginSucceeded"));
-                })
-                .catch(() => {
-                  if (callback) {
-                    callback({ ending: true, success: false });
-                  }
-                });
-              return;
-            }
-            if (callback) {
-              callback({ ending: true, success: false });
+                return;
+              }
+            };
+            if (timeList.length) {
+              process(0);
             }
           }
         });

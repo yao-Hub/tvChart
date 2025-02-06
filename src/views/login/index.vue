@@ -41,6 +41,8 @@ const rootStore = useRoot();
 
   // 查询交易线路列表
   networkStore.getLines();
+  const homeComponentImport = () => import("@/views/home/index.vue");
+  homeComponentImport();
 })();
 
 const direction = ref("slide-forward");
@@ -82,7 +84,6 @@ watch(
 .home {
   width: 100vw;
   height: 100vh;
-  min-width: 1280px;
   background-repeat: no-repeat;
   background-size: cover;
   position: relative;
@@ -114,8 +115,11 @@ watch(
     position: fixed;
     right: 15%;
     top: 15%;
-    width: 512px;
-    height: 648px;
+    width: 30%;
+    height: 70%;
+    min-width: 270px;
+    max-height: 648px;
+    max-width: 512px;
     .main {
       width: 100%;
       height: 100%;

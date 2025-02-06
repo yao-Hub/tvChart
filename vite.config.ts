@@ -6,20 +6,34 @@ import { ConfigEnv, defineConfig, loadEnv } from "vite";
 import { visualizer } from "rollup-plugin-visualizer";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
 
+import electron from "vite-plugin-electron";
+
 import os from "os";
 
+// @ts-ignore
 export default defineConfig((mode: ConfigEnv) => {
   console.log("mode", mode);
+  const isElectron = process.env.IF_ELECTRON;
+
   const env = loadEnv(mode.mode, process.cwd());
   const isProduction = mode.mode === "production";
   return {
-    base: "/",
+    base: isElectron ? "./" : "/",
     build: {
       minify: "terser",
       terserOptions: {
         compress: {
           drop_console: isProduction,
           drop_debugger: isProduction,
+        },
+      },
+      // 消除打包大小超过500kb警告
+      chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        output: {
+          chunkFileNames: "static-files/js/[name]-[hash].js",
+          entryFileNames: "static-files/js/[name]-[hash].js",
+          assetFileNames: "static-files/[ext]/[name]-[hash].[ext]",
         },
       },
     },
@@ -38,6 +52,19 @@ export default defineConfig((mode: ConfigEnv) => {
         gzipSize: true, // 收集 gzip 大小并将其显示
         brotliSize: true, // 收集 brotli 大小并将其显示
       }),
+      isElectron &&
+        electron([
+          {
+            entry: "electron/main.ts",
+            onstart({ startup }) {
+              // 本地运行完命令直接启动electron程序
+              startup();
+            },
+          },
+          {
+            entry: "electron/preload.ts",
+          },
+        ]),
     ],
     resolve: {
       alias: {
