@@ -13,12 +13,11 @@ import os from "os";
 // @ts-ignore
 export default defineConfig((mode: ConfigEnv) => {
   console.log("mode", mode);
-  const isElectron = process.env.IF_ELECTRON;
-
+  const ifElectron = process.env.IF_ELECTRON;
   const env = loadEnv(mode.mode, process.cwd());
   const isProduction = mode.mode === "production";
   return {
-    base: isElectron ? "./" : "/",
+    base: ifElectron ? "./" : "/",
     build: {
       minify: "terser",
       terserOptions: {
@@ -52,17 +51,17 @@ export default defineConfig((mode: ConfigEnv) => {
         gzipSize: true, // 收集 gzip 大小并将其显示
         brotliSize: true, // 收集 brotli 大小并将其显示
       }),
-      isElectron &&
+      ifElectron &&
         electron([
           {
-            entry: "electron/main.ts",
+            entry: "electron/main.js",
             onstart({ startup }) {
               // 本地运行完命令直接启动electron程序
               startup();
             },
           },
           {
-            entry: "electron/preload.ts",
+            entry: "electron/preload.js",
           },
         ]),
     ],
@@ -80,6 +79,7 @@ export default defineConfig((mode: ConfigEnv) => {
       __OS_PLATFORM__: JSON.stringify(os.platform()),
       _OS_RELEASE_: JSON.stringify(os.release()),
       _OS_HOSTNAME_: JSON.stringify(os.hostname()),
+      ELECTRON_PLATFORM: JSON.stringify(process.env.IF_ELECTRON || false),
     },
     server: {
       host: "0.0.0.0",

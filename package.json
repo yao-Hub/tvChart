@@ -2,7 +2,7 @@
   "name": "wp-tradeview",
   "private": true,
   "version": "1.0.0",
-  "main": "electron/main.ts",
+  "main": "electron/main.js",
   "description": "utrader",
   "author": "wp",
   "scripts": {
@@ -18,9 +18,10 @@
     "http-server": "cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o",
     "ts:check": "vue-tsc",
     "prepare": "husky",
-    "electron:dev": "cross-env IF_ELECTRON=true vite --mode electron_development --host",
-    "electron-build:test": "cross-env IF_ELECTRON=true vite build --mode electron_test && electron-builder",
-    "electron-build:pro": "cross-env IF_ELECTRON=true vite build --mode electron_production && electron-builder"
+    "electron:dev": "cross-env IF_ELECTRON=true vite --mode development",
+    "electron-build:dev": "cross-env NODE_ENV=development node ./electron/scripts/build.js",
+    "electron-build:test": "cross-env NODE_ENV=test node ./electron/scripts/build.js",
+    "electron-build:pro": "cross-env NODE_ENV=production node ./electron/scripts/build.js"
   },
   "dependencies": {
     "@ant-design/icons-vue": "7.0.1",
@@ -77,38 +78,5 @@
   ],
   "engines": {
     "node": ">=18.18.0"
-  },
-  "build": {
-    "appId": "com.example.myapp",
-    "productName": "wp-tradeview",
-    "directories": {
-      "output": "dist_electron"
-    },
-    "extraResources": {
-      "from": "public/charting_library",
-      "to": "../charting_library"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/**/*"
-    ],
-    "win": {
-      "target": "nsis",
-      "icon": "public/logo_256.ico"
-    },
-    "mac": {
-      "target": "dmg",
-      "icon": "public/logo_256.ico"
-    },
-    "linux": {
-      "target": "deb",
-      "icon": "public/logo_256.ico"
-    },
-    "nsis": {
-      "oneClick": false,
-      "perMachine": false,
-      "allowToChangeInstallationDirectory": true,
-      "createDesktopShortcut": true
-    }
   }
 }

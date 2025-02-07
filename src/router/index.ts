@@ -6,13 +6,11 @@ import {
 } from "vue-router";
 import { createPermissionGuard } from "./guard/index";
 import routes from "./routes/index";
-
 const router = createRouter({
   // vueRouter@3版本的mode改成了history，hash模式配置createWebHashHistory，history模式配置createWebHistory
   // electron使用hash模式
-  history: import.meta.env.ELECTRON_PLATFORM
-    ? createWebHashHistory()
-    : createWebHistory(),
+  // @ts-ignore
+  history: ELECTRON_PLATFORM ? createWebHashHistory() : createWebHistory(),
   routes,
 });
 
