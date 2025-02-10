@@ -398,7 +398,7 @@ export default {
   "invalid type": "无效的类型",
   "invalid volume": "无效的手数",
   "invalid symbol": "无效的商品",
-  "market closed": "市场已关闭",
+  "market closed": "市场关闭",
   "insufficient margin": "保证金不足",
   "invalid order id": "无效的订单号",
   "invalid sl tp": "无效的止盈止损",

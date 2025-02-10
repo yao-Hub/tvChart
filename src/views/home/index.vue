@@ -1,15 +1,25 @@
 <template>
-  <div class="chart" v-loading.fullscreen.lock="chartInitStore.state.loading">
-    <WPHeader></WPHeader>
-    <dragArea></dragArea>
-    <FooterInfo></FooterInfo>
+  <div
+    class="globalLoading"
+    v-loading="true"
+    v-if="chartInitStore.state.loading"
+  ></div>
+  <div v-else>
+    <div class="chart">
+      <WPHeader></WPHeader>
+      <dragArea></dragArea>
+      <FooterInfo></FooterInfo>
+    </div>
+
+    <FloatMenu></FloatMenu>
+    <OrderDialog></OrderDialog>
+    <ReLoginConfirm></ReLoginConfirm>
+    <Feedback></Feedback>
+    <DisclaimersZh v-if="locale === 'zh'"></DisclaimersZh>
+    <DisclaimersEn v-if="locale === 'en'"></DisclaimersEn>
   </div>
 
-  <FloatMenu></FloatMenu>
-  <OrderDialog></OrderDialog>
-  <Feedback></Feedback>
-  <DisclaimersZh v-if="locale === 'zh'"></DisclaimersZh>
-  <DisclaimersEn v-if="locale === 'en'"></DisclaimersEn>
+  <!-- 用来冒泡 响应图表的点击 -->
   <div class="bodyBox"></div>
 </template>
 
@@ -26,6 +36,7 @@ import { useQuotes } from "@/store/modules/quotes";
 import { useRate } from "@/store/modules/rate";
 import { useSocket } from "@/store/modules/socket";
 import { useSymbols } from "@/store/modules/symbols";
+import { useTime } from "@/store/modules/time";
 import { useUser } from "@/store/modules/user";
 import { useRoot } from "@/store/store";
 
@@ -34,7 +45,6 @@ import {
   resizeUpdate,
 } from "utils/dragResize/drag_position";
 
-import { useTime } from "@/store/modules/time";
 import dragArea from "../dragArea/index.vue";
 import FooterInfo from "../footerInfo/index.vue";
 import WPHeader from "../header/index.vue";
@@ -56,6 +66,20 @@ const rootStore = useRoot();
 
 const I18n = useI18n();
 const { locale } = I18n;
+
+// 情求token无效时 兼容electron的路由跳转
+import { PageEnum } from "@/constants/pageEnum";
+import eventBus from "utils/eventBus";
+import { useRouter } from "vue-router";
+const router = useRouter();
+eventBus.on("go-login", () => {
+  const login = userStore.account.login;
+  const server = userStore.account.server;
+  router.push({
+    path: PageEnum.LOGIN_HOME,
+    query: { login, server },
+  });
+});
 
 const initRender = () => {
   timeStore.initTime(); // 初始化时间语言和时区
@@ -82,23 +106,21 @@ const initRender = () => {
 
 // 初始化 注意调用顺序
 async function init() {
-  try {
-    chartInitStore.state.loading = true;
-    // 1.先拿到 交易线路
-    await networkStore.getLines();
-    // 2.拿到节点才能去定位缓存信息，获取商品、节点、socket地址、订单情况
-    userStore.initAccount();
-    await networkStore.initNode();
-    await symbolsStore.getAllSymbol();
-    Promise.all([
-      quotesStore.getAllSymbolQuotes(),
-      rateStore.getAllRates(),
-      orderStore.initTableData(),
-      userStore.getLoginInfo({ emitSocket: true }), // 获取个人信息
-    ]);
-  } finally {
-    initRender();
-  }
+  chartInitStore.state.loading = true;
+  // 1.先拿到 交易线路
+  await networkStore.getLines();
+  // 2.拿到节点才能去定位缓存信息，获取商品、节点、socket地址、订单情况
+  userStore.initAccount();
+  await networkStore.initNode();
+  // 获取个人信息
+  await userStore.getLoginInfo({ emitSocket: true });
+  await Promise.all([
+    symbolsStore.getAllSymbol(),
+    quotesStore.getAllSymbolQuotes(),
+    rateStore.getAllRates(),
+    orderStore.initTableData(),
+  ]);
+  initRender();
 }
 
 // 浏览器页面变化布局随之变化
@@ -132,6 +154,8 @@ onBeforeRouteLeave((to, from, next) => {
 </script>
 
 <style scoped lang="scss">
+@import "@/styles/_handle.scss";
+
 .chart {
   height: 100vh;
   display: flex;
@@ -145,5 +169,14 @@ onBeforeRouteLeave((to, from, next) => {
   bottom: 0;
   width: 0;
   height: 0;
+}
+.globalLoading {
+  @include background_color("background");
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
 }
 </style>

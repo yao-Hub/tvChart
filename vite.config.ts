@@ -28,13 +28,6 @@ export default defineConfig((mode: ConfigEnv) => {
       },
       // 消除打包大小超过500kb警告
       chunkSizeWarningLimit: 2000,
-      rollupOptions: {
-        output: {
-          chunkFileNames: "static-files/js/[name]-[hash].js",
-          entryFileNames: "static-files/js/[name]-[hash].js",
-          assetFileNames: "static-files/[ext]/[name]-[hash].[ext]",
-        },
-      },
     },
     plugins: [
       vue(),
@@ -145,6 +138,16 @@ export default defineConfig((mode: ConfigEnv) => {
           rewrite: (path) => {
             return path.replace(
               new RegExp("^" + "/client-api-120-79-80-70-8555"),
+              ""
+            );
+          },
+        },
+        "/client-api-8-153-78-97-8098": {
+          target: "http://8.153.78.97:8098",
+          changeOrigin: true,
+          rewrite: (path) => {
+            return path.replace(
+              new RegExp("^" + "/client-api-8-153-78-97-8098"),
               ""
             );
           },

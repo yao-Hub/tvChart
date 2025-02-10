@@ -105,10 +105,10 @@ export const useChartAction = defineStore("chartAction", {
           .onModify(function () {
             positionLine.setText("onModify called");
           })
-          .onReverse("onReverse called", function (text) {
+          .onReverse("onReverse called", function (text: string) {
             positionLine.setText(text);
           })
-          .onClose("onClose called", function (text) {
+          .onClose("onClose called", function (text: string) {
             positionLine.setText(text);
           })
           .setText("PROFIT: 71.1 (3.31%)")

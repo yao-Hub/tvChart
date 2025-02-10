@@ -226,7 +226,7 @@
                     column.key !== 'action' &&
                     dragLineList.includes(columnIndex)
                   "
-                  @mousedown="(e: Event) => mousedown(e, column.dataKey)"
+                  @mousedown="(e: MouseEvent) => mousedown(e, columnIndex)"
                 >
                   |
                 </div>
@@ -240,10 +240,9 @@
                 rowData.volume / 100
               }}</template>
               <template v-else-if="column.dataKey === 'type'">
-                <span
-                  :class="[rowData.type % 2 === 0 ? 'buyWord' : 'sellWord']"
-                  >{{ $t(`order.${getTradingDirection(rowData.type)}`) }}</span
-                >
+                <span>{{
+                  $t(`order.${getTradingDirection(rowData.type)}`)
+                }}</span>
               </template>
               <template v-else-if="column.dataKey === 'orderType'">
                 <span
@@ -281,11 +280,6 @@
                   rowData.profit > 0
                     ? $t("table.deposit")
                     : $t("table.withdrawal")
-                }}</span>
-              </template>
-              <template v-else-if="column.dataKey === 'storage'">
-                <span :class="[getCellClass(+rowData.storage)]">{{
-                  rowData.storage
                 }}</span>
               </template>
               <template v-else-if="column.dataKey === 'fee'">
@@ -412,9 +406,10 @@
 </template>
 
 <script setup lang="ts">
+import Decimal from "decimal.js";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { cloneDeep, get, isNil, minBy } from "lodash";
-import { computed, onMounted, reactive, ref } from "vue";
+import { cloneDeep, debounce, get, isNil, minBy } from "lodash";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import * as orderTypes from "#/order";
@@ -427,7 +422,7 @@ import { tableColumns } from "./config";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
-import { IState as storageState, useStorage } from "@/store/modules/storage";
+import { useStorage } from "@/store/modules/storage";
 import { useTime } from "@/store/modules/time";
 
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
@@ -444,15 +439,19 @@ const timeStore = useTime();
 const quotesStore = useQuotes();
 const storageStore = useStorage();
 
-const storageColumns: storageState["columnsMap"] =
-  storageStore.getItem("tableColumns") || {};
-for (const i in storageColumns) {
-  const tabKey = i as orderTypes.TableTabKey;
-  const options = storageColumns[tabKey];
-  for (const op in options) {
-    const target = tableColumns[tabKey].find((e) => e.dataKey === op);
-    if (target) {
-      target.width = options[op];
+const MIN_COLUMN_WIDTH = 80;
+
+// 初始化列宽  有缓存
+const storageColumns = storageStore.getItem("tableColumns");
+if (storageColumns) {
+  for (const i in storageColumns) {
+    const tabKey = i as orderTypes.TableTabKey;
+    const options = storageColumns[tabKey];
+    for (const op in options) {
+      const target = tableColumns[tabKey].find((e) => e.dataKey === op);
+      if (target) {
+        target.width = options[op];
+      }
     }
   }
 }
@@ -471,48 +470,114 @@ const state = reactive({
   pendingDialogVisible: false,
   orderInfo: {} as orders.resOrders & orders.resPendingOrders,
 });
+
 const activeKey = ref<orderTypes.TableTabKey>("marketOrder");
 
-const dragLineList = ref<number[]>([]);
-// 拖动改变列宽相关逻辑
-const columnRefresh = (x: any, fileKey: string) => {
-  const index = state.columns[activeKey.value].findIndex(
-    (item: any) => item.dataKey === fileKey
+// 表格宽高的系列操作
+const container = ref();
+const boxH = ref("");
+const boxW = ref(0);
+let observer: ResizeObserver | null = null;
+onMounted(() => {
+  // 拖拽时改变table的高
+  observer = new ResizeObserver((entries) => {
+    for (const entry of entries) {
+      const { height, width } = entry.contentRect;
+      boxH.value = `${height - 40}px`;
+      boxW.value = width;
+      adjustTable();
+    }
+  });
+  observer.observe(container.value);
+});
+
+// 动态调整表格的列宽
+watch(
+  () => activeKey.value,
+  () => adjustTable()
+);
+const adjustTable = debounce(() => {
+  const epsilon = 3;
+  const columns_widths = state.columns[activeKey.value].reduce(
+    (pre, next) => pre + next.width,
+    0
   );
+  if (container.value) {
+    // -margin padding
+    const container_width = container.value.offsetWidth - 32;
+    let maxWidth = columns_widths;
+    // 使用一个误差范围来比较浮点数
+    if (Math.abs(columns_widths - container_width) > epsilon) {
+      const conDel = new Decimal(container_width);
+      state.columns[activeKey.value].forEach((item) => {
+        const minw = item.minWidth || MIN_COLUMN_WIDTH;
+        const width = new Decimal(item.width);
+        const result = +width.div(maxWidth).mul(conDel).toString();
+        item.width = result < minw ? minw : result;
+      });
+    }
+  }
+}, 20);
+
+// 列分割线改变列宽逻辑
+const dragLineList = ref<number[]>([]);
+const columnRefresh = (x: number, index: number) => {
+  if (index < 0) {
+    return;
+  }
   const nowCol = state.columns[activeKey.value][index];
-  const minNowW = nowCol.minWidth || 80;
+  const nextCol = state.columns[activeKey.value][index + 1];
+
+  // 上一个单元格移动
+  const minNowW = nowCol.minWidth || MIN_COLUMN_WIDTH;
   // 向左
   if (x < 0 && nowCol.width <= minNowW) {
     return;
   }
   const nowW = nowCol.width + x;
-  const result = Math.max(nowW, minNowW);
-  nowCol.width = result;
-  storageStore.saveOrderTableColumn(activeKey.value, fileKey, result);
-};
 
+  // 下一个单元格移动
+  const minNextW = nextCol.minWidth || MIN_COLUMN_WIDTH;
+  // 向右
+  if (x > 0 && nextCol.width <= minNextW) {
+    return;
+  }
+  const nextW = nextCol.width - x;
+
+  const allWidth = nowCol.width + nextCol.width;
+  if (nowW + nextW > allWidth + 1) {
+    return;
+  }
+  nowCol.width = nowW;
+  storageStore.saveOrderTableColumn(activeKey.value, nowCol.dataKey, nowW);
+
+  nextCol.width = nextW;
+  storageStore.saveOrderTableColumn(activeKey.value, nextCol.dataKey, nextW);
+};
 let isResizing = false;
 let isEnter = false;
 let lastX = 0;
-let currentKey = "";
-const mousedown = (e: any, dataKey: string) => {
+let currentIndex = -1;
+const mousedown = (e: MouseEvent, index: number) => {
   isResizing = true;
   lastX = e.clientX;
-  currentKey = dataKey;
+  currentIndex = index;
 };
-document.addEventListener("mousemove", (e) => {
+const mouseMove = (e: MouseEvent) => {
   if (isResizing) {
     const offsetX = e.clientX - lastX;
-    columnRefresh(offsetX, currentKey);
+    columnRefresh(offsetX, currentIndex);
     lastX = e.clientX;
   }
-});
-document.addEventListener("mouseup", () => {
+};
+const mouseUp = () => {
   isResizing = false;
   if (!isEnter) {
     dragLineList.value = [];
   }
-});
+};
+document.addEventListener("mousemove", mouseMove);
+document.addEventListener("mouseup", mouseUp);
 const headerMouseenter = (index: number) => {
   isEnter = true;
   if (isResizing) {
@@ -530,6 +595,14 @@ const headerMouseLeave = () => {
   }
   dragLineList.value = [];
 };
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect();
+  }
+  document.removeEventListener("mousemove", mouseMove);
+  document.removeEventListener("mouseup", mouseUp);
+});
 
 const getTableHeight = (height: number) => {
   return ["marketOrderHistory"].includes(activeKey.value)
@@ -696,6 +769,19 @@ watch(
 import { watch } from "vue";
 const MOHFWidth = ref("");
 const tableXScroll = ref(0);
+type ScrollParams = {
+  xAxisScrollDir: "forward" | "backward";
+  scrollLeft: number;
+  yAxisScrollDir: "forward" | "backward";
+  scrollTop: number;
+};
+const tableScroll = (e: ScrollParams) => {
+  if (activeKey.value !== "marketOrderHistory") {
+    tableXScroll.value = 0;
+    return;
+  }
+  tableXScroll.value = e.scrollLeft;
+};
 watch(
   () => [state.columns.marketOrderHistory, tableXScroll, activeKey],
   () => {
@@ -715,19 +801,7 @@ watch(
   },
   { deep: true, flush: "post" }
 );
-type ScrollParams = {
-  xAxisScrollDir: "forward" | "backward";
-  scrollLeft: number;
-  yAxisScrollDir: "forward" | "backward";
-  scrollTop: number;
-};
-const tableScroll = (e: ScrollParams) => {
-  if (activeKey.value !== "marketOrderHistory") {
-    tableXScroll.value = 0;
-    return;
-  }
-  tableXScroll.value = e.scrollLeft;
-};
+
 // 交易历史盈亏合计
 const MOHProSum = computed(() => {
   const sum = dataSource.value.reduce((pre, next) => {
@@ -913,19 +987,6 @@ const getTableData = (type: string) => {
       break;
   }
 };
-
-const container = ref();
-const boxH = ref("");
-let observer: ResizeObserver | null = null;
-onMounted(async () => {
-  observer = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const { height } = entry.contentRect;
-      boxH.value = `${height - 40}px`;
-    }
-  });
-  observer.observe(container.value);
-});
 </script>
 
 <style lang="scss" scoped>

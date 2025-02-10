@@ -19,7 +19,6 @@
     "ts:check": "vue-tsc",
     "prepare": "husky",
     "electron:dev": "cross-env IF_ELECTRON=true vite --mode development",
-    "electron-build:dev": "cross-env NODE_ENV=development node ./electron/scripts/build.js",
     "electron-build:test": "cross-env NODE_ENV=test node ./electron/scripts/build.js",
     "electron-build:pro": "cross-env NODE_ENV=production node ./electron/scripts/build.js"
   },
@@ -50,7 +49,7 @@
     "@types/lodash": "4.17.1",
     "@vitejs/plugin-vue": "5.0.4",
     "@vue/cli-plugin-eslint": "5.0.8",
-    "cross-env": "^7.0.3",
+    "cross-env": "7.0.3",
     "electron": "34.0.2",
     "electron-builder": "25.1.8",
     "eslint": "9.2.0",
@@ -74,9 +73,10 @@
   },
   "keywords": [
     "wp-tradeview",
+    "UTrader",
     "utrader"
   ],
   "engines": {
-    "node": ">=18.18.0"
+    "node": "20.15.0"
   }
 }

@@ -1,17 +1,14 @@
 import { TableTabKey } from "#/order";
 import i18n from "@/language/index";
+import type { Column } from "element-plus";
 
 const t = i18n.global.t;
 interface IColumn {
-  title?: string;
   dataKey: string;
   key: string;
-  width: number;
-  align: string;
-  minWidth?: number;
 }
 
-export const tableColumns: Record<TableTabKey, IColumn[]> = {
+export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
   marketOrder: [
     {
       title: t("table.id"),
@@ -40,6 +37,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       key: "time_setup",
       width: 200,
       align: "right",
+      minWidth: 113,
     },
     {
       title: t("table.volume"),
@@ -101,7 +99,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       title: t("table.comment"),
       dataKey: "comment",
       key: "comment",
-      width: 110,
+      width: 300,
       align: "right",
     },
     {
@@ -115,7 +113,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       dataKey: "positionAction",
       key: "action",
       width: 40,
-      align: "center",
+      align: "left",
       minWidth: 40,
     },
   ],
@@ -146,6 +144,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       dataKey: "time_setup",
       key: "time_setup",
       width: 200,
+      minWidth: 113,
       align: "right",
     },
     {
@@ -188,6 +187,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       dataKey: "time_expiration",
       key: "time_expiration",
       width: 200,
+      minWidth: 113,
       align: "right",
     },
     {
@@ -226,6 +226,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       dataKey: "time_setup",
       key: "time_setup",
       width: 200,
+      minWidth: 113,
       align: "right",
     },
     {
@@ -261,6 +262,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       dataKey: "time_expiration",
       key: "time_expiration",
       width: 200,
+      minWidth: 113,
       align: "right",
     },
     {
@@ -268,6 +270,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       dataKey: "time_done",
       key: "time_done",
       width: 200,
+      minWidth: 113,
       align: "right",
     },
   ],
@@ -299,6 +302,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       dataKey: "time_setup",
       key: "open_time",
       width: 200,
+      minWidth: 113,
       align: "right",
     },
     {
@@ -392,6 +396,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       dataKey: "time_setup",
       key: "open_time",
       width: 200,
+      minWidth: 113,
       align: "right",
     },
     {
@@ -412,7 +417,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       title: t("table.comment"),
       dataKey: "comment",
       key: "comment",
-      width: 200,
+      width: 300,
       align: "right",
     },
   ],
@@ -422,6 +427,7 @@ export const tableColumns: Record<TableTabKey, IColumn[]> = {
       dataKey: "time",
       key: "time",
       width: 200,
+      minWidth: 113,
       align: "left",
     },
     {

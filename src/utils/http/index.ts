@@ -1,3 +1,5 @@
+import { ElMessage, ElNotification } from "element-plus";
+
 import type { CustomResponseType } from "#/axios";
 import axios, {
   AxiosError,
@@ -5,13 +7,10 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
-import { debounce } from "lodash";
-import { decrypt, encrypt } from "utils/DES/JS";
-
-import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
+import eventBus from "utils/eventBus";
 
 import { LOCALE_MAP, TLANG } from "@/constants/common";
-// import { generateUUID } from "@/utils/common";
+import { decrypt, encrypt } from "utils/DES/JS";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
@@ -34,44 +33,11 @@ type resConfig = AxiosRequestConfig<any> & {
   needLogin?: boolean;
 };
 
-// let reLogin = false;
-let logging = false;
-
-const showTokenConfirm = () => {
-  ElMessageBox.confirm(t("invalid token"), "", {
-    type: "warning",
-    confirmButtonText: t("reLogin"),
-    cancelButtonText: t("cancel"),
-  }).then(() => {
-    // reLogin = false;
-    window.location.replace(window.location.origin + "/login");
-  });
+let ifTokenError = false;
+const handleTokenErr = () => {
+  ifTokenError = true;
+  eventBus.emit("go-login");
 };
-
-const handleTokenErr = debounce(async () => {
-  showTokenConfirm();
-  logging = false;
-  // if (reLogin) {
-  //   showTokenConfirm();
-  //   return;
-  // }
-  // reLogin = true;
-  // const userStore = useUser();
-  // const { login, password, server } = userStore.account;
-  // try {
-  //   logging = true;
-  //   await userStore.login({
-  //     login,
-  //     password,
-  //     server,
-  //   });
-  //   useChartInit().systemRefresh();
-  // } catch (e) {
-  //   showTokenConfirm();
-  // } finally {
-  //   logging = false;
-  // }
-}, 3000);
 
 const ifLocal = import.meta.env.MODE === "development";
 
@@ -108,7 +74,7 @@ const service = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   (config: reqConfig) => {
-    if (logging) {
+    if (ifTokenError) {
       controller.abort();
     }
     const userStore = useUser();
@@ -189,8 +155,7 @@ service.interceptors.response.use(
       typeof data.errmsg === "string" &&
       data.errmsg.includes("invalid token")
     ) {
-      config.url && handleTokenErr();
-      logging = true;
+      handleTokenErr();
       return Promise.reject(data);
     }
 
