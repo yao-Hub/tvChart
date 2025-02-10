@@ -655,6 +655,9 @@ function resizeHorizontal(event: MouseEvent) {
 function resizeSetItem() {
   const dragArea = document.querySelector(".dragArea");
   const dragItems = document.querySelectorAll(".dragArea_item");
+  if (dragArea === null) {
+    return;
+  }
   const dh = dragArea!.getBoundingClientRect().height;
   const dw = dragArea!.getBoundingClientRect().width;
   // 获取高度比例

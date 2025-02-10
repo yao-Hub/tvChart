@@ -22,7 +22,7 @@
       <BaseImg
         class="logo btn"
         iconName="icon_star_active"
-        v-else-if="ifChecked"
+        v-else="ifChecked"
         @click="emit('btnClick', 'cancel')"
       />
     </div>

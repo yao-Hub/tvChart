@@ -92,7 +92,7 @@ const getRange = () => {
     }
     // 不同订单类型基数选取
     const baseNumMap: Record<string, any> = {
-      price: ask,
+      price: bid,
       sellPrice: ask,
       buyPrice: bid,
       buyLimit: props.orderPrice,
@@ -171,6 +171,7 @@ const setRangeTip = () => {
   const text = type.match(/sell|buy/);
   // 没有确定方向不提示
   if (!text) {
+    rangeTip.value = "";
     return "";
   }
   const range = getRange();
@@ -299,6 +300,10 @@ watch(
     deep: true,
     immediate: true,
   }
+);
+watch(
+  () => props.symbolInfo?.symbol,
+  () => (price.value = "")
 );
 
 import { isNil } from "lodash";

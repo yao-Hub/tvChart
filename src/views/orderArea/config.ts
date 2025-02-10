@@ -418,7 +418,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "comment",
       key: "comment",
       width: 300,
-      align: "right",
+      align: "left",
     },
   ],
   log: [

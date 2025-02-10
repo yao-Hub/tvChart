@@ -38,7 +38,7 @@
         </template>
       </Block>
       <Block
-        v-for="item in symbolList"
+        v-for="item in pathSymbols"
         :title="item.symbol"
         :hideStar="hideStar"
         type="radio"
@@ -88,12 +88,6 @@ const allSymbols = computed(() => {
       loading: false,
     };
   });
-});
-
-// 输入查找商品
-import { selectMatchItem } from "utils/common/index";
-const filterSymbols = computed(() => {
-  return selectMatchItem(allSymbols.value, props.input, "symbol");
 });
 
 // 分类、
@@ -156,17 +150,27 @@ import { ISessionSymbolInfo } from "@/types/chart/index";
 import { addOptionalQuery, delOptionalQuery } from "api/symbols/index";
 import { debounce } from "lodash";
 type SymbolListItem = ISessionSymbolInfo & { loading: boolean };
-const symbolList = ref<SymbolListItem[]>([]);
+const pathSymbols = ref<SymbolListItem[]>([]);
 const showSymbols = ref(false);
 const currentPath = ref("");
 const currentType = ref("");
 // 从分类进入详情列表
 const getSymbolsDetail = (type: string) => {
   currentPath.value = listState.menu.find((e) => e.type === type).value;
-  symbolList.value = listState.pathMap[type];
+  pathSymbols.value = listState.pathMap[type];
   showSymbols.value = true;
   currentType.value = type;
 };
+
+// 输入查找商品
+import { selectMatchItem } from "utils/common/index";
+const filterSymbols = ref<SymbolListItem[]>([]);
+watch(
+  () => props.input,
+  (value) => {
+    filterSymbols.value = selectMatchItem(allSymbols.value, value, "symbol");
+  }
+);
 
 // 新增删除自选商品
 const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
@@ -196,8 +200,6 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
     }
     listItem.loading = false;
   } catch (error) {
-    listItem.loading = false;
-  } finally {
     listItem.loading = false;
   }
 }, 200);

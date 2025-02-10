@@ -357,6 +357,8 @@ export default {
     upLoadFileExceed: "最多上传{num}张图片",
   },
 
+  "refresh page": "刷新页面",
+  "network error": "网络错误",
   "invalid token": "登录过期",
   "invalid login": "无效的账户",
   "invalid server": "无效的服务商",

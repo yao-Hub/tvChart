@@ -53,7 +53,6 @@ declare module 'vue' {
     Icon: typeof import('./src/components/BaseImg/Icon.vue')['default']
     Image: typeof import('./src/components/BaseImg/Image.vue')['default']
     MyFeedBack: typeof import('./src/components/Feedback/MyFeedBack.vue')['default']
-    ReLoginConfirm: typeof import('./src/components/ReLoginConfirm.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelectSuffixIcon: typeof import('./src/components/SelectSuffixIcon.vue')['default']

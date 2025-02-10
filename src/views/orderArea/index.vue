@@ -223,7 +223,7 @@
                 <div
                   class="drag-line"
                   v-show="
-                    column.key !== 'action' &&
+                    columnIndex !== state.columns[activeKey].length - 1 &&
                     dragLineList.includes(columnIndex)
                   "
                   @mousedown="(e: MouseEvent) => mousedown(e, columnIndex)"
