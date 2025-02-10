@@ -25,8 +25,6 @@
 import { onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { ElMessageBox } from "element-plus";
-
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartLine } from "@/store/modules/chartLine";
 import { useLayout } from "@/store/modules/layout";
@@ -65,7 +63,7 @@ const quotesStore = useQuotes();
 const rootStore = useRoot();
 
 const I18n = useI18n();
-const { locale, t } = I18n;
+const { locale } = I18n;
 
 // 情求token无效时 兼容electron的路由跳转
 import { PageEnum } from "@/constants/pageEnum";
@@ -106,36 +104,21 @@ const initRender = () => {
 
 // 初始化 注意调用顺序
 async function init() {
-  let httpDone = false;
-  try {
-    chartInitStore.state.loading = true;
-    // 1.先拿到 交易线路
-    await networkStore.getLines();
-    // 2.拿到节点才能去定位缓存信息，获取商品、节点、socket地址、订单情况
-    userStore.initAccount();
-    await networkStore.initNode();
-    // 获取个人信息
-    await userStore.getLoginInfo({ emitSocket: true });
-    await Promise.all([
-      symbolsStore.getAllSymbol(),
-      quotesStore.getAllSymbolQuotes(),
-      rateStore.getAllRates(),
-      orderStore.initTableData(),
-    ]);
-    httpDone = true;
-  } catch (error) {
-    if (!httpDone) {
-      ElMessageBox.confirm(t("network error"), "", {
-        confirmButtonText: t("refresh page"),
-        showClose: false,
-        type: "error",
-      }).then(() => {
-        window.location.reload();
-      });
-    }
-  } finally {
-    initRender();
-  }
+  chartInitStore.state.loading = true;
+  // 1.先拿到 交易线路
+  await networkStore.getLines();
+  // 2.拿到节点才能去定位缓存信息，获取商品、节点、socket地址、订单情况
+  userStore.initAccount();
+  await networkStore.initNode();
+  // 获取个人信息
+  await userStore.getLoginInfo({ emitSocket: true });
+  await Promise.all([
+    symbolsStore.getAllSymbol(),
+    quotesStore.getAllSymbolQuotes(),
+    rateStore.getAllRates(),
+    orderStore.initTableData(),
+  ]);
+  initRender();
 }
 
 // 浏览器页面变化布局随之变化
