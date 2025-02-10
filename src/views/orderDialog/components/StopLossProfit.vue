@@ -117,11 +117,11 @@ const getRange = () => {
       const spread = ask - bid;
       switch (type) {
         case "buyPrice":
+        case "price":
           minTP = round(baseNum + distance, digits);
           maxSL = round(baseNum - distance, digits);
           break;
         case "sellPrice":
-        case "price":
           minSL = round(baseNum + distance, digits);
           maxTP = round(baseNum - distance, digits);
           break;
