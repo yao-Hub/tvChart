@@ -82,7 +82,7 @@ importers:
         specifier: 5.0.8
         version: 5.0.8(@vue/cli-service@5.0.8(@vue/compiler-sfc@3.5.12)(ejs@3.1.10)(encoding@0.1.13)(less-loader@12.2.0(less@4.2.0)(webpack@5.91.0))(lodash@4.17.21)(vue-template-compiler@2.7.16)(vue@3.4.21(typescript@5.2.2))(webpack-sources@3.2.3))(encoding@0.1.13)(eslint@9.2.0)
       cross-env:
-        specifier: ^7.0.3
+        specifier: 7.0.3
         version: 7.0.3
       electron:
         specifier: 34.0.2

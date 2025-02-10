@@ -1,10 +1,10 @@
-const { app, BrowserWindow } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 
 function createWindow() {
   // 创建浏览器窗口
   const mainWindow = new BrowserWindow({
-    width: 1400,
+    width: 1500,
     height: 900,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本

@@ -7,9 +7,9 @@ import { timezoneOptions } from "@/constants/timezone";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { Ttime, useTime } from "@/store/modules/time";
-import * as library from "public/charting_library";
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import * as library from "../../public/charting_library";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
@@ -47,8 +47,9 @@ const props = defineProps({
     default: false,
     type: Boolean,
   },
+  // 使用相对路径兼容electron
   libraryPath: {
-    default: "/charting_library/",
+    default: "../../public/charting_library/",
     type: String,
   },
   width: {

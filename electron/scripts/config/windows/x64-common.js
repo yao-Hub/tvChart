@@ -1,22 +1,17 @@
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
-  appId: '',
+  appId: 'com.electron.wp-tradeview',
   asar: false,
-  productName: 'wp-tradeview',
+  // asarUnpack: "public/charting_library",
+  productName: 'UTrader',
   directories: {
     output: 'release_electron/${version}/windows/common'
   },
-  extraResources: {
-    from: "public/charting_library",
-    to: "../charting_library"
-  },
-  // publish: [
-  //   {
-  //     provider: 'generic',
-  //     url: 'https://web-wsh.weishouhou.cn/electron/windows/common'
-  //   }
-  // ],
-  files: ["dist/**/*", "electron/**/*"],
+  extraResources: [{
+    "from": "public",
+    "to": "public"
+  }],
+  files: ["dist", "electron"],
   win: {
     target: [
       {
@@ -33,7 +28,6 @@ module.exports.default = {
     allowElevation: true,
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: false,
-    uninstallDisplayName: '卸载-${productName}',
     createDesktopShortcut: 'always',
     createStartMenuShortcut: true
   },

@@ -1,22 +1,16 @@
 module.exports.default = {
   $schema:
     "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
-  appId: "",
+  appId: 'com.electron.UTrader',
   asar: false,
-  productName: "wp-tradeview",
+  productName: "UTrader",
   directories: {
     output: "release_electron/${version}/macOS/x64",
   },
   extraResources: {
-    from: "public/charting_library",
-    to: "../charting_library"
+    from: "public",
+    to: "public"
   },
-  // publish: [
-  //   {
-  //     provider: 'generic',
-  //     url: 'https://web-wsh.weishouhou.cn/electron/macOS/x64'
-  //   }
-  // ],
   files: ["dist/**/*", "electron/**/*"],
   mac: {
     target: [
