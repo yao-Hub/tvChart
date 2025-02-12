@@ -57,6 +57,7 @@ export default {
   nowTime: "NowTime",
   symbolListArea: "Active trading varieties panel",
   orderArea: "Trading board",
+  klineArea: " K line panel",
 
   layout: {
     single: "Single Image Mode",

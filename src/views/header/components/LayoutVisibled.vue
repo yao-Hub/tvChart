@@ -7,6 +7,13 @@
     <template #dropdown>
       <el-dropdown-menu>
         <el-dropdown-item>
+          <div class="item" @click="() => layoutChange('chartsVisable')">
+            <span>{{ $t("klineArea") }}</span>
+            <BaseImg iconName="select" v-if="layoutStore.chartsVisable" />
+          </div>
+        </el-dropdown-item>
+
+        <el-dropdown-item>
           <div class="item" @click="() => layoutChange('symbolsVisable')">
             <span>{{ $t("symbolListArea") }}</span>
             <BaseImg iconName="select" v-if="layoutStore.symbolsVisable" />
@@ -28,10 +35,24 @@
 import { refreshLayout } from "@/utils/dragResize/drag_position";
 import { nextTick } from "vue";
 
+import { useChartInit } from "@/store/modules/chartInit";
 import { useLayout } from "@/store/modules/layout";
+
+const chartInitStore = useChartInit();
 const layoutStore = useLayout();
 
-const layoutChange = async (type: "symbolsVisable" | "orderAreaVisable") => {
+const layoutChange = async (
+  type: "symbolsVisable" | "orderAreaVisable" | "chartsVisable"
+) => {
+  const { chartsVisable, symbolsVisable, orderAreaVisable } = layoutStore;
+  const values = [chartsVisable, symbolsVisable, orderAreaVisable];
+  const trueLength = values.filter(Boolean).length;
+  if (trueLength === 1 && layoutStore[type]) {
+    return;
+  }
+  if (type === "chartsVisable") {
+    chartInitStore.saveCharts();
+  }
   layoutStore[type] = !layoutStore[type];
   await nextTick();
   refreshLayout();

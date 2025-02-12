@@ -68,6 +68,7 @@ export default {
   nowTime: "当前时间",
   symbolListArea: "活跃交易商品面板",
   orderArea: "交易看板",
+  klineArea: "商品K线面板",
 
   article: {
     readAgree: "请阅读并同意",

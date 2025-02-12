@@ -135,6 +135,7 @@ function setDragAreaSize() {
     const dlen = item.querySelectorAll(".demo").length;
     const initH = item.getAttribute("data-initH") || nowH;
     const needH = dlen === 0 ? 0 : +initH;
+    // 需要的高度不等于 平分的高度，即有多出的高度
     if (needH !== nowH) {
       leftH += nowH - needH;
     }
@@ -147,10 +148,20 @@ function setDragAreaSize() {
     const initH = item.getAttribute("data-initH");
     return dlen > 0 && !initH;
   });
-  const target = list.length ? list[0] : dragItems[0];
-  const nowH = target.getBoundingClientRect().height;
-  const ele = target as HTMLElement;
-  ele.style.height = `${nowH + leftH}px`;
+
+  let target;
+  if (list.length) {
+    target = list[0];
+  } else {
+    target = Array.from(dragItems).find(
+      (e) => e.querySelectorAll(".demo").length > 0
+    );
+  }
+  if (target) {
+    const nowH = target.getBoundingClientRect().height;
+    const ele = target as HTMLElement;
+    ele.style.height = `${nowH + leftH}px`;
+  }
 }
 
 // 初始化demo宽高
