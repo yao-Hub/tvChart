@@ -150,7 +150,7 @@ const initonReady = () => {
     // @ts-ignore
     library_path: ELECTRON_PLATFORM
       ? "../../public/charting_library/"
-      : "public/charting_library/",
+      : "/charting_library/",
     width: props.width,
     height: props.height,
     fullscreen: props.fullscreen,
