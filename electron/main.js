@@ -1,11 +1,19 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, screen } = require("electron");
 const path = require("path");
 
 function createWindow() {
+
+  const { width: sw } = screen.getPrimaryDisplay().workAreaSize;
+
+  const windowMap = {
+    width: sw && sw >= 2560 ? 1980 : 1600,
+    height: sw && sw >= 2560 ? 1080 : 900,
+  };
+
   // 创建浏览器窗口
   const mainWindow = new BrowserWindow({
-    width: 1500,
-    height: 900,
+    width: windowMap.width,
+    height: windowMap.height,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离

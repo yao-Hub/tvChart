@@ -111,56 +111,58 @@ function initDragArea() {
 
 // 拖拽区域大小 (dragArea_item高度)
 function setDragAreaSize() {
-  const dragArea = document.querySelector(".dragArea") as HTMLElement;
-  const dh = dragArea.getBoundingClientRect().height;
-  const dw = dragArea.getBoundingClientRect().width;
-  const dragItems = document.querySelectorAll(".dragArea_item");
+  const dragArea = document.querySelector(".dragArea");
+  if (dragArea) {
+    const dh = dragArea.getBoundingClientRect().height;
+    const dw = dragArea.getBoundingClientRect().width;
+    const dragItems = document.querySelectorAll(".dragArea_item");
 
-  // 先平分
-  dragItems.forEach((item, index, arr) => {
-    const height = dh / arr.length;
-    item.setAttribute(
-      "style",
-      `height: ${height}px; width: ${dw}px; margin-top: ${
-        index > 0 ? lineWidth : 0
-      }px`
-    );
-  });
+    // 先平分
+    dragItems.forEach((item, index, arr) => {
+      const height = dh / arr.length;
+      item.setAttribute(
+        "style",
+        `height: ${height}px; width: ${dw}px; margin-top: ${
+          index > 0 ? lineWidth : 0
+        }px`
+      );
+    });
 
-  // 裁剪高度
-  let leftH = 0;
-  dragItems.forEach((item) => {
-    const element = item as HTMLElement;
-    const nowH = item.getBoundingClientRect().height;
-    const dlen = item.querySelectorAll(".demo").length;
-    const initH = item.getAttribute("data-initH") || nowH;
-    const needH = dlen === 0 ? 0 : +initH;
-    // 需要的高度不等于 平分的高度，即有多出的高度
-    if (needH !== nowH) {
-      leftH += nowH - needH;
+    // 裁剪高度
+    let leftH = 0;
+    dragItems.forEach((item) => {
+      const element = item as HTMLElement;
+      const nowH = item.getBoundingClientRect().height;
+      const dlen = item.querySelectorAll(".demo").length;
+      const initH = item.getAttribute("data-initH") || nowH;
+      const needH = dlen === 0 ? 0 : +initH;
+      // 需要的高度不等于 平分的高度，即有多出的高度
+      if (needH !== nowH) {
+        leftH += nowH - needH;
+      }
+      element.style.height = `${needH}px`;
+    });
+
+    // 把裁剪的高度分配
+    const list = Array.from(dragItems).filter((item) => {
+      const dlen = item.querySelectorAll(".demo").length;
+      const initH = item.getAttribute("data-initH");
+      return dlen > 0 && !initH;
+    });
+
+    let target;
+    if (list.length) {
+      target = list[0];
+    } else {
+      target = Array.from(dragItems).find(
+        (e) => e.querySelectorAll(".demo").length > 0
+      );
     }
-    element.style.height = `${needH}px`;
-  });
-
-  // 把裁剪的高度分配
-  const list = Array.from(dragItems).filter((item) => {
-    const dlen = item.querySelectorAll(".demo").length;
-    const initH = item.getAttribute("data-initH");
-    return dlen > 0 && !initH;
-  });
-
-  let target;
-  if (list.length) {
-    target = list[0];
-  } else {
-    target = Array.from(dragItems).find(
-      (e) => e.querySelectorAll(".demo").length > 0
-    );
-  }
-  if (target) {
-    const nowH = target.getBoundingClientRect().height;
-    const ele = target as HTMLElement;
-    ele.style.height = `${nowH + leftH}px`;
+    if (target) {
+      const nowH = target.getBoundingClientRect().height;
+      const ele = target as HTMLElement;
+      ele.style.height = `${nowH + leftH}px`;
+    }
   }
 }
 
