@@ -21,6 +21,14 @@ function createWindow() {
     },
   });
 
+  // 去除菜单栏
+  mainWindow.setMenu(null);
+
+  // 在 macOS 系统中全局去除菜单栏
+  if (process.platform === 'darwin') {
+    Menu.setApplicationMenu(null);
+  }
+
   // 加载 Vue 应用的 URL
   if (process.env.NODE_ENV === "development") {
     // 开发环境：加载 Vue DevServer 的 URL
