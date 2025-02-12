@@ -104,21 +104,25 @@ const initRender = () => {
 
 // 初始化 注意调用顺序
 async function init() {
-  chartInitStore.state.loading = true;
-  // 1.先拿到 交易线路
-  await networkStore.getLines();
-  // 2.拿到节点才能去定位缓存信息，获取商品、节点、socket地址、订单情况
-  userStore.initAccount();
-  await networkStore.initNode();
-  // 获取个人信息
-  await userStore.getLoginInfo({ emitSocket: true });
-  await Promise.all([
-    symbolsStore.getAllSymbol(),
-    quotesStore.getAllSymbolQuotes(),
-    rateStore.getAllRates(),
-    orderStore.initTableData(),
-  ]);
-  initRender();
+  try {
+    chartInitStore.state.loading = true;
+    // 1.先拿到 交易线路
+    await networkStore.getLines();
+    // 2.拿到节点才能去定位缓存信息，获取商品、节点、socket地址、订单情况
+    userStore.initAccount();
+    await networkStore.initNode();
+    // 获取个人信息
+    await userStore.getLoginInfo({ emitSocket: true });
+    await Promise.all([
+      symbolsStore.getAllSymbol(),
+      quotesStore.getAllSymbolQuotes(),
+      rateStore.getAllRates(),
+      orderStore.initTableData(),
+    ]);
+  } catch (error) {
+  } finally {
+    initRender();
+  }
 }
 
 // 浏览器页面变化布局随之变化
