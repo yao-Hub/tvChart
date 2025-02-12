@@ -720,7 +720,7 @@ const getCloseType = (e: orders.resHistoryOrders) => {
 import dayjs from "dayjs";
 const formatTime = (timestamp: string) => {
   const timezone = timeStore.settedTimezone;
-  const result = dayjs(timestamp).tz(timezone).format("YYYY-MM-DD HH:mm:ss");
+  const result = dayjs(timestamp).tz(timezone).format("YYYY.MM.DD HH:mm:ss");
   return result;
 };
 

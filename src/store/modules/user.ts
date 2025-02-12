@@ -6,7 +6,7 @@ import { assign, debounce, findKey } from "lodash";
 import CryptoJS from "utils/AES";
 import { useI18n } from "vue-i18n";
 
-import { Login, loginInfo, UserInfo } from "api/account";
+import { Login, UserInfo, loginInfo, refresh_token } from "api/account";
 import { round } from "utils/common";
 
 import { computed, reactive } from "vue";
@@ -31,12 +31,14 @@ export type AccountListItem = IAccount & {
 interface IState {
   accountList: Array<AccountListItem>;
   loginInfo: UserInfo | null;
+  timer: NodeJS.Timer | null;
 }
 
 export const useUser = defineStore("user", () => {
   const state = reactive<IState>({
     accountList: [],
     loginInfo: null,
+    timer: null,
   });
 
   const account = computed(() => {
@@ -86,7 +88,7 @@ export const useUser = defineStore("user", () => {
       return 0;
     }
     if (equity.value !== "-") {
-      return round((+equity.value / +nowMargin) * 100, 2) + "%";
+      return round((+equity.value / +nowMargin) * 100, 2) + " %";
     }
     return "-";
   });
@@ -186,6 +188,20 @@ export const useUser = defineStore("user", () => {
     }
   };
 
+  // 一小时调用一次刷新token
+  const refreshToken = async () => {
+    if (state.timer) {
+      // @ts-ignore
+      clearInterval(state.timer);
+    }
+    state.timer = setInterval(async () => {
+      const res = await refresh_token();
+      changeCurrentAccountOption({
+        token: res.data,
+      });
+    }, 60 * 60 * 1000);
+  };
+
   type TCallback = ({
     ending,
     success,
@@ -243,6 +259,7 @@ export const useUser = defineStore("user", () => {
                   });
                   // 发送登录状态
                   socketStore.sendToken({ login: updata.login, token });
+                  refreshToken();
                   if (callback) {
                     callback({ ending: true, success: true });
                   }
@@ -270,6 +287,7 @@ export const useUser = defineStore("user", () => {
   function $reset() {
     state.accountList = [];
     state.loginInfo = null;
+    state.timer = null;
   }
 
   return {
@@ -288,6 +306,7 @@ export const useUser = defineStore("user", () => {
     addAccount,
     removeAccount,
     login,
+    refreshToken,
     $reset,
   };
 });

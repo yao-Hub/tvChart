@@ -1,5 +1,5 @@
 <template>
-  <div class="footerInfo">
+  <div class="footerInfo scrollList">
     <div class="item">
       <el-text type="info">{{ $t("order.balance") }}：</el-text>
       <span>{{ loginInfo?.balance }} {{ loginInfo?.currency }}</span>
@@ -72,30 +72,30 @@ const profitTotal = computed(() => {
   width: 100vw;
   box-sizing: border-box;
   height: 30px;
-  @include background_color("backgroun");
+  @include background_color("background");
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  overflow: auto;
+  overflow-x: auto;
   display: flex;
   align-items: center;
   padding: 0 16px;
 
   .item {
-    min-width: 100px;
-    overflow: auto;
     display: flex;
     height: 100%;
     justify-content: center;
     align-items: center;
     padding: 0 8px;
+    flex-shrink: 0;
   }
   .item_end {
     margin-left: auto;
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    flex-shrink: 0;
   }
 }
 </style>

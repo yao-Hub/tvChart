@@ -12,6 +12,7 @@ enum Api {
   SendEmail = "/admin/my/sendEmail",
   ArticleDetails = "/admin/column/select_trade_column",
   ProtocolAgree = "/admin/protocol/protocol_agree",
+  RefreshToken = "/login/refresh_token",
 }
 export interface Order {
   id: number; //	订单ID
@@ -257,5 +258,13 @@ export const protocolAgree = (data: IReqProtocolAgree) => {
     urlType: "admin",
     noNeedToken: true,
     noNeedServer: true,
+  });
+};
+
+export const refresh_token = () => {
+  return request<string>({
+    url: Api.RefreshToken,
+    method: "post",
+    needLogin: true,
   });
 };

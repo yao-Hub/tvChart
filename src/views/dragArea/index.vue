@@ -74,6 +74,7 @@ const layoutStore = useLayout();
 @import "@/styles/_handle.scss";
 
 .dragArea {
+  // - 底部 - 头部
   height: calc(100vh - 30px - 48px);
   width: 100%;
   position: relative;

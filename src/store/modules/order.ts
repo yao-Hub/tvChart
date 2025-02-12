@@ -54,7 +54,7 @@ interface IState {
 export const useOrder = defineStore("order", () => {
   const dateFormat = "YYYY-MM-DD HH:mm:ss";
   const monday = dayjs().startOf("week").startOf("day").format(dateFormat);
-  const today = dayjs().format(dateFormat);
+  const today = dayjs().endOf("day").format(dateFormat);
   const state = reactive<IState>({
     initOrderState: { symbol: "" },
     currentKline: {},

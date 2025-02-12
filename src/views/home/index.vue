@@ -119,6 +119,7 @@ async function init() {
       rateStore.getAllRates(),
       orderStore.initTableData(),
     ]);
+    userStore.refreshToken();
   } catch (error) {
   } finally {
     initRender();
