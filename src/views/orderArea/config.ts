@@ -194,7 +194,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "orderAction",
       key: "action",
       width: 40,
-      align: "center",
+      align: "left",
       minWidth: 40,
     },
   ],
@@ -272,6 +272,14 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       width: 200,
       minWidth: 113,
       align: "right",
+    },
+    // 占位，用于最尾的列拉伸
+    {
+      title: "",
+      dataKey: "Placeholder",
+      key: "Placeholder",
+      width: 1,
+      minWidth: 1,
     },
   ],
   // 持仓历史
@@ -382,6 +390,14 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       width: 100,
       align: "right",
     },
+    // 占位，用于最尾的列拉伸
+    {
+      title: "",
+      dataKey: "Placeholder",
+      key: "Placeholder",
+      width: 1,
+      minWidth: 1,
+    },
   ],
   blanceRecord: [
     {
@@ -418,7 +434,15 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "comment",
       key: "comment",
       width: 300,
-      align: "left",
+      align: "right",
+    },
+    // 占位，用于最尾的列拉伸
+    {
+      title: "",
+      dataKey: "Placeholder",
+      key: "Placeholder",
+      width: 1,
+      minWidth: 1,
     },
   ],
   log: [
@@ -443,6 +467,14 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       key: "content",
       width: 500,
       align: "right",
+    },
+    // 占位，用于最尾的列拉伸
+    {
+      title: "",
+      dataKey: "Placeholder",
+      key: "Placeholder",
+      width: 1,
+      minWidth: 1,
     },
   ],
 };

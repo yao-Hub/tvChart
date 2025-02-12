@@ -228,6 +228,24 @@ export const useOrder = defineStore("order", {
         case "balance_order_added":
           Promise.all([this.getBlanceRecord(), userStore.getLoginInfo()]);
           break;
+        case "marketOrder":
+          this.getMarketOrders();
+          break;
+        case "pendingOrder":
+          this.getPendingOrders();
+          break;
+        case "marketOrderHistory":
+          this.getMarketOrderHistory();
+          break;
+        case "pendingOrderHistory":
+          this.getPendingOrderHistory();
+          break;
+        case "blanceRecord":
+          this.getBlanceRecord();
+          break;
+        case "log":
+          this.getLog();
+          break;
         default:
           break;
       }
@@ -236,10 +254,10 @@ export const useOrder = defineStore("order", {
       const socketStore = useSocket();
       await Promise.all([
         this.getMarketOrders(),
-        this.getPendingOrders(),
-        this.getMarketOrderHistory(),
-        this.getPendingOrderHistory(),
-        this.getBlanceRecord(),
+        // this.getPendingOrders(),
+        // this.getMarketOrderHistory(),
+        // this.getPendingOrderHistory(),
+        // this.getBlanceRecord(),
       ]);
 
       socketStore.orderChanges(async (type: string) => {
@@ -533,11 +551,11 @@ export const useOrder = defineStore("order", {
   },
 
   debounce: {
-    getMarketOrders: 1200,
-    getPendingOrders: 1200,
-    getPendingOrderHistory: 1200,
-    getMarketOrderHistory: 1200,
-    getBlanceRecord: 1200,
-    getData: 1200,
+    getMarketOrders: { wait: 200 },
+    getPendingOrders: { wait: 200 },
+    getPendingOrderHistory: { wait: 200 },
+    getMarketOrderHistory: { wait: 200 },
+    getBlanceRecord: { wait: 200 },
+    getData: { wait: 200 },
   },
 });

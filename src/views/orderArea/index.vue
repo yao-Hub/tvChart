@@ -215,7 +215,7 @@
           >
             <template #header-cell="{ column, columnIndex }">
               <div
-                class="header-box"
+                :class="[column.title ? 'header-box' : 'header-plac']"
                 @mouseenter="headerMouseenter(columnIndex)"
                 @mouseleave="headerMouseLeave"
               >
@@ -329,6 +329,9 @@
                     ><Loading
                   /></el-icon>
                 </el-tooltip>
+              </template>
+              <template v-else-if="column.dataKey === 'Placeholder'">
+                <span></span>
               </template>
               <template v-else>
                 {{
@@ -494,7 +497,10 @@ onMounted(() => {
 // 动态调整表格的列宽
 watch(
   () => activeKey.value,
-  () => adjustTable()
+  () => {
+    adjustTable();
+    orderStore.getData(activeKey.value);
+  }
 );
 const adjustTable = debounce(() => {
   const epsilon = 3;
@@ -1000,6 +1006,9 @@ const getTableData = (type: string) => {
   white-space: nowrap;
   padding: 0;
 }
+// :deep(.el-table-v2__header-cell[data-key="Placeholder"]) {
+//   width: 0px !important;
+// }
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;

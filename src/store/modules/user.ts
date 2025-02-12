@@ -263,4 +263,8 @@ export const useUser = defineStore("user", {
       }
     },
   },
+
+  debounce: {
+    getLoginInfo: { wait: 1200, leading: true },
+  },
 });
