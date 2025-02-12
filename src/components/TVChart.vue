@@ -47,11 +47,6 @@ const props = defineProps({
     default: false,
     type: Boolean,
   },
-  // 使用相对路径兼容electron
-  libraryPath: {
-    default: "../../public/charting_library/",
-    type: String,
-  },
   width: {
     default: 300,
     type: Number,
@@ -152,7 +147,10 @@ const initonReady = () => {
     datafeed: props.datafeed as library.IBasicDataFeed,
     timezone: props.timezone as library.Timezone,
     debug: props.debug,
-    library_path: props.libraryPath,
+    // @ts-ignore
+    library_path: ELECTRON_PLATFORM
+      ? "../../public/charting_library/"
+      : "public/charting_library/",
     width: props.width,
     height: props.height,
     fullscreen: props.fullscreen,
