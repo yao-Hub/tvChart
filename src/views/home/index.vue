@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from "vue";
+import { onBeforeUnmount, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useChartInit } from "@/store/modules/chartInit";
@@ -132,10 +132,6 @@ onMounted(() => {
   window.addEventListener("resize", resizeUpdate);
 });
 
-onUnmounted(() => {
-  window.removeEventListener("resize", resizeUpdate);
-});
-
 // 全局刷新重置store 热更新
 watch(
   () => chartInitStore.state.globalRefresh,
@@ -149,10 +145,14 @@ watch(
 
 // 离开页面保存图表操作
 // 撤销监听 resize
-import { onBeforeRouteLeave } from "vue-router";
-onBeforeRouteLeave((to, from, next) => {
+onBeforeUnmount(() => {
   chartInitStore.saveCharts();
-  next();
+  window.removeEventListener("resize", resizeUpdate);
+});
+
+// 重置vuex的state
+onUnmounted(() => {
+  rootStore.resetAllStore();
 });
 </script>
 

@@ -123,22 +123,6 @@ const accounts = computed(() => userStore.state.accountList);
 const hoverMap = reactive<{
   [key: string]: boolean;
 }>({});
-// const accounts = ref<any[]>([]);
-
-// watch(
-//   () => userStore.state.accountList,
-//   (list) => {
-//     if (list) {
-//       accounts.value = userStore.state.accountList.map((item) => {
-//         return {
-//           ...item,
-//           hover: false,
-//         };
-//       });
-//     }
-//   },
-//   { deep: true }
-// );
 
 const toogleDropdown = () => {
   if (!dropdown.value) return;
