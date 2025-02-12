@@ -294,7 +294,7 @@ const domVisableOption = {
 
 // 重置表单 自动填充
 const initForm = () => {
-  const initState = orderStore.initOrderState;
+  const initState = orderStore.state.initOrderState;
   formState.symbol = initState.symbol || chartInitStore.getDefaultSymbol();
   // 快捷交易买入卖出直接弹到确认订单
   if (initState.mode === "confirm") {
@@ -308,7 +308,7 @@ const freshKey = ref(0);
 
 // 右键菜单新图表时初始化数据
 watch(
-  () => [orderStore.initOrderState, dialogStore.orderDialogVisible],
+  () => [orderStore.state.initOrderState, dialogStore.orderDialogVisible],
   (nowValue, oldValue) => {
     const [nowState, nowVisible] = nowValue;
     const [preState] = oldValue;
@@ -475,7 +475,7 @@ const addPendingOrders = debounce(async () => {
 /** 弹窗处理 */
 const handleCancel = () => {
   Object.assign(formState, originState);
-  orderStore.initOrderState = { symbol: "" };
+  orderStore.state.initOrderState = { symbol: "" };
   back();
   dialogStore.closeDialog("orderDialogVisible");
 };

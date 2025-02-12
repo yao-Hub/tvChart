@@ -64,14 +64,14 @@ type TList = AccountListItem & { actived: boolean };
 const list = ref<TList[]>([]);
 
 onBeforeMount(() => {
-  const accounts = userStore.accountList;
+  const accounts = userStore.state.accountList;
   if (accounts.length === 0) {
     router.replace({ path: PageEnum.LOGIN_HOME });
   }
 });
 
 const initList = () => {
-  const accounts = userStore.accountList;
+  const accounts = userStore.state.accountList;
   const orderAccounts = orderBy(accounts, ["ifLogin"], ["desc"]);
   list.value = orderAccounts.map((item, index) => {
     return {

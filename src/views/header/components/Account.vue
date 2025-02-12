@@ -17,8 +17,8 @@
           v-for="item in accounts"
           :class="{ aItemActive: item.ifLogin }"
           @click="changeLogin(item)"
-          @mouseover="item.hover = true"
-          @mouseleave="item.hover = false"
+          @mouseover="hoverMap[item.login] = true"
+          @mouseleave="hoverMap[item.login] = false"
         >
           <BaseImg class="icon" :fullPath="getLogo(item.server)" />
           <span>{{ item.server }}</span>
@@ -29,7 +29,10 @@
           <span>|</span>
           <span>{{ item.currency }}</span>
           <div class="del" @click.stop="delAccount(item)">
-            <div class="delIcon" v-show="item.hover && !item.ifLogin"></div>
+            <div
+              class="delIcon"
+              v-show="hoverMap[item.login] && !item.ifLogin"
+            ></div>
           </div>
         </div>
       </div>
@@ -76,7 +79,7 @@
       </el-col>
       <el-col :span="12">
         <el-text type="info">{{ $t("loginId") }}</el-text>
-        <el-text>{{ userStore.loginInfo?.login }}</el-text>
+        <el-text>{{ userStore.state.loginInfo?.login }}</el-text>
       </el-col>
     </el-row>
     <el-row>
@@ -101,7 +104,7 @@ import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 import type { DropdownInstance } from "element-plus";
-import { ref, watch } from "vue";
+import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
@@ -116,22 +119,26 @@ const userStore = useUser();
 const router = useRouter();
 const dialogStore = useDialog();
 
-const accounts = ref<any[]>([]);
+const accounts = computed(() => userStore.state.accountList);
+const hoverMap = reactive<{
+  [key: string]: boolean;
+}>({});
+// const accounts = ref<any[]>([]);
 
-watch(
-  () => userStore.accountList,
-  (list) => {
-    if (list) {
-      accounts.value = userStore.accountList.map((item) => {
-        return {
-          ...item,
-          hover: false,
-        };
-      });
-    }
-  },
-  { deep: true }
-);
+// watch(
+//   () => userStore.state.accountList,
+//   (list) => {
+//     if (list) {
+//       accounts.value = userStore.state.accountList.map((item) => {
+//         return {
+//           ...item,
+//           hover: false,
+//         };
+//       });
+//     }
+//   },
+//   { deep: true }
+// );
 
 const toogleDropdown = () => {
   if (!dropdown.value) return;

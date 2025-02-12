@@ -39,7 +39,7 @@ export const useRate = defineStore("rate", () => {
       user_last: { bid_rate: 1, ask_rate: 1 },
     };
     const originItem = { bid_rate: 1, ask_rate: 1 };
-    const loginInfo = userStore.loginInfo;
+    const loginInfo = userStore.state.loginInfo;
     const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
     const userCur = loginInfo?.currency; // 账户币种
     const preCur = symbolInfo?.pre_currency; // 前币种

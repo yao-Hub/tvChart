@@ -233,11 +233,11 @@ const valid = () => {
   return true;
 };
 const addOrder = async (type: DirectionType) => {
-  if (orderStore.ifOne === null) {
+  if (orderStore.state.ifOne === null) {
     dialogStore.openDialog("disclaimersVisible");
     return;
   }
-  if (!orderStore.ifOne) {
+  if (!orderStore.state.ifOne) {
     orderStore.createOrder({
       symbol: nowSymbol.value,
       mode: "confirm",

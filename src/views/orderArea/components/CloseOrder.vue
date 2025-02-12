@@ -104,7 +104,7 @@ const checkList = computed(() => {
 });
 
 const dataSource = computed(() => {
-  return orderStore.orderData[props.orderType];
+  return orderStore.state.orderData[props.orderType];
 });
 
 watch(

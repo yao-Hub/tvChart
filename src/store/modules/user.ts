@@ -2,13 +2,14 @@ import { defineStore } from "pinia";
 
 import i18n from "@/language/index";
 import { ElMessage } from "element-plus";
-import { assign, findKey } from "lodash";
+import { assign, debounce, findKey } from "lodash";
 import CryptoJS from "utils/AES";
 import { useI18n } from "vue-i18n";
 
 import { Login, loginInfo, UserInfo } from "api/account";
 import { round } from "utils/common";
 
+import { computed, reactive } from "vue";
 import { useNetwork } from "./network";
 import { useOrder } from "./order";
 import { useSocket } from "./socket";
@@ -32,85 +33,118 @@ interface IState {
   loginInfo: UserInfo | null;
 }
 
-export const useUser = defineStore("user", {
-  state: (): IState => ({
+export const useUser = defineStore("user", () => {
+  const state = reactive<IState>({
     accountList: [],
     loginInfo: null,
-  }),
-  getters: {
-    account(state) {
-      let result = {
-        login: "",
-        password: "",
-        server: "",
-        token: "",
-        queryNode: "",
+  });
+
+  const account = computed(() => {
+    let result = {
+      login: "",
+      password: "",
+      server: "",
+      token: "",
+      queryNode: "",
+    };
+    const found = state.accountList.find((e) => e.ifLogin);
+    if (found) {
+      result = found;
+    }
+    return result;
+  });
+
+  // 净值
+  const equity = computed(() => {
+    if (!state.loginInfo) {
+      return "-";
+    }
+    const orderStore = useOrder();
+    const currentPosition = orderStore.state.orderData.marketOrder || [];
+    const sum = currentPosition.reduce((accumulator, currentValue) => {
+      return accumulator + +currentValue.profit;
+    }, 0);
+    return round(+state.loginInfo.balance + (sum || 0), 2);
+  });
+
+  // 预付款
+  const margin = computed(() => state.loginInfo?.margin || "-");
+
+  // 可用预付款
+  const margin_free = computed(() => {
+    const nowMargin = margin.value === "-" ? 0 : margin.value;
+    if (equity.value !== "-") {
+      return round(Number(equity.value) - Number(nowMargin), 2);
+    }
+    return "-";
+  });
+
+  // 预付款比例
+  const margin_level = computed(() => {
+    const nowMargin = margin.value === "-" ? 0 : margin.value;
+    if (nowMargin === 0) {
+      return 0;
+    }
+    if (equity.value !== "-") {
+      return round((+equity.value / +nowMargin) * 100, 2) + "%";
+    }
+    return "-";
+  });
+
+  const initAccount = () => {
+    const stoStr = localStorage.getItem("accountList");
+    if (stoStr) {
+      const list = JSON.parse(stoStr);
+      if (list.length > 0) {
+        list.forEach((item: any) => {
+          item.password = CryptoJS.decrypt(item.password); // 解密
+          item.token = CryptoJS.decrypt(item.token);
+        });
+      }
+      state.accountList = list;
+    }
+  };
+
+  const getToken = () => {
+    initAccount();
+    const found = state.accountList?.find((e: any) => e.ifLogin);
+    if (found) {
+      return found.token;
+    }
+    return "";
+  };
+
+  const storageAccount = () => {
+    const storageList = state.accountList.map((item) => {
+      return {
+        ...item,
+        password: CryptoJS.encrypt(item.password), // 加密
+        token: CryptoJS.encrypt(item.token),
       };
-      const found = state.accountList.find((e) => e.ifLogin);
-      if (found) {
-        result = found;
-      }
-      return result;
-    },
-    // 净值
-    equity(state) {
-      if (!state.loginInfo) {
-        return "-";
-      }
-      const orderStore = useOrder();
-      const currentPosition = orderStore.orderData.marketOrder || [];
-      const sum = currentPosition.reduce((accumulator, currentValue) => {
-        return accumulator + +currentValue.profit;
-      }, 0);
-      return round(+state.loginInfo.balance + (sum || 0), 2);
-    },
-    // 预付款
-    margin(state): string | number {
-      return state.loginInfo?.margin || "-";
-    },
-    // 可用预付款
-    margin_free() {
-      // @ts-ignore
-      const nowMargin = this.margin === "-" ? 0 : this.margin;
-      if (this.equity !== "-") {
-        return round(Number(this.equity) - Number(nowMargin), 2);
-      }
-      return "-";
-    },
-    // 预付款比例
-    margin_level() {
-      // @ts-ignore
-      const nowMargin = this.margin === "-" ? 0 : this.margin;
-      if (nowMargin === 0) {
-        return 0;
-      }
-      if (this.equity !== "-") {
-        return round((+this.equity / +nowMargin) * 100, 2) + "%";
-      }
-      return "-";
-    },
-  },
-  actions: {
-    getToken() {
-      this.initAccount();
-      const found = this.accountList?.find((e: any) => e.ifLogin);
-      if (found) {
-        return found.token;
-      }
-      return "";
-    },
-    Logout() {
-      this.changeCurrentAccountOption({
-        ifLogin: false,
-      });
-    },
-    async getLoginInfo(params?: { emitSocket?: boolean }) {
-      this.loginInfo = null;
+    });
+    localStorage.setItem("accountList", JSON.stringify(storageList));
+  };
+
+  const changeCurrentAccountOption = (option: any) => {
+    const found = state.accountList.find((e) => e.ifLogin);
+    assign(found, option);
+    storageAccount();
+  };
+
+  const Logout = () => {
+    changeCurrentAccountOption({
+      ifLogin: false,
+    });
+  };
+
+  const getLoginInfo = debounce(
+    async (params?: { emitSocket?: boolean }) => {
+      state.loginInfo = null;
       const res = await loginInfo({
-        login: this.account!.login,
+        login: account.value.login,
       });
-      this.loginInfo = res.data;
-      this.changeCurrentAccountOption({
+      state.loginInfo = res.data;
+      changeCurrentAccountOption({
         blance: res.data.balance ?? "-",
         currency: res.data.currency ?? "-",
       });
@@ -118,153 +152,142 @@ export const useUser = defineStore("user", {
         const socketStore = useSocket();
         socketStore.sendToken({
           login: res.data.login,
-          token: this.account.token,
+          token: account.value.token,
         });
       }
     },
+    1200,
+    { leading: true }
+  );
 
-    storageAccount() {
-      const storageList = this.accountList.map((item) => {
-        return {
-          ...item,
-          password: CryptoJS.encrypt(item.password), // 加密
-          token: CryptoJS.encrypt(item.token),
-        };
-      });
-      localStorage.setItem("accountList", JSON.stringify(storageList));
-    },
+  const addAccount = (data: any) => {
+    state.accountList.forEach((item: any) => {
+      item.ifLogin = false;
+    });
+    let index = state.accountList.findIndex(
+      (e: any) => e.login === data.login && e.server === data.server
+    );
+    if (index === -1) {
+      state.accountList.push(data);
+    } else {
+      assign(state.accountList[index], data);
+    }
+    storageAccount();
+  };
 
-    initAccount() {
-      const stoStr = localStorage.getItem("accountList");
-      if (stoStr) {
-        const list = JSON.parse(stoStr);
-        if (list.length > 0) {
-          list.forEach((item: any) => {
-            item.password = CryptoJS.decrypt(item.password); // 解密
-            item.token = CryptoJS.decrypt(item.token);
-          });
-        }
-        this.accountList = list;
-      }
-    },
+  const removeAccount = (info: any) => {
+    const { server, login } = info;
+    const index = state.accountList.findIndex(
+      (e) => e.server === server && e.login === login
+    );
+    if (index !== -1) {
+      state.accountList.splice(index, 1);
+      storageAccount();
+    }
+  };
 
-    addAccount(data: any) {
-      this.accountList.forEach((item: any) => {
-        item.ifLogin = false;
-      });
-      let index = this.accountList.findIndex(
-        (e: any) => e.login === data.login && e.server === data.server
-      );
-      if (index === -1) {
-        this.accountList.push(data);
-      } else {
-        assign(this.accountList[index], data);
-      }
-      this.storageAccount();
-    },
+  type TCallback = ({
+    ending,
+    success,
+  }: {
+    ending?: boolean;
+    success?: boolean;
+  }) => void;
+  const login = async (updata: any, callback?: TCallback) => {
+    if (callback) {
+      callback({ ending: false, success: false });
+    }
+    const networkStore = useNetwork();
+    networkStore.server = updata.server;
+    const nodeList = await networkStore.getNodes(updata.server);
+    if (nodeList.length === 0) {
+      const { t } = useI18n();
+      ElMessage.info(t("tip.networkNodeNotFound"));
+      return Promise.reject();
+    }
+    try {
+      const socketStore = useSocket();
+      // 选择连接延迟最低的网络节点
+      socketStore.getDelay(async (params: { ending: boolean }) => {
+        if (params.ending) {
+          const timeList = Object.values(socketStore.delayMap) as number[];
+          // 排序
+          timeList.sort((a, b) => a - b);
 
-    changeCurrentAccountOption(option: any) {
-      const found = this.accountList.find((e) => e.ifLogin);
-      assign(found, option);
-      this.storageAccount();
-    },
-
-    removeAccount(info: any) {
-      const { server, login } = info;
-      const index = this.accountList.findIndex(
-        (e) => e.server === server && e.login === login
-      );
-      if (index !== -1) {
-        this.accountList.splice(index, 1);
-        this.storageAccount();
-      }
-    },
-
-    async login(
-      updata: any,
-      callback?: ({
-        ending,
-        success,
-      }: {
-        ending?: boolean;
-        success?: boolean;
-      }) => void
-    ) {
-      if (callback) {
-        callback({ ending: false, success: false });
-      }
-      const networkStore = useNetwork();
-      networkStore.server = updata.server;
-      const nodeList = await networkStore.getNodes(updata.server);
-      if (nodeList.length === 0) {
-        const { t } = useI18n();
-        ElMessage.info(t("tip.networkNodeNotFound"));
-        return Promise.reject();
-      }
-      try {
-        const socketStore = useSocket();
-        // 选择连接延迟最低的网络节点
-        socketStore.getDelay(async (params: { ending: boolean }) => {
-          if (params.ending) {
-            const timeList = Object.values(socketStore.delayMap) as number[];
-            // 排序
-            timeList.sort((a, b) => a - b);
-
-            // 递归
-            const process = (index: number) => {
-              if (index >= timeList.length) {
-                if (callback) {
-                  callback({ ending: true, success: false });
-                }
-                return;
+          // 递归
+          const process = (index: number) => {
+            if (index >= timeList.length) {
+              if (callback) {
+                callback({ ending: true, success: false });
               }
-              const time = timeList[index];
-              const uri = findKey(socketStore.delayMap, (o) => o === time);
-              const nodeName = networkStore.nodeList.find(
-                (e) => e.webWebsocket === uri
-              )?.nodeName;
-              if (nodeName) {
-                // 长连接主socket
-                socketStore.initSocket();
-                networkStore.nodeName = nodeName;
-                Login(updata)
-                  .then((res) => {
-                    const token = res.data.token;
-                    // 缓存登录信息
-                    this.addAccount({
-                      ...updata,
-                      queryNode: nodeName,
-                      token,
-                      ifLogin: true,
-                    });
-                    // 发送登录状态
-                    socketStore.sendToken({ login: updata.login, token });
-                    if (callback) {
-                      callback({ ending: true, success: true });
-                    }
-                    ElMessage.success(i18n.global.t("loginSucceeded"));
-                  })
-                  .catch(() => {
-                    process(index + 1);
-                  });
-                return;
-              }
-            };
-            if (timeList.length) {
-              process(0);
+              return;
             }
+            const time = timeList[index];
+            const uri = findKey(socketStore.delayMap, (o) => o === time);
+            const nodeName = networkStore.nodeList.find(
+              (e) => e.webWebsocket === uri
+            )?.nodeName;
+            if (nodeName) {
+              // 长连接主socket
+              socketStore.initSocket();
+              networkStore.nodeName = nodeName;
+              Login(updata)
+                .then((res) => {
+                  const token = res.data.token;
+                  // 缓存登录信息
+                  addAccount({
+                    ...updata,
+                    queryNode: nodeName,
+                    token,
+                    ifLogin: true,
+                  });
+                  // 发送登录状态
+                  socketStore.sendToken({ login: updata.login, token });
+                  if (callback) {
+                    callback({ ending: true, success: true });
+                  }
+                  ElMessage.success(i18n.global.t("loginSucceeded"));
+                })
+                .catch(() => {
+                  process(index + 1);
+                });
+              return;
+            }
+          };
+          if (timeList.length) {
+            process(0);
           }
-        });
-      } catch (error) {
-        if (callback) {
-          callback({ ending: true, success: false });
         }
-        return Promise.reject();
+      });
+    } catch (error) {
+      if (callback) {
+        callback({ ending: true, success: false });
       }
-    },
-  },
+      return Promise.reject();
+    }
+  };
 
-  debounce: {
-    getLoginInfo: { wait: 1200, leading: true },
-  },
+  function $reset() {
+    state.accountList = [];
+    state.loginInfo = null;
+  }
+
+  return {
+    state,
+    account,
+    equity,
+    margin,
+    margin_free,
+    margin_level,
+    initAccount,
+    getToken,
+    storageAccount,
+    changeCurrentAccountOption,
+    Logout,
+    getLoginInfo,
+    addAccount,
+    removeAccount,
+    login,
+    $reset,
+  };
 });

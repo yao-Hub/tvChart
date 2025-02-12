@@ -52,10 +52,10 @@ import Timezone from "./components/Timezone.vue";
 const userStore = useUser();
 const orderStore = useOrder();
 
-const loginInfo = computed(() => userStore.loginInfo);
+const loginInfo = computed(() => userStore.state.loginInfo);
 
 const profitTotal = computed(() => {
-  const profitList = orderStore.orderData.marketOrder.map(
+  const profitList = orderStore.state.orderData.marketOrder.map(
     (item) => new Decimal(+item.profit)
   );
   const result = profitList.reduce((pre, next) => {

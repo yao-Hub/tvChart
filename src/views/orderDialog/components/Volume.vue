@@ -174,7 +174,7 @@ const sliderInput = (percentage: Arrayable<number>) => {
 
       const openPrice =
         props.orderType === "price" ? props.quote?.bid : props.orderPrice;
-      const loginInfo = userStore.loginInfo;
+      const loginInfo = userStore.state.loginInfo;
       const userCur = loginInfo?.currency;
       if (!isNil(openPrice)) {
         // 汇率转化

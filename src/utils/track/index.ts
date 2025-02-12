@@ -56,7 +56,7 @@ export function sendTrack(params: ITrackAgre) {
   const deviceId = versionStore.deviceId;
   const userAgent = navigator.userAgent;
   const userStore = useUser();
-  const loginInfo = userStore.loginInfo;
+  const loginInfo = userStore.state.loginInfo;
   const userId = loginInfo?.login || "anonymous";
   const deviceBrand = getBrowserInfo();
   const updata = {

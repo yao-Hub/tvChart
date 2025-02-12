@@ -61,9 +61,9 @@ export const useSymbols = defineStore("symbols", () => {
   // 订单区域涉及的商品
   let orderSymbols = ref<string[]>([]);
   watch(
-    () => orderStore.orderData,
+    () => orderStore.state.orderData,
     debounce(() => {
-      const orderData = orderStore.orderData;
+      const orderData = orderStore.state.orderData;
       const arr = new Set<string>();
       let i: TableTabKey;
       for (i in orderData) {

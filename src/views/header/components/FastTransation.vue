@@ -2,7 +2,9 @@
 <template>
   <el-tooltip :content="t('QuickTransactions')">
     <div class="iconbox" @click="handleClick">
-      <BaseImg :iconName="orderStore.ifQuick ? 'icon_3a' : 'icon_3'"></BaseImg>
+      <BaseImg
+        :iconName="orderStore.state.ifQuick ? 'icon_3a' : 'icon_3'"
+      ></BaseImg>
     </div>
   </el-tooltip>
 </template>
@@ -21,9 +23,9 @@ const chartActionStore = useChartAction();
 const orderStore = useOrder();
 
 const handleClick = () => {
-  orderStore.ifQuick = !orderStore.ifQuick;
-  storageStore.setItem("ifQuick", orderStore.ifQuick);
-  chartActionStore.toggleOrderBtn(orderStore.ifQuick);
+  orderStore.state.ifQuick = !orderStore.state.ifQuick;
+  storageStore.setItem("ifQuick", orderStore.state.ifQuick);
+  chartActionStore.toggleOrderBtn(orderStore.state.ifQuick);
 };
 </script>
 

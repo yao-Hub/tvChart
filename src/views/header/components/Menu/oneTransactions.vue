@@ -19,14 +19,14 @@ const dialogStore = useDialog();
 const switchVal = ref(false);
 
 watchEffect(() => {
-  switchVal.value = !!orderStore.ifOne;
+  switchVal.value = !!orderStore.state.ifOne;
 });
 
 const emit = defineEmits(["closeDropdown"]);
 
 const beforeChange = () => {
   emit("closeDropdown");
-  if (!orderStore.ifOne) {
+  if (!orderStore.state.ifOne) {
     dialogStore.openDialog("disclaimersVisible");
     return false;
   }

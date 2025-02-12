@@ -27,7 +27,7 @@
           <SymbolSelect
             v-if="!['blanceRecord', 'log'].includes(activeKey)"
             style="width: 200px; flex-shrink: 0; height: 32px"
-            v-model="orderStore.dataFilter[activeKey].symbol"
+            v-model="orderStore.state.dataFilter[activeKey].symbol"
             :selectOption="{
               multiple: true,
               collapseTags: true,
@@ -41,7 +41,7 @@
             :suffix-icon="SelectSuffixIcon"
             style="width: 130px"
             v-if="['marketOrder', 'pendingOrder'].includes(activeKey)"
-            v-model="orderStore.dataFilter[activeKey].direction"
+            v-model="orderStore.state.dataFilter[activeKey].direction"
             clearable
             :placeholder="t('table.direction')"
           >
@@ -52,7 +52,7 @@
             :suffix-icon="SelectSuffixIcon"
             style="width: 130px"
             v-if="activeKey === 'marketOrder'"
-            v-model="orderStore.dataFilter[activeKey].pol"
+            v-model="orderStore.state.dataFilter[activeKey].pol"
             clearable
             :placeholder="t('table.profit')"
           >
@@ -61,7 +61,7 @@
           </el-select>
           <TimeRange
             v-if="activeKey === 'pendingOrderHistory'"
-            v-model:value="orderStore.dataFilter[activeKey].createTime"
+            v-model:value="orderStore.state.dataFilter[activeKey].createTime"
             style="min-width: 380px"
             :pickerOption="{
               startPlaceholder: t('table.createStartTime'),
@@ -73,7 +73,7 @@
           <TimeRange
             v-if="['marketOrderHistory'].includes(activeKey)"
             style="min-width: 380px"
-            v-model:value="orderStore.dataFilter[activeKey].addTime"
+            v-model:value="orderStore.state.dataFilter[activeKey].addTime"
             :pickerOption="{
               startPlaceholder: t('table.positionOpeningStartTime'),
               endPlaceholder: t('table.positionOpeningEndTime'),
@@ -84,7 +84,7 @@
           <TimeRange
             v-if="['marketOrderHistory'].includes(activeKey)"
             style="min-width: 380px"
-            v-model:value="orderStore.dataFilter[activeKey].closeTime"
+            v-model:value="orderStore.state.dataFilter[activeKey].closeTime"
             :pickerOption="{
               startPlaceholder: t('table.positionClosingStartTime'),
               endPlaceholder: t('table.positionClosingEndTime'),
@@ -96,7 +96,7 @@
             :suffix-icon="SelectSuffixIcon"
             style="width: 130px"
             v-if="activeKey === 'blanceRecord'"
-            v-model="orderStore.dataFilter[activeKey].pol"
+            v-model="orderStore.state.dataFilter[activeKey].pol"
             clearable
             :placeholder="t('table.blanceType')"
           >
@@ -106,7 +106,7 @@
           <TimeRange
             v-if="['blanceRecord'].includes(activeKey)"
             style="min-width: 380px"
-            v-model:value="orderStore.dataFilter[activeKey].createTime"
+            v-model:value="orderStore.state.dataFilter[activeKey].createTime"
             :pickerOption="{
               startPlaceholder: t('table.startTime'),
               endPlaceholder: t('table.endTime'),
@@ -116,14 +116,14 @@
           >
           <DataPicker
             v-if="activeKey === 'log'"
-            v-model="orderStore.dataFilter[activeKey].date"
+            v-model="orderStore.state.dataFilter[activeKey].date"
             @timeChange="getTableData('log')"
           >
             <span>{{ $t("table.date") }}：</span>
           </DataPicker>
           <el-select
             v-if="activeKey === 'log'"
-            v-model="orderStore.dataFilter[activeKey].type"
+            v-model="orderStore.state.dataFilter[activeKey].type"
             multiple
             clearable
             @change="getTableData('log')"
@@ -134,7 +134,7 @@
           </el-select>
           <el-select
             v-if="activeKey === 'log'"
-            v-model="orderStore.dataFilter[activeKey].source"
+            v-model="orderStore.state.dataFilter[activeKey].source"
             multiple
             clearable
             @change="getTableData('log')"
@@ -180,7 +180,9 @@
             <el-button
               type="primary"
               v-show="activeKey === 'pendingOrder'"
-              @click="closePendingOrders(orderStore.orderData.pendingOrder)"
+              @click="
+                closePendingOrders(orderStore.state.orderData.pendingOrder)
+              "
               >{{ $t("table.cancelAllOrders") }}</el-button
             >
           </div>
@@ -192,7 +194,7 @@
           <el-table-v2
             :key="activeKey"
             header-class="table_v2_Header"
-            v-loading="orderStore.dataLoading[activeKey]"
+            v-loading="orderStore.state.dataLoading[activeKey]"
             :columns="state.columns[activeKey]"
             :data="dataSource"
             :row-height="32"
@@ -299,36 +301,32 @@
                 </el-tooltip>
               </template>
               <template v-else-if="column.dataKey === 'positionAction'">
-                <el-tooltip :content="t('table.closePosition')" placement="top">
-                  <el-icon
-                    class="iconfont"
-                    @click="closeMarketOrder(rowData, rowIndex)"
-                    v-if="!marketCloseLodingMap[rowData.id]"
-                  >
-                    <CloseBold />
-                  </el-icon>
-                  <el-icon
-                    v-if="marketCloseLodingMap[rowData.id]"
-                    class="loading"
-                    ><Loading
-                  /></el-icon>
-                </el-tooltip>
+                <el-icon
+                  class="iconfont"
+                  @click="closeMarketOrder(rowData, rowIndex)"
+                  v-if="!marketCloseLodingMap[rowData.id]"
+                  :title="t('table.closePosition')"
+                >
+                  <CloseBold />
+                </el-icon>
+                <el-icon v-if="marketCloseLodingMap[rowData.id]" class="loading"
+                  ><Loading
+                /></el-icon>
               </template>
               <template v-else-if="column.dataKey === 'orderAction'">
-                <el-tooltip :content="t('table.cancelOrder')" placement="top">
-                  <el-icon
-                    class="iconfont"
-                    @click="delPendingOrder(rowData, rowIndex)"
-                    v-if="!pendingCloseLodingMap[rowData.id]"
-                  >
-                    <CloseBold />
-                  </el-icon>
-                  <el-icon
-                    v-if="pendingCloseLodingMap[rowData.id]"
-                    class="loading"
-                    ><Loading
-                  /></el-icon>
-                </el-tooltip>
+                <el-icon
+                  class="iconfont"
+                  @click="delPendingOrder(rowData, rowIndex)"
+                  v-if="!pendingCloseLodingMap[rowData.id]"
+                  :title="t('table.cancelOrder')"
+                >
+                  <CloseBold />
+                </el-icon>
+                <el-icon
+                  v-if="pendingCloseLodingMap[rowData.id]"
+                  class="loading"
+                  ><Loading
+                /></el-icon>
               </template>
               <template v-else-if="column.dataKey === 'Placeholder'">
                 <span></span>
@@ -411,7 +409,7 @@
 <script setup lang="ts">
 import Decimal from "decimal.js";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { cloneDeep, debounce, get, isNil, minBy } from "lodash";
+import { cloneDeep, debounce, isNil, minBy } from "lodash";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -496,7 +494,7 @@ onMounted(() => {
 
 const ifRequest = reactive<{
   [key in orderTypes.TableTabKey]?: boolean;
-}>({})
+}>({});
 // 动态调整表格的列宽
 watch(
   () => activeKey.value,
@@ -508,8 +506,7 @@ watch(
     try {
       orderStore.getData(activeKey.value);
       ifRequest[activeKey.value] = true;
-    } catch (error) {
-    }
+    } catch (error) {}
   }
 );
 const adjustTable = debounce(() => {
@@ -633,7 +630,9 @@ const formatPrice = (price: number, digits: number) => {
 // 出入金记录底部合计
 import { accAdd } from "utils/arithmetic";
 const profits = computed(() => {
-  return (orderStore.orderData.blanceRecord || []).map((item) => item.profit);
+  return (orderStore.state.orderData.blanceRecord || []).map(
+    (item) => item.profit
+  );
 });
 // 净入金：
 const netDeposit = computed(() => {
@@ -679,10 +678,10 @@ const getCellClass = (num: number | string) => {
 // 筛选过滤
 const dataSource = computed(() => {
   const active = activeKey.value;
-  const originData = cloneDeep(orderStore.orderData[active]);
-  const symbols = orderStore.dataFilter[active].symbol || [];
-  const direction = orderStore.dataFilter[active].direction;
-  const pol = orderStore.dataFilter[active].pol;
+  const originData = cloneDeep(orderStore.state.orderData[active]);
+  const symbols = orderStore.state.dataFilter[active].symbol || [];
+  const direction = orderStore.state.dataFilter[active].direction;
+  const pol = orderStore.state.dataFilter[active].pol;
   let result: orders.resOrders[] = [];
   if (originData) {
     result = originData.filter((item) => {
@@ -754,32 +753,6 @@ const getOrderPrice = (e: orders.resPendingOrders) => {
   }
   return e.order_price;
 };
-
-// 市价单盈亏
-watch(
-  () => quotesStore.qoutes,
-  (qoutes) => {
-    orderStore.orderData.marketOrder.forEach((item) => {
-      const { volume, symbol, open_price, type, fee, storage } = item;
-      const quote = qoutes[symbol];
-      const closePrice = type ? get(quote, "ask") : get(quote, "bid");
-      if (!isNil(closePrice)) {
-        const direction = getTradingDirection(type);
-        const params = {
-          symbol,
-          closePrice: +closePrice,
-          buildPrice: +open_price,
-          volume: volume / 100,
-          fee,
-          storage,
-        };
-        const result = orderStore.getProfit(params, direction);
-        item.profit = result;
-      }
-    });
-  },
-  { deep: true, immediate: true }
-);
 
 // 交易历史盈亏合计位置
 import { watch } from "vue";
@@ -853,7 +826,7 @@ const closeMarketOrder = async (
       marketCloseLodingMap.value[record.id] = false;
       if (res.data.action_success) {
         ElMessage.success(t("order.positionClosedSuccessfully"));
-        orderStore.orderData.marketOrder.splice(index, 1);
+        orderStore.state.orderData.marketOrder.splice(index, 1);
         orderStore.getData("single_marketOrder_close");
       }
     } catch (error) {
@@ -861,11 +834,11 @@ const closeMarketOrder = async (
     }
   }
 
-  if (orderStore.ifOne) {
+  if (orderStore.state.ifOne) {
     foo();
     return;
   }
-  if (orderStore.ifOne === null) {
+  if (orderStore.state.ifOne === null) {
     dialogStore.openDialog("disclaimersVisible");
     return;
   }
@@ -919,7 +892,7 @@ const delPendingOrder = async (record: orders.resOrders, index: number) => {
 
     if (res.data.action_success) {
       ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
-      orderStore.orderData.pendingOrder.splice(index, 1);
+      orderStore.state.orderData.pendingOrder.splice(index, 1);
       orderStore.getPendingOrderHistory();
       return;
     }
@@ -949,11 +922,11 @@ const rowProps = ({ rowData }: any) => {
 // 到底触发(持仓历史，挂单历史，出入金分页)
 const pageLoading = ref(false);
 const endReached = async () => {
-  const nowData = orderStore.orderData[activeKey.value];
+  const nowData = orderStore.state.orderData[activeKey.value];
   const minId = minBy(nowData, "id")?.id;
   if (
     !minId ||
-    orderStore.dataEnding[activeKey.value] ||
+    orderStore.state.dataEnding[activeKey.value] ||
     !["marketOrderHistory", "pendingOrderHistory", "blanceRecord"].includes(
       activeKey.value
     )

@@ -176,7 +176,7 @@ const disabled = computed(() => {
 });
 
 const ifloginBack = computed(() => {
-  return userStore.accountList.length;
+  return userStore.state.accountList.length;
 });
 
 // 是否是官方模拟服务器
