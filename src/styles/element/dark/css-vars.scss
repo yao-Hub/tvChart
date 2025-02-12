@@ -1,32 +1,32 @@
 html.dark {
   .el-text {
-    color: #fff;
+    color: var(--light-1);
   }
   .el-text.el-text--info {
-    color: #b0b1b3;
+    color: var(--dark-9);
   }
   .el-text.el-text--primary {
-    color: #f4b201;
+    color: var(--color-3);
   }
 
   .el-form-item__label {
-    color: #fff;
+    color: var(--light-1);
   }
 
   .el-button--primary {
     --el-button-disabled-bg-color: #4c515d;
     --el-button-disabled-border-color: #4c515d;
-    --el-button-active-bg-color: #e28602;
-    --el-button-active-border-color: #e28602;
+    --el-button-active-bg-color: var(--color-2);
+    --el-button-active-border-color: var(--color-2);
     --el-button-hover-bg-color: #ffd051;
     --el-button-hover-border-color: #ffd051;
   }
 
   .el-table {
-    --el-table-bg-color: #000;
-    --el-table-text-color: #fff;
-    --el-table-header-text-color: #b0b1b3;
-    --el-table-tr-bg-color: #000;
+    --el-table-bg-color: var(--dark-1);
+    --el-table-text-color: var(--light-1);
+    --el-table-header-text-color: var(--dark-9);
+    --el-table-tr-bg-color: var(--dark-1);
   }
   .el-table__expand-icon {
     content: url("@/assets/icons/dark/caretDown.svg");
@@ -40,19 +40,25 @@ html.dark {
     background-color: #1b1f29;
   }
   .el-table-v2__row {
-    background-color: #000;
+    background-color: var(--dark-1);
   }
   .el-table-v2 {
-    --el-table-header-text-color: #b0b1b3;
-    --el-table-tr-bg-color: #fff;
+    --el-table-header-text-color: var(--dark-9);
+    --el-table-tr-bg-color: var(--light-1);
+  }
+  .el-table-v2__header-cell {
+    background-color: var(--dark-4);
+  }
+  .el-table-v2__main {
+    background-color: var(--dark-1);
   }
 
   .el-input__wrapper {
-    background-color: #000;
+    background-color: var(--dark-1);
   }
 
   .el-tag.el-tag--info {
-    --el-tag-text-color: #fff;
+    --el-tag-text-color: var(--light-1);
   }
 
   .el-dialog {
@@ -69,11 +75,11 @@ html.dark {
   .el-dropdown-menu__item:not(.is-disabled):focus,
   .el-dropdown-menu__item:not(.is-disabled):hover {
     background-color: #383d47;
-    color: #fff;
+    color: var(--light-1);
   }
 
   .el-select-dropdown__item.is-hovering {
-    color: #fff;
+    color: var(--light-1);
     background-color: #383d47;
   }
 
@@ -100,7 +106,7 @@ html.dark {
   .el-autocomplete-suggestion li.highlighted,
   .el-autocomplete-suggestion li:hover {
     background-color: #383d47;
-    color: #fff;
+    color: var(--light-1);
   }
 
   .el-radio-button {
@@ -113,12 +119,12 @@ html.dark {
   }
 
   .el-checkbox {
-    --el-checkbox-text-color: #b0b1b3;
-    --el-checkbox-checked-text-color: #b0b1b3;
+    --el-checkbox-text-color: var(--dark-9);
+    --el-checkbox-checked-text-color: var(--dark-9);
   }
 
   .el-segmented {
-    --el-segmented-bg-color: #000;
+    --el-segmented-bg-color: var(--dark-1);
     --el-segmented-item-selected-bg-color: #2c2f35;
     height: 24px;
     min-height: 24px;

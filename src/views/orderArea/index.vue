@@ -215,7 +215,7 @@
           >
             <template #header-cell="{ column, columnIndex }">
               <div
-                :class="[column.title ? 'header-box' : 'header-plac']"
+                :class="{ 'header-box': !!column.title }"
                 @mouseenter="headerMouseenter(columnIndex)"
                 @mouseleave="headerMouseLeave"
               >
@@ -494,12 +494,22 @@ onMounted(() => {
   observer.observe(container.value);
 });
 
+const ifRequest = reactive<{
+  [key in orderTypes.TableTabKey]?: boolean;
+}>({})
 // 动态调整表格的列宽
 watch(
   () => activeKey.value,
   () => {
     adjustTable();
-    orderStore.getData(activeKey.value);
+    if (ifRequest[activeKey.value]) {
+      return;
+    }
+    try {
+      orderStore.getData(activeKey.value);
+      ifRequest[activeKey.value] = true;
+    } catch (error) {
+    }
   }
 );
 const adjustTable = debounce(() => {
@@ -1006,9 +1016,6 @@ const getTableData = (type: string) => {
   white-space: nowrap;
   padding: 0;
 }
-// :deep(.el-table-v2__header-cell[data-key="Placeholder"]) {
-//   width: 0px !important;
-// }
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;
