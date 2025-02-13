@@ -141,7 +141,6 @@ export const useUser = defineStore("user", () => {
 
   const getLoginInfo = debounce(
     async (params?: { emitSocket?: boolean }) => {
-      state.loginInfo = null;
       const res = await loginInfo({
         login: account.value.login,
       });
