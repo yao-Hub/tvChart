@@ -283,7 +283,7 @@ onUnmounted(() => {
 .Login {
   padding: 0 32px;
   position: relative;
-  height: calc(100% - 56px);
+  height: calc(100% - 55px);
   overflow: auto;
   box-sizing: border-box;
   .plogin {
