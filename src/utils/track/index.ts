@@ -1,3 +1,4 @@
+// 行为打点
 import { useUser } from "@/store/modules/user";
 import { useVersion } from "@/store/modules/version";
 import { generateUUID } from "@/utils/common";

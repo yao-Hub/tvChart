@@ -1,3 +1,4 @@
+// Node版本 请求加解密（已废弃）
 import CryptoJS from "crypto-js";
 import sha256 from "crypto-js/sha256";
 
@@ -14,7 +15,7 @@ export function aes_decrypt(tcrypto_key: string, secretdata: string) {
     return decrypted.toString(CryptoJS.enc.Utf8);
   } catch (error) {
     console.log(error);
-    return ""
+    return "";
   }
 }
 

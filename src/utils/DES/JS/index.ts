@@ -1,4 +1,4 @@
-// http 加解密
+// js版本 请求加解密
 
 const KEY = "@2o25UtrA#de$";
 

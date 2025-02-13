@@ -248,7 +248,7 @@
               </template>
               <template v-else-if="column.dataKey === 'orderType'">
                 <span
-                  :class="[rowData.type % 2 === 0 ? 'buyWord' : 'sellWord']"
+                  :class="[(rowData.type & 1) === 0 ? 'buyWord' : 'sellWord']"
                   >{{ getOrderType(rowData.type) }}</span
                 ></template
               >
