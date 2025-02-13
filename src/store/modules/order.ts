@@ -19,7 +19,7 @@ import * as types from "#/chart/index";
 import * as orderTypes from "#/order";
 import * as orders from "api/order/index";
 
-import { get, isNil } from "lodash";
+import { debounce, get, isNil } from "lodash";
 import { round } from "utils/common/index";
 import { getTradingDirection } from "utils/order/index";
 
@@ -203,7 +203,7 @@ export const useOrder = defineStore("order", () => {
     return state.ifQuick;
   };
 
-  const getData = (type: string) => {
+  const getData = debounce((type: string) => {
     const userStore = useUser();
     switch (type) {
       // 单个平仓
@@ -276,7 +276,7 @@ export const useOrder = defineStore("order", () => {
       default:
         break;
     }
-  };
+  }, 200);
   const initTableData = async () => {
     const socketStore = useSocket();
     await Promise.all([
@@ -293,7 +293,7 @@ export const useOrder = defineStore("order", () => {
   };
 
   // 查询持仓
-  const getMarketOrders = async () => {
+  const getMarketOrders = debounce(async () => {
     try {
       state.dataLoading.marketOrder = true;
       const res = await orders.openningOrders();
@@ -307,10 +307,10 @@ export const useOrder = defineStore("order", () => {
     } finally {
       state.dataLoading.marketOrder = false;
     }
-  };
+  }, 200);
 
   // 查询挂单（有效）
-  const getPendingOrders = async () => {
+  const getPendingOrders = debounce(async () => {
     try {
       state.dataLoading.pendingOrder = true;
       const res = await orders.pendingOrders();
@@ -324,10 +324,10 @@ export const useOrder = defineStore("order", () => {
     } finally {
       state.dataLoading.pendingOrder = false;
     }
-  };
+  }, 200);
 
   // 查询挂单历史（失效）
-  const getPendingOrderHistory = async (limit_id?: number) => {
+  const getPendingOrderHistory = debounce(async (limit_id?: number) => {
     try {
       state.dataLoading.pendingOrderHistory = true;
       const [begin_time, end_time] =
@@ -354,10 +354,10 @@ export const useOrder = defineStore("order", () => {
     } finally {
       state.dataLoading.pendingOrderHistory = false;
     }
-  };
+  }, 200);
 
   // 查询交易历史
-  const getMarketOrderHistory = async (limit_id?: number) => {
+  const getMarketOrderHistory = debounce(async (limit_id?: number) => {
     try {
       state.dataLoading.marketOrderHistory = true;
       const { addTime, closeTime } = state.dataFilter.marketOrderHistory;
@@ -387,10 +387,10 @@ export const useOrder = defineStore("order", () => {
     } finally {
       state.dataLoading.marketOrderHistory = false;
     }
-  };
+  }, 200);
 
   // 查询出入金记录
-  const getBlanceRecord = async (limit_id?: number) => {
+  const getBlanceRecord = debounce(async (limit_id?: number) => {
     try {
       state.dataLoading.blanceRecord = true;
       const { createTime } = state.dataFilter.blanceRecord;
@@ -418,10 +418,10 @@ export const useOrder = defineStore("order", () => {
     } finally {
       state.dataLoading.blanceRecord = false;
     }
-  };
+  }, 200);
 
   // 查询日志
-  const getLog = async () => {};
+  const getLog = debounce(async () => {}, 200);
 
   /** 获取盈亏
    * @param params {
