@@ -89,7 +89,6 @@ const profitTotal = computed(() => {
     align-items: center;
     padding: 0 8px;
     flex-shrink: 0;
-    min-width: 120px;
   }
   .item_end {
     margin-left: auto;
