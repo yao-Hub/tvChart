@@ -77,7 +77,7 @@
         >
       </el-form-item>
 
-      <el-form-item>
+      <el-form-item style="margin-bottom: 0">
         <div class="login-form-account">
           <span> {{ $t("account.noAccount") }}&nbsp;</span>
           <el-text type="primary" style="cursor: pointer" @click="goRegister">{{
