@@ -75,7 +75,7 @@ const layoutStore = useLayout();
 
 .dragArea {
   // - 底部 - 头部
-  height: calc(100vh - 30px - 48px);
+  height: calc(100vh - 40px - 48px);
   width: 100%;
   position: relative;
   overflow: hidden;
@@ -99,7 +99,7 @@ const layoutStore = useLayout();
       }
 
       .handle {
-        height: var(--height);
+        height: var(--base-height);
         width: 16px;
         cursor: grab;
         float: left;

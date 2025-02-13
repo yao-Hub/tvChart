@@ -120,6 +120,6 @@ const handleCancle = () => {
   }
 }
 .btn {
-  height: var(--height);
+  height: var(--base-height);
 }
 </style>

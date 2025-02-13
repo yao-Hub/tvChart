@@ -93,7 +93,7 @@ function toggle(visible: boolean) {
   flex-direction: column;
   width: 100%;
   &_item {
-    height: var(--height);
+    height: var(--base-height);
     padding: 0 15px;
     box-sizing: border-box;
     cursor: pointer;

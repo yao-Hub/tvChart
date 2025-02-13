@@ -71,7 +71,7 @@ const profitTotal = computed(() => {
 .footerInfo {
   width: 100vw;
   box-sizing: border-box;
-  height: 30px;
+  height: 40px;
   @include background_color("background");
   position: fixed;
   bottom: 0;

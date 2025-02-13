@@ -493,10 +493,10 @@ const handleCancel = () => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 :deep(.el-select__wrapper) {
-  height: var(--height);
+  height: var(--base-height);
 }
 :deep(.el-input__wrapper) {
-  height: var(--height);
+  height: var(--base-height);
 }
 :deep(.el-col) {
   padding: 0;
@@ -509,7 +509,14 @@ const handleCancel = () => {
   flex: 1;
 }
 :deep(.el-radio-button__inner) {
+  height: var(--radio-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 100%;
+}
+:deep(.el-form-item--default) {
+  margin-bottom: 16px;
 }
 .dialog_header {
   font-size: 18px;
@@ -572,7 +579,7 @@ const handleCancel = () => {
     gap: 16px;
     .btn {
       flex: 1;
-      height: var(--height);
+      height: var(--base-height);
     }
   }
 }

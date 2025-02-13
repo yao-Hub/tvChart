@@ -103,8 +103,8 @@ const styles = {
   },
 };
 
-const wordGreen = "#00C673";
-const wordRed = "#FF4A61";
+const wordGreen = "#50AC8C";
+const wordRed = "#F75173";
 const wordDownColor = computed(() => {
   return themeStore.upDownTheme === "upRedDownGreen" ? wordGreen : wordRed;
 });
@@ -119,8 +119,8 @@ const wordStyle = (type: DirectionType) => {
   };
 };
 
-const btnGreen = "#009355";
-const btnRed = "#DC1D43";
+const btnGreen = "#2E9C76";
+const btnRed = "#F53058";
 const btnDownColor = computed(() => {
   return themeStore.upDownTheme === "upRedDownGreen" ? btnGreen : btnRed;
 });

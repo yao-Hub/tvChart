@@ -9,22 +9,25 @@
   --font-size: 12px;
   --icon-size: 16px;
   --tip-size: 12px;
-  --component-size: var(--el-component-size-small);
-  --height: 32px;
+  --component-size: 24px;
+  --base-height: 32px;
+  --radio-height: 28px;
 }
 [data-size="default"] {
   --font-size: 14px;
   --icon-size: 18px;
   --tip-size: 12px;
-  --component-size: var(--el-component-size);
-  --height: 40px;
+  --component-size: 32px;
+  --base-height: 40px;
+  --radio-height: 36px;
 }
 [data-size="large"] {
   --font-size: 16px;
   --icon-size: 20px;
   --tip-size: 14px;
-  --component-size: var(--el-component-size-large);
-  --height: 48px;
+  --component-size: 40px;
+  --base-height: 48px;
+  --radio-height: 42px;
 }
 
 @mixin themeify {

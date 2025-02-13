@@ -42,6 +42,7 @@ const spread = computed(() => {
   .title {
     font-size: var(--tip-size);
     @include font_color("word-gray");
+    line-height: 4px;
   }
   .icon {
     width: 60px;

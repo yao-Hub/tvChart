@@ -66,6 +66,16 @@ watch(
 [data-theme="dark"] .home {
   background-image: url("@/assets/images/dark/loginBg@2x.png");
 }
+.el-select__wrapper,
+.el-input__wrapper {
+  height: calc(var(--base-height) + 16px);
+}
+.el-select__selected-item span {
+  font-size: calc(var(--font-size) + 2px) !important;
+}
+.el-input__inner {
+  font-size: calc(var(--font-size) + 2px) !important;
+}
 .goback {
   width: 100%;
   height: 50px;
