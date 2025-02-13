@@ -85,10 +85,11 @@ const profitTotal = computed(() => {
   .item {
     display: flex;
     height: 100%;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     padding: 0 8px;
     flex-shrink: 0;
+    min-width: 120px;
   }
   .item_end {
     margin-left: auto;
