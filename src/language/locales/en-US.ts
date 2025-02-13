@@ -324,6 +324,7 @@ export default {
     source: "source",
     content: "content",
     date: "date",
+    days: "{num}天",
   },
 
   dialog: {

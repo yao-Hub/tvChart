@@ -1,6 +1,5 @@
 module.exports.default = {
-  $schema:
-    "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
   appId: 'com.electron.UTrader',
   asar: false,
   productName: "UTrader",

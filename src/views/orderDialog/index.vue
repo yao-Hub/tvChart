@@ -177,17 +177,14 @@
     <!-- 市价单下单确认 -->
     <div v-show="priceConfirm" class="confirmBox">
       <BaseImg iconName="icon_recognise" class="icon" />
-      <el-text class="title">{{
-        t("tip.confirm", { type: t("dialog.createOrder") })
-      }}</el-text>
       <el-text class="tip" type="info">{{ $t("dialog.confirmBelow") }}</el-text>
       <div class="infobox">
         <div class="infobox_item">
-          <el-text type="info">{{ $t("table.symbol") }}</el-text>
+          <el-text type="info">{{ $t("order.symbol") }}</el-text>
           <el-text>{{ formState.symbol }}</el-text>
         </div>
         <div class="infobox_item">
-          <el-text type="info">{{ $t("dialog.orderType") }}</el-text>
+          <el-text type="info">{{ $t("dialog.type") }}</el-text>
           <el-text>{{ $t(`order.${directionType}`) }}</el-text>
         </div>
         <div class="infobox_item">
@@ -196,11 +193,11 @@
         </div>
         <div class="infobox_item">
           <el-text type="info">{{ $t("table.tp") }}</el-text>
-          <el-text>{{ formState.stopProfit }}</el-text>
+          <el-text>{{ formState.stopProfit || "--" }}</el-text>
         </div>
         <div class="infobox_item">
           <el-text type="info">{{ $t("table.sl") }}</el-text>
-          <el-text>{{ formState.stopLoss }}</el-text>
+          <el-text>{{ formState.stopLoss || "--" }}</el-text>
         </div>
       </div>
       <div class="btnGroup">
@@ -564,7 +561,7 @@ const handleCancel = () => {
     gap: 8px;
     &_item span {
       display: inline-block;
-      min-width: 86px;
+      min-width: 70px;
     }
   }
   .btnGroup {

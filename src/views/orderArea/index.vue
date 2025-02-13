@@ -806,7 +806,7 @@ const getDays = (e: orders.resHistoryOrders) => {
   const date1 = dayjs(openTime);
   const date2 = dayjs(timeDone);
   const daysDifference = date2.diff(date1, "days");
-  return +daysDifference || 1;
+  return t("table.days", { num: daysDifference || 1 });
 };
 
 // 市价单 单个平仓

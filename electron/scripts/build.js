@@ -9,9 +9,9 @@ function runCommand(command) {
 function main() {
   runCommand(`cross-env IF_ELECTRON=true vite build --mode ${mode}`);
   if (isWindows) {
-    console.log('\n', '/*********************** win7 ***********************/', '\n');
-    runCommand('electron-builder --config ./electron/scripts/config/windows/x64-win7.js');
-    console.log('\n', '/*********************** win7打包完成 ***********************/', '\n');
+    // console.log('\n', '/*********************** win7 ***********************/', '\n');
+    // runCommand('electron-builder --config ./electron/scripts/config/windows/x64-win7.js');
+    // console.log('\n', '/*********************** win7打包完成 ***********************/', '\n');
 
     console.log('\n', '/*********************** windows ***********************/', '\n');
     runCommand('electron-builder --config ./electron/scripts/config/windows/x64-common.js');

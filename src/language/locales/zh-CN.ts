@@ -330,6 +330,7 @@ export default {
     source: "来源",
     date: "日期",
     content: "内容",
+    days: "{num}天",
   },
 
   dialog: {
