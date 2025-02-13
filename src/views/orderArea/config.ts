@@ -314,6 +314,14 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       align: "right",
     },
     {
+      title: t("table.positionClosingTime"),
+      dataKey: "close_time",
+      key: "close_time",
+      width: 200,
+      minWidth: 170,
+      align: "right",
+    },
+    {
       title: t("table.admission"),
       dataKey: "open_price",
       key: "open_price",
