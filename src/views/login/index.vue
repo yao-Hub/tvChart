@@ -58,6 +58,19 @@ watch(
 );
 </script>
 
+<style lang="scss" scoped>
+:deep(.el-select__wrapper),
+:deep(.el-input__wrapper) {
+  height: calc(var(--base-height) + 16px);
+}
+:deep(.el-select__selected-item span) {
+  font-size: calc(var(--font-size) + 2px);
+}
+:deep(.el-input__inner) {
+  font-size: calc(var(--font-size) + 2px);
+}
+</style>
+
 <style lang="scss">
 @import "@/styles/_handle.scss";
 [data-theme="light"] .home {
@@ -65,16 +78,6 @@ watch(
 }
 [data-theme="dark"] .home {
   background-image: url("@/assets/images/dark/loginBg@2x.png");
-}
-.el-select__wrapper,
-.el-input__wrapper {
-  height: calc(var(--base-height) + 16px);
-}
-.el-select__selected-item span {
-  font-size: calc(var(--font-size) + 2px) !important;
-}
-.el-input__inner {
-  font-size: calc(var(--font-size) + 2px) !important;
 }
 .goback {
   width: 100%;
