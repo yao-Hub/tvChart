@@ -1,12 +1,15 @@
 html.dark {
-  .el-text {
-    color: var(--light-1);
+  .el-text--default {
+    --el-text-color: var(--light-1);
   }
-  .el-text.el-text--info {
-    color: var(--dark-9);
+  .el-text--info {
+    --el-text-color: var(--dark-9);
   }
-  .el-text.el-text--primary {
-    color: var(--color-3);
+  .el-text--primary {
+    --el-text-color: var(--color-3);
+  }
+  .el-text--danger {
+    --el-text-color: var(--el-color-danger);
   }
 
   .el-form-item__label {

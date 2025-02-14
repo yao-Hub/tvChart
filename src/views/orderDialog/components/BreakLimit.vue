@@ -23,7 +23,9 @@
         :customAdd="customCalc"
         @input="handleInput"
       ></StepNumInput>
-      <el-text :type="ifError ? 'danger' : 'info'">{{ range }}</el-text>
+      <el-text :type="ifError ? 'danger' : 'info'"
+        >{{ props.formOption.label }} {{ range }}</el-text
+      >
     </div>
   </el-form-item>
 </template>

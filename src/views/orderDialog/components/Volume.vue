@@ -16,8 +16,12 @@
       style="width: 168px"
     ></StepNumInput>
     <div class="tips">
-      <span>{{ $t("order.marginFree") }}：{{ userStore.margin_free }}</span>
-      <span>{{ $t("order.referencePrepayment") }}：{{ referMargin }}</span>
+      <el-text type="info"
+        >{{ $t("order.marginFree") }}：{{ userStore.margin_free }}</el-text
+      >
+      <el-text type="info"
+        >{{ $t("order.referencePrepayment") }}：{{ referMargin }}</el-text
+      >
     </div>
     <el-slider
       v-if="!disabled"
@@ -221,5 +225,8 @@ const handleInput = (value: string | number) => {
   span {
     font-size: var(--tip-size);
   }
+}
+:deep(.el-text) {
+  align-self: auto;
 }
 </style>

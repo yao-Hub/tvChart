@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, onUnmounted, watch } from "vue";
+import { onBeforeUnmount, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useChartInit } from "@/store/modules/chartInit";
@@ -79,6 +79,14 @@ eventBus.on("go-login", () => {
   });
 });
 
+const socketState = ref("");
+eventBus.on("socket-disconnect", () => {
+  socketState.value = "disconnect";
+});
+eventBus.on("socket-connect", () => {
+  socketState.value = "connect";
+});
+
 const initRender = () => {
   timeStore.initTime(); // 初始化时间语言和时区
   chartLineStore.initSubLineAndQuote(); // 监听k线和报价
@@ -86,7 +94,6 @@ const initRender = () => {
   rateStore.subRate(); // 监听汇率
   orderStore.getQuickTrans(); //  快捷交易
   orderStore.getOneTrans(); //一键交易
-  // 3.拿到缓存信息才能确定历史页面布局
   layoutStore.initLayout(); // 布局显示隐藏
   chartInitStore.intLayoutType(); // 单图表 or 多图表
   chartInitStore.loadChartList(); // 加载图表
@@ -102,35 +109,36 @@ const initRender = () => {
   });
 };
 
-// 初始化 注意调用顺序
+/** 初始化 注意调用顺序
+ * 1.先拿到 交易线路
+ * 2.拿到缓存账户信息
+ * 3.拿到网络节点
+ * 4.获取个人信息，在这一步判断是否token过期
+ * 5.拿其他基于网络节点的数据
+ * 6.开始渲染页面
+ *    a.拿缓存的布局信息
+ *    b.渲染页面布局
+ *    c.等待图表渲染完毕之后再去加载socket(chartInit.ts，优化初始化加载)
+ * */
 async function init() {
   try {
     chartInitStore.state.loading = true;
-    // 1.先拿到 交易线路
-    await networkStore.getLines();
-    // 2.拿到节点才能去定位缓存信息，获取商品、节点、socket地址、订单情况
-    userStore.initAccount();
-    await networkStore.initNode();
-    // 获取个人信息
-    await userStore.getLoginInfo({ emitSocket: true });
+    await networkStore.getLines(); //  交易线路
+    userStore.initAccount(); // 账户信息
+    await networkStore.initNode(); // 网络节点
+    await userStore.getLoginInfo({ emitSocket: true }); // 个人信息
     await Promise.all([
       symbolsStore.getAllSymbol(),
       quotesStore.getAllSymbolQuotes(),
       rateStore.getAllRates(),
       orderStore.initTableData(),
     ]);
-    userStore.refreshToken();
+    userStore.refreshToken(); // 倒计时刷新token
   } catch (error) {
   } finally {
-    initRender();
+    initRender(); // 渲染页面
   }
 }
-
-// 浏览器页面变化布局随之变化
-onMounted(() => {
-  init();
-  window.addEventListener("resize", resizeUpdate);
-});
 
 // 全局刷新重置store 热更新
 watch(
@@ -143,10 +151,29 @@ watch(
   }
 );
 
+// 当浏览器超出内存时，切换标签页会自动断开socket连接
+// 断开连接重新热更新页面
+const handleVisibilityChange = () => {
+  if (
+    document.visibilityState === "visible" &&
+    socketState.value === "disconnect"
+  ) {
+    chartInitStore.systemRefresh();
+  }
+};
+
+// 浏览器页面变化布局随之变化
+onMounted(() => {
+  init();
+  window.addEventListener("resize", resizeUpdate);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
+});
+
 // 离开页面保存图表操作
 // 撤销监听 resize
 onBeforeUnmount(() => {
   chartInitStore.saveCharts();
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
   window.removeEventListener("resize", resizeUpdate);
 });
 

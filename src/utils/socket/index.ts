@@ -1,6 +1,7 @@
 import { useSocket } from "@/store/modules/socket";
 import { ElMessage } from "element-plus";
 import { io, Socket } from "socket.io-client";
+import eventBus from "utils/eventBus";
 
 class SingletonSocket {
   private instance: Socket | null = null;
@@ -25,6 +26,7 @@ class SingletonSocket {
   setupSocketEvents(): void {
     if (this.instance) {
       this.instance.on("connect", () => {
+        eventBus.emit("socket-connect");
         console.log(`main socket Connected to server`);
       });
 
@@ -35,6 +37,7 @@ class SingletonSocket {
         } else {
           console.log("Connection lost, trying to reconnect...");
         }
+        eventBus.emit("socket-disconnect");
       });
 
       this.instance.on("connect_error", (error) => {

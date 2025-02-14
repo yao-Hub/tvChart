@@ -31,7 +31,7 @@ export type AccountListItem = IAccount & {
 interface IState {
   accountList: Array<AccountListItem>;
   loginInfo: UserInfo | null;
-  timer: NodeJS.Timer | null;
+  timer: NodeJS.Timeout | null;
 }
 
 export const useUser = defineStore("user", () => {
@@ -188,9 +188,8 @@ export const useUser = defineStore("user", () => {
   };
 
   // 一小时调用一次刷新token
-  const refreshToken = async () => {
+  const refreshToken = () => {
     if (state.timer) {
-      // @ts-ignore
       clearInterval(state.timer);
     }
     state.timer = setInterval(async () => {
@@ -258,7 +257,6 @@ export const useUser = defineStore("user", () => {
                   });
                   // 发送登录状态
                   socketStore.sendToken({ login: updata.login, token });
-                  refreshToken();
                   if (callback) {
                     callback({ ending: true, success: true });
                   }
