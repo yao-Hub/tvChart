@@ -19,7 +19,7 @@ module.exports.default = {
       }
     ],
     artifactName: '${productName}-Windows-${version}-x64.${ext}',
-    icon: 'public/logo_256.ico'
+    icon: 'public/logo_bg.png'
   },
   nsis: {
     oneClick: false,

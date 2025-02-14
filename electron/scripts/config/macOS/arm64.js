@@ -19,7 +19,7 @@ module.exports.default = {
       }
     ],
     artifactName: '${productName}-Mac-${version}-arm64.${ext}',
-    icon: 'public/logo_256.ico'
+    icon: 'public/logo_bg.png'
   },
   electronVersion: '34.0.2'
 };
