@@ -79,17 +79,6 @@ eventBus.on("go-login", () => {
   });
 });
 
-const socketState = ref("");
-eventBus.on("socket-disconnect", () => {
-  socketState.value = "disconnect";
-});
-eventBus.on("socket-connect", () => {
-  socketState.value = "connect";
-});
-eventBus.on("socket-error", () => {
-  socketState.value = "error";
-});
-
 const initRender = () => {
   timeStore.initTime(); // 初始化时间语言和时区
   chartLineStore.initSubLineAndQuote(); // 监听k线和报价
@@ -156,6 +145,16 @@ watch(
 
 // 当浏览器超出内存时，切换标签页会自动断开socket连接
 // 断开连接重新热更新页面
+const socketState = ref("");
+eventBus.on("socket-disconnect", () => {
+  socketState.value = "disconnect";
+});
+eventBus.on("socket-connect", () => {
+  socketState.value = "connect";
+});
+eventBus.on("socket-error", () => {
+  socketState.value = "error";
+});
 const handleVisibilityChange = () => {
   if (
     document.visibilityState === "visible" &&
