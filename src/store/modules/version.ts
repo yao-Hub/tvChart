@@ -19,7 +19,7 @@ export const useVersion = defineStore("version", {
     checkVersion() {
       const nowVer = localStorage.getItem("version");
       if (!nowVer || nowVer !== this.version) {
-        localStorage.clear();
+        // localStorage.clear();
         this.setVersion();
       }
     },

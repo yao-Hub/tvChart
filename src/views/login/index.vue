@@ -60,7 +60,8 @@ watch(
 
 <style lang="scss" scoped>
 :deep(.el-select__wrapper),
-:deep(.el-input__wrapper) {
+:deep(.el-input__wrapper),
+:deep(.el-button) {
   height: calc(var(--base-height) + 16px);
 }
 :deep(.el-select__selected-item span) {
