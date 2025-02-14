@@ -41,6 +41,7 @@ class SingletonSocket {
       });
 
       this.instance.on("connect_error", (error) => {
+        eventBus.emit("socket-error");
         console.error("connect_error:", error);
         ElMessage.error("Socekt Connect Error");
       });

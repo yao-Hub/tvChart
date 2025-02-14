@@ -86,6 +86,9 @@ eventBus.on("socket-disconnect", () => {
 eventBus.on("socket-connect", () => {
   socketState.value = "connect";
 });
+eventBus.on("socket-error", () => {
+  socketState.value = "error";
+});
 
 const initRender = () => {
   timeStore.initTime(); // 初始化时间语言和时区
