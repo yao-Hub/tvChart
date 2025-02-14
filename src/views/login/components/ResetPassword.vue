@@ -70,15 +70,23 @@
 </template>
 
 <script setup lang="ts">
-import { useDialog } from "@/store/modules/dialog";
-import { useNetwork } from "@/store/modules/network";
-import { passwordReset } from "api/account/index";
-import type { FormInstance, FormRules } from "element-plus";
 import { reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+
+import type { FormInstance, FormRules } from "element-plus";
+
+import { useDialog } from "@/store/modules/dialog";
+import { useNetwork } from "@/store/modules/network";
+import { useUser } from "@/store/modules/user";
+
+import { PageEnum } from "@/constants/pageEnum";
+import { passwordReset } from "api/account/index";
 
 const dialogStore = useDialog();
 const networkStore = useNetwork();
+const userStore = useUser();
+const router = useRouter();
 const { t } = useI18n();
 
 const modalOpen = defineModel("open", { type: Boolean, default: false });
@@ -147,6 +155,11 @@ const submit = (formEl: FormInstance | undefined) => {
       });
       onClose();
       modalOpen.value = false;
+      const { server, login } = userStore.account;
+      router.replace({
+        path: PageEnum.LOGIN_HOME,
+        query: { login, server },
+      });
     }
   });
 };

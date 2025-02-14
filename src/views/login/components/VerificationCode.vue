@@ -1,5 +1,5 @@
 <template>
-  <el-input v-model="model" placeholder="verification code">
+  <el-input v-model="model" :placeholder="t('tip.codeRequired')">
     <template #suffix>
       <el-button
         link
@@ -19,6 +19,9 @@
 <script setup lang="ts">
 import { sendEmail } from "api/account/index";
 import { onBeforeUnmount, ref } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 interface Props {
   email: string;

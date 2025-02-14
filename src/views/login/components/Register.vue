@@ -28,7 +28,7 @@
             :fetch-suggestions="querySearch"
             :trigger-on-focus="false"
             clearable
-            placeholder="input email"
+            :placeholder="t('tip.emailRequired')"
           />
         </el-form-item>
 

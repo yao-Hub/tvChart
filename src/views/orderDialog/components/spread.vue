@@ -39,6 +39,8 @@ const spread = computed(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  align-self: flex-end;
+  margin-bottom: 4px;
   .title {
     font-size: var(--tip-size);
     @include font_color("word-gray");

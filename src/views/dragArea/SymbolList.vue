@@ -278,11 +278,29 @@ const menuSymbol = ref("");
 const rowContextmenu = (row: any, column: any, event: MouseEvent) => {
   event.preventDefault();
   menuSymbol.value = row.symbol;
-  const symbolList = document.querySelector(".symbolList");
-  const { top, left } = symbolList!.getBoundingClientRect();
   const { clientX, clientY } = event;
-  pos.value.top = clientY - top;
-  pos.value.left = clientX - left;
+  const menuWidth = 120;
+
+  const bodyDom = document.body;
+  const computedStyle = getComputedStyle(bodyDom);
+  const componentSize = computedStyle.getPropertyValue("--component-size");
+  const size = +componentSize.replace("px", "").trim();
+  const menuHeight = size * 3;
+
+  let top = clientY;
+  let left = clientX;
+
+  const screenWidth = window.innerWidth;
+  const screenHeight = window.innerHeight;
+  if (left + menuWidth > screenWidth) {
+    left -= menuWidth;
+  }
+  if (top + menuHeight > screenHeight) {
+    top -= menuHeight;
+  }
+
+  pos.value.top = top;
+  pos.value.left = left;
   menuVisible.value = true;
 };
 

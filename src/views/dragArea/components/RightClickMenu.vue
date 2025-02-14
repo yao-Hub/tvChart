@@ -2,7 +2,7 @@
   <div
     class="rightClickMenu"
     v-show="model"
-    :style="{ top: `${top}px`, left: `${left}px` }"
+    :style="{ top: `${pos.top}px`, left: `${pos.left}px` }"
   >
     <div class="item" @click="addOrder">{{ $t("order.new") }}</div>
     <div class="item" @click="addChart">{{ $t("chart.new") }}</div>
@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { isNil } from "lodash";
-import { computed, ref, watchEffect } from "vue";
+import { ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { ISessionSymbolInfo } from "@/types/chart/index";
@@ -112,33 +112,6 @@ const infoList: Iitem[] = [
   { key: "settlement_type", label: t("symbolDetail.settlement_type") },
   { key: "fee", label: t("symbolDetail.fee") },
 ];
-
-const left = computed(() => {
-  const iw = window.innerWidth;
-  const symbolList = document.querySelector(".symbolList");
-  if (symbolList) {
-    const { left } = symbolList.getBoundingClientRect();
-    // 判断是否超出了屏幕边界
-    const peakRight = left + props.pos.left + 120;
-    if (iw < peakRight) {
-      return props.pos.left - 120;
-    }
-  }
-  return props.pos.left;
-});
-
-const top = computed(() => {
-  const ih = window.innerHeight;
-  const symbolList = document.querySelector(".symbolList");
-  if (symbolList) {
-    const { top } = symbolList.getBoundingClientRect();
-    const peakBottom = top + props.pos.top + 20 * 3;
-    if (ih < peakBottom) {
-      return props.pos.top - 20 * 3;
-    }
-  }
-  return props.pos.top;
-});
 
 document.addEventListener("click", () => {
   model.value = false;
@@ -252,7 +225,7 @@ watchEffect(() => {
 @import "@/styles/_handle.scss";
 
 .rightClickMenu {
-  position: absolute;
+  position: fixed;
   z-index: 999;
   border-radius: 4px;
   @include box_shadow();

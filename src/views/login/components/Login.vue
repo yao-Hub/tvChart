@@ -36,14 +36,17 @@
       </el-form-item>
 
       <el-form-item :label="$t('account.accountNum')" prop="login">
-        <el-input v-model="formState.login" placeholder="Please input login" />
+        <el-input
+          v-model="formState.login"
+          :placeholder="t('tip.usernameRequired')"
+        />
       </el-form-item>
 
       <el-form-item :label="$t('account.password')" prop="password">
         <el-input
           v-model="formState.password"
           type="password"
-          placeholder="Please input password"
+          :placeholder="t('tip.passwordRequired')"
           show-password
           ref="pwd"
         />

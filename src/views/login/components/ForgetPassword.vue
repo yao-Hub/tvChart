@@ -28,7 +28,7 @@
           :fetch-suggestions="querySearch"
           :trigger-on-focus="false"
           clearable
-          placeholder="input email"
+          :placeholder="t('tip.emailRequired')"
         />
       </el-form-item>
 
@@ -43,7 +43,7 @@
         <el-input
           v-model="formState.pass"
           type="password"
-          placeholder="enter new password"
+          :placeholder="t('tip.enterNewPwd')"
           show-password
         />
       </el-form-item>
@@ -52,7 +52,7 @@
         <el-input
           v-model="formState.checkPass"
           type="password"
-          placeholder="confirm new password"
+          :placeholder="t('tip.confirmNewPwd')"
           show-password
         />
       </el-form-item>

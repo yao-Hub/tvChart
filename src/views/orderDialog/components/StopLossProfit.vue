@@ -342,6 +342,7 @@ const handleBlur = (value: string | number) => {
 @import "@/styles/_handle.scss";
 :deep(.el-form-item__label) {
   width: 100%;
+  padding: 0;
 }
 .title {
   width: 100%;

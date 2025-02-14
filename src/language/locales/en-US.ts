@@ -216,6 +216,7 @@ export default {
     copyFail: "copyFail",
     enterNewPwd: "Enter new password",
     enterOldPwd: "Enter old password",
+    confirmNewPwd: "Confirm new password",
     retakeCode: "Retake in {time} second",
     confirmDelPendingOrders:
       "You are about to cancel the following selected {num} orders. Do you want to proceed?",
