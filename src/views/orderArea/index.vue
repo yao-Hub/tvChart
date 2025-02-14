@@ -480,6 +480,7 @@ const boxH = ref("");
 const boxW = ref(0);
 let observer: ResizeObserver | null = null;
 onMounted(() => {
+  adjustTable();
   // 拖拽时改变table的高
   observer = new ResizeObserver((entries) => {
     for (const entry of entries) {
@@ -516,21 +517,26 @@ const adjustTable = debounce(() => {
     0
   );
   if (container.value) {
-    // -margin padding
-    const container_width = container.value.offsetWidth - 32;
-    let maxWidth = columns_widths;
+    // - margin padding border
+    const container_width = (boxW.value || container.value.offsetWidth) - 32;
+
     // 使用一个误差范围来比较浮点数
     if (Math.abs(columns_widths - container_width) > epsilon) {
-      const conDel = new Decimal(container_width);
+      const container_width_dec = new Decimal(container_width);
+      const columns_widths_dec = new Decimal(columns_widths);
       state.columns[activeKey.value].forEach((item) => {
         const minw = item.minWidth || MIN_COLUMN_WIDTH;
         const width = new Decimal(item.width);
-        const result = +width.div(maxWidth).mul(conDel).toString();
-        item.width = result < minw ? minw : result;
+        const result = width
+          .div(columns_widths_dec)
+          .mul(container_width_dec)
+          .toString();
+        const floorRes = Math.floor(+result);
+        item.width = floorRes < minw ? minw : floorRes;
       });
     }
   }
-}, 20);
+});
 
 // 列分割线改变列宽逻辑
 const dragLineList = ref<number[]>([]);

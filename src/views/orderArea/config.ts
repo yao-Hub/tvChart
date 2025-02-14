@@ -349,13 +349,13 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       width: 100,
       align: "right",
     },
-    {
-      title: t("table.closeOrderId"),
-      dataKey: "from_id",
-      key: "from_id",
-      width: 130,
-      align: "right",
-    },
+    // {
+    //   title: t("table.closeOrderId"),
+    //   dataKey: "from_id",
+    //   key: "from_id",
+    //   width: 130,
+    //   align: "right",
+    // },
     {
       title: t("table.exitPrice"),
       dataKey: "close_price",
@@ -382,7 +382,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.comment"),
       dataKey: "comment",
       key: "comment",
-      width: 200,
+      width: 100,
       align: "right",
     },
     {
