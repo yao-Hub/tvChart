@@ -1,13 +1,15 @@
 {
   "name": "wp-tradeview",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "electron/main.js",
   "description": "utrader",
   "author": "wp",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "pro": "vite --mode production --open",
+    "prepush": "npx tsc scripts/update-version.ts && node scripts/update-version.js && git add package.json",
+    "prepackage": "npx tsc scripts/update-version.ts && node scripts/update-version.js && git add package.json",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "build:test": "vite build --mode test",
@@ -19,8 +21,8 @@
     "ts:check": "vue-tsc",
     "prepare": "husky",
     "electron:dev": "cross-env IF_ELECTRON=true vite --mode development",
-    "electron-build:test": "cross-env NODE_ENV=test node ./electron/scripts/build.js",
-    "electron-build:pro": "cross-env NODE_ENV=production node ./electron/scripts/build.js"
+    "electron-build:test": "npm run prepackage && cross-env NODE_ENV=test node ./electron/scripts/build.js",
+    "electron-build:pro": "npm run prepackage && cross-env NODE_ENV=production node ./electron/scripts/build.js"
   },
   "dependencies": {
     "@ant-design/icons-vue": "7.0.1",
@@ -32,7 +34,9 @@
     "dayjs": "1.11.11",
     "decimal.js": "10.4.3",
     "element-plus": "2.8.4",
+    "inquirer": "12.4.1",
     "pinia": "2.1.7",
+    "simple-git": "3.27.0",
     "socket.io": "4.7.5",
     "socket.io-client": "4.7.5",
     "sortablejs": "1.15.2",
