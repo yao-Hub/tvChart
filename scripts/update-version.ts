@@ -173,29 +173,19 @@ async function main() {
       { name: "自定义版本号 (custom)", value: "custom" },
     ];
 
-    inquirer
-      .prompt<{
-        versionType: "patch" | "minor" | "major" | "custom";
-      }>([
-        {
-          type: "list",
-          name: "versionType",
-          message: "请选择版本更新规则:",
-          choices: versionOptions,
-          default: "patch",
-        },
-      ])
-      .then(async (answers) => {
-        const updateType = answers.versionType;
-        updateVersion(localVersion, updateType, remoteVersion);
-      })
-      .catch((e) => {
-        console.log("****退出更新程序****");
-        setTimeout(() => {
-          console.log("****自动更新版本****");
-          updateVersion(localVersion, "patch", remoteVersion);
-        }, 500);
-      });
+    const answers = await inquirer.prompt<{
+      versionType: "patch" | "minor" | "major" | "custom";
+    }>([
+      {
+        type: "list",
+        name: "versionType",
+        message: "请选择版本更新规则:",
+        choices: versionOptions,
+        default: "patch",
+      },
+    ]);
+    const updateType = answers.versionType;
+    updateVersion(localVersion, updateType, remoteVersion);
   } else {
     console.log("****本地版本号已是最新，无需更新。****");
   }
