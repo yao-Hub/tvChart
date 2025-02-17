@@ -1,14 +1,14 @@
 {
   "name": "wp-tradeview",
   "private": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "main": "electron/main.js",
   "description": "utrader",
   "author": "wp",
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "pro": "vite --mode production --open",
-    "prepush": "npx tsc scripts/update-version.ts && node scripts/update-version.js && git add package.json",
+    "precommit": "npx tsc scripts/update-version.ts && node scripts/update-version.js && git add package.json",
     "prepackage": "npx tsc scripts/update-version.ts && node scripts/update-version.js && git add package.json",
     "build": "vite build",
     "build:dev": "vite build --mode development",
