@@ -182,6 +182,7 @@ async function main() {
           name: "versionType",
           message: "请选择版本更新规则:",
           choices: versionOptions,
+          default: "patch",
         },
       ])
       .then(async (answers) => {
@@ -189,9 +190,11 @@ async function main() {
         updateVersion(localVersion, updateType, remoteVersion);
       })
       .catch((e) => {
-        console.log("exitType", e);
-        // console.log("****自动更新版本****");
-        // updateVersion(localVersion, "patch", remoteVersion);
+        console.log("****退出更新程序****");
+        setTimeout(() => {
+          console.log("****自动更新版本****");
+          updateVersion(localVersion, "patch", remoteVersion);
+        }, 500);
       });
   } else {
     console.log("****本地版本号已是最新，无需更新。****");
