@@ -95,7 +95,7 @@ import dayjs from "dayjs";
 const formatTime = (time: number) => {
   const timeStore = useTime();
   const timezone = timeStore.settedTimezone;
-  return dayjs.unix(time).tz(timezone).format("YYYY-MM-DD HH:mm:ss");
+  return dayjs(time).tz(timezone).format("YYYY-MM-DD HH:mm:ss");
 };
 </script>
 
