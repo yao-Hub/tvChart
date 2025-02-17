@@ -124,6 +124,20 @@ async function updateRemoteTag(version: string) {
   }
 }
 
+async function updateVersion(
+  localVersion: string,
+  updateType: "patch" | "minor" | "major" | "custom",
+  remoteVersion: string | null | undefined
+) {
+  const updateVersion = await getUpdateVersion(
+    localVersion,
+    updateType,
+    remoteVersion
+  );
+  updatePackageJsonVersion(updateVersion);
+  updateRemoteTag(updateVersion);
+}
+
 // 主函数
 async function main() {
   const packageJson = require("../package.json");
@@ -159,25 +173,26 @@ async function main() {
       { name: "自定义版本号 (custom)", value: "custom" },
     ];
 
-    const answers = await inquirer.prompt<{
-      versionType: "patch" | "minor" | "major" | "custom";
-    }>([
-      {
-        type: "list",
-        name: "versionType",
-        message: "请选择版本更新规则:",
-        choices: versionOptions,
-      },
-    ]);
-
-    const updateType = answers.versionType;
-    const updateVersion = await getUpdateVersion(
-      localVersion,
-      updateType,
-      remoteVersion
-    );
-    updatePackageJsonVersion(updateVersion);
-    updateRemoteTag(updateVersion);
+    inquirer
+      .prompt<{
+        versionType: "patch" | "minor" | "major" | "custom";
+      }>([
+        {
+          type: "list",
+          name: "versionType",
+          message: "请选择版本更新规则:",
+          choices: versionOptions,
+        },
+      ])
+      .then(async (answers) => {
+        const updateType = answers.versionType;
+        updateVersion(localVersion, updateType, remoteVersion);
+      })
+      .catch((e) => {
+        console.log("exitType", e);
+        // console.log("****自动更新版本****");
+        // updateVersion(localVersion, "patch", remoteVersion);
+      });
   } else {
     console.log("****本地版本号已是最新，无需更新。****");
   }
