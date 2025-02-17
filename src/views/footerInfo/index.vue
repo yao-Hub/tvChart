@@ -46,6 +46,7 @@ import { computed } from "vue";
 import { useOrder } from "@/store/modules/order";
 import { useUser } from "@/store/modules/user";
 
+import { isNaN } from "lodash";
 import Delay from "./components/Delay.vue";
 import Timezone from "./components/Timezone.vue";
 
@@ -58,10 +59,11 @@ const profitTotal = computed(() => {
   const profitList = orderStore.state.orderData.marketOrder.map(
     (item) => new Decimal(+item.profit)
   );
-  const result = profitList.reduce((pre, next) => {
+  const sum = profitList.reduce((pre, next) => {
     return pre.plus(next);
   }, new Decimal(0));
-  return result.toNumber().toFixed(2);
+  const result = sum.toNumber().toFixed(2);
+  return isNaN(result) ? "-" : result;
 });
 </script>
 

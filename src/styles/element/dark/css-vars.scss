@@ -45,6 +45,9 @@ html.dark {
   .el-table-v2__row {
     background-color: var(--dark-1);
   }
+  .el-table-v2__row:hover {
+    background-color: var(--el-table-row-hover-bg-color);
+  }
   .el-table-v2 {
     --el-table-header-text-color: var(--dark-9);
     --el-table-tr-bg-color: var(--light-1);

@@ -261,12 +261,13 @@
               <template v-else-if="column.dataKey === 'order_price'">{{
                 getOrderPrice(rowData)
               }}</template>
-              <template v-else-if="column.dataKey === 'tp_price'">{{
-                formatPrice(rowData.tp_price, rowData.digits)
-              }}</template>
-              <template v-else-if="column.dataKey === 'sl_price'">{{
-                formatPrice(rowData.sl_price, rowData.digits)
-              }}</template>
+              <template
+                v-else-if="['tp_price', 'sl_price'].includes(column.dataKey)"
+              >
+                <div class="operaCell" @click="showOrderDialog(rowData)">
+                  {{ formatPrice(rowData[column.dataKey], rowData.digits) }}
+                </div>
+              </template>
               <template v-else-if="column.dataKey === 'profit'">
                 <span :class="[getCellClass(rowData.profit), 'profitcell']">
                   <span v-if="activeKey === 'blanceRecord'">{{
@@ -908,19 +909,23 @@ const delPendingOrder = async (record: orders.resOrders, index: number) => {
   }
 };
 
+const showOrderDialog = (rowData: any) => {
+  state.orderInfo = rowData;
+  if (activeKey.value === "marketOrder") {
+    dialogStore.incrementZIndex();
+    state.marketDialogVisible = true;
+  }
+  if (activeKey.value === "pendingOrder") {
+    dialogStore.incrementZIndex();
+    state.pendingDialogVisible = true;
+  }
+};
+
 // 双击行
 const rowProps = ({ rowData }: any) => {
   return {
     ondblclick: () => {
-      state.orderInfo = rowData;
-      if (activeKey.value === "marketOrder") {
-        dialogStore.incrementZIndex();
-        state.marketDialogVisible = true;
-      }
-      if (activeKey.value === "pendingOrder") {
-        dialogStore.incrementZIndex();
-        state.pendingDialogVisible = true;
-      }
+      showOrderDialog(rowData);
     },
   };
 };
@@ -1071,6 +1076,14 @@ const getTableData = (type: string) => {
     box-sizing: border-box;
     @include font_color("border");
   }
+}
+.operaCell {
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
 }
 .loadingFooter {
   height: 32px;
