@@ -181,7 +181,6 @@ async function main() {
         name: "versionType",
         message: "请选择版本更新规则:",
         choices: versionOptions,
-        default: "patch",
       },
     ]);
     const updateType = answers.versionType;
