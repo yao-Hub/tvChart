@@ -247,14 +247,8 @@ const reverseType = computed(() => {
   return transactionType.value === "sell" ? "buy" : "sell";
 });
 
-import { getDecimalPlaces } from "utils/common/index";
 const step = computed(() => {
-  let i = 1;
-  if (props.orderInfo) {
-    const places = getDecimalPlaces(props.orderInfo.volume / 100);
-    i = i / Math.pow(10, places);
-  }
-  return String(i);
+  return symbolInfo.value ? symbolInfo.value.volume_step / 100 : 1;
 });
 
 watch(
