@@ -34,7 +34,7 @@ const showTimer = ref(false);
 const handleClick = async () => {
   try {
     loading.value = true;
-    const res = await sendEmail({ email: props.email });
+    const res = await sendEmail({ email: props.email, type: 1 });
     if (res.err === 0) {
       showTimer.value = true;
       startTimer();

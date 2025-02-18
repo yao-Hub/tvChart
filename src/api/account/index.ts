@@ -216,8 +216,8 @@ export const queryNode = (data: { lineCode: string }) => {
     noNeedServer: true,
   });
 };
-
-export const sendEmail = (data: { email: string }) => {
+// 1 注册 2 注销
+export const sendEmail = (data: { email: string; type: 1 | 2 }) => {
   return request({
     url: Api.SendEmail,
     method: "post",
