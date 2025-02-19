@@ -35,7 +35,7 @@ import { computed, ref, watchEffect } from "vue";
 import { DirectionType } from "#/order";
 
 import { ORDER_TYPE } from "@/constants/common";
-import { ISessionSymbolInfo } from "@/types/chart/index";
+import { ISessionSymbolInfo } from "@/types/chart";
 import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 
 import { useChartInit } from "@/store/modules/chartInit";

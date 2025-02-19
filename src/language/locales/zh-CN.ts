@@ -1,6 +1,5 @@
 export default {
-  languageTxt: "en-US",
-  nowLocale: "简体中文",
+  nowLocale: "简体中文(中国)",
   lauguage: "语言",
   switchLanguage: "切换语言",
 
@@ -20,10 +19,6 @@ export default {
   updownColor: "涨跌颜色",
   upRedDownGreen: "红涨绿跌",
   upGreenDownRed: "绿涨红跌",
-  // SingleImageMode: "单图模式",
-  // MultiGrapMode: "多图模式",
-  // HorizontalLayout: "横向布局",
-  // VerticaLayout: "纵向布局",
   createChart: "增加图表",
 
   chartList: "图表列表",

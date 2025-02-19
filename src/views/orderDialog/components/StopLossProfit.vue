@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { IQuote, ISessionSymbolInfo } from "#/chart/index";
+import { IQuote, ISessionSymbolInfo } from "@/types/chart";
 import { round } from "utils/common/index";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";

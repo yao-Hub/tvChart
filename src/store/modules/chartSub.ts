@@ -1,4 +1,4 @@
-import { ITVSymbolInfo } from "@/types/chart/index";
+import { ITVSymbolInfo } from "@/types/chart";
 import { defineStore } from "pinia";
 import { IChartingLibraryWidget } from "public/charting_library";
 import { keydownList } from "utils/keydown";

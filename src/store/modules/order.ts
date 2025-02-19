@@ -15,8 +15,8 @@ import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
 import { useUser } from "./user";
 
-import * as types from "#/chart/index";
 import * as orderTypes from "#/order";
+import * as types from "@/types/chart";
 import * as orders from "api/order/index";
 
 import { debounce, get, isNil } from "lodash";

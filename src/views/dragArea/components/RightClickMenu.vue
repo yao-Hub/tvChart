@@ -62,7 +62,7 @@ import { isNil } from "lodash";
 import { ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { ISessionSymbolInfo } from "@/types/chart/index";
+import { ISessionSymbolInfo } from "@/types/chart";
 import { symbolDetail } from "api/symbols";
 
 import { useChartInit } from "@/store/modules/chartInit";

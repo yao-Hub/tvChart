@@ -1,6 +1,5 @@
 export default {
-  languageTxt: "简体中文",
-  nowLocale: "en",
+  nowLocale: "English(US)",
   lauguage: "Lauguage",
   switchLanguage: "switch language",
 

@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { IQuote } from "#/chart/index";
+import { IQuote } from "@/types/chart";
 import Decimal from "decimal.js";
 import { computed } from "vue";
 interface Props {

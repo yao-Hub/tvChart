@@ -1,10 +1,10 @@
 <template>
-  <div class="home">
+  <div class="home" :key="localeKey">
     <BaseImg class="title" iconName="title" imgSuffix="png" />
     <span class="welcome">{{ $t("welcomeToUTrader") }}</span>
     <div class="functionalArea">
       <Theme></Theme>
-      <Language></Language>
+      <Language @change=""></Language>
     </div>
     <router-view v-slot="{ Component }">
       <div class="container">
@@ -34,6 +34,8 @@ const router = useRouter();
 const networkStore = useNetwork();
 const userStore = useUser();
 const rootStore = useRoot();
+
+const localeKey = ref("");
 
 (async function init() {
   await rootStore.resetAllStore();

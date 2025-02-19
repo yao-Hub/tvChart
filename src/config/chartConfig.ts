@@ -5,7 +5,7 @@ import { useSymbols } from "@/store/modules/symbols";
 import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 
-import * as types from "@/types/chart/index";
+import * as types from "@/types/chart";
 import { ResLineInfo, klineHistory } from "api/kline/index";
 import { cloneDeep, flattenDeep, get, groupBy, maxBy, orderBy } from "lodash";
 

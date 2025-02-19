@@ -1,4 +1,4 @@
-import * as types from "#/chart/index";
+import * as types from "@/types/chart";
 import { alllRates } from "api/symbols/index";
 import { defineStore } from "pinia";
 import { ref } from "vue";

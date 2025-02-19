@@ -40,7 +40,7 @@
 import type { CSSProperties } from "vue";
 import { computed, onUnmounted, reactive, ref, watch } from "vue";
 
-import { IQuote, ISessionSymbolInfo } from "#/chart/index";
+import { IQuote, ISessionSymbolInfo } from "@/types/chart";
 
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";

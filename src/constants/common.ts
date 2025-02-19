@@ -1,18 +1,12 @@
 import en from "element-plus/es/locale/lang/en";
 import zhCn from "element-plus/es/locale/lang/zh-cn";
-
-export type TLANG = "zh" | "en";
+import zhTw from "element-plus/es/locale/lang/zh-tw";
 
 export const LANGUAGE_LIST = {
   zh: zhCn,
-  en: en,
+  en,
+  zhTw,
 };
-
-// 语言code
-export const LOCALE_MAP = {
-  zh: "zh-cn",
-  en: "en-us",
-} as Record<TLANG, string>;
 
 // 股票交易方向
 export const STOCKS_DIRECTION = {

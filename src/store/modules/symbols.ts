@@ -3,7 +3,7 @@ import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 
 import { TableTabKey } from "#/order";
-import { ISessionSymbolInfo } from "@/types/chart/index";
+import { ISessionSymbolInfo } from "@/types/chart";
 import { allSymbols, optionalQuery, reqOptionalQuery } from "api/symbols/index";
 
 import { useOrder } from "./order";

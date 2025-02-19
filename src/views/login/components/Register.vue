@@ -67,7 +67,7 @@
           class="submit-button"
           :disabled="!btnDisabled"
           @click="submit(formRef)"
-          >{{ $t("account.register") }}</el-button
+          >{{ $t("account.createAccount") }}</el-button
         >
       </el-form>
     </div>

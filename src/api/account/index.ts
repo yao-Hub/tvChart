@@ -206,7 +206,7 @@ export interface resQueryNode {
   managerWebsocket: string; //	manager_websocket
 }
 // 查询交易节点
-export const queryNode = (data: { lineCode: string }) => {
+export const queryNode = (data: { lineCode: string; lineName: string }) => {
   return request<resQueryNode[]>({
     url: Api.QueryNode,
     method: "post",

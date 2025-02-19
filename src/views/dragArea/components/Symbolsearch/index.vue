@@ -146,7 +146,7 @@ const getCount = (type: string) => {
   return 0;
 };
 
-import { ISessionSymbolInfo } from "@/types/chart/index";
+import { ISessionSymbolInfo } from "@/types/chart";
 import { addOptionalQuery, delOptionalQuery } from "api/symbols/index";
 import { debounce } from "lodash";
 type SymbolListItem = ISessionSymbolInfo & { loading: boolean };

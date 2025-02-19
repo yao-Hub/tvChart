@@ -1,4 +1,4 @@
-import * as types from "@/types/chart/index";
+import * as types from "@/types/chart";
 import { get, isNil, set, sortBy, throttle } from "lodash";
 import { defineStore } from "pinia";
 import { useQuotes } from "./quotes";

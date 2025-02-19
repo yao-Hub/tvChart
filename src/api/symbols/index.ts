@@ -1,4 +1,4 @@
-import { IQuote, IRate, ISessionSymbolInfo } from "@/types/chart/index";
+import { IQuote, IRate, ISessionSymbolInfo } from "@/types/chart";
 import request from "utils/http";
 
 enum Api {

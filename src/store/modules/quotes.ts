@@ -1,4 +1,4 @@
-import * as types from "#/chart/index";
+import * as types from "@/types/chart";
 import { allSymbolQuotes } from "api/symbols/index";
 import { defineStore } from "pinia";
 import { round } from "utils/common/index";

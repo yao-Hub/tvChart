@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { ISessionSymbolInfo } from "#/chart/index";
+import { ISessionSymbolInfo } from "@/types/chart";
 import { limitdigit, round } from "utils/common/index";
 import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";

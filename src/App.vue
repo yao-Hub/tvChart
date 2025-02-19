@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import "dayjs/locale/en";
 import "dayjs/locale/zh-cn";
+import "dayjs/locale/zh-tw";
 import { ElConfigProvider } from "element-plus";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
@@ -28,6 +29,7 @@ sendTrack({
 // 国际化
 const I18n = useI18n();
 const value = I18n.locale.value as keyof typeof LANGUAGE_LIST;
+
 // 系统语言
 const locale = computed(() => {
   return LANGUAGE_LIST[value];

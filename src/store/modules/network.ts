@@ -59,6 +59,7 @@ export const useNetwork = defineStore("network", {
       if (lineCode) {
         const res = await queryNode({
           lineCode,
+          lineName: server,
         });
         this.nodeList = res.data;
         return this.nodeList;

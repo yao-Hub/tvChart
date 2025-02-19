@@ -1,6 +1,6 @@
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
-import { IRate, ISocketKlineNew, ISocketQuote } from "@/types/chart/index";
+import { IRate, ISocketKlineNew, ISocketQuote } from "@/types/chart";
 import { defineStore } from "pinia";
 import { Socket } from "socket.io-client";
 import SingletonSocket from "utils/socket";

@@ -23,15 +23,19 @@ import { computed } from "vue";
 
 import i18n from "@/language/index";
 import { useI18n } from "vue-i18n";
+
 const { locale, messages } = useI18n();
 const localeList = i18n.global.messages.value;
+
+const emit = defineEmits(["change"]);
+
 const changeLocale = (value: string) => {
   if (value === locale.value) {
     return;
   }
   locale.value = value;
   localStorage.setItem("language", value);
-  window.location.reload();
+  emit("change", value);
 };
 const nowLocale = computed(() => {
   const localeList = messages.value;
@@ -44,7 +48,7 @@ const nowLocale = computed(() => {
 @import "@/styles/_handle.scss";
 
 .downOutner {
-  width: 144px;
+  min-width: 144px;
   height: 40px;
   border-radius: 4px;
   display: flex;
@@ -58,7 +62,7 @@ const nowLocale = computed(() => {
   }
 }
 .downInner {
-  width: 144px;
+  min-width: 144px;
   border-radius: 4px;
   @include background_color("background");
   .innerItem {

@@ -9,7 +9,6 @@ import axios, {
 
 import eventBus from "utils/eventBus";
 
-import { LOCALE_MAP, TLANG } from "@/constants/common";
 import { decrypt, encrypt } from "utils/DES/JS";
 
 import { useNetwork } from "@/store/modules/network";
@@ -46,9 +45,14 @@ const controller = new AbortController();
 const uuid = window.localStorage.getItem("uuid");
 
 const theme = localStorage.getItem("systemTheme") || "dark";
-const currentLanguage = (localStorage.getItem("language") ||
-  navigator.language.toLowerCase()) as TLANG;
-const acceptLanguage = LOCALE_MAP[currentLanguage];
+const nowLocale =
+  localStorage.getItem("language") || navigator.language.toLowerCase();
+const LOCALE_MAP: Record<string, string> = {
+  zh: "zh-cn",
+  en: "en-us",
+  zhTw: "zh-hk",
+};
+const acceptLanguage = LOCALE_MAP[nowLocale];
 
 const service = axios.create({
   timeout: 30 * 1000,
