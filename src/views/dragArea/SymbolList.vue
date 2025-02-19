@@ -46,7 +46,7 @@
         </el-table-column>
         <el-table-column
           prop="symbol"
-          :label="$t('order.symbol')"
+          :label="t('order.symbol')"
           align="left"
           width="85"
         >
@@ -107,11 +107,11 @@
           <div class="emptyBox">
             <BaseImg iconName="icon_empty"></BaseImg>
             <div class="tipWords">
-              <span>{{ $t("tip.noData") }}</span>
-              <span>{{ $t("tip.addMySymbol") }}</span>
+              <span>{{ t("tip.noData") }}</span>
+              <span>{{ t("tip.addMySymbol") }}</span>
             </div>
             <el-button type="primary" @click="ifSearch = true" class="addBtn">{{
-              $t("tip.addMyOption")
+              t("tip.addMyOption")
             }}</el-button>
           </div>
         </template>

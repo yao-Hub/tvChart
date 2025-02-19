@@ -116,14 +116,14 @@
         <el-col :span="24">
           <div class="btns">
             <el-button style="flex: 1" @click="delPendingOrder">{{
-              $t("delete")
+              t("delete")
             }}</el-button>
             <el-button
               style="flex: 1"
               type="primary"
               :loading="editing"
               @click="confirmEdit"
-              >{{ $t("tip.confirm", { type: t("modify") }) }}</el-button
+              >{{ t("tip.confirm", { type: t("modify") }) }}</el-button
             >
           </div>
         </el-col>

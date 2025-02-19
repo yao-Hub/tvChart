@@ -3,10 +3,10 @@
     <div class="Fontsize">
       <div class="Fontsize_left">
         <BaseImg class="logo" iconName="icon_13" />
-        <span>{{ $t("font.fontSize") }}</span>
+        <span>{{ t("font.fontSize") }}</span>
       </div>
       <div class="Fontsize_right">
-        <el-text type="info">{{ $t(`font.${sizeStore.systemSize}`) }}</el-text>
+        <el-text type="info">{{ t(`font.${sizeStore.systemSize}`) }}</el-text>
         <BaseImg class="logo" iconName="turnRight" />
       </div>
     </div>
@@ -17,6 +17,8 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 import { useSize } from "@/store/modules/size";
 import Sizes from "./Sizes.vue";
 const sizeStore = useSize();

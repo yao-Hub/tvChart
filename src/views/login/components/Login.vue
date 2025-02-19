@@ -5,13 +5,13 @@
         <el-icon>
           <BaseImg iconName="turnleft" />
         </el-icon>
-        <span>{{ $t("back") }}</span>
+        <span>{{ t("back") }}</span>
       </div>
     </div>
     <span class="plogin" :style="{ marginTop: ifloginBack ? '' : '24px' }">{{
-      $t("logAccount")
+      t("logAccount")
     }}</span>
-    <span class="padd">{{ $t("noAccount") }}</span>
+    <span class="padd">{{ t("noAccount") }}</span>
     <el-form
       ref="ruleFormRef"
       :model="formState"
@@ -19,7 +19,7 @@
       class="login-form"
       :rules="rules"
     >
-      <el-form-item prop="server" :label="$t('order.tradingRoute')">
+      <el-form-item prop="server" :label="t('order.tradingRoute')">
         <el-select
           v-model="formState.server"
           filterable
@@ -35,14 +35,14 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item :label="$t('account.accountNum')" prop="login">
+      <el-form-item :label="t('account.accountNum')" prop="login">
         <el-input
           v-model="formState.login"
           :placeholder="t('tip.usernameRequired')"
         />
       </el-form-item>
 
-      <el-form-item :label="$t('account.password')" prop="password">
+      <el-form-item :label="t('account.password')" prop="password">
         <el-input
           v-model="formState.password"
           type="password"
@@ -57,14 +57,14 @@
           <!-- <el-checkbox
             class="link"
             v-model="formState.remember"
-            :label="$t('account.rememberMe')"
+            :label="t('account.rememberMe')"
           /> -->
           <span
             class="link"
             style="margin-left: auto"
             v-if="ifSimulatedServer"
             @click="goForgetPassword"
-            >{{ $t("account.forgetPassword") }}</span
+            >{{ t("account.forgetPassword") }}</span
           >
         </div>
       </el-form-item>
@@ -76,38 +76,38 @@
           :disabled="disabled"
           @click="happyStart('loginBtn')"
           :loading="loading"
-          >{{ $t("account.login") }}</el-button
+          >{{ t("account.login") }}</el-button
         >
       </el-form-item>
 
       <el-form-item style="margin-bottom: 0">
         <div class="login-form-account">
-          <span> {{ $t("account.noAccount") }}&nbsp;</span>
+          <span> {{ t("account.noAccount") }}&nbsp;</span>
           <el-text type="primary" style="cursor: pointer" @click="goRegister">{{
-            $t("account.createAccount")
+            t("account.createAccount")
           }}</el-text>
         </div>
       </el-form-item>
     </el-form>
   </div>
   <div class="article">
-    <span class="word">{{ $t("article.loginsee") }}</span>
+    <span class="word">{{ t("article.loginsee") }}</span>
     <el-link
       type="primary"
       target="_blank"
       :underline="false"
       @click="goProtocol('service-article')"
-      >{{ $t("leftBook") }}{{ $t("article.userAgreement")
-      }}{{ $t("rightBook") }}</el-link
+      >{{ t("leftBook") }}{{ t("article.userAgreement")
+      }}{{ t("rightBook") }}</el-link
     >
-    <span class="word"> {{ $t("and") }} </span>
+    <span class="word"> {{ t("and") }} </span>
     <el-link
       type="primary"
       target="_blank"
       :underline="false"
       @click="goProtocol('privacy-policy')"
-      >{{ $t("leftBook") }}{{ $t("article.privacyPolicy")
-      }}{{ $t("rightBook") }}</el-link
+      >{{ t("leftBook") }}{{ t("article.privacyPolicy")
+      }}{{ t("rightBook") }}</el-link
     >
     <span></span>
   </div>

@@ -3,7 +3,7 @@
     <div class="Language">
       <div class="Language_left">
         <BaseImg class="logo" iconName="icon_12" />
-        <span>{{ $t("lauguage") }}</span>
+        <span>{{ t("lauguage") }}</span>
       </div>
       <div class="Language_right">
         <el-text type="info">{{ nowLocale }}</el-text>
@@ -21,8 +21,8 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import Locales from "./Locales.vue";
 const I18n = useI18n();
+const { locale, messages, t } = I18n;
 const nowLocale = computed(() => {
-  const { locale, messages } = I18n;
   const localeList = messages.value;
   const curentLocale = locale.value;
   return localeList[curentLocale].nowLocale;

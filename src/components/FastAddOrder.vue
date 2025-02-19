@@ -5,7 +5,7 @@
         {{ bid }}
       </div>
       <div :style="btnStyle('sell')" @click="addOrder('sell')">
-        {{ $t("order.sell") }}
+        {{ t("order.sell") }}
       </div>
     </div>
     <div :style="{ ...inputAreaStyle, boxSizing: 'border-box' }">
@@ -19,7 +19,7 @@
     </div>
     <div :style="styles.area">
       <div :style="btnStyle('buy')" @click="addOrder('buy')">
-        {{ $t("order.buy") }}
+        {{ t("order.buy") }}
       </div>
       <div :style="wordStyle('buy')">
         {{ ask }}
@@ -44,6 +44,9 @@ import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTheme } from "@/store/modules/theme";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const chartInitStore = useChartInit();
 const dialogStore = useDialog();

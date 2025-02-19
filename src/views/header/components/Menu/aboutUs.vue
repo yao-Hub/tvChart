@@ -1,7 +1,7 @@
 <template>
   <div class="aboutUs" @click="handleClick">
     <BaseImg class="logo" iconName="icon_16" />
-    <span>{{ $t("aboutUs") }}</span>
+    <span>{{ t("aboutUs") }}</span>
   </div>
 
   <el-dialog
@@ -14,7 +14,7 @@
   >
     <template #header>
       <div class="header">
-        <span class="title">{{ $t("aboutUs") }}</span>
+        <span class="title">{{ t("aboutUs") }}</span>
         <el-icon class="icon" @click="open = false">
           <CloseBold />
         </el-icon>
@@ -22,7 +22,7 @@
     </template>
     <el-row>
       <el-col :span="24">
-        <el-text type="info">{{ $t("company") }}</el-text>
+        <el-text type="info">{{ t("company") }}</el-text>
         <el-text>广州微派</el-text>
       </el-col>
     </el-row>
@@ -52,6 +52,10 @@
 <script setup lang="ts">
 import { useDialog } from "@/store/modules/dialog";
 import { ref } from "vue";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 const dialogStore = useDialog();
 const open = ref<boolean>(false);
 const emit = defineEmits(["closeDropdown"]);

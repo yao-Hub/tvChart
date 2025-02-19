@@ -7,7 +7,7 @@
     @close="onClose"
   >
     <template #header>
-      <span class="header">{{ $t("account.resetPassword") }}</span>
+      <span class="header">{{ t("account.resetPassword") }}</span>
     </template>
     <div class="Reset">
       <div class="Reset_title">
@@ -25,7 +25,7 @@
         ref="formRef"
       >
         <el-form-item
-          :label="$t('account.nowPassword')"
+          :label="t('account.nowPassword')"
           label-position="top"
           prop="oldpass"
         >
@@ -37,7 +37,7 @@
         </el-form-item>
         <el-form-item prop="pass" label-position="top">
           <template #label>
-            {{ $t("account.newPassword") }} ({{ $t("tip.passwordFormatRule") }})
+            {{ t("account.newPassword") }} ({{ t("tip.passwordFormatRule") }})
           </template>
           <el-input
             v-model="formState.pass"
@@ -61,7 +61,7 @@
             type="primary"
             style="width: 72px; height: 40px"
             @click="submit(formRef)"
-            >{{ $t("tip.confirm", { type: t("modify") }) }}</el-button
+            >{{ t("tip.confirm", { type: t("modify") }) }}</el-button
           >
         </el-form-item>
       </el-form>

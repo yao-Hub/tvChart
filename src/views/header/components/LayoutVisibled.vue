@@ -8,21 +8,21 @@
       <el-dropdown-menu>
         <el-dropdown-item>
           <div class="item" @click="() => layoutChange('chartsVisable')">
-            <span>{{ $t("klineArea") }}</span>
+            <span>{{ t("klineArea") }}</span>
             <BaseImg iconName="select" v-if="layoutStore.chartsVisable" />
           </div>
         </el-dropdown-item>
 
         <el-dropdown-item>
           <div class="item" @click="() => layoutChange('symbolsVisable')">
-            <span>{{ $t("symbolListArea") }}</span>
+            <span>{{ t("symbolListArea") }}</span>
             <BaseImg iconName="select" v-if="layoutStore.symbolsVisable" />
           </div>
         </el-dropdown-item>
 
         <el-dropdown-item>
           <div class="item" @click="() => layoutChange('orderAreaVisable')">
-            <span>{{ $t("orderArea") }}</span>
+            <span>{{ t("orderArea") }}</span>
             <BaseImg iconName="select" v-if="layoutStore.orderAreaVisable" />
           </div>
         </el-dropdown-item>
@@ -40,6 +40,9 @@ import { useLayout } from "@/store/modules/layout";
 
 const chartInitStore = useChartInit();
 const layoutStore = useLayout();
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const layoutChange = async (
   type: "symbolsVisable" | "orderAreaVisable" | "chartsVisable"

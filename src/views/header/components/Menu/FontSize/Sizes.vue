@@ -2,7 +2,7 @@
   <el-dropdown-menu>
     <el-dropdown-item v-for="size in sizeList">
       <div class="sizeItem" @click="handleChange(size)">
-        <span>{{ $t(`font.${size}`) }}</span>
+        <span>{{ t(`font.${size}`) }}</span>
         <BaseImg
           class="logo"
           iconName="select"
@@ -14,6 +14,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 import { useSize } from "@/store/modules/size";
 const sizeStore = useSize();
 

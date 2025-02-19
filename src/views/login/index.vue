@@ -1,7 +1,7 @@
 <template>
   <div class="home" :key="localeKey">
     <BaseImg class="title" iconName="title" imgSuffix="png" />
-    <span class="welcome">{{ $t("welcomeToUTrader") }}</span>
+    <span class="welcome">{{ t("welcomeToUTrader") }}</span>
     <div class="functionalArea">
       <Theme></Theme>
       <Language @change=""></Language>
@@ -28,6 +28,9 @@ import { useRoot } from "@/store/store";
 
 import Language from "./components/Language.vue";
 import Theme from "./components/Theme.vue";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const router = useRouter();
 

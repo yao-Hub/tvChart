@@ -1,6 +1,6 @@
 <template>
   <div v-for="item in layoutList">
-    <el-tooltip :content="$t(`layout.${item.type}`)">
+    <el-tooltip :content="t(`layout.${item.type}`)">
       <div class="iconbox" @click="chartInitStore.setLayoutType(item.type)">
         <BaseImg :iconName="getIcon(item)"></BaseImg>
       </div>
@@ -11,6 +11,9 @@
 <script setup lang="ts">
 import { useChartInit } from "@/store/modules/chartInit";
 const chartInitStore = useChartInit();
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 interface IList {
   type: "single" | "multiple" | "row" | "column";

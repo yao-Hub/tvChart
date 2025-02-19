@@ -1,7 +1,7 @@
 <template>
   <div class="deep">
     <el-text type="info" style="align-self: unset">{{
-      $t("marketDepth")
+      t("marketDepth")
     }}</el-text>
     <div class="container" v-if="depths.length">
       <div class="box">
@@ -34,6 +34,9 @@ import { IDepth } from "@/types/common";
 import { round } from "@/utils/common";
 import { maxBy } from "lodash";
 import { onMounted, onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 const symbolsStore = useSymbols();
 
 const socketStore = useSocket();

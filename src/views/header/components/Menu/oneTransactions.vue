@@ -2,7 +2,7 @@
   <div class="oneTransactions">
     <div class="oneTransactions_left">
       <BaseImg class="logo" iconName="icon_9" />
-      <span>{{ $t("QuickTransactions") }}</span>
+      <span>{{ t("QuickTransactions") }}</span>
     </div>
     <el-switch v-model="switchVal" :before-change="beforeChange" />
   </div>
@@ -12,6 +12,9 @@
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { ref, watchEffect } from "vue";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const orderStore = useOrder();
 const dialogStore = useDialog();

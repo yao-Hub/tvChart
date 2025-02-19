@@ -1,7 +1,7 @@
 <template>
   <div class="accounts scrollList">
-    <span class="plogin">{{ $t("logAccount") }}</span>
-    <span class="padd">{{ $t("noAccount") }}</span>
+    <span class="plogin">{{ t("logAccount") }}</span>
+    <span class="padd">{{ t("noAccount") }}</span>
 
     <div class="list">
       <el-scrollbar always :height="Math.min(list.length, 3) * 56">
@@ -38,13 +38,13 @@
       type="primary"
       :loading="loading"
       @click="happyStart"
-      >{{ ifOpera ? $t("done") : $t("account.login") }}</el-button
+      >{{ ifOpera ? t("done") : t("account.login") }}</el-button
     >
 
     <div class="footer">
-      <span @click="goLogin()">{{ $t("addAccount") }}</span>
+      <span @click="goLogin()">{{ t("addAccount") }}</span>
       <el-divider direction="vertical" />
-      <span @click="ifOpera = true">{{ $t("manageAccount") }}</span>
+      <span @click="ifOpera = true">{{ t("manageAccount") }}</span>
     </div>
   </div>
 </template>
@@ -55,6 +55,9 @@ import { AccountListItem, useUser } from "@/store/modules/user";
 import { orderBy } from "lodash";
 import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const router = useRouter();
 const userStore = useUser();

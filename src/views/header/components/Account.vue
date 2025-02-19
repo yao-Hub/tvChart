@@ -38,20 +38,20 @@
       </div>
       <div class="account">
         <el-text type="info" @click="showModal">{{
-          $t("personalInformation")
+          t("personalInformation")
         }}</el-text>
         <el-divider direction="vertical" />
         <el-text type="info" @click="openResetPwd">{{
-          $t("changePassword")
+          t("changePassword")
         }}</el-text>
         <el-divider direction="vertical" />
         <el-text
           type="info"
           @click="$router.push({ path: PageEnum.LOGIN_HOME })"
-          >{{ $t("addAccount") }}</el-text
+          >{{ t("addAccount") }}</el-text
         >
         <el-divider direction="vertical" />
-        <span @click="logout">{{ $t("logOut") }}</span>
+        <span @click="logout">{{ t("logOut") }}</span>
       </div>
     </template>
   </el-dropdown>
@@ -64,31 +64,31 @@
     destroy-on-close
   >
     <template #header>
-      <span class="header">{{ $t("personalInformation") }}</span>
+      <span class="header">{{ t("personalInformation") }}</span>
     </template>
     <el-row>
       <el-col :span="24">
-        <el-text type="info">{{ $t("brokerName") }}</el-text>
+        <el-text type="info">{{ t("brokerName") }}</el-text>
         <el-text>{{ networkStore.currentLine?.brokerName }}</el-text>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
-        <el-text type="info">{{ $t("nodeName") }}</el-text>
+        <el-text type="info">{{ t("nodeName") }}</el-text>
         <el-text>{{ networkStore.nodeName }}</el-text>
       </el-col>
       <el-col :span="12">
-        <el-text type="info">{{ $t("loginId") }}</el-text>
+        <el-text type="info">{{ t("loginId") }}</el-text>
         <el-text>{{ userStore.state.loginInfo?.login }}</el-text>
       </el-col>
     </el-row>
     <el-row>
       <el-col :span="12">
-        <el-text type="info">{{ $t("ip") }}</el-text>
+        <el-text type="info">{{ t("ip") }}</el-text>
         <el-text>{{ networkStore.currentNode?.ip }}</el-text>
       </el-col>
       <el-col :span="12">
-        <el-text type="info">{{ $t("connectedNode") }}</el-text>
+        <el-text type="info">{{ t("connectedNode") }}</el-text>
         <el-text>{{ networkStore.currentNode?.nodeName }}</el-text>
       </el-col>
     </el-row>
@@ -108,6 +108,9 @@ import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const dropdown = ref<DropdownInstance>();
 const visible = ref(false);

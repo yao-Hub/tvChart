@@ -16,7 +16,7 @@
             @click="dialogStore.openDialog('feedbackVisible')"
           >
             <BaseImg class="logo" iconName="icon_17" />
-            <el-text type="info">{{ $t("feedback") }}</el-text>
+            <el-text type="info">{{ t("feedback") }}</el-text>
           </div>
         </div>
       </div>
@@ -45,8 +45,8 @@
             clearable
             :placeholder="t('table.direction')"
           >
-            <el-option value="buy" :label="$t('order.buy')"></el-option>
-            <el-option value="sell" :label="$t('order.sell')"></el-option>
+            <el-option value="buy" :label="t('order.buy')"></el-option>
+            <el-option value="sell" :label="t('order.sell')"></el-option>
           </el-select>
           <el-select
             :suffix-icon="SelectSuffixIcon"
@@ -68,7 +68,7 @@
               endPlaceholder: t('table.createEndTime'),
             }"
             @timeChange="getTableData('pendingOrderHistory')"
-            >{{ $t("table.createTime") }}：</TimeRange
+            >{{ t("table.createTime") }}：</TimeRange
           >
           <TimeRange
             v-if="['marketOrderHistory'].includes(activeKey)"
@@ -79,7 +79,7 @@
               endPlaceholder: t('table.positionOpeningEndTime'),
             }"
             @timeChange="getTableData('marketOrderHistory')"
-            >{{ $t("table.positionOpeningTime") }}：</TimeRange
+            >{{ t("table.positionOpeningTime") }}：</TimeRange
           >
           <TimeRange
             v-if="['marketOrderHistory'].includes(activeKey)"
@@ -90,7 +90,7 @@
               endPlaceholder: t('table.positionClosingEndTime'),
             }"
             @timeChange="getTableData('marketOrderHistory')"
-            >{{ $t("table.positionClosingTime") }}：</TimeRange
+            >{{ t("table.positionClosingTime") }}：</TimeRange
           >
           <el-select
             :suffix-icon="SelectSuffixIcon"
@@ -112,14 +112,14 @@
               endPlaceholder: t('table.endTime'),
             }"
             @timeChange="getTableData('blanceRecord')"
-            >{{ $t("table.time") }}：</TimeRange
+            >{{ t("table.time") }}：</TimeRange
           >
           <DataPicker
             v-if="activeKey === 'log'"
             v-model="orderStore.state.dataFilter[activeKey].date"
             @timeChange="getTableData('log')"
           >
-            <span>{{ $t("table.date") }}：</span>
+            <span>{{ t("table.date") }}：</span>
           </DataPicker>
           <el-select
             v-if="activeKey === 'log'"
@@ -154,25 +154,25 @@
               @command="closeMarketOrders"
             >
               <el-button type="primary">
-                <span class="label">{{ $t("table.batchClose") }}</span>
+                <span class="label">{{ t("table.batchClose") }}</span>
                 <BaseImg class="caretDownIcon" iconName="caretDown" />
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
                   <el-dropdown-item :command="1">{{
-                    $t("table.allPositionsClose")
+                    t("table.allPositionsClose")
                   }}</el-dropdown-item>
                   <el-dropdown-item :command="2">{{
-                    $t("table.closeAllLongPositions")
+                    t("table.closeAllLongPositions")
                   }}</el-dropdown-item>
                   <el-dropdown-item :command="3">{{
-                    $t("table.closeAllShortPositions")
+                    t("table.closeAllShortPositions")
                   }}</el-dropdown-item>
                   <el-dropdown-item :command="4">{{
-                    $t("table.closeProfitablePositions")
+                    t("table.closeProfitablePositions")
                   }}</el-dropdown-item>
                   <el-dropdown-item :command="5">{{
-                    $t("table.closeLosingPositions")
+                    t("table.closeLosingPositions")
                   }}</el-dropdown-item>
                 </el-dropdown-menu>
               </template>
@@ -183,7 +183,7 @@
               @click="
                 closePendingOrders(orderStore.state.orderData.pendingOrder)
               "
-              >{{ $t("table.cancelAllOrders") }}</el-button
+              >{{ t("table.cancelAllOrders") }}</el-button
             >
           </div>
         </div>
@@ -243,7 +243,7 @@
               }}</template>
               <template v-else-if="column.dataKey === 'type'">
                 <span>{{
-                  $t(`order.${getTradingDirection(rowData.type)}`)
+                  t(`order.${getTradingDirection(rowData.type)}`)
                 }}</span>
               </template>
               <template v-else-if="column.dataKey === 'orderType'">
@@ -281,8 +281,8 @@
               <template v-else-if="column.dataKey === 'blanceType'">
                 <span>{{
                   rowData.profit > 0
-                    ? $t("table.deposit")
-                    : $t("table.withdrawal")
+                    ? t("table.deposit")
+                    : t("table.withdrawal")
                 }}</span>
               </template>
               <template v-else-if="column.dataKey === 'fee'">
@@ -349,20 +349,20 @@
                 v-if="!pageLoading && activeKey === 'blanceRecord'"
               >
                 <span class="blaRecFooter_item">
-                  <el-text type="info">{{ $t("table.netDeposit") }}：</el-text>
+                  <el-text type="info">{{ t("table.netDeposit") }}：</el-text>
                   <el-text>{{ netDeposit }}</el-text>
                 </span>
                 <span class="blaRecFooter_item">
                   <el-text type="info"
-                    >{{ $t("table.totalDeposit") }}（{{ accDeposit.len }}
-                    {{ $t("table.transactions_deposit") }}）：</el-text
+                    >{{ t("table.totalDeposit") }}（{{ accDeposit.len }}
+                    {{ t("table.transactions_deposit") }}）：</el-text
                   >
                   <el-text>{{ accDeposit.sum }}</el-text>
                 </span>
                 <span class="blaRecFooter_item">
                   <el-text type="info"
-                    >{{ $t("table.totalWithdrawal") }}（{{ accWithdrawal.len }}
-                    {{ $t("table.transactions_withdrawal") }}）：</el-text
+                    >{{ t("table.totalWithdrawal") }}（{{ accWithdrawal.len }}
+                    {{ t("table.transactions_withdrawal") }}）：</el-text
                   >
                   <el-text>{{ accWithdrawal.sum }}</el-text>
                 </span>
@@ -376,7 +376,7 @@
                   dataSource.length
                 "
               >
-                <el-text type="info">{{ $t("table.Total") }}：</el-text>
+                <el-text type="info">{{ t("table.Total") }}：</el-text>
                 <span :class="[getCellClass(+MOHProSum)]">
                   {{ MOHProSum }}</span
                 >

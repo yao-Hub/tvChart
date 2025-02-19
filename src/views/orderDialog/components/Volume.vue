@@ -17,10 +17,10 @@
     ></StepNumInput>
     <div class="tips">
       <el-text type="info"
-        >{{ $t("order.marginFree") }}：{{ userStore.margin_free }}</el-text
+        >{{ t("order.marginFree") }}：{{ userStore.margin_free }}</el-text
       >
       <el-text type="info"
-        >{{ $t("order.referencePrepayment") }}：{{ referMargin }}</el-text
+        >{{ t("order.referencePrepayment") }}：{{ referMargin }}</el-text
       >
     </div>
     <el-slider
@@ -50,6 +50,9 @@ import { useUser } from "@/store/modules/user";
 
 import { limitdigit, round } from "@/utils/common";
 import { isNil } from "lodash";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const quotesStore = useQuotes();
 const userStore = useUser();

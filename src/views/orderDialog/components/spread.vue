@@ -2,7 +2,7 @@
   <div class="spread">
     <span class="sellWord">{{ quote?.bid?.toFixed(props.digits) }}</span>
     <div class="spread_point">
-      <span class="title">{{ $t("order.spread") }} {{ spread }}</span>
+      <span class="title">{{ t("order.spread") }} {{ spread }}</span>
       <BaseImg class="icon" iconName="icon_arrow"></BaseImg>
     </div>
     <span class="buyWord">{{ quote?.ask?.toFixed(props.digits) }}</span>
@@ -13,6 +13,10 @@
 import { IQuote } from "@/types/chart";
 import Decimal from "decimal.js";
 import { computed } from "vue";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 interface Props {
   quote?: IQuote;
   digits?: number;

@@ -5,7 +5,7 @@
         <el-icon>
           <BaseImg iconName="turnleft" />
         </el-icon>
-        <span>{{ $t("back") }}</span>
+        <span>{{ t("back") }}</span>
       </div>
     </div>
     <div class="forget_title">
@@ -22,7 +22,7 @@
       :rules="rules"
       label-position="top"
     >
-      <el-form-item prop="email" :label="$t('account.email')">
+      <el-form-item prop="email" :label="t('account.email')">
         <el-autocomplete
           v-model="formState.email"
           :fetch-suggestions="querySearch"
@@ -32,14 +32,14 @@
         />
       </el-form-item>
 
-      <el-form-item prop="code" :label="$t('account.verificationCode')">
+      <el-form-item prop="code" :label="t('account.verificationCode')">
         <VerificationCode
           v-model:value="formState.code"
           :email="formState.email"
         ></VerificationCode>
       </el-form-item>
 
-      <el-form-item :label="$t('account.newPassword')" prop="pass">
+      <el-form-item :label="t('account.newPassword')" prop="pass">
         <el-input
           v-model="formState.pass"
           type="password"
@@ -62,7 +62,7 @@
         class="submit-button"
         :disabled="!formValid"
         @click="resetPwd"
-        >{{ $t("account.resetPassword") }}</el-button
+        >{{ t("account.resetPassword") }}</el-button
       >
     </el-form>
   </div>

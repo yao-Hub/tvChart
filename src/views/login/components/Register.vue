@@ -5,7 +5,7 @@
         <el-icon>
           <BaseImg iconName="turnleft" />
         </el-icon>
-        <span>{{ $t("back") }}</span>
+        <span>{{ t("back") }}</span>
       </div>
     </div>
     <div class="Register_main" v-if="!ifSuccess">
@@ -22,7 +22,7 @@
         :rules="rules"
         ref="formRef"
       >
-        <el-form-item prop="email" :label="$t('account.email')">
+        <el-form-item prop="email" :label="t('account.email')">
           <el-autocomplete
             v-model="formState.email"
             :fetch-suggestions="querySearch"
@@ -32,7 +32,7 @@
           />
         </el-form-item>
 
-        <el-form-item :label="$t('account.verificationCode')" prop="code">
+        <el-form-item :label="t('account.verificationCode')" prop="code">
           <VerificationCode
             v-model:value="formState.code"
             :email="formState.email"
@@ -41,23 +41,23 @@
 
         <el-form-item prop="agree">
           <el-checkbox v-model="formState.agree">
-            <span>{{ $t("article.readAgree") }}</span>
+            <span>{{ t("article.readAgree") }}</span>
             <el-link
               type="primary"
               @click.stop
               target="_blank"
               :underline="false"
               @click="goProtocol('accountClause')"
-              >&nbsp;{{ $t("article.accountClause") }}&nbsp;</el-link
+              >&nbsp;{{ t("article.accountClause") }}&nbsp;</el-link
             >
-            <span>{{ $t("and") }}</span>
+            <span>{{ t("and") }}</span>
             <el-link
               type="primary"
               @click.stop
               target="_blank"
               :underline="false"
               @click="goProtocol('dataPolicy')"
-              >&nbsp;{{ $t("article.dataPolicy") }}&nbsp;</el-link
+              >&nbsp;{{ t("article.dataPolicy") }}&nbsp;</el-link
             >
           </el-checkbox>
         </el-form-item>
@@ -67,28 +67,28 @@
           class="submit-button"
           :disabled="!btnDisabled"
           @click="submit(formRef)"
-          >{{ $t("account.createAccount") }}</el-button
+          >{{ t("account.createAccount") }}</el-button
         >
       </el-form>
     </div>
 
     <div class="success-card" v-else>
       <BaseImg class="typeIcon" iconName="icon_success" />
-      <span class="tipSuc">{{ $t("account.registerSucceed") }}</span>
-      <span class="tipSav">{{ $t("tip.keepPasswordSave") }}</span>
+      <span class="tipSuc">{{ t("account.registerSucceed") }}</span>
+      <span class="tipSav">{{ t("tip.keepPasswordSave") }}</span>
       <div class="copyBox">
         <div class="item">
-          <el-text type="info">{{ $t("account.accountNum") }}： </el-text>
+          <el-text type="info">{{ t("account.accountNum") }}： </el-text>
           <el-text>{{ account.name }}</el-text>
         </div>
         <div class="item">
-          <el-text type="info">{{ $t("account.password") }}：</el-text>
+          <el-text type="info">{{ t("account.password") }}：</el-text>
           <el-text> {{ account.pass }}</el-text>
         </div>
-        <span class="copyBtn" @click="copy">{{ $t("account.copy") }}</span>
+        <span class="copyBtn" @click="copy">{{ t("account.copy") }}</span>
       </div>
       <el-button class="startUseBtn" type="primary" @click="start">{{
-        $t("account.startUse")
+        t("account.startUse")
       }}</el-button>
     </div>
   </div>

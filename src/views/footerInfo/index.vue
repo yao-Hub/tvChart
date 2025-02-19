@@ -1,32 +1,32 @@
 <template>
   <div class="footerInfo scrollList">
     <div class="item">
-      <el-text type="info">{{ $t("order.balance") }}：</el-text>
+      <el-text type="info">{{ t("order.balance") }}：</el-text>
       <span>{{ loginInfo?.balance }} {{ loginInfo?.currency }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <el-text type="info">{{ $t("order.equity") }}：</el-text>
+      <el-text type="info">{{ t("order.equity") }}：</el-text>
       <span>{{ userStore.equity }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <el-text type="info">{{ $t("order.Margin") }}：</el-text>
+      <el-text type="info">{{ t("order.Margin") }}：</el-text>
       <span>{{ userStore.margin }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <el-text type="info">{{ $t("order.marginFree") }}：</el-text>
+      <el-text type="info">{{ t("order.marginFree") }}：</el-text>
       <span>{{ userStore.margin_free }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <el-text type="info">{{ $t("order.marginLevel") }}：</el-text>
+      <el-text type="info">{{ t("order.marginLevel") }}：</el-text>
       <span>{{ userStore.margin_level }}</span>
     </div>
     <el-divider direction="vertical" />
     <div class="item">
-      <el-text type="info">{{ $t("order.TotalProfit") }}：</el-text>
+      <el-text type="info">{{ t("order.TotalProfit") }}：</el-text>
       <span :class="[+profitTotal > 0 ? 'buyWord' : 'sellWord']">{{
         profitTotal
       }}</span>
@@ -49,6 +49,9 @@ import { useUser } from "@/store/modules/user";
 import { isNaN } from "lodash";
 import Delay from "./components/Delay.vue";
 import Timezone from "./components/Timezone.vue";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const userStore = useUser();
 const orderStore = useOrder();

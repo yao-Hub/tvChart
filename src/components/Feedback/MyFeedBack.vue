@@ -6,7 +6,7 @@
     :zIndex="dialogStore.zIndex"
   >
     <template #header>
-      <span class="header">{{ $t("myFeedback") }}</span>
+      <span class="header">{{ t("myFeedback") }}</span>
     </template>
     <el-scrollbar v-loading="loading" class="commentList">
       <div
@@ -40,13 +40,13 @@
             v-if="item.feedbackReply"
             @click="item.ifExpand = !item.ifExpand"
           >
-            {{ item.ifExpand ? $t("retract") : $t("expandReply") }}
+            {{ item.ifExpand ? t("retract") : t("expandReply") }}
           </el-text>
         </div>
 
         <div class="reply" v-show="item.ifExpand && item.feedbackReply">
           <div class="title">
-            <el-text>{{ $t("platformReply") }}</el-text>
+            <el-text>{{ t("platformReply") }}</el-text>
             <el-text type="info">{{ formatTime(item.replyTime) }}</el-text>
           </div>
           <el-text>{{ item.feedbackReply }}</el-text>
@@ -60,6 +60,9 @@
 <script setup lang="ts">
 import { useDialog } from "@/store/modules/dialog";
 import { ref, watch } from "vue";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const dialogStore = useDialog();
 

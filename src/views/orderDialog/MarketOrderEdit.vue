@@ -27,7 +27,7 @@
             <el-form-item prop="transactionType" :label="t('dialog.orderType')">
               <el-input
                 disabled
-                :value="$t(`order.${transactionType}`)"
+                :value="t(`order.${transactionType}`)"
               ></el-input>
             </el-form-item>
             <el-form-item prop="volume" :label="t('dialog.closeVolume')">
@@ -109,7 +109,7 @@
           :loading="modifyLoading"
           :disabled="!stopFormState.stopLoss && !stopFormState.stopProfit"
           @click="modify"
-          >{{ $t("tip.confirm", { type: t("modify") }) }}</el-button
+          >{{ t("tip.confirm", { type: t("modify") }) }}</el-button
         >
       </template>
     </el-dialog>
@@ -123,31 +123,31 @@
     >
       <template #header>
         <span v-if="confirmType === 'close'">{{
-          $t("tip.confirm", { type: t("dialog.closePosition") })
+          t("tip.confirm", { type: t("dialog.closePosition") })
         }}</span>
         <div v-if="confirmType === 'reverse'" class="reverseTitle">
-          <span>{{ $t("dialog.reversePosition") }}</span>
-          <span class="reverseTitle_tip">{{ $t("tip.reversePosition") }}</span>
+          <span>{{ t("dialog.reversePosition") }}</span>
+          <span class="reverseTitle_tip">{{ t("tip.reversePosition") }}</span>
         </div>
         <span v-if="confirmType === 'double'">{{
-          $t("dialog.confirmDouble")
+          t("dialog.confirmDouble")
         }}</span>
       </template>
       <el-row style="margin-top: 24px">
         <el-col :span="12">
-          <el-text type="info">{{ $t("dialog.order") }}ID：</el-text>
+          <el-text type="info">{{ t("dialog.order") }}ID：</el-text>
           <el-text>{{ props.orderInfo.id }}</el-text>
         </el-col>
         <el-col :span="12">
-          <el-text type="info">{{ $t("table.symbol") }}：</el-text>
+          <el-text type="info">{{ t("table.symbol") }}：</el-text>
           <el-text>{{ props.orderInfo.symbol }}</el-text>
         </el-col>
       </el-row>
       <el-row style="margin: 16px 0 24px 0">
         <el-col :span="12">
-          <el-text type="info">{{ $t("dialog.orderType") }}：</el-text>
+          <el-text type="info">{{ t("dialog.orderType") }}：</el-text>
           <el-text>{{
-            $t(
+            t(
               `order.${
                 confirmType === "reverse" ? reverseType : transactionType
               }`
@@ -155,15 +155,15 @@
           }}</el-text>
         </el-col>
         <el-col :span="12">
-          <el-text type="info">{{ $t("dialog.tradingVolume") }}：</el-text>
+          <el-text type="info">{{ t("dialog.tradingVolume") }}：</el-text>
           <el-text>{{ closeFormState.volume }}</el-text>
         </el-col>
       </el-row>
 
       <template #footer>
-        <el-button @click="confirmCancel">{{ $t("cancel") }}</el-button>
+        <el-button @click="confirmCancel">{{ t("cancel") }}</el-button>
         <el-button type="primary" @click="okCancel" :loading="confirmLoading">{{
-          $t("ok")
+          t("ok")
         }}</el-button>
       </template>
     </el-dialog>

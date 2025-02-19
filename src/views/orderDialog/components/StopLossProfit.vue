@@ -25,7 +25,7 @@
     ></StepNumInput>
     <el-form-item>
       <span class="tip textEllipsis" v-if="profit"
-        >{{ $t("order.expectedGrossProfit") }}: {{ profit }}</span
+        >{{ t("order.expectedGrossProfit") }}: {{ profit }}</span
       >
     </el-form-item>
   </el-form-item>

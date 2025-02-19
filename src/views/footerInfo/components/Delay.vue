@@ -9,7 +9,7 @@
         <div class="freshItem" @click="refreshDelay">
           <ReloadOutlined v-if="!delayLoading" />
           <LoadingOutlined v-else />
-          <span>{{ $t("refresh") }}</span>
+          <span>{{ t("refresh") }}</span>
         </div>
         <el-dropdown-item
           v-for="node in networkStore.nodeList"
@@ -49,6 +49,9 @@ import { useUser } from "@/store/modules/user";
 import { LoadingOutlined, ReloadOutlined } from "@ant-design/icons-vue";
 import { get } from "lodash";
 import { computed, ref } from "vue";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 const userStore = useUser();
 const networkStore = useNetwork();

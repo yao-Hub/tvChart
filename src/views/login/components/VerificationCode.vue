@@ -7,10 +7,10 @@
         :loading="loading"
         v-if="!showTimer"
       >
-        <span class="sendbtn">{{ $t("account.getCode") }}</span>
+        <span class="sendbtn">{{ t("account.getCode") }}</span>
       </el-button>
       <span v-if="showTimer">{{
-        $t("tip.retakeCode", { time: leftTime })
+        t("tip.retakeCode", { time: leftTime })
       }}</span>
     </template>
   </el-input>

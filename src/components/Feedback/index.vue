@@ -9,7 +9,7 @@
     destroy-on-close
   >
     <template #header>
-      <span class="header">{{ $t("feedback") }}</span>
+      <span class="header">{{ t("feedback") }}</span>
     </template>
 
     <el-input
@@ -55,16 +55,16 @@
             class="el-upload-list__item-actions"
             @click="handleRemove(file)"
           >
-            {{ $t("delete") }}
+            {{ t("delete") }}
           </span>
         </div>
       </template>
     </el-upload>
 
     <template #footer>
-      <el-button @click="openMyfeedback">{{ $t("myFeedback") }}</el-button>
+      <el-button @click="openMyfeedback">{{ t("myFeedback") }}</el-button>
       <el-button type="primary" @click="handleOk" :loading="loading">{{
-        $t("submit")
+        t("submit")
       }}</el-button>
     </template>
   </el-dialog>

@@ -6,7 +6,7 @@
       <div class="menu_divider"></div>
       <!-- 订单 -->
       <el-button @click="orderStore.createOrder()" class="orderBtn">
-        {{ $t("order.new") }}
+        {{ t("order.new") }}
       </el-button>
       <div class="tools">
         <div class="tools_1">
@@ -34,6 +34,9 @@ import Menu from "./components/Menu/index.vue";
 
 import { useOrder } from "@/store/modules/order";
 const orderStore = useOrder();
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 </script>
 
 <style lang="scss">

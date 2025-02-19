@@ -4,9 +4,9 @@
     v-show="model"
     :style="{ top: `${pos.top}px`, left: `${pos.left}px` }"
   >
-    <div class="item" @click="addOrder">{{ $t("order.new") }}</div>
-    <div class="item" @click="addChart">{{ $t("chart.new") }}</div>
-    <div class="item" @click="showDialog">{{ $t("symbolInfo") }}</div>
+    <div class="item" @click="addOrder">{{ t("order.new") }}</div>
+    <div class="item" @click="addChart">{{ t("chart.new") }}</div>
+    <div class="item" @click="showDialog">{{ t("symbolInfo") }}</div>
   </div>
 
   <el-dialog
@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="timeTable">
-        <el-text class="secondaryTitle">{{ $t("transactionTime") }}</el-text>
+        <el-text class="secondaryTitle">{{ t("transactionTime") }}</el-text>
         <el-table
           :data="tableData"
           :cell-style="{ height: '42px', 'padding-left': '16px' }"

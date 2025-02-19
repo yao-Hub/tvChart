@@ -2,7 +2,7 @@
   <div class="Timezone">
     <el-dropdown trigger="click" placement="top-start">
       <div class="face">
-        <span>{{ $t("nowTime") }}：{{ currentTimezone }}</span>
+        <span>{{ t("nowTime") }}：{{ currentTimezone }}</span>
         <BaseImg iconName="caretUp" />
       </div>
       <template #dropdown>
@@ -30,6 +30,9 @@ import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 import timezone from "dayjs/plugin/timezone";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 dayjs.extend(timezone);
 

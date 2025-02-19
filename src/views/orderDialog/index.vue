@@ -15,7 +15,7 @@
     @close="handleCancel"
   >
     <template #header>
-      <span class="dialog_header">{{ $t("dialog.createOrder") }}</span>
+      <span class="dialog_header">{{ t("dialog.createOrder") }}</span>
     </template>
 
     <el-form
@@ -152,12 +152,12 @@
         </el-col>
         <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
           <el-button class="sellBtn" @click="showConfirmModal('sell')">{{
-            $t("order.sell")
+            t("order.sell")
           }}</el-button>
         </el-col>
         <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
           <el-button class="buyBtn" @click="showConfirmModal('buy')">{{
-            $t("order.buy")
+            t("order.buy")
           }}</el-button>
         </el-col>
         <el-col :span="24" v-if="!['price'].includes(formState.orderType)">
@@ -168,7 +168,7 @@
             class="pendingBtn"
             :loading="pendingBtnLoading"
             @click="addPendingOrders"
-            >{{ $t("dialog.createOrder") }}</el-button
+            >{{ t("dialog.createOrder") }}</el-button
           >
         </el-col>
       </el-row>
@@ -177,37 +177,37 @@
     <!-- 市价单下单确认 -->
     <div v-show="priceConfirm" class="confirmBox">
       <BaseImg iconName="icon_recognise" class="icon" />
-      <el-text class="tip" type="info">{{ $t("dialog.confirmBelow") }}</el-text>
+      <el-text class="tip" type="info">{{ t("dialog.confirmBelow") }}</el-text>
       <div class="infobox">
         <div class="infobox_item">
-          <el-text type="info">{{ $t("order.symbol") }}</el-text>
+          <el-text type="info">{{ t("order.symbol") }}</el-text>
           <el-text>{{ formState.symbol }}</el-text>
         </div>
         <div class="infobox_item">
-          <el-text type="info">{{ $t("dialog.type") }}</el-text>
-          <el-text>{{ $t(`order.${directionType}`) }}</el-text>
+          <el-text type="info">{{ t("dialog.type") }}</el-text>
+          <el-text>{{ t(`order.${directionType}`) }}</el-text>
         </div>
         <div class="infobox_item">
-          <el-text type="info">{{ $t("table.volume") }}</el-text>
+          <el-text type="info">{{ t("table.volume") }}</el-text>
           <el-text>{{ formState.volume }}</el-text>
         </div>
         <div class="infobox_item">
-          <el-text type="info">{{ $t("table.tp") }}</el-text>
+          <el-text type="info">{{ t("table.tp") }}</el-text>
           <el-text>{{ formState.stopProfit || "--" }}</el-text>
         </div>
         <div class="infobox_item">
-          <el-text type="info">{{ $t("table.sl") }}</el-text>
+          <el-text type="info">{{ t("table.sl") }}</el-text>
           <el-text>{{ formState.stopLoss || "--" }}</el-text>
         </div>
       </div>
       <div class="btnGroup">
-        <el-button class="btn" @click="back">{{ $t("dialog.back") }}</el-button>
+        <el-button class="btn" @click="back">{{ t("dialog.back") }}</el-button>
         <el-button
           class="btn"
           type="primary"
           :loading="priceBtnLoading"
           @click="createPriceOrder"
-          >{{ $t("tip.confirm") }}</el-button
+          >{{ t("tip.confirm") }}</el-button
         >
       </div>
     </div>

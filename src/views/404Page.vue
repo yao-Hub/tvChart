@@ -8,14 +8,17 @@
         <el-button
           type="primary"
           @click="$router.replace({ path: '/login' })"
-          >{{ $t("goHome") }}</el-button
+          >{{ t("goHome") }}</el-button
         >
       </template>
     </el-result>
   </div>
 </template>
 
-<script lang="ts" setup></script>
+<script lang="ts" setup>
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+</script>
 
 <style scoped>
 .page {

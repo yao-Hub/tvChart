@@ -3,7 +3,7 @@
     <el-dropdown-item>
       <div class="colorsItem" @click="changeColor('upRedDownGreen')">
         <BaseImg class="logo" iconName="upRedDownGreen" />
-        <span>{{ $t("upRedDownGreen") }}</span>
+        <span>{{ t("upRedDownGreen") }}</span>
         <BaseImg
           class="logo checkIcon"
           iconName="select"
@@ -14,7 +14,7 @@
     <el-dropdown-item>
       <div class="colorsItem" @click="changeColor('upGreenDownRed')">
         <BaseImg class="logo" iconName="upGreenDownRed" />
-        <span>{{ $t("upGreenDownRed") }}</span>
+        <span>{{ t("upGreenDownRed") }}</span>
         <BaseImg
           class="logo checkIcon"
           iconName="select"
@@ -26,6 +26,9 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 import { useTheme } from "@/store/modules/theme";
 const themeStore = useTheme();
 

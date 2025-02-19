@@ -3,7 +3,7 @@
     <div class="UpdownColor">
       <div class="UpdownColor_left">
         <BaseImg class="logo" iconName="icon_14" />
-        <span>{{ $t("updownColor") }}</span>
+        <span>{{ t("updownColor") }}</span>
       </div>
       <div class="UpdownColor_right">
         <BaseImg class="logo checkIcon" :iconName="themeStore.upDownTheme" />
@@ -19,6 +19,9 @@
 <script setup lang="ts">
 import { useTheme } from "@/store/modules/theme";
 import Colors from "./Colors.vue";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 const themeStore = useTheme();
 
 const emit = defineEmits(["closeDropdown"]);

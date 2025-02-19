@@ -2,13 +2,16 @@
   <div class="Theme">
     <div class="Theme_left">
       <BaseImg class="logo" iconName="icon_10" />
-      <span>{{ $t("lightTheme") }}</span>
+      <span>{{ t("lightTheme") }}</span>
     </div>
     <el-switch v-model="checked" @change="handleChange" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+
 import { useTheme } from "@/store/modules/theme";
 import { ref } from "vue";
 const themeStore = useTheme();
