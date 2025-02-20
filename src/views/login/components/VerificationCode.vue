@@ -17,15 +17,22 @@
 </template>
 
 <script setup lang="ts">
-import { sendEmail } from "api/account/index";
-import { onBeforeUnmount, ref } from "vue";
+import { sendEmail, IReqSendEmail } from "api/account/index";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
 
 interface Props {
   email: string;
+  type: string;
 }
+
+const typeMap: Record<string, 1 | 2> = {
+  forgetPwd: 2,
+  // register： 1
+};
+
 const props = defineProps<Props>();
 
 const model = defineModel<string>("value", { required: true });
@@ -34,9 +41,15 @@ const showTimer = ref(false);
 const handleClick = async () => {
   try {
     loading.value = true;
-    const res = await sendEmail({ email: props.email, type: 1 });
+    const type = typeMap[props.type];
+    const updata: IReqSendEmail = {
+      email: props.email,
+    };
+    if (type !== undefined) {
+      updata.type = type;
+    }
+    const res = await sendEmail(updata);
     if (res.err === 0) {
-      showTimer.value = true;
       startTimer();
     }
     loading.value = false;
@@ -47,9 +60,10 @@ const handleClick = async () => {
 const timer = ref();
 const leftTime = ref(60);
 const startTimer = () => {
+  showTimer.value = true;
   timer.value && clearInterval(timer.value);
   timer.value = setInterval(() => {
-    if (leftTime.value <= 0) {
+    if (leftTime.value <= 1) {
       clearInterval(timer.value);
       leftTime.value = 60;
       showTimer.value = false;
@@ -59,10 +73,36 @@ const startTimer = () => {
   }, 1000);
 };
 
-onBeforeUnmount(() => {
+const handleUnload = () => {
   if (timer.value) {
     clearInterval(timer.value);
+    const codeTime = {
+      leftTimeStamp: new Date().getTime() / 1000 + leftTime.value,
+      type: props.type,
+    };
+    localStorage.setItem("codeTime", JSON.stringify(codeTime));
   }
+};
+
+onMounted(() => {
+  const stoCodeTime = localStorage.getItem("codeTime");
+  if (stoCodeTime) {
+    const codeTime = JSON.parse(stoCodeTime);
+    const { leftTimeStamp, type } = codeTime;
+    if (type === props.type) {
+      const hisTime = Math.ceil(leftTimeStamp - new Date().getTime() / 1000);
+      if (hisTime > 1 && hisTime < 60) {
+        leftTime.value = hisTime;
+        startTimer();
+      }
+    }
+  }
+  window.addEventListener("beforeunload", handleUnload);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("beforeunload", handleUnload);
+  handleUnload();
 });
 </script>
 

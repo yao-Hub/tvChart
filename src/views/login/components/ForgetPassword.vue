@@ -34,6 +34,7 @@
 
       <el-form-item prop="code" :label="t('account.verificationCode')">
         <VerificationCode
+          type="forgetPwd"
           v-model:value="formState.code"
           :email="formState.email"
         ></VerificationCode>

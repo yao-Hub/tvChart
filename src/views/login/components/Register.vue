@@ -34,6 +34,7 @@
 
         <el-form-item :label="t('account.verificationCode')" prop="code">
           <VerificationCode
+            type="register"
             v-model:value="formState.code"
             :email="formState.email"
           ></VerificationCode>

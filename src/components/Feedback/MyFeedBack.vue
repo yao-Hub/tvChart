@@ -119,9 +119,8 @@ const formatTime = (time: number) => {
   @include font_color("word-gray");
 }
 .commentList {
-  padding: 0 25px 0 0;
   height: 500px;
-  margin: 24px -25px 0 0;
+  margin-top: 24px;
 }
 .commentItem {
   width: 100%;

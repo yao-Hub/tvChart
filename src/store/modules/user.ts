@@ -192,12 +192,7 @@ export const useUser = defineStore("user", () => {
     if (state.timer) {
       clearInterval(state.timer);
     }
-    state.timer = setInterval(async () => {
-      const res = await refresh_token();
-      changeCurrentAccountOption({
-        token: res.data,
-      });
-    }, 60 * 60 * 1000);
+    state.timer = setInterval(() => refresh_token(), 60 * 60 * 1000);
   };
 
   type TCallback = ({
@@ -284,6 +279,9 @@ export const useUser = defineStore("user", () => {
   function $reset() {
     state.accountList = [];
     state.loginInfo = null;
+    if (state.timer) {
+      clearInterval(state.timer);
+    }
     state.timer = null;
   }
 

@@ -216,8 +216,13 @@ export const queryNode = (data: { lineCode: string; lineName: string }) => {
     noNeedServer: true,
   });
 };
-// 1 注册 2 注销
-export const sendEmail = (data: { email: string; type: 1 | 2 }) => {
+
+// 1 注销 2 重置密码 不传：注册
+export interface IReqSendEmail {
+  email: string;
+  type?: 1 | 2;
+}
+export const sendEmail = (data: IReqSendEmail) => {
   return request({
     url: Api.SendEmail,
     method: "post",
