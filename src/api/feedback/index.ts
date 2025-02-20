@@ -2,6 +2,7 @@ import request from "utils/http";
 enum Api {
   SaveFeedback = "/admin/feedback/save_feedback",
   Myfeedback = "/admin/feedback/select_my_feedback",
+  UploadFile = "/admin/common/sysFile/upload",
 }
 interface reqSaveFeedback {
   platform: string;
@@ -39,5 +40,20 @@ export const myfeedback = () => {
     needLogin: true,
     noNeedServer: true,
     urlType: "admin",
+  });
+};
+
+export const uploadFile = (data: { file: File }) => {
+  return request<{ fileId: string; url: string }>({
+    url: Api.UploadFile,
+    method: "post",
+    noNeedServer: true,
+    urlType: "admin",
+    data,
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+    noNeedEncryption: true,
+    noNeedToken: true,
   });
 };

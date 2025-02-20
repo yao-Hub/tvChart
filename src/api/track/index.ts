@@ -46,5 +46,6 @@ export const trackAction = (data: ITrackAction) => {
     data,
     urlType: "admin",
     noNeedToken: true,
+    noBeCancel: true,
   });
 };

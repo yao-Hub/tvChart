@@ -7,7 +7,7 @@
       <Language @change=""></Language>
     </div>
     <router-view v-slot="{ Component }">
-      <div class="container">
+      <div class="container" :style="{ height: containerHeight + 'px' }">
         <transition :name="direction" mode="out-in" appear>
           <div class="main" :key="Component">
             <component :is="Component" />
@@ -40,6 +40,8 @@ const rootStore = useRoot();
 
 const localeKey = ref("");
 
+const containerHeight = window.innerHeight * 0.7;
+
 (async function init() {
   await rootStore.resetAllStore();
   userStore.initAccount();
@@ -67,7 +69,7 @@ watch(
 :deep(.el-select__wrapper),
 :deep(.el-input__wrapper),
 :deep(.el-button) {
-  height: calc(var(--base-height) + 16px);
+  height: calc(var(--base-height) + 8px);
 }
 :deep(.el-select__selected-item span) {
   font-size: calc(var(--font-size) + 2px);
@@ -134,11 +136,8 @@ watch(
     position: fixed;
     right: 15%;
     top: 15%;
-    width: 30%;
-    height: 70%;
-    min-width: 270px;
+    width: 480px;
     max-height: 648px;
-    max-width: 512px;
     .main {
       width: 100%;
       height: 100%;

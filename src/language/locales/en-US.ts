@@ -230,6 +230,8 @@ export default {
     noSimuServer: "Unable to find official simulation server",
     addMyOption: "Add Varieties",
     required: "{label} is required",
+    imageOnly: "Only supports image upload",
+    limitImageSize: "images must not be larger than {size}",
   },
 
   time: {

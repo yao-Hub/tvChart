@@ -233,6 +233,8 @@ export default {
     noSimuServer: "找不到官方類比服務器",
     addMyOption: "添加自選",
     required: "{label}不能為空",
+    imageOnly: "僅支持圖片上傳",
+    limitImageSize: "圖片不得大於{size}",
   },
 
   time: {

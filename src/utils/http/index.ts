@@ -7,6 +7,8 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
+import { addCancelTokenSource, cancelAllRequests } from "./axiosCancel";
+
 import eventBus from "utils/eventBus";
 
 import { decrypt, encrypt } from "utils/DES/JS";
@@ -17,30 +19,25 @@ import { useUser } from "@/store/modules/user";
 import i18n from "@/language/index";
 const t = i18n.global.t;
 
-type reqConfig = InternalAxiosRequestConfig<any> & {
+interface IOption {
   noNeedToken?: boolean;
   noNeedServer?: boolean;
   action?: string;
   urlType?: string;
   needLogin?: boolean;
-};
-type resConfig = AxiosRequestConfig<any> & {
-  noNeedToken?: boolean;
-  noNeedServer?: boolean;
-  action?: string;
-  urlType?: string;
-  needLogin?: boolean;
-};
+  noBeCancel?: boolean;
+  noNeedEncryption?: boolean;
+}
 
-let ifTokenError = false;
+type reqConfig = InternalAxiosRequestConfig<any> & IOption;
+type resConfig = AxiosRequestConfig<any> & IOption;
+
 const handleTokenErr = () => {
-  ifTokenError = true;
+  cancelAllRequests();
   eventBus.emit("go-login");
 };
 
 const ifLocal = import.meta.env.MODE === "development";
-
-const controller = new AbortController();
 
 const uuid = window.localStorage.getItem("uuid");
 
@@ -78,8 +75,10 @@ const service = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   (config: reqConfig) => {
-    if (ifTokenError) {
-      controller.abort();
+    if (!config.noBeCancel) {
+      const source = axios.CancelToken.source();
+      addCancelTokenSource(source);
+      config.cancelToken = source.token;
     }
     const userStore = useUser();
     config.data = {
@@ -126,15 +125,17 @@ service.interceptors.request.use(
         break;
     }
     config.url = baseURL + config.url;
-    const p = {
-      action,
-      d: encrypt(JSON.stringify(config.data)),
-    };
-    console.log("request----", {
-      url: config.url,
-      data: config.data,
-    });
-    config.data = JSON.stringify(p);
+    if (!config.noNeedEncryption) {
+      const p = {
+        action,
+        d: encrypt(JSON.stringify(config.data)),
+      };
+      console.log("request----", {
+        url: config.url,
+        data: config.data,
+      });
+      config.data = JSON.stringify(p);
+    }
     return config;
   },
   (err) => {
@@ -145,9 +146,10 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response) => {
-    const { data, config } = response;
+    const data = response.data;
+    const config: resConfig = response.config;
     if (data.err === 0) {
-      if (data.data) {
+      if (data.data && !config.noNeedEncryption) {
         data.data = JSON.parse(decrypt(data.data));
       }
       console.log("response....", { url: config.url, data });

@@ -233,6 +233,8 @@ export default {
     noSimuServer: "找不到官方模拟服务器",
     addMyOption: "添加自选",
     required: "{label}不能为空",
+    imageOnly: "仅支持图片上传",
+    limitImageSize: "图片不得大于{size}",
   },
 
   time: {

@@ -27,17 +27,14 @@
       ref="uploadRef"
       style="margin-top: 8px"
       v-model:file-list="fileList"
-      :action="action"
       list-type="picture-card"
       accept="image/*"
       multiple
       :limit="fileLimit"
       :disabled="loading"
-      :before-remove="beforeRemove"
-      :on-success="onSuccess"
-      :on-error="onError"
       :on-exceed="onExceed"
       :auto-upload="false"
+      :on-change="onChange"
     >
       <div>
         <el-icon><Plus /></el-icon>
@@ -52,6 +49,7 @@
             :preview-src-list="[file.url as string]"
           />
           <span
+            v-if="!loading"
             class="el-upload-list__item-actions"
             @click="handleRemove(file)"
           >
@@ -73,15 +71,23 @@
 </template>
 
 <script setup lang="ts">
-import { useDialog } from "@/store/modules/dialog";
+import { ref } from "vue";
 import type {
   UploadFile,
   UploadFiles,
   UploadInstance,
   UploadUserFile,
 } from "element-plus";
-import { computed, ref } from "vue";
+import { ElMessage } from "element-plus";
+import dayjs from "dayjs";
 import { useI18n } from "vue-i18n";
+
+import { useDialog } from "@/store/modules/dialog";
+import { useNetwork } from "@/store/modules/network";
+
+import { saveFeedback, uploadFile } from "@/api/feedback";
+
+import MyFeedBack from "./MyFeedBack.vue";
 
 const dialogStore = useDialog();
 const { t } = useI18n();
@@ -105,9 +111,7 @@ const remark = ref<string>("");
 const fileList = ref<CustomUploadUserFile[]>([]);
 const uploadRef = ref<UploadInstance>();
 const loading = ref(false);
-const action = computed(() => {
-  return import.meta.env.VITE_HTTP_URL_admin + "/common/sysFile/upload";
-});
+
 const handleRemove = (file: UploadFile) => {
   if (loading.value) {
     return;
@@ -115,21 +119,9 @@ const handleRemove = (file: UploadFile) => {
   uploadRef.value!.handleRemove(file);
 };
 
-import { saveFeedback } from "@/api/feedback";
-import { useNetwork } from "@/store/modules/network";
-import dayjs from "dayjs";
-import { ElMessage } from "element-plus";
-import MyFeedBack from "./MyFeedBack.vue";
-
-interface IResUpload {
-  data: {
-    fileId: string;
-  };
-}
-
 const networkStore = useNetwork();
 const myFeedBackOpen = ref(false);
-const submit = async (feedbackFileIds: string[] = []) => {
+const submitFeedback = async (feedbackFileIds: string[] = []) => {
   try {
     const updata = {
       platform: "web",
@@ -151,52 +143,46 @@ const submit = async (feedbackFileIds: string[] = []) => {
     loading.value = false;
   }
 };
+
 const handleOk = async () => {
   loading.value = true;
+  let feedbackFileIds: string[] = [];
   if (fileList.value.length) {
-    // 是否存在还没有上传的文件
-    const ifNoUpload = fileList.value.some((item) => !item.response);
-    if (ifNoUpload) {
-      uploadRef.value?.submit();
-      return;
-    }
-    const feedbackFileIds = fileList.value.map(
-      (item) => (item.response as IResUpload).data.fileId
-    );
-    submit(feedbackFileIds);
-    return;
+    const uploadList: File[] = [];
+    fileList.value.forEach((item) => {
+      if (item.raw) {
+        uploadList.push(item.raw);
+      }
+    });
+    const httpList = uploadList.map((file) => uploadFile({ file }));
+    const resList = await Promise.all(httpList);
+    feedbackFileIds = resList.map((item) => item.data.fileId);
   }
-  submit();
-};
-const onSuccess = (
-  response: any,
-  uploadFile: UploadFile,
-  uploadFiles: UploadFiles
-) => {
-  const feedbackFileIds = uploadFiles.map(
-    (item) => (item.response as IResUpload).data.fileId
-  );
-  submit(feedbackFileIds);
-};
-const onError = (error: Error) => {
+  submitFeedback(feedbackFileIds);
   loading.value = false;
-  ElMessage({
-    message: t("tip.upLoadFileError"),
-    type: "error",
-  });
 };
-const beforeRemove = () => {
-  return !loading.value;
-};
-const openMyfeedback = () => {
-  dialogStore.incrementZIndex();
-  myFeedBackOpen.value = true;
+
+const limitSize = 10;
+const onChange = (uploadFile: UploadFile, uploadFiles: UploadFiles) => {
+  const { size, uid } = uploadFile;
+  if (size && size > 1024 ** 2 * limitSize) {
+    ElMessage.warning(t("tip.limitImageSize", { size: `${limitSize}M` }));
+    const index = uploadFiles.findIndex((e) => e.uid === uid);
+    if (index > -1) {
+      uploadFiles.splice(index, 1);
+    }
+  }
 };
 const onExceed = () => {
   ElMessage({
     message: t("tip.upLoadFileExceed", { num: fileLimit }),
     type: "warning",
   });
+};
+
+const openMyfeedback = () => {
+  dialogStore.incrementZIndex();
+  myFeedBackOpen.value = true;
 };
 </script>
 

@@ -6,12 +6,20 @@ import {
 } from "vue-router";
 import { createPermissionGuard } from "./guard/index";
 import routes from "./routes/index";
+
+import { cancelAllRequests } from "../utils/http/axiosCancel";
+
 const router = createRouter({
   // vueRouter@3版本的mode改成了history，hash模式配置createWebHashHistory，history模式配置createWebHistory
   // electron使用hash模式
   // @ts-ignore
   history: ELECTRON_PLATFORM ? createWebHashHistory() : createWebHistory(),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  cancelAllRequests();
+  next();
 });
 
 /**
