@@ -12,6 +12,7 @@ import { addCancelTokenSource, cancelAllRequests } from "./axiosCancel";
 import eventBus from "utils/eventBus";
 
 import { decrypt, encrypt } from "utils/DES/JS";
+import { generateUUID } from "@/utils/common";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
@@ -83,6 +84,8 @@ service.interceptors.request.use(
     const userStore = useUser();
     config.data = {
       ...config.data,
+      req_id: generateUUID(),
+      req_time: new Date().getTime(),
     };
     if (!config.data.server && !config.noNeedServer) {
       config.data.server = userStore.account.server;
