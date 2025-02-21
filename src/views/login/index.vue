@@ -76,11 +76,31 @@ watch(
 <style lang="scss">
 @import "@/styles/_handle.scss";
 [data-theme="light"] .home {
-  background-image: url("@/assets/images/light/loginBg@2x.png");
+  // 普通屏幕
+  background-image: url("/src/assets/images/light/loginBg@1x.png");
+
+  // 视网膜屏（2倍分辨率）
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    background-image: url("/src/assets/images/light/loginBg@2x.png");
+  }
+
+  // 现代浏览器支持image-set
+  background-image: image-set(
+    url("/src/assets/images/light/loginBg@1x.png") 1x,
+    url("/src/assets/images/light/loginBg@2x.png") 2x
+  );
 }
 [data-theme="dark"] .home {
-  background-image: url("@/assets/images/dark/loginBg@2x.png");
+  background-image: url("/src/assets/images/dark/loginBg@1x.png");
+  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    background-image: url("/src/assets/images/dark/loginBg@2x.png");
+  }
+  background-image: image-set(
+    url("/src/assets/images/dark/loginBg@1x.png") 1x,
+    url("/src/assets/images/dark/loginBg@2x.png") 2x
+  );
 }
+
 .goback {
   width: 100%;
   height: 50px;
