@@ -1,4 +1,7 @@
 html.dark {
+  .el-text {
+    --el-text-color: var(--light-1);
+  }
   .el-text--default {
     --el-text-color: var(--light-1);
   }
