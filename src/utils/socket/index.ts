@@ -59,6 +59,16 @@ class SingletonSocket {
       };
     });
     uriList.forEach((uri) => {
+      const ending = () => {
+        const target = endinglist.find((e) => e.uri === uri);
+        if (target && !target.ending) {
+          target.ending = true;
+          const ifEnding = endinglist.every((item) => item.ending === true);
+          if (callback) {
+            callback({ ending: ifEnding });
+          }
+        }
+      };
       startTimeMap[uri] = new Date().getTime();
       if (callback) {
         callback({ ending: false });
@@ -72,30 +82,22 @@ class SingletonSocket {
         const connectionTime = endTime - startTimeMap[uri];
         const socketStore = useSocket();
         socketStore.delayMap[uri] = connectionTime;
-        const target = endinglist.find((e) => e.uri === uri);
-        if (target) {
-          target.ending = true;
-        }
-        const ifEnding = endinglist.every((item) => item.ending === true);
-        if (callback) {
-          callback({ ending: ifEnding });
-        }
+        ending();
         console.log(`获取延迟 ${uri}: ${connectionTime} milliseconds`);
         IO.disconnect();
       });
       IO.on("disconnect", (reason: string) => {
-        console.log(`获取延迟 ${uri} 断开: ${reason}`);
+        console.log(`获取延迟-断开 ${uri} : ${reason}`);
       });
       IO.on("connect_error", (error) => {
-        const target = endinglist.find((e) => e.uri === uri);
-        if (target) {
-          target.ending = true;
-        }
-        const ifEnding = endinglist.every((item) => item.ending === true);
-        if (callback) {
-          callback({ ending: ifEnding });
-        }
+        ending();
         console.error("获取延迟时出现错误:", error);
+      });
+      IO.on("connected", (info) => {
+        if (typeof info === "object" && info.err !== 0) {
+          ending();
+          console.error("获取延迟时出现错误:", info.errmsg);
+        }
       });
     });
   }
