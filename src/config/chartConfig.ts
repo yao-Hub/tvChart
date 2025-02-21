@@ -62,7 +62,6 @@ export const datafeed = (id: string) => {
       onSymbolResolvedCallback: Function,
       onResolveErrorCallback: Function
     ) => {
-      console.log("symbolName", symbolName);
       if (UID) {
         chartLineStore.unsubscribed(UID);
       }
@@ -111,14 +110,15 @@ export const datafeed = (id: string) => {
       const symbol_stub = {
         name: symbolName,
         description: storeSymbolInfo?.description || "-",
-        visible_plots_set: false,
+        visible_plots_set: "ohlcv",
         minmov: 1, // 纵坐标比例
         minmov2: 0,
         pricescale: Math.pow(10, storeSymbolInfo?.digits || 2), // 纵坐标小数位数
-        session: session,
+        session,
+        has_empty_bars: true,
         ticker: symbolName,
         timezone: timeStore.settedTimezone,
-        type: "cfd",
+        // type: "cfd",
         has_intraday: true, // 分钟数据
         has_daily: true, // 日k线数据
         has_weekly_and_monthly: true, // 月，周数据
@@ -179,6 +179,7 @@ export const datafeed = (id: string) => {
               return {
                 ...item,
                 time,
+                // time: item.ctm * 1000,
               };
             });
             const bar = maxBy(bars, "ctm");

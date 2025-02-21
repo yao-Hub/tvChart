@@ -13,6 +13,8 @@ import "./styles/element/index.scss";
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import ElementPlus from "element-plus";
 
+import { initLogDB } from "@/utils/IndexedDB/logDatabase";
+
 const bootstrap = () => {
   const app = createApp(App);
   // 安装初始化store
@@ -30,6 +32,9 @@ const bootstrap = () => {
   }
 
   app.mount("#app");
+
+  // 初始化log数据库
+  initLogDB();
 };
 
 // 启动

@@ -1,7 +1,18 @@
-import { useSocket } from "@/store/modules/socket";
 import { ElMessage } from "element-plus";
 import { io, Socket } from "socket.io-client";
+
 import eventBus from "utils/eventBus";
+
+import { useSocket } from "@/store/modules/socket";
+
+const transportOptions = {
+  websocket: {
+    extraHeaders: {
+      Authorization: "Bearer your-token",
+      CustomHeader: "custom-value",
+    },
+  },
+};
 
 class SingletonSocket {
   private instance: Socket | null = null;
@@ -18,6 +29,7 @@ class SingletonSocket {
       reconnection: true, // 开启重连功能
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
+      transportOptions,
     });
     this.setupSocketEvents();
     return this.instance;
@@ -66,6 +78,7 @@ class SingletonSocket {
         reconnection: true, // 开启重连功能
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
+        transportOptions,
       });
       IO.on("connect", () => {
         const endTime = new Date().getTime();

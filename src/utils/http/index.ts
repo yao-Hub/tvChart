@@ -16,6 +16,8 @@ import { generateUUID } from "@/utils/common";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
+import { useVersion } from "@/store/modules/version";
+import { useTheme } from "@/store/modules/theme";
 
 import i18n from "@/language/index";
 const t = i18n.global.t;
@@ -39,12 +41,7 @@ const handleTokenErr = () => {
 };
 
 const ifLocal = import.meta.env.MODE === "development";
-
-const uuid = window.localStorage.getItem("uuid");
-
-const theme = localStorage.getItem("systemTheme") || "dark";
-const nowLocale =
-  localStorage.getItem("language") || navigator.language.toLowerCase();
+const nowLocale = i18n.global.locale.value;
 const LOCALE_MAP: Record<string, string> = {
   zh: "zh-cn",
   en: "en-us",
@@ -61,12 +58,10 @@ const service = axios.create({
     "x-u-platform": "web",
     // @ts-ignore
     "x-u-app-version": _VERSION_,
-    "x-u-device-id": uuid,
     // @ts-ignore
     "x-u-device-type": __OS_PLATFORM__,
     // @ts-ignore
     "x-u-device-info": _OS_RELEASE_,
-    "x-u-app-theme": theme,
     // @ts-ignore
     "x-u-device-model": _OS_HOSTNAME_,
     "accept-language": acceptLanguage,
@@ -76,17 +71,24 @@ const service = axios.create({
 // 请求拦截器
 service.interceptors.request.use(
   (config: reqConfig) => {
+    const versionStore = useVersion();
+    const themeStore = useTheme();
+    config.headers["x-u-device-id"] = versionStore.deviceId;
+    config.headers["x-u-app-theme"] = themeStore.systemTheme;
+
     if (!config.noBeCancel) {
       const source = axios.CancelToken.source();
       addCancelTokenSource(source);
       config.cancelToken = source.token;
     }
-    const userStore = useUser();
+
     config.data = {
       ...config.data,
       req_id: generateUUID(),
       req_time: new Date().getTime(),
     };
+
+    const userStore = useUser();
     if (!config.data.server && !config.noNeedServer) {
       config.data.server = userStore.account.server;
     }
