@@ -186,7 +186,8 @@ async function main() {
     const updateType = answers.versionType;
     updateVersion(localVersion, updateType, remoteVersion);
   } else {
-    console.log("****本地版本号已是最新，无需更新。****");
+    console.log("****本地版本号大于线上版本号，无需更新。****");
+    updateRemoteTag(localVersion);
   }
 }
 
