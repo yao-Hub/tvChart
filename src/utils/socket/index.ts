@@ -29,18 +29,18 @@ class SingletonSocket {
     if (this.instance) {
       this.instance.on("connect", () => {
         eventBus.emit("socket-connect");
-        console.log(`main socket Connected to server`);
+        console.log(`websocket已连接`);
       });
 
       this.instance.on("disconnect", (reason: string) => {
         // 手动断开
-        console.log(`main socket disconnect${reason}`);
+        console.log(`websocket已断开${reason}`);
         eventBus.emit("socket-disconnect");
       });
 
       this.instance.on("connect_error", (error) => {
+        console.error("websocket连接错误:", error);
         eventBus.emit("socket-error");
-        console.error("connect_error:", error);
         ElMessage.error("Socekt Connect Error");
       });
     }
@@ -80,10 +80,13 @@ class SingletonSocket {
         if (callback) {
           callback({ ending: ifEnding });
         }
-        console.log(`getDelay ${uri}: ${connectionTime} milliseconds`);
+        console.log(`获取延迟 ${uri}: ${connectionTime} milliseconds`);
         IO.disconnect();
       });
       IO.on("disconnect", (reason: string) => {
+        console.log(`获取延迟 ${uri} 断开: ${reason}`);
+      });
+      IO.on("connect_error", (error) => {
         const target = endinglist.find((e) => e.uri === uri);
         if (target) {
           target.ending = true;
@@ -92,7 +95,7 @@ class SingletonSocket {
         if (callback) {
           callback({ ending: ifEnding });
         }
-        console.log(`getDelay ${uri} disconnect: ${reason}`);
+        console.error("获取延迟时出现错误:", error);
       });
     });
   }
