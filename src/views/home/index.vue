@@ -25,6 +25,7 @@
 import { onBeforeUnmount, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { useInit } from "@/store/modules/init";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartLine } from "@/store/modules/chartLine";
 import { useLayout } from "@/store/modules/layout";
@@ -115,8 +116,7 @@ const initRender = () => {
 async function init() {
   try {
     chartInitStore.state.loading = true;
-    await networkStore.getLines(); //  交易线路
-    userStore.initAccount(); // 账户信息
+    await useInit().init();
     await networkStore.initNode(); // 网络节点
     await userStore.getLoginInfo({ emitSocket: true }); // 个人信息
     await Promise.all([

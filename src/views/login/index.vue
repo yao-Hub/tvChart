@@ -22,9 +22,8 @@
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
-import { useNetwork } from "@/store/modules/network";
-import { useUser } from "@/store/modules/user";
 import { useRoot } from "@/store/store";
+import { useInit } from "@/store/modules/init";
 
 import Language from "./components/Language.vue";
 import Theme from "./components/Theme.vue";
@@ -34,20 +33,15 @@ const { t } = useI18n();
 
 const router = useRouter();
 
-const networkStore = useNetwork();
-const userStore = useUser();
-const rootStore = useRoot();
-
 const localeKey = ref("");
 
 const containerHeight = window.innerHeight * 0.7;
 
 (async function init() {
-  await rootStore.resetAllStore();
-  userStore.initAccount();
+  await useRoot().resetAllStore();
+  useInit().init();
 
-  // 查询交易线路列表
-  networkStore.getLines();
+  // 预加载home路由
   const homeComponentImport = () => import("@/views/home/index.vue");
   homeComponentImport();
 })();

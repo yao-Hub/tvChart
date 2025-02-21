@@ -1,9 +1,15 @@
-import { useNetwork } from "@/store/modules/network";
-import { useUser } from "@/store/modules/user";
-import { IRate, ISocketKlineNew, ISocketQuote } from "@/types/chart";
 import { defineStore } from "pinia";
+
 import { Socket } from "socket.io-client";
 import SingletonSocket from "utils/socket";
+
+import { useUser } from "./user";
+import { useNetwork } from "./network";
+import { useVersion } from "./version";
+
+import { IRate, ISocketKlineNew, ISocketQuote } from "@/types/chart";
+import { encrypt } from "utils/DES/JS";
+import { generateUUID } from "@/utils/common";
 
 interface IQuote {
   ask: number;
@@ -48,11 +54,32 @@ export const useSocket = defineStore("socket", {
   }),
 
   actions: {
+    getUriQuery(): string {
+      const searchMap: Record<string, string> = {
+        "x-u-platform": "web",
+        "x-u-device-id": useVersion().deviceId,
+        server: useUser().account.server,
+        action: "connect",
+      };
+      const keyMap = {
+        server: useUser().account.server,
+        req_id: generateUUID(),
+        req_time: new Date().getTime(),
+      };
+      const enKeyMap = encrypt(JSON.stringify(keyMap));
+      searchMap.d = btoa(enKeyMap);
+      const queryParams = Object.entries(searchMap)
+        .map(([key, value]) => `${key}=${value}`)
+        .join("&");
+      return `?${queryParams}`;
+    },
+
     initSocket() {
       const networkStore = useNetwork();
       const mainUri = networkStore.currentNode?.webWebsocket;
       if (mainUri) {
-        this.socket = this.instance.getInstance(mainUri);
+        const query = this.getUriQuery();
+        this.socket = this.instance.getInstance(mainUri, query);
         while (this.noExecuteList.length) {
           const item = this.noExecuteList.shift();
           if (item) {
@@ -301,7 +328,8 @@ export const useSocket = defineStore("socket", {
     getDelay(callback?: Function) {
       const networkStore = useNetwork();
       const wsUriList = networkStore.nodeList.map((item) => item.webWebsocket);
-      this.instance.getSocketDelay(wsUriList, (e) => {
+      const query = this.getUriQuery();
+      this.instance.getSocketDelay(wsUriList, query, (e) => {
         if (callback) {
           callback(e);
         }

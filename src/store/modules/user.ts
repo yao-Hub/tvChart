@@ -4,7 +4,6 @@ import i18n from "@/language/index";
 import { ElMessage } from "element-plus";
 import { assign, debounce, findKey } from "lodash";
 import CryptoJS from "utils/AES";
-import { useI18n } from "vue-i18n";
 
 import { Login, UserInfo, loginInfo, refresh_token } from "api/account";
 import { round } from "utils/common";
@@ -210,14 +209,14 @@ export const useUser = defineStore("user", () => {
     networkStore.server = updata.server;
     const nodeList = await networkStore.getNodes(updata.server);
     if (nodeList.length === 0) {
-      const { t } = useI18n();
+      const t = i18n.global.t;
       ElMessage.info(t("tip.networkNodeNotFound"));
       return Promise.reject();
     }
     try {
       const socketStore = useSocket();
       // 选择连接延迟最低的网络节点
-      socketStore.getDelay(async (params: { ending: boolean }) => {
+      socketStore.getDelay((params: { ending: boolean }) => {
         if (params.ending) {
           const timeList = Object.values(socketStore.delayMap) as number[];
           // 排序

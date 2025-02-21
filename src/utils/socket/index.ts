@@ -5,31 +5,21 @@ import eventBus from "utils/eventBus";
 
 import { useSocket } from "@/store/modules/socket";
 
-const transportOptions = {
-  websocket: {
-    extraHeaders: {
-      Authorization: "Bearer your-token",
-      CustomHeader: "custom-value",
-    },
-  },
-};
-
 class SingletonSocket {
   private instance: Socket | null = null;
 
   constructor() {}
 
-  getInstance(mainUri: string): Socket {
+  getInstance(mainUri: string, query: string = ""): Socket {
     if (this.instance) {
       this.instance.disconnect();
       this.instance = null;
     }
-    this.instance = io(mainUri, {
+    this.instance = io(`${mainUri}${query}`, {
       transports: ["websocket"],
       reconnection: true, // 开启重连功能
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
-      transportOptions,
     });
     this.setupSocketEvents();
     return this.instance;
@@ -44,11 +34,7 @@ class SingletonSocket {
 
       this.instance.on("disconnect", (reason: string) => {
         // 手动断开
-        if (reason === "io client disconnect") {
-          console.log("Disconnected from server");
-        } else {
-          console.log("Connection lost, trying to reconnect...");
-        }
+        console.log(`main socket disconnect${reason}`);
         eventBus.emit("socket-disconnect");
       });
 
@@ -62,46 +48,51 @@ class SingletonSocket {
 
   getSocketDelay(
     uriList: string[],
+    query: string = "",
     callback?: ({ ending }: { ending: boolean }) => void
   ) {
     const startTimeMap: Record<string, number> = {};
-    let count = 0;
+    const endinglist = uriList.map((uri) => {
+      return {
+        uri,
+        ending: false,
+      };
+    });
     uriList.forEach((uri) => {
       startTimeMap[uri] = new Date().getTime();
       if (callback) {
-        callback({
-          ending: false,
-        });
+        callback({ ending: false });
       }
-      const IO = io(uri, {
+      const IO = io(`${uri}${query}`, {
         transports: ["websocket"],
-        reconnection: true, // 开启重连功能
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        transportOptions,
+        reconnection: false,
       });
       IO.on("connect", () => {
         const endTime = new Date().getTime();
         const connectionTime = endTime - startTimeMap[uri];
         const socketStore = useSocket();
         socketStore.delayMap[uri] = connectionTime;
-        count++;
-        if (callback && count === uriList.length) {
-          callback({
-            ending: true,
-          });
+        const target = endinglist.find((e) => e.uri === uri);
+        if (target) {
+          target.ending = true;
         }
-        console.log(
-          `${uri} Connection established in ${connectionTime} milliseconds`
-        );
+        const ifEnding = endinglist.every((item) => item.ending === true);
+        if (callback) {
+          callback({ ending: ifEnding });
+        }
+        console.log(`getDelay ${uri}: ${connectionTime} milliseconds`);
         IO.disconnect();
       });
       IO.on("disconnect", (reason: string) => {
-        if (reason === "io client disconnect") {
-          console.log(`${uri} Disconnected from server`);
-        } else {
-          console.log(`${uri} Connection lost, trying to reconnect...`);
+        const target = endinglist.find((e) => e.uri === uri);
+        if (target) {
+          target.ending = true;
         }
+        const ifEnding = endinglist.every((item) => item.ending === true);
+        if (callback) {
+          callback({ ending: ifEnding });
+        }
+        console.log(`getDelay ${uri} disconnect: ${reason}`);
       });
     });
   }

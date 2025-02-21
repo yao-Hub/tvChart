@@ -8,18 +8,12 @@ import { useI18n } from "vue-i18n";
 
 import { LANGUAGE_LIST } from "@/constants/common";
 import { useSize } from "@/store/modules/size";
-import { useTheme } from "@/store/modules/theme";
 import { useVersion } from "@/store/modules/version";
 
 import { sendTrack } from "@/utils/track";
 
-const themeStore = useTheme();
 const sizeStore = useSize();
-const versionStore = useVersion();
-
-sizeStore.initSize(); // 初始化字体大小
-themeStore.initTheme(); // 系统主题（亮色暗色）
-versionStore.getDeviceId(); // 生成设备唯一id
+useVersion().getDeviceId(); // 生成设备唯一id
 
 sendTrack({
   actionType: "open",
