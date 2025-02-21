@@ -7,12 +7,16 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { LANGUAGE_LIST } from "@/constants/common";
-import { useSize } from "@/store/modules/size";
-import { useVersion } from "@/store/modules/version";
-
 import { sendTrack } from "@/utils/track";
 
+import { useSize } from "@/store/modules/size";
+import { useTheme } from "@/store/modules/theme";
+import { useVersion } from "@/store/modules/version";
+
 const sizeStore = useSize();
+
+sizeStore.initSize(); // 初始化字体大小
+useTheme().initTheme(); // 系统主题
 useVersion().getDeviceId(); // 生成设备唯一id
 
 sendTrack({
