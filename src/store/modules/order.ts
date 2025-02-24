@@ -119,7 +119,7 @@ export const useOrder = defineStore("order", () => {
 
   // 市价单盈亏
   const quotesStore = useQuotes();
-  watch(
+  const unQuoteWatch = watch(
     () => quotesStore.qoutes,
     (qoutes) => {
       state.orderData.marketOrder.forEach((item) => {
@@ -690,6 +690,7 @@ export const useOrder = defineStore("order", () => {
     };
     state.ifOne = null; // 一键交易
     state.ifQuick = true; // 快捷交易(图表是否显示快捷交易组件)
+    unQuoteWatch();
   }
 
   return {

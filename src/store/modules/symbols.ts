@@ -60,7 +60,7 @@ export const useSymbols = defineStore("symbols", () => {
 
   // 订单区域涉及的商品
   let orderSymbols = ref<string[]>([]);
-  watch(
+  const unOrderWatch = watch(
     () => orderStore.state.orderData,
     debounce(() => {
       const orderData = orderStore.state.orderData;
@@ -86,7 +86,7 @@ export const useSymbols = defineStore("symbols", () => {
     const result = uniq(compact(arr)).sort();
     return result;
   });
-  watch(
+  const unSymbolWatch = watch(
     () => subSymbols.value,
     (nextList, preList) => {
       const preSet = new Set(preList);
@@ -114,6 +114,8 @@ export const useSymbols = defineStore("symbols", () => {
     selectSymbols.value = [];
     chartSymbols.value = [];
     orderSymbols.value = [];
+    unOrderWatch();
+    unSymbolWatch();
   }
 
   return {
