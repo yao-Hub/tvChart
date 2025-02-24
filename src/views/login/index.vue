@@ -4,7 +4,7 @@
     <span class="welcome">{{ t("welcomeToUTrader") }}</span>
     <div class="functionalArea">
       <Theme></Theme>
-      <Language @change=""></Language>
+      <Language></Language>
     </div>
     <router-view v-slot="{ Component }">
       <div class="container" :style="{ height: containerHeight + 'px' }">

@@ -41,7 +41,7 @@ if (!gotTheLock) {
     });
 
     // 去除菜单栏
-    // mainWindow.setMenu(null);
+    mainWindow.setMenu(null);
 
     // 在 macOS 系统中全局去除菜单栏
     if (process.platform === 'darwin') {
