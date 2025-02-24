@@ -264,6 +264,10 @@ export const useUser = defineStore("user", () => {
           };
           if (timeList.length) {
             process(0);
+          } else {
+            if (callback) {
+              callback({ ending: true, success: false });
+            }
           }
         }
       });
