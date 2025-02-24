@@ -52,6 +52,16 @@ export const useSocket = defineStore("socket", {
   }),
 
   actions: {
+    reqData() {
+      return {
+        req_id: generateUUID(),
+        req_time: new Date().getTime(),
+      };
+    },
+    enData(data: any) {
+      return encrypt(JSON.stringify(data));
+    },
+
     getUriQuery(): string {
       const server = useUser().account.server || useNetwork().server;
       const searchMap: Record<string, string> = {
@@ -65,7 +75,7 @@ export const useSocket = defineStore("socket", {
         req_id: generateUUID(),
         req_time: new Date().getTime(),
       };
-      const enKeyMap = encrypt(JSON.stringify(keyMap));
+      const enKeyMap = this.enData(keyMap);
       searchMap.d = btoa(enKeyMap);
       const queryParams = Object.entries(searchMap)
         .map(([key, value]) => `${key}=${value}`)
@@ -90,22 +100,29 @@ export const useSocket = defineStore("socket", {
 
     // 订阅k线和报价
     emitKlineQuote({ resolution, symbol }: ChartProps) {
-      const userStore = useUser();
-      const updata = {
-        platform: "web",
-        server: userStore.account.server,
-        symbol_period_type: [
-          {
-            symbol: symbol,
-            period_type: resolution,
-          },
-        ],
-      };
       if (this.socket) {
-        this.socket.emit("subscribe_kline", updata);
+        const userStore = useUser();
+        this.socket.emit("subscribe_kline", {
+          action: "subscribe_kline",
+          d: this.enData({
+            ...this.reqData(),
+            platform: "web",
+            server: userStore.account.server,
+            symbol_period_type: [
+              {
+                symbol: symbol,
+                period_type: resolution,
+              },
+            ],
+          }),
+        });
         this.socket.emit("subscribe_quote", {
-          server: userStore.account.server,
-          symbols: [symbol],
+          action: "subscribe_quote",
+          d: this.enData({
+            ...this.reqData(),
+            server: userStore.account.server,
+            symbols: [symbol],
+          }),
         });
       } else {
         this.noExecuteList.push({
@@ -147,17 +164,25 @@ export const useSocket = defineStore("socket", {
 
       if (this.socket) {
         this.socket.emit("unsubscribe_kline", {
-          server: userStore.account.server,
-          symbol_period_type: [
-            {
-              symbol,
-              period_type: resolution,
-            },
-          ],
+          action: "unsubscribe_kline",
+          d: this.enData({
+            ...this.reqData(),
+            server: userStore.account.server,
+            symbol_period_type: [
+              {
+                symbol,
+                period_type: resolution,
+              },
+            ],
+          }),
         });
         this.socket.emit("unsubscribe_qoute", {
-          server: userStore.account.server,
-          symbol_period_type: [symbol],
+          action: "unsubscribe_qoute",
+          d: this.enData({
+            ...this.reqData(),
+            server: userStore.account.server,
+            symbol_period_type: [symbol],
+          }),
         });
       } else {
         this.noExecuteList.push({
@@ -172,9 +197,13 @@ export const useSocket = defineStore("socket", {
       const userStore = useUser();
       if (this.socket) {
         this.socket.emit("set_login", {
-          server: userStore.account.server,
-          login,
-          token,
+          action: "set_login",
+          d: this.enData({
+            ...this.reqData(),
+            server: userStore.account.server,
+            login,
+            token,
+          }),
         });
       } else {
         this.noExecuteList.push({
@@ -239,8 +268,12 @@ export const useSocket = defineStore("socket", {
       const userStore = useUser();
       if (this.socket) {
         this.socket.emit("subscribe_quote_depth", {
-          server: userStore.account.server,
-          symbols,
+          action: "subscribe_quote_depth",
+          d: this.enData({
+            ...this.reqData(),
+            server: userStore.account.server,
+            symbols,
+          }),
         });
         if (callback) {
           callback();
@@ -272,8 +305,12 @@ export const useSocket = defineStore("socket", {
       if (this.socket) {
         const userStore = useUser();
         this.socket.emit("unsubscribe_quote_depth", {
-          server: userStore.account.server,
-          symbols,
+          action: "unsubscribe_quote_depth",
+          d: this.enData({
+            ...this.reqData(),
+            server: userStore.account.server,
+            symbols,
+          }),
         });
       } else {
         this.noExecuteList.push({
@@ -287,7 +324,11 @@ export const useSocket = defineStore("socket", {
       if (this.socket) {
         const userStore = useUser();
         this.socket.emit("subscribe_rate", {
-          server: userStore.account.server,
+          action: "subscribe_rate",
+          d: this.enData({
+            ...this.reqData(),
+            server: userStore.account.server,
+          }),
         });
       } else {
         this.noExecuteList.push({
@@ -314,7 +355,11 @@ export const useSocket = defineStore("socket", {
       if (this.socket) {
         const userStore = useUser();
         this.socket.emit("unsubscribe_rate", {
-          server: userStore.account.server,
+          action: "unsubscribe_rate",
+          d: this.enData({
+            ...this.reqData(),
+            server: userStore.account.server,
+          }),
         });
       } else {
         this.noExecuteList.push({
