@@ -221,7 +221,6 @@ export const useUser = defineStore("user", () => {
           const timeList = Object.values(socketStore.delayMap) as number[];
           // 排序
           timeList.sort((a, b) => a - b);
-
           // 递归
           const process = (index: number) => {
             if (index >= timeList.length) {
@@ -265,6 +264,7 @@ export const useUser = defineStore("user", () => {
           if (timeList.length) {
             process(0);
           } else {
+            ElMessage.error(i18n.global.t("tip.NodeUnavailable"));
             if (callback) {
               callback({ ending: true, success: false });
             }

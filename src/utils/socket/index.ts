@@ -87,6 +87,7 @@ class SingletonSocket {
         IO.disconnect();
       });
       IO.on("disconnect", (reason: string) => {
+        ending();
         console.log(`获取延迟-断开 ${uri} : ${reason}`);
       });
       IO.on("connect_error", (error) => {

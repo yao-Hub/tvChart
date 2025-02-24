@@ -232,6 +232,7 @@ export default {
     required: "{label} is required",
     imageOnly: "Only supports image upload",
     limitImageSize: "images must not be larger than {size}",
+    NodeUnavailable: "Node unavailable",
   },
 
   time: {

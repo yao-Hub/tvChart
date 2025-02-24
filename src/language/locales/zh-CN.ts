@@ -235,6 +235,7 @@ export default {
     required: "{label}不能为空",
     imageOnly: "仅支持图片上传",
     limitImageSize: "图片不得大于{size}",
+    NodeUnavailable: "节点不可用",
   },
 
   time: {
