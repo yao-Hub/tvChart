@@ -15,6 +15,7 @@ export const useVersion = defineStore("version", {
     getDeviceId() {
       this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
       window.localStorage.setItem("uuid", this.deviceId);
+      return this.deviceId;
     },
     checkVersion() {
       const nowVer = localStorage.getItem("version");

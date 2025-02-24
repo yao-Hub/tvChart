@@ -124,6 +124,7 @@ async function init() {
       quotesStore.getAllSymbolQuotes(),
       rateStore.getAllRates(),
       orderStore.initTableData(),
+      networkStore.getNodesDelay(),
     ]);
     userStore.refreshToken(); // 倒计时刷新token
   } catch (error) {

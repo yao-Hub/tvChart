@@ -208,7 +208,7 @@ const goProtocol = (columnCode: string) => {
   window.open(href, "_blank");
 };
 
-const happyStart = (actionObject: string) => {
+const happyStart = async (actionObject: string) => {
   try {
     if (disabled.value) {
       return;
@@ -217,7 +217,7 @@ const happyStart = (actionObject: string) => {
       (e) => e.lineName === formState.server
     );
     if (target) {
-      protocolAgree({
+      await protocolAgree({
         columnCodes: ["privacy-policy", "service-article"],
         brokerName: target.brokerName,
         lineName: target.lineName,
@@ -226,10 +226,10 @@ const happyStart = (actionObject: string) => {
         loading.value = false;
       });
     }
-    userStore.login(formState, ({ ending, success }) => {
+    userStore.login(formState, async ({ ending, success }) => {
       loading.value = !ending;
       if (ending && success) {
-        sendTrack({
+        await sendTrack({
           actionType: "signUp",
           actionObject,
         });

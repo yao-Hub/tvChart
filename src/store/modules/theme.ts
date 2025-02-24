@@ -26,6 +26,13 @@ export const useTheme = defineStore("theme", () => {
     }
   );
 
+  const getSystemTheme = () => {
+    const stoTheme = localStorage.getItem("systemTheme") || "dark";
+    systemTheme.value = stoTheme as TsystemTheme;
+    document.documentElement.setAttribute("data-theme", systemTheme.value);
+    return systemTheme.value;
+  };
+
   const initTheme = () => {
     const stoTheme = localStorage.getItem("systemTheme") || "dark";
     if (
@@ -159,6 +166,7 @@ export const useTheme = defineStore("theme", () => {
     setChartTheme,
     getUpDownTheme,
     setUpDownTheme,
+    getSystemTheme,
     $reset,
   };
 });

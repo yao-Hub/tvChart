@@ -73,8 +73,8 @@ service.interceptors.request.use(
   (config: reqConfig) => {
     const versionStore = useVersion();
     const themeStore = useTheme();
-    config.headers["x-u-device-id"] = versionStore.deviceId;
-    config.headers["x-u-app-theme"] = themeStore.systemTheme;
+    config.headers["x-u-device-id"] = versionStore.getDeviceId();
+    config.headers["x-u-app-theme"] = themeStore.getSystemTheme();
 
     if (!config.noBeCancel) {
       const source = axios.CancelToken.source();

@@ -200,7 +200,7 @@ const submit = (formEl: FormInstance | undefined) => {
         (e) => e.lineName === lineInfo.value.lineName
       );
       if (target) {
-        protocolAgree({
+        await protocolAgree({
           columnCodes: ["accountClause", "dataPolicy"],
           brokerName: lineInfo.value.brokerName,
           lineName: lineInfo.value.lineName,

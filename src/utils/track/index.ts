@@ -49,12 +49,12 @@ function getBrowserInfo() {
   return "unknow browser";
 }
 
-export function sendTrack(params: ITrackAgre) {
+export async function sendTrack(params: ITrackAgre) {
   const { actionType, actionObject } = params;
   const versionStore = useVersion();
   const actionId = generateUUID();
   const actionTime = new Date().getTime();
-  const deviceId = versionStore.deviceId;
+  const deviceId = versionStore.getDeviceId();
   const userAgent = navigator.userAgent;
   const userStore = useUser();
   const loginInfo = userStore.state.loginInfo;
@@ -80,5 +80,5 @@ export function sendTrack(params: ITrackAgre) {
       server: userStore.account.server,
     },
   };
-  trackAction(updata);
+  await trackAction(updata);
 }
