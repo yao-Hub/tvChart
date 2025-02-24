@@ -72,8 +72,7 @@ export const useSocket = defineStore("socket", {
       };
       const keyMap = {
         server,
-        req_id: generateUUID(),
-        req_time: new Date().getTime(),
+        ...this.reqData(),
       };
       const enKeyMap = this.enData(keyMap);
       searchMap.d = btoa(enKeyMap);
