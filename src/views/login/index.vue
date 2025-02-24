@@ -83,7 +83,10 @@ watch(
   @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
     background-image: url("/src/assets/images/light/loginBg@2x.png");
   }
-
+  background-image: -webkit-image-set(
+    url("/src/assets/images/light/loginBg@1x.png") 1x,
+    url("/src/assets/images/light/loginBg@2x.png") 2x
+  );
   // 现代浏览器支持image-set
   background-image: image-set(
     url("/src/assets/images/light/loginBg@1x.png") 1x,
@@ -95,6 +98,10 @@ watch(
   @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
     background-image: url("/src/assets/images/dark/loginBg@2x.png");
   }
+  background-image: -webkit-image-set(
+    url("/src/assets/images/dark/loginBg@1x.png") 1x,
+    url("/src/assets/images/dark/loginBg@2x.png") 2x
+  );
   background-image: image-set(
     url("/src/assets/images/dark/loginBg@1x.png") 1x,
     url("/src/assets/images/dark/loginBg@2x.png") 2x
