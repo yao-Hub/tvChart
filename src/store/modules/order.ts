@@ -20,7 +20,7 @@ import * as types from "@/types/chart";
 import * as orders from "api/order/index";
 
 import { debounce, get, isNil } from "lodash";
-import { round } from "utils/common/index";
+// import { round } from "utils/common/index";
 import { getTradingDirection } from "utils/order/index";
 
 type ModeType = "create" | "confirm";
@@ -467,28 +467,47 @@ export const useOrder = defineStore("order", () => {
     if (symbolInfo) {
       const { currency, pre_currency, contract_size } = symbolInfo;
       const userCur = loginInfo?.currency; // 账户币种
+
+      const closePriceDec = new Decimal(closePrice);
+      const buildPriceDec = new Decimal(buildPrice);
+      const volumeDec = new Decimal(volume);
+      const contractSizeDec = new Decimal(contract_size);
+      const feeDec = fee ? new Decimal(fee) : new Decimal(0);
+      const storageDec = storage ? new Decimal(storage) : new Decimal(0);
+      const bidRateDec = new Decimal(rates.last_user.bid_rate);
+
       const stateMachine = {
         last_user: {
-          buy: (closePrice - buildPrice) * volume * contract_size,
-          sell: (buildPrice - closePrice) * volume * contract_size,
+          buy: closePriceDec
+            .sub(buildPriceDec)
+            .mul(volumeDec)
+            .mul(contractSizeDec),
+          sell: buildPriceDec
+            .sub(closePriceDec)
+            .mul(volumeDec)
+            .mul(contractSizeDec),
         },
         pre_user: {
-          buy:
-            (closePrice - buildPrice) * volume * (contract_size / closePrice),
-          sell:
-            (buildPrice - closePrice) * volume * (contract_size / closePrice),
+          buy: closePriceDec
+            .sub(buildPriceDec)
+            .mul(volumeDec)
+            .mul(contractSizeDec.div(closePriceDec)),
+          sell: buildPriceDec
+            .sub(closePriceDec)
+            .mul(volumeDec)
+            .mul(contractSizeDec.div(closePriceDec)),
         },
         normal: {
-          buy:
-            (closePrice - buildPrice) *
-            volume *
-            contract_size *
-            rates.last_user.bid_rate,
-          sell:
-            (buildPrice - closePrice) *
-            volume *
-            contract_size *
-            rates.last_user.bid_rate,
+          buy: closePriceDec
+            .sub(buildPriceDec)
+            .mul(volumeDec)
+            .mul(contractSizeDec)
+            .mul(bidRateDec),
+          sell: buildPriceDec
+            .sub(closePriceDec)
+            .mul(volumeDec)
+            .mul(contractSizeDec)
+            .mul(bidRateDec),
         },
       };
       const type =
@@ -497,8 +516,43 @@ export const useOrder = defineStore("order", () => {
           : pre_currency === userCur
           ? "pre_user"
           : "normal";
+
       const result = stateMachine[type][direction];
-      return round(result + (fee || 0) + (storage || 0), 2);
+      const finalResult = result.add(feeDec).add(storageDec).toFixed(2);
+      return finalResult;
+
+      // const stateMachine = {
+      //   last_user: {
+      //     buy: (closePrice - buildPrice) * volume * contract_size,
+      //     sell: (buildPrice - closePrice) * volume * contract_size,
+      //   },
+      //   pre_user: {
+      //     buy:
+      //       (closePrice - buildPrice) * volume * (contract_size / closePrice),
+      //     sell:
+      //       (buildPrice - closePrice) * volume * (contract_size / closePrice),
+      //   },
+      //   normal: {
+      //     buy:
+      //       (closePrice - buildPrice) *
+      //       volume *
+      //       contract_size *
+      //       rates.last_user.bid_rate,
+      //     sell:
+      //       (buildPrice - closePrice) *
+      //       volume *
+      //       contract_size *
+      //       rates.last_user.bid_rate,
+      //   },
+      // };
+      // const type =
+      //   currency === userCur
+      //     ? "last_user"
+      //     : pre_currency === userCur
+      //     ? "pre_user"
+      //     : "normal";
+      // const result = stateMachine[type][direction];
+      // return round(result + (fee || 0) + (storage || 0), 2);
     }
     return "-";
   };
