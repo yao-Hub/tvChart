@@ -55,14 +55,15 @@ export const useSocket = defineStore("socket", {
 
   actions: {
     getUriQuery(): string {
+      const server = useUser().account.server || useNetwork().server;
       const searchMap: Record<string, string> = {
         "x-u-platform": "web",
         "x-u-device-id": useVersion().deviceId,
-        server: useNetwork().server || useUser().account.server,
+        server,
         action: "connect",
       };
       const keyMap = {
-        server: useUser().account.server,
+        server,
         req_id: generateUUID(),
         req_time: new Date().getTime(),
       };
