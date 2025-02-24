@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 
 import i18n from "@/language/index";
 import { ElMessage } from "element-plus";
-import { assign, debounce, findKey } from "lodash";
+import { assign, debounce } from "lodash";
 import CryptoJS from "utils/AES";
 
 import { Login, UserInfo, loginInfo, refresh_token } from "api/account";
@@ -201,6 +201,7 @@ export const useUser = defineStore("user", () => {
     ending?: boolean;
     success?: boolean;
   }) => void;
+
   const login = async (updata: any, callback?: TCallback) => {
     if (callback) {
       callback({ ending: false, success: false });
@@ -214,63 +215,56 @@ export const useUser = defineStore("user", () => {
       return Promise.reject();
     }
     try {
-      const socketStore = useSocket();
       // 选择连接延迟最低的网络节点
-      socketStore.getDelay((params: { ending: boolean }) => {
-        if (params.ending) {
-          const timeList = Object.values(socketStore.delayMap) as number[];
-          // 排序
-          timeList.sort((a, b) => a - b);
-          // 递归
-          const process = (index: number) => {
-            if (index >= timeList.length) {
-              if (callback) {
-                callback({ ending: true, success: false });
-              }
-              return;
-            }
-            const time = timeList[index];
-            const uri = findKey(socketStore.delayMap, (o) => o === time);
-            const nodeName = networkStore.nodeList.find(
-              (e) => e.webWebsocket === uri
-            )?.nodeName;
-            if (nodeName) {
-              // 长连接主socket
-              socketStore.initSocket();
-              networkStore.nodeName = nodeName;
-              Login(updata)
-                .then((res) => {
-                  const token = res.data.token;
-                  // 缓存登录信息
-                  addAccount({
-                    ...updata,
-                    queryNode: nodeName,
-                    token,
-                    ifLogin: true,
-                  });
-                  // 发送登录状态
-                  socketStore.sendToken({ login: updata.login, token });
-                  if (callback) {
-                    callback({ ending: true, success: true });
-                  }
-                  ElMessage.success(i18n.global.t("loginSucceeded"));
-                })
-                .catch(() => {
-                  process(index + 1);
-                });
-              return;
-            }
-          };
-          if (timeList.length) {
-            process(0);
-          } else {
-            ElMessage.error(i18n.global.t("tip.NodeUnavailable"));
+      const delayList = await networkStore.getNodesDelay();
+      if (delayList.length) {
+        const timeList = delayList.map((item) => item.delay);
+        // 排序
+        timeList.sort((a, b) => a - b);
+        const process = (index: number) => {
+          if (index >= timeList.length) {
             if (callback) {
               callback({ ending: true, success: false });
             }
+            return;
           }
+          const time = timeList[index];
+          const webApi = delayList.find((e) => e.delay === time)?.url;
+          const nodeName = nodeList.find((e) => e.webApi === webApi)?.nodeName;
+          if (nodeName) {
+            networkStore.nodeName = nodeName;
+            const socketStore = useSocket();
+            // 长连接主socket
+            socketStore.initSocket();
+            Login(updata)
+              .then((res) => {
+                const token = res.data.token;
+                // 缓存登录信息
+                addAccount({
+                  ...updata,
+                  queryNode: nodeName,
+                  token,
+                  ifLogin: true,
+                });
+                // 发送登录状态
+                socketStore.sendToken({ login: updata.login, token });
+                if (callback) {
+                  callback({ ending: true, success: true });
+                }
+                ElMessage.success(i18n.global.t("loginSucceeded"));
+              })
+              .catch(() => {
+                process(index + 1);
+              });
+            return;
+          }
+        };
+        process(0);
+      } else {
+        if (callback) {
+          callback({ ending: true, success: false });
         }
-      });
+      }
     } catch (error) {
       if (callback) {
         callback({ ending: true, success: false });

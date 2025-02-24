@@ -7,7 +7,7 @@
     <template #dropdown>
       <el-dropdown-menu>
         <div class="freshItem" @click="refreshDelay">
-          <ReloadOutlined v-if="!delayLoading" />
+          <ReloadOutlined v-if="!loading" />
           <LoadingOutlined v-else />
           <span>{{ t("refresh") }}</span>
         </div>
@@ -29,10 +29,8 @@
               </span>
             </div>
             <span
-              :class="[
-                +getDelay(node.webWebsocket) > 500 ? 'redWord' : 'greenWord',
-              ]"
-              >{{ getDelay(node.webWebsocket) }}ms</span
+              :class="[+getDelay(node.webApi) > 500 ? 'redWord' : 'greenWord']"
+              >{{ getDelay(node.webApi) }}ms</span
             >
           </div>
         </el-dropdown-item>
@@ -44,10 +42,8 @@
 <script lang="ts" setup>
 import { useChartInit } from "@/store/modules/chartInit";
 import { useNetwork } from "@/store/modules/network";
-import { useSocket } from "@/store/modules/socket";
 import { useUser } from "@/store/modules/user";
 import { LoadingOutlined, ReloadOutlined } from "@ant-design/icons-vue";
-import { get } from "lodash";
 import { computed, ref } from "vue";
 
 import { useI18n } from "vue-i18n";
@@ -67,26 +63,32 @@ const changeNode = (name: string) => {
   });
   chartInitStore.systemRefresh();
 };
-const socketStore = useSocket();
+
 const currentDelay = computed(() => {
-  const currentWsUri = networkStore.currentNode?.webWebsocket;
-  if (currentWsUri) {
-    return get(socketStore.delayMap, currentWsUri) || "-";
+  const webApi = networkStore.currentNode?.webApi;
+  if (webApi) {
+    const delay = networkStore.nodeList.find(
+      (e) => e.webApi === webApi
+    )?.webApiDelay;
+    return delay || "-";
   }
   return "-";
 });
-const getDelay = (uri: string) => {
-  const delay = get(socketStore.delayMap, uri) || "-";
-  return delay;
+const getDelay = (webApi: string) => {
+  const delay = networkStore.nodeList.find(
+    (e) => e.webApi === webApi
+  )?.webApiDelay;
+  return delay || "-";
 };
-const delayLoading = ref(false);
-const refreshDelay = () => {
-  if (delayLoading.value) {
+
+const loading = ref(false);
+const refreshDelay = async () => {
+  if (loading.value) {
     return;
   }
-  socketStore.getDelay((e: any) => {
-    delayLoading.value = !e.ending;
-  });
+  loading.value = true;
+  await networkStore.getNodesDelay();
+  loading.value = false;
 };
 </script>
 

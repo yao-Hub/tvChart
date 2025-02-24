@@ -33,7 +33,6 @@ type TFooname =
 
 interface IState {
   socket: Socket | null;
-  delayMap: Record<string, string | number>; // 各个网路节点延迟
   instance: SingletonSocket;
   // socket未初始化时，若调用了方法则先存储方法，等待socket初始化后再去执行
   noExecuteList: Array<{
@@ -49,7 +48,6 @@ export const useSocket = defineStore("socket", {
   state: (): IState => ({
     instance: new SingletonSocket(),
     socket: null,
-    delayMap: {},
     noExecuteList: [],
   }),
 
@@ -325,24 +323,11 @@ export const useSocket = defineStore("socket", {
       }
     },
 
-    // 获取socket延迟
-    getDelay(callback?: Function) {
-      const networkStore = useNetwork();
-      const wsUriList = networkStore.nodeList.map((item) => item.webWebsocket);
-      const query = this.getUriQuery();
-      this.instance.getSocketDelay(wsUriList, query, (e) => {
-        if (callback) {
-          callback(e);
-        }
-      });
-    },
-
     $reset() {
       if (this.socket) {
         this.socket.close();
       }
       this.socket = null;
-      this.delayMap = {};
       this.noExecuteList = [];
     },
   },

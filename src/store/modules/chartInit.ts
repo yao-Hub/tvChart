@@ -8,6 +8,7 @@ import { CSSProperties, computed, reactive, watch } from "vue";
 import { useSocket } from "./socket";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
+import { useNetwork } from "./network";
 
 interface IState {
   chartWidgetList: {
@@ -66,7 +67,7 @@ export const useChartInit = defineStore("chartInit", () => {
       const ifAllFinish = values.some((e) => !e);
       if (!ifAllFinish && socketStore.socket === null) {
         socketStore.initSocket(); // 初始化socket
-        socketStore.getDelay();
+        useNetwork().getNodesDelay(); // 节点延迟
       }
     },
     { deep: true }
