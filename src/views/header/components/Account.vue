@@ -98,14 +98,15 @@
 </template>
 
 <script setup lang="ts">
+import { computed, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+import type { DropdownInstance } from "element-plus";
+
 import { PageEnum } from "@/constants/pageEnum";
-// import { useChartInit } from "@/store/modules/chartInit";
+
 import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
-import type { DropdownInstance } from "element-plus";
-import { computed, reactive, ref } from "vue";
-import { useRouter } from "vue-router";
 
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
 
@@ -117,7 +118,6 @@ const visible = ref(false);
 const resetPasswordOpen = ref(false);
 
 const networkStore = useNetwork();
-// const chartInitStore = useChartInit();
 const userStore = useUser();
 const router = useRouter();
 const dialogStore = useDialog();
@@ -182,8 +182,8 @@ const changeLogin = (account: any) => {
   // );
 };
 
-const logout = () => {
-  userStore.Logout();
+const logout = async () => {
+  await userStore.logout();
   router.replace({ path: PageEnum.LOGIN });
 };
 

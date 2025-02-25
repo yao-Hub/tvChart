@@ -2,6 +2,7 @@ import request from "utils/http";
 
 enum Api {
   Login = "/login",
+  Logout = "/login/logout",
   LoginInfo = "/my/login_info",
   PasswordReset = "/my/password_update",
   QueryTradeLine = "/admin/server/queryTradeLine",
@@ -92,6 +93,14 @@ export const Login = (data: reqLogin) => {
     method: "post",
     data,
     noNeedToken: true,
+  });
+};
+
+export const Logout = () => {
+  return request({
+    url: Api.Logout,
+    method: "post",
+    needLogin: true,
   });
 };
 

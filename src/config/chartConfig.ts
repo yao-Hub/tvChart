@@ -115,7 +115,8 @@ export const datafeed = (id: string) => {
         minmov2: 0,
         pricescale: Math.pow(10, storeSymbolInfo?.digits || 2), // 纵坐标小数位数
         session,
-        has_empty_bars: true,
+        // session: "24x7",
+        // has_empty_bars: true,
         ticker: symbolName,
         timezone: timeStore.settedTimezone,
         // type: "cfd",
@@ -149,6 +150,10 @@ export const datafeed = (id: string) => {
       onErrorCallback: Function
     ) => {
       try {
+        function checkString(str: string) {
+          return str.includes("D") || str.includes("W") || str.includes("M");
+        }
+
         let count = periodParams.countBack;
         // periodParams.countBack 长度不够导致数据缺失
         const to = dayjs.unix(periodParams.to);
@@ -162,7 +167,7 @@ export const datafeed = (id: string) => {
           limit_ctm: periodParams.to,
         };
         klineHistory(updata)
-          .then((res) => {
+          .then((res: any) => {
             const data = res.data;
             if (data.length === 0) {
               onHistoryCallback([], {
@@ -172,10 +177,9 @@ export const datafeed = (id: string) => {
             }
             const orderBy_data = orderBy(data, "ctm");
             const bars = orderBy_data.map((item) => {
-              const time =
-                resolution === "1D"
-                  ? (item.ctm + 8 * 3600) * 1000
-                  : item.ctm * 1000;
+              const time = checkString(resolution)
+                ? (item.ctm + 8 * 3600) * 1000
+                : item.ctm * 1000;
               return {
                 ...item,
                 time,

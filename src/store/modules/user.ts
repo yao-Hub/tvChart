@@ -5,8 +5,9 @@ import { ElMessage } from "element-plus";
 import { assign, debounce } from "lodash";
 import CryptoJS from "utils/AES";
 
-import { Login, UserInfo, loginInfo, refresh_token } from "api/account";
+import { Login, UserInfo, loginInfo, refresh_token, Logout } from "api/account";
 import { round } from "utils/common";
+// import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 
 import { computed, reactive } from "vue";
 import { useNetwork } from "./network";
@@ -130,12 +131,6 @@ export const useUser = defineStore("user", () => {
     const found = state.accountList.find((e) => e.ifLogin);
     assign(found, option);
     storageAccount();
-  };
-
-  const Logout = () => {
-    changeCurrentAccountOption({
-      ifLogin: false,
-    });
   };
 
   const getLoginInfo = debounce(
@@ -273,6 +268,13 @@ export const useUser = defineStore("user", () => {
     }
   };
 
+  const logout = async () => {
+    await Logout();
+    changeCurrentAccountOption({
+      ifLogin: false,
+    });
+  };
+
   function $reset() {
     state.accountList = [];
     state.loginInfo = null;
@@ -293,7 +295,7 @@ export const useUser = defineStore("user", () => {
     getToken,
     storageAccount,
     changeCurrentAccountOption,
-    Logout,
+    logout,
     getLoginInfo,
     addAccount,
     removeAccount,

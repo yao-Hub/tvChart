@@ -1,7 +1,7 @@
 {
   "name": "wp-tradeview",
   "private": true,
-  "version": "1.2.0",
+  "version": "1.4.0",
   "main": "electron/main.js",
   "description": "utrader",
   "author": "wp",

@@ -54,4 +54,4 @@ const proxiedLogDBService = new Proxy({} as IndexedDBService, {
 });
 
 // 导出代理对象、初始化函数
-export { proxiedLogDBService as logIndexedDBServiceInstance, initLogDB };
+export { proxiedLogDBService as logIndexedDB, initLogDB };
