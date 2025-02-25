@@ -16,9 +16,34 @@ async function getRemoteLatestTag(
   git: SimpleGit
 ): Promise<string | null | undefined> {
   try {
+    // 拉取远程仓库信息
     await git.fetch();
-    const tags = await git.tags();
-    return tags.latest;
+    // 执行 git ls-remote --tags 命令获取远程标签信息
+    const remoteTagsOutput = await git.raw(["ls-remote", "--tags"]);
+    // 处理输出，提取标签名
+    const tagNames = remoteTagsOutput
+      .split("\n")
+      .filter((line) => line.trim() !== "")
+      .map((line) => line.split("\t")[1].replace("refs/tags/", ""));
+    // 按版本号规则排序
+    const sortedTags = tagNames.sort((a, b) => {
+      const cleanA = a.replace(/^v/, "");
+      const cleanB = b.replace(/^v/, "");
+      const partsA = cleanA.split(".").map(Number);
+      const partsB = cleanB.split(".").map(Number);
+      for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+        const numA = partsA[i] || 0;
+        const numB = partsB[i] || 0;
+        if (numA !== numB) {
+          return numA - numB;
+        }
+      }
+      return 0;
+    });
+    // 返回最新的标签
+    return sortedTags.length > 0
+      ? sortedTags[sortedTags.length - 1]
+      : undefined;
   } catch (error) {
     console.error("获取远程标签时出错:", error);
     return null;
@@ -114,11 +139,17 @@ function updatePackageJsonVersion(version: string) {
 async function updateRemoteTag(version: string) {
   try {
     const git: SimpleGit = simpleGit();
-    // 打标签
-    await git.tag([`v${version}`]);
+
+    // 检查标签是否已存在
+    const tags = await git.tags();
+    const tagName = `v${version}`;
+    if (!tags.all.includes(tagName)) {
+      // 打标签
+      await git.tag([tagName]);
+    }
     // 推送标签到远程仓库
-    await git.push(["origin", `v${version}`]);
-    console.log(`****版本号 v${version} 已同步到远程仓库****`);
+    await git.push(["origin", tagName]);
+    console.log(`****版本号 ${tagName} 已同步到远程仓库****`);
   } catch (error) {
     console.error("****同步版本号到远程仓库时出错:", error);
   }
