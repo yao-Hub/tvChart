@@ -236,6 +236,7 @@ export default {
     imageOnly: "仅支持图片上传",
     limitImageSize: "图片不得大于{size}",
     NodeUnavailable: "节点不可用",
+    symbolNoAllowTrading: "当前商品禁止交易",
   },
 
   time: {

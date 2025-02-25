@@ -32,7 +32,7 @@
             :label="t('table.symbol')"
             label-position="top"
           >
-            <SymbolSelect v-model="formState.symbol" subSymbol></SymbolSelect>
+            <SymbolSelect v-model="formState.symbol" subSymbol symbolType="tradeAllow"></SymbolSelect>
           </el-form-item>
         </el-col>
         <el-col :span="24">

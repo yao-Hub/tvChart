@@ -57,6 +57,7 @@ interface Props {
   limitedPrice?: string | number;
   fee?: number;
   storage?: number;
+  preCurrency?: string;
 }
 
 const props = defineProps<Props>();
@@ -280,7 +281,10 @@ const profit = computed(() => {
     if (!isNil(props.storage)) {
       params.storage = props.storage;
     }
-    const profit = orderStore.getProfit(params, direction);
+    const profit = orderStore.getProfit(
+      { ...params, pre_currency: props.preCurrency },
+      direction
+    );
     return profit;
   }
   return "";

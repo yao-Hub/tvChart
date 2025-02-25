@@ -37,7 +37,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       key: "time_setup",
       width: 200,
       align: "right",
-      minWidth: 170,
+      minWidth: 190,
     },
     {
       title: t("table.volume"),
@@ -144,7 +144,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "time_setup",
       key: "time_setup",
       width: 200,
-      minWidth: 170,
+      minWidth: 190,
       align: "right",
     },
     {
@@ -187,7 +187,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "time_expiration",
       key: "time_expiration",
       width: 200,
-      minWidth: 170,
+      minWidth: 190,
       align: "right",
     },
     {
@@ -226,7 +226,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "time_setup",
       key: "time_setup",
       width: 200,
-      minWidth: 170,
+      minWidth: 190,
       align: "right",
     },
     {
@@ -262,7 +262,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "time_expiration",
       key: "time_expiration",
       width: 200,
-      minWidth: 170,
+      minWidth: 190,
       align: "right",
     },
     {
@@ -270,7 +270,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "time_done",
       key: "time_done",
       width: 200,
-      minWidth: 170,
+      minWidth: 190,
       align: "right",
     },
     // 占位，用于最尾的列拉伸
@@ -310,7 +310,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "time_setup",
       key: "open_time",
       width: 200,
-      minWidth: 170,
+      minWidth: 190,
       align: "right",
     },
     {
@@ -318,7 +318,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "close_time",
       key: "close_time",
       width: 200,
-      minWidth: 170,
+      minWidth: 190,
       align: "right",
     },
     {
@@ -428,7 +428,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "time_setup",
       key: "open_time",
       width: 200,
-      minWidth: 170,
+      minWidth: 190,
       align: "right",
     },
     {
@@ -467,7 +467,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "time",
       key: "time",
       width: 200,
-      minWidth: 170,
+      minWidth: 190,
       align: "left",
     },
     {

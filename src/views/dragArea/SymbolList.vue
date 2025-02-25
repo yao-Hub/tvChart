@@ -48,7 +48,7 @@
           prop="symbol"
           :label="t('order.symbol')"
           align="left"
-          width="85"
+          min-width="85"
         >
         </el-table-column>
 
@@ -340,7 +340,11 @@ const expandChange = (row: any, expandedRows: any[]) => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+:deep(.el-table td.el-table__cell div) {
+  box-sizing: border-box;
+  word-wrap: break-word;
+  white-space: nowrap;
+}
 .symbolList {
   width: 100%;
   @include background_color("background-component");

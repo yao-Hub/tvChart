@@ -90,6 +90,7 @@
             :orderPrice="formState.orderPrice"
             :orderType="formState.orderType"
             :limitedPrice="formState.limitedPrice"
+            :preCurrency="props.orderInfo.pre_currency"
           ></StopLossProfit>
         </el-col>
         <el-col :span="12">
@@ -102,6 +103,7 @@
             :orderPrice="formState.orderPrice"
             :orderType="formState.orderType"
             :limitedPrice="formState.limitedPrice"
+            :preCurrency="props.orderInfo.pre_currency"
           ></StopLossProfit>
         </el-col>
         <el-col

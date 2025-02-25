@@ -72,6 +72,7 @@ export interface UserInfo {
   fee: number; //	持仓手续费
   equity: number; //	净值
   openning_orders: Order[];
+  symbols_limit: string | null;
 }
 
 export interface reqLogin {

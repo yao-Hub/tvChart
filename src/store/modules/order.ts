@@ -123,7 +123,8 @@ export const useOrder = defineStore("order", () => {
     () => quotesStore.qoutes,
     (qoutes) => {
       state.orderData.marketOrder.forEach((item) => {
-        const { volume, symbol, open_price, type, fee, storage } = item;
+        const { volume, symbol, open_price, type, fee, storage, pre_currency } =
+          item;
         const quote = qoutes[symbol];
         const closePrice = type ? get(quote, "ask") : get(quote, "bid");
         if (!isNil(closePrice)) {
@@ -135,6 +136,7 @@ export const useOrder = defineStore("order", () => {
             volume: volume / 100,
             fee,
             storage,
+            pre_currency,
           };
           const result = getProfit(params, direction);
           item.profit = result;
@@ -453,6 +455,7 @@ export const useOrder = defineStore("order", () => {
       volume: number;
       fee?: number;
       storage?: number;
+      pre_currency?: string;
     },
     direction: "sell" | "buy"
   ): string => {
@@ -466,8 +469,8 @@ export const useOrder = defineStore("order", () => {
     const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
     if (symbolInfo) {
       const { currency, pre_currency, contract_size } = symbolInfo;
+      const preCurrency = params.pre_currency || pre_currency; // 前置币种
       const userCur = loginInfo?.currency; // 账户币种
-
       const closePriceDec = new Decimal(closePrice);
       const buildPriceDec = new Decimal(buildPrice);
       const volumeDec = new Decimal(volume);
@@ -513,46 +516,13 @@ export const useOrder = defineStore("order", () => {
       const type =
         currency === userCur
           ? "last_user"
-          : pre_currency === userCur
+          : preCurrency === userCur
           ? "pre_user"
           : "normal";
 
       const result = stateMachine[type][direction];
       const finalResult = result.add(feeDec).add(storageDec).toFixed(2);
       return finalResult;
-
-      // const stateMachine = {
-      //   last_user: {
-      //     buy: (closePrice - buildPrice) * volume * contract_size,
-      //     sell: (buildPrice - closePrice) * volume * contract_size,
-      //   },
-      //   pre_user: {
-      //     buy:
-      //       (closePrice - buildPrice) * volume * (contract_size / closePrice),
-      //     sell:
-      //       (buildPrice - closePrice) * volume * (contract_size / closePrice),
-      //   },
-      //   normal: {
-      //     buy:
-      //       (closePrice - buildPrice) *
-      //       volume *
-      //       contract_size *
-      //       rates.last_user.bid_rate,
-      //     sell:
-      //       (buildPrice - closePrice) *
-      //       volume *
-      //       contract_size *
-      //       rates.last_user.bid_rate,
-      //   },
-      // };
-      // const type =
-      //   currency === userCur
-      //     ? "last_user"
-      //     : pre_currency === userCur
-      //     ? "pre_user"
-      //     : "normal";
-      // const result = stateMachine[type][direction];
-      // return round(result + (fee || 0) + (storage || 0), 2);
     }
     return "-";
   };

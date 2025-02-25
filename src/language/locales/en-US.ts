@@ -327,7 +327,8 @@ export default {
     source: "source",
     content: "content",
     date: "date",
-    days: "{num}天",
+    days: "{num}day",
+    symbolNoAllowTrading: "The current symbol is prohibited from trading",
   },
 
   dialog: {

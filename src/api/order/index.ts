@@ -67,6 +67,7 @@ export interface resOrders {
   profit: number | string; // 	浮动盈亏
   comment: string; // 	备注评论
   now_price?: number; // 现价
+  pre_currency: string;
 }
 
 interface reqMarketClose {
@@ -146,6 +147,7 @@ export interface resPendingOrders {
   profit: number; //	浮动盈亏
   comment: string; //	备注评论
   order_price_time: number;
+  pre_currency: string;
 }
 
 export interface reqHistoryOrders {
@@ -191,6 +193,7 @@ export interface resHistoryOrders {
   profit: number; //	浮动盈亏
   comment: string; //	备注评论
   close_type?: number; // 平仓类型。平仓类型，0=手动，1=sl，2=tp，3=强平
+  pre_currency: string;
 }
 
 interface reqDelPendingOrders {

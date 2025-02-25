@@ -67,6 +67,7 @@ import { symbolDetail } from "api/symbols";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
+import { useSymbols } from "@/store/modules/symbols";
 
 const { t } = useI18n();
 const chartInitStore = useChartInit();
@@ -121,6 +122,11 @@ const addOrder = () => {
   orderStore.createOrder({ symbol: props.symbol });
 };
 const addChart = () => {
+  const symbols = useSymbols().symbols_tradeAllow.map((item) => item.symbol);
+  if (symbols.indexOf(props.symbol) === -1) {
+    ElMessage.warning(t("tip.symbolNoAllowTrading"));
+    return;
+  }
   chartInitStore.addChart(props.symbol);
 };
 
@@ -181,6 +187,7 @@ const getValue = (key: Tkey) => {
 import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 import { flattenDeep, groupBy, set, uniq } from "lodash";
+import { ElMessage } from "element-plus";
 const timeStore = useTime();
 const tableData = ref<any[]>([{}, {}]);
 const columns = ref<{ prop: string; label: string }[]>([]);

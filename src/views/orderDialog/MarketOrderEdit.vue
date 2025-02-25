@@ -84,6 +84,7 @@
                 :volume="+props.orderInfo.volume / 100"
                 :fee="props.orderInfo.fee"
                 :storage="props.orderInfo.storage"
+                :preCurrency="props.orderInfo.pre_currency"
               ></StopLossProfit>
             </el-col>
             <el-col :span="12">
@@ -97,6 +98,7 @@
                 :volume="+props.orderInfo.volume / 100"
                 :fee="props.orderInfo.fee"
                 :storage="props.orderInfo.storage"
+                :preCurrency="props.orderInfo.pre_currency"
               ></StopLossProfit>
             </el-col>
           </el-row>
@@ -426,7 +428,8 @@ const nowProfit = computed(() => {
     if (volume === "") {
       return "-";
     }
-    const { storage, fee, open_price, type, symbol } = props.orderInfo;
+    const { storage, fee, open_price, type, symbol, pre_currency } =
+      props.orderInfo;
     const direction = getTradingDirection(type);
     const closePrice =
       direction === "buy" ? get(quote.value, "bid") : get(quote.value, "ask");
@@ -439,6 +442,7 @@ const nowProfit = computed(() => {
           volume: +volume,
           fee,
           storage,
+          pre_currency,
         },
         direction
       );

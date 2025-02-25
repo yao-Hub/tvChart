@@ -9,6 +9,7 @@ import { allSymbols, optionalQuery, reqOptionalQuery } from "api/symbols/index";
 import { useOrder } from "./order";
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
+import { useUser } from "./user";
 
 export const useSymbols = defineStore("symbols", () => {
   const orderStore = useOrder();
@@ -29,7 +30,14 @@ export const useSymbols = defineStore("symbols", () => {
 
   // 可交易商品
   const symbols_tradeAllow = computed(() => {
-    return symbols.value.filter((e) => e.trade_allow === 1);
+    let limitSymbols = symbols.value.map((item) => item.symbol);
+    const loginInfo = useUser().state.loginInfo;
+    if (loginInfo && loginInfo.symbols_limit) {
+      limitSymbols = loginInfo.symbols_limit.split(",");
+    }
+    return symbols.value.filter(
+      (e) => e.trade_allow === 1 && limitSymbols.includes(e.symbol)
+    );
   });
 
   // 有报价的商品
