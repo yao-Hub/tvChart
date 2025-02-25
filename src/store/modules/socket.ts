@@ -66,7 +66,7 @@ export const useSocket = defineStore("socket", {
       const server = useUser().account.server || useNetwork().server;
       const searchMap: Record<string, string> = {
         "x-u-platform": "web",
-        "x-u-device-id": useVersion().deviceId,
+        "x-u-device-id": useVersion().getDeviceId(),
         server,
         action: "connect",
       };

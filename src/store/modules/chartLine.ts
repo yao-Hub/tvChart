@@ -90,7 +90,7 @@ export const useChartLine = defineStore("chartLine", {
             }
           }
         },
-        300,
+        400,
         { trailing: true }
       );
 

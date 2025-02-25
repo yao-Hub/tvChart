@@ -151,7 +151,8 @@ export const datafeed = (id: string) => {
     ) => {
       try {
         function checkString(str: string) {
-          return str.includes("D") || str.includes("W") || str.includes("M");
+          const regex = /[DWM]/;
+          return regex.test(str);
         }
 
         let count = periodParams.countBack;

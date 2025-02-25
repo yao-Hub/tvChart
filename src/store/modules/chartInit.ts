@@ -59,7 +59,7 @@ export const useChartInit = defineStore("chartInit", () => {
   });
 
   // 等待图表初始化完毕才去调用socket数据
-  const unInitWatch = watch(
+  watch(
     () => state.ifFinishLoad,
     (obj) => {
       const values = Object.values(obj);
@@ -72,7 +72,7 @@ export const useChartInit = defineStore("chartInit", () => {
   );
 
   // 单图表显示工具栏 多图表隐藏
-  const unLayoutWatch = watch(
+  watch(
     () => [state.chartLayoutType, state.chartWidgetList.length],
     ([type, length]) => {
       try {
@@ -315,8 +315,6 @@ export const useChartInit = defineStore("chartInit", () => {
     state.activeChartId = "chart_1";
     state.ifFinishLoad = {};
     state.chartFreshKeys = {};
-    unInitWatch();
-    unLayoutWatch();
   }
 
   return {
