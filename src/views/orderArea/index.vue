@@ -317,7 +317,7 @@
               <template v-else-if="column.dataKey === 'orderAction'">
                 <el-icon
                   class="iconfont"
-                  @click="delPendingOrder(rowData, rowIndex)"
+                  @click="delOrder(rowData, rowIndex)"
                   v-if="!pendingCloseLodingMap[rowData.id]"
                   :title="t('table.cancelOrder')"
                 >
@@ -420,12 +420,14 @@ import * as orders from "api/order/index";
 import { ifNumber } from "utils/common/index";
 import { getOrderType, getTradingDirection } from "utils/order/index";
 import { tableColumns } from "./config";
+import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
 import { useStorage } from "@/store/modules/storage";
 import { useTime } from "@/store/modules/time";
+import { useUser } from "@/store/modules/user";
 
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
@@ -822,22 +824,51 @@ const closeMarketOrder = async (
   record: orders.resOrders & orders.resPendingOrders,
   index: number
 ) => {
+  let logType = "info";
+  let errmsg = "";
+  let logStr = "";
+
+  const { id, symbol, volume, type } = record;
   async function foo() {
     try {
-      marketCloseLodingMap.value[record.id] = true;
+      marketCloseLodingMap.value[id] = true;
+      const direction = getTradingDirection(type);
+      logStr = ` #${id} (${direction} ${volume} ${symbol} `;
       const res = await orders.marketOrdersClose({
-        symbol: record.symbol,
-        id: record.id,
-        volume: record.volume,
+        symbol,
+        id,
+        volume,
       });
-      marketCloseLodingMap.value[record.id] = false;
+      marketCloseLodingMap.value[id] = false;
       if (res.data.action_success) {
         ElMessage.success(t("order.positionClosedSuccessfully"));
         orderStore.state.orderData.marketOrder.splice(index, 1);
         orderStore.getData("single_marketOrder_close");
+      } else {
+        logType = "error";
+        errmsg = res.data.err_text;
+        ElMessage.error(
+          `${t("tip.failed", { type: t("dialog.createOrder") })}：${t(errmsg)}`
+        );
       }
+      logStr += `at ${res.data.close_price})`;
     } catch (error) {
-      marketCloseLodingMap.value[record.id] = false;
+      logType = "error";
+      marketCloseLodingMap.value[id] = false;
+    } finally {
+      const detail = `close market order ${
+        logType === "error" ? `fail ${errmsg}` : ""
+      } ${logStr}`;
+      const logData = {
+        id: new Date().getTime(),
+        type: logType,
+        origin: "trades",
+        time: dayjs().format("HH:mm:ss:SSS"),
+        login: useUser().account.login,
+        logName: "close market order",
+        detail,
+      };
+      logIndexedDB.addData(logData);
     }
   }
 
@@ -857,8 +888,30 @@ const closeMarketOrder = async (
 // 全部关闭市价单
 const closeMarketOrders = (command: number) => {
   ElMessageBox.confirm(t("order.confirmPositionClosure")).then(async () => {
-    await orders.marketOrdersCloseMulti({ multi_type: command });
-    ElMessage.success(t("order.positionClosedSuccessfully"));
+    let logType = "info";
+    let logStr = "";
+    try {
+      const res = await orders.marketOrdersCloseMulti({ multi_type: command });
+      logStr = res.data.closed_ids.join(",");
+      ElMessage.success(t("order.positionClosedSuccessfully"));
+    } catch (error) {
+      logType = "error";
+    } finally {
+      const logData = {
+        id: new Date().getTime(),
+        type: logType,
+        origin: "trades",
+        time: dayjs().format("HH:mm:ss:SSS"),
+        login: useUser().account.login,
+        logName: "close market orders",
+        detail: `${
+          logType === "info"
+            ? "close market orders"
+            : "close market orders Fail"
+        } ${logStr}`,
+      };
+      logIndexedDB.addData(logData);
+    }
   });
 };
 
@@ -871,42 +924,45 @@ const closePendingOrders = (data: orders.resOrders[]) => {
     t("tip.confirmDelPendingOrders", { num: data.length }),
     t("order.pendingOrderClosed")
   ).then(async () => {
+    let logType = "info";
+    let logStr = "";
     const list = data.map((item) => {
       return orders.delPendingOrders({
         symbol: item.symbol,
         id: item.id,
       });
     });
-    const res = await Promise.all(list);
-    if (res[0].data.action_success) {
+    try {
+      await Promise.all(list);
       ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
       orderStore.getData("order_closed");
       orderStore.getData("pending_order_deleted");
+    } catch (error) {
+      logType = "error";
+    } finally {
+      logStr = data.map((item) => item.id).join(",");
+      const logData = {
+        id: new Date().getTime(),
+        type: logType,
+        origin: "trades",
+        time: dayjs().format("HH:mm:ss:SSS"),
+        login: useUser().account.login,
+        logName: "close orders",
+        detail: `${
+          logType === "info" ? "close orders" : "close orders Fail"
+        } ${logStr}`,
+      };
+      logIndexedDB.addData(logData);
     }
   });
 };
 
 // 删除单个挂单
 const pendingCloseLodingMap = ref<Record<number, boolean>>({});
-const delPendingOrder = async (record: orders.resOrders, index: number) => {
-  try {
-    pendingCloseLodingMap.value[record.id] = true;
-    const res = await orders.delPendingOrders({
-      id: record.id,
-      symbol: record.symbol,
-    });
-    pendingCloseLodingMap.value[record.id] = false;
-
-    if (res.data.action_success) {
-      ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
-      orderStore.state.orderData.pendingOrder.splice(index, 1);
-      orderStore.getPendingOrderHistory();
-      return;
-    }
-    ElMessage.error(res.data.err_text);
-  } catch (error) {
-    pendingCloseLodingMap.value[record.id] = false;
-  }
+const delOrder = async (record: orders.resOrders, index: number) => {
+  orderStore.delPendingOrder(record, (ending) => {
+    pendingCloseLodingMap.value[record.id] = !ending;
+  });
 };
 
 const showOrderDialog = (rowData: any) => {

@@ -173,13 +173,18 @@
 </template>
 
 <script setup lang="ts">
+import { computed, reactive, ref, watch } from "vue";
+import dayjs from "dayjs";
+import { useI18n } from "vue-i18n";
+
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
+import { useUser } from "@/store/modules/user";
 
+import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 import { resOrders } from "api/order/index";
-import { computed, reactive, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
+
 import Spread from "./components/spread.vue";
 
 const dialogStore = useDialog();
@@ -292,11 +297,15 @@ const handleConfirm = debounce(
 // 平仓操作
 const closeOrder = async () => {
   const { id, symbol } = props.orderInfo;
+  let logType = "info";
+  let errmsg = "";
+  let logStr = "";
   const res = await marketOrdersClose({
     symbol,
     id,
     volume: +closeFormState.volume * 100,
   });
+  logStr = ` #${id} (${transactionType.value} ${closeFormState.volume} ${symbol} `;
   if (res.data.action_success) {
     ElNotification({
       title: t("dialog.positionClosedSuccessfully"),
@@ -310,10 +319,25 @@ const closeOrder = async () => {
     handleCancel();
     confirmCancel();
   } else {
+    logType = "error";
+    errmsg = res.data.err_text;
     ElNotification.error({
       title: t("dialog.positionClosingFailed"),
     });
   }
+  const detail = `close market order ${
+    logType === "error" ? `fail ${errmsg}` : ""
+  } ${logStr}`;
+  const logData = {
+    id: new Date().getTime(),
+    type: logType,
+    origin: "trades",
+    time: dayjs().format("HH:mm:ss:SSS"),
+    login: useUser().account.login,
+    logName: "close market order",
+    detail,
+  };
+  logIndexedDB.addData(logData);
 };
 
 // 双倍持仓

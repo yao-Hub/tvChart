@@ -35,6 +35,8 @@ interface ResOrderAdd {
   id: string; // 	成功时产生的订单ID
   action_success: boolean; //	是否操作成功
   err_text: string; //	失败原因。需映射成国际化语言
+  open_price: number;
+  close_price: number;
 }
 
 export interface resOrders {
@@ -82,6 +84,7 @@ interface resMarketClose {
   volume: number; //	手数
   action_success: boolean; // 是否操作成功
   err_text: string;
+  close_price: number;
 }
 
 export interface reqPendingOrdersAdd {

@@ -229,7 +229,7 @@ export const useUser = defineStore("user", () => {
         if (nodeName) {
           networkStore.nodeName = nodeName;
           const socketStore = useSocket();
-          let type = "info";
+          let logType = "info";
           let errmsg = "";
 
           // 长连接主socket
@@ -254,7 +254,7 @@ export const useUser = defineStore("user", () => {
             .catch((error) => {
               errmsg = get(error, "errmsg") || error;
               const err = get(error, ["err"]);
-              type = "error";
+              logType = "error";
               if (err === 205) {
                 if (callback) {
                   callback({ ending: true, success: false });
@@ -267,13 +267,13 @@ export const useUser = defineStore("user", () => {
               const endTime = new Date().getTime();
               const ping = endTime - beginTime;
               const detail = `${
-                type === "error" ? `login ${errmsg}` : "login"
+                logType === "error" ? `login ${errmsg}` : "login"
               } (dc:${updata.server},ping:${ping}ms,port: ${getPort(
                 webApi || ""
               )})`;
               const logData = {
                 id: endTime,
-                type,
+                type: logType,
                 origin: "network",
                 time: dayjs().format("HH:mm:ss:SSS"),
                 login: updata.login,
@@ -293,21 +293,21 @@ export const useUser = defineStore("user", () => {
   };
 
   const logout = async () => {
-    let type = "info";
+    let logType = "info";
     const beginTime = new Date().getTime();
     try {
       await Logout();
     } catch (error) {
-      type = "error";
+      logType = "error";
     } finally {
       const endTime = new Date().getTime();
       const ping = endTime - beginTime;
-      const detail = `${type === "error" ? "logoutFail" : "logout"} (dc:${
+      const detail = `${logType === "error" ? "logoutFail" : "logout"} (dc:${
         account.value.server
       },ping:${ping}ms,port: ${useNetwork().port})`;
       const logData = {
         id: endTime,
-        type,
+        type: logType,
         origin: "network",
         time: dayjs().format("HH:mm:ss:SSS"),
         login: account.value.login,

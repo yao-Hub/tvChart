@@ -32,7 +32,11 @@
             :label="t('table.symbol')"
             label-position="top"
           >
-            <SymbolSelect v-model="formState.symbol" subSymbol symbolType="tradeAllow"></SymbolSelect>
+            <SymbolSelect
+              v-model="formState.symbol"
+              subSymbol
+              symbolType="tradeAllow"
+            ></SymbolSelect>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -220,6 +224,7 @@ import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { DirectionType, OrderType } from "#/order";
+import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import BreakLimit from "./components/BreakLimit.vue";
@@ -235,6 +240,7 @@ import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTime } from "@/store/modules/time";
+import { useUser } from "@/store/modules/user";
 
 const { t } = useI18n();
 
@@ -387,6 +393,10 @@ import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
 import { ElNotification } from "element-plus";
 const priceBtnLoading = ref(false);
 const createPriceOrder = debounce(async () => {
+  let logType = "info";
+  let errmsg = "";
+  let logStr = "";
+
   try {
     priceBtnLoading.value = true;
     const updata: ReqOrderAdd = {
@@ -394,11 +404,14 @@ const createPriceOrder = debounce(async () => {
       type: directionType.value === "buy" ? 0 : 1,
       volume: +formState.volume * 100,
     };
+    logStr = `${directionType.value} ${formState.volume} ${formState.symbol} `;
     if (formState.stopLoss !== "") {
       updata.sl = +formState.stopLoss;
+      logStr += `sl:${formState.stopLoss} `;
     }
     if (formState.stopProfit !== "") {
       updata.tp = +formState.stopProfit;
+      logStr += `tp:${formState.stopProfit} `;
     }
     const res = await marketOrdersAdd(updata);
     if (res.data.action_success) {
@@ -415,12 +428,31 @@ const createPriceOrder = debounce(async () => {
       back();
       handleCancel();
     } else {
+      logType = "error";
+      errmsg = res.data.err_text;
       ElNotification.error({
         title: t("tip.failed", { type: t("dialog.createOrder") }),
-        message: `${res.data.err_text}`,
+        message: t(errmsg),
       });
     }
+    logStr += `at ${res.data.open_price}`;
+    logStr = `#${res.data.id} ${logStr}`;
+  } catch (e) {
+    logType = "error";
   } finally {
+    const detail = `${
+      logType === "error" ? `marketFail ${errmsg}` : "market"
+    } ${logStr}`;
+    const logData = {
+      id: new Date().getTime(),
+      type: logType,
+      origin: "trades",
+      time: dayjs().format("HH:mm:ss:SSS"),
+      login: useUser().account.login,
+      logName: "market",
+      detail,
+    };
+    logIndexedDB.addData(logData);
     priceBtnLoading.value = false;
   }
 }, 200);
@@ -431,6 +463,10 @@ import { pendingOrdersAdd, reqPendingOrdersAdd } from "api/order/index";
 import { ElMessage } from "element-plus";
 const pendingBtnLoading = ref(false);
 const addPendingOrders = debounce(async () => {
+  let logType = "info";
+  let errmsg = "";
+  let logStr = "";
+
   try {
     pendingBtnLoading.value = true;
     const values = await valids();
@@ -442,14 +478,21 @@ const addPendingOrders = debounce(async () => {
         order_price: +formState.orderPrice,
         time_expiration: +formState.dueDate,
       };
+      const direction = formState.orderType.toLowerCase().includes("buy")
+        ? "buy"
+        : "sell";
+      logStr = `${direction} ${formState.volume} ${formState.symbol} `;
+
       if (["buyStopLimit", "sellStopLimit"].includes(formState.orderType)) {
         updata.trigger_price = +formState.limitedPrice;
       }
       if (formState.stopLoss !== "") {
         updata.sl = +formState.stopLoss;
+        logStr += `sl:${formState.stopLoss} `;
       }
       if (formState.stopProfit !== "") {
         updata.tp = +formState.stopProfit;
+        logStr += `tp:${formState.stopProfit} `;
       }
       const res = await pendingOrdersAdd(updata);
       if (res.data.action_success) {
@@ -457,14 +500,31 @@ const addPendingOrders = debounce(async () => {
         ElMessage.success(t("tip.succeed", { type: t("dialog.createOrder") }));
         handleCancel();
       } else {
+        logType = "error";
+        errmsg = res.data.err_text;
         ElMessage.error(
-          `${t("tip.failed", { type: t("dialog.createOrder") })}：${
-            res.data.err_text
-          }`
+          `${t("tip.failed", { type: t("dialog.createOrder") })}：${t(errmsg)}`
         );
       }
+      logStr += `at ${res.data.order_price}`;
+      logStr = `#${res.data.id} ${logStr}`;
     }
+  } catch (e) {
+    logType = "error";
   } finally {
+    const detail = `${
+      logType === "error" ? `orderFail ${errmsg}` : "order"
+    } ${logStr}`;
+    const logData = {
+      id: new Date().getTime(),
+      type: logType,
+      origin: "trades",
+      time: dayjs().format("HH:mm:ss:SSS"),
+      login: useUser().account.login,
+      logName: "order",
+      detail,
+    };
+    logIndexedDB.addData(logData);
     pendingBtnLoading.value = false;
   }
 }, 200);

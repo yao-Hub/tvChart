@@ -335,23 +335,14 @@ const confirmEdit = debounce(async () => {
   }
 }, 200);
 
-import { delPendingOrders } from "api/order/index";
 import { ElMessageBox } from "element-plus";
 
 const delPendingOrder = () => {
   ElMessageBox.confirm("", t("tip.confirm", { type: t("delete") })).then(
     async () => {
-      const res = await delPendingOrders({
-        id: props.orderInfo.id,
-        symbol: props.orderInfo.symbol,
+      orderStore.delPendingOrder(props.orderInfo, (ending) => {
+        ending && handleCancel();
       });
-      if (res.data.action_success) {
-        orderStore.getData("pending_order_deleted");
-        ElMessage.success(t("dialog.pendingClosingSuccessfully"));
-        handleCancel();
-        return;
-      }
-      ElMessage.error(res.data.err_text);
     }
   );
 };

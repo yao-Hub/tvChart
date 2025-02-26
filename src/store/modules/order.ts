@@ -1,7 +1,7 @@
 import i18n from "@/language/index";
 import dayjs from "dayjs";
 import Decimal from "decimal.js";
-import { ElMessageBox } from "element-plus";
+import { ElMessageBox, ElMessage } from "element-plus";
 import { defineStore } from "pinia";
 import { reactive, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -22,6 +22,7 @@ import * as orders from "api/order/index";
 import { debounce, get, isNil } from "lodash";
 // import { round } from "utils/common/index";
 import { getTradingDirection } from "utils/order/index";
+import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 
 type ModeType = "create" | "confirm";
 type SymbolType = string;
@@ -281,13 +282,13 @@ export const useOrder = defineStore("order", () => {
   }, 200);
   const initTableData = async () => {
     const socketStore = useSocket();
-    await Promise.all([
-      getMarketOrders(),
-      // getPendingOrders(),
-      // getMarketOrderHistory(),
-      // getPendingOrderHistory(),
-      // getBlanceRecord(),
-    ]);
+    await getMarketOrders();
+    // await Promise.all([
+    //   getPendingOrders(),
+    //   getMarketOrderHistory(),
+    //   getPendingOrderHistory(),
+    //   getBlanceRecord(),
+    // ]);
 
     socketStore.orderChanges((type: string) => {
       getData(type);
@@ -600,6 +601,58 @@ export const useOrder = defineStore("order", () => {
     return result.toNumber();
   };
 
+  // 删除单个挂单
+  const delPendingOrder = async (
+    record: orders.resOrders,
+    callback?: (ending: boolean) => void
+  ) => {
+    let logType = "info";
+    let logStr = "";
+
+    const { id, symbol, volume, type, order_price } = record;
+    try {
+      const direction = getTradingDirection(type);
+      logStr = ` #${id} (${direction} ${volume} ${symbol} at ${order_price})`;
+      if (callback) {
+        callback(false);
+      }
+      const res = await orders.delPendingOrders({
+        id: record.id,
+        symbol: record.symbol,
+      });
+      if (res.data.action_success) {
+        const t = i18n.global.t;
+        ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
+        const index = state.orderData.pendingOrder.findIndex(
+          (e) => e.id === id
+        );
+        state.orderData.pendingOrder.splice(index, 1);
+        getData("pending_order_deleted");
+        return;
+      }
+      ElMessage.error(res.data.err_text);
+    } catch (error) {
+      logType = "error";
+    } finally {
+      if (callback) {
+        callback(true);
+      }
+      const detail = `close order ${
+        logType === "error" ? `fail` : ""
+      } ${logStr}`;
+      const logData = {
+        id: new Date().getTime(),
+        type: logType,
+        origin: "trades",
+        time: dayjs().format("HH:mm:ss:SSS"),
+        login: useUser().account.login,
+        logName: "close order",
+        detail,
+      };
+      logIndexedDB.addData(logData);
+    }
+  };
+
   function $reset() {
     state.initOrderState = { symbol: "" };
     state.currentKline = {};
@@ -680,6 +733,7 @@ export const useOrder = defineStore("order", () => {
     getReferMargin,
     volumeAdd,
     volumeSub,
+    delPendingOrder,
     $reset,
   };
 });
