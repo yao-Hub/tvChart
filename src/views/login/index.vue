@@ -7,7 +7,7 @@
       <Language></Language>
     </div>
     <router-view v-slot="{ Component }">
-      <div class="container" :style="{ height: containerHeight + 'px' }">
+      <div class="container">
         <transition :name="direction" mode="out-in" appear>
           <div class="main" :key="Component">
             <component :is="Component" />
@@ -22,7 +22,6 @@
 import { ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
-import { useRoot } from "@/store/store";
 import { useInit } from "@/store/modules/init";
 
 import Language from "./components/Language.vue";
@@ -35,16 +34,11 @@ const router = useRouter();
 
 const localeKey = ref("");
 
-const containerHeight = window.innerHeight * 0.7;
+useInit().init();
 
-(async function init() {
-  await useRoot().resetAllStore();
-  useInit().init();
-
-  // 预加载home路由
-  const homeComponentImport = () => import("@/views/home/index.vue");
-  homeComponentImport();
-})();
+// 预加载home路由
+const homeComponentImport = () => import("@/views/home/index.vue");
+homeComponentImport();
 
 const direction = ref("slide-forward");
 watch(
@@ -159,6 +153,7 @@ watch(
     top: 15%;
     width: 480px;
     max-height: 648px;
+    height: 70%;
     .main {
       width: 100%;
       height: 100%;

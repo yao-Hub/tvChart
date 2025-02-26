@@ -22,8 +22,9 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { onBeforeRouteLeave } from "vue-router";
 
 import { useInit } from "@/store/modules/init";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -119,13 +120,13 @@ async function init() {
     await rootStore.resetAllStore();
     await useInit().init();
     await networkStore.initNode(); // 网络节点
+    await networkStore.getNodesDelay();
     await userStore.getLoginInfo({ emitSocket: true }); // 个人信息
     await Promise.all([
       symbolsStore.getAllSymbol(),
       quotesStore.getAllSymbolQuotes(),
       rateStore.getAllRates(),
       orderStore.initTableData(),
-      networkStore.getNodesDelay(),
     ]);
     userStore.refreshToken(); // 倒计时刷新token
   } catch (error) {
@@ -172,10 +173,12 @@ onMounted(() => {
 
 // 离开页面保存图表操作
 // 撤销监听 resize
-onBeforeUnmount(() => {
+onBeforeRouteLeave(async () => {
   chartInitStore.saveCharts();
+  await rootStore.resetAllStore();
   document.removeEventListener("visibilitychange", handleVisibilityChange);
   window.removeEventListener("resize", resizeUpdate);
+  return true;
 });
 </script>
 

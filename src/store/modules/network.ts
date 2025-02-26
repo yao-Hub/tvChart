@@ -12,16 +12,17 @@ import {
 import { getPort } from "utils/common";
 
 import { useUser } from "./user";
+import { orderBy } from "lodash";
 
 interface IState {
   server: string;
   nodeName: string;
-  nodeList: Array<resQueryNode & { webApiDelay?: number }>;
+  nodeList: Array<resQueryNode & { webApiDelay?: number | null }>;
   queryTradeLines: resQueryTradeLine[];
 }
 interface RequestResult {
   url: string;
-  delay: number;
+  delay: number | null;
 }
 
 export const useNetwork = defineStore("network", {
@@ -36,7 +37,16 @@ export const useNetwork = defineStore("network", {
 
   getters: {
     currentNode: (state) => {
-      return state.nodeList.find((e) => e.nodeName === state.nodeName);
+      const target = state.nodeList.find((e) => e.nodeName === state.nodeName);
+      if (target && target.webApiDelay !== null) {
+        return target;
+      }
+      // 过滤无效节点 重新优选
+      const successNodeList = state.nodeList.filter(
+        (e) => e.webApiDelay !== null
+      );
+      const orderNodes = orderBy(successNodeList, ["webApiDelay"]);
+      return orderNodes[0];
     },
     currentLine: (state) => {
       return state.queryTradeLines.find((e) => e.lineName === state.server);
@@ -87,33 +97,31 @@ export const useNetwork = defineStore("network", {
     // 节点延迟
     async getNodesDelay() {
       const webApiList = this.nodeList.map((item) => item.webApi);
-      const requests: Promise<RequestResult | undefined>[] = webApiList.map(
-        (url) => {
-          return new Promise((resolve) => {
-            const startTime = Date.now();
-            axios
-              .get(url)
-              .then(() => {
-                const endTime = Date.now();
-                const delay = endTime - startTime;
-                resolve({ url, delay });
-              })
-              .catch((e) => resolve(undefined));
-          });
-        }
-      );
+      const requests: Promise<RequestResult>[] = webApiList.map((url) => {
+        return new Promise((resolve) => {
+          const startTime = Date.now();
+          axios
+            .get(url)
+            .then(() => {
+              const endTime = Date.now();
+              const delay = endTime - startTime;
+              resolve({ url, delay });
+            })
+            .catch((e) => resolve({ url, delay: null }));
+        });
+      });
       const results = await Promise.all(requests);
-      // 过滤掉未成功的请求（值为 undefined 的项）
-      const successfulResults: RequestResult[] = results.filter(
-        (result): result is RequestResult => result !== undefined
-      );
-      successfulResults.forEach((result) => {
+      results.forEach((result) => {
         const target = this.nodeList.find((e) => e.webApi === result.url);
         if (target) {
           target.webApiDelay = result.delay;
         }
         console.log(`请求 ${result.url} 的延迟时间: ${result.delay} 毫秒`);
       });
+      // 过滤掉未成功的请求（delay值为 null 的项）
+      const successfulResults: RequestResult[] = results.filter(
+        (result): result is RequestResult => result.delay !== null
+      );
       if (!successfulResults.length) {
         ElMessage.error(i18n.global.t("tip.NodeUnavailable"));
       }
