@@ -75,3 +75,12 @@ export function generateUUID() {
     return v.toString(16);
   });
 }
+
+export function getPort(url: string) {
+  const match = url.match(/:\d+(\/|$)/);
+  if (match) {
+    const port = match[0].slice(1);
+    return port;
+  }
+  return "";
+}

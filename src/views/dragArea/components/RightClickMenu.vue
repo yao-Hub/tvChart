@@ -119,14 +119,14 @@ document.addEventListener("click", () => {
 });
 
 const addOrder = () => {
-  orderStore.createOrder({ symbol: props.symbol });
-};
-const addChart = () => {
   const symbols = useSymbols().symbols_tradeAllow.map((item) => item.symbol);
   if (symbols.indexOf(props.symbol) === -1) {
     ElMessage.warning(t("tip.symbolNoAllowTrading"));
     return;
   }
+  orderStore.createOrder({ symbol: props.symbol });
+};
+const addChart = () => {
   chartInitStore.addChart(props.symbol);
 };
 

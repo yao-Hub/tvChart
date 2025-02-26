@@ -9,6 +9,7 @@ import {
   resQueryNode,
   resQueryTradeLine,
 } from "api/account/index";
+import { getPort } from "utils/common";
 
 import { useUser } from "./user";
 
@@ -39,6 +40,13 @@ export const useNetwork = defineStore("network", {
     },
     currentLine: (state) => {
       return state.queryTradeLines.find((e) => e.lineName === state.server);
+    },
+    port: (state) => {
+      const target = state.nodeList.find((e) => e.nodeName === state.server);
+      if (target) {
+        return getPort(target.webApi);
+      }
+      return "";
     },
   },
 
@@ -90,7 +98,7 @@ export const useNetwork = defineStore("network", {
                 const delay = endTime - startTime;
                 resolve({ url, delay });
               })
-              .catch((e) => e);
+              .catch((e) => resolve(undefined));
           });
         }
       );

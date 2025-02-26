@@ -25,6 +25,7 @@
           filterable
           default-first-option
           :suffix-icon="Search"
+          autocomplete="new-password"
         >
           <el-option
             v-for="item in networkStore.queryTradeLines"
@@ -49,6 +50,7 @@
           :placeholder="t('tip.passwordRequired')"
           show-password
           ref="pwd"
+          autocomplete="new-password"
         />
       </el-form-item>
 

@@ -22,7 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, onUnmounted, ref, watch } from "vue";
+import { onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useInit } from "@/store/modules/init";
@@ -116,6 +116,7 @@ const initRender = () => {
 async function init() {
   try {
     chartInitStore.state.loading = true;
+    await rootStore.resetAllStore();
     await useInit().init();
     await networkStore.initNode(); // 网络节点
     await userStore.getLoginInfo({ emitSocket: true }); // 个人信息
@@ -136,11 +137,8 @@ async function init() {
 // 全局刷新重置store 热更新
 watch(
   () => chartInitStore.state.globalRefresh,
-  async (val) => {
-    if (val) {
-      await rootStore.resetAllStore();
-      init();
-    }
+  (val) => {
+    val && init();
   }
 );
 
@@ -178,11 +176,6 @@ onBeforeUnmount(() => {
   chartInitStore.saveCharts();
   document.removeEventListener("visibilitychange", handleVisibilityChange);
   window.removeEventListener("resize", resizeUpdate);
-});
-
-// 重置vuex的state
-onUnmounted(() => {
-  rootStore.resetAllStore();
 });
 </script>
 

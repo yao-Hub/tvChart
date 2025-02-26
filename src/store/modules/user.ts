@@ -2,12 +2,13 @@ import { defineStore } from "pinia";
 
 import i18n from "@/language/index";
 import { ElMessage } from "element-plus";
-import { assign, debounce } from "lodash";
+import { assign, debounce, get, sortBy } from "lodash";
 import CryptoJS from "utils/AES";
+import dayjs from "dayjs";
 
 import { Login, UserInfo, loginInfo, refresh_token, Logout } from "api/account";
-import { round } from "utils/common";
-// import { logIndexedDB } from "utils/IndexedDB/logDatabase";
+import { getPort, round } from "utils/common";
+import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 
 import { computed, reactive } from "vue";
 import { useNetwork } from "./network";
@@ -209,70 +210,115 @@ export const useUser = defineStore("user", () => {
       ElMessage.info(t("tip.networkNodeNotFound"));
       return Promise.reject();
     }
-    try {
-      // 选择连接延迟最低的网络节点
-      const delayList = await networkStore.getNodesDelay();
-      if (delayList.length) {
-        const timeList = delayList.map((item) => item.delay);
-        // 排序
-        timeList.sort((a, b) => a - b);
-        const process = (index: number) => {
-          if (index >= timeList.length) {
-            if (callback) {
-              callback({ ending: true, success: false });
-            }
-            return;
+    // 选择连接延迟最低的网络节点
+    const delayList = await networkStore.getNodesDelay();
+    const beginTime = new Date().getTime();
+
+    if (delayList.length) {
+      // 排序
+      const orderList = sortBy(delayList, ["delay"]);
+      const process = (index: number) => {
+        if (index >= orderList.length) {
+          if (callback) {
+            callback({ ending: true, success: false });
           }
-          const time = timeList[index];
-          const webApi = delayList.find((e) => e.delay === time)?.url;
-          const nodeName = nodeList.find((e) => e.webApi === webApi)?.nodeName;
-          if (nodeName) {
-            networkStore.nodeName = nodeName;
-            const socketStore = useSocket();
-            // 长连接主socket
-            socketStore.initSocket();
-            Login(updata)
-              .then((res) => {
-                const token = res.data.token;
-                // 缓存登录信息
-                addAccount({
-                  ...updata,
-                  queryNode: nodeName,
-                  token,
-                  ifLogin: true,
-                });
-                // 发送登录状态
-                socketStore.sendToken({ login: updata.login, token });
-                if (callback) {
-                  callback({ ending: true, success: true });
-                }
-                ElMessage.success(i18n.global.t("loginSucceeded"));
-              })
-              .catch(() => {
-                process(index + 1);
-              });
-            return;
-          }
-        };
-        process(0);
-      } else {
-        if (callback) {
-          callback({ ending: true, success: false });
+          return;
         }
-      }
-    } catch (error) {
+        const webApi = orderList[index].url;
+        const nodeName = nodeList.find((e) => e.webApi === webApi)?.nodeName;
+        if (nodeName) {
+          networkStore.nodeName = nodeName;
+          const socketStore = useSocket();
+          let type = "info";
+          let errmsg = "";
+
+          // 长连接主socket
+          socketStore.initSocket();
+          Login(updata)
+            .then((res) => {
+              const token = res.data.token;
+              // 缓存登录信息
+              addAccount({
+                ...updata,
+                queryNode: nodeName,
+                token,
+                ifLogin: true,
+              });
+              // 发送登录状态
+              socketStore.sendToken({ login: updata.login, token });
+              if (callback) {
+                callback({ ending: true, success: true });
+              }
+              ElMessage.success(i18n.global.t("loginSucceeded"));
+            })
+            .catch((error) => {
+              errmsg = get(error, "errmsg") || error;
+              const err = get(error, ["err"]);
+              type = "error";
+              if (err === 205) {
+                if (callback) {
+                  callback({ ending: true, success: false });
+                }
+                return;
+              }
+              process(index + 1);
+            })
+            .finally(() => {
+              const endTime = new Date().getTime();
+              const ping = endTime - beginTime;
+              const detail = `${
+                type === "error" ? `login ${errmsg}` : "login"
+              } (dc:${updata.server},ping:${ping}ms,port: ${getPort(
+                webApi || ""
+              )})`;
+              const logData = {
+                id: endTime,
+                type,
+                origin: "network",
+                time: dayjs().format("HH:mm:ss:SSS"),
+                login: updata.login,
+                logName: "login",
+                detail,
+              };
+              logIndexedDB.addData(logData);
+            });
+        }
+      };
+      process(0);
+    } else {
       if (callback) {
         callback({ ending: true, success: false });
       }
-      return Promise.reject();
     }
   };
 
   const logout = async () => {
-    await Logout();
-    changeCurrentAccountOption({
-      ifLogin: false,
-    });
+    let type = "info";
+    const beginTime = new Date().getTime();
+    try {
+      await Logout();
+    } catch (error) {
+      type = "error";
+    } finally {
+      const endTime = new Date().getTime();
+      const ping = endTime - beginTime;
+      const detail = `${type === "error" ? "logoutFail" : "logout"} (dc:${
+        account.value.server
+      },ping:${ping}ms,port: ${useNetwork().port})`;
+      const logData = {
+        id: endTime,
+        type,
+        origin: "network",
+        time: dayjs().format("HH:mm:ss:SSS"),
+        login: account.value.login,
+        logName: "logout",
+        detail,
+      };
+      logIndexedDB.addData(logData);
+      changeCurrentAccountOption({
+        ifLogin: false,
+      });
+    }
   };
 
   function $reset() {

@@ -4,6 +4,32 @@ const dbName = "logDatabase";
 const dbVersion = 1;
 const objectStoreName = "logStore";
 
+// 定义日志数据的格式接口
+interface LogData {
+  id: number;
+  type: "info" | "error";
+  origin: "network" | "trades";
+  time: string;
+  login: string | number;
+  logName: string;
+  detail: string;
+}
+
+// 验证数据是否符合 LogEntry 格式
+function validateLogEntry(data: unknown): data is LogData {
+  if (typeof data !== "object" || data === null) return false;
+  const entry = data as LogData;
+  return (
+    typeof entry.id === "number" &&
+    typeof entry.time === "string" &&
+    typeof entry.logName === "string" &&
+    typeof entry.detail === "string" &&
+    ["string", "number"].includes(typeof entry.login) &&
+    ["info", "error"].includes(entry.type) &&
+    ["network", "trades"].includes(entry.origin)
+  );
+}
+
 // 定义单例实例
 let logIndexedDBServiceInstance: IndexedDBService | null = null;
 // 标记数据库是否已初始化
@@ -40,7 +66,20 @@ const proxiedLogDBService = new Proxy({} as IndexedDBService, {
     if (!logIndexedDBServiceInstance) {
       throw new Error("Log 数据库服务实例未正确初始化。");
     }
-    return Reflect.get(logIndexedDBServiceInstance, prop);
+    // return Reflect.get(logIndexedDBServiceInstance, prop);
+    const originalMethod = Reflect.get(logIndexedDBServiceInstance, prop);
+
+    // 对 addData 和 updateData 方法进行数据验证
+    if (prop === "addData" || prop === "updateData") {
+      return (data: unknown) => {
+        if (!validateLogEntry(data)) {
+          throw new Error(`数据格式不符合要求`);
+        }
+        return originalMethod.call(logIndexedDBServiceInstance, data);
+      };
+    }
+
+    return originalMethod;
   },
   set(target, prop, value) {
     if (!isDBInitialized) {
