@@ -23,7 +23,6 @@ export const useVersion = defineStore("version", {
     async checkVersion() {
       const nowVer = localStorage.getItem("version");
       if (!nowVer) {
-        // localStorage.clear();
         this.setVersion();
       } else {
         // todo 版本更新兼容
@@ -38,6 +37,7 @@ export const useVersion = defineStore("version", {
           // 等待所有删除操作完成
           await Promise.all(deletionPromises);
         }
+        this.setVersion();
       }
     },
     setVersion() {
