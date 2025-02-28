@@ -263,7 +263,7 @@ export const useUser = defineStore("user", () => {
               }
               process(index + 1);
             })
-            .finally(() => {
+            .finally(async () => {
               const endTime = new Date().getTime();
               const ping = endTime - beginTime;
               const detail = `${
@@ -273,12 +273,13 @@ export const useUser = defineStore("user", () => {
               )})`;
               const logData = {
                 id: endTime,
-                type: logType,
+                logType,
                 origin: "network",
                 time: dayjs().format("HH:mm:ss:SSS"),
                 login: updata.login,
                 logName: "login",
                 detail,
+                day: dayjs().format("YYYY.MM.DD"),
               };
               logIndexedDB.addData(logData);
             });
@@ -306,13 +307,14 @@ export const useUser = defineStore("user", () => {
         account.value.server
       },ping:${ping}ms,port: ${useNetwork().port})`;
       const logData = {
-        id: endTime,
-        type: logType,
+        logType,
         origin: "network",
-        time: dayjs().format("HH:mm:ss:SSS"),
-        login: account.value.login,
         logName: "logout",
         detail,
+        id: endTime,
+        login: account.value.login,
+        time: dayjs().format("HH:mm:ss:SSS"),
+        day: dayjs().format("YYYY.MM.DD"),
       };
       logIndexedDB.addData(logData);
       changeCurrentAccountOption({

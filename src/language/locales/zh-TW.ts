@@ -237,6 +237,9 @@ export default {
     limitImageSize: "圖片不得大於{size}",
     NodeUnavailable: "節點不可用",
     symbolNoAllowTrading: "當前商品禁止交易",
+    origin: "來源",
+    logType: "類型",
+    logName: "類型名稱",
   },
 
   time: {

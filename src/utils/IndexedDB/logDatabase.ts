@@ -7,7 +7,7 @@ const objectStoreName = "logStore";
 // 定义日志数据的格式接口
 interface LogData {
   id: number;
-  type: "info" | "error";
+  logType: "info" | "error";
   origin: "network" | "trades";
   time: string;
   login: string | number;
@@ -25,7 +25,7 @@ function validateLogEntry(data: unknown): data is LogData {
     typeof entry.logName === "string" &&
     typeof entry.detail === "string" &&
     ["string", "number"].includes(typeof entry.login) &&
-    ["info", "error"].includes(entry.type) &&
+    ["info", "error"].includes(entry.logType) &&
     ["network", "trades"].includes(entry.origin)
   );
 }
@@ -41,7 +41,8 @@ async function initLogDB() {
     logIndexedDBServiceInstance = new IndexedDBService(
       dbName,
       dbVersion,
-      objectStoreName
+      objectStoreName,
+      ["id", "origin", "time", "login", "logType", "day"]
     );
     try {
       await logIndexedDBServiceInstance.openDatabase();

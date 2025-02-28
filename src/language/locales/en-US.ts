@@ -329,6 +329,9 @@ export default {
     date: "date",
     days: "{num}day",
     symbolNoAllowTrading: "The current symbol is prohibited from trading",
+    origin: "origin",
+    logType: "type",
+    logName: "logName",
   },
 
   dialog: {

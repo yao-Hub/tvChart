@@ -116,35 +116,36 @@
           >
           <DataPicker
             v-if="activeKey === 'log'"
-            v-model="orderStore.state.dataFilter[activeKey].date"
+            v-model:value="orderStore.state.dataFilter.log.day"
             @timeChange="getTableData('log')"
           >
             <span>{{ t("table.date") }}：</span>
           </DataPicker>
           <el-select
             v-if="activeKey === 'log'"
-            v-model="orderStore.state.dataFilter[activeKey].type"
-            multiple
+            v-model="orderStore.state.dataFilter.log.logType"
             clearable
+            :placeholder="t('table.logType')"
             @change="getTableData('log')"
+            style="width: 200px"
           >
-            <el-option value="Warning" label="Warning"></el-option>
-            <el-option value="Error" label="Error"></el-option>
-            <el-option value="Info" label="Info"></el-option>
+            <el-option value="error" label="Error"></el-option>
+            <el-option value="info" label="Info"></el-option>
           </el-select>
           <el-select
             v-if="activeKey === 'log'"
-            v-model="orderStore.state.dataFilter[activeKey].source"
-            multiple
+            v-model="orderStore.state.dataFilter.log.origin"
             clearable
+            :placeholder="t('table.origin')"
             @change="getTableData('log')"
+            style="width: 230px"
           >
             <el-option value="network" label="Network"></el-option>
-            <el-option value="Trades" label="Trades"></el-option>
-            <el-option value="History" label="History"></el-option>
-            <el-option value="Audit" label="Audit"></el-option>
-            <el-option value="Security" label="Security"></el-option>
-            <el-option value="Application" label="Application"></el-option>
+            <el-option value="trades" label="Trades"></el-option>
+            <!-- <el-option value="history" label="History"></el-option>
+            <el-option value="audit" label="Audit"></el-option>
+            <el-option value="security" label="Security"></el-option>
+            <el-option value="application" label="Application"></el-option> -->
           </el-select>
 
           <div class="rightOpera">
@@ -234,7 +235,7 @@
                 </div>
               </div>
             </template>
-            <template #cell="{ column, rowData, rowIndex }">
+            <template #cell="{ column, rowData }">
               <template v-if="column.dataKey.includes('time')">{{
                 formatTime(rowData[column.dataKey])
               }}</template>
@@ -304,7 +305,7 @@
               <template v-else-if="column.dataKey === 'positionAction'">
                 <el-icon
                   class="iconfont"
-                  @click="closeMarketOrder(rowData, rowIndex)"
+                  @click="closeMarketOrder(rowData)"
                   v-if="!marketCloseLodingMap[rowData.id]"
                   :title="t('table.closePosition')"
                 >
@@ -317,7 +318,7 @@
               <template v-else-if="column.dataKey === 'orderAction'">
                 <el-icon
                   class="iconfont"
-                  @click="delOrder(rowData, rowIndex)"
+                  @click="delOrder(rowData)"
                   v-if="!pendingCloseLodingMap[rowData.id]"
                   :title="t('table.cancelOrder')"
                 >
@@ -467,7 +468,7 @@ const state = reactive({
     { label: t("table.marketOrderHistory"), key: "marketOrderHistory" },
     { label: t("table.pendingOrderHistory"), key: "pendingOrderHistory" },
     { label: t("table.blanceRecord"), key: "blanceRecord" },
-    // { label: t("table.log"), key: "log" },
+    { label: t("table.log"), key: "log" },
   ],
   columns: cloneDeep(tableColumns),
   marketDialogVisible: false,
@@ -687,6 +688,9 @@ const getCellClass = (num: number | string) => {
 // 筛选过滤
 const dataSource = computed(() => {
   const active = activeKey.value;
+  if (active === "log") {
+    return orderStore.state.orderData.log;
+  }
   const originData = cloneDeep(orderStore.state.orderData[active]);
   const symbols = orderStore.state.dataFilter[active].symbol || [];
   const direction = orderStore.state.dataFilter[active].direction;
@@ -802,7 +806,8 @@ watch(
 
 // 交易历史盈亏合计
 const MOHProSum = computed(() => {
-  const sum = dataSource.value.reduce((pre, next) => {
+  const data = dataSource.value as orders.resOrders[];
+  const sum = data.reduce((pre, next) => {
     return pre + +next.profit;
   }, 0);
   return sum.toFixed(2);
@@ -820,70 +825,32 @@ const getDays = (e: orders.resHistoryOrders) => {
 
 // 市价单 单个平仓
 const marketCloseLodingMap = ref<Record<number, boolean>>({});
-const closeMarketOrder = async (
-  record: orders.resOrders & orders.resPendingOrders,
-  index: number
-) => {
-  let logType = "info";
-  let errmsg = "";
-  let logStr = "";
-
-  const { id, symbol, volume, type } = record;
-  async function foo() {
-    try {
-      marketCloseLodingMap.value[id] = true;
-      const direction = getTradingDirection(type);
-      logStr = ` #${id} (${direction} ${volume} ${symbol} `;
-      const res = await orders.marketOrdersClose({
-        symbol,
-        id,
-        volume,
-      });
-      marketCloseLodingMap.value[id] = false;
-      if (res.data.action_success) {
-        ElMessage.success(t("order.positionClosedSuccessfully"));
-        orderStore.state.orderData.marketOrder.splice(index, 1);
-        orderStore.getData("single_marketOrder_close");
-      } else {
-        logType = "error";
-        errmsg = res.data.err_text;
-        ElMessage.error(
-          `${t("tip.failed", { type: t("dialog.createOrder") })}：${t(errmsg)}`
-        );
-      }
-      logStr += `at ${res.data.close_price})`;
-    } catch (error) {
-      logType = "error";
-      marketCloseLodingMap.value[id] = false;
-    } finally {
-      const detail = `close market order ${
-        logType === "error" ? `fail ${errmsg}` : ""
-      } ${logStr}`;
-      const logData = {
-        id: new Date().getTime(),
-        type: logType,
-        origin: "trades",
-        time: dayjs().format("HH:mm:ss:SSS"),
-        login: useUser().account.login,
-        logName: "close market order",
-        detail,
-      };
-      logIndexedDB.addData(logData);
+const closeMarketOrder = debounce(
+  async (record: orders.resOrders & orders.resPendingOrders) => {
+    if (orderStore.state.ifOne) {
+      marketCloseLodingMap.value[record.id] = true;
+      orderStore
+        .delMarketOrder({ ...record, volume: record.volume / 100 })
+        .then(() => {
+          const index = orderStore.state.orderData.marketOrder.findIndex(
+            (e) => e.id === record.id
+          );
+          orderStore.state.orderData.marketOrder.splice(index, 1);
+        })
+        .finally(() => (marketCloseLodingMap.value[record.id] = false));
+      return;
     }
-  }
-
-  if (orderStore.state.ifOne) {
-    foo();
-    return;
-  }
-  if (orderStore.state.ifOne === null) {
-    dialogStore.openDialog("disclaimersVisible");
-    return;
-  }
-  state.orderInfo = record;
-  dialogStore.incrementZIndex();
-  state.marketDialogVisible = true;
-};
+    if (orderStore.state.ifOne === null) {
+      dialogStore.openDialog("disclaimersVisible");
+      return;
+    }
+    state.orderInfo = record;
+    dialogStore.incrementZIndex();
+    state.marketDialogVisible = true;
+  },
+  200,
+  { leading: true }
+);
 
 // 全部关闭市价单
 const closeMarketOrders = (command: number) => {
@@ -892,25 +859,28 @@ const closeMarketOrders = (command: number) => {
     let logStr = "";
     try {
       const res = await orders.marketOrdersCloseMulti({ multi_type: command });
+      orderStore.getData("order_closed");
       logStr = res.data.closed_ids.join(",");
       ElMessage.success(t("order.positionClosedSuccessfully"));
     } catch (error) {
       logType = "error";
     } finally {
       const logData = {
-        id: new Date().getTime(),
-        type: logType,
+        logType,
         origin: "trades",
-        time: dayjs().format("HH:mm:ss:SSS"),
-        login: useUser().account.login,
         logName: "close market orders",
         detail: `${
           logType === "info"
             ? "close market orders"
             : "close market orders Fail"
         } ${logStr}`,
+        login: useUser().account.login,
+        time: dayjs().format("HH:mm:ss:SSS"),
+        id: new Date().getTime(),
+        day: dayjs().format("YYYY.MM.DD"),
       };
-      logIndexedDB.addData(logData);
+      await logIndexedDB.addData(logData);
+      useOrder().getData("log");
     }
   });
 };
@@ -942,28 +912,43 @@ const closePendingOrders = (data: orders.resOrders[]) => {
     } finally {
       logStr = data.map((item) => item.id).join(",");
       const logData = {
-        id: new Date().getTime(),
-        type: logType,
+        logType,
         origin: "trades",
-        time: dayjs().format("HH:mm:ss:SSS"),
-        login: useUser().account.login,
         logName: "close orders",
         detail: `${
           logType === "info" ? "close orders" : "close orders Fail"
         } ${logStr}`,
+        login: useUser().account.login,
+        time: dayjs().format("HH:mm:ss:SSS"),
+        id: new Date().getTime(),
+        day: dayjs().format("YYYY.MM.DD"),
       };
-      logIndexedDB.addData(logData);
+      await logIndexedDB.addData(logData);
+      useOrder().getData("log");
     }
   });
 };
 
 // 删除单个挂单
 const pendingCloseLodingMap = ref<Record<number, boolean>>({});
-const delOrder = async (record: orders.resOrders, index: number) => {
-  orderStore.delPendingOrder(record, (ending) => {
-    pendingCloseLodingMap.value[record.id] = !ending;
-  });
-};
+const delOrder = debounce(
+  (record: orders.resOrders) => {
+    pendingCloseLodingMap.value[record.id] = true;
+    orderStore
+      .delPendingOrder(record)
+      .then(() => {
+        const index = orderStore.state.orderData.pendingOrder.findIndex(
+          (e) => e.id === record.id
+        );
+        orderStore.state.orderData.pendingOrder.splice(index, 1);
+      })
+      .finally(() => {
+        pendingCloseLodingMap.value[record.id] = false;
+      });
+  },
+  200,
+  { leading: true }
+);
 
 const showOrderDialog = (rowData: any) => {
   state.orderInfo = rowData;
@@ -989,7 +974,9 @@ const rowProps = ({ rowData }: any) => {
 // 到底触发(持仓历史，挂单历史，出入金分页)
 const pageLoading = ref(false);
 const endReached = async () => {
-  const nowData = orderStore.state.orderData[activeKey.value];
+  const nowData = orderStore.state.orderData[
+    activeKey.value
+  ] as orders.resOrders[];
   const minId = minBy(nowData, "id")?.id;
   if (
     !minId ||

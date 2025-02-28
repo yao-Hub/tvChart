@@ -30,6 +30,7 @@ interface IOption {
   needLogin?: boolean;
   noBeCancel?: boolean;
   noNeedEncryption?: boolean;
+  noTip?: boolean;
 }
 
 type reqConfig = InternalAxiosRequestConfig<any> & IOption;
@@ -170,10 +171,12 @@ service.interceptors.response.use(
       return Promise.reject(data);
     }
 
-    ElNotification({
-      message: t(data.errmsg || "error"),
-      type: "error",
-    });
+    if (!config.noTip) {
+      ElNotification({
+        message: t(data.errmsg || "error"),
+        type: "error",
+      });
+    }
     return Promise.reject(data);
   },
   (err) => {

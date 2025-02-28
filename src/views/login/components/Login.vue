@@ -228,10 +228,10 @@ const happyStart = async (actionObject: string) => {
         loading.value = false;
       });
     }
-    userStore.login(formState, async ({ ending, success }) => {
+    userStore.login(formState, ({ ending, success }) => {
       loading.value = !ending;
       if (ending && success) {
-        await sendTrack({
+        sendTrack({
           actionType: "signUp",
           actionObject,
         });

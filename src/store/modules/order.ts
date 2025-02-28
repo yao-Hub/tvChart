@@ -1,7 +1,7 @@
 import i18n from "@/language/index";
 import dayjs from "dayjs";
 import Decimal from "decimal.js";
-import { ElMessageBox, ElMessage } from "element-plus";
+import { ElMessageBox, ElMessage, ElNotification } from "element-plus";
 import { defineStore } from "pinia";
 import { reactive, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -19,30 +19,27 @@ import * as orderTypes from "#/order";
 import * as types from "@/types/chart";
 import * as orders from "api/order/index";
 
-import { debounce, get, isNil } from "lodash";
-// import { round } from "utils/common/index";
+import { cloneDeep, debounce, get, isNil } from "lodash";
 import { getTradingDirection } from "utils/order/index";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 
 type ModeType = "create" | "confirm";
-type SymbolType = string;
-type VolumeType = string;
 type OrderStateWithDirectionRequired<T extends ModeType> = T extends "confirm"
   ? {
-      symbol: SymbolType;
-      volume: VolumeType;
-      directionType: orderTypes.DirectionType;
+      symbol: string;
+      volume: string;
+      type: 0 | 1;
       mode: T;
     }
   : {
-      symbol: SymbolType;
-      volume?: VolumeType;
-      directionType?: orderTypes.DirectionType;
+      symbol: string;
+      volume?: string;
+      type?: 0 | 1;
       mode?: T;
     };
 
 interface IState {
-  initOrderState: OrderStateWithDirectionRequired<ModeType>;
+  initOrderState: OrderStateWithDirectionRequired<ModeType> | null;
   currentKline: Record<string, types.ILine>;
   orderData: orderTypes.TableData;
   dataLoading: Record<orderTypes.TableTabKey, boolean>;
@@ -53,11 +50,12 @@ interface IState {
 }
 
 export const useOrder = defineStore("order", () => {
+  const t = i18n.global.t;
   const dateFormat = "YYYY-MM-DD HH:mm:ss";
   const monday = dayjs().startOf("week").startOf("day").format(dateFormat);
   const today = dayjs().endOf("day").format(dateFormat);
   const state = reactive<IState>({
-    initOrderState: { symbol: "" },
+    initOrderState: null,
     currentKline: {},
     orderData: {
       marketOrder: [],
@@ -109,8 +107,8 @@ export const useOrder = defineStore("order", () => {
         pol: null,
       },
       log: {
-        date: "",
-        source: "",
+        day: dayjs().format("YYYY.MM.DD"),
+        origin: "",
         type: "",
       },
     },
@@ -152,7 +150,6 @@ export const useOrder = defineStore("order", () => {
   ) => {
     const dialogStore = useDialog();
     const userStore = useUser();
-    const t = i18n.global.t;
     if (!userStore.account.token) {
       ElMessageBox.confirm("", t("account.notLoggedIn"), {
         confirmButtonText: t("account.logIn"),
@@ -206,7 +203,7 @@ export const useOrder = defineStore("order", () => {
     return state.ifQuick;
   };
 
-  const getData = debounce((type: string) => {
+  const getData = (type: string) => {
     const userStore = useUser();
     switch (type) {
       // 单个平仓
@@ -279,7 +276,7 @@ export const useOrder = defineStore("order", () => {
       default:
         break;
     }
-  }, 200);
+  };
   const initTableData = async () => {
     const socketStore = useSocket();
     await getMarketOrders();
@@ -424,7 +421,21 @@ export const useOrder = defineStore("order", () => {
   }, 200);
 
   // 查询日志
-  const getLog = debounce(async () => {}, 200);
+  const getLog = async () => {
+    const filters = cloneDeep(state.dataFilter.log);
+    for (const i in filters) {
+      if (!filters[i]) {
+        delete filters[i];
+      }
+    }
+    let data = state.orderData.log;
+    if (Object.keys(filters).length > 0) {
+      data = (await logIndexedDB.optimizedFilter(filters)) as orderTypes.ILog[];
+    } else {
+      data = (await logIndexedDB.getAllData()) as orderTypes.ILog[];
+    }
+    state.orderData.log = data;
+  };
 
   /** 获取盈亏
    * @param params {
@@ -601,60 +612,392 @@ export const useOrder = defineStore("order", () => {
     return result.toNumber();
   };
 
-  // 删除单个挂单
-  const delPendingOrder = async (
-    record: orders.resOrders,
-    callback?: (ending: boolean) => void
-  ) => {
-    let logType = "info";
-    let logStr = "";
+  const getLogData = () => {
+    return {
+      id: new Date().getTime(),
+      origin: "trades",
+      time: dayjs().format("YYYY.MM.DD HH:mm:ss:SSS"),
+      login: useUser().account.login,
+      day: dayjs().format("YYYY.MM.DD"),
+    };
+  };
 
-    const { id, symbol, volume, type, order_price } = record;
-    try {
+  // 增加市价单
+  const addMarketOrder = (updata: orders.ReqOrderAdd) => {
+    return new Promise(async (resolve, reject) => {
+      let logType = "info";
+      let errmsg = "";
+      let logStr = "";
+      const { volume, symbol, type } = updata;
+      const direction = type ? "sell" : "buy";
+
+      logStr = `${direction} ${volume} ${symbol} `;
+
+      if (updata.sl) {
+        logStr += `sl:${updata.sl} `;
+      }
+      if (updata.tp) {
+        logStr += `tp:${updata.tp} `;
+      }
+      try {
+        const res = await orders.marketOrdersAdd({
+          ...updata,
+          volume: +volume * 100,
+        });
+        if (res.data.action_success) {
+          logStr += `at ${res.data.open_price}`;
+
+          ElNotification({
+            title: t("tip.succeed", { type: t("dialog.createOrder") }),
+            message: t("dialog.createOrderSucceed", {
+              type: t(`order.${direction}`),
+              volume,
+              symbol,
+            }),
+            type: "success",
+          });
+          await Promise.all([getMarketOrders(), useUser().getLoginInfo()]);
+          resolve(res);
+        } else {
+          logType = "error";
+          errmsg = "fail " + res.data.err_text || res.errmsg || "";
+          logStr += `at ${res.data.open_price}`;
+
+          ElNotification.error({
+            title: t("tip.failed", { type: t("dialog.createOrder") }),
+            message: t(errmsg),
+          });
+          reject(res);
+        }
+
+        logStr = `#${res.data.id} ${logStr}`;
+      } catch (error: any) {
+        logType = "error";
+        errmsg =
+          "error " +
+          (get(error, "errmsg") ||
+            get(error, "message") ||
+            JSON.stringify(error));
+        reject(error);
+      } finally {
+        logStr = `market order ${errmsg} ${logStr}`;
+        const logData = {
+          logType,
+          logName: "marketOrder",
+          detail: logStr,
+          ...getLogData(),
+        };
+        await logIndexedDB.addData(logData);
+        getData("log");
+      }
+    });
+  };
+
+  // 编辑市价单
+  const modifyMarketOrder = (
+    updata: orders.reqEditOpeningOrders,
+    originData: orders.resOrders
+  ) => {
+    return new Promise(async (resolve, reject) => {
+      let logType = "info";
+      let errmsg = "";
+      let logStr = "";
+      const { sl_price, tp_price, type, symbol, id, volume, open_price } =
+        originData;
       const direction = getTradingDirection(type);
-      logStr = ` #${id} (${direction} ${volume} ${symbol} at ${order_price})`;
-      if (callback) {
-        callback(false);
+
+      logStr = `#${id}, ${direction} ${volume} ${symbol} at ${open_price}, sl:${sl_price} tp:${tp_price} -> `;
+      if (updata.sl) {
+        logStr += `sl:${updata.sl} `;
       }
-      const res = await orders.delPendingOrders({
-        id: record.id,
-        symbol: record.symbol,
-      });
-      if (res.data.action_success) {
-        const t = i18n.global.t;
-        ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
-        const index = state.orderData.pendingOrder.findIndex(
-          (e) => e.id === id
-        );
-        state.orderData.pendingOrder.splice(index, 1);
-        getData("pending_order_deleted");
-        return;
+      if (updata.tp) {
+        logStr += `tp:${updata.tp} `;
       }
-      ElMessage.error(res.data.err_text);
-    } catch (error) {
-      logType = "error";
-    } finally {
-      if (callback) {
-        callback(true);
+      try {
+        const res = await orders.editopenningOrders(updata);
+        if (res.data.action_success) {
+          getMarketOrders();
+          ElMessage.success(t("tip.succeed", { type: t("modify") }));
+          resolve(res);
+        } else {
+          logType = "error";
+          errmsg = "fail " + res.data.err_text || res.errmsg || "";
+
+          ElMessage.error(
+            res.data.err_text || t("tip.failed", { type: t("modify") })
+          );
+          reject(res);
+        }
+      } catch (error: any) {
+        logType = "error";
+        errmsg =
+          "error " +
+          (get(error, "errmsg") ||
+            get(error, "message") ||
+            JSON.stringify(error));
+        reject(error);
+      } finally {
+        logStr = `modify market order ${errmsg} ${logStr}`;
+        const logData = {
+          logType,
+          logName: "modifyMarketOrder",
+          detail: logStr,
+          ...getLogData(),
+        };
+        await logIndexedDB.addData(logData);
+        getData("log");
       }
-      const detail = `close order ${
-        logType === "error" ? `fail` : ""
-      } ${logStr}`;
-      const logData = {
-        id: new Date().getTime(),
-        type: logType,
-        origin: "trades",
-        time: dayjs().format("HH:mm:ss:SSS"),
-        login: useUser().account.login,
-        logName: "close order",
-        detail,
-      };
-      logIndexedDB.addData(logData);
-    }
+    });
+  };
+
+  // 删除市价单
+  const delMarketOrder = (
+    updata: orders.reqMarketClose & { type: string | number }
+  ) => {
+    return new Promise(async (resolve, reject) => {
+      let logType = "info";
+      let errmsg = "";
+      let logStr = "";
+      try {
+        const { id, symbol, volume, type } = updata;
+        const direction = getTradingDirection(type);
+        logStr = `#${id} (${direction} ${volume} ${symbol} `;
+
+        const res = await orders.marketOrdersClose({
+          symbol,
+          id,
+          volume: volume * 100,
+        });
+        if (res.data.action_success) {
+          logStr += `at ${res.data.close_price}) completed`;
+
+          ElMessage.success(t("order.positionClosedSuccessfully"));
+          Promise.all([
+            getMarketOrderHistory(),
+            getBlanceRecord(),
+            useUser().getLoginInfo(),
+          ]);
+          resolve(res);
+        } else {
+          logType = "error";
+          errmsg = "fail " + res.data.err_text || res.errmsg || "";
+          logStr += `at ${res.data.close_price})`;
+
+          ElMessage.error(
+            `${t("tip.failed", { type: t("dialog.createOrder") })}：${t(
+              errmsg
+            )}`
+          );
+          reject(res);
+        }
+      } catch (error: any) {
+        console.log(error);
+        logType = "error";
+        errmsg =
+          "error " +
+          (get(error, "errmsg") ||
+            get(error, "message") ||
+            JSON.stringify(error));
+        reject(error);
+      } finally {
+        logStr = `close market order ${errmsg} ${logStr})`;
+        const logData = {
+          logType,
+          logName: "closeMarketOrder",
+          detail: logStr,
+          ...getLogData(),
+        };
+        await logIndexedDB.addData(logData);
+        getData("log");
+      }
+    });
+  };
+
+  // 增加挂单
+  const addPendingOrder = (updata: orders.reqPendingOrdersAdd) => {
+    return new Promise(async (resolve, reject) => {
+      let logType = "info";
+      let errmsg = "";
+      let logStr = "";
+      try {
+        const { type, volume, symbol } = updata;
+        const direction = getTradingDirection(type);
+        logStr = `${direction} ${volume} ${symbol} `;
+        if (updata.sl) {
+          logStr += `sl:${updata.sl} `;
+        }
+        if (updata.tp) {
+          logStr += `tp:${updata.tp} `;
+        }
+        const res = await orders.pendingOrdersAdd({
+          ...updata,
+          volume: +volume * 100,
+        });
+        if (res.data.action_success) {
+          logStr = `#${res.data.id} ${logStr} at ${res.data.order_price}`;
+
+          getPendingOrders();
+          ElMessage.success(
+            t("tip.succeed", { type: t("dialog.createOrder") })
+          );
+          resolve(res);
+        } else {
+          logType = "error";
+          errmsg = "fail " + res.data.err_text || res.errmsg || "";
+          logStr += `at ${res.data.order_price})`;
+
+          ElMessage.error(
+            `${t("tip.failed", { type: t("dialog.createOrder") })}：${t(
+              errmsg
+            )}`
+          );
+          reject(res);
+        }
+      } catch (error: any) {
+        logType = "error";
+        errmsg =
+          "error " +
+          (get(error, "errmsg") ||
+            get(error, "message") ||
+            JSON.stringify(error));
+        reject(error);
+      } finally {
+        logStr = `order ${errmsg} ${logStr}`;
+        const logData = {
+          logType,
+          logName: "order",
+          detail: logStr,
+          ...getLogData(),
+        };
+        await logIndexedDB.addData(logData);
+        getData("log");
+      }
+    });
+  };
+
+  // 编辑挂单
+  const modifyPendingOrder = (
+    updata: orders.reqPendingOrdersAdd & { id: string | number },
+    originData: orders.resOrders
+  ) => {
+    return new Promise(async (resolve, reject) => {
+      let logType = "info";
+      let errmsg = "";
+      let logStr = "";
+      const {
+        sl_price,
+        tp_price,
+        type,
+        symbol,
+        id,
+        volume: originVolume,
+        order_price,
+      } = originData;
+      const { volume } = updata;
+      const direction = getTradingDirection(type);
+      logStr = `#${id}, ${direction} ${
+        originVolume / 100
+      } ${symbol} at ${order_price}, sl:${sl_price} tp:${tp_price} -> `;
+      if (updata.volume) {
+        logStr += `volume:${updata.volume} `;
+      }
+      if (updata.sl) {
+        logStr += `sl:${updata.sl} `;
+      }
+      if (updata.tp) {
+        logStr += `tp:${updata.tp} `;
+      }
+      try {
+        const res = await orders.editPendingOrders({
+          ...updata,
+          volume: +volume * 100,
+        });
+        if (res.data.action_success) {
+          getPendingOrders();
+          ElMessage.success(t("tip.succeed", { type: t("modify") }));
+          resolve(res);
+        } else {
+          logType = "error";
+          errmsg = "fail " + res.data.err_text || res.errmsg || "";
+
+          ElMessage.error(
+            res.data.err_text || t("tip.failed", { type: t("modify") })
+          );
+          reject(res);
+        }
+      } catch (error: any) {
+        logType = "error";
+        errmsg =
+          "error " +
+          (get(error, "errmsg") ||
+            get(error, "message") ||
+            JSON.stringify(error));
+        reject(error);
+      } finally {
+        logStr = `modify order ${errmsg} ${logStr}`;
+        const logData = {
+          logType,
+          logName: "modifyOrder",
+          detail: logStr,
+          ...getLogData(),
+        };
+        await logIndexedDB.addData(logData);
+        getData("log");
+      }
+    });
+  };
+
+  // 删除挂单
+  const delPendingOrder = (record: orders.resOrders) => {
+    return new Promise(async (resolve, reject) => {
+      const { id, symbol, volume, type, order_price } = record;
+      const direction = getTradingDirection(type);
+
+      let logType = "info";
+      let logStr = "";
+      let errmsg = "";
+      logStr = `#${id} (${direction} ${volume} ${symbol} at ${order_price})`;
+
+      try {
+        const res = await orders.delPendingOrders({
+          id: record.id,
+          symbol: record.symbol,
+        });
+        if (res.data.action_success) {
+          logStr += " completed";
+          ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
+          resolve(res);
+        } else {
+          errmsg = "fail " + res.data.err_text || res.errmsg || "";
+          logType = "error";
+
+          ElMessage.error(res.data.err_text);
+          reject(res);
+        }
+      } catch (error: any) {
+        logType = "error";
+        errmsg =
+          "error " +
+          (get(error, "errmsg") ||
+            get(error, "message") ||
+            JSON.stringify(error));
+        reject(error);
+      } finally {
+        logStr = `close order ${errmsg} ${logStr}`;
+        const logData = {
+          logType,
+          logName: "closeOrder",
+          detail: logStr,
+          ...getLogData(),
+        };
+        await logIndexedDB.addData(logData);
+        getData("log");
+      }
+    });
   };
 
   function $reset() {
-    state.initOrderState = { symbol: "" };
+    state.initOrderState = null;
     state.currentKline = {};
     state.orderData = {
       marketOrder: [],
@@ -706,8 +1049,8 @@ export const useOrder = defineStore("order", () => {
         pol: null,
       },
       log: {
-        date: "",
-        source: "",
+        day: dayjs().format("YYYY.MM.DD"),
+        origin: "",
         type: "",
       },
     };
@@ -733,6 +1076,11 @@ export const useOrder = defineStore("order", () => {
     getReferMargin,
     volumeAdd,
     volumeSub,
+    addMarketOrder,
+    modifyMarketOrder,
+    delMarketOrder,
+    addPendingOrder,
+    modifyPendingOrder,
     delPendingOrder,
     $reset,
   };

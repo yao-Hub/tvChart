@@ -75,8 +75,10 @@ export const useSymbols = defineStore("symbols", () => {
       const arr = new Set<string>();
       let i: TableTabKey;
       for (i in orderData) {
-        const itemSymbols = orderData[i].map((item) => item.symbol);
-        itemSymbols.forEach((symbol) => arr.add(symbol));
+        if (i !== "log") {
+          const itemSymbols = orderData[i].map((item) => item.symbol);
+          itemSymbols.forEach((symbol) => arr.add(symbol));
+        }
       }
       orderSymbols.value = Array.from(arr);
     }, 200),

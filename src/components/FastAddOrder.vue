@@ -4,7 +4,7 @@
       <div :style="wordStyle('sell')">
         {{ bid }}
       </div>
-      <div :style="btnStyle('sell')" @click="addOrder('sell')">
+      <div :style="btnStyle('sell')" @click="addOrder(1)">
         {{ t("order.sell") }}
       </div>
     </div>
@@ -18,7 +18,7 @@
       <BaseImg iconName="caretUp" :style="styles.icon" @click="addNum" />
     </div>
     <div :style="styles.area">
-      <div :style="btnStyle('buy')" @click="addOrder('buy')">
+      <div :style="btnStyle('buy')" @click="addOrder(0)">
         {{ t("order.buy") }}
       </div>
       <div :style="wordStyle('buy')">
@@ -31,12 +31,12 @@
 <script lang="ts" setup>
 import { ElMessage } from "element-plus";
 import { computed, ref, watchEffect } from "vue";
+import { debounce } from "lodash";
 
 import { DirectionType } from "#/order";
 
-import { ORDER_TYPE } from "@/constants/common";
 import { ISessionSymbolInfo } from "@/types/chart";
-import { marketOrdersAdd, ReqOrderAdd } from "api/order/index";
+import { ReqOrderAdd } from "api/order/index";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useDialog } from "@/store/modules/dialog";
@@ -235,33 +235,32 @@ const valid = () => {
   }
   return true;
 };
-const addOrder = async (type: DirectionType) => {
-  if (orderStore.state.ifOne === null) {
-    dialogStore.openDialog("disclaimersVisible");
-    return;
-  }
-  if (!orderStore.state.ifOne) {
-    orderStore.createOrder({
-      symbol: nowSymbol.value,
-      mode: "confirm",
-      directionType: type,
-      volume: volume.value,
-    });
-    return;
-  }
-  const v = valid();
-  if (v) {
-    const updata: ReqOrderAdd = {
-      symbol: nowSymbol.value,
-      type: ORDER_TYPE.price[type],
-      volume: +(volume.value || 0) * 100,
-    };
-    const res = await marketOrdersAdd(updata);
-    if (res.data.action_success) {
-      ElMessage.success("下单成功");
+const addOrder = debounce(
+  async (type: 0 | 1) => {
+    if (orderStore.state.ifOne === null) {
+      dialogStore.openDialog("disclaimersVisible");
       return;
     }
-    ElMessage.error(`下单失败：${res.data.err_text}`);
-  }
-};
+    if (!orderStore.state.ifOne) {
+      orderStore.createOrder({
+        symbol: nowSymbol.value,
+        mode: "confirm",
+        type,
+        volume: volume.value,
+      });
+      return;
+    }
+    const v = valid();
+    if (v) {
+      const updata: ReqOrderAdd = {
+        symbol: nowSymbol.value,
+        type,
+        volume: +volume.value,
+      };
+      orderStore.addMarketOrder(updata);
+    }
+  },
+  200,
+  { leading: true }
+);
 </script>

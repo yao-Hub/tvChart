@@ -72,7 +72,7 @@ export interface resOrders {
   pre_currency: string;
 }
 
-interface reqMarketClose {
+export interface reqMarketClose {
   symbol: string; //	商品
   id: number; //	订单ID
   volume: number; //	平仓手数。1=0.01手

@@ -3,11 +3,18 @@ class IndexedDBService {
   private dbName: string;
   private dbVersion: number;
   private objectStoreName: string;
+  private fields: string[];
 
-  constructor(dbName: string, dbVersion: number, objectStoreName: string) {
+  constructor(
+    dbName: string,
+    dbVersion: number,
+    objectStoreName: string,
+    fields: string[]
+  ) {
     this.dbName = dbName;
     this.dbVersion = dbVersion;
     this.objectStoreName = objectStoreName;
+    this.fields = fields;
   }
 
   async openDatabase() {
@@ -31,7 +38,9 @@ class IndexedDBService {
           const objectStore = db.createObjectStore(this.objectStoreName, {
             keyPath: "id",
           });
-          objectStore.createIndex("nameIndex", "name", { unique: false });
+          this.fields.forEach((field) => {
+            objectStore.createIndex(field, field, { unique: false });
+          });
         }
       };
     });
@@ -73,30 +82,6 @@ class IndexedDBService {
       request.onerror = (event) => {
         reject(
           new Error("数据添加失败: " + (event.target as IDBRequest).error)
-        );
-      };
-    });
-  }
-
-  async getDataById(id: number) {
-    if (!this.db) {
-      throw new Error("数据库未打开");
-    }
-    return new Promise<{ id: number } | null>((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.objectStoreName],
-        "readonly"
-      );
-      const objectStore = transaction.objectStore(this.objectStoreName);
-      const request = objectStore.get(id);
-
-      request.onsuccess = (event) => {
-        resolve((event.target as IDBRequest).result as { id: number } | null);
-      };
-
-      request.onerror = (event) => {
-        reject(
-          new Error("数据查询失败: " + (event.target as IDBRequest).error)
         );
       };
     });
@@ -147,6 +132,78 @@ class IndexedDBService {
           new Error("数据删除失败: " + (event.target as IDBRequest).error)
         );
       };
+    });
+  }
+
+  // 获取对象存储空间中的所有数据
+  async getAllData() {
+    if (!this.db) {
+      throw new Error("数据库未打开");
+    }
+    try {
+      // 开启一个只读事务
+      const transaction = this.db.transaction(
+        [this.objectStoreName],
+        "readonly"
+      );
+      const objectStore = transaction.objectStore(this.objectStoreName);
+
+      // 获取所有数据
+      const request = objectStore.getAll();
+
+      return new Promise((resolve, reject) => {
+        // 数据获取成功
+        request.onsuccess = (event) => {
+          const target = event.target as IDBRequest;
+          if (target) {
+            resolve(target.result || []);
+            return;
+          }
+          resolve([]);
+        };
+
+        // 数据获取失败
+        request.onerror = () => {
+          resolve([]);
+        };
+      });
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async optimizedFilter(conditions: Object): Promise<Object[]> {
+    return new Promise((resolve, reject) => {
+      if (!this.db) {
+        throw new Error("数据库未打开");
+      }
+      const transaction = this.db.transaction(this.objectStoreName, "readonly");
+      const store = transaction.objectStore(this.objectStoreName);
+
+      // 获取第一个有效条件和索引
+      const [firstKey, firstValue] =
+        Object.entries(conditions).find(([_, v]) => v !== undefined) || [];
+
+      if (!firstKey) {
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+        return;
+      }
+
+      const index = store.index(firstKey);
+      const request = index.getAll(IDBKeyRange.only(firstValue));
+
+      request.onsuccess = () => {
+        const filtered = request.result.filter((log) =>
+          Object.entries(conditions).every(
+            ([key, value]) => value === undefined || log[key] === value
+          )
+        );
+        resolve(filtered);
+      };
+
+      request.onerror = () => reject(request.error);
     });
   }
 }

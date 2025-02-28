@@ -1,5 +1,15 @@
 import { resOrders } from "api/order/index";
 
+export interface ILog {
+  id: string;
+  origin: string;
+  time: string;
+  login: string;
+  logType: string;
+  logName: string;
+  detail: string;
+}
+
 export type TableTabKey =
   | "marketOrder"
   | "pendingOrder"
@@ -8,7 +18,7 @@ export type TableTabKey =
   | "blanceRecord"
   | "log";
 export type TableData = {
-  [K in TableTabKey]: resOrders[];
+  [K in TableTabKey]: K extends "log" ? ILog[] : resOrders[];
 };
 
 export type OrderType =

@@ -117,7 +117,7 @@
         </el-col>
         <el-col :span="24">
           <div class="btns">
-            <el-button style="flex: 1" @click="delPendingOrder">{{
+            <el-button style="flex: 1" @click="delOrder">{{
               t("delete")
             }}</el-button>
             <el-button
@@ -292,18 +292,17 @@ const valids = async () => {
   return result;
 };
 
-import { editPendingOrders, reqPendingOrdersAdd } from "api/order/index";
-import { ElMessage } from "element-plus";
+import { reqPendingOrdersAdd } from "api/order/index";
 const editing = ref(false);
-const confirmEdit = debounce(async () => {
-  try {
+const confirmEdit = debounce(
+  async () => {
     editing.value = true;
     const values = await valids();
     if (values) {
       const updata: reqPendingOrdersAdd = {
         symbol: formState.symbol,
         type: ORDERMAP[formState.orderType],
-        volume: +formState.volume * 100,
+        volume: +formState.volume,
         order_price: +formState.orderPrice,
         time_expiration: +formState.dueDate,
       };
@@ -316,36 +315,42 @@ const confirmEdit = debounce(async () => {
       if (formState.stopProfit !== "") {
         updata.tp = +formState.stopProfit;
       }
-      const res = await editPendingOrders({
-        ...updata,
-        id: props.orderInfo.id,
-      });
-      if (res.data.action_success) {
-        orderStore.getData("pending_order_modified");
-        ElMessage.success(t("tip.succeed", { type: t("modify") }));
-        handleCancel();
-      } else {
-        ElMessage.error(
-          `${t("tip.failed", { type: t("modify") })}：${res.data.err_text}`
-        );
-      }
+      orderStore
+        .modifyPendingOrder(
+          {
+            ...updata,
+            id: props.orderInfo.id,
+          },
+          props.orderInfo
+        )
+        .then(() => handleCancel())
+        .finally(() => (editing.value = false));
     }
-  } finally {
-    editing.value = false;
-  }
-}, 200);
+  },
+  200,
+  { leading: true }
+);
 
 import { ElMessageBox } from "element-plus";
-
-const delPendingOrder = () => {
-  ElMessageBox.confirm("", t("tip.confirm", { type: t("delete") })).then(
-    async () => {
-      orderStore.delPendingOrder(props.orderInfo, (ending) => {
-        ending && handleCancel();
-      });
-    }
-  );
-};
+const delOrder = debounce(
+  () => {
+    ElMessageBox.confirm("", t("tip.confirm", { type: t("delete") })).then(
+      debounce(() => {
+        orderStore
+          .delPendingOrder(props.orderInfo)
+          .then(() =>
+            Promise.all([
+              orderStore.getPendingOrders(),
+              orderStore.getPendingOrderHistory(),
+            ])
+          )
+          .finally(() => handleCancel());
+      }, 200)
+    );
+  },
+  200,
+  { leading: true }
+);
 </script>
 
 <style lang="scss"></style>

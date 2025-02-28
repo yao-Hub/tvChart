@@ -6,8 +6,10 @@
     <el-date-picker
       v-model="model"
       type="date"
-      placeholder="Pick a day"
+      :placeholder="t('table.date')"
       :format="dateFormat"
+      :valueFormat="dateFormat"
+      @change="handelChange"
     />
     <BaseImg iconName="caretDown" />
   </div>
@@ -18,34 +20,22 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import timezone from "dayjs/plugin/timezone";
 import utc from "dayjs/plugin/utc";
-import { onMounted, watch } from "vue";
 
-import { useTime } from "@/store/modules/time";
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(relativeTime);
 
-const timeStore = useTime();
 const dateFormat = "YYYY.MM.DD";
 const emit = defineEmits(["timeChange"]);
 
 const model = defineModel<string>("value", { default: "" });
 
-const initTime = () => {
-  model.value = dayjs().tz(timeStore.settedTimezone).format(dateFormat);
+const handelChange = () => {
+  emit("timeChange");
 };
-
-onMounted(() => {
-  initTime();
-});
-
-watch(
-  () => model.value,
-  () => {
-    emit("timeChange");
-  }
-);
 </script>
 
 <style lang="scss" scoped>

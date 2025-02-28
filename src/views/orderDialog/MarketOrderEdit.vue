@@ -174,15 +174,12 @@
 
 <script setup lang="ts">
 import { computed, reactive, ref, watch } from "vue";
-import dayjs from "dayjs";
 import { useI18n } from "vue-i18n";
 
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
-import { useUser } from "@/store/modules/user";
 
-import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 import { resOrders } from "api/order/index";
 
 import Spread from "./components/spread.vue";
@@ -270,8 +267,7 @@ watch(
   }
 );
 
-import { marketOrdersClose } from "api/order/index";
-import { ElMessage, ElNotification } from "element-plus";
+import { ElNotification } from "element-plus";
 import { debounce, get, isNil } from "lodash";
 const confirmOpen = ref(false);
 const confirmLoading = ref(false);
@@ -295,54 +291,27 @@ const handleConfirm = debounce(
 );
 
 // 平仓操作
-const closeOrder = async () => {
-  const { id, symbol } = props.orderInfo;
-  let logType = "info";
-  let errmsg = "";
-  let logStr = "";
-  const res = await marketOrdersClose({
-    symbol,
-    id,
-    volume: +closeFormState.volume * 100,
-  });
-  logStr = ` #${id} (${transactionType.value} ${closeFormState.volume} ${symbol} `;
-  if (res.data.action_success) {
-    ElNotification({
-      title: t("dialog.positionClosedSuccessfully"),
-      type: "success",
-      message: t("dialog.orderClose", {
-        volume: closeFormState.volume,
-        symbol,
-      }),
-    });
+const closeOrder = debounce(
+  async () => {
+    const { id, symbol, type } = props.orderInfo;
+    const updata = {
+      symbol,
+      id,
+      volume: +closeFormState.volume,
+      type,
+    };
+    await orderStore.delMarketOrder(updata);
     orderStore.getData("order_closed");
     handleCancel();
     confirmCancel();
-  } else {
-    logType = "error";
-    errmsg = res.data.err_text;
-    ElNotification.error({
-      title: t("dialog.positionClosingFailed"),
-    });
-  }
-  const detail = `close market order ${
-    logType === "error" ? `fail ${errmsg}` : ""
-  } ${logStr}`;
-  const logData = {
-    id: new Date().getTime(),
-    type: logType,
-    origin: "trades",
-    time: dayjs().format("HH:mm:ss:SSS"),
-    login: useUser().account.login,
-    logName: "close market order",
-    detail,
-  };
-  logIndexedDB.addData(logData);
-};
+  },
+  200,
+  { leading: true }
+);
 
 // 双倍持仓
 import { marketOrdersDouble } from "api/order/index";
-const doubleHoldings = async (reverse?: boolean) => {
+const doubleHoldings = async () => {
   const { symbol, volume, type, id } = props.orderInfo;
   const res = await marketOrdersDouble({ id });
   if (res.data.action_success) {
@@ -405,21 +374,21 @@ const okCancel = debounce(async () => {
       default:
         break;
     }
-    confirmLoading.value = false;
-  } catch (error) {
+  } finally {
     confirmLoading.value = false;
   }
 }, 200);
 
 // 修改止盈止损
-import { editopenningOrders, reqEditOpeningOrders } from "api/order/index";
+import { reqEditOpeningOrders } from "api/order/index";
 const modifyLoading = ref(false);
-const modify = debounce(async () => {
-  const { stopLoss, stopProfit } = stopFormState;
-  try {
-    if (stopLoss === "" && stopProfit === "") {
+const modify = debounce(
+  () => {
+    const { stopLoss, stopProfit } = stopFormState;
+    if (!stopLoss && !stopProfit) {
       return;
     }
+    modifyLoading.value = true;
     const { id, symbol } = props.orderInfo;
     const updata: reqEditOpeningOrders = { symbol, id };
     if (stopProfit !== "") {
@@ -428,21 +397,14 @@ const modify = debounce(async () => {
     if (stopLoss !== "") {
       updata.sl = +stopLoss;
     }
-    modifyLoading.value = true;
-    const res = await editopenningOrders(updata);
-    if (res.data.action_success) {
-      orderStore.getData("order_modified");
-      ElMessage.success(t("tip.succeed", { type: t("modify") }));
-      handleCancel();
-    } else {
-      ElMessage.error(
-        res.data.err_text || t("tip.failed", { type: t("modify") })
-      );
-    }
-  } finally {
-    modifyLoading.value = false;
-  }
-}, 200);
+    orderStore
+      .modifyMarketOrder({ ...updata }, props.orderInfo)
+      .then(() => handleCancel())
+      .finally(() => (modifyLoading.value = false));
+  },
+  200,
+  { leading: true }
+);
 
 // 获取盈亏
 const profitClass = ref("");
