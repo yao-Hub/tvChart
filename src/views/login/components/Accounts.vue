@@ -11,12 +11,7 @@
           @click="selectAccount(account)"
         >
           <div class="item_left">
-            <BaseImg
-              class="icon"
-              :src="logoMap[account.server] || ''"
-              type="online"
-              progress
-            />
+            <img :src="logoMap[account.server] || ''" class="icon" />
             <span class="textEllipsis">{{ account.server }}</span>
             <span class="textEllipsis">{{ account.login }}</span>
           </div>

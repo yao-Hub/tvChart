@@ -10,7 +10,7 @@
     </div>
     <div class="Register_main" v-if="!ifSuccess">
       <div class="Register_main_title">
-        <BaseImg class="img" type="online" :src="lineInfo.lineLogo" />
+        <img class="img" :src="lineInfo.lineLogo" />
         <div class="Register_main_title_right">
           <span class="up">{{ lineInfo.lineName }}</span>
           <span class="down">{{ lineInfo.brokerName }}</span>

@@ -9,7 +9,7 @@
       </div>
     </div>
     <div class="forget_title">
-      <BaseImg class="img" type="online" :src="lineInfo.lineLogo" />
+      <img :src="lineInfo.lineLogo" class="img" />
       <div class="forget_title_right">
         <span class="up">{{ lineInfo.lineName }}</span>
         <span class="down">{{ lineInfo.brokerName }}</span>
