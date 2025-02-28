@@ -67,29 +67,27 @@ export const useChartLine = defineStore("chartLine", {
 
       // 订阅接收处理
       const updateQoute: TAction = (symbol, qData) => {
-        requestAnimationFrame(() => {
-          const oldQuote = quotesStore.qoutes[symbol];
-          // 涨跌颜色
-          quotesStore.setClass(qData);
-          // 发送报价全局
-          quotesStore.qoutes[symbol] = {
-            ...oldQuote,
-            ...qData,
-            close: qData.bid,
-            high: setHigh(qData.bid, get(oldQuote, "high")),
-            low: setHigh(qData.bid, get(oldQuote, "low")),
-          };
-          // 更新k线
-          for (const UID in this.subscribed) {
-            const item = this.subscribed[UID];
-            const itemSymbol = item.symbolInfo.name;
-            const subscriberUID = UID.split("@")[1];
-            const bar = this.newbar[subscriberUID];
-            if (bar && itemSymbol === symbol) {
-              this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
-            }
+        const oldQuote = quotesStore.qoutes[symbol];
+        // 涨跌颜色
+        quotesStore.setClass(qData);
+        // 发送报价全局
+        quotesStore.qoutes[symbol] = {
+          ...oldQuote,
+          ...qData,
+          close: qData.bid,
+          high: setHigh(qData.bid, get(oldQuote, "high")),
+          low: setHigh(qData.bid, get(oldQuote, "low")),
+        };
+        // 更新k线
+        for (const UID in this.subscribed) {
+          const item = this.subscribed[UID];
+          const itemSymbol = item.symbolInfo.name;
+          const subscriberUID = UID.split("@")[1];
+          const bar = this.newbar[subscriberUID];
+          if (bar && itemSymbol === symbol) {
+            this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
           }
-        });
+        }
       };
 
       // 接收socket 发布
@@ -126,7 +124,12 @@ export const useChartLine = defineStore("chartLine", {
         }
 
         // 触发订阅
-        actionMap[dSymbol](dSymbol, d);
+        const rafId = requestAnimationFrame(() => {
+          actionMap[dSymbol](dSymbol, d);
+        });
+        if (document.hidden) {
+          cancelAnimationFrame(rafId);
+        }
       });
 
       socketStore.subKline((d) => {
