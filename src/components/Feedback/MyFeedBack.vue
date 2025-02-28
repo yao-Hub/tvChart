@@ -20,7 +20,6 @@
             v-for="(src, index) in item.feedbackFileIds"
             style="width: 56px; height: 56px"
             type="online"
-            progress
             :src="src"
             :zoom-rate="1.2"
             :max-scale="7"
