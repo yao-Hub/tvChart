@@ -31,6 +31,12 @@
             ></div>
           </div>
         </div>
+        <div class="item">
+          <img
+            src="http://120.79.80.70:8084/a5e4d084-ea31-4adb-b425-8d65605b0042.png"
+            style="width: 30px; height: 30px"
+          />
+        </div>
       </el-scrollbar>
     </div>
 
