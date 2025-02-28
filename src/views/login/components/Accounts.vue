@@ -144,6 +144,7 @@ const getLogo = (server: string) => {
   if (target && target.lineLogo) {
     result = target.lineLogo;
   }
+  console.log("getLogo result", result, networkStore.queryTradeLines);
   return result;
 };
 
