@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown trigger="click" placement="top-start">
+  <el-dropdown trigger="click" placement="top-start" @command="changeNode">
     <div :class="[+currentDelay > 500 ? 'redWord delay' : 'greenWord delay']">
       <i class="iconfont">&#xe602;</i>
       <span>{{ currentDelay }}ms</span>
@@ -14,8 +14,10 @@
         <el-dropdown-item
           v-for="node in networkStore.nodeList"
           :key="node.nodeName"
+          :disabled="!getDelay(node.webApi)"
+          :command="node.nodeName"
         >
-          <div class="delayItem" @click="changeNode(node.nodeName)">
+          <div class="delayItem">
             <div class="left">
               <div class="icon">
                 <BaseImg

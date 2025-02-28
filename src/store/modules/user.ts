@@ -156,12 +156,12 @@ export const useUser = defineStore("user", () => {
     { leading: true }
   );
 
-  const addAccount = (data: any) => {
-    state.accountList.forEach((item: any) => {
+  const addAccount = (data: AccountListItem) => {
+    state.accountList.forEach((item) => {
       item.ifLogin = false;
     });
     let index = state.accountList.findIndex(
-      (e: any) => e.login === data.login && e.server === data.server
+      (e) => e.login === data.login && e.server === data.server
     );
     if (index === -1) {
       state.accountList.push(data);
