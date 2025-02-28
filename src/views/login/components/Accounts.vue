@@ -13,7 +13,7 @@
           <div class="item_left">
             <BaseImg
               class="icon"
-              :src="getLogo(account.server)"
+              :src="logoMap[account.server] || ''"
               type="online"
               progress
             />
@@ -30,12 +30,6 @@
               @click.stop="delAccount(account)"
             ></div>
           </div>
-        </div>
-        <div class="item">
-          <img
-            src="http://120.79.80.70:8084/a5e4d084-ea31-4adb-b425-8d65605b0042.png"
-            style="width: 30px; height: 30px"
-          />
         </div>
       </el-scrollbar>
     </div>
@@ -60,7 +54,7 @@
 import { PageEnum } from "@/constants/pageEnum";
 import { AccountListItem, useUser } from "@/store/modules/user";
 import { orderBy } from "lodash";
-import { onBeforeMount, onMounted, onUnmounted, ref } from "vue";
+import { computed, onBeforeMount, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
 import { useI18n } from "vue-i18n";
@@ -73,13 +67,6 @@ type TList = AccountListItem & { actived: boolean };
 
 const list = ref<TList[]>([]);
 
-onBeforeMount(() => {
-  const accounts = userStore.state.accountList;
-  if (accounts.length === 0) {
-    router.replace({ path: PageEnum.LOGIN_HOME });
-  }
-});
-
 const initList = () => {
   const accounts = userStore.state.accountList;
   const orderAccounts = orderBy(accounts, ["ifLogin"], ["desc"]);
@@ -90,7 +77,6 @@ const initList = () => {
     };
   });
 };
-initList();
 
 const ifOpera = ref(false);
 
@@ -109,6 +95,20 @@ const delAccount = (e: any) => {
   if (list.value.length === 0) {
     goLogin();
   }
+};
+
+import { useNetwork } from "@/store/modules/network";
+const networkStore = useNetwork();
+const logoMap = computed(() => {
+  const obj: Record<string, string> = {};
+  networkStore.queryTradeLines.forEach((item) => {
+    obj[item.lineName] = item.lineLogo;
+  });
+  return obj;
+});
+
+const goLogin = (account?: { login: string; server: string }) => {
+  router.push({ path: PageEnum.LOGIN_HOME, query: account });
 };
 
 const loading = ref(false);
@@ -140,30 +140,20 @@ const happyStart = async () => {
   }
 };
 
-import { useNetwork } from "@/store/modules/network";
-const networkStore = useNetwork();
-const getLogo = (server: string) => {
-  let result = "";
-  const target = networkStore.queryTradeLines.find(
-    (e) => e.lineName === server
-  );
-  if (target && target.lineLogo) {
-    result = target.lineLogo;
-  }
-  console.log("getLogo result", result, networkStore.queryTradeLines);
-  return result;
-};
-
-const goLogin = (account?: { login: string; server: string }) => {
-  router.push({ path: PageEnum.LOGIN_HOME, query: account });
-};
-
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === "Enter") {
     happyStart();
   }
 }
+
+onBeforeMount(() => {
+  const accounts = userStore.state.accountList;
+  if (accounts.length === 0) {
+    router.replace({ path: PageEnum.LOGIN_HOME });
+  }
+});
 onMounted(() => {
+  initList();
   document.addEventListener("keydown", handleKeydown);
 });
 onUnmounted(() => {
