@@ -15,6 +15,7 @@
               class="icon"
               :src="getLogo(account.server)"
               type="online"
+              progress
             />
             <span class="textEllipsis">{{ account.server }}</span>
             <span class="textEllipsis">{{ account.login }}</span>
