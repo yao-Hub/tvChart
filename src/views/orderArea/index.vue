@@ -194,7 +194,6 @@
         <template #default="{ height, width }">
           <el-table-v2
             :key="activeKey"
-            header-class="table_v2_Header"
             v-loading="orderStore.state.dataLoading[activeKey]"
             :columns="state.columns[activeKey]"
             :data="dataSource"

@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import { Socket } from "socket.io-client";
+import { Socket, io } from "socket.io-client";
 import SingletonSocket from "utils/socket";
 
 import { useUser } from "./user";
@@ -39,6 +39,7 @@ interface IState {
     fooName: TFooname;
     options?: any;
   }>;
+  onLineSocket: Socket | null;
 }
 interface ChartProps {
   resolution: string | number;
@@ -49,6 +50,7 @@ export const useSocket = defineStore("socket", {
     instance: new SingletonSocket(),
     socket: null,
     noExecuteList: [],
+    onLineSocket: null,
   }),
 
   actions: {
@@ -62,7 +64,7 @@ export const useSocket = defineStore("socket", {
       return encrypt(JSON.stringify(data));
     },
 
-    getUriQuery(): string {
+    getUriQuery(dData: Record<string, string> = {}): string {
       const server = useUser().account.server || useNetwork().server;
       const searchMap: Record<string, string> = {
         "x-u-platform": "web",
@@ -72,6 +74,7 @@ export const useSocket = defineStore("socket", {
       };
       const keyMap = {
         server,
+        ...dData,
         ...this.reqData(),
       };
       const enKeyMap = this.enData(keyMap);
@@ -365,6 +368,20 @@ export const useSocket = defineStore("socket", {
           fooName: "unSubRate",
         });
       }
+    },
+
+    // 埋点跟踪用户在线socket连接
+    emitOnline() {
+      const dData = {
+        login: useUser().account.login,
+        token: useUser().account.token,
+      };
+      this.onLineSocket = io(`ws.com/${this.getUriQuery(dData)}`, {
+        transports: ["websocket"],
+        reconnection: true, // 开启重连功能
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      });
     },
 
     $reset() {

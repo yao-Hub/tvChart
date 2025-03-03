@@ -125,6 +125,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
+import { useSocket } from "@/store/modules/socket";
 
 import { sendTrack } from "@/utils/track";
 
@@ -235,6 +236,7 @@ const happyStart = async (actionObject: string) => {
           actionType: "signUp",
           actionObject,
         });
+        useSocket().emitOnline();
         router.push({ path: "/" });
       }
     });

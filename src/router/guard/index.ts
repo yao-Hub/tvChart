@@ -17,5 +17,10 @@ export function createPermissionGuard(router: Router) {
       await router.replace({ path: PageEnum.LOGIN });
       return false;
     }
+    const list = userStore.state.accountList;
+    if (to.path.includes(PageEnum.LOGIN_ACCOUNTS) && list.length === 0) {
+      await router.replace({ path: PageEnum.LOGIN_HOME });
+      return false;
+    }
   });
 }
