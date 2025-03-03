@@ -21,7 +21,6 @@
     <el-form
       v-show="!priceConfirm"
       :model="formState"
-      :rules="rules"
       ref="orderFormRef"
       style="margin-top: 32px"
     >
@@ -238,7 +237,6 @@ import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
 import { useSymbols } from "@/store/modules/symbols";
-import { useTime } from "@/store/modules/time";
 
 const { t } = useI18n();
 
@@ -247,10 +245,9 @@ const orderStore = useOrder();
 const chartInitStore = useChartInit();
 const quotesStore = useQuotes();
 const dialogStore = useDialog();
-const timeStore = useTime();
 
 /** 表单处理 */
-import type { FormInstance, FormRules } from "element-plus";
+import type { FormInstance } from "element-plus";
 const orderFormRef = ref<FormInstance>();
 interface FormState {
   symbol: string;
@@ -333,22 +330,6 @@ const orderTypeOptions = [
   { value: "buyStopLimit", label: "buy stop limit" },
   { value: "sellStopLimit", label: "sell stop limit" },
 ];
-// 期限规则
-import dayjs from "dayjs";
-const validDate = (rule: any, value: any, callback: any) => {
-  const timezone = timeStore.settedTimezone;
-  if (!value) {
-    return callback(new Error(t("tip.termRequired")));
-  }
-  const distanceFromNow = dayjs.unix(value).tz(timezone).fromNow();
-  if (distanceFromNow.includes("ago") || distanceFromNow.includes("前")) {
-    return callback(new Error(t("tip.noLessNowTime")));
-  }
-  callback();
-};
-const rules: FormRules<typeof formState> = {
-  dueDate: [{ required: true, trigger: "change", validator: validDate }],
-};
 
 /** 当前商品 */
 const symbolInfo = computed(() => {
@@ -422,32 +403,36 @@ const createPriceOrder = debounce(
 import { ORDERMAP } from "@/constants/common";
 import { reqPendingOrdersAdd } from "api/order/index";
 const pendingBtnLoading = ref(false);
-const addPendingOrders = debounce(async () => {
-  pendingBtnLoading.value = true;
-  const values = await valids();
-  if (values) {
-    const updata: reqPendingOrdersAdd = {
-      symbol: formState.symbol,
-      type: ORDERMAP[formState.orderType],
-      volume: +formState.volume,
-      order_price: +formState.orderPrice,
-      time_expiration: +formState.dueDate,
-    };
-    if (["buyStopLimit", "sellStopLimit"].includes(formState.orderType)) {
-      updata.trigger_price = +formState.limitedPrice;
+const addPendingOrders = debounce(
+  async () => {
+    pendingBtnLoading.value = true;
+    const values = await valids();
+    if (values) {
+      const updata: reqPendingOrdersAdd = {
+        symbol: formState.symbol,
+        type: ORDERMAP[formState.orderType],
+        volume: +formState.volume,
+        order_price: +formState.orderPrice,
+        time_expiration: +formState.dueDate,
+      };
+      if (["buyStopLimit", "sellStopLimit"].includes(formState.orderType)) {
+        updata.trigger_price = +formState.limitedPrice;
+      }
+      if (formState.stopLoss !== "") {
+        updata.sl = +formState.stopLoss;
+      }
+      if (formState.stopProfit !== "") {
+        updata.tp = +formState.stopProfit;
+      }
+      orderStore
+        .addPendingOrder(updata)
+        .then(() => handleCancel())
+        .finally(() => (pendingBtnLoading.value = false));
     }
-    if (formState.stopLoss !== "") {
-      updata.sl = +formState.stopLoss;
-    }
-    if (formState.stopProfit !== "") {
-      updata.tp = +formState.stopProfit;
-    }
-    orderStore
-      .addPendingOrder(updata)
-      .then(() => handleCancel())
-      .finally(() => (pendingBtnLoading.value = false));
-  }
-}, 200, {leading: true});
+  },
+  200,
+  { leading: true }
+);
 
 /** 弹窗处理 */
 const handleCancel = () => {
@@ -472,10 +457,13 @@ const handleCancel = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+:deep(.el-input__wrapper) {
+  height: var(--base-height);
+}
 :deep(.el-select__wrapper) {
   height: var(--base-height);
 }
-:deep(.el-input__wrapper) {
+:deep(.el-date-editor.el-input, .el-date-editor.el-input__wrapper) {
   height: var(--base-height);
 }
 :deep(.el-col) {

@@ -616,7 +616,7 @@ export const useOrder = defineStore("order", () => {
     return {
       id: new Date().getTime(),
       origin: "trades",
-      time: dayjs().format("YYYY.MM.DD HH:mm:ss:SSS"),
+      time: dayjs().format("YYYY.MM.DD HH:mm:ss.SSS"),
       login: useUser().account.login,
       day: dayjs().format("YYYY.MM.DD"),
     };

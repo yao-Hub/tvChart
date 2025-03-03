@@ -275,7 +275,7 @@ export const useUser = defineStore("user", () => {
                 id: endTime,
                 logType,
                 origin: "network",
-                time: dayjs().format("HH:mm:ss:SSS"),
+                time: dayjs().format("HH:mm:ss.SSS"),
                 login: updata.login,
                 logName: "login",
                 detail,
@@ -315,7 +315,7 @@ export const useUser = defineStore("user", () => {
         detail,
         id: endTime,
         login: account.value.login,
-        time: dayjs().format("HH:mm:ss:SSS"),
+        time: dayjs().format("HH:mm:ss.SSS"),
         day: dayjs().format("YYYY.MM.DD"),
       };
       logIndexedDB.addData(logData);

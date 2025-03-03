@@ -11,7 +11,7 @@
     <template #header>
       <span class="dialog_header">ID: {{ props.orderInfo.id }}</span>
     </template>
-    <el-form :model="formState" :rules="rules" ref="orderFormRef">
+    <el-form :model="formState" ref="orderFormRef">
       <el-row :gutter="24">
         <el-col :span="24">
           <el-form-item
@@ -142,7 +142,7 @@ import { useI18n } from "vue-i18n";
 
 import { ORDERMAP } from "@/constants/common";
 import { resPendingOrders } from "api/order/index";
-import type { FormInstance, FormRules } from "element-plus";
+import type { FormInstance } from "element-plus";
 import { getOrderType } from "utils/order/index";
 
 import BreakLimit from "./components/BreakLimit.vue";
@@ -253,25 +253,6 @@ watch(
     }
   }
 );
-
-// 期限规则
-const validDate = (rule: any, value: any, callback: any) => {
-  if (!value) {
-    return callback(new Error(t("tip.termRequired")));
-  }
-  const timezone = timeStore.settedTimezone;
-  const distanceFromNow = dayjs.unix(value).tz(timezone).fromNow();
-  if (distanceFromNow.includes("ago") || distanceFromNow.includes("前")) {
-    return callback(new Error(t("tip.noLessNowTime")));
-  }
-  callback();
-};
-const rules: FormRules<typeof formState> = {
-  orderType: [{ required: true, trigger: "change" }],
-  volume: [{ required: true, trigger: "change" }],
-  dueDate: [{ required: true, trigger: "change", validator: validDate }],
-  limitedPrice: [{ required: true, trigger: "change" }],
-};
 
 /** 当前商品 */
 import { useSymbols } from "@/store/modules/symbols";

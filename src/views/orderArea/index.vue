@@ -239,7 +239,7 @@
                 formatTime(rowData[column.dataKey])
               }}</template>
               <template v-else-if="column.dataKey === 'dayId'">{{
-                formatTime(rowData.id, "YYYY.MM.DD HH:mm:ss:SSS")
+                formatTime(rowData.id, "YYYY.MM.DD HH:mm:ss.SSS")
               }}</template>
               <template v-else-if="column.dataKey === 'volume'">{{
                 rowData.volume / 100
@@ -877,7 +877,7 @@ const closeMarketOrders = (command: number) => {
             : "close market orders Fail"
         } ${logStr}`,
         login: useUser().account.login,
-        time: dayjs().format("HH:mm:ss:SSS"),
+        time: dayjs().format("HH:mm:ss.SSS"),
         id: new Date().getTime(),
         day: dayjs().format("YYYY.MM.DD"),
       };
@@ -921,7 +921,7 @@ const closePendingOrders = (data: orders.resOrders[]) => {
           logType === "info" ? "close orders" : "close orders Fail"
         } ${logStr}`,
         login: useUser().account.login,
-        time: dayjs().format("HH:mm:ss:SSS"),
+        time: dayjs().format("HH:mm:ss.SSS"),
         id: new Date().getTime(),
         day: dayjs().format("YYYY.MM.DD"),
       };

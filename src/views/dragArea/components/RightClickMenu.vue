@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { isNil } from "lodash";
+import { get } from "lodash";
 import { ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -176,9 +176,9 @@ const getValue = (key: Tkey) => {
       case "volume_min":
       case "volume_step":
         const value = info[key];
-        return isNil(value) ? "-" : +value / 100;
+        return value ? value / 100 : "--";
       default:
-        return info ? info[key] : "-";
+        return get(info, [key]) || "--";
     }
   }
   return "-";

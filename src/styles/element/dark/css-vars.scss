@@ -87,6 +87,10 @@ html.dark {
     color: var(--light-1);
   }
 
+  .el-select__wrapper {
+    background-color: var(--dark-1);
+  }
+
   .el-select-dropdown__item.is-hovering {
     color: var(--light-1);
     background-color: #383d47;
