@@ -26,18 +26,18 @@ export const useVersion = defineStore("version", {
         this.setVersion();
       } else {
         // todo 版本更新兼容
-        const nowVerNum = this.changeVerisonToNum(nowVer);
-        if (nowVerNum < 131) {
-          const databases = await indexedDB.databases();
-          const deletionPromises = databases.map((database) => {
-            if (database.name) {
-              indexedDB.deleteDatabase(database.name);
-            }
-          });
-          // 等待所有删除操作完成
-          await Promise.all(deletionPromises);
-        }
-        this.setVersion();
+        //   const nowVerNum = this.changeVerisonToNum(nowVer);
+        //   if (nowVerNum < 131) {
+        //     const databases = await indexedDB.databases();
+        //     const deletionPromises = databases.map((database) => {
+        //       if (database.name) {
+        //         indexedDB.deleteDatabase(database.name);
+        //       }
+        //     });
+        //     // 等待所有删除操作完成
+        //     await Promise.all(deletionPromises);
+        //   }
+        //   this.setVersion();
       }
     },
     setVersion() {

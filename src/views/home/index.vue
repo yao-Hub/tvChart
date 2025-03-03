@@ -156,10 +156,8 @@ eventBus.on("socket-error", () => {
   socketState.value = "error";
 });
 const handleVisibilityChange = () => {
-  if (
-    document.visibilityState === "visible" &&
-    socketState.value === "disconnect"
-  ) {
+  const state = document.visibilityState;
+  if (state === "visible" && socketState.value === "disconnect") {
     chartInitStore.systemRefresh();
   }
 };

@@ -14,6 +14,7 @@ type Tbar = Partial<types.ISocketQuote> &
 interface IState {
   subscribed: Record<string, ISubSCribed>;
   newbar: Record<string, Tbar>;
+  pageHidden: boolean;
 }
 
 type TAction = (symbol: string, qData: types.ISocketQuote) => void;
@@ -22,6 +23,7 @@ export const useChartLine = defineStore("chartLine", {
     return {
       subscribed: {},
       newbar: {},
+      pageHidden: false,
     };
   },
   actions: {
@@ -124,10 +126,15 @@ export const useChartLine = defineStore("chartLine", {
         }
 
         // 触发订阅
-        const rafId = requestAnimationFrame(() => {
+        const rafId = requestAnimationFrame(async () => {
+          if (this.pageHidden && !document.hidden) {
+            this.pageHidden = false;
+            await quotesStore.getAllSymbolQuotes();
+          }
           actionMap[dSymbol](dSymbol, d);
         });
         if (document.hidden) {
+          this.pageHidden = true;
           cancelAnimationFrame(rafId);
         }
       });
@@ -145,7 +152,6 @@ export const useChartLine = defineStore("chartLine", {
           ) {
             const nowbarTime = nowBar.time;
             const lines = sortBy(d.klines, ["ctm"]);
-            // const line = lines.slice(-1)[0];
             lines.forEach((line) => {
               const { close, open, high, low, ctm, volume } = line;
               const dTime = ctm * 1000;
