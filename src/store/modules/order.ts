@@ -680,7 +680,7 @@ export const useOrder = defineStore("order", () => {
             JSON.stringify(error));
         reject(error);
       } finally {
-        logStr = `market order ${errmsg} ${logStr}`;
+        logStr = `${useUser().account.login}: market order ${errmsg} ${logStr}`;
         const logData = {
           logType,
           logName: "marketOrder",
@@ -737,7 +737,9 @@ export const useOrder = defineStore("order", () => {
             JSON.stringify(error));
         reject(error);
       } finally {
-        logStr = `modify market order ${errmsg} ${logStr}`;
+        logStr = `${
+          useUser().account.login
+        }: modify market order ${errmsg} ${logStr}`;
         const logData = {
           logType,
           logName: "modifyMarketOrder",
@@ -800,7 +802,9 @@ export const useOrder = defineStore("order", () => {
             JSON.stringify(error));
         reject(error);
       } finally {
-        logStr = `close market order ${errmsg} ${logStr})`;
+        logStr = `${
+          useUser().account.login
+        }: close market order ${errmsg} ${logStr})`;
         const logData = {
           logType,
           logName: "closeMarketOrder",
@@ -862,7 +866,7 @@ export const useOrder = defineStore("order", () => {
             JSON.stringify(error));
         reject(error);
       } finally {
-        logStr = `order ${errmsg} ${logStr}`;
+        logStr = `${useUser().account.login}: order ${errmsg} ${logStr}`;
         const logData = {
           logType,
           logName: "order",
@@ -934,7 +938,7 @@ export const useOrder = defineStore("order", () => {
             JSON.stringify(error));
         reject(error);
       } finally {
-        logStr = `modify order ${errmsg} ${logStr}`;
+        logStr = `${useUser().account.login}: modify order ${errmsg} ${logStr}`;
         const logData = {
           logType,
           logName: "modifyOrder",
@@ -983,7 +987,7 @@ export const useOrder = defineStore("order", () => {
             JSON.stringify(error));
         reject(error);
       } finally {
-        logStr = `close order ${errmsg} ${logStr}`;
+        logStr = `${useUser().account.login}: close order ${errmsg} ${logStr}`;
         const logData = {
           logType,
           logName: "closeOrder",

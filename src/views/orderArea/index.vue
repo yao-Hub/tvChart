@@ -239,6 +239,9 @@
               <template v-if="column.dataKey.includes('time')">{{
                 formatTime(rowData[column.dataKey])
               }}</template>
+              <template v-else-if="column.dataKey === 'dayId'">{{
+                formatTime(rowData.id, "YYYY.MM.DD HH:mm:ss:SSS")
+              }}</template>
               <template v-else-if="column.dataKey === 'volume'">{{
                 rowData.volume / 100
               }}</template>
@@ -731,9 +734,9 @@ const getCloseType = (e: orders.resHistoryOrders) => {
 
 // 格式化表格时间字段
 import dayjs from "dayjs";
-const formatTime = (timestamp: string) => {
+const formatTime = (timestamp: string, format = "YYYY.MM.DD HH:mm:ss") => {
   const timezone = timeStore.settedTimezone;
-  const result = dayjs(timestamp).tz(timezone).format("YYYY.MM.DD HH:mm:ss");
+  const result = dayjs(timestamp).tz(timezone).format(format);
   return result;
 };
 
@@ -869,7 +872,7 @@ const closeMarketOrders = (command: number) => {
         logType,
         origin: "trades",
         logName: "close market orders",
-        detail: `${
+        detail: `${useUser().account.login}: ${
           logType === "info"
             ? "close market orders"
             : "close market orders Fail"
@@ -915,7 +918,7 @@ const closePendingOrders = (data: orders.resOrders[]) => {
         logType,
         origin: "trades",
         logName: "close orders",
-        detail: `${
+        detail: `${useUser().account.login}: ${
           logType === "info" ? "close orders" : "close orders Fail"
         } ${logStr}`,
         login: useUser().account.login,

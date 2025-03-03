@@ -266,11 +266,11 @@ export const useUser = defineStore("user", () => {
             .finally(async () => {
               const endTime = new Date().getTime();
               const ping = endTime - beginTime;
-              const detail = `${
+              const detail = `${updata.login}: ${
                 logType === "error" ? `login ${errmsg}` : "login"
-              } (dc:${updata.server},ping:${ping}ms,port: ${getPort(
-                webApi || ""
-              )})`;
+              } (dc:${
+                networkStore.nodeName || "none"
+              },ping:${ping}ms,port: ${getPort(webApi || "")})`;
               const logData = {
                 id: endTime,
                 logType,
@@ -303,9 +303,11 @@ export const useUser = defineStore("user", () => {
     } finally {
       const endTime = new Date().getTime();
       const ping = endTime - beginTime;
-      const detail = `${logType === "error" ? "logoutFail" : "logout"} (dc:${
-        account.value.server
-      },ping:${ping}ms,port: ${useNetwork().port})`;
+      const detail = `${account.value.login}: ${
+        logType === "error" ? "logoutFail" : "logout"
+      } (dc:${useNetwork().nodeName},ping:${ping}ms,port: ${
+        useNetwork().port
+      })`;
       const logData = {
         logType,
         origin: "network",

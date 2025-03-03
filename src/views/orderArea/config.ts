@@ -464,8 +464,8 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
   log: [
     {
       title: t("table.time"),
-      dataKey: "time",
-      key: "time",
+      dataKey: "dayId",
+      key: "dayId",
       width: 190,
       minWidth: 190,
       align: "left",
@@ -482,21 +482,14 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "origin",
       key: "origin",
       width: 80,
-      align: "right",
-    },
-    {
-      title: t("table.logName"),
-      dataKey: "logName",
-      key: "logName",
-      width: 120,
-      align: "right",
+      align: "left",
     },
     {
       title: t("table.content"),
       dataKey: "detail",
       key: "detail",
       width: 800,
-      align: "right",
+      align: "left",
     },
     // 占位，用于最尾的列拉伸
     {
