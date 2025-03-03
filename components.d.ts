@@ -10,6 +10,7 @@ declare module 'vue' {
     BaseImg: typeof import('./src/components/BaseImg/index.vue')['default']
     BaseTabs: typeof import('./src/components/BaseTabs/index.vue')['default']
     DisclaimersEn: typeof import('./src/components/DisclaimersEn.vue')['default']
+    DisclaimersTW: typeof import('./src/components/DisclaimersTW.vue')['default']
     DisclaimersZh: typeof import('./src/components/DisclaimersZh.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElAutoResizer: typeof import('element-plus/es')['ElAutoResizer']
