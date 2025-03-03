@@ -64,13 +64,16 @@ export const useSocket = defineStore("socket", {
       return encrypt(JSON.stringify(data));
     },
 
-    getUriQuery(dData: Record<string, string> = {}): string {
+    getUriQuery(
+      action: string = "connect",
+      dData: Record<string, string> = {}
+    ): string {
       const server = useUser().account.server || useNetwork().server;
       const searchMap: Record<string, string> = {
         "x-u-platform": "web",
         "x-u-device-id": useVersion().getDeviceId(),
         server,
-        action: "connect",
+        action,
       };
       const keyMap = {
         server,
@@ -376,7 +379,7 @@ export const useSocket = defineStore("socket", {
         login: useUser().account.login,
         token: useUser().account.token,
       };
-      this.onLineSocket = io(`ws.com/${this.getUriQuery(dData)}`, {
+      this.onLineSocket = io(`ws.com/${this.getUriQuery("online", dData)}`, {
         transports: ["websocket"],
         reconnection: true, // 开启重连功能
         reconnectionAttempts: 5,
