@@ -1,5 +1,6 @@
 {
   "name": "wp-tradeview",
+  "productName": "UTrader",
   "private": true,
   "version": "1.3.4",
   "main": "electron/main.js",
