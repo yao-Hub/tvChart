@@ -14,9 +14,7 @@
   <FloatMenu></FloatMenu>
   <OrderDialog></OrderDialog>
   <Feedback></Feedback>
-  <DisclaimersZh v-if="locale === 'zh'"></DisclaimersZh>
-  <DisclaimersEn v-if="locale === 'en'"></DisclaimersEn>
-  <DisclaimersTW v-if="locale === 'zhTw'"></DisclaimersTW>
+  <Disclaimers :type="locale"></Disclaimers>
 
   <!-- 用来冒泡 响应图表的点击 -->
   <div class="bodyBox"></div>

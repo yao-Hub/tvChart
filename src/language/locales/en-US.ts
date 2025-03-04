@@ -233,6 +233,7 @@ export default {
     imageOnly: "Only supports image upload",
     limitImageSize: "images must not be larger than {size}",
     NodeUnavailable: "Node unavailable",
+    agreeTermsFirst: "Please check the agreement terms first",
   },
 
   time: {

@@ -45,74 +45,8 @@
   </el-dialog>
 </template>
 
-<script setup lang="ts">
-import { useDialog } from "@/store/modules/dialog";
-import { useOrder } from "@/store/modules/order";
-import { ElMessage } from "element-plus";
-import { ref } from "vue";
+<script lang="ts" setup>
+import { useDisclaimers } from "./useDisclaimers";
 
-const dialogStore = useDialog();
-const orderStore = useOrder();
-
-const agree = ref<boolean>(false);
-
-const handleOk = (e: MouseEvent) => {
-  if (agree.value) {
-    dialogStore.closeDialog("disclaimersVisible");
-    orderStore.setOneTrans(true);
-    return;
-  }
-  ElMessage({
-    type: "warning",
-    message: `請先勾選同意條款`,
-  });
-};
-
-const handleCancle = () => {
-  agree.value = false;
-  orderStore.setOneTrans(false);
-  dialogStore.closeDialog("disclaimersVisible");
-};
+const { handleOk, handleCancle, agree, dialogStore } = useDisclaimers();
 </script>
-
-<style lang="scss" scoped>
-@import "@/styles/_handle.scss";
-.header {
-  font-weight: bold;
-  font-size: var(--icon-size);
-  @include border_color("border");
-}
-.disclaimers {
-  border-radius: 5px;
-  box-sizing: border-box;
-  padding: 10px;
-  margin: 15px 0;
-  border: 1px solid;
-  @include border_color("border");
-  .section {
-    margin: 15px 0;
-    line-height: 24px;
-    font-size: 14px;
-    @include font_color("word");
-  }
-  .title {
-    font-weight: 400;
-    font-size: 18px;
-    text-align: center;
-    @include font_color("word");
-  }
-}
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  &_btnGroup {
-    display: flex;
-    gap: 5px;
-  }
-}
-.btn {
-  height: var(--base-height);
-}
-</style>
