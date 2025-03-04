@@ -1,13 +1,3 @@
-// 辅助函数：获取一个数（价位）的小数位数
-export function getDecimalPlaces(num: number) {
-  let strNum = num.toString();
-  let decimalIndex = strNum.indexOf(".");
-  if (decimalIndex === -1) {
-    return 0;
-  }
-  return strNum.length - decimalIndex - 1;
-}
-
 // 保留有效小数
 export function round(number: number, precision: number) {
   // return Math.round(+number + "e" + precision) / Math.pow(10, precision);
@@ -83,4 +73,79 @@ export function getPort(url: string) {
     return port;
   }
   return "";
+}
+
+interface ThrottleOptions {
+  leading?: boolean;
+  trailing?: boolean;
+}
+
+type ThrottledFunction<T extends any[]> = {
+  (...args: T): void;
+  cancel: () => void;
+};
+
+export function throttle<T extends any[]>(
+  func: (...args: T) => void,
+  wait: number,
+  options: ThrottleOptions = { leading: true, trailing: true }
+): ThrottledFunction<T> {
+  let timeout: ReturnType<typeof setTimeout> | null = null;
+  let lastTriggerTime: number = 0;
+  let context: any;
+  let args: T | null;
+
+  // 延迟执行函数（核心逻辑）
+  const later = () => {
+    timeout = null;
+    lastTriggerTime = options.leading ? Date.now() : 0;
+    if (args && options.trailing) {
+      func.apply(context, args); // ✅ 关键点：每次延迟结束都执行
+      context = null;
+      args = null;
+    }
+  };
+
+  // 节流主函数
+  const throttled = function (this: any, ...params: T) {
+    const now = Date.now();
+    context = this;
+    args = params;
+
+    // 计算剩余等待时间
+    const remaining = wait - (now - lastTriggerTime);
+
+    // CASE 1: 首次触发且需要立即执行
+    if (!lastTriggerTime && options.leading) {
+      func.apply(context, args);
+      lastTriggerTime = now;
+      return;
+    }
+
+    // CASE 2: 在冷却期内
+    if (remaining > 0) {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(later, remaining); // ⏳ 重置定时器
+    }
+    // CASE 3: 冷却期已过
+    else {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
+      }
+      lastTriggerTime = now;
+      func.apply(context, args); // 🔥 立即执行
+    }
+  };
+
+  // 取消方法
+  throttled.cancel = () => {
+    if (timeout) clearTimeout(timeout);
+    timeout = null;
+    lastTriggerTime = 0;
+    context = null;
+    args = null;
+  };
+
+  return throttled as ThrottledFunction<T>;
 }
