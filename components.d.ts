@@ -9,12 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     BaseImg: typeof import('./src/components/BaseImg/index.vue')['default']
     BaseTabs: typeof import('./src/components/BaseTabs/index.vue')['default']
-    ChTw: typeof import('./src/components/Disclaimers/ch-Tw.vue')['default']
-    ChZh: typeof import('./src/components/Disclaimers/ch-zh.vue')['default']
     Disclaimers: typeof import('./src/components/Disclaimers/index.vue')['default']
-    DisclaimersEn: typeof import('./src/components/DisclaimersEn.vue')['default']
-    DisclaimersTW: typeof import('./src/components/DisclaimersTW.vue')['default']
-    DisclaimersZh: typeof import('./src/components/DisclaimersZh.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElAutoResizer: typeof import('element-plus/es')['ElAutoResizer']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -65,7 +60,6 @@ declare module 'vue' {
     SymbolSelect: typeof import('./src/components/SymbolSelect.vue')['default']
     TabItem: typeof import('./src/components/BaseTabs/tabItem.vue')['default']
     TVChart: typeof import('./src/components/TVChart.vue')['default']
-    Zh: typeof import('./src/components/Disclaimers/zh.vue')['default']
     ZhCn: typeof import('./src/components/Disclaimers/Zh-Cn.vue')['default']
     ZhTw: typeof import('./src/components/Disclaimers/Zh-Tw.vue')['default']
   }

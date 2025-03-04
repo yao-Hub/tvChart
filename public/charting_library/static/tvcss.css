@@ -6,7 +6,9 @@
 #drawing-toolbar {
   transform: translateY(-3px);
 }
-
+.content-mBXAEZtB > *:last-child {
+  display: none;
+}
 /* : root: not (.theme-dark) — for the light theme
 .theme-dark: root — for the dark theme */
 

@@ -1,6 +1,5 @@
 import * as types from "@/types/chart";
 import { get, isNil, set, sortBy } from "lodash";
-import { throttle } from "utils/common";
 import { defineStore } from "pinia";
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
@@ -69,7 +68,7 @@ export const useChartLine = defineStore("chartLine", {
       const actionMap: Record<string, TAction> = {};
 
       // 订阅接收处理
-      const updateQoute: TAction = throttle((symbol, qData) => {
+      const updateQoute: TAction = (symbol, qData) => {
         const oldQuote = quotesStore.qoutes[symbol];
         // 涨跌颜色
         quotesStore.setClass(qData);
@@ -91,7 +90,7 @@ export const useChartLine = defineStore("chartLine", {
             this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
           }
         }
-      }, 300);
+      };
 
       // 接收socket 发布
       socketStore.subQuote((d) => {
