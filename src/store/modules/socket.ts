@@ -375,11 +375,12 @@ export const useSocket = defineStore("socket", {
 
     // 埋点跟踪用户在线socket连接
     emitOnline() {
+      const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
       const dData = {
         login: useUser().account.login,
         token: useUser().account.token,
       };
-      this.onLineSocket = io(`ws.com/${this.getUriQuery("online", dData)}`, {
+      this.onLineSocket = io(`${uri}/${this.getUriQuery("online", dData)}`, {
         transports: ["websocket"],
         reconnection: true, // 开启重连功能
         reconnectionAttempts: 5,
