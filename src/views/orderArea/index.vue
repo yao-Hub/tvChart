@@ -857,29 +857,34 @@ const closeMarketOrder = debounce(
 // 全部关闭市价单
 const closeMarketOrders = (command: number) => {
   ElMessageBox.confirm(t("order.confirmPositionClosure")).then(async () => {
-    let logType = "info";
     let errmsg = "";
     let logStr = "";
+    const typeList = [
+      "",
+      "allPositionsClose",
+      "closeAllLongPositions",
+      "closeAllShortPositions",
+      "closeProfitablePositions",
+      "closeLosingPositions",
+    ];
     try {
       const res = await orders.marketOrdersCloseMulti({ multi_type: command });
       orderStore.getData("order_closed");
       logStr = res.data.closed_ids.map((id) => `#${id}`).join(",");
       ElMessage.success(t("order.positionClosedSuccessfully"));
     } catch (error) {
-      logType = "error";
       errmsg =
-        "error " +
-        (get(error, "errmsg") ||
+        get(error, "errmsg") ||
           get(error, "message") ||
-          JSON.stringify(error));
+          JSON.stringify(error);
     } finally {
       const logData = {
-        logType,
+        logType: errmsg ? "error" : "info",
         origin: "trades",
         logName: "close market orders",
         detail: `${
           useUser().account.login
-        }: close market orders ${errmsg} ${logStr}`,
+        }: close market orders ${typeList[command]} ${errmsg ? `error ${errmsg}` : ""} ${logStr}`,
         login: useUser().account.login,
         time: dayjs().format("HH:mm:ss.SSS"),
         id: new Date().getTime(),

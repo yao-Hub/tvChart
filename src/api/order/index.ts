@@ -233,6 +233,7 @@ export const marketOrdersAdd = (data: ReqOrderAdd) => {
     method: "post",
     data,
     needLogin: true,
+    noTip: true,
   });
 };
 
@@ -252,6 +253,7 @@ export const editopenningOrders = (data: reqEditOpeningOrders) => {
     method: "post",
     data,
     needLogin: true,
+    noTip: true,
   });
 };
 
@@ -262,6 +264,7 @@ export const marketOrdersClose = (data: reqMarketClose) => {
     method: "post",
     data,
     needLogin: true,
+    noTip: true,
   });
 };
 
@@ -272,6 +275,7 @@ export const pendingOrdersAdd = (data: reqPendingOrdersAdd) => {
     method: "post",
     data,
     needLogin: true,
+    noTip: true,
   });
 };
 
@@ -301,6 +305,7 @@ export const delPendingOrders = (data: reqDelPendingOrders) => {
     method: "post",
     data,
     needLogin: true,
+    noTip: true,
   });
 };
 
@@ -362,5 +367,6 @@ export const editPendingOrders = (
     method: "post",
     data,
     needLogin: true,
+    noTip: true,
   });
 };
