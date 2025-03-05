@@ -117,9 +117,12 @@
         </el-col>
         <el-col :span="24">
           <div class="btns">
-            <el-button style="flex: 1" @click="delOrder">{{
-              t("delete")
-            }}</el-button>
+            <el-button
+              style="flex: 1"
+              @click="delOrder"
+              :loading="delLoading"
+              >{{ t("delete") }}</el-button
+            >
             <el-button
               style="flex: 1"
               type="primary"
@@ -313,20 +316,20 @@ const confirmEdit = debounce(
 );
 
 import { ElMessageBox } from "element-plus";
+const delLoading = ref(false);
 const delOrder = debounce(
   () => {
     ElMessageBox.confirm("", t("tip.confirm", { type: t("delete") })).then(
-      debounce(() => {
+      () => {
+        delLoading.value = true;
         orderStore
           .delPendingOrder(props.orderInfo)
-          .then(() =>
-            Promise.all([
-              orderStore.getPendingOrders(),
-              orderStore.getPendingOrderHistory(),
-            ])
-          )
-          .finally(() => handleCancel());
-      }, 200)
+          .then(() => orderStore.getPendingOrderHistory())
+          .finally(() => {
+            delLoading.value = false;
+            handleCancel();
+          });
+      }
     );
   },
   200,

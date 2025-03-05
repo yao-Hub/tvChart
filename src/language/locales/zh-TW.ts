@@ -41,6 +41,7 @@ export default {
   delete: "刪除",
   modify: "修改",
   submit: "提交",
+  close: "關閉",
 
   noAccount: "已有交易帳號，可直接登入，如沒有，可開設類比帳號",
   logAccount: "登入您的賬戶",

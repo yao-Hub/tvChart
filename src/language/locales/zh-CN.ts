@@ -41,6 +41,7 @@ export default {
   delete: "删除",
   modify: "修改",
   submit: "提交",
+  close: "关闭",
 
   noAccount: "已有交易账号，可直接登录，如没有，可开设模拟账号",
   logAccount: "登录您的账号",

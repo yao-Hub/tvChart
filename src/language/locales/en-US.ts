@@ -44,6 +44,8 @@ export default {
   delete: "Delete",
   myFeedback: "My Feedback",
   submit: "Submit",
+  close: "close",
+
   retract: "Retract",
   expandReply: "Expand Reply",
   and: "and",

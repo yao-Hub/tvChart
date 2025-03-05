@@ -1,9 +1,9 @@
 import i18n from "@/language/index";
 import dayjs from "dayjs";
 import Decimal from "decimal.js";
-import { ElMessageBox, ElMessage, ElNotification } from "element-plus";
+import { ElMessageBox, ElNotification } from "element-plus";
 import { defineStore } from "pinia";
-import { reactive, watch } from "vue";
+import { computed, reactive, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import { useChartAction } from "./chartAction";
@@ -115,6 +115,8 @@ export const useOrder = defineStore("order", () => {
     ifOne: null, // 一键交易
     ifQuick: true, // 快捷交易(图表是否显示快捷交易组件)
   });
+
+  const currentLogin = computed(() => useUser().account.login);
 
   // 市价单盈亏
   const quotesStore = useQuotes();
@@ -617,72 +619,65 @@ export const useOrder = defineStore("order", () => {
       id: new Date().getTime(),
       origin: "trades",
       time: dayjs().format("YYYY.MM.DD HH:mm:ss.SSS"),
-      login: useUser().account.login,
+      login: currentLogin.value,
       day: dayjs().format("YYYY.MM.DD"),
     };
   };
 
   // 增加市价单
   const addMarketOrder = (updata: orders.ReqOrderAdd) => {
+    let errmsg = "";
+    let logStr = "";
+    const { volume, symbol, type } = updata;
+    const direction = type ? "sell" : "buy";
+
+    logStr = `${direction} ${volume} ${symbol} `;
+
+    if (updata.sl) {
+      logStr += `sl:${updata.sl} `;
+    }
+    if (updata.tp) {
+      logStr += `tp:${updata.tp} `;
+    }
     return new Promise(async (resolve, reject) => {
-      let logType = "info";
-      let errmsg = "";
-      let logStr = "";
-      const { volume, symbol, type } = updata;
-      const direction = type ? "sell" : "buy";
-
-      logStr = `${direction} ${volume} ${symbol} `;
-
-      if (updata.sl) {
-        logStr += `sl:${updata.sl} `;
-      }
-      if (updata.tp) {
-        logStr += `tp:${updata.tp} `;
-      }
       try {
         const res = await orders.marketOrdersAdd({
           ...updata,
           volume: +volume * 100,
         });
+        logStr += `#${res.data.id} at ${res.data.open_price}`;
         if (res.data.action_success) {
-          logStr += `at ${res.data.open_price}`;
-
-          ElNotification({
+          ElNotification.success({
             title: t("tip.succeed", { type: t("dialog.createOrder") }),
             message: t("dialog.createOrderSucceed", {
               type: t(`order.${direction}`),
               volume,
               symbol,
             }),
-            type: "success",
           });
           await Promise.all([getMarketOrders(), useUser().getLoginInfo()]);
           resolve(res);
         } else {
-          logType = "error";
-          errmsg = "fail " + res.data.err_text || res.errmsg || "";
-          logStr += `at ${res.data.open_price}`;
-
+          errmsg = res.data.err_text || res.errmsg || "";
+          reject(res);
+        }
+      } catch (error: any) {
+        errmsg =
+          get(error, "errmsg") ||
+          get(error, "message") ||
+          JSON.stringify(error);
+        reject(error);
+      } finally {
+        if (errmsg) {
           ElNotification.error({
             title: t("tip.failed", { type: t("dialog.createOrder") }),
             message: t(errmsg),
           });
-          reject(res);
         }
-
-        logStr = `#${res.data.id} ${logStr}`;
-      } catch (error: any) {
-        logType = "error";
-        errmsg =
-          "error " +
-          (get(error, "errmsg") ||
-            get(error, "message") ||
-            JSON.stringify(error));
-        reject(error);
-      } finally {
-        logStr = `${useUser().account.login}: market order ${errmsg} ${logStr}`;
+        const logErr = errmsg ? `error ${errmsg}` : "";
+        logStr = `${currentLogin.value}: market order ${logErr} ${logStr}`;
         const logData = {
-          logType,
+          logType: errmsg ? "error" : "info",
           logName: "marketOrder",
           detail: logStr,
           ...getLogData(),
@@ -698,50 +693,48 @@ export const useOrder = defineStore("order", () => {
     updata: orders.reqEditOpeningOrders,
     originData: orders.resOrders
   ) => {
+    let errmsg = "";
+    let logStr = "";
+    const { sl_price, tp_price, type, symbol, id, volume, open_price } =
+      originData;
+    const direction = getTradingDirection(type);
+    logStr = `#${id}, ${direction} ${volume} ${symbol} at ${open_price}, sl:${sl_price} tp:${tp_price} -> `;
+    if (updata.sl) {
+      logStr += `sl:${updata.sl} `;
+    }
+    if (updata.tp) {
+      logStr += `tp:${updata.tp} `;
+    }
     return new Promise(async (resolve, reject) => {
-      let logType = "info";
-      let errmsg = "";
-      let logStr = "";
-      const { sl_price, tp_price, type, symbol, id, volume, open_price } =
-        originData;
-      const direction = getTradingDirection(type);
-
-      logStr = `#${id}, ${direction} ${volume} ${symbol} at ${open_price}, sl:${sl_price} tp:${tp_price} -> `;
-      if (updata.sl) {
-        logStr += `sl:${updata.sl} `;
-      }
-      if (updata.tp) {
-        logStr += `tp:${updata.tp} `;
-      }
       try {
         const res = await orders.editopenningOrders(updata);
         if (res.data.action_success) {
           getMarketOrders();
-          ElMessage.success(t("tip.succeed", { type: t("modify") }));
+          ElNotification.success({
+            title: t("tip.succeed", { type: `#${id} ${t("modify")}` }),
+          });
           resolve(res);
         } else {
-          logType = "error";
-          errmsg = "fail " + res.data.err_text || res.errmsg || "";
-
-          ElMessage.error(
-            res.data.err_text || t("tip.failed", { type: t("modify") })
-          );
+          errmsg = res.data.err_text || res.errmsg || "";
           reject(res);
         }
       } catch (error: any) {
-        logType = "error";
         errmsg =
-          "error " +
-          (get(error, "errmsg") ||
-            get(error, "message") ||
-            JSON.stringify(error));
+          get(error, "errmsg") ||
+          get(error, "message") ||
+          JSON.stringify(error);
         reject(error);
       } finally {
-        logStr = `${
-          useUser().account.login
-        }: modify market order ${errmsg} ${logStr}`;
+        if (errmsg) {
+          ElNotification.error({
+            title: t("tip.failed", { type: t("modify") }),
+            message: `#${id}: ${t(errmsg)}`,
+          });
+        }
+        const logErr = errmsg ? `error ${errmsg}` : "";
+        logStr = `${currentLogin.value}: modify market order ${logErr} ${logStr}`;
         const logData = {
-          logType,
+          logType: errmsg ? "error" : "info",
           logName: "modifyMarketOrder",
           detail: logStr,
           ...getLogData(),
@@ -753,27 +746,25 @@ export const useOrder = defineStore("order", () => {
   };
 
   // 删除市价单
-  const delMarketOrder = (
-    updata: orders.reqMarketClose & { type: string | number }
-  ) => {
+  const delMarketOrder = (updata: orders.reqMarketClose & { type: number }) => {
+    let errmsg = "";
+    let logStr = "";
+    const { id, symbol, volume, type } = updata;
+    const direction = getTradingDirection(type);
+    logStr = `#${id} (${direction} ${volume} ${symbol} `;
     return new Promise(async (resolve, reject) => {
-      let logType = "info";
-      let errmsg = "";
-      let logStr = "";
       try {
-        const { id, symbol, volume, type } = updata;
-        const direction = getTradingDirection(type);
-        logStr = `#${id} (${direction} ${volume} ${symbol} `;
-
         const res = await orders.marketOrdersClose({
           symbol,
           id,
           volume: volume * 100,
         });
+        logStr += `at ${res.data.close_price})`;
         if (res.data.action_success) {
-          logStr += `at ${res.data.close_price}) completed`;
-
-          ElMessage.success(t("order.positionClosedSuccessfully"));
+          logStr += `completed`;
+          ElNotification.success({
+            title: t("tip.succeed", { type: `#${id} ${t("close")}` }),
+          });
           Promise.all([
             getMarketOrderHistory(),
             getBlanceRecord(),
@@ -781,32 +772,26 @@ export const useOrder = defineStore("order", () => {
           ]);
           resolve(res);
         } else {
-          logType = "error";
-          errmsg = "fail " + res.data.err_text || res.errmsg || "";
-          logStr += `at ${res.data.close_price})`;
-
-          ElMessage.error(
-            `${t("tip.failed", { type: t("dialog.createOrder") })}：${t(
-              errmsg
-            )}`
-          );
+          errmsg = res.data.err_text || res.errmsg || "";
           reject(res);
         }
       } catch (error: any) {
-        console.log(error);
-        logType = "error";
         errmsg =
-          "error " +
-          (get(error, "errmsg") ||
-            get(error, "message") ||
-            JSON.stringify(error));
+          get(error, "errmsg") ||
+          get(error, "message") ||
+          JSON.stringify(error);
         reject(error);
       } finally {
-        logStr = `${
-          useUser().account.login
-        }: close market order ${errmsg} ${logStr})`;
+        if (errmsg) {
+          ElNotification.error({
+            title: t("tip.failed", { type: t("dialog.createOrder") }),
+            message: `#${id}: ${t(errmsg)}`,
+          });
+        }
+        const logErr = errmsg ? `error ${errmsg}` : "";
+        logStr = `${currentLogin.value}: close market order ${logErr} ${logStr})`;
         const logData = {
-          logType,
+          logType: errmsg ? "error" : "info",
           logName: "closeMarketOrder",
           detail: logStr,
           ...getLogData(),
@@ -819,56 +804,53 @@ export const useOrder = defineStore("order", () => {
 
   // 增加挂单
   const addPendingOrder = (updata: orders.reqPendingOrdersAdd) => {
+    let errmsg = "";
+    let logStr = "";
+    const { type, volume, symbol } = updata;
+    const orderType = getOrderType(type);
+    logStr = `${orderType} ${volume} ${symbol} `;
+    if (updata.sl) {
+      logStr += `sl:${updata.sl} `;
+    }
+    if (updata.tp) {
+      logStr += `tp:${updata.tp} `;
+    }
     return new Promise(async (resolve, reject) => {
-      let logType = "info";
-      let errmsg = "";
-      let logStr = "";
       try {
-        const { type, volume, symbol } = updata;
-        const direction = getOrderType(type);
-        logStr = `${direction} ${volume} ${symbol} `;
-        if (updata.sl) {
-          logStr += `sl:${updata.sl} `;
-        }
-        if (updata.tp) {
-          logStr += `tp:${updata.tp} `;
-        }
         const res = await orders.pendingOrdersAdd({
           ...updata,
           volume: +volume * 100,
         });
+        logStr = `#${res.data.id} ${logStr} at ${res.data.order_price}`;
         if (res.data.action_success) {
-          logStr = `#${res.data.id} ${logStr} at ${res.data.order_price}`;
-
           getPendingOrders();
-          ElMessage.success(
-            t("tip.succeed", { type: t("dialog.createOrder") })
-          );
+          ElNotification.success({
+            title: t("tip.succeed", {
+              type: `#${res.data.id} ${t("dialog.createOrder")}`,
+            }),
+          });
           resolve(res);
         } else {
-          logType = "error";
-          errmsg = "fail " + res.data.err_text || res.errmsg || "";
-          logStr += `at ${res.data.order_price})`;
-
-          ElMessage.error(
-            `${t("tip.failed", { type: t("dialog.createOrder") })}：${t(
-              errmsg
-            )}`
-          );
+          errmsg = res.data.err_text || res.errmsg || "";
           reject(res);
         }
       } catch (error: any) {
-        logType = "error";
         errmsg =
-          "error " +
-          (get(error, "errmsg") ||
-            get(error, "message") ||
-            JSON.stringify(error));
+          get(error, "errmsg") ||
+          get(error, "message") ||
+          JSON.stringify(error);
         reject(error);
       } finally {
-        logStr = `${useUser().account.login}: order ${errmsg} ${logStr}`;
+        if (errmsg) {
+          ElNotification.error({
+            title: t("tip.failed", { type: t("dialog.createOrder") }),
+            message: t(errmsg),
+          });
+        }
+        const logErr = errmsg ? `error ${errmsg}` : "";
+        logStr = `${currentLogin.value}: order ${logErr} ${logStr}`;
         const logData = {
-          logType,
+          logType: errmsg ? "error" : "info",
           logName: "order",
           detail: logStr,
           ...getLogData(),
@@ -884,33 +866,32 @@ export const useOrder = defineStore("order", () => {
     updata: orders.reqPendingOrdersAdd & { id: string | number },
     originData: orders.resOrders
   ) => {
+    let errmsg = "";
+    let logStr = "";
+    const {
+      sl_price,
+      tp_price,
+      type,
+      symbol,
+      id,
+      volume: originVolume,
+      order_price,
+    } = originData;
+    const { volume } = updata;
+    const orderType = getOrderType(type);
+    logStr = `#${id}, ${orderType} ${
+      originVolume / 100
+    } ${symbol} at ${order_price}, sl:${sl_price} tp:${tp_price} -> `;
+    if (updata.volume) {
+      logStr += `volume:${updata.volume} `;
+    }
+    if (updata.sl) {
+      logStr += `sl:${updata.sl} `;
+    }
+    if (updata.tp) {
+      logStr += `tp:${updata.tp} `;
+    }
     return new Promise(async (resolve, reject) => {
-      let logType = "info";
-      let errmsg = "";
-      let logStr = "";
-      const {
-        sl_price,
-        tp_price,
-        type,
-        symbol,
-        id,
-        volume: originVolume,
-        order_price,
-      } = originData;
-      const { volume } = updata;
-      const direction = getOrderType(type);
-      logStr = `#${id}, ${direction} ${
-        originVolume / 100
-      } ${symbol} at ${order_price}, sl:${sl_price} tp:${tp_price} -> `;
-      if (updata.volume) {
-        logStr += `volume:${updata.volume} `;
-      }
-      if (updata.sl) {
-        logStr += `sl:${updata.sl} `;
-      }
-      if (updata.tp) {
-        logStr += `tp:${updata.tp} `;
-      }
       try {
         const res = await orders.editPendingOrders({
           ...updata,
@@ -918,29 +899,33 @@ export const useOrder = defineStore("order", () => {
         });
         if (res.data.action_success) {
           getPendingOrders();
-          ElMessage.success(t("tip.succeed", { type: t("modify") }));
+          ElNotification.success({
+            title: t("tip.succeed", {
+              type: `#${id} ${t("modify")}`,
+            }),
+          });
           resolve(res);
         } else {
-          logType = "error";
-          errmsg = "fail " + res.data.err_text || res.errmsg || "";
-
-          ElMessage.error(
-            res.data.err_text || t("tip.failed", { type: t("modify") })
-          );
+          errmsg = res.data.err_text || res.errmsg || "";
           reject(res);
         }
       } catch (error: any) {
-        logType = "error";
         errmsg =
-          "error " +
-          (get(error, "errmsg") ||
-            get(error, "message") ||
-            JSON.stringify(error));
+          get(error, "errmsg") ||
+          get(error, "message") ||
+          JSON.stringify(error);
         reject(error);
       } finally {
-        logStr = `${useUser().account.login}: modify order ${errmsg} ${logStr}`;
+        if (errmsg) {
+          ElNotification.error({
+            title: t("tip.failed", { type: t("modify") }),
+            message: `#${id} ${t(errmsg)}`,
+          });
+        }
+        const logErr = errmsg ? `error ${errmsg}` : "";
+        logStr = `${currentLogin.value}: modify order ${logErr} ${logStr}`;
         const logData = {
-          logType,
+          logType: errmsg ? "error" : "info",
           logName: "modifyOrder",
           detail: logStr,
           ...getLogData(),
@@ -953,15 +938,15 @@ export const useOrder = defineStore("order", () => {
 
   // 删除挂单
   const delPendingOrder = (record: orders.resOrders) => {
+    const { id, symbol, volume, type, order_price } = record;
+    const orderType = getOrderType(type);
+    let logStr = "";
+    let errmsg = "";
+    logStr = `#${id} (${orderType} ${
+      volume / 100
+    } ${symbol} at ${order_price})`;
+
     return new Promise(async (resolve, reject) => {
-      const { id, symbol, volume, type, order_price } = record;
-      const direction = getOrderType(type);
-
-      let logType = "info";
-      let logStr = "";
-      let errmsg = "";
-      logStr = `#${id} (${direction} ${volume} ${symbol} at ${order_price})`;
-
       try {
         const res = await orders.delPendingOrders({
           id: record.id,
@@ -969,27 +954,35 @@ export const useOrder = defineStore("order", () => {
         });
         if (res.data.action_success) {
           logStr += " completed";
-          ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
+          const index = state.orderData.pendingOrder.findIndex(
+            (e) => e.id === record.id
+          );
+          state.orderData.pendingOrder.splice(index, 1);
+          ElNotification.success({
+            title: t("tip.succeed", { type: `#${id} ${t("delete")}` }),
+          });
           resolve(res);
         } else {
-          errmsg = "fail " + res.data.err_text || res.errmsg || "";
-          logType = "error";
-
-          ElMessage.error(res.data.err_text);
-          reject(res);
+          errmsg = res.data.err_text || res.errmsg || "";
+          reject(errmsg);
         }
       } catch (error: any) {
-        logType = "error";
         errmsg =
-          "error " +
-          (get(error, "errmsg") ||
-            get(error, "message") ||
-            JSON.stringify(error));
-        reject(error);
+          get(error, "errmsg") ||
+          get(error, "message") ||
+          JSON.stringify(error);
+        reject(errmsg);
       } finally {
-        logStr = `${useUser().account.login}: close order ${errmsg} ${logStr}`;
+        if (errmsg) {
+          ElNotification.error({
+            title: t("tip.failed", { type: t("delete") }),
+            message: `#${id} ${t(errmsg)}`,
+          });
+        }
+        const logErr = errmsg ? `error ${errmsg}` : "";
+        logStr = `${currentLogin.value}: close order ${logErr} ${logStr}`;
         const logData = {
-          logType,
+          logType: errmsg ? "error" : "info",
           logName: "closeOrder",
           detail: logStr,
           ...getLogData(),

@@ -914,12 +914,6 @@ const delOrder = debounce(
     pendingCloseLodingMap.value[record.id] = true;
     orderStore
       .delPendingOrder(record)
-      .then(() => {
-        const index = orderStore.state.orderData.pendingOrder.findIndex(
-          (e) => e.id === record.id
-        );
-        orderStore.state.orderData.pendingOrder.splice(index, 1);
-      })
       .finally(() => {
         pendingCloseLodingMap.value[record.id] = false;
       });
