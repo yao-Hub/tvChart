@@ -3,6 +3,7 @@ import { get, isNil, set, sortBy } from "lodash";
 import { defineStore } from "pinia";
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
+
 interface ISubSCribed {
   onRealtimeCallback: Function;
   symbolInfo: types.ITVSymbolInfo;

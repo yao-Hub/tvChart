@@ -413,7 +413,7 @@
 <script setup lang="ts">
 import Decimal from "decimal.js";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { cloneDeep, debounce, isNil, minBy } from "lodash";
+import { cloneDeep, debounce, get, isNil, minBy } from "lodash";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -858,24 +858,28 @@ const closeMarketOrder = debounce(
 const closeMarketOrders = (command: number) => {
   ElMessageBox.confirm(t("order.confirmPositionClosure")).then(async () => {
     let logType = "info";
+    let errmsg = "";
     let logStr = "";
     try {
       const res = await orders.marketOrdersCloseMulti({ multi_type: command });
       orderStore.getData("order_closed");
-      logStr = res.data.closed_ids.join(",");
+      logStr = res.data.closed_ids.map((id) => `#${id}`).join(",");
       ElMessage.success(t("order.positionClosedSuccessfully"));
     } catch (error) {
       logType = "error";
+      errmsg =
+        "error " +
+        (get(error, "errmsg") ||
+          get(error, "message") ||
+          JSON.stringify(error));
     } finally {
       const logData = {
         logType,
         origin: "trades",
         logName: "close market orders",
-        detail: `${useUser().account.login}: ${
-          logType === "info"
-            ? "close market orders"
-            : "close market orders Fail"
-        } ${logStr}`,
+        detail: `${
+          useUser().account.login
+        }: close market orders ${errmsg} ${logStr}`,
         login: useUser().account.login,
         time: dayjs().format("HH:mm:ss.SSS"),
         id: new Date().getTime(),
@@ -895,39 +899,11 @@ const closePendingOrders = (data: orders.resOrders[]) => {
   ElMessageBox.confirm(
     t("tip.confirmDelPendingOrders", { num: data.length }),
     t("order.pendingOrderClosed")
-  ).then(async () => {
-    let logType = "info";
-    let logStr = "";
+  ).then(() => {
     const list = data.map((item) => {
-      return orders.delPendingOrders({
-        symbol: item.symbol,
-        id: item.id,
-      });
+      return orderStore.delPendingOrder(item);
     });
-    try {
-      await Promise.all(list);
-      ElMessage.success(t("order.pendingOrderClosedSuccessfully"));
-      orderStore.getData("order_closed");
-      orderStore.getData("pending_order_deleted");
-    } catch (error) {
-      logType = "error";
-    } finally {
-      logStr = data.map((item) => item.id).join(",");
-      const logData = {
-        logType,
-        origin: "trades",
-        logName: "close orders",
-        detail: `${useUser().account.login}: ${
-          logType === "info" ? "close orders" : "close orders Fail"
-        } ${logStr}`,
-        login: useUser().account.login,
-        time: dayjs().format("HH:mm:ss.SSS"),
-        id: new Date().getTime(),
-        day: dayjs().format("YYYY.MM.DD"),
-      };
-      await logIndexedDB.addData(logData);
-      useOrder().getData("log");
-    }
+    Promise.all(list);
   });
 };
 

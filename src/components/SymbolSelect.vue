@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import { useSymbols } from "@/store/modules/symbols";
-import { computed, createApp, onMounted } from "vue";
+import { computed, createApp, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -73,5 +73,9 @@ const symbols = computed(() => {
     return symbolsStore.symbols_tradeAllow;
   }
   return symbolsStore.haveQuoteSymbols;
+});
+
+onUnmounted(() => {
+  symbolsStore.selectSymbols = [];
 });
 </script>

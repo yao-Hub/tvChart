@@ -2,7 +2,6 @@ import { compact, debounce, orderBy, uniq } from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 
-import { TableTabKey } from "#/order";
 import { ISessionSymbolInfo } from "@/types/chart";
 import { allSymbols, optionalQuery, reqOptionalQuery } from "api/symbols/index";
 
@@ -73,11 +72,9 @@ export const useSymbols = defineStore("symbols", () => {
     debounce(() => {
       const orderData = orderStore.state.orderData;
       const arr = new Set<string>();
-      let i: TableTabKey;
-      for (i in orderData) {
-        if (i !== "log") {
-          const itemSymbols = orderData[i].map((item) => item.symbol);
-          itemSymbols.forEach((symbol) => arr.add(symbol));
+      for (const i in orderData) {
+        if (i === "marketOrder" || i === "pendingOrder") {
+          orderData[i].forEach((item) => arr.add(item.symbol));
         }
       }
       orderSymbols.value = Array.from(arr);

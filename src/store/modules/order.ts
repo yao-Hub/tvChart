@@ -20,7 +20,7 @@ import * as types from "@/types/chart";
 import * as orders from "api/order/index";
 
 import { cloneDeep, debounce, get, isNil } from "lodash";
-import { getTradingDirection } from "utils/order/index";
+import { getTradingDirection, getOrderType } from "utils/order/index";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 
 type ModeType = "create" | "confirm";
@@ -825,7 +825,7 @@ export const useOrder = defineStore("order", () => {
       let logStr = "";
       try {
         const { type, volume, symbol } = updata;
-        const direction = getTradingDirection(type);
+        const direction = getOrderType(type);
         logStr = `${direction} ${volume} ${symbol} `;
         if (updata.sl) {
           logStr += `sl:${updata.sl} `;
@@ -898,7 +898,7 @@ export const useOrder = defineStore("order", () => {
         order_price,
       } = originData;
       const { volume } = updata;
-      const direction = getTradingDirection(type);
+      const direction = getOrderType(type);
       logStr = `#${id}, ${direction} ${
         originVolume / 100
       } ${symbol} at ${order_price}, sl:${sl_price} tp:${tp_price} -> `;
@@ -955,7 +955,7 @@ export const useOrder = defineStore("order", () => {
   const delPendingOrder = (record: orders.resOrders) => {
     return new Promise(async (resolve, reject) => {
       const { id, symbol, volume, type, order_price } = record;
-      const direction = getTradingDirection(type);
+      const direction = getOrderType(type);
 
       let logType = "info";
       let logStr = "";
