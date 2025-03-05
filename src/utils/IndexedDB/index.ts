@@ -63,6 +63,68 @@ class IndexedDBService {
     });
   }
 
+  // 删除最早一天的数据
+  private async deleteOldData(): Promise<void> {
+    if (!this.db) {
+      throw new Error("数据库未打开");
+    }
+
+    // 获取最小id（最早时间戳）
+    const minId = await new Promise<number>((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [this.objectStoreName],
+        "readonly"
+      );
+      const objectStore = transaction.objectStore(this.objectStoreName);
+      // openCursor：游标，异步
+      // null：表示不限制范围，遍历所有数据。
+      // 'next'：按升序遍历，确保获取到最小的 id。
+      const request = objectStore.openCursor(null, "next");
+
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+        if (cursor) {
+          resolve(cursor.value.id);
+        } else {
+          reject(new Error("没有数据可删除"));
+        }
+      };
+
+      request.onerror = (event) => {
+        reject(
+          new Error("无法获取最早数据: " + (event.target as IDBRequest).error)
+        );
+      };
+    });
+
+    // 计算当天起始和结束时间戳
+    const date = new Date(minId);
+    const startOfDay = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    ).getTime();
+    const endOfDay = startOfDay + 24 * 60 * 60 * 1000 - 1;
+
+    // 删除该日期内的所有数据
+    await new Promise<void>((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [this.objectStoreName],
+        "readwrite"
+      );
+      const objectStore = transaction.objectStore(this.objectStoreName);
+      // 创建一个 范围查询
+      const range = IDBKeyRange.bound(startOfDay, endOfDay);
+      const request = objectStore.delete(range);
+
+      request.onsuccess = () => resolve();
+      request.onerror = (event) =>
+        reject(
+          new Error("删除旧数据失败: " + (event.target as IDBRequest).error)
+        );
+    });
+  }
+
   async addData<T extends { id: number }>(data: T) {
     if (!this.db) {
       throw new Error("数据库未打开");
@@ -79,10 +141,21 @@ class IndexedDBService {
         resolve((event.target as IDBRequest).result as number);
       };
 
-      request.onerror = (event) => {
-        reject(
-          new Error("数据添加失败: " + (event.target as IDBRequest).error)
-        );
+      request.onerror = async (event) => {
+        const error = (event.target as IDBRequest).error;
+        // 存储空间已满
+        if (error?.name === "QuotaExceededError") {
+          try {
+            await this.deleteOldData();
+            // 重试添加
+            const retryResult = await this.addData(data);
+            resolve(retryResult);
+          } catch (deleteError) {
+            reject(deleteError);
+          }
+        } else {
+          reject(new Error("数据添加失败: " + error));
+        }
       };
     });
   }
@@ -172,6 +245,7 @@ class IndexedDBService {
     }
   }
 
+  // 查找（筛选过滤）数据
   async optimizedFilter(conditions: Object): Promise<Object[]> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
