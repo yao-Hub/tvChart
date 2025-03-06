@@ -11,6 +11,8 @@ const yellowColor = "\x1b[33m";
 // 重置颜色的 ANSI 转义序列
 const resetColor = "\x1b[0m";
 
+type TUpdate = "patch" | "minor" | "major" | "custom" | "noUpdate";
+
 // 从远程仓库获取最新标签版本号
 async function getRemoteLatestTag(
   git: SimpleGit
@@ -85,7 +87,7 @@ function canUpdate(
 // 获取版本
 async function getUpdateVersion(
   localVersion: string,
-  updateType: "patch" | "minor" | "major" | "custom",
+  updateType: TUpdate,
   remoteVersion: string | null | undefined
 ): Promise<string> {
   if (updateType === "custom") {
@@ -157,7 +159,7 @@ async function updateRemoteTag(version: string) {
 
 async function updateVersion(
   localVersion: string,
-  updateType: "patch" | "minor" | "major" | "custom",
+  updateType: TUpdate,
   remoteVersion: string | null | undefined
 ) {
   const updateVersion = await getUpdateVersion(
@@ -171,6 +173,9 @@ async function updateVersion(
 
 // 主函数
 async function main() {
+  console.log(
+    `${redColor}!!!!!!${resetColor}打包失败尝试关闭防火墙或者使用管理员运行命令行`
+  );
   const packageJson = require("../package.json");
   const localVersion = packageJson.version;
   const git: SimpleGit = simpleGit();
@@ -202,10 +207,11 @@ async function main() {
       { name: "小版本更新 (Minor)", value: "minor" },
       { name: "大版本更新 (Major)", value: "major" },
       { name: "自定义版本号 (custom)", value: "custom" },
+      { name: "不更新版本号", value: "noUpdate" },
     ];
 
     const answers = await inquirer.prompt<{
-      versionType: "patch" | "minor" | "major" | "custom";
+      versionType: TUpdate;
     }>([
       {
         type: "list",
@@ -215,6 +221,9 @@ async function main() {
       },
     ]);
     const updateType = answers.versionType;
+    if (updateType === "noUpdate") {
+      return;
+    }
     updateVersion(localVersion, updateType, remoteVersion);
   } else {
     console.log("****本地版本号大于线上版本号，无需更新。****");
