@@ -42,6 +42,8 @@ const handleTokenErr = () => {
 };
 
 const ifLocal = import.meta.env.MODE === "development";
+const ifPro = import.meta.env.MODE === "production";
+
 const nowLocale = i18n.global.locale.value;
 const LOCALE_MAP: Record<string, string> = {
   zh: "zh-cn",
@@ -136,10 +138,11 @@ service.interceptors.request.use(
         action,
         d: encrypt(JSON.stringify(config.data)),
       };
-      console.log("request----", {
-        url: config.url,
-        data: config.data,
-      });
+      !ifPro &&
+        console.log("request----", {
+          url: config.url,
+          data: config.data,
+        });
       config.data = JSON.stringify(p);
     }
     return config;
@@ -158,7 +161,7 @@ service.interceptors.response.use(
       if (data.data && !config.noNeedEncryption) {
         data.data = JSON.parse(decrypt(data.data));
       }
-      console.log("response....", { url: config.url, data });
+      !ifPro && console.log("response....", { url: config.url, data });
       return response;
     }
     if (

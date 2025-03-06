@@ -29,6 +29,7 @@ class IndexedDBService {
 
       request.onsuccess = (event) => {
         this.db = (event.target as IDBRequest).result;
+        this.checkStorageQuota();
         resolve(this.db as IDBDatabase);
       };
 
@@ -60,68 +61,6 @@ class IndexedDBService {
       } else {
         resolve();
       }
-    });
-  }
-
-  // 删除最早一天的数据
-  private async deleteOldData(): Promise<void> {
-    if (!this.db) {
-      throw new Error("数据库未打开");
-    }
-
-    // 获取最小id（最早时间戳）
-    const minId = await new Promise<number>((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.objectStoreName],
-        "readonly"
-      );
-      const objectStore = transaction.objectStore(this.objectStoreName);
-      // openCursor：游标，异步
-      // null：表示不限制范围，遍历所有数据。
-      // 'next'：按升序遍历，确保获取到最小的 id。
-      const request = objectStore.openCursor(null, "next");
-
-      request.onsuccess = (event) => {
-        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
-        if (cursor) {
-          resolve(cursor.value.id);
-        } else {
-          reject(new Error("没有数据可删除"));
-        }
-      };
-
-      request.onerror = (event) => {
-        reject(
-          new Error("无法获取最早数据: " + (event.target as IDBRequest).error)
-        );
-      };
-    });
-
-    // 计算当天起始和结束时间戳
-    const date = new Date(minId);
-    const startOfDay = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate()
-    ).getTime();
-    const endOfDay = startOfDay + 24 * 60 * 60 * 1000 - 1;
-
-    // 删除该日期内的所有数据
-    await new Promise<void>((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.objectStoreName],
-        "readwrite"
-      );
-      const objectStore = transaction.objectStore(this.objectStoreName);
-      // 创建一个 范围查询
-      const range = IDBKeyRange.bound(startOfDay, endOfDay);
-      const request = objectStore.delete(range);
-
-      request.onsuccess = () => resolve();
-      request.onerror = (event) =>
-        reject(
-          new Error("删除旧数据失败: " + (event.target as IDBRequest).error)
-        );
     });
   }
 
@@ -279,6 +218,93 @@ class IndexedDBService {
 
       request.onerror = () => reject(request.error);
     });
+  }
+
+  // 删除最早7天的数据
+  private async deleteOldData(): Promise<void> {
+    if (!this.db) {
+      throw new Error("数据库未打开");
+    }
+
+    // 获取最小id（最早时间戳）
+    const minId = await new Promise<number>((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [this.objectStoreName],
+        "readonly"
+      );
+      const objectStore = transaction.objectStore(this.objectStoreName);
+      // openCursor：游标，异步
+      // null：表示不限制范围，遍历所有数据。
+      // 'next'：按升序遍历，确保获取到最小的 id。
+      const request = objectStore.openCursor(null, "next");
+
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+        if (cursor) {
+          resolve(cursor.value.id);
+        } else {
+          reject(new Error("没有数据可删除"));
+        }
+      };
+
+      request.onerror = (event) => {
+        reject(
+          new Error("无法获取最早数据: " + (event.target as IDBRequest).error)
+        );
+      };
+    });
+
+    // 计算当天起始和结束时间戳
+    const date = new Date(minId);
+    const startOfDay = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      date.getDate()
+    ).getTime();
+    const endOfDay = startOfDay + 24 * 7 * 60 * 60 * 1000 - 1;
+
+    // 删除该日期内的所有数据
+    await new Promise<void>((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [this.objectStoreName],
+        "readwrite"
+      );
+      const objectStore = transaction.objectStore(this.objectStoreName);
+      // 创建一个 范围查询
+      const range = IDBKeyRange.bound(startOfDay, endOfDay);
+      const request = objectStore.delete(range);
+
+      request.onsuccess = () => {
+        console.log("过期数据已清理");
+        resolve();
+      };
+      request.onerror = (event) =>
+        reject(
+          new Error("删除旧数据失败: " + (event.target as IDBRequest).error)
+        );
+    });
+  }
+
+  // 检查是否超出空间
+  private async checkStorageQuota() {
+    try {
+      if (navigator.storage && navigator.storage.estimate) {
+        const { usage, quota } = await navigator.storage.estimate();
+        if (usage && quota) {
+          console.log(`已使用空间: ${usage} bytes`);
+          console.log(`总可用空间: ${quota} bytes`);
+          console.log(`使用比例: ${((usage / quota) * 100).toFixed(2)}%`);
+          if (usage / quota > 0.9) {
+            console.log("存储空间即将用尽，清理数据！");
+            this.deleteOldData();
+          }
+        }
+      } else {
+        console.warn("当前浏览器不支持Storage Manager API");
+      }
+    } catch (error) {
+      console.error("获取存储信息失败:", error);
+    }
   }
 }
 
