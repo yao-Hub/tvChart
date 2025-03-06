@@ -735,7 +735,7 @@ const getCloseType = (e: orders.resHistoryOrders) => {
 import dayjs from "dayjs";
 const formatTime = (timestamp: string, format = "YYYY.MM.DD HH:mm:ss") => {
   const timezone = timeStore.settedTimezone;
-  const result = dayjs(timestamp).tz(timezone).format(format);
+  const result = dayjs.tz(timestamp, timezone).format(format);
   return result;
 };
 
@@ -874,17 +874,15 @@ const closeMarketOrders = (command: number) => {
       ElMessage.success(t("order.positionClosedSuccessfully"));
     } catch (error) {
       errmsg =
-        get(error, "errmsg") ||
-          get(error, "message") ||
-          JSON.stringify(error);
+        get(error, "errmsg") || get(error, "message") || JSON.stringify(error);
     } finally {
       const logData = {
         logType: errmsg ? "error" : "info",
         origin: "trades",
         logName: "close market orders",
-        detail: `${
-          useUser().account.login
-        }: close market orders ${typeList[command]} ${errmsg ? `error ${errmsg}` : ""} ${logStr}`,
+        detail: `${useUser().account.login}: close market orders ${
+          typeList[command]
+        } ${errmsg ? `error ${errmsg}` : ""} ${logStr}`,
         login: useUser().account.login,
         time: dayjs().format("HH:mm:ss.SSS"),
         id: new Date().getTime(),
@@ -917,11 +915,9 @@ const pendingCloseLodingMap = ref<Record<number, boolean>>({});
 const delOrder = debounce(
   (record: orders.resOrders) => {
     pendingCloseLodingMap.value[record.id] = true;
-    orderStore
-      .delPendingOrder(record)
-      .finally(() => {
-        pendingCloseLodingMap.value[record.id] = false;
-      });
+    orderStore.delPendingOrder(record).finally(() => {
+      pendingCloseLodingMap.value[record.id] = false;
+    });
   },
   200,
   { leading: true }

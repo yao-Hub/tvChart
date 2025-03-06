@@ -16,7 +16,7 @@ export const timezoneOptions: ITimezone[] = [
     title: "UTC+11",
   },
   {
-    id: "Australia/Hobart", // 霍巴特
+    id: "Asia/Vladivostok", // 俄罗斯 符拉迪沃斯托克
     alias: "Etc/GMT-10",
     title: "UTC+10",
   },
@@ -86,7 +86,7 @@ export const timezoneOptions: ITimezone[] = [
     title: "UTC-3",
   },
   {
-    id: "America/Santiago", // 圣地亚哥
+    id: "America/Anguilla", // 美洲/安圭拉
     alias: "Etc/GMT+4",
     title: "UTC-4",
   },

@@ -37,7 +37,7 @@ export const useTime = defineStore("time", () => {
     settedTimezone.value = userTimezone;
   };
 
-  const setTimezone = (tz: string) => {
+  const setSystemTimezone = (tz: string) => {
     settedTimezone.value = tz;
     storageStore.setItem("timezone", tz);
     setChartTimezone(tz as Ttime);
@@ -56,7 +56,7 @@ export const useTime = defineStore("time", () => {
   return {
     time: dayjs,
     initTime,
-    setTimezone,
+    setSystemTimezone,
     settedTimezone,
     $reset,
   };

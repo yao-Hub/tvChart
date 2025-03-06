@@ -44,7 +44,7 @@ const currentTimezone = computed(() => {
 });
 
 const changeTimezone = (info: ITimezone) => {
-  timeStore.setTimezone(info.id);
+  timeStore.setSystemTimezone(info.id);
 };
 
 const timeFormat = "YYYY.MM.DD HH:mm:ss";

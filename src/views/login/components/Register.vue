@@ -49,7 +49,8 @@
               target="_blank"
               :underline="false"
               @click="goProtocol('accountClause')"
-              >&nbsp;{{ t("article.accountClause") }}&nbsp;</el-link
+              >{{ t("leftBook") }}{{ t("article.accountClause")
+              }}{{ t("rightBook") }}</el-link
             >
             <span>{{ t("and") }}</span>
             <el-link
@@ -58,7 +59,8 @@
               target="_blank"
               :underline="false"
               @click="goProtocol('dataPolicy')"
-              >&nbsp;{{ t("article.dataPolicy") }}&nbsp;</el-link
+              >{{ t("leftBook") }}{{ t("article.dataPolicy")
+              }}{{ t("rightBook") }}</el-link
             >
           </el-checkbox>
         </el-form-item>
