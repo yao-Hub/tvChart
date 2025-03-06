@@ -14,7 +14,7 @@
         <el-dropdown-item
           v-for="node in networkStore.nodeList"
           :key="node.nodeName"
-          :disabled="!getDelay(node.webApi)"
+          :disabled="getDelay(node.webApi) === '-'"
           :command="node.nodeName"
         >
           <div class="delayItem">
@@ -30,8 +30,7 @@
                 {{ node.nodeName }}
               </span>
             </div>
-            <span
-              :class="[+getDelay(node.webApi) > 500 ? 'redWord' : 'greenWord']"
+            <span :class="getDelayClass(node.webApi)"
               >{{ getDelay(node.webApi) }}ms</span
             >
           </div>
@@ -87,6 +86,21 @@ const getDelay = (webApi: string) => {
     (e) => e.webApi === webApi
   )?.webApiDelay;
   return delay || "-";
+};
+const getDelayClass = (webApi: string) => {
+  const delay = getDelay(webApi);
+  if (delay === "-") {
+    return "redWord";
+  }
+  if (delay <= 200) {
+    return "greenWord";
+  }
+  if (delay <= 400) {
+    return "yellowWord";
+  }
+  if (delay > 400) {
+    return "redWord";
+  }
 };
 
 const loading = ref(false);
@@ -146,5 +160,8 @@ const refreshDelay = async () => {
 }
 .greenWord {
   color: var(--color-7);
+}
+.yellowWord {
+  color: var(--color-2);
 }
 </style>

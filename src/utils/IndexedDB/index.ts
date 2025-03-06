@@ -220,11 +220,13 @@ class IndexedDBService {
     });
   }
 
-  // 删除最早7天的数据
+  // 删除最早30天的数据
   private async deleteOldData(): Promise<void> {
     if (!this.db) {
       throw new Error("数据库未打开");
     }
+
+    const delDays = 30;
 
     // 获取最小id（最早时间戳）
     const minId = await new Promise<number>((resolve, reject) => {
@@ -261,7 +263,7 @@ class IndexedDBService {
       date.getMonth(),
       date.getDate()
     ).getTime();
-    const endOfDay = startOfDay + 24 * 7 * 60 * 60 * 1000 - 1;
+    const endOfDay = startOfDay + 24 * delDays * 60 * 60 * 1000 - 1;
 
     // 删除该日期内的所有数据
     await new Promise<void>((resolve, reject) => {
