@@ -31,7 +31,11 @@ export const useChartLine = defineStore("chartLine", {
     updateSubscribed(UID: string, data: Tbar) {
       setTimeout(() => {
         if (this.subscribed[UID]) {
-          this.subscribed[UID].onRealtimeCallback(data);
+          try {
+            this.subscribed[UID].onRealtimeCallback(data);
+          } catch (error) {
+            console.log(error);
+          }
         }
       });
     },

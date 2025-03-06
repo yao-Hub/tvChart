@@ -84,7 +84,7 @@ const initRender = () => {
   timeStore.initTime(); // 初始化时间语言和时区
   chartLineStore.initSubLineAndQuote(); // 监听k线和报价
   socketStore.emitRate(); // 监听汇率
-  rateStore.subRate(); // 监听汇率
+  rateStore.subRateAction(); // 监听汇率
   orderStore.getQuickTrans(); //  快捷交易
   orderStore.getOneTrans(); //一键交易
   layoutStore.initLayout(); // 布局显示隐藏
@@ -99,7 +99,7 @@ const initRender = () => {
   setTimeout(() => {
     // 初始化各个模块位置
     initDragResizeArea();
-  });
+  }, 600);
 };
 
 /** 初始化 注意调用顺序

@@ -7,6 +7,8 @@ import eventBus from "utils/eventBus";
 class SingletonSocket {
   private instance: Socket | null = null;
 
+  private errReason: string = "";
+
   constructor() {}
 
   getInstance(mainUri: string, query: string = ""): Socket {
@@ -15,7 +17,7 @@ class SingletonSocket {
         transports: ["websocket"],
         reconnection: true, // 开启重连功能
         reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
+        reconnectionDelay: 3000,
       });
       this.setupSocketEvents();
     }
@@ -30,18 +32,17 @@ class SingletonSocket {
       this.instance.off("connect_error");
 
       this.instance.on("connect", () => {
+        if (this.errReason === "transport close") {
+          useSocket().reEmit();
+        }
+        this.errReason = "";
         eventBus.emit("socket-connect");
         console.log(`websocket已连接`);
       });
 
       this.instance.on("disconnect", (reason: string) => {
         console.log(`websocket已断开${reason}`);
-        if (reason === "transport close") {
-          setTimeout(() => {
-            this.instance?.connect();
-            useSocket().reEmit();
-          }, 1000);
-        }
+        this.errReason = reason;
         eventBus.emit("socket-disconnect");
       });
 

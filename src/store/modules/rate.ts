@@ -65,7 +65,7 @@ export const useRate = defineStore("rate", () => {
     return result;
   };
 
-  const subRate = () => {
+  const subRateAction = () => {
     socketStore.subRate((e) => {
       currentRates.value[e.symbol] = e;
     });
@@ -77,7 +77,7 @@ export const useRate = defineStore("rate", () => {
   return {
     getAllRates,
     getRate,
-    subRate,
+    subRateAction,
     currentRates,
     $reset,
   };

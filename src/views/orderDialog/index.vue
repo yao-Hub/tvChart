@@ -385,7 +385,7 @@ const createPriceOrder = debounce(
       updata.sl = +formState.stopLoss;
     }
     if (formState.stopProfit) {
-      updata.tp = +formState.stopLoss;
+      updata.tp = +formState.stopProfit;
     }
     orderStore
       .addMarketOrder(updata)
