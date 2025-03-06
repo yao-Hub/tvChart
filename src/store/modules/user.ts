@@ -146,6 +146,7 @@ export const useUser = defineStore("user", () => {
       });
       if (params && params.emitSocket) {
         const socketStore = useSocket();
+        socketStore.emitOnline();
         socketStore.sendToken({
           login: res.data.login,
           token: account.value.token,

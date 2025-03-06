@@ -40,6 +40,10 @@ interface IState {
     options?: any;
   }>;
   onLineSocket: Socket | null;
+  emitList: Array<{
+    action: string;
+    data: Record<string, unknown>;
+  }>;
 }
 interface ChartProps {
   resolution: string | number;
@@ -51,6 +55,7 @@ export const useSocket = defineStore("socket", {
     socket: null,
     noExecuteList: [],
     onLineSocket: null,
+    emitList: [],
   }),
 
   actions: {
@@ -107,28 +112,43 @@ export const useSocket = defineStore("socket", {
     emitKlineQuote({ resolution, symbol }: ChartProps) {
       if (this.socket) {
         const userStore = useUser();
+        const klineData = {
+          server: userStore.account.server,
+          symbol_period_type: [
+            {
+              symbol: symbol,
+              period_type: resolution,
+            },
+          ],
+        };
         this.socket.emit("subscribe_kline", {
           action: "subscribe_kline",
           d: this.enData({
             ...this.reqData(),
-            platform: "web",
-            server: userStore.account.server,
-            symbol_period_type: [
-              {
-                symbol: symbol,
-                period_type: resolution,
-              },
-            ],
+            ...klineData,
           }),
         });
+        const quoteData = {
+          server: userStore.account.server,
+          symbols: [symbol],
+        };
         this.socket.emit("subscribe_quote", {
           action: "subscribe_quote",
           d: this.enData({
             ...this.reqData(),
-            server: userStore.account.server,
-            symbols: [symbol],
+            ...quoteData,
           }),
         });
+        this.emitList.push(
+          {
+            action: "subscribe_kline",
+            data: klineData,
+          },
+          {
+            action: "subscribe_quote",
+            data: quoteData,
+          }
+        );
       } else {
         this.noExecuteList.push({
           fooName: "emitKlineQuote",
@@ -168,27 +188,43 @@ export const useSocket = defineStore("socket", {
       const userStore = useUser();
 
       if (this.socket) {
+        const klineData = {
+          server: userStore.account.server,
+          symbol_period_type: [
+            {
+              symbol,
+              period_type: resolution,
+            },
+          ],
+        };
         this.socket.emit("unsubscribe_kline", {
           action: "unsubscribe_kline",
           d: this.enData({
             ...this.reqData(),
-            server: userStore.account.server,
-            symbol_period_type: [
-              {
-                symbol,
-                period_type: resolution,
-              },
-            ],
+            ...klineData,
           }),
         });
+        const quoteData = {
+          server: userStore.account.server,
+          symbols: [symbol],
+        };
         this.socket.emit("unsubscribe_qoute", {
           action: "unsubscribe_qoute",
           d: this.enData({
             ...this.reqData(),
-            server: userStore.account.server,
-            symbol_period_type: [symbol],
+            ...quoteData,
           }),
         });
+        this.emitList.push(
+          {
+            action: "unsubscribe_kline",
+            data: klineData,
+          },
+          {
+            action: "unsubscribe_qoute",
+            data: quoteData,
+          }
+        );
       } else {
         this.noExecuteList.push({
           fooName: "unsubKlineQuote",
@@ -269,20 +305,24 @@ export const useSocket = defineStore("socket", {
     },
 
     // 发送市场深度监听
-    emitQuoteDepth(symbols: string[], callback?: Function) {
+    emitQuoteDepth(symbols: string[]) {
       const userStore = useUser();
       if (this.socket) {
+        const depthData = {
+          server: userStore.account.server,
+          symbols,
+        };
         this.socket.emit("subscribe_quote_depth", {
           action: "subscribe_quote_depth",
           d: this.enData({
             ...this.reqData(),
-            server: userStore.account.server,
-            symbols,
+            ...depthData,
           }),
         });
-        if (callback) {
-          callback();
-        }
+        this.emitList.push({
+          action: "subscribe_quote_depth",
+          data: depthData,
+        });
       } else {
         this.noExecuteList.push({
           fooName: "emitQuoteDepth",
@@ -309,13 +349,20 @@ export const useSocket = defineStore("socket", {
     unSubQuoteDepth(symbols: string[]) {
       if (this.socket) {
         const userStore = useUser();
+        const depthData = {
+          server: userStore.account.server,
+          symbols,
+        };
         this.socket.emit("unsubscribe_quote_depth", {
           action: "unsubscribe_quote_depth",
           d: this.enData({
             ...this.reqData(),
-            server: userStore.account.server,
-            symbols,
+            ...depthData,
           }),
+        });
+        this.emitList.push({
+          action: "unsubscribe_quote_depth",
+          data: depthData,
         });
       } else {
         this.noExecuteList.push({
@@ -388,12 +435,32 @@ export const useSocket = defineStore("socket", {
       });
     },
 
+    reEmit() {
+      setTimeout(() => {
+        if (this.socket) {
+          while (this.emitList.length) {
+            const item = this.emitList.shift();
+            if (item) {
+              this.socket.emit(item.action, {
+                action: item.action,
+                d: this.enData({
+                  ...this.reqData(),
+                  ...item.data,
+                }),
+              });
+            }
+          }
+        }
+      }, 1000);
+    },
+
     $reset() {
       if (this.socket) {
         this.socket.close();
       }
       this.socket = null;
       this.noExecuteList = [];
+      this.emitList = [];
     },
   },
 });
