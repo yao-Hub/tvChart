@@ -1,5 +1,5 @@
 <template>
-  <div class="base_Image" v-if="!ifError && !path">
+  <div class="base_Image" v-if="loading">
     <el-progress
       type="circle"
       :percentage="percentage"
@@ -9,7 +9,7 @@
       :show-text="false"
     ></el-progress>
   </div>
-  <el-image v-else v-bind="props" :src="path" class="image"></el-image>
+  <el-image v-else v-bind="props" :src="props.src" class="image"></el-image>
 </template>
 
 <script setup lang="ts">
@@ -23,12 +23,12 @@ const props = defineProps<Props>();
 
 const path = ref("");
 const percentage = ref(0);
-const ifError = ref(false);
+const loading = ref(false);
 const ifDev = import.meta.env.MODE === "development";
 
 const getImage = () => {
-  ifError.value = false;
   percentage.value = 0;
+  loading.value = true;
 
   const urlObj = new URL(props.src);
   const pathname = urlObj.pathname;
@@ -50,8 +50,8 @@ const getImage = () => {
     })
     .catch(() => {
       percentage.value = 0;
-      ifError.value = true;
-    });
+    })
+    .finally(() => (loading.value = false));
 };
 
 watchEffect(() => {
