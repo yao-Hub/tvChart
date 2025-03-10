@@ -111,7 +111,6 @@
       >{{ t("leftBook") }}{{ t("article.privacyPolicy")
       }}{{ t("rightBook") }}</el-link
     >
-    <span></span>
   </div>
 </template>
 

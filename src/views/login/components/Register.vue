@@ -45,21 +45,19 @@
             <span>{{ t("article.readAgree") }}</span>
             <el-link
               type="primary"
-              @click.stop
               target="_blank"
               :underline="false"
-              @click="goProtocol('accountClause')"
-              >{{ t("leftBook") }}{{ t("article.accountClause")
+              @click.prevent="goProtocol('service-article')"
+              >{{ t("leftBook") }}{{ t("article.userAgreement")
               }}{{ t("rightBook") }}</el-link
             >
-            <span>{{ t("and") }}</span>
+            <span class="word"> {{ t("and") }} </span>
             <el-link
               type="primary"
-              @click.stop
               target="_blank"
               :underline="false"
-              @click="goProtocol('dataPolicy')"
-              >{{ t("leftBook") }}{{ t("article.dataPolicy")
+              @click.prevent="goProtocol('privacy-policy')"
+              >{{ t("leftBook") }}{{ t("article.privacyPolicy")
               }}{{ t("rightBook") }}</el-link
             >
           </el-checkbox>
@@ -203,7 +201,7 @@ const submit = (formEl: FormInstance | undefined) => {
       );
       if (target) {
         await protocolAgree({
-          columnCodes: ["accountClause", "dataPolicy"],
+          columnCodes: ["privacy-policy", "service-article"],
           brokerName: lineInfo.value.brokerName,
           lineName: lineInfo.value.lineName,
           login: email,

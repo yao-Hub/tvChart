@@ -131,9 +131,9 @@ const submitFeedback = async (feedbackFileIds: string[] = []) => {
       feedbackFileIds,
       createTime: dayjs().unix(),
     };
-    const res = await saveFeedback(updata);
+    await saveFeedback(updata);
     ElMessage({
-      message: res.errmsg,
+      message: t("tip.succeed", { type: t("submit") }),
       type: "success",
     });
     loading.value = false;

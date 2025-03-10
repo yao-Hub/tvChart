@@ -174,7 +174,7 @@ async function updateVersion(
 // 主函数
 async function main() {
   console.log(
-    `${redColor}!!!!!!${resetColor}打包失败尝试关闭防火墙或者使用管理员运行命令行`
+    `${redColor}!!!!!!${resetColor}若打包失败：关闭防火墙或者使用管理员命令行`
   );
   const packageJson = require("../package.json");
   const localVersion = packageJson.version;

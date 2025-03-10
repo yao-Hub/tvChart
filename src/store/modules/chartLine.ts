@@ -12,19 +12,24 @@ interface ISubSCribed {
 
 type Tbar = Partial<types.ISocketQuote> &
   Partial<types.IQuote> & { time: number };
+
 interface IState {
   subscribed: Record<string, ISubSCribed>;
   newbar: Record<string, Tbar>;
   pageHidden: boolean;
+  cooldownMap: Record<string, boolean>;
+  qouteCache: Record<string, types.ISocketQuote>;
 }
 
-type TAction = (symbol: string, qData: types.ISocketQuote) => void;
+type TAction = (symbol: string) => void;
 export const useChartLine = defineStore("chartLine", {
   state: (): IState => {
     return {
       subscribed: {},
       newbar: {},
       pageHidden: false,
+      cooldownMap: {},
+      qouteCache: {},
     };
   },
   actions: {
@@ -73,33 +78,47 @@ export const useChartLine = defineStore("chartLine", {
       const actionMap: Record<string, TAction> = {};
 
       // 订阅接收处理
-      const updateQoute: TAction = (symbol, qData) => {
-        const oldQuote = quotesStore.qoutes[symbol];
-        // 涨跌颜色
-        quotesStore.setClass(qData);
-        // 发送报价全局
-        quotesStore.qoutes[symbol] = {
-          ...oldQuote,
-          ...qData,
-          close: qData.bid,
-          high: setHigh(qData.bid, get(oldQuote, "high")),
-          low: setHigh(qData.bid, get(oldQuote, "low")),
-        };
-        // 更新k线
-        for (const UID in this.subscribed) {
-          const item = this.subscribed[UID];
-          const itemSymbol = item.symbolInfo.name;
-          const subscriberUID = UID.split("@")[1];
-          const bar = this.newbar[subscriberUID];
-          if (bar && itemSymbol === symbol) {
-            this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
+      const updateQoute: TAction = (symbol) => {
+        // 处于冷却期
+        if (this.cooldownMap[symbol]) return;
+        // 进入冷却期
+        this.cooldownMap[symbol] = true;
+        // 设置x秒后解除冷却
+        let timerId = setTimeout(() => {
+          clearTimeout(timerId);
+          this.cooldownMap[symbol] = false;
+          const oldQuote = quotesStore.qoutes[symbol];
+          const cache = this.qouteCache[symbol];
+
+          // 涨跌颜色
+          quotesStore.setClass(cache);
+          // 发送报价全局
+          quotesStore.qoutes[symbol] = {
+            ...oldQuote,
+            ...cache,
+            close: cache.bid,
+            high: setHigh(cache.bid, get(oldQuote, "high")),
+            low: setHigh(cache.bid, get(oldQuote, "low")),
+          };
+          // 更新k线
+          for (const UID in this.subscribed) {
+            const item = this.subscribed[UID];
+            const itemSymbol = item.symbolInfo.name;
+            const subscriberUID = UID.split("@")[1];
+            const bar = this.newbar[subscriberUID];
+            if (bar && itemSymbol === symbol) {
+              this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
+            }
           }
-        }
+        }, 300);
       };
 
       // 接收socket 发布
       socketStore.subQuote((d) => {
         const dSymbol = d.symbol;
+
+        this.qouteCache[dSymbol] = d;
+
         // 订阅
         if (!actionMap[dSymbol]) {
           set(actionMap, [dSymbol], updateQoute);
@@ -130,18 +149,26 @@ export const useChartLine = defineStore("chartLine", {
           }
         }
 
-        // 触发订阅
-        const rafId = requestAnimationFrame(async () => {
-          if (this.pageHidden && !document.hidden) {
-            this.pageHidden = false;
-            await quotesStore.getAllSymbolQuotes();
-          }
-          actionMap[dSymbol](dSymbol, d);
-        });
-        if (document.hidden) {
-          this.pageHidden = true;
-          cancelAnimationFrame(rafId);
+        // 订阅 接收发布 方式一
+        if (!document.hidden) {
+          // 优化页面渲染
+          requestAnimationFrame(() => actionMap[dSymbol](dSymbol));
+        } else {
+          actionMap[dSymbol](dSymbol);
         }
+
+        // 方式二 不是当前标签页不渲染数据节省内存
+        // const rafId = requestAnimationFrame(async () => {
+        //   if (this.pageHidden && !document.hidden) {
+        //     this.pageHidden = false;
+        //     await quotesStore.getAllSymbolQuotes();
+        //   }
+        //   actionMap[dSymbol](dSymbol, d);
+        // });
+        // if (document.hidden) {
+        //   this.pageHidden = true;
+        //   cancelAnimationFrame(rafId);
+        // }
       });
 
       socketStore.subKline((d) => {
