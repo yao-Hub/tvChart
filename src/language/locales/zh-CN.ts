@@ -239,6 +239,7 @@ export default {
     NodeUnavailable: "节点不可用",
     symbolNoAllowTrading: "当前商品禁止交易",
     agreeTermsFirst: "请先勾选同意条款",
+    marketClosed: "市场关闭",
   },
 
   time: {

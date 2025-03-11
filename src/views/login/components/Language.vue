@@ -33,9 +33,8 @@ const changeLocale = (value: string) => {
   if (value === locale.value) {
     return;
   }
-  locale.value = value;
   localStorage.setItem("language", value);
-  emit("change", value);
+  window.location.reload();
 };
 const nowLocale = computed(() => {
   const localeList = messages.value;

@@ -40,28 +40,24 @@
           ></VerificationCode>
         </el-form-item>
 
-        <el-form-item prop="agree">
-          <el-checkbox v-model="formState.agree">
-            <span>{{ t("article.readAgree") }}</span>
-            <el-link
-              type="primary"
-              target="_blank"
-              :underline="false"
-              @click.prevent="goProtocol('service-article')"
-              >{{ t("leftBook") }}{{ t("article.userAgreement")
-              }}{{ t("rightBook") }}</el-link
-            >
-            <span class="word"> {{ t("and") }} </span>
-            <el-link
-              type="primary"
-              target="_blank"
-              :underline="false"
-              @click.prevent="goProtocol('privacy-policy')"
-              >{{ t("leftBook") }}{{ t("article.privacyPolicy")
-              }}{{ t("rightBook") }}</el-link
-            >
-          </el-checkbox>
-        </el-form-item>
+        <el-checkbox v-model="formState.agree">
+          <span>{{ t("article.readAgree") }}&nbsp;</span>
+          <el-link
+            type="primary"
+            target="_blank"
+            :underline="false"
+            @click.prevent="goProtocol('service-article')"
+            >{{ t("article.userAgreement") }}</el-link
+          >
+          <span class="word">&nbsp;{{ t("and") }}&nbsp;</span>
+          <el-link
+            type="primary"
+            target="_blank"
+            :underline="false"
+            @click.prevent="goProtocol('privacy-policy')"
+            >{{ t("article.privacyPolicy") }}</el-link
+          >
+        </el-checkbox>
 
         <el-button
           type="primary"

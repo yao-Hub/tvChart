@@ -815,6 +815,12 @@ export const useOrder = defineStore("order", () => {
     if (updata.tp) {
       logStr += `tp:${updata.tp} `;
     }
+    if (updata.time_expiration) {
+      const time = dayjs(updata.time_expiration).format(
+        "YYYY.MM.DD HH:mm:ss.SSS"
+      );
+      logStr += `time_expiration:${time} `;
+    }
     return new Promise(async (resolve, reject) => {
       try {
         const res = await orders.pendingOrdersAdd({
@@ -890,6 +896,12 @@ export const useOrder = defineStore("order", () => {
     }
     if (updata.tp) {
       logStr += `tp:${updata.tp} `;
+    }
+    if (updata.time_expiration) {
+      const time = dayjs(updata.time_expiration).format(
+        "YYYY.MM.DD HH:mm:ss.SSS"
+      );
+      logStr += `time_expiration:${time} `;
     }
     return new Promise(async (resolve, reject) => {
       try {

@@ -236,6 +236,7 @@ export default {
     limitImageSize: "images must not be larger than {size}",
     NodeUnavailable: "Node unavailable",
     agreeTermsFirst: "Please check the agreement terms first",
+    marketClosed: "Market Closed",
   },
 
   time: {

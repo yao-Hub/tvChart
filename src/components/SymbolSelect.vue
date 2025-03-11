@@ -29,9 +29,9 @@ const { t } = useI18n();
 const symbolsStore = useSymbols();
 
 interface Props {
-  symbolType?: "tradeAllow" | "default";
+  symbolType?: "tradeAllow" | "default"; // 品种列表类型 tradeAllow：可交易 default：全部商品
   selectOption?: object;
-  subSymbol?: boolean;
+  subSymbol?: boolean; // 是否监听选择品种
 }
 
 const props = withDefaults(defineProps<Props>(), {

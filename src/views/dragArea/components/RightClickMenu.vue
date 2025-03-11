@@ -142,7 +142,7 @@ const addOrder = async () => {
       orderStore.createOrder({ symbol: props.symbol });
       return;
     }
-    ElMessage.warning(t("tip.symbolNoAllowTrading"));
+    ElMessage.warning(t("tip.marketClosed"));
   } finally {
     model.value = false;
   }

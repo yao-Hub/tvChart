@@ -267,7 +267,6 @@ watch(
   }
 );
 
-import { ElNotification } from "element-plus";
 import { debounce, get, isNil } from "lodash";
 const confirmOpen = ref(false);
 const confirmLoading = ref(false);
@@ -309,55 +308,73 @@ const closeOrder = debounce(
   { leading: true }
 );
 
-// 双倍持仓
-import { marketOrdersDouble } from "api/order/index";
-const doubleHoldings = async () => {
+import { marketOrdersDouble, marketOrdersReverse } from "api/order/index";
+import { ElNotification } from "element-plus";
+import { logIndexedDB } from "utils/IndexedDB/logDatabase";
+import { useUser } from "@/store/modules/user";
+import dayjs from "dayjs";
+
+const addMarket = async (state: "reverse" | "double") => {
+  let errmsg = "";
+  let logStr = "";
+
   const { symbol, volume, type, id } = props.orderInfo;
-  const res = await marketOrdersDouble({ id });
-  if (res.data.action_success) {
-    ElNotification({
-      title: t("tip.succeed", { type: t("dialog.createOrder") }),
-      type: "success",
-      message: t("dialog.createOrderSucceed", {
-        type: t(`order.${type ? "sell" : "buy"}`),
-        volume,
-        symbol,
-      }),
-    });
-    orderStore.getData("order_opened");
-    handleCancel();
-    confirmCancel();
-  } else {
-    ElNotification.error({
-      message: t("tip.failed", { type: t("dialog.createOrder") }),
-    });
+  const direction = {
+    reverse: type ? "buy" : "sell",
+    double: type ? "sell" : "buy",
+  }[state];
+
+  logStr = `${direction} ${volume / 100} ${symbol} `;
+
+  let res;
+  const actionMap = {
+    reverse: marketOrdersReverse,
+    double: marketOrdersDouble,
+  };
+  if (actionMap[state]) {
+    try {
+      res = await actionMap[state]({ id });
+      if (res && res.data.action_success) {
+        ElNotification({
+          title: t("tip.succeed", { type: t("dialog.createOrder") }),
+          type: "success",
+          message: t("dialog.createOrderSucceed", {
+            type: t(`order.${direction}`),
+            volume: volume / 100,
+            symbol,
+          }),
+        });
+        orderStore.getData("order_opened");
+        handleCancel();
+        confirmCancel();
+      } else {
+        ElNotification.error({
+          message: t("tip.failed", { type: t("dialog.createOrder") }),
+        });
+      }
+    } catch (error: any) {
+      errmsg =
+        get(error, "errmsg") || get(error, "message") || JSON.stringify(error);
+    } finally {
+      const login = useUser().account.login;
+      const logErr = errmsg ? `error ${errmsg}` : "";
+      logStr = `${login}: #${id} market ${logErr} ${logStr}`;
+      const logData = {
+        logType: errmsg ? "error" : "info",
+        logName: `${state} market`,
+        detail: logStr,
+        id: new Date().getTime(),
+        origin: "trades",
+        time: dayjs().format("YYYY.MM.DD HH:mm:ss.SSS"),
+        login,
+        day: dayjs().format("YYYY.MM.DD"),
+      };
+      await logIndexedDB.addData(logData);
+      orderStore.getData("log");
+    }
   }
 };
-// 反向持仓
-import { marketOrdersReverse } from "api/order/index";
-const reversePosition = async () => {
-  const { symbol, volume, type, id } = props.orderInfo;
-  const realType = +!type;
-  const res = await marketOrdersReverse({ id });
-  if (res.data.action_success) {
-    ElNotification.success({
-      title: "下单成功",
-      message: t("dialog.createOrderSucceed", {
-        type: t(`order.${realType ? "sell" : "buy"}`),
-        volume,
-        symbol,
-      }),
-      type: "success",
-    });
-    orderStore.getData("order_closed");
-    handleCancel();
-    confirmCancel();
-  } else {
-    ElNotification.error({
-      message: t("tip.failed", { type: t("dialog.createOrder") }),
-    });
-  }
-};
+
 const okCancel = debounce(async () => {
   try {
     confirmLoading.value = true;
@@ -366,10 +383,10 @@ const okCancel = debounce(async () => {
         await closeOrder();
         break;
       case "reverse":
-        await reversePosition();
+        await addMarket("reverse");
         break;
       case "double":
-        await doubleHoldings();
+        await addMarket("double");
         break;
       default:
         break;
