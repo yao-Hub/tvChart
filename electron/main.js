@@ -40,12 +40,14 @@ if (!gotTheLock) {
       },
     });
 
-    // 去除菜单栏
-    mainWindow.setMenu(null);
-
     // 在 macOS 系统中全局去除菜单栏
     if (process.platform === 'darwin') {
       Menu.setApplicationMenu(null);
+    }
+
+    if (process.env.NODE_ENV === "production") {
+      // 去除菜单栏 无法打开开发者工具
+      mainWindow.setMenu(null);
     }
 
     if (process.env.NODE_ENV === "development") {
