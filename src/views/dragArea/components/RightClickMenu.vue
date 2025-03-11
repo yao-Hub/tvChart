@@ -4,7 +4,14 @@
     v-show="model"
     :style="{ top: `${pos.top}px`, left: `${pos.left}px` }"
   >
-    <div class="item" @click="addOrder">{{ t("order.new") }}</div>
+    <div
+      class="item"
+      :style="{ cursor: orderLoading ? 'progress' : 'pointer' }"
+      @click="addOrder"
+    >
+      <span>{{ t("order.new") }}</span>
+      <el-icon class="loading" v-if="orderLoading"><Loading /></el-icon>
+    </div>
     <div class="item" @click="addChart">{{ t("chart.new") }}</div>
     <div class="item" @click="showDialog">{{ t("symbolInfo") }}</div>
   </div>
@@ -85,6 +92,14 @@ const model = defineModel<boolean>("visible", {
   required: true,
   default: false,
 });
+document.addEventListener("click", (event: MouseEvent) => {
+  const menuDom = document.querySelector(".rightClickMenu");
+  const target = event.target as Node;
+  if (target && menuDom && menuDom.contains(target)) {
+    return;
+  }
+  model.value = false;
+});
 
 type TOtherKey = "prepaidMode";
 type Tkey = keyof ISessionSymbolInfo | TOtherKey;
@@ -114,20 +129,27 @@ const infoList: Iitem[] = [
   { key: "fee", label: t("symbolDetail.fee") },
 ];
 
-document.addEventListener("click", () => {
-  model.value = false;
-});
-
-const addOrder = () => {
-  const symbols = useSymbols().symbols_tradeAllow.map((item) => item.symbol);
-  if (symbols.indexOf(props.symbol) === -1) {
+const orderLoading = ref(false);
+const addOrder = async () => {
+  try {
+    const symbols = useSymbols().symbols_tradeAllow.map((item) => item.symbol);
+    if (symbols.indexOf(props.symbol) === -1) {
+      ElMessage.warning(t("tip.symbolNoAllowTrading"));
+      return;
+    }
+    await getDetail();
+    if (symbolInfo.value && symbolInfo.value.current_trade_able) {
+      orderStore.createOrder({ symbol: props.symbol });
+      return;
+    }
     ElMessage.warning(t("tip.symbolNoAllowTrading"));
-    return;
+  } finally {
+    model.value = false;
   }
-  orderStore.createOrder({ symbol: props.symbol });
 };
 const addChart = () => {
   chartInitStore.addChart(props.symbol);
+  model.value = false;
 };
 
 const symbolInfo = ref<ISessionSymbolInfo>();
@@ -135,14 +157,16 @@ const loading = ref(false);
 const ifError = ref(false);
 const getDetail = async () => {
   try {
+    orderLoading.value = true;
     loading.value = true;
     const res = await symbolDetail({ symbol: props.symbol });
     symbolInfo.value = res.data;
-    loading.value = false;
     ifError.value = false;
   } catch (error) {
-    loading.value = false;
     ifError.value = true;
+  } finally {
+    orderLoading.value = false;
+    loading.value = false;
   }
 };
 
@@ -152,6 +176,7 @@ const dialogVisible = ref<boolean>(false);
 const showDialog = () => {
   dialogStore.incrementZIndex();
   dialogVisible.value = true;
+  model.value = false;
   getDetail();
 };
 
@@ -243,8 +268,9 @@ watchEffect(() => {
   .item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     cursor: pointer;
-    padding: 10px 0px 10px 16px;
+    padding: 10px 10px 10px 16px;
     width: 120px;
     height: var(--component-size);
     box-sizing: border-box;

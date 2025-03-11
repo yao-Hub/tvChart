@@ -7,7 +7,7 @@
   "description": "utrader",
   "author": "wp",
   "scripts": {
-    "dev": "vite --host 0.0.0.0",
+    "dev": "vite --host 0.0.0.0 --open",
     "pro": "vite --mode production --open",
     "precommit": "npx tsc scripts/update-version.ts && node scripts/update-version.js && git add package.json",
     "prepackage": "npx tsc scripts/update-version.ts && node scripts/update-version.js && git add package.json",

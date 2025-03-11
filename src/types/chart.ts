@@ -84,6 +84,7 @@ export interface ISessionSymbolInfo {
   settlement_type: number; // 1=休市结算，2=满24小时结算
   status: number; // 1=启用
   utrader_trade_allow: number; // 1=utrader开发交易许可
+  current_trade_able: number; // 当前时刻是否开市 1=开市，0=休市
 }
 
 export interface PeriodParams {
