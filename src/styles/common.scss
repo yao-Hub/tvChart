@@ -243,8 +243,14 @@ body {
 .buyBtn[disabled] {
   @include background_color("btnDisabled");
 }
+.buyBtn[disabled]:hover {
+  @include background_color("btnDisabled");
+}
 
 .sellBtn[disabled] {
+  @include background_color("btnDisabled");
+}
+.sellBtn[disabled]:hover {
   @include background_color("btnDisabled");
 }
 

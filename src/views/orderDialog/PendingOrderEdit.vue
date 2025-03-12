@@ -117,19 +117,31 @@
         </el-col>
         <el-col :span="24">
           <div class="btns">
-            <el-button
-              style="flex: 1"
-              @click="delOrder"
-              :loading="delLoading"
-              >{{ t("delete") }}</el-button
-            >
-            <el-button
-              style="flex: 1"
-              type="primary"
-              :loading="editing"
-              @click="confirmEdit"
-              >{{ t("tip.confirm", { type: t("modify") }) }}</el-button
-            >
+            <el-tooltip :disabled="!tradeDisabled" placement="top">
+              <template #content>
+                <span>{{ t("tip.marketClosed") }}</span>
+              </template>
+              <el-button
+                style="flex: 1"
+                @click="delOrder"
+                :disabled="tradeDisabled"
+                :loading="delLoading"
+                >{{ t("delete") }}</el-button
+              >
+            </el-tooltip>
+            <el-tooltip :disabled="!tradeDisabled" placement="top">
+              <template #content>
+                <span>{{ t("tip.marketClosed") }}</span>
+              </template>
+              <el-button
+                style="flex: 1"
+                type="primary"
+                :disabled="tradeDisabled"
+                :loading="editing"
+                @click="confirmEdit"
+                >{{ t("tip.confirm", { type: t("modify") }) }}</el-button
+              >
+            </el-tooltip>
           </div>
         </el-col>
       </el-row>
@@ -226,9 +238,11 @@ const quote = computed(() => {
 });
 
 // 重置表单 自动填充
+import { symbolDetail } from "api/symbols";
+const tradeDisabled = ref(false);
 watch(
   () => model.value,
-  (val) => {
+  async (val) => {
     if (val) {
       const {
         type,
@@ -253,6 +267,8 @@ watch(
       formState.dueDate = dayjs(time_expiration).tz(timezone).unix();
       formState.limitedPrice = trigger_price;
       formState.orderPrice = String(order_price);
+      const res = await symbolDetail({ symbol });
+      tradeDisabled.value = !res.data.current_trade_able;
     }
   }
 );

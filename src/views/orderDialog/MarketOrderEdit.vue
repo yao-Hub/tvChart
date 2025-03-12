@@ -54,12 +54,18 @@
               <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
             </el-col>
             <el-col :span="24">
-              <el-button
-                style="width: 100%; margin-top: 8px"
-                type="primary"
-                @click="handleConfirm('close', closeFormRef)"
-                >{{ t("dialog.closeByPrice") }}</el-button
-              >
+              <el-tooltip :disabled="!tradeDisabled" placement="top">
+                <template #content>
+                  <span>{{ t("tip.marketClosed") }}</span>
+                </template>
+                <el-button
+                  style="width: 100%; margin-top: 8px"
+                  type="primary"
+                  :disabled="tradeDisabled"
+                  @click="handleConfirm('close', closeFormRef)"
+                  >{{ t("dialog.closeByPrice") }}</el-button
+                >
+              </el-tooltip>
             </el-col>
             <el-col :span="24" v-if="closeFormState.volume">
               <div class="profitBox" :class="[profitClass]">
@@ -105,14 +111,22 @@
         </el-form>
       </div>
       <template #footer>
-        <el-button
-          type="primary"
-          style="width: 100%"
-          :loading="modifyLoading"
-          :disabled="!stopFormState.stopLoss && !stopFormState.stopProfit"
-          @click="modify"
-          >{{ t("tip.confirm", { type: t("modify") }) }}</el-button
-        >
+        <el-tooltip :disabled="!tradeDisabled" placement="top">
+          <template #content>
+            <span>{{ t("tip.marketClosed") }}</span>
+          </template>
+          <el-button
+            type="primary"
+            style="width: 100%"
+            :loading="modifyLoading"
+            :disabled="
+              (!stopFormState.stopLoss && !stopFormState.stopProfit) ||
+              tradeDisabled
+            "
+            @click="modify"
+            >{{ t("tip.confirm", { type: t("modify") }) }}</el-button
+          >
+        </el-tooltip>
       </template>
     </el-dialog>
 
@@ -255,14 +269,18 @@ const step = computed(() => {
   return symbolInfo.value ? symbolInfo.value.volume_step / 100 : 1;
 });
 
+import { symbolDetail } from "api/symbols";
+const tradeDisabled = ref(false);
 watch(
   () => model.value,
-  (val) => {
+  async (val) => {
     if (val) {
-      const { volume, sl_price, tp_price } = props.orderInfo;
+      const { volume, sl_price, tp_price, symbol } = props.orderInfo;
       closeFormState.volume = (volume / 100).toString();
       stopFormState.stopLoss = sl_price ? String(sl_price) : "";
       stopFormState.stopProfit = tp_price ? String(tp_price) : "";
+      const res = await symbolDetail({ symbol });
+      tradeDisabled.value = !res.data.current_trade_able;
     }
   }
 );
@@ -277,6 +295,10 @@ type ConfirmType = "close" | "reverse" | "double";
 const confirmType = ref<ConfirmType>("close");
 const handleConfirm = debounce(
   (type: ConfirmType, formEl: FormInstance | undefined) => {
+    if (tradeDisabled.value) {
+      ElMessage.warning(t("tip.marketClosed"));
+      return;
+    }
     if (!formEl) return;
     formEl.validate((valid) => {
       if (valid) {
@@ -309,7 +331,7 @@ const closeOrder = debounce(
 );
 
 import { marketOrdersDouble, marketOrdersReverse } from "api/order/index";
-import { ElNotification } from "element-plus";
+import { ElMessage, ElNotification } from "element-plus";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 import { useUser } from "@/store/modules/user";
 import dayjs from "dayjs";

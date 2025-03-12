@@ -154,25 +154,47 @@
           <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
         </el-col>
         <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-          <el-button class="sellBtn" @click="showConfirmModal(1)">{{
-            t("order.sell")
-          }}</el-button>
+          <el-tooltip :disabled="!tradeDisabled" placement="top">
+            <template #content>
+              <span>{{ t("tip.marketClosed") }}</span>
+            </template>
+            <el-button
+              class="sellBtn"
+              :disabled="tradeDisabled"
+              @click="showConfirmModal(1)"
+              >{{ t("order.sell") }}</el-button
+            >
+          </el-tooltip>
         </el-col>
         <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-          <el-button class="buyBtn" @click="showConfirmModal(0)">{{
-            t("order.buy")
-          }}</el-button>
+          <el-tooltip :disabled="!tradeDisabled" placement="top">
+            <template #content>
+              <span>{{ t("tip.marketClosed") }}</span>
+            </template>
+            <el-button
+              class="buyBtn"
+              :disabled="tradeDisabled"
+              @click="showConfirmModal(0)"
+              >{{ t("order.buy") }}</el-button
+            >
+          </el-tooltip>
         </el-col>
         <el-col :span="24" v-if="!['price'].includes(formState.orderType)">
-          <el-button
-            :class="[
-              formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
-            ]"
-            class="pendingBtn"
-            :loading="pendingBtnLoading"
-            @click="addPendingOrders"
-            >{{ t("dialog.createOrder") }}</el-button
-          >
+          <el-tooltip :disabled="!tradeDisabled" placement="top">
+            <template #content>
+              <span>{{ t("tip.marketClosed") }}</span>
+            </template>
+            <el-button
+              :class="[
+                formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
+              ]"
+              class="pendingBtn"
+              :disabled="tradeDisabled"
+              :loading="pendingBtnLoading"
+              @click="addPendingOrders"
+              >{{ t("dialog.createOrder") }}</el-button
+            >
+          </el-tooltip>
         </el-col>
       </el-row>
     </el-form>
@@ -317,6 +339,18 @@ watch(
     !ifEq && (freshKey.value = +!freshKey.value);
     if (nowVisible) {
       initForm();
+    }
+  }
+);
+
+import { symbolDetail } from "api/symbols";
+const tradeDisabled = ref(false);
+watch(
+  () => formState.symbol,
+  async (symbol) => {
+    if (symbol) {
+      const res = await symbolDetail({ symbol });
+      tradeDisabled.value = !res.data.current_trade_able;
     }
   }
 );

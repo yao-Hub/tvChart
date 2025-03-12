@@ -22,7 +22,6 @@ import * as orders from "api/order/index";
 import { cloneDeep, debounce, get, isNil } from "lodash";
 import { getTradingDirection, getOrderType } from "utils/order/index";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
-
 type ModeType = "create" | "confirm";
 type OrderStateWithDirectionRequired<T extends ModeType> = T extends "confirm"
   ? {
