@@ -71,6 +71,15 @@ watch(
 :deep(.el-input__inner) {
   font-size: calc(var(--font-size) + 2px);
 }
+:deep(.el-form-item--default) {
+  margin-bottom: 24px;
+}
+:deep(.el-form-item__error) {
+  top: 108%;
+}
+:deep(.el-form-item--default .el-form-item__content) {
+  line-height: normal;
+}
 </style>
 
 <style lang="scss">
