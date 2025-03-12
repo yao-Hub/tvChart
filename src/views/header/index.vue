@@ -9,12 +9,17 @@
         {{ t("order.new") }}
       </el-button>
       <div class="tools">
-        <div class="tools_1">
+        <div class="tool_item iconbox" v-if="ifElectron">
+          <el-tooltip :content="t('refresh page')">
+            <BaseImg iconName="refresh" @click="systemReload" />
+          </el-tooltip>
+        </div>
+        <div class="tool_item tools_1">
           <LayoutVisibled></LayoutVisibled>
           <FastTransation></FastTransation>
         </div>
         <div class="tool_divider"></div>
-        <div class="tools_2">
+        <div class="tool_item">
           <ChartLayouts></ChartLayouts>
           <CreateChart></CreateChart>
         </div>
@@ -25,6 +30,7 @@
 </template>
 
 <script setup lang="ts">
+import { debounce } from "lodash";
 import Account from "./components/Account.vue";
 import ChartLayouts from "./components/ChartLayouts.vue";
 import CreateChart from "./components/CreateChart.vue";
@@ -37,6 +43,13 @@ const orderStore = useOrder();
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
+
+const systemReload = debounce(() => {
+  window.location.reload();
+}, 200);
+
+// @ts-ignore
+const ifElectron = ELECTRON_PLATFORM;
 </script>
 
 <style lang="scss">
@@ -88,14 +101,12 @@ const { t } = useI18n();
       align-items: center;
       margin-left: 16px;
 
-      .tools_1 {
+      .tool_item {
         display: flex;
         align-items: center;
-        gap: 4px;
       }
-      .tools_2 {
-        display: flex;
-        align-items: center;
+      .tools_1 {
+        gap: 4px;
       }
 
       .tool_divider {

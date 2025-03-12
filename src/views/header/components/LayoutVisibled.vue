@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown trigger="hover" placement="bottom-start">
+  <el-dropdown trigger="click" placement="bottom-start">
     <div class="iconbox">
       <BaseImg iconName="icon_1"></BaseImg>
       <div class="triangle"></div>

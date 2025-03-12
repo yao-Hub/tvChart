@@ -215,6 +215,7 @@ const happyStart = async (actionObject: string) => {
     if (disabled.value) {
       return;
     }
+    loading.value = true;
     const target = networkStore.queryTradeLines.find(
       (e) => e.lineName === formState.server
     );
