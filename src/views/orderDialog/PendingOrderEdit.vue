@@ -238,7 +238,6 @@ const quote = computed(() => {
 });
 
 // 重置表单 自动填充
-import { symbolDetail } from "api/symbols";
 const tradeDisabled = ref(false);
 watch(
   () => model.value,
@@ -267,8 +266,7 @@ watch(
       formState.dueDate = dayjs(time_expiration).tz(timezone).unix();
       formState.limitedPrice = trigger_price;
       formState.orderPrice = String(order_price);
-      const res = await symbolDetail({ symbol });
-      tradeDisabled.value = !res.data.current_trade_able;
+      tradeDisabled.value = await orderStore.getTradAble(symbol);
     }
   }
 );

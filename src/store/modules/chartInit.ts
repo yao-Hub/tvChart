@@ -109,9 +109,6 @@ export const useChartInit = defineStore("chartInit", () => {
   // 系统刷新
   function systemRefresh() {
     state.globalRefresh = true;
-    setTimeout(() => {
-      state.globalRefresh = false;
-    }, 1000);
   }
 
   // 创建图表实例

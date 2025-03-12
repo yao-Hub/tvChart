@@ -269,7 +269,6 @@ const step = computed(() => {
   return symbolInfo.value ? symbolInfo.value.volume_step / 100 : 1;
 });
 
-import { symbolDetail } from "api/symbols";
 const tradeDisabled = ref(false);
 watch(
   () => model.value,
@@ -279,8 +278,7 @@ watch(
       closeFormState.volume = (volume / 100).toString();
       stopFormState.stopLoss = sl_price ? String(sl_price) : "";
       stopFormState.stopProfit = tp_price ? String(tp_price) : "";
-      const res = await symbolDetail({ symbol });
-      tradeDisabled.value = !res.data.current_trade_able;
+      tradeDisabled.value = await orderStore.getTradAble(symbol);
     }
   }
 );

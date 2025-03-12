@@ -131,6 +131,7 @@ async function init() {
   } catch (error) {
   } finally {
     initRender(); // 渲染页面
+    chartInitStore.state.globalRefresh = false;
   }
 }
 

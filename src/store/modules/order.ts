@@ -1,7 +1,7 @@
 import i18n from "@/language/index";
 import dayjs from "dayjs";
 import Decimal from "decimal.js";
-import { ElMessageBox, ElNotification } from "element-plus";
+import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 import { defineStore } from "pinia";
 import { computed, reactive, watch } from "vue";
 import { useRouter } from "vue-router";
@@ -22,6 +22,8 @@ import * as orders from "api/order/index";
 import { cloneDeep, debounce, get, isNil } from "lodash";
 import { getTradingDirection, getOrderType } from "utils/order/index";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
+import { symbolDetail } from "api/symbols";
+
 type ModeType = "create" | "confirm";
 type OrderStateWithDirectionRequired<T extends ModeType> = T extends "confirm"
   ? {
@@ -623,6 +625,15 @@ export const useOrder = defineStore("order", () => {
     };
   };
 
+  // 是否休市
+  const getTradAble = async (symbol: string) => {
+    const res = await symbolDetail({ symbol });
+    if (res.data && !res.data.current_trade_able) {
+      ElMessage.warning(t("tip.marketClosed"));
+    }
+    return res.data && !!res.data.current_trade_able;
+  };
+
   // 增加市价单
   const addMarketOrder = (updata: orders.ReqOrderAdd) => {
     let errmsg = "";
@@ -753,6 +764,11 @@ export const useOrder = defineStore("order", () => {
     logStr = `#${id} (${direction} ${volume} ${symbol} `;
     return new Promise(async (resolve, reject) => {
       try {
+        const SDres = await getTradAble(symbol);
+        if (!SDres) {
+          reject();
+          return;
+        }
         const res = await orders.marketOrdersClose({
           symbol,
           id,
@@ -959,6 +975,11 @@ export const useOrder = defineStore("order", () => {
 
     return new Promise(async (resolve, reject) => {
       try {
+        const SDres = await getTradAble(symbol);
+        if (!SDres) {
+          reject();
+          return;
+        }
         const res = await orders.delPendingOrders({
           id: record.id,
           symbol: record.symbol,
@@ -1090,6 +1111,7 @@ export const useOrder = defineStore("order", () => {
     addPendingOrder,
     modifyPendingOrder,
     delPendingOrder,
+    getTradAble,
     $reset,
   };
 });

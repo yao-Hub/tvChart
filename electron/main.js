@@ -21,6 +21,7 @@ if (!gotTheLock) {
 
   // 创建主窗口
   function createWindow() {
+    const isPro = process.env.NODE_ENV === 'production';
 
     const { width: sw } = screen.getPrimaryDisplay().workAreaSize;
 
@@ -37,6 +38,7 @@ if (!gotTheLock) {
         preload: path.join(__dirname, "preload.js"), // 预加载脚本
         contextIsolation: true, // 启用上下文隔离
         nodeIntegration: false, // 禁用 Node.js 集成（推荐）
+        devTools: !isPro,
       },
     });
 
@@ -45,8 +47,8 @@ if (!gotTheLock) {
       Menu.setApplicationMenu(null);
     }
 
-    if (process.env.NODE_ENV === "production") {
-      // 去除菜单栏 无法打开开发者工具
+    if (isPro) {
+      // 去除菜单栏会导致无法打开开发者工具
       mainWindow.setMenu(null);
     }
 

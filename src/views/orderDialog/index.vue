@@ -343,14 +343,12 @@ watch(
   }
 );
 
-import { symbolDetail } from "api/symbols";
 const tradeDisabled = ref(false);
 watch(
   () => formState.symbol,
   async (symbol) => {
     if (symbol) {
-      const res = await symbolDetail({ symbol });
-      tradeDisabled.value = !res.data.current_trade_able;
+      tradeDisabled.value = await orderStore.getTradAble(symbol);
     }
   }
 );

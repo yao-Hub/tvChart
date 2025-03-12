@@ -2,6 +2,7 @@ const { execSync } = require('child_process');
 const isWindows = process.platform === 'win32'; //是否为windows
 console.log("platform--------------------->", process.platform);
 const mode = process.env.NODE_ENV;
+console.log("mode--------------------->", mode);
 function runCommand(command) {
   execSync(command, { stdio: 'inherit' });
 }

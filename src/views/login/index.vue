@@ -9,7 +9,7 @@
     <router-view v-slot="{ Component }">
       <div class="container">
         <transition :name="direction" mode="out-in" appear>
-          <div class="main" :key="Component">
+          <div class="main" :key="routeName">
             <component :is="Component" />
           </div>
         </transition>
@@ -19,8 +19,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
-import { useRouter } from "vue-router";
+import { computed, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 import { useInit } from "@/store/modules/init";
 
@@ -31,6 +31,7 @@ import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const router = useRouter();
+const route = useRoute();
 
 const localeKey = ref("");
 
@@ -39,6 +40,11 @@ useInit().init();
 // 预加载home路由
 const homeComponentImport = () => import("@/views/home/index.vue");
 homeComponentImport();
+
+const routeName = computed(() => {
+  console.log(route);
+  return route.path;
+});
 
 const direction = ref("slide-forward");
 watch(

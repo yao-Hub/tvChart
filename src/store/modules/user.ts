@@ -14,6 +14,7 @@ import { computed, reactive } from "vue";
 import { useNetwork } from "./network";
 import { useOrder } from "./order";
 import { useSocket } from "./socket";
+import { useChartInit } from "./chartInit";
 
 interface IAccount {
   login: string;
@@ -146,7 +147,9 @@ export const useUser = defineStore("user", () => {
       });
       if (params && params.emitSocket) {
         const socketStore = useSocket();
-        socketStore.emitOnline();
+        if (!useChartInit().state.globalRefresh) {
+          socketStore.emitOnline();
+        }
         socketStore.sendToken({
           login: res.data.login,
           token: account.value.token,
