@@ -224,7 +224,7 @@ const createSortable = () => {
           };
         });
         symbols.forEach((item, index, arr) => {
-          if (index > 1) {
+          if (index > 0) {
             const preRowTop = arr[index - 1].topSort;
             if (!preRowTop) {
               item.topSort = 0;
