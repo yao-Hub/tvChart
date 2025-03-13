@@ -65,6 +65,7 @@ export default {
   symbolListArea: "活躍交易商品面板",
   orderArea: "交易看板",
   klineArea: "商品K線面板",
+  topUp: "置頂",
 
   article: {
     readAgree: "請閱讀並同意",

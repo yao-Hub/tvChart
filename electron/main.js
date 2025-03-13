@@ -38,7 +38,7 @@ if (!gotTheLock) {
         preload: path.join(__dirname, "preload.js"), // 预加载脚本
         contextIsolation: true, // 启用上下文隔离
         nodeIntegration: false, // 禁用 Node.js 集成（推荐）
-        devTools: !isPro,
+        // devTools: !isPro,
       },
     });
 
@@ -47,18 +47,16 @@ if (!gotTheLock) {
       Menu.setApplicationMenu(null);
     }
 
-    if (isPro) {
-      // 去除菜单栏会导致无法打开开发者工具
-      mainWindow.setMenu(null);
-    }
-
     if (process.env.NODE_ENV === "development") {
       mainWindow.loadURL("http://localhost:8080");
       mainWindow.webContents.openDevTools(); // 打开开发者工具
-    } else {
-      // 生产环境：加载打包后的文件
-      mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+      return;
     }
+    if (process.env.NODE_ENV === "production") {
+      mainWindow.setMenu(null);
+    }
+    // 生产环境：加载打包后的文件
+    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
 
   // 当 Electron 完成初始化并准备创建浏览器窗口时调用 createWindow 函数

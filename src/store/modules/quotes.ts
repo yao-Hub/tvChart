@@ -27,7 +27,10 @@ export const useQuotes = defineStore("qoutes", () => {
 
   // 设置ask,bid涨跌颜色
   const setClass = (quote: types.ISocketQuote) => {
-    const { symbol, ask, bid } = quote;
+    const { symbol = "", ask, bid } = quote;
+    if (!symbol) {
+      return;
+    }
     const oldQuote = qoutes.value[symbol];
     let result = {
       ask: "",

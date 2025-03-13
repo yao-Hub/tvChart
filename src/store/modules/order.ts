@@ -631,7 +631,7 @@ export const useOrder = defineStore("order", () => {
     if (res.data && !res.data.current_trade_able) {
       ElMessage.warning(t("tip.marketClosed"));
     }
-    return res.data && !!res.data.current_trade_able;
+    return res.data && res.data.current_trade_able === 0;
   };
 
   // 增加市价单

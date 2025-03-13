@@ -119,15 +119,17 @@ async function init() {
     await rootStore.resetAllStore();
     await useInit().init();
     await networkStore.initNode(); // 网络节点
-    await networkStore.getNodesDelay();
-    await userStore.getLoginInfo({ emitSocket: true }); // 个人信息
-    await Promise.all([
-      symbolsStore.getAllSymbol(),
-      quotesStore.getAllSymbolQuotes(),
-      rateStore.getAllRates(),
-      orderStore.initTableData(),
-    ]);
-    userStore.refreshToken(); // 倒计时刷新token
+    const list = await networkStore.getNodesDelay();
+    if (list.length) {
+      await userStore.getLoginInfo({ emitSocket: true }); // 个人信息
+      await Promise.all([
+        symbolsStore.getAllSymbol(),
+        quotesStore.getAllSymbolQuotes(),
+        rateStore.getAllRates(),
+        orderStore.initTableData(),
+      ]);
+      userStore.refreshToken(); // 倒计时刷新token
+    }
   } catch (error) {
   } finally {
     initRender(); // 渲染页面
