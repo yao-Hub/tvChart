@@ -267,7 +267,15 @@
               <template
                 v-else-if="['tp_price', 'sl_price'].includes(column.dataKey)"
               >
-                <div class="operaCell" @click="showOrderDialog(rowData)">
+                <div
+                  class="operaCell"
+                  :style="{
+                    cursor: ['marketOrder', 'pendingOrder'].includes(activeKey)
+                      ? 'pointer'
+                      : 'default',
+                  }"
+                  @click="showOrderDialog(rowData)"
+                >
                   {{ formatPrice(rowData[column.dataKey], rowData.digits) }}
                 </div>
               </template>
@@ -1094,7 +1102,6 @@ const getTableData = (type: string) => {
   }
 }
 .operaCell {
-  cursor: pointer;
   width: 100%;
   height: 100%;
   display: flex;

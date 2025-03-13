@@ -83,7 +83,7 @@ export const useChartInit = defineStore("chartInit", () => {
               .getCheckableActionState("drawingToolbarAction");
             if (
               (type === "single" && !leftToolHidden) ||
-              (type === "multiple" && leftToolHidden) ||
+              (type !== "single" && leftToolHidden) ||
               (length === 1 && !leftToolHidden)
             ) {
               item.widget
