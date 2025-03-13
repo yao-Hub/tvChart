@@ -66,6 +66,7 @@ export default {
   orderArea: "交易看板",
   klineArea: "商品K線面板",
   topUp: "置頂",
+  unTop: "取消置頂",
 
   article: {
     readAgree: "請閱讀並同意",

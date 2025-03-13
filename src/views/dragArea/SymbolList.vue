@@ -123,8 +123,8 @@
     <RightClickMenu
       v-model:visible="menuVisible"
       :pos="pos"
-      :symbol="menuSymbol"
-      @topUp="topUp"
+      :rowData="rowData"
+      @toogleTopUp="topUp"
     ></RightClickMenu>
   </div>
 </template>
@@ -144,7 +144,7 @@ const quotesStore = useQuotes();
 
 const { t } = useI18n();
 
-interface DataSource {
+export interface DataSource {
   symbol: string;
   bid?: string | number;
   ask?: string | number;
@@ -291,10 +291,13 @@ const pos = ref({
   left: 0,
   top: 0,
 });
-const menuSymbol = ref("");
-const rowContextmenu = (row: any, column: any, event: MouseEvent) => {
+const rowData = ref<DataSource>({
+  symbol: "",
+  topSort: 0,
+});
+const rowContextmenu = (row: DataSource, column: any, event: MouseEvent) => {
   event.preventDefault();
-  menuSymbol.value = row.symbol;
+  rowData.value = row;
   const { clientX, clientY } = event;
   const menuWidth = 120;
 

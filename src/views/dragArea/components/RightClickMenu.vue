@@ -10,7 +10,9 @@
     </div>
     <div class="item" @click="addChart">{{ t("chart.new") }}</div>
     <div class="item" @click="showDialog">{{ t("symbolInfo") }}</div>
-    <div class="item" @click="topUp">{{ t("topUp") }}</div>
+    <div class="item" @click="toogleTopUp">
+      {{ t(`${props.rowData.topSort ? "unTop" : "topUp"}`) }}
+    </div>
   </div>
 
   <el-dialog
@@ -21,7 +23,7 @@
     :footer="null"
   >
     <template #header>
-      <span class="title">{{ props.symbol }}</span>
+      <span class="title">{{ rowData.symbol }}</span>
     </template>
     <div v-loading="loading" v-if="!ifError" class="container">
       <div class="infoDetail">
@@ -68,6 +70,7 @@ import { useI18n } from "vue-i18n";
 
 import { ISessionSymbolInfo } from "@/types/chart";
 import { symbolDetail } from "api/symbols";
+import { DataSource } from "../SymbolList.vue";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
@@ -78,14 +81,14 @@ const chartInitStore = useChartInit();
 const orderStore = useOrder();
 const symbolsStore = useSymbols();
 
-const emit = defineEmits(["topUp"]);
+const emit = defineEmits(["toogleTopUp"]);
 
 interface Props {
   pos: {
     top: number;
     left: number;
   };
-  symbol: string;
+  rowData: DataSource;
 }
 const props = defineProps<Props>();
 const model = defineModel<boolean>("visible", {
@@ -133,13 +136,13 @@ const orderLoading = ref(false);
 const addOrder = async () => {
   try {
     const symbols = symbolsStore.symbols_tradeAllow.map((item) => item.symbol);
-    if (symbols.indexOf(props.symbol) === -1) {
+    if (symbols.indexOf(props.rowData.symbol) === -1) {
       ElMessage.warning(t("tip.symbolNoAllowTrading"));
       return;
     }
     await getDetail();
     if (symbolInfo.value && symbolInfo.value.current_trade_able) {
-      orderStore.createOrder({ symbol: props.symbol });
+      orderStore.createOrder({ symbol: props.rowData.symbol });
       return;
     }
     ElMessage.warning(t("tip.marketClosed"));
@@ -148,7 +151,7 @@ const addOrder = async () => {
   }
 };
 const addChart = () => {
-  chartInitStore.addChart(props.symbol);
+  chartInitStore.addChart(props.rowData.symbol);
   model.value = false;
 };
 
@@ -159,7 +162,7 @@ const getDetail = async () => {
   try {
     orderLoading.value = true;
     loading.value = true;
-    const res = await symbolDetail({ symbol: props.symbol });
+    const res = await symbolDetail({ symbol: props.rowData.symbol });
     symbolInfo.value = res.data;
     ifError.value = false;
   } catch (error) {
@@ -180,15 +183,21 @@ const showDialog = () => {
   getDetail();
 };
 
-const topUp = () => {
-  const index = symbolsStore.mySymbols.findIndex(
-    (e) => e.symbol === props.symbol
-  );
+const toogleTopUp = () => {
+  const list = symbolsStore.mySymbols;
+  const index = list.findIndex((e) => e.symbol === props.rowData.symbol);
   if (index !== -1) {
-    const target = symbolsStore.mySymbols.splice(index, 1)[0];
-    symbolsStore.mySymbols.unshift({ ...target, topSort: 1 });
-    symbolsStore.mySymbols.forEach((item, index) => (item.sort = index));
-    emit("topUp");
+    const target = list.splice(index, 1)[0];
+    list.unshift({
+      ...target,
+      topSort: +!props.rowData.topSort,
+    });
+    const topList = list.filter((e) => e.topSort === 1);
+    const downList = list.filter((e) => e.topSort === 0);
+    const sortList = [...topList, ...downList];
+    sortList.forEach((item, index) => (item.sort = index));
+    symbolsStore.mySymbols = sortList;
+    emit("toogleTopUp");
     model.value = false;
   }
 };

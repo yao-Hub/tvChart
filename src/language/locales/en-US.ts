@@ -59,7 +59,8 @@ export default {
   symbolListArea: "Active trading varieties panel",
   orderArea: "Trading board",
   klineArea: " K line panel",
-  topUp: "Top Up",
+  topUp: "Top",
+  unTop: "unTop",
 
   layout: {
     single: "Single Image Mode",
