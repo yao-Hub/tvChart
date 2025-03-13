@@ -378,7 +378,7 @@ const addMarket = async (state: "reverse" | "double") => {
     } finally {
       const login = useUser().account.login;
       const logErr = errmsg ? `error ${errmsg}` : "";
-      logStr = `${login}: #${id} market ${logErr} ${logStr}`;
+      logStr = `${login}: #${id} ${state} market ${logErr} ${logStr}`;
       const logData = {
         logType: errmsg ? "error" : "info",
         logName: `${state} market`,

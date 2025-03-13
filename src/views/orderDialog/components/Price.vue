@@ -140,7 +140,13 @@ const customCalc = () => {
 
 watch(
   () => [props.symbolInfo, props.orderType, props.quote],
-  () => {
+  (nowVal, preVal) => {
+    const preSymbol = preVal[0] as ISessionSymbolInfo;
+    const nowSymbol = nowVal[0] as ISessionSymbolInfo;
+    if (preSymbol && nowSymbol && preSymbol.symbol !== nowSymbol.symbol) {
+      const { max, min } = getRange(props.orderType);
+      price.value = max || min || step.value;
+    }
     setRange();
   },
   { deep: true }

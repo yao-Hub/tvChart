@@ -153,8 +153,8 @@ const initChart = ({
   //   }
   // );
 
-  // 涨跌颜色
   themeStore.setChartTheme();
+  // 涨跌颜色
   setTimeout(() => {
     themeStore.setUpDownTheme();
   });

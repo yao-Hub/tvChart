@@ -765,7 +765,7 @@ export const useOrder = defineStore("order", () => {
     return new Promise(async (resolve, reject) => {
       try {
         const SDres = await getTradAble(symbol);
-        if (!SDres) {
+        if (SDres) {
           reject();
           return;
         }
@@ -831,7 +831,7 @@ export const useOrder = defineStore("order", () => {
       logStr += `tp:${updata.tp} `;
     }
     if (updata.time_expiration) {
-      const time = dayjs(updata.time_expiration).format(
+      const time = dayjs(updata.time_expiration * 1000).format(
         "YYYY.MM.DD HH:mm:ss.SSS"
       );
       logStr += `time_expiration:${time} `;
@@ -976,7 +976,7 @@ export const useOrder = defineStore("order", () => {
     return new Promise(async (resolve, reject) => {
       try {
         const SDres = await getTradAble(symbol);
-        if (!SDres) {
+        if (SDres) {
           reject();
           return;
         }
