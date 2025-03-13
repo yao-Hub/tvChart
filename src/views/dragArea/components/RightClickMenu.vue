@@ -13,6 +13,10 @@
     <div class="item" @click="toogleTopUp">
       {{ t(`${props.rowData.topSort ? "unTop" : "topUp"}`) }}
     </div>
+    <div :class="{ item: true, pending: delLoading }" @click="cancelFav">
+      <span>{{ t("delete") }}</span>
+      <el-icon class="loading" v-if="delLoading"><Loading /></el-icon>
+    </div>
   </div>
 
   <el-dialog
@@ -81,7 +85,7 @@ const chartInitStore = useChartInit();
 const orderStore = useOrder();
 const symbolsStore = useSymbols();
 
-const emit = defineEmits(["toogleTopUp"]);
+const emit = defineEmits(["toogleTopUp", "cancelFav"]);
 
 interface Props {
   pos: {
@@ -198,6 +202,23 @@ const toogleTopUp = () => {
     sortList.forEach((item, index) => (item.sort = index));
     symbolsStore.mySymbols = sortList;
     emit("toogleTopUp");
+    model.value = false;
+  }
+};
+
+import { delOptionalQuery } from "api/symbols/index";
+const delLoading = ref(false);
+const cancelFav = async () => {
+  try {
+    delLoading.value = true;
+    await delOptionalQuery({ symbols: [props.rowData.symbol] });
+    const index = symbolsStore.mySymbols.findIndex(
+      (e) => e.symbol === props.rowData.symbol
+    );
+    symbolsStore.mySymbols.splice(index, 1);
+    emit("cancelFav");
+  } finally {
+    delLoading.value = false;
     model.value = false;
   }
 };

@@ -125,6 +125,7 @@
       :pos="pos"
       :rowData="rowData"
       @toogleTopUp="topUp"
+      @cancelFav="getQuery"
     ></RightClickMenu>
   </div>
 </template>
@@ -305,7 +306,8 @@ const rowContextmenu = (row: DataSource, column: any, event: MouseEvent) => {
   const computedStyle = getComputedStyle(bodyDom);
   const componentSize = computedStyle.getPropertyValue("--component-size");
   const size = +componentSize.replace("px", "").trim();
-  const menuHeight = size * 3;
+  const munuDom = document.querySelector(".rightClickMenu");
+  const menuHeight = munuDom?.getBoundingClientRect().height || size * 5;
 
   let top = clientY;
   let left = clientX;

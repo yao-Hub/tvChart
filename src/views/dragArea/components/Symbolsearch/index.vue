@@ -185,10 +185,10 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
         symbolsStore.mySymbols.splice(index, 1);
         break;
       case "add":
-        symbolsStore.mySymbols.unshift({
+        symbolsStore.mySymbols.push({
           symbol: listItem.symbol,
-          sort: 0,
-          topSort: null,
+          sort: symbolsStore.mySymbols.length,
+          topSort: 0,
         });
         symbolsStore.mySymbols.forEach((item, index) => {
           item.sort = index;
