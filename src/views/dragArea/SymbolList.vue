@@ -32,6 +32,7 @@
         cell-class-name="body-cell"
         row-key="symbol"
         :expand-row-keys="expandRowKeys"
+        :row-class-name="tableRowClassName"
         @row-contextmenu="rowContextmenu"
         @sort-change="sortChange"
         @expand-change="expandChange"
@@ -123,6 +124,7 @@
       v-model:visible="menuVisible"
       :pos="pos"
       :symbol="menuSymbol"
+      @topUp="topUp"
     ></RightClickMenu>
   </div>
 </template>
@@ -152,6 +154,13 @@ interface DataSource {
 }
 const dataSource = shallowRef<DataSource[]>([]);
 const depths = ref<Record<string, IDepth[]>>({});
+
+const tableRowClassName = ({ row }: { row: DataSource }) => {
+  if (row.topSort) {
+    return "top-row";
+  }
+  return "";
+};
 
 // 获取自选商品
 import { useSymbols } from "@/store/modules/symbols";
@@ -204,19 +213,27 @@ const createSortable = () => {
       },
       // 解决拖拽后数据对不上导致行错位问题
       onEnd: (evt: any) => {
-        const arr = cloneDeep(dataSource.value);
-        const movedItem = arr.splice(evt.oldDraggableIndex, 1)[0];
-        arr.splice(evt.newDraggableIndex, 0, movedItem);
-        dataSource.value = arr;
-        const symbols = arr.map((item, index) => {
+        const data = cloneDeep(dataSource.value);
+        const movedItem = data.splice(evt.oldDraggableIndex, 1)[0];
+        data.splice(evt.newDraggableIndex, 0, movedItem);
+        const symbols = data.map((item, index) => {
           return {
             symbol: item.symbol,
             sort: index,
             topSort: item.topSort,
           };
         });
-        editOptionalQuery({ symbols });
+        symbols.forEach((item, index, arr) => {
+          if (index > 1) {
+            const preRowTop = arr[index - 1].topSort;
+            if (!preRowTop) {
+              item.topSort = 0;
+            }
+          }
+        });
         symbolsStore.mySymbols = symbols;
+        dataSource.value = symbols;
+        editOptionalQuery({ symbols });
       },
     });
   }
@@ -336,10 +353,18 @@ const expandChange = (row: any, expandedRows: any[]) => {
   // 展开时expandedRows.lenght > 0
   expandRowKeys.value = expandedRows.length ? [row.symbol] : [];
 };
+
+const topUp = () => {
+  editOptionalQuery({ symbols: symbolsStore.mySymbols });
+  getQuery();
+};
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+:deep(.el-table .top-row) {
+  --el-table-tr-bg-color: var(--el-fill-color-light);
+}
 :deep(.el-table td.el-table__cell div) {
   box-sizing: border-box;
   word-wrap: break-word;

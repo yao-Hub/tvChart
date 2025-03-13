@@ -4,16 +4,13 @@
     v-show="model"
     :style="{ top: `${pos.top}px`, left: `${pos.left}px` }"
   >
-    <div
-      class="item"
-      :style="{ cursor: orderLoading ? 'progress' : 'pointer' }"
-      @click="addOrder"
-    >
+    <div :class="{ item: true, pending: orderLoading }" @click="addOrder">
       <span>{{ t("order.new") }}</span>
       <el-icon class="loading" v-if="orderLoading"><Loading /></el-icon>
     </div>
     <div class="item" @click="addChart">{{ t("chart.new") }}</div>
     <div class="item" @click="showDialog">{{ t("symbolInfo") }}</div>
+    <div class="item" @click="topUp">{{ t("topUp") }}</div>
   </div>
 
   <el-dialog
@@ -79,6 +76,9 @@ import { useSymbols } from "@/store/modules/symbols";
 const { t } = useI18n();
 const chartInitStore = useChartInit();
 const orderStore = useOrder();
+const symbolsStore = useSymbols();
+
+const emit = defineEmits(["topUp"]);
 
 interface Props {
   pos: {
@@ -132,7 +132,7 @@ const infoList: Iitem[] = [
 const orderLoading = ref(false);
 const addOrder = async () => {
   try {
-    const symbols = useSymbols().symbols_tradeAllow.map((item) => item.symbol);
+    const symbols = symbolsStore.symbols_tradeAllow.map((item) => item.symbol);
     if (symbols.indexOf(props.symbol) === -1) {
       ElMessage.warning(t("tip.symbolNoAllowTrading"));
       return;
@@ -178,6 +178,19 @@ const showDialog = () => {
   dialogVisible.value = true;
   model.value = false;
   getDetail();
+};
+
+const topUp = () => {
+  const index = symbolsStore.mySymbols.findIndex(
+    (e) => e.symbol === props.symbol
+  );
+  if (index !== -1) {
+    const target = symbolsStore.mySymbols.splice(index, 1)[0];
+    symbolsStore.mySymbols.unshift({ ...target, topSort: 1 });
+    symbolsStore.mySymbols.forEach((item, index) => (item.sort = index));
+    emit("topUp");
+    model.value = false;
+  }
 };
 
 const getValue = (key: Tkey) => {
@@ -277,6 +290,9 @@ watchEffect(() => {
     &:hover {
       @include background_color("background-hover");
     }
+  }
+  .pending {
+    cursor: progress;
   }
 }
 
