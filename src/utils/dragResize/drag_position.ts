@@ -113,9 +113,11 @@ function initDragArea() {
 function setDragAreaSize() {
   const dragArea = document.querySelector(".dragArea");
   if (dragArea) {
-    const dh = dragArea.getBoundingClientRect().height;
-    const dw = dragArea.getBoundingClientRect().width;
     const dragItems = document.querySelectorAll(".dragArea_item");
+    const dh =
+      dragArea.getBoundingClientRect().height -
+      lineWidth * (dragItems.length - 1);
+    const dw = dragArea.getBoundingClientRect().width;
 
     // 先平分
     dragItems.forEach((item, index, arr) => {
@@ -671,7 +673,9 @@ function resizeSetItem() {
   if (dragArea === null) {
     return;
   }
-  const dh = dragArea!.getBoundingClientRect().height;
+  const dh =
+    dragArea!.getBoundingClientRect().height -
+    lineWidth * (dragItems.length - 1);
   const dw = dragArea!.getBoundingClientRect().width;
   // 获取高度比例
   const heights = Array.from(dragItems).map((item) => {

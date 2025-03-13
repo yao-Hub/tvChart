@@ -1057,12 +1057,13 @@ const getTableData = (type: string) => {
 
   .container {
     box-sizing: border-box;
-    height: calc(100% - 48px);
+    // -tabH - tabBorder - containerBoder
+    height: calc(100% - var(--component-size) - 1px - 4px);
     padding: 8px;
     border: 4px solid;
     border-bottom: none;
     border-radius: 4px;
-    margin: 0 4px 4px 4px;
+    margin: 0 4px;
     @include border_color("background-component");
     @include background_color("background");
 
