@@ -454,15 +454,21 @@ export const useSocket = defineStore("socket", {
       }, 1000);
     },
 
-    $reset() {
+    closeAllSocket() {
       if (this.socket) {
         this.socket.close();
       }
       if (this.onLineSocket) {
         this.onLineSocket.close();
       }
+      if (this.instance) {
+        this.instance.close();
+      }
       this.onLineSocket = null;
       this.socket = null;
+    },
+
+    $reset() {
       this.noExecuteList = [];
       this.emitList = [];
     },

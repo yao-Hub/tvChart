@@ -89,7 +89,9 @@ export const useChartLine = defineStore("chartLine", {
           this.cooldownMap[symbol] = false;
           const oldQuote = quotesStore.qoutes[symbol];
           const cache = this.qouteCache[symbol];
-
+          if (!cache) {
+            return;
+          }
           // 涨跌颜色
           quotesStore.setClass(cache);
           // 发送报价全局

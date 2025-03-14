@@ -177,6 +177,7 @@ onMounted(() => {
 // 撤销监听 resize
 onBeforeRouteLeave(async () => {
   chartInitStore.saveCharts();
+  socketStore.closeAllSocket();
   await rootStore.resetAllStore();
   document.removeEventListener("visibilitychange", handleVisibilityChange);
   window.removeEventListener("resize", resizeUpdate);

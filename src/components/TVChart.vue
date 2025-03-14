@@ -168,7 +168,10 @@ const initonReady = () => {
       props.disabledFeatures as library.ChartingLibraryFeatureset[],
     compare_symbols: props.compareSymbols as library.CompareSymbol[],
     context_menu: props.contextMenu,
-    custom_css_url: "/charting_library/static/tvcss.css",
+    // @ts-ignore
+    custom_css_url: ELECTRON_PLATFORM
+      ? "../../public/charting_library/static/tvcss.css"
+      : "/charting_library/static/tvcss.css",
     custom_timezones: timezoneOptions as library.CustomAliasedTimezone[],
   };
 

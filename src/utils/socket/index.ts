@@ -12,10 +12,7 @@ class SingletonSocket {
   constructor() {}
 
   getInstance(mainUri: string, query: string = ""): Socket {
-    if (this.instance) {
-      this.instance.disconnect();
-      this.instance = null;
-    }
+    this.close();
 
     this.instance = io(`${mainUri}${query}`, {
       transports: ["websocket"],
@@ -54,6 +51,13 @@ class SingletonSocket {
         eventBus.emit("socket-error");
         ElMessage.error("Socekt Connect Error");
       });
+    }
+  }
+
+  close() {
+    if (this.instance) {
+      this.instance.disconnect();
+      this.instance = null;
     }
   }
 }

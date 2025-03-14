@@ -20,7 +20,6 @@
 
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight } from "@element-plus/icons-vue";
-import { debounce } from "lodash";
 import { onMounted, onUpdated, ref } from "vue";
 
 const container = ref();
@@ -66,11 +65,7 @@ onMounted(() => {
   window.addEventListener("resize", updateScrollButtons);
   container.value.addEventListener("wheel", tabsMouseWheel);
 
-  const resizeObserver = new ResizeObserver(
-    debounce(() => {
-      updateScrollButtons();
-    }, 20)
-  );
+  const resizeObserver = new ResizeObserver(() => updateScrollButtons());
   resizeObserver.observe(container.value);
 });
 

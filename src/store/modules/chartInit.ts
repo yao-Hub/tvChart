@@ -58,14 +58,14 @@ export const useChartInit = defineStore("chartInit", () => {
     }
   });
 
-  // 等待图表初始化完毕才去调用socket数据
+  // 等待图表初始化完毕才去初始化socket
   watch(
     () => state.ifFinishLoad,
     (obj) => {
       const values = Object.values(obj);
-      const ifAllFinish = values.some((e) => !e);
-      if (!ifAllFinish && socketStore.socket === null) {
-        socketStore.initSocket(); // 初始化socket
+      const ifNoDone = values.some((e) => !e);
+      if (values.length > 0 && !ifNoDone && socketStore.socket === null) {
+        socketStore.initSocket();
       }
     },
     { deep: true }
@@ -212,10 +212,12 @@ export const useChartInit = defineStore("chartInit", () => {
   }) {
     const { id, resolution } = params;
     const target = state.chartWidgetList.find((e) => e.id === id);
+    console.log("changeChartInterval", target);
     if (target) {
       target.interval = resolution;
       target.widget?.onChartReady(() => {
         target.widget?.headerReady().then(() => {
+          console.log("resolution", resolution);
           target.widget?.activeChart()?.setResolution(resolution);
         });
       });
