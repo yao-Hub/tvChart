@@ -458,6 +458,10 @@ export const useSocket = defineStore("socket", {
       if (this.socket) {
         this.socket.close();
       }
+      if (this.onLineSocket) {
+        this.onLineSocket.close();
+      }
+      this.onLineSocket = null;
       this.socket = null;
       this.noExecuteList = [];
       this.emitList = [];

@@ -130,9 +130,11 @@ async function init() {
       ]);
       userStore.refreshToken(); // 倒计时刷新token
     }
-  } catch (error) {
   } finally {
     initRender(); // 渲染页面
+    if (!chartInitStore.state.globalRefresh) {
+      socketStore.emitOnline();
+    }
     chartInitStore.state.globalRefresh = false;
   }
 }
