@@ -7,8 +7,8 @@
       <el-scrollbar always :height="Math.min(list.length, 3) * 56">
         <div
           class="item"
-          v-for="account in list"
-          @click="selectAccount(account)"
+          v-for="(account, index) in list"
+          @click="selectAccount(index)"
         >
           <div class="item_left">
             <img :src="logoMap[account.server] || ''" class="icon" />
@@ -75,12 +75,12 @@ const initList = () => {
 
 const ifOpera = ref(false);
 
-const selectAccount = (e: any) => {
+const selectAccount = (selectIndex: number) => {
   if (ifOpera.value) {
     return;
   }
-  list.value.forEach((item) => {
-    item.actived = item.login === e.login;
+  list.value.forEach((item, index) => {
+    item.actived = index === selectIndex;
   });
 };
 

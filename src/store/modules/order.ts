@@ -628,7 +628,7 @@ export const useOrder = defineStore("order", () => {
   // 是否休市
   const getTradAble = async (symbol: string) => {
     const res = await symbolDetail({ symbol });
-    if (res.data && !res.data.current_trade_able) {
+    if (res.data && res.data.current_trade_able === 0) {
       ElMessage.warning(t("tip.marketClosed"));
     }
     return res.data && res.data.current_trade_able === 0;

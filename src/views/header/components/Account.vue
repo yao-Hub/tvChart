@@ -14,11 +14,11 @@
       <div class="aList">
         <div
           class="aItem"
-          v-for="item in accounts"
+          v-for="(item, index) in accounts"
           :class="{ aItemActive: item.ifLogin }"
           @click="changeLogin(item)"
-          @mouseover="hoverMap[item.login] = true"
-          @mouseleave="hoverMap[item.login] = false"
+          @mouseover="hoverMap[index] = true"
+          @mouseleave="hoverMap[index] = false"
         >
           <BaseImg class="icon" :fullPath="getLogo(item.server)" />
           <span>{{ item.server }}</span>
@@ -31,7 +31,7 @@
           <div class="del" @click.stop="delAccount(item)">
             <div
               class="delIcon"
-              v-show="hoverMap[item.login] && !item.ifLogin"
+              v-show="hoverMap[index] && !item.ifLogin"
             ></div>
           </div>
         </div>
@@ -124,7 +124,7 @@ const dialogStore = useDialog();
 
 const accounts = computed(() => userStore.state.accountList);
 const hoverMap = reactive<{
-  [key: string]: boolean;
+  [key: number]: boolean;
 }>({});
 
 const toogleDropdown = () => {
