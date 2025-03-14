@@ -61,10 +61,9 @@ export const useChartInit = defineStore("chartInit", () => {
   // 等待图表初始化完毕才去初始化socket
   watch(
     () => state.ifFinishLoad,
-    (obj) => {
-      const values = Object.values(obj);
-      const ifNoDone = values.some((e) => !e);
-      if (values.length > 0 && !ifNoDone && socketStore.socket === null) {
+    () => {
+      const ifEnding = ifAllChartLoadingEnd();
+      if (ifEnding && socketStore.socket === null) {
         socketStore.initSocket();
       }
     },
@@ -212,12 +211,10 @@ export const useChartInit = defineStore("chartInit", () => {
   }) {
     const { id, resolution } = params;
     const target = state.chartWidgetList.find((e) => e.id === id);
-    console.log("changeChartInterval", target);
     if (target) {
       target.interval = resolution;
       target.widget?.onChartReady(() => {
         target.widget?.headerReady().then(() => {
-          console.log("resolution", resolution);
           target.widget?.activeChart()?.setResolution(resolution);
         });
       });
@@ -240,7 +237,7 @@ export const useChartInit = defineStore("chartInit", () => {
   // 保存图表状态
   function saveCharts() {
     try {
-      if (!ifAllChartLoadingEnd.value) {
+      if (!ifAllChartLoadingEnd()) {
         return;
       }
       const saveMap: Record<string, object> = {};
@@ -299,12 +296,13 @@ export const useChartInit = defineStore("chartInit", () => {
   }
 
   // 全部图表是否都加载完毕
-  const ifAllChartLoadingEnd = computed(() => {
-    const loadList = Object.values(state.ifFinishLoad);
-    return !loadList.some((item) => !item);
-  });
-  function setChartLoadingEndType(id: string, ifFinish?: boolean) {
-    state.ifFinishLoad[id] = !!ifFinish;
+  const ifAllChartLoadingEnd = () => {
+    const values = Object.values(state.ifFinishLoad);
+    const ifNoDone = values.some((e) => !e);
+    return values.length > 0 && !ifNoDone;
+  };
+  function setChartLoadingEndType(id: string, ifFinish: boolean) {
+    state.ifFinishLoad[id] = ifFinish;
   }
 
   function $reset() {
@@ -337,7 +335,6 @@ export const useChartInit = defineStore("chartInit", () => {
     loadCharts,
     getDefaultSymbol,
     setChartLoadingEndType,
-    ifAllChartLoadingEnd,
     $reset,
   };
 });

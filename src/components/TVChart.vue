@@ -190,7 +190,7 @@ const initonReady = () => {
   );
 
   // 图表开始加载标志
-  chartInitStore.setChartLoadingEndType(props.chartId);
+  chartInitStore.setChartLoadingEndType(props.chartId, false);
 
   widget?.onChartReady(() => {
     widget?.headerReady().then(() => {
