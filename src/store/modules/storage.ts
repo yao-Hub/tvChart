@@ -79,5 +79,13 @@ export const useStorage = defineStore("storage", {
       set(this.columnsMap, [tableKey, field], width);
       this.setItem("tableColumns", this.columnsMap);
     },
+    delUtraderKey(key: string) {
+      const storageMap = this.getUtrader();
+      const target = get(storageMap, key);
+      if (target) {
+        delete storageMap[key];
+      }
+      this.saveMap(storageMap);
+    },
   },
 });

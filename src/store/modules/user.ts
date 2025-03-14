@@ -14,6 +14,7 @@ import { computed, reactive } from "vue";
 import { useNetwork } from "./network";
 import { useOrder } from "./order";
 import { useSocket } from "./socket";
+import { useStorage } from "./storage";
 
 interface IAccount {
   login: string;
@@ -153,7 +154,7 @@ export const useUser = defineStore("user", () => {
       }
     },
     1200,
-    { leading: true }
+    { leading: false, trailing: true }
   );
 
   const addAccount = (data: AccountListItem) => {
@@ -171,7 +172,7 @@ export const useUser = defineStore("user", () => {
     storageAccount();
   };
 
-  const removeAccount = (info: any) => {
+  const removeAccount = (info: AccountListItem) => {
     const { server, login } = info;
     const index = state.accountList.findIndex(
       (e) => e.server === server && e.login === login
@@ -179,6 +180,7 @@ export const useUser = defineStore("user", () => {
     if (index !== -1) {
       state.accountList.splice(index, 1);
       storageAccount();
+      useStorage().delUtraderKey(`${login}_${server}`);
     }
   };
 

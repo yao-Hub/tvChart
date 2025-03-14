@@ -106,7 +106,7 @@ import { PageEnum } from "@/constants/pageEnum";
 
 import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
-import { useUser } from "@/store/modules/user";
+import { AccountListItem, useUser } from "@/store/modules/user";
 
 import ResetPassword from "@/views/login/components/ResetPassword.vue";
 
@@ -136,11 +136,11 @@ const toogleDropdown = () => {
   }
 };
 
-const delAccount = (account: any) => {
+const delAccount = (account: AccountListItem) => {
   userStore.removeAccount(account);
 };
 
-const changeLogin = (account: any) => {
+const changeLogin = (account: AccountListItem) => {
   const { login, server, ifLogin } = account;
   if (ifLogin) {
     return;
