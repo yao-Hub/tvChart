@@ -171,6 +171,9 @@ onMounted(() => {
   init();
   window.addEventListener("resize", resizeUpdate);
   document.addEventListener("visibilitychange", handleVisibilityChange);
+  window.addEventListener("beforeunload", () => {
+    chartInitStore.saveCharts();
+  });
 });
 
 // 离开页面保存图表操作

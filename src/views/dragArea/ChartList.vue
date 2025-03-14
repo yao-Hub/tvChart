@@ -190,10 +190,6 @@ onMounted(() => {
       handle: ".moveIcon",
     });
   }
-
-  window.addEventListener("beforeunload", () => {
-    chartInitStore.saveCharts();
-  });
 });
 
 const chartTabClick = (id: string) => {
