@@ -108,7 +108,7 @@ const onClose = () => {
 };
 const validatePass = (rule: any, value: any, callback: any) => {
   if (value === "") {
-    callback(new Error("Please input the password"));
+    callback(new Error(t("tip.enterNewPwd")));
   } else {
     // 匹配6-24位数字和字母组合，不能包含空格
     const regex = /^[a-zA-Z0-9]{6,24}$/;
@@ -134,7 +134,9 @@ const validatePass2 = (rule: any, value: any, callback: any) => {
   }
 };
 const rules = reactive<FormRules<typeof formState>>({
-  oldpass: [{ required: true, trigger: "change" }],
+  oldpass: [
+    { required: true, trigger: "change", message: t("tip.enterOldPwd") },
+  ],
   pass: [{ required: true, validator: validatePass, trigger: "change" }],
   checkPass: [{ required: true, validator: validatePass2, trigger: "change" }],
 });
@@ -180,6 +182,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+@import "../form.scss";
 
 .header {
   font-weight: bold;

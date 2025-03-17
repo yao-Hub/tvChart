@@ -11,6 +11,7 @@ export default {
   aboutUs: "關於我們",
   feedback: "意見反饋",
   upload: "上傳",
+  clearCache: "清除緩存",
 
   shortcutkey: "快捷鍵",
 

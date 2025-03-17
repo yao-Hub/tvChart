@@ -57,26 +57,7 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-:deep(.el-select__wrapper),
-:deep(.el-input__wrapper),
-:deep(.el-button) {
-  height: calc(var(--base-height) + 8px);
-}
-:deep(.el-select__selected-item span) {
-  font-size: calc(var(--font-size) + 2px);
-}
-:deep(.el-input__inner) {
-  font-size: calc(var(--font-size) + 2px);
-}
-:deep(.el-form-item--default) {
-  margin-bottom: 24px;
-}
-:deep(.el-form-item__error) {
-  top: 108%;
-}
-:deep(.el-form-item--default .el-form-item__content) {
-  line-height: normal;
-}
+@import "./form.scss";
 </style>
 
 <style lang="scss">

@@ -9,6 +9,8 @@ export default {
   aboutUs: "About us",
   feedback: "Feedback",
   upload: "Upload",
+  clearCache: "Clear Cache",
+
   QuickTransactions: "Quick Transactions",
   lightTheme: "LightTheme",
   shortcutkey: "Shortcut",

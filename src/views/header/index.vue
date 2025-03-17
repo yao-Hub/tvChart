@@ -5,7 +5,7 @@
       <Menu></Menu>
       <div class="menu_divider"></div>
       <!-- 订单 -->
-      <el-button @click="orderStore.createOrder()" class="orderBtn">
+      <el-button @click="useOrder().createOrder()" class="orderBtn">
         {{ t("order.new") }}
       </el-button>
       <div class="tools">
@@ -25,7 +25,10 @@
         </div>
       </div>
     </div>
-    <Account></Account>
+
+    <div class="right">
+      <Account></Account>
+    </div>
   </div>
 </template>
 
@@ -39,7 +42,6 @@ import LayoutVisibled from "./components/LayoutVisibled.vue";
 import Menu from "./components/Menu/index.vue";
 
 import { useOrder } from "@/store/modules/order";
-const orderStore = useOrder();
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
@@ -118,9 +120,10 @@ const ifElectron = ELECTRON_PLATFORM;
     }
   }
 
-  .header__right {
+  .right {
     display: flex;
     gap: 8px;
+    align-items: center;
   }
 }
 </style>

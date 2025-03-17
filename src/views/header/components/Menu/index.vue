@@ -36,6 +36,9 @@
         <div class="dropdownbox_item">
           <aboutUs @closeDropdown="toggle(false)"></aboutUs>
         </div>
+        <div class="dropdownbox_item">
+          <ClearCache></ClearCache>
+        </div>
       </div>
     </template>
   </el-dropdown>
@@ -50,6 +53,7 @@ import aboutUs from "./aboutUs.vue";
 import OneTransactions from "./oneTransactions.vue";
 import sendFeedback from "./sendFeedback.vue";
 import Theme from "./theme.vue";
+import ClearCache from "./clearCache.vue";
 
 const visible = ref(false);
 

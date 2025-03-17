@@ -91,10 +91,10 @@ const initRender = () => {
   chartInitStore.intLayoutType(); // 单图表 or 多图表
   chartInitStore.loadChartList(); // 加载图表
   // 记忆动作（没什么用(>^ω^<)喵）
-  if (rootStore.cacheAction) {
-    rootStore[rootStore.cacheAction]();
-    rootStore.clearCacheAction();
-  }
+  // if (rootStore.cacheAction) {
+  //   rootStore[rootStore.cacheAction]();
+  //   rootStore.clearCacheAction();
+  // }
   chartInitStore.state.loading = false;
   setTimeout(() => {
     // 初始化各个模块位置
@@ -179,11 +179,13 @@ onMounted(() => {
 // 离开页面保存图表操作
 // 撤销监听 resize
 onBeforeRouteLeave(async () => {
+  chartInitStore.state.loading = true;
   chartInitStore.saveCharts();
   socketStore.closeAllSocket();
   await rootStore.resetAllStore();
   document.removeEventListener("visibilitychange", handleVisibilityChange);
   window.removeEventListener("resize", resizeUpdate);
+  chartInitStore.state.loading = true;
   return true;
 });
 </script>

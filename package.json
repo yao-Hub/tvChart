@@ -2,7 +2,7 @@
   "name": "wp-tradeview",
   "productName": "UTrader",
   "private": true,
-  "version": "1.5.5",
+  "version": "1.5.7",
   "main": "electron/main.js",
   "description": "utrader",
   "author": "wp",

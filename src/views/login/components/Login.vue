@@ -223,7 +223,7 @@ const happyStart = async (actionObject: string) => {
         columnCodes: ["privacy-policy", "service-article"],
         brokerName: target.brokerName,
         lineName: target.lineName,
-        login: formState.login,
+        login: formState.login.trim(),
       }).catch((e) => {
         loading.value = false;
       });

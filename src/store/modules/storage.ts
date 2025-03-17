@@ -1,8 +1,11 @@
-import { TableTabKey } from "#/order";
-import { get, set } from "lodash";
 import { defineStore } from "pinia";
+import { get, set } from "lodash";
+
+import { TableTabKey } from "#/order";
+
 import { useNetwork } from "./network";
 import { useUser } from "./user";
+import { useChartInit } from "./chartInit";
 
 export interface IState {
   columnsMap: {
@@ -86,6 +89,12 @@ export const useStorage = defineStore("storage", {
         delete storageMap[key];
       }
       this.saveMap(storageMap);
+    },
+    removeNowUserStorage() {
+      const login = useUser().account.login;
+      const server = useNetwork().server;
+      this.delUtraderKey(`${login}_${server}`);
+      useChartInit().systemRefresh();
     },
   },
 });
