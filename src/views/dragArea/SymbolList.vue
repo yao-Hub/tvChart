@@ -367,13 +367,16 @@ const topUp = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-:deep(.el-table .top-row) {
-  --el-table-tr-bg-color: var(--el-fill-color-light);
-}
 :deep(.el-table td.el-table__cell div) {
   box-sizing: border-box;
   word-wrap: break-word;
   white-space: nowrap;
+}
+:deep(.body-cell) {
+  border: none !important;
+}
+:deep(.el-table__empty-text) {
+  line-height: normal;
 }
 .symbolList {
   width: 100%;
@@ -420,13 +423,5 @@ const topUp = () => {
 
 .searchList {
   @include background_color("background");
-}
-
-:deep(.body-cell) {
-  border: none !important;
-}
-
-:deep(.el-table__empty-text) {
-  line-height: normal;
 }
 </style>

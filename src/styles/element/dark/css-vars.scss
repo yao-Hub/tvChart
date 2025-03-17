@@ -34,6 +34,10 @@ html.dark {
     --el-table-header-text-color: var(--dark-9);
     --el-table-tr-bg-color: var(--dark-1);
   }
+  .el-table .top-row {
+    --el-table-tr-bg-color: var(--el-fill-color-light);
+    --el-table-row-hover-bg-color: #2a2c31;
+  }
   .el-table__expand-icon {
     content: url("@/assets/icons/dark/caretDown.svg");
     width: 10px;

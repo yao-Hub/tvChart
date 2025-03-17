@@ -60,6 +60,10 @@
   color: #000;
 }
 
+.el-table .top-row {
+  --el-table-tr-bg-color: var(--el-fill-color-light);
+  --el-table-row-hover-bg-color: #e0e0e0;
+}
 .el-table thead th {
   font-weight: 400;
 }
