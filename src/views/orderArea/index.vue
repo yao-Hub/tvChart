@@ -190,7 +190,9 @@
         </div>
       </HorizontalScrolling>
 
-      <el-auto-resizer :style="{ height: boxH }">
+      <el-auto-resizer
+        style="height: calc(100% - var(--component-size) - 1px - 4px - 40px)"
+      >
         <template #default="{ height, width }">
           <el-table-v2
             :key="activeKey"
@@ -490,19 +492,14 @@ const activeKey = ref<orderTypes.TableTabKey>("marketOrder");
 
 // 表格宽高的系列操作
 const container = ref();
-const boxH = ref("");
-const boxW = ref(0);
 let observer: ResizeObserver | null = null;
 onMounted(() => {
   adjustTable();
   // 拖拽时改变table的高
-  observer = new ResizeObserver((entries) => {
-    for (const entry of entries) {
-      const { height, width } = entry.contentRect;
-      boxH.value = `${height - 40}px`;
-      boxW.value = width;
+  observer = new ResizeObserver(() => {
+    requestAnimationFrame(() => {
       adjustTable();
-    }
+    });
   });
   observer.observe(container.value);
 });
@@ -532,7 +529,7 @@ const adjustTable = debounce(() => {
   );
   if (container.value) {
     // - margin padding border
-    const container_width = (boxW.value || container.value.offsetWidth) - 32;
+    const container_width = container.value.offsetWidth - 32;
 
     // 使用一个误差范围来比较浮点数
     if (Math.abs(columns_widths - container_width) > epsilon) {

@@ -147,10 +147,8 @@ const initonReady = () => {
     datafeed: props.datafeed as library.IBasicDataFeed,
     timezone: props.timezone as library.Timezone,
     debug: props.debug,
-    // @ts-ignore
-    library_path: ELECTRON_PLATFORM
-      ? "../../public/charting_library/"
-      : "/charting_library/",
+    library_path: "charting_library/",
+    custom_css_url: "static/tvcss.css",
     width: props.width,
     height: props.height,
     fullscreen: props.fullscreen,
@@ -168,10 +166,6 @@ const initonReady = () => {
       props.disabledFeatures as library.ChartingLibraryFeatureset[],
     compare_symbols: props.compareSymbols as library.CompareSymbol[],
     context_menu: props.contextMenu,
-    // @ts-ignore
-    custom_css_url: ELECTRON_PLATFORM
-      ? "../../public/charting_library/static/tvcss.css"
-      : "/charting_library/static/tvcss.css",
     custom_timezones: timezoneOptions as library.CustomAliasedTimezone[],
   };
 

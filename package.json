@@ -2,7 +2,7 @@
   "name": "wp-tradeview",
   "productName": "UTrader",
   "private": true,
-  "version": "1.5.7",
+  "version": "1.5.8",
   "main": "electron/main.js",
   "description": "utrader",
   "author": "wp",
@@ -22,6 +22,7 @@
     "ts:check": "vue-tsc",
     "prepare": "husky",
     "electron:dev": "cross-env IF_ELECTRON=true vite --mode development",
+    "electron:test": "cross-env IF_ELECTRON=true vite --mode test",
     "electron:pro": "cross-env IF_ELECTRON=true NODE_ENV=production vite --mode production",
     "electron-build:test": "npm run prepackage && cross-env NODE_ENV=test node ./electron/scripts/build.js",
     "electron-build:pro": "npm run prepackage && cross-env NODE_ENV=production node ./electron/scripts/build.js"

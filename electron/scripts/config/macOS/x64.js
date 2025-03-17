@@ -7,8 +7,8 @@ module.exports.default = {
     output: "release_electron/${version}/macOS/x64",
   },
   extraResources: {
-    from: "public",
-    to: "public"
+    from: "public/charting_library",
+    to: "charting_library"
   },
   files: ["dist/**/*", "electron/**/*"],
   mac: {
