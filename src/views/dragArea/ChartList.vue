@@ -67,7 +67,10 @@
 </template>
 
 <script setup lang="ts">
-import { IChartingLibraryWidget } from "public/charting_library";
+import {
+  IChartingLibraryWidget,
+  ResolutionString,
+} from "public/charting_library";
 import Sortable from "sortablejs";
 import { computed, onMounted } from "vue";
 
@@ -199,7 +202,7 @@ const chartTabClick = (id: string) => {
 const symbolCommand = (symbol: string, id: string) => {
   chartInitStore.changeChartSymbol({ symbol, id });
 };
-const resolutionCommand = (resolution: any, id: string) => {
+const resolutionCommand = (resolution: ResolutionString, id: string) => {
   chartInitStore.changeChartInterval({ resolution, id });
 };
 const tabClose = (id: string) => {

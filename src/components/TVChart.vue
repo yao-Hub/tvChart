@@ -197,8 +197,7 @@ const initonReady = () => {
       widget
         .activeChart()
         .onSymbolChanged()
-        // @ts-ignore
-        .subscribe(null, (e) => {
+        .subscribe(null, () => {
           chartInitStore.state.activeChartId = props.chartId;
         });
 
