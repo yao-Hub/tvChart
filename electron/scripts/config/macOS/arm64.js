@@ -19,7 +19,10 @@ module.exports.default = {
       }
     ],
     artifactName: '${productName}-Mac-${version}-arm64.${ext}',
-    icon: 'public/logo_512.png'
+    icon: 'public/logo_512.png',
+    entitlements: "entitlements.plist", // 创建权限文件
+    entitlementsInherit: "entitlements.plist",
+    identity: null,  // 禁用签名
   },
   electronVersion: '34.0.2'
 };
