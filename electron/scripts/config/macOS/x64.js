@@ -20,6 +20,7 @@ module.exports.default = {
     ],
     artifactName: "${productName}-Mac-${version}-x64.${ext}",
     icon: "public/logo_512.png",
+    identity: null,  // 禁用签名
   },
   electronVersion: "34.0.2",
 };
