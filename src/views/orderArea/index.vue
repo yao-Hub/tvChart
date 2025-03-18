@@ -142,8 +142,8 @@
           >
             <el-option value="network" label="Network"></el-option>
             <el-option value="trades" label="Trades"></el-option>
-            <!-- <el-option value="history" label="History"></el-option>
             <el-option value="audit" label="Audit"></el-option>
+            <!-- <el-option value="history" label="History"></el-option>
             <el-option value="security" label="Security"></el-option>
             <el-option value="application" label="Application"></el-option> -->
           </el-select>

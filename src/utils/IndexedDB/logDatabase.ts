@@ -8,7 +8,7 @@ const objectStoreName = "logStore";
 interface LogData {
   id: number;
   logType: "info" | "error";
-  origin: "network" | "trades";
+  origin: "network" | "trades" | "audit";
   time: string;
   login: string | number;
   logName: string;
@@ -26,7 +26,7 @@ function validateLogEntry(data: unknown): data is LogData {
     typeof entry.detail === "string" &&
     ["string", "number"].includes(typeof entry.login) &&
     ["info", "error"].includes(entry.logType) &&
-    ["network", "trades"].includes(entry.origin)
+    ["network", "trades", "audit"].includes(entry.origin)
   );
 }
 
