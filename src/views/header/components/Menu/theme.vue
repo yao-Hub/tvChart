@@ -22,7 +22,7 @@ const emit = defineEmits(["closeDropdown"]);
 
 const handleChange = () => {
   themeStore.changeSystemTheme();
-  themeStore.setChartTheme();
+  themeStore.changeChartTheme();
   emit("closeDropdown");
 };
 </script>

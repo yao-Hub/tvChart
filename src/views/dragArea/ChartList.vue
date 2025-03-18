@@ -55,7 +55,6 @@
           :user_id="`${id}_user_id`"
           :datafeed="datafeed(id)"
           :symbol="symbol"
-          :theme="themeStore.systemTheme"
           :timezone="timeStore.settedTimezone"
           :disabledFeatures="disabledFeatures"
           @initChart="initChart"
@@ -67,17 +66,13 @@
 </template>
 
 <script setup lang="ts">
-import {
-  IChartingLibraryWidget,
-  ResolutionString,
-} from "public/charting_library";
+import { ResolutionString } from "public/charting_library";
 import Sortable from "sortablejs";
 import { computed, onMounted } from "vue";
 
 import { useChartAction } from "@/store/modules/chartAction";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
-import { useTheme } from "@/store/modules/theme";
 import { useTime } from "@/store/modules/time";
 
 import { datafeed } from "@/config/chartConfig";
@@ -86,7 +81,6 @@ import chartTab from "./components/chartTab/index.vue";
 
 const chartInitStore = useChartInit();
 const chartActionStore = useChartAction();
-const themeStore = useTheme();
 const chartSubStore = useChartSub();
 const timeStore = useTime();
 
@@ -107,13 +101,7 @@ const activedId = computed(() => {
   return chartInitStore.state.activeChartId;
 });
 
-const initChart = ({
-  id,
-  widget,
-}: {
-  id: string;
-  widget: IChartingLibraryWidget;
-}) => {
+const initChart = ({ id }: { id: string }) => {
   // widget.chart().createShape(
   //   { time: 1730771118, price: 2737 },
   //   {
@@ -155,13 +143,6 @@ const initChart = ({
   //     overrides: { color: "green" },
   //   }
   // );
-
-  themeStore.setChartTheme();
-
-  // 涨跌颜色
-  setTimeout(() => {
-    themeStore.setUpDownTheme();
-  });
 
   // 创建顶部栏快捷下单按钮
   chartActionStore.addOrderBtn(id);

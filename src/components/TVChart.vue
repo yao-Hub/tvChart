@@ -3,17 +3,22 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+
+import * as library from "../../public/charting_library";
+
 import { timezoneOptions } from "@/constants/timezone";
+
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { Ttime, useTime } from "@/store/modules/time";
-import { onMounted, ref } from "vue";
-import { useI18n } from "vue-i18n";
-import * as library from "../../public/charting_library";
+import { useTheme } from "@/store/modules/theme";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const timeStore = useTime();
+const themeStore = useTheme();
 
 const { locale } = useI18n();
 
@@ -103,10 +108,6 @@ const props = defineProps({
     default: "user_id",
     type: String,
   },
-  theme: {
-    default: "light",
-    type: String,
-  },
   additionalSymbolInfoFields: {
     default: [{ title: "Ticker", propertyName: "ticker" }],
     type: Array,
@@ -159,7 +160,7 @@ const initonReady = () => {
       props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
     client_id: props.client_id,
     user_id: props.user_id,
-    theme: props.theme as library.ThemeName,
+    theme: themeStore.systemTheme,
     enabled_features:
       props.enabledFeatures as library.ChartingLibraryFeatureset[],
     disabled_features:
@@ -224,21 +225,24 @@ const initonReady = () => {
         widget.activeChart().createStudy("Moving Average Double");
       }
 
-      // 图表主题(正常是不用重新再这里改变的，但是如果自己更改了缓存，则需要这个)
-      const chartTheme = widget.getTheme();
-      if (chartTheme !== props.theme) {
-        widget.changeTheme(props.theme as library.ThemeName);
-      }
-
       // 图表时区初始化设置
       widget
         .activeChart()
         .getTimezoneApi()
         .setTimezone(timeStore.settedTimezone as Ttime);
 
-      setTimeout(() => {
-        emit("initChart", { id: props.chartId, widget });
-      }, 200);
+      // canvas图表主题
+      const chart_theme = localStorage.getItem("chartTheme");
+      const sysTheme = themeStore.systemTheme;
+      if (chart_theme !== sysTheme) {
+        widget.changeTheme(sysTheme as library.ThemeName);
+        localStorage.setItem("chartTheme", sysTheme);
+      }
+
+      // 涨跌颜色
+      themeStore.setUpDownTheme();
+
+      emit("initChart", { id: props.chartId, widget });
     });
   });
 };
