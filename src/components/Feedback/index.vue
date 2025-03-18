@@ -154,7 +154,7 @@ const handleOk = async () => {
         uploadList.push(item.raw);
       }
     });
-    const httpList = uploadList.map((file) => uploadFile({ file }));
+    const httpList = uploadList.map((file) => uploadFile({ file, type: 1 }));
     const resList = await Promise.all(httpList);
     feedbackFileIds = resList.map((item) => item.data.fileId);
   }
@@ -163,8 +163,8 @@ const handleOk = async () => {
 };
 
 const limitSize = 10;
-const onChange = (uploadFile: UploadFile, uploadFiles: UploadFiles) => {
-  const { size, uid } = uploadFile;
+const onChange = (file: UploadFile, uploadFiles: UploadFiles) => {
+  const { size, uid } = file;
   if (size && size > 1024 ** 2 * limitSize) {
     ElMessage.warning(t("tip.limitImageSize", { size: `${limitSize}M` }));
     const index = uploadFiles.findIndex((e) => e.uid === uid);

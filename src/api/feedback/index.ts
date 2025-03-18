@@ -43,17 +43,29 @@ export const myfeedback = () => {
   });
 };
 
-export const uploadFile = (data: { file: File }) => {
+import { encrypt } from "utils/DES/JS";
+import { generateUUID } from "@/utils/common";
+export const uploadFile = (params: { file: File; type: number }) => {
+  const req = {
+    type: params.type,
+    req_id: generateUUID(),
+    req_time: new Date().getTime(),
+  };
   return request<{ fileId: string; url: string }>({
     url: Api.UploadFile,
     method: "post",
-    noNeedServer: true,
-    urlType: "admin",
-    data,
+    data: {
+      file: params.file,
+      req: {
+        action: "my/upload_files",
+        d: encrypt(JSON.stringify(req)),
+      },
+    },
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    urlType: "admin",
+    customData: true,
     noNeedEncryption: true,
-    noNeedToken: true,
   });
 };

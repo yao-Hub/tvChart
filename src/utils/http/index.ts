@@ -31,15 +31,23 @@ interface IOption {
   noBeCancel?: boolean;
   noNeedEncryption?: boolean;
   noTip?: boolean;
+  customData?: boolean;
 }
 
 type reqConfig = InternalAxiosRequestConfig<any> & IOption;
 type resConfig = AxiosRequestConfig<any> & IOption;
 
-const handleTokenErr = () => {
+function handleTokenErr() {
   cancelAllRequests();
   eventBus.emit("go-login");
-};
+}
+
+function changeLocalUrl(str: string) {
+  return str
+    .replace(/^https?:\/\//, "-")
+    .replace(/\./g, "-")
+    .replace(/:/g, "-");
+}
 
 const ifLocal = import.meta.env.MODE === "development";
 const ifPro = import.meta.env.MODE === "production";
@@ -79,28 +87,28 @@ service.interceptors.request.use(
     config.headers["x-u-device-id"] = versionStore.getDeviceId();
     config.headers["x-u-app-theme"] = themeStore.getSystemTheme();
 
-    if (!config.noBeCancel) {
-      const source = axios.CancelToken.source();
-      addCancelTokenSource(source);
-      config.cancelToken = source.token;
+    // 请求地址
+    let baseURL = "";
+    const webApi = useNetwork().currentNode?.webApi;
+
+    // client地址
+    const CLIENT_BASE_URL = import.meta.env.VITE_HTTP_BASE_URL_client;
+    const CLIENT_SUFFIX_URL = webApi ? changeLocalUrl(webApi) : "";
+    const CLIENT_URL = `${CLIENT_BASE_URL}${CLIENT_SUFFIX_URL}`;
+    const clientUrl = ifLocal ? CLIENT_URL : webApi || "";
+
+    // admin地址
+    const DEV_ADMIN_URL = import.meta.env.VITE_HTTP_BASE_URL_admin;
+    const ADMIN_URL = import.meta.env.VITE_HTTP_URL_admin;
+    const adminUrl = ifLocal ? DEV_ADMIN_URL : ADMIN_URL;
+
+    if (config.urlType && config.urlType === "admin") {
+      baseURL = adminUrl;
+    } else {
+      baseURL = clientUrl;
     }
 
-    config.data = {
-      ...config.data,
-      req_id: generateUUID(),
-      req_time: new Date().getTime(),
-    };
-
-    const userStore = useUser();
-    if (!config.data.server && !config.noNeedServer) {
-      config.data.server = userStore.account.server;
-    }
-    if (!config.data.token && !config.noNeedToken) {
-      config.data.token = userStore.account.token;
-    }
-    if (!config.data.login && config.needLogin) {
-      config.data.login = userStore.account.login;
-    }
+    // action
     let action = config.action || config.url || "";
     if (action.startsWith("/")) {
       action = action.slice(1);
@@ -110,40 +118,47 @@ service.interceptors.request.use(
       actionList.splice(0, 1);
       action = actionList.join("/");
     }
-    let baseURL = "";
-    const networkStore = useNetwork();
-    const webApi = networkStore.currentNode?.webApi;
-    function changeLocalUrl(str: string) {
-      return str
-        .replace(/^https?:\/\//, "-")
-        .replace(/\./g, "-")
-        .replace(/:/g, "-");
-    }
-    const baseClientUrl =
-      import.meta.env.VITE_HTTP_BASE_URL_client +
-      `${webApi ? changeLocalUrl(webApi) : ""}`;
-    switch (config.urlType) {
-      case "admin":
-        baseURL = ifLocal
-          ? import.meta.env.VITE_HTTP_BASE_URL_admin
-          : import.meta.env.VITE_HTTP_URL_admin;
-        break;
-      default:
-        baseURL = ifLocal ? baseClientUrl : webApi || "";
-        break;
-    }
+
+    // 最终请求地址
     config.url = baseURL + config.url;
-    if (!config.noNeedEncryption) {
-      const p = {
-        action,
-        d: encrypt(JSON.stringify(config.data)),
+
+    // 请求cancel
+    if (!config.noBeCancel) {
+      const source = axios.CancelToken.source();
+      addCancelTokenSource(source);
+      config.cancelToken = source.token;
+    }
+
+    // 请求数据处理
+    if (!config.customData) {
+      config.data = {
+        ...config.data,
+        req_id: generateUUID(),
+        req_time: new Date().getTime(),
       };
-      !ifPro &&
-        console.log("request----", {
-          url: config.url,
-          data: config.data,
-        });
-      config.data = JSON.stringify(p);
+      const userStore = useUser();
+      if (!config.data.server && !config.noNeedServer) {
+        config.data.server = userStore.account.server;
+      }
+      if (!config.data.token && !config.noNeedToken) {
+        config.data.token = userStore.account.token;
+      }
+      if (!config.data.login && config.needLogin) {
+        config.data.login = userStore.account.login;
+      }
+      // 加密
+      if (!config.noNeedEncryption) {
+        const p = {
+          action,
+          d: encrypt(JSON.stringify(config.data)),
+        };
+        !ifPro &&
+          console.log("request----", {
+            url: config.url,
+            data: config.data,
+          });
+        config.data = JSON.stringify(p);
+      }
     }
     return config;
   },
@@ -154,10 +169,11 @@ service.interceptors.request.use(
 
 // 响应拦截器
 service.interceptors.response.use(
+  // 状态码正常返回200
   (response) => {
     const data = response.data;
     const config: resConfig = response.config;
-    if (data.err === 0) {
+    if (data.err === 0 || data.code === 0) {
       if (data.data && !config.noNeedEncryption) {
         data.data = JSON.parse(decrypt(data.data));
       }
@@ -182,6 +198,7 @@ service.interceptors.response.use(
     }
     return Promise.reject(data);
   },
+  // 状态码!===200
   (err) => {
     const res = err.response;
     if (err.code === "ECONNABORTED") {
