@@ -7,7 +7,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
-import { addCancelTokenSource, cancelAllRequests } from "./axiosCancel";
+// import { addCancelTokenSource, cancelAllRequests } from "./axiosCancel";
 
 import eventBus from "utils/eventBus";
 
@@ -38,7 +38,7 @@ type reqConfig = InternalAxiosRequestConfig<any> & IOption;
 type resConfig = AxiosRequestConfig<any> & IOption;
 
 function handleTokenErr() {
-  cancelAllRequests();
+  // cancelAllRequests();
   eventBus.emit("go-login");
 }
 
@@ -123,11 +123,11 @@ service.interceptors.request.use(
     config.url = baseURL + config.url;
 
     // 请求cancel
-    if (!config.noBeCancel) {
-      const source = axios.CancelToken.source();
-      addCancelTokenSource(source);
-      config.cancelToken = source.token;
-    }
+    // if (!config.noBeCancel) {
+    //   const source = axios.CancelToken.source();
+    //   addCancelTokenSource(source);
+    //   config.cancelToken = source.token;
+    // }
 
     // 请求数据处理
     if (!config.customData) {

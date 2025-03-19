@@ -122,7 +122,7 @@ async function init() {
     const list = await networkStore.getNodesDelay();
     if (list.length) {
       await userStore.getLoginInfo({ emitSocket: true }); // 个人信息
-      await Promise.all([
+      await Promise.allSettled([
         symbolsStore.getAllSymbol(),
         quotesStore.getAllSymbolQuotes(),
         rateStore.getAllRates(),
@@ -168,6 +168,7 @@ const handleVisibilityChange = () => {
 
 // 浏览器页面变化布局随之变化
 onMounted(() => {
+  console.log("onMounted");
   init();
   window.addEventListener("resize", resizeUpdate);
   document.addEventListener("visibilitychange", handleVisibilityChange);

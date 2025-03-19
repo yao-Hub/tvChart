@@ -7,7 +7,7 @@ import {
 import { createPermissionGuard } from "./guard/index";
 import routes from "./routes/index";
 
-import { cancelAllRequests } from "../utils/http/axiosCancel";
+// import { cancelAllRequests } from "../utils/http/axiosCancel";
 
 const router = createRouter({
   // vueRouter@3版本的mode改成了history，hash模式配置createWebHashHistory，history模式配置createWebHistory
@@ -19,7 +19,7 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  cancelAllRequests();
+  // cancelAllRequests();
   next();
 });
 
