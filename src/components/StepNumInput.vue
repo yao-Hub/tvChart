@@ -8,10 +8,20 @@
     :class="{ danger: valid }"
   >
     <template #prefix>
-      <BaseImg class="btn" iconName="icon_sub" @click="handleSubtract()" />
+      <BaseImg
+        v-if="!props.disabled"
+        class="btn"
+        iconName="icon_sub"
+        @click="handleSubtract()"
+      />
     </template>
     <template #suffix>
-      <BaseImg class="btn" iconName="icon_plus" @click="handleAdd()" />
+      <BaseImg
+        v-if="!props.disabled"
+        class="btn"
+        iconName="icon_plus"
+        @click="handleAdd()"
+      />
     </template>
   </el-input>
 </template>
@@ -69,7 +79,7 @@ const handleAdd = () => {
 .btn {
   width: 18px;
   height: 18px;
-  cursor: pointer;
+  // cursor: pointer;
   box-sizing: border-box;
   -moz-user-select: none;
   -o-user-select: none;

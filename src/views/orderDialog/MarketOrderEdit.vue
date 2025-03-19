@@ -30,7 +30,7 @@
                 :value="t(`order.${transactionType}`)"
               ></el-input>
             </el-form-item>
-            <el-form-item prop="volume" :label="t('dialog.closeVolume')">
+            <el-form-item prop="volume" :label="t('table.volume')">
               <div style="display: flex; width: 100%; gap: 16px">
                 <StepNumInput
                   :step="step"

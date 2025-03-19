@@ -76,7 +76,7 @@
             :symbolInfo="symbolInfo"
             :quote="quote"
             :orderType="formState.orderType"
-            :formOption="{ name: 'volume', label: t('dialog.closeVolume') }"
+            :formOption="{ name: 'volume', label: t('table.volume') }"
             :orderPrice="formState.orderPrice"
           ></Volume>
         </el-col>
