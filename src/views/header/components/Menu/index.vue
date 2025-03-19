@@ -8,7 +8,7 @@
     <div class="menu">
       <BaseImg
         :iconName="visible ? 'menuactive' : 'menu'"
-        @click="toggle(true)"
+        @click="toggle(!visible)"
       ></BaseImg>
     </div>
     <template #dropdown>

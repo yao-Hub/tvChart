@@ -201,15 +201,14 @@ export const useUser = defineStore("user", () => {
   }) => void;
 
   const login = async (updata: any, callback?: TCallback) => {
-    if (callback) {
-      callback({ ending: false, success: false });
-    }
+    callback && callback({ ending: false, success: false });
     const networkStore = useNetwork();
     networkStore.server = updata.server;
     const nodeList = await networkStore.getNodes(updata.server);
     if (nodeList.length === 0) {
       const t = i18n.global.t;
       ElMessage.info(t("tip.networkNodeNotFound"));
+      callback && callback({ ending: true, success: false });
       return Promise.reject();
     }
     // 选择连接延迟最低的网络节点
@@ -221,9 +220,7 @@ export const useUser = defineStore("user", () => {
       const orderList = sortBy(delayList, ["delay"]);
       const process = (index: number) => {
         if (index >= orderList.length) {
-          if (callback) {
-            callback({ ending: true, success: false });
-          }
+          callback && callback({ ending: true, success: false });
           return;
         }
         const webApi = orderList[index].url;
@@ -289,9 +286,7 @@ export const useUser = defineStore("user", () => {
       };
       process(0);
     } else {
-      if (callback) {
-        callback({ ending: true, success: false });
-      }
+      callback && callback({ ending: true, success: false });
     }
   };
 
