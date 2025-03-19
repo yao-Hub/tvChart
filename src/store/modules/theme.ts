@@ -2,6 +2,7 @@ import { useDark, useToggle } from "@vueuse/core";
 import { defineStore } from "pinia";
 import { ref, watch } from "vue";
 import { useChartInit } from "./chartInit";
+import { useStorage } from "./storage";
 
 type TsystemTheme = "light" | "dark"; // 系统主题
 type TupDownTheme = "upRedDownGreen" | "upGreenDownRed"; // 涨跌风格
@@ -53,10 +54,15 @@ export const useTheme = defineStore("theme", () => {
     document.documentElement.setAttribute("data-theme", systemTheme.value);
     localStorage.setItem("systemTheme", theme);
   };
+  const saveChartTheme = (id: string, theme: "light" | "dark") => {
+    const themeMap = useStorage().getItem("chartThemeMap") || {};
+    themeMap[id] = theme;
+    useStorage().setItem("chartThemeMap", themeMap);
+  };
   const changeChartTheme = () => {
     useChartInit().state.chartWidgetList.forEach((item) => {
       item.widget?.changeTheme(systemTheme.value);
-      localStorage.setItem("chartTheme", systemTheme.value);
+      saveChartTheme(item.id, systemTheme.value);
     });
   };
   const getUpDownTheme = () => {
@@ -169,6 +175,7 @@ export const useTheme = defineStore("theme", () => {
     getUpDownTheme,
     setUpDownTheme,
     getSystemTheme,
+    saveChartTheme,
     $reset,
   };
 });

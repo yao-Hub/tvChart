@@ -218,15 +218,14 @@ const happyStart = async (actionObject: string) => {
     const target = networkStore.queryTradeLines.find(
       (e) => e.lineName === formState.server
     );
+    formState.login = formState.login.trim();
     if (target) {
       await protocolAgree({
         columnCodes: ["privacy-policy", "service-article"],
         brokerName: target.brokerName,
         lineName: target.lineName,
-        login: formState.login.trim(),
-      }).catch((e) => {
-        loading.value = false;
-      });
+        login: formState.login,
+      }).catch(() => (loading.value = false));
     }
     userStore.login(formState, ({ ending, success }) => {
       loading.value = !ending;

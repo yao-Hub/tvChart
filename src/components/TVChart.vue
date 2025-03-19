@@ -14,6 +14,7 @@ import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { Ttime, useTime } from "@/store/modules/time";
 import { useTheme } from "@/store/modules/theme";
+import { useStorage } from "@/store/modules/storage";
 
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
@@ -232,7 +233,8 @@ const initonReady = () => {
         .setTimezone(timeStore.settedTimezone as Ttime);
 
       // canvas图表主题
-      const chart_theme = localStorage.getItem("chartTheme");
+      const storageThemeMap = useStorage().getItem("chartThemeMap") || {};
+      const chart_theme = storageThemeMap[props.chartId];
       const sysTheme = themeStore.systemTheme;
       if (chart_theme !== sysTheme) {
         widget.changeTheme(sysTheme as library.ThemeName);
