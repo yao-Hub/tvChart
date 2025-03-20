@@ -62,9 +62,15 @@
     width="486"
     :zIndex="dialogStore.zIndex"
     destroy-on-close
+    :show-close="false"
   >
-    <template #header>
-      <span class="header">{{ t("personalInformation") }}</span>
+    <template #header="{ close, titleId, titleClass }">
+      <div class="dialog_title">
+        <span :id="titleId" :class="titleClass">{{
+          t("personalInformation")
+        }}</span>
+        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+      </div>
     </template>
     <el-row>
       <el-col :span="24">

@@ -14,6 +14,7 @@ enum Api {
   ArticleDetails = "/admin/column/select_trade_column",
   ProtocolAgree = "/admin/protocol/protocol_agree",
   RefreshToken = "/login/refresh_token",
+  BalanceAdd = "/admin/my/balance_add",
 }
 export interface Order {
   id: number; //	订单ID
@@ -230,7 +231,7 @@ export const queryNode = (data: { lineCode: string; lineName: string }) => {
 // 1 注销 2 重置密码 不传：注册
 export interface IReqSendEmail {
   email: string;
-  type?: 1 | 2;
+  type?: number;
 }
 export const sendEmail = (data: IReqSendEmail) => {
   return request({
@@ -280,6 +281,22 @@ export const refresh_token = () => {
   return request<string>({
     url: Api.RefreshToken,
     method: "post",
+    needLogin: true,
+  });
+};
+
+interface IReqAddBalance {
+  lineName: string; //	交易线路
+  email: string; //	邮箱
+  verify_code: string; //	验证码
+  profit: number; //	入金金额
+}
+export const addBalance = (data: IReqAddBalance) => {
+  return request({
+    url: Api.BalanceAdd,
+    method: "post",
+    data,
+    urlType: "admin",
     needLogin: true,
   });
 };

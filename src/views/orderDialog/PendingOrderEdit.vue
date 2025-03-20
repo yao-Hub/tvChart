@@ -6,10 +6,16 @@
     width="464"
     v-model="model"
     @close="handleCancel"
+    :show-close="false"
     :zIndex="dialogStore.zIndex"
   >
-    <template #header>
-      <span class="dialog_header">ID: {{ props.orderInfo.id }}</span>
+    <template #header="{ close, titleId, titleClass }">
+      <div class="dialog_title">
+        <span :id="titleId" :class="titleClass"
+          >ID: {{ props.orderInfo.id }}</span
+        >
+        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+      </div>
     </template>
     <el-form :model="formState" ref="orderFormRef">
       <el-row :gutter="24">
@@ -373,11 +379,6 @@ const delOrder = debounce(
 }
 :deep(.el-row) {
   margin-top: 14px;
-}
-.dialog_header {
-  font-weight: bold;
-  font-size: 16px;
-  @include font_color("word");
 }
 .label {
   @include font_color("word-gray");

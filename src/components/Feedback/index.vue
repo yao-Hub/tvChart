@@ -7,9 +7,13 @@
     @close="onClose"
     append-to-body
     destroy-on-close
+    :show-close="false"
   >
-    <template #header>
-      <span class="header">{{ t("feedback") }}</span>
+    <template #header="{ close, titleId, titleClass }">
+      <div class="dialog_title">
+        <span :id="titleId" :class="titleClass">{{ t("feedback") }}</span>
+        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+      </div>
     </template>
 
     <el-input
@@ -193,12 +197,6 @@ const openMyfeedback = () => {
 </style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
-.header {
-  font-weight: bold;
-  font-size: 16px;
-  @include font_color("word");
-}
 :deep(.el-upload-list__item) {
   width: 56px;
   height: 56px;

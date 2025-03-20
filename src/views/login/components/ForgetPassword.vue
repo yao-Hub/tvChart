@@ -81,8 +81,6 @@ import { useNetwork } from "@/store/modules/network";
 
 import { PageEnum } from "@/constants/pageEnum";
 
-import VerificationCode from "./VerificationCode.vue";
-
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -158,7 +156,14 @@ const validatePass2 = (rule: any, value: any, callback: any) => {
 };
 
 const rules = reactive<FormRules<typeof formState>>({
-  email: [{ required: true, message: t("tip.emailRequired"), trigger: "blur" }],
+  email: [
+    { required: true, message: t("tip.emailRequired"), trigger: "blur" },
+    {
+      type: "email",
+      message: t("tip.correctEmail"),
+      trigger: ["blur", "change"],
+    },
+  ],
   code: [{ required: true, message: t("tip.codeRequired"), trigger: "blur" }],
   pass: [{ required: true, validator: validatePass, trigger: "blur" }],
   checkPass: [{ required: true, validator: validatePass2, trigger: "blur" }],

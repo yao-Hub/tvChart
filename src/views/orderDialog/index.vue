@@ -8,14 +8,20 @@
     :zIndex="dialogStore.zIndex"
     :modal="false"
     :close-on-click-modal="false"
+    :show-close="false"
     draggable
     overflow
     align-center
     modal-class="order_dialog_modal"
     @close="handleCancel"
   >
-    <template #header>
-      <span class="dialog_header">{{ t("dialog.createOrder") }}</span>
+    <template #header="{ close, titleId, titleClass }">
+      <div class="dialog_title">
+        <span :id="titleId" :class="titleClass">{{
+          t("dialog.createOrder")
+        }}</span>
+        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+      </div>
     </template>
 
     <el-form
@@ -517,10 +523,6 @@ const handleCancel = () => {
 }
 :deep(.el-form-item--default) {
   margin-bottom: 16px;
-}
-.dialog_header {
-  font-size: 18px;
-  font-weight: 500;
 }
 .divider {
   width: 100%;

@@ -207,7 +207,9 @@ export default {
     loginRequired: "請輸入帳户",
     termRequired: "請選擇期限",
     volumeRequired: "請輸入手數",
+    depositRequired: "請輸入金額",
     noLessNowTime: "時間不能小於當前時間",
+    correctEmail: "請輸入正確的電子郵寄地址",
     needLogin: "請登入",
     succeed: "{type}成功",
     failed: "{type}失敗",
@@ -366,6 +368,11 @@ export default {
     orderClose: "{volume}手{symbol}的訂單已關閉",
     pendingClosingSuccessfully: "删除掛單成功",
     upLoadFileExceed: "最多上傳{num}張圖片",
+  },
+
+  deposit: {
+    amount: "入金金額",
+    goOn: "繼續",
   },
 
   "refresh page": "刷新頁面",

@@ -5,9 +5,15 @@
     width="486"
     :zIndex="dialogStore.zIndex"
     @close="onClose"
+    :show-close="false"
   >
-    <template #header>
-      <span class="header">{{ t("account.resetPassword") }}</span>
+    <template #header="{ close, titleId, titleClass }">
+      <div class="dialog_title">
+        <span :id="titleId" :class="titleClass">{{
+          t("account.resetPassword")
+        }}</span>
+        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+      </div>
     </template>
     <div class="Reset">
       <div class="Reset_title">
@@ -32,6 +38,8 @@
           <el-input
             v-model="formState.oldpass"
             autocomplete="off"
+            type="password"
+            show-password
             :placeholder="t('tip.enterOldPwd')"
           />
         </el-form-item>
@@ -43,6 +51,7 @@
             v-model="formState.pass"
             type="password"
             autocomplete="off"
+            show-password
             :placeholder="t('tip.enterNewPwd')"
           />
         </el-form-item>
@@ -52,6 +61,7 @@
             v-model="formState.checkPass"
             type="password"
             autocomplete="off"
+            show-password
             :placeholder="t('tip.confirm', { type: t('account.password') })"
           />
         </el-form-item>
@@ -59,8 +69,8 @@
         <el-form-item>
           <el-button
             type="primary"
-            style="width: 72px; height: 40px"
             @click="submit(formRef)"
+            style="width: 100%"
             >{{ t("tip.confirm", { type: t("modify") }) }}</el-button
           >
         </el-form-item>
@@ -184,14 +194,8 @@ onUnmounted(() => {
 @import "@/styles/_handle.scss";
 @import "../form.scss";
 
-.header {
-  font-weight: bold;
-  font-size: 16px;
-  @include font_color("word");
-}
-
 .Reset {
-  padding: 32px 56px;
+  padding: 32px 0;
   width: 100%;
   box-sizing: border-box;
   &_title {

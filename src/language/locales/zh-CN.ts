@@ -207,6 +207,8 @@ export default {
     loginRequired: "请输入账号",
     termRequired: "请选择期限",
     volumeRequired: "请输入手数",
+    depositRequired: "请输入金额",
+    correctEmail: "请输入正确的电子邮件地址",
     noLessNowTime: "时间不能小于当前时间",
     needLogin: "请登录",
     succeed: "{type}成功",
@@ -365,6 +367,11 @@ export default {
     orderClose: "{volume}手{symbol}的订单已关闭",
     pendingClosingSuccessfully: "删除挂单成功",
     upLoadFileExceed: "最多上传{num}张图片",
+  },
+
+  deposit: {
+    amount: "入金金额",
+    goOn: "继续",
   },
 
   "refresh page": "刷新页面",

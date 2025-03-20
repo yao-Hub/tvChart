@@ -4,9 +4,13 @@
     v-model="model"
     width="486"
     :zIndex="dialogStore.zIndex"
+    :show-close="false"
   >
-    <template #header>
-      <span class="header">{{ t("myFeedback") }}</span>
+    <template #header="{ close, titleId, titleClass }">
+      <div class="dialog_title">
+        <span :id="titleId" :class="titleClass">{{ t("myFeedback") }}</span>
+        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+      </div>
     </template>
     <el-scrollbar v-loading="loading" class="commentList">
       <div
@@ -108,12 +112,6 @@ const formatTime = (time: number) => {
   word-break: break-all;
   line-height: 20px;
 }
-.header {
-  font-weight: bold;
-  font-size: 16px;
-  @include font_color("word");
-}
-
 .grayWord {
   @include font_color("word-gray");
 }

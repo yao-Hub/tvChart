@@ -25,9 +25,13 @@
     width="900"
     :zIndex="dialogStore.zIndex"
     :footer="null"
+    :show-close="false"
   >
-    <template #header>
-      <span class="title">{{ rowData.symbol }}</span>
+    <template #header="{ close, titleId, titleClass }">
+      <div class="dialog_title">
+        <span :id="titleId" :class="titleClass">{{ rowData.symbol }}</span>
+        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+      </div>
     </template>
     <div v-loading="loading" v-if="!ifError" class="container">
       <div class="infoDetail">

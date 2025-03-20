@@ -186,6 +186,7 @@
               "
               >{{ t("table.cancelAllOrders") }}</el-button
             >
+            <Deposit v-show="activeKey === 'blanceRecord'"></Deposit>
           </div>
         </div>
       </HorizontalScrolling>
@@ -447,6 +448,7 @@ import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
 import DataPicker from "./components/DataPicker.vue";
 import TimeRange from "./components/TimeRange.vue";
+import Deposit from "./components/Deposit.vue";
 
 const { t } = useI18n();
 

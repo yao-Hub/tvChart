@@ -60,6 +60,7 @@ declare module 'vue' {
     SymbolSelect: typeof import('./src/components/SymbolSelect.vue')['default']
     TabItem: typeof import('./src/components/BaseTabs/tabItem.vue')['default']
     TVChart: typeof import('./src/components/TVChart.vue')['default']
+    VerificationCode: typeof import('./src/components/VerificationCode.vue')['default']
     ZhCn: typeof import('./src/components/Disclaimers/Zh-Cn.vue')['default']
     ZhTw: typeof import('./src/components/Disclaimers/Zh-Tw.vue')['default']
   }

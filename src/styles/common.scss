@@ -301,3 +301,19 @@ body {
 .loading {
   animation: rotate 1s linear infinite;
 }
+
+.dialog_title {
+  font-size: 18px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  .closeBtn {
+    cursor: pointer;
+  }
+  // position: absolute;
+  // height: 48px;
+  // top: 0;
+  // line-height: 48px;
+  // @include font_color("word");
+}

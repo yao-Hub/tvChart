@@ -6,12 +6,18 @@
       align-center
       width="464"
       v-model="model"
+      :show-close="false"
       :zIndex="dialogStore.zIndex"
       draggable
       @close="handleCancel"
     >
-      <template #header>
-        <span class="dialog_header">ID: {{ props.orderInfo.id }}</span>
+      <template #header="{ close, titleId, titleClass }">
+        <div class="dialog_title">
+          <span :id="titleId" :class="titleClass"
+            >ID: {{ props.orderInfo.id }}</span
+          >
+          <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+        </div>
       </template>
       <div class="container">
         <div class="container_top">
@@ -492,11 +498,6 @@ const handleCancel = () => {
 }
 .down {
   @include background_color("downLight");
-}
-.dialog_header {
-  font-weight: bold;
-  font-size: 16px;
-  @include font_color("word");
 }
 
 .container {

@@ -12,12 +12,10 @@
     append-to-body
     :show-close="false"
   >
-    <template #header>
-      <div class="header">
-        <span class="title">{{ t("aboutUs") }}</span>
-        <el-icon class="icon" @click="open = false">
-          <CloseBold />
-        </el-icon>
+    <template #header="{ close, titleId, titleClass }">
+      <div class="dialog_title">
+        <span :id="titleId" :class="titleClass">{{ t("aboutUs") }}</span>
+        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
       </div>
     </template>
     <el-row>

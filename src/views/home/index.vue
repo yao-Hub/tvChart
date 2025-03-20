@@ -120,6 +120,7 @@ async function init() {
     await useInit().init();
     await networkStore.initNode(); // 网络节点
     const list = await networkStore.getNodesDelay();
+    console.log("list", list);
     if (list.length) {
       await userStore.getLoginInfo({ emitSocket: true }); // 个人信息
       await Promise.allSettled([

@@ -98,8 +98,6 @@ import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import VerificationCode from "./VerificationCode.vue";
-
 import { protocolAgree, register } from "api/account/index";
 
 import { useNetwork } from "@/store/modules/network";
@@ -143,6 +141,11 @@ const rules = reactive<FormRules<typeof formState>>({
       required: true,
       trigger: "blur",
       message: t("tip.emailRequired"),
+    },
+    {
+      type: "email",
+      message: t("tip.correctEmail"),
+      trigger: ["blur", "change"],
     },
   ],
   code: [

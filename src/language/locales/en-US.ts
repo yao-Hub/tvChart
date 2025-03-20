@@ -201,7 +201,9 @@ export default {
     serverRequired: "Please select tradingRoute!",
     loginRequired: "Please input login!",
     termRequired: "Please select term",
+    depositRequired: "Please enter the amount",
     noLessNowTime: "The time cannot be less than the current time",
+    correctEmail: "Please input correct email addres",
     needLogin: "Please Login",
     failed: "{type} Failed",
     succeed: "{type} Succeed",
@@ -366,5 +368,10 @@ export default {
     positionClosingFailed: "Position Closing Failed",
     orderClose: "The order of {volume} lots of {symbol} has been closed",
     pendingClosingSuccessfully: "Pending Closing Successfully",
+  },
+
+  deposit: {
+    amount: "Deposit Amount",
+    goOn: "continue",
   },
 };
