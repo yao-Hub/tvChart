@@ -46,9 +46,13 @@ import { useOrder } from "@/store/modules/order";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
-const systemReload = debounce(() => {
-  window.location.reload();
-}, 200);
+const systemReload = debounce(
+  () => {
+    window.location.reload();
+  },
+  200,
+  { leading: true }
+);
 
 // @ts-ignore
 const ifElectron = ELECTRON_PLATFORM;
