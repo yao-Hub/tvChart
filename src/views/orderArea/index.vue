@@ -186,13 +186,13 @@
               "
               >{{ t("table.cancelAllOrders") }}</el-button
             >
-            <Deposit v-show="activeKey === 'blanceRecord'"></Deposit>
+            <Deposit v-show="activeKey === 'blanceRecord' && useNetwork().currentLine?.isOfficial === '1'"></Deposit>
           </div>
         </div>
       </HorizontalScrolling>
 
       <el-auto-resizer
-        style="height: calc(100% - var(--component-size) - 1px - 4px - 40px)"
+        style="height: calc(100% - var(--component-size) - 1px - 4px)"
       >
         <template #default="{ height, width }">
           <el-table-v2
@@ -778,6 +778,7 @@ const getOrderPrice = (e: orders.resPendingOrders) => {
 
 // 交易历史盈亏合计位置
 import { watch } from "vue";
+import { useNetwork } from "@/store/modules/network";
 const MOHFWidth = ref("");
 const tableXScroll = ref(0);
 type ScrollParams = {

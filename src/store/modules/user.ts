@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 
 import i18n from "@/language/index";
 import { ElMessage } from "element-plus";
-import { assign, debounce, get, sortBy } from "lodash";
+import { assign, get, sortBy } from "lodash";
 import CryptoJS from "utils/AES";
 import dayjs from "dayjs";
 
@@ -135,27 +135,69 @@ export const useUser = defineStore("user", () => {
     storageAccount();
   };
 
-  const getLoginInfo = debounce(
-    async (params?: { emitSocket?: boolean }) => {
-      const res = await loginInfo({
-        login: account.value.login,
-      });
-      state.loginInfo = res.data;
-      changeCurrentAccountOption({
-        blance: res.data.balance ?? "-",
-        currency: res.data.currency ?? "-",
-      });
-      if (params && params.emitSocket) {
-        const socketStore = useSocket();
-        socketStore.sendToken({
-          login: res.data.login,
-          token: account.value.token,
-        });
+  interface IGetInfo {
+    emitSocket?: boolean;
+    leading?: boolean;
+    trailing?: boolean;
+    wait?: number;
+  }
+  const getLoginInfo = (() => {
+    let timeout: NodeJS.Timeout | null = null;
+    let lastArgs: IGetInfo | undefined; // 保存最新参数
+    let hasExecutedLeading = false; // 标记是否已执行leading
+
+    return async (params?: IGetInfo) => {
+      const leading = params?.leading ?? false;
+      const trailing = params?.trailing ?? true;
+      const wait = params?.wait ?? 1200;
+
+      lastArgs = params; // 始终保存最新参数
+
+      // 清除之前的计时器
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = null;
       }
-    },
-    1200,
-    { leading: false, trailing: true }
-  );
+
+      // 处理 leading 边缘
+      if (leading && !hasExecutedLeading) {
+        hasExecutedLeading = true;
+        await executeLogic(lastArgs);
+      }
+
+      // 设置 trailing 边缘
+      if (trailing) {
+        timeout = setTimeout(async () => {
+          // 使用最后一次的参数执行
+          if (trailing && (!leading || !hasExecutedLeading)) {
+            await executeLogic(lastArgs);
+          }
+          // 重置状态
+          hasExecutedLeading = false;
+          timeout = null;
+        }, wait);
+      }
+    };
+  })();
+
+  async function executeLogic(params?: IGetInfo) {
+    // 实际业务逻辑
+    const res = await loginInfo({
+      login: account.value.login,
+    });
+    state.loginInfo = res.data;
+    changeCurrentAccountOption({
+      blance: res.data.balance ?? "-",
+      currency: res.data.currency ?? "-",
+    });
+    if (params && params.emitSocket) {
+      const socketStore = useSocket();
+      socketStore.sendToken({
+        login: res.data.login,
+        token: account.value.token,
+      });
+    }
+  }
 
   const addAccount = (data: AccountListItem) => {
     state.accountList.forEach((item) => {
