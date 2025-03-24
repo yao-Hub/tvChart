@@ -75,6 +75,7 @@ export interface UserInfo {
   equity: number; //	净值
   openning_orders: Order[];
   symbols_limit: string | null;
+  email: string | null;
 }
 
 export interface reqLogin {

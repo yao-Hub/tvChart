@@ -155,7 +155,7 @@ interface FormState {
 }
 const emailForm = reactive<FormState>({
   code: "",
-  email: "",
+  email: useUser().state.loginInfo?.email || "",
 });
 const emailFormRef = ref<FormInstance>();
 const emailRules = reactive<FormRules<typeof emailForm>>({
