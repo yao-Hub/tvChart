@@ -185,9 +185,17 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 默认商品（初始化的商品）
   function getDefaultSymbol() {
-    const firstSymbol = symbolStore.symbols[0]?.symbol;
+    const firstSymbol = symbolStore.symbols_tradeAllow[0]?.symbol;
     const chartSymbol = getChartSymbol(state.activeChartId);
-    return chartSymbol || firstSymbol;
+    if (chartSymbol) {
+      const index = symbolStore.symbols_tradeAllow.findIndex(
+        (e) => e.symbol === chartSymbol
+      );
+      if (index > -1) {
+        return chartSymbol;
+      }
+    }
+    return firstSymbol;
   }
 
   // 设置图表显示商品

@@ -21,7 +21,6 @@ if (!gotTheLock) {
 
   // 创建主窗口
   function createWindow() {
-    const isPro = process.env.NODE_ENV === 'production';
 
     const { width: sw } = screen.getPrimaryDisplay().workAreaSize;
 
@@ -38,26 +37,22 @@ if (!gotTheLock) {
         preload: path.join(__dirname, "preload.js"), // 预加载脚本
         contextIsolation: true, // 启用上下文隔离
         nodeIntegration: false, // 禁用 Node.js 集成（推荐）
-        // devTools: !isPro,
       },
     });
+
+    mainWindow.setMenuBarVisibility(false);
 
     // 在 macOS 系统中全局去除菜单栏
     if (process.platform === 'darwin') {
       Menu.setApplicationMenu(null);
-    } else if (process.env.NODE_ENV === "production") {
-      mainWindow.setMenu(null);
     }
 
     if (process.env.NODE_ENV === "development") {
       mainWindow.loadURL("http://localhost:8080");
+      mainWindow.webContents.openDevTools(); // 打开开发者工具
     } else {
       // 生产环境：加载打包后的文件
       mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
-    }
-
-    if (process.env.NODE_ENV !== "production") {
-      mainWindow.webContents.openDevTools(); // 打开开发者工具
     }
   }
 
