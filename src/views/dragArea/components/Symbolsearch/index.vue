@@ -92,6 +92,9 @@ const allSymbols = computed(() => {
 
 const pathLoading = ref(false);
 onMounted(async () => {
+  if (symbolsStore.symbolPaths.length) {
+    return;
+  }
   pathLoading.value = true;
   await symbolsStore.getPath();
   pathLoading.value = false;

@@ -34,15 +34,9 @@ export const useChartLine = defineStore("chartLine", {
   },
   actions: {
     updateSubscribed(UID: string, data: Tbar) {
-      setTimeout(() => {
-        if (this.subscribed[UID]) {
-          try {
-            this.subscribed[UID].onRealtimeCallback(data);
-          } catch (error) {
-            console.log(error);
-          }
-        }
-      });
+      if (this.subscribed[UID]) {
+        this.subscribed[UID].onRealtimeCallback(data);
+      }
     },
 
     initSubLineAndQuote() {
