@@ -3,7 +3,13 @@ import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 
 import { ISessionSymbolInfo } from "@/types/chart";
-import { allSymbols, optionalQuery, reqOptionalQuery } from "api/symbols/index";
+import {
+  allSymbols,
+  optionalQuery,
+  reqOptionalQuery,
+  symbolAllPath,
+  resSymbolAllPath,
+} from "api/symbols/index";
 
 import { useOrder } from "./order";
 import { useQuotes } from "./quotes";
@@ -26,6 +32,8 @@ export const useSymbols = defineStore("symbols", () => {
 
   // 图表的商品
   const chartSymbols = ref<string[]>([]);
+
+  const symbolPaths = ref<resSymbolAllPath[]>([]);
 
   // 可交易商品
   const symbols_tradeAllow = computed(() => {
@@ -63,6 +71,12 @@ export const useSymbols = defineStore("symbols", () => {
   // 排序自选商品
   const mySymbols_sort = computed(() => {
     return orderBy(mySymbols.value, ["sort"]);
+  });
+
+  // 获取分类
+  const getPath = debounce(async () => {
+    const res = await symbolAllPath();
+    symbolPaths.value = res.data || [];
   });
 
   // 订单区域涉及的商品
@@ -121,6 +135,7 @@ export const useSymbols = defineStore("symbols", () => {
     selectSymbols.value = [];
     chartSymbols.value = [];
     orderSymbols.value = [];
+    symbolPaths.value = [];
   }
 
   return {
@@ -133,6 +148,8 @@ export const useSymbols = defineStore("symbols", () => {
     mySymbols_sort,
     symbols_tradeAllow,
     haveQuoteSymbols,
+    getPath,
+    symbolPaths,
     $reset,
   };
 });

@@ -1,14 +1,14 @@
 <template>
-  <div v-loading="listState.loading" class="searchList">
+  <div v-loading="pathLoading" class="searchList">
     <el-scrollbar v-if="!input && !showSymbols">
-      <el-empty v-if="!listState.menu.length" :image-size="80">
+      <el-empty v-if="!symbolsStore.symbolPaths.length" :image-size="80">
         <template #image>
           <BaseImg iconName="icon_empty"></BaseImg>
         </template>
       </el-empty>
       <Block
         v-else
-        v-for="item in listState.menu"
+        v-for="item in symbolsStore.symbolPaths"
         v-show="getTotal(item.type) > 0"
         :title="item.value"
         type="count"
@@ -67,7 +67,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import Block from "./Block.vue";
 
@@ -90,52 +90,34 @@ const allSymbols = computed(() => {
   });
 });
 
-// 分类、
-import { resSymbolAllPath, symbolAllPath } from "api/symbols/index";
-const listState = reactive({
-  menu: [] as Array<any>,
-  pathMap: {} as Record<string, SymbolListItem[]>,
-  loading: false,
-});
-
+const pathLoading = ref(false);
 onMounted(async () => {
-  try {
-    listState.loading = true;
-    // 获取分类
-    const allPathRes = await symbolAllPath();
-    listState.menu = allPathRes.data;
-    listState.loading = false;
-  } catch (error) {
-    listState.loading = false;
-  }
+  pathLoading.value = true;
+  await symbolsStore.getPath();
+  pathLoading.value = false;
 });
 
-// 具体分类
-watch(
-  () => [allSymbols.value, listState.menu],
-  ([symbols, menu]) => {
-    if (symbols.length && menu.length) {
-      menu.forEach((item: resSymbolAllPath) => {
-        listState.pathMap[item.type] = symbols.filter((symbol) =>
-          symbol.path.includes(item.type)
-        );
-      });
-    }
-  },
-  { deep: true }
-);
+const pathMap = computed(() => {
+  const result: Record<string, SymbolListItem[]> = {};
+  symbolsStore.symbolPaths.forEach((item) => {
+    result[item.type] = allSymbols.value.filter((symbol) =>
+      symbol.path.includes(item.type)
+    );
+  });
+  return result;
+});
 
 // 获取各个分类的总数
 const getTotal = (type: string) => {
-  if (listState.pathMap[type]) {
-    return listState.pathMap[type].length;
+  if (pathMap.value[type]) {
+    return pathMap.value[type].length;
   }
   return 0;
 };
 // 各个分类下的已选商品数量
 const getCount = (type: string) => {
-  if (listState.pathMap[type]) {
-    const filterList = listState.pathMap[type].filter((item: any) => {
+  if (pathMap.value[type]) {
+    const filterList = pathMap.value[type].filter((item: any) => {
       const index = symbolsStore.mySymbols.findIndex(
         (e) => e.symbol === item.symbol
       );
@@ -156,8 +138,11 @@ const currentPath = ref("");
 const currentType = ref("");
 // 从分类进入详情列表
 const getSymbolsDetail = (type: string) => {
-  currentPath.value = listState.menu.find((e) => e.type === type).value;
-  pathSymbols.value = listState.pathMap[type];
+  const target = symbolsStore.symbolPaths.find((e) => e.type === type);
+  if (target) {
+    currentPath.value = target.value;
+  }
+  pathSymbols.value = pathMap.value[type];
   showSymbols.value = true;
   currentType.value = type;
 };
