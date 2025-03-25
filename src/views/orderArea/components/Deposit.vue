@@ -96,9 +96,13 @@
         <el-button @click="state = 'amount'" class="btn">{{
           t("back")
         }}</el-button>
-        <el-button type="primary" @click="goOn(emailFormRef)" class="btn">{{
-          t("deposit.goOn")
-        }}</el-button>
+        <el-button
+          type="primary"
+          @click="goOn(emailFormRef)"
+          class="btn"
+          :loading="loading"
+          >{{ t("deposit.goOn") }}</el-button
+        >
       </div>
     </el-dialog>
   </div>
@@ -109,7 +113,10 @@ import { computed, reactive, ref } from "vue";
 import type { FormInstance, FormRules } from "element-plus";
 import { ElNotification } from "element-plus";
 import { useI18n } from "vue-i18n";
+import { get } from "lodash";
+import dayjs from "dayjs";
 
+import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 import { addBalance } from "api/account/index";
 
 import { useDialog } from "@/store/modules/dialog";
@@ -211,6 +218,8 @@ const goOn = (formEl: FormInstance | undefined) => {
   formEl.validate(async (valid) => {
     if (valid) {
       loading.value = true;
+
+      let errmsg = "";
       try {
         await addBalance({
           lineName: useNetwork().server,
@@ -224,8 +233,29 @@ const goOn = (formEl: FormInstance | undefined) => {
         handleCancel();
         visabled.value = false;
         useOrder().getData("balance_order_added");
+      } catch (error) {
+        errmsg =
+          get(error, "errmsg") ||
+          get(error, "message") ||
+          JSON.stringify(error);
       } finally {
         loading.value = false;
+
+        const login = useUser().account.login;
+        const logErr = errmsg ? `error ${errmsg}` : "";
+        const detail = `${login}: deposit ${amountForm.amount} ${loginInfo.value?.currency} ${logErr}`;
+        const logData = {
+          logType: errmsg ? "error" : "info",
+          logName: "deposit",
+          detail,
+          id: new Date().getTime(),
+          origin: "trades",
+          time: dayjs().format("YYYY.MM.DD HH:mm:ss.SSS"),
+          login,
+          day: dayjs().format("YYYY.MM.DD"),
+        };
+        await logIndexedDB.addData(logData);
+        useOrder().getData("log");
       }
     }
   });
