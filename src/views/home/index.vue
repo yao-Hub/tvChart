@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { onBeforeRouteLeave } from "vue-router";
 
@@ -96,10 +96,16 @@ const initRender = () => {
   //   rootStore.clearCacheAction();
   // }
   chartInitStore.state.loading = false;
-  setTimeout(() => {
+  setTimeout(async () => {
     // 初始化各个模块位置
     initDragResizeArea();
-  }, 600);
+    await nextTick();
+    Promise.all([
+      quotesStore.getAllSymbolQuotes(),
+      rateStore.getAllRates(),
+      orderStore.initTableData(),
+    ]);
+  });
 };
 
 /** 初始化 注意调用顺序
@@ -122,12 +128,7 @@ async function init() {
     const list = await networkStore.getNodesDelay();
     if (list.length) {
       await userStore.getLoginInfo({ emitSocket: true, leading: true }); // 个人信息
-      await Promise.allSettled([
-        symbolsStore.getAllSymbol(),
-        quotesStore.getAllSymbolQuotes(),
-        rateStore.getAllRates(),
-        orderStore.initTableData(),
-      ]);
+      await symbolsStore.getAllSymbol();
       userStore.refreshToken(); // 倒计时刷新token
     }
   } finally {

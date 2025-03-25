@@ -9,9 +9,9 @@
         {{ t("order.new") }}
       </el-button>
       <div class="tools">
-        <div class="tool_item iconbox" v-if="ifElectron">
+        <div class="tool_item iconbox" v-if="ifElectron" @click="systemReload">
           <el-tooltip :content="t('refresh page')">
-            <BaseImg iconName="refresh" @click="systemReload" />
+            <BaseImg iconName="refresh" />
           </el-tooltip>
         </div>
         <div class="tool_item tools_1">
@@ -33,7 +33,6 @@
 </template>
 
 <script setup lang="ts">
-import { debounce } from "lodash";
 import Account from "./components/Account.vue";
 import ChartLayouts from "./components/ChartLayouts.vue";
 import CreateChart from "./components/CreateChart.vue";
@@ -46,13 +45,7 @@ import { useOrder } from "@/store/modules/order";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
-const systemReload = debounce(
-  () => {
-    window.location.reload();
-  },
-  200,
-  { leading: true }
-);
+const systemReload = () => window.location.reload();
 
 // @ts-ignore
 const ifElectron = ELECTRON_PLATFORM;
