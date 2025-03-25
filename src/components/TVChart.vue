@@ -199,8 +199,16 @@ const initonReady = () => {
       widget
         .activeChart()
         .onSymbolChanged()
-        .subscribe(null, () => {
+        .subscribe({}, () => {
           chartInitStore.state.activeChartId = props.chartId;
+          // 图表撤回操作会触发这个哦
+          const newSymbol = widget.activeChart().symbol();
+          const target = chartInitStore.state.chartWidgetList.find(
+            (e) => e.id === props.chartId
+          );
+          if (target && target.symbol !== newSymbol) {
+            target.symbol = newSymbol;
+          }
         });
 
       // 监听周期变化
@@ -208,7 +216,15 @@ const initonReady = () => {
         .activeChart()
         .onIntervalChanged()
         .subscribe(null, (interval) => {
+          console.log(interval);
           chartInitStore.state.activeChartId = props.chartId;
+          // 图表撤回操作会触发这个哦
+          const target = chartInitStore.state.chartWidgetList.find(
+            (e) => e.id === props.chartId
+          );
+          if (target && target.interval !== interval) {
+            target.interval = interval;
+          }
         });
 
       // 监听鼠标按下
