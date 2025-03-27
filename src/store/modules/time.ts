@@ -26,7 +26,7 @@ export const useTime = defineStore("time", () => {
   const value = i18n.global.locale.value;
 
   const initTime = () => {
-    const userTimezone = storageStore.getItem("timezone") || dayjs.tz.guess();
+    const userTimezone = storageStore.getItem("timezone") || "Asia/Shanghai";
     // 日期语言
     if (value === "en") {
       dayjs.locale("en");

@@ -1,6 +1,7 @@
 const { app, BrowserWindow, screen, Menu } = require('electron');
 const path = require('path');
-
+const userDataPath = path.join(app.getPath('userData'), 'dev');
+app.setPath('userData', userDataPath);
 let mainWindow;
 
 // 尝试获取单实例锁
