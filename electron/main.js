@@ -26,17 +26,30 @@ if (!gotTheLock) {
   // 创建主窗口
   function createWindow() {
 
-    const { width: sw } = screen.getPrimaryDisplay().workAreaSize;
+    const { width: sw, height: sh } = screen.getPrimaryDisplay().workAreaSize;
 
-    const windowMap = {
-      width: sw && sw >= 2560 ? 1980 : 1600,
-      height: sw && sw >= 2560 ? 1080 : 900,
-    };
+    const platform = process.platform;
+
+    const screenMap = () => {
+      switch (platform) {
+        case "darwin":
+          return {
+            height: sw && sw >= 2560 ? 1080 : 800,
+            width: sw && sw >= 2560 ? 1980 : 1400,
+          }
+        default:
+          return {
+            height: sw && sw >= 2560 ? 1080 : 900,
+            width: sw && sw >= 2560 ? 1980 : 1600,
+          }
+      }
+    }
+
 
     // 创建浏览器窗口
     mainWindow = new BrowserWindow({
-      width: windowMap.width,
-      height: windowMap.height,
+      width: screenMap().width,
+      height: screenMap().height,
       webPreferences: {
         preload: path.join(__dirname, "preload.js"), // 预加载脚本
         contextIsolation: true, // 启用上下文隔离
