@@ -47,8 +47,7 @@ const { t } = useI18n();
 
 const systemReload = () => window.location.reload();
 
-// @ts-ignore
-const ifElectron = ELECTRON_PLATFORM;
+const ifElectron = process.env.IF_ELECTRON;
 </script>
 
 <style lang="scss">

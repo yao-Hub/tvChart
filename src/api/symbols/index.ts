@@ -2,7 +2,7 @@ import { IQuote, IRate, ISessionSymbolInfo } from "@/types/chart";
 import request from "utils/http";
 
 enum Api {
-  allSymbols = "/symbol/all_symbols",
+  Symbols = "/symbol/all_symbols",
   allSymbolsQuotes = "/quote/all_symbol_quotes",
   SymbolAllPath = "/admin/symbol/all_path",
   MySymbols = "/admin/my/optional_query",
@@ -20,9 +20,10 @@ export interface TimeInfo {
   btime: number;
   etime: number;
 }
-export const allSymbols = () => {
+export const getAllSymbol = (data: { group: string }) => {
   return request<ISessionSymbolInfo[]>({
-    url: Api.allSymbols,
+    url: Api.Symbols,
+    data,
     noNeedToken: true,
     method: "post",
     needLogin: true,
@@ -54,8 +55,9 @@ export const alllRates = () => {
 // 根据商品编码查询商品信息;
 interface IOneSymbol {
   symbol: string;
+  group: string;
 }
-export const symbolDetail = (data: IOneSymbol) => {
+export const getSymbolDetail = (data: IOneSymbol) => {
   return request<ISessionSymbolInfo>({
     url: Api.SymbolDetail,
     method: "post",

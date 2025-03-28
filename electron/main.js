@@ -1,7 +1,10 @@
-const { app, BrowserWindow, screen, Menu } = require('electron');
+const { app, BrowserWindow, screen, Menu, ipcMain, net } = require('electron');
 const path = require('path');
+
+// 不同环境设置打包路径
 const userDataPath = path.join(app.getPath('userData'), 'dev');
 app.setPath('userData', userDataPath);
+
 let mainWindow;
 
 // 尝试获取单实例锁
@@ -37,7 +40,7 @@ if (!gotTheLock) {
       webPreferences: {
         preload: path.join(__dirname, "preload.js"), // 预加载脚本
         contextIsolation: true, // 启用上下文隔离
-        nodeIntegration: false, // 禁用 Node.js 集成（推荐）
+        nodeIntegration: true, // 禁用 Node.js 集成（推荐false）
       },
     });
 
@@ -70,3 +73,47 @@ if (!gotTheLock) {
     if (process.platform !== 'darwin') app.quit();
   });
 }
+
+const fs = require('fs');
+const activeDownloads = new Map();
+ipcMain.on('start-download', (event, { url, savePath }) => {
+  const request = net.request(url);
+  let receivedBytes = 0;
+  let totalBytes = 0;
+
+  request.on('response', (response) => {
+    activeDownloads.set(url, request);
+    totalBytes = parseInt(response.headers['content-length'], 10) || 0;
+
+    response.on('data', (chunk) => {
+      receivedBytes += chunk.length;
+      // 发送进度更新到渲染进程
+      event.sender.send('download-progress', {
+        progress: totalBytes > 0 ? (receivedBytes / totalBytes * 100).toFixed(2) : 0,
+        received: receivedBytes,
+        total: totalBytes
+      });
+    });
+
+    response.on('end', () => {
+      event.sender.send('download-complete', { path: savePath });
+    });
+
+    response.on('error', (error) => {
+      event.sender.send('download-error', error.message);
+    });
+  });
+
+  // 创建可写流保存文件
+  const fileStream = fs.createWriteStream(savePath);
+  request.pipe(fileStream);
+  request.end();
+});
+
+ipcMain.on('cancel-download', (event, url) => {
+  const request = activeDownloads.get(url);
+  if (request) {
+    request.abort();
+    activeDownloads.delete(url);
+  }
+});

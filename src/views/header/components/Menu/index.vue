@@ -39,6 +39,9 @@
         <div class="dropdownbox_item">
           <ClearCache></ClearCache>
         </div>
+        <div class="dropdownbox_item" v-if="ifElectron">
+          <CheckUpdate @closeDropdown="toggle(false)"></CheckUpdate>
+        </div>
       </div>
     </template>
   </el-dropdown>
@@ -54,6 +57,7 @@ import OneTransactions from "./oneTransactions.vue";
 import sendFeedback from "./sendFeedback.vue";
 import Theme from "./theme.vue";
 import ClearCache from "./clearCache.vue";
+import CheckUpdate from "./checkUpdate.vue";
 
 const visible = ref(false);
 
@@ -69,6 +73,8 @@ function toggle(visible: boolean) {
     dropdown.value.handleClose();
   }
 }
+
+const ifElectron = process.env.IF_ELECTRON;
 </script>
 
 <style lang="scss" scoped>

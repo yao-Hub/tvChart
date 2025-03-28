@@ -466,8 +466,8 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.time"),
       dataKey: "dayId",
       key: "dayId",
-      width: 190,
-      minWidth: 190,
+      width: 200,
+      minWidth: 200,
       align: "left",
     },
     {

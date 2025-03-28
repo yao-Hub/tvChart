@@ -12,6 +12,7 @@ export default {
   feedback: "意见反馈",
   upload: "上传",
   clearCache: "清除缓存",
+  checkUpdate: "检查更新",
 
   shortcutkey: "快捷键",
 
@@ -372,6 +373,15 @@ export default {
   deposit: {
     amount: "入金金额",
     goOn: "继续",
+  },
+
+  update: {
+    mustUpdate: "必须更新以继续使用",
+    updateNow: "立即更新",
+    versionUpdate: "版本更新",
+    versionHasReleased: "新版本{version}已发布",
+    versionHasLatest: "当前版本{version}已是最新版本",
+    getUpdate: "获取更新",
   },
 
   "refresh page": "刷新页面",

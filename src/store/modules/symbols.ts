@@ -4,7 +4,7 @@ import { computed, ref, watch } from "vue";
 
 import { ISessionSymbolInfo } from "@/types/chart";
 import {
-  allSymbols,
+  getAllSymbol,
   optionalQuery,
   reqOptionalQuery,
   symbolAllPath,
@@ -57,9 +57,13 @@ export const useSymbols = defineStore("symbols", () => {
   });
 
   // 全部商品
-  const getAllSymbol = async () => {
-    const res = await allSymbols();
-    symbols.value = res.data || [];
+  const getSymbols = async () => {
+    const loginInfo = useUser().state.loginInfo;
+    if (loginInfo) {
+      const res = await getAllSymbol({ group: loginInfo.group });
+      symbols.value = res.data || [];
+      return;
+    }
   };
 
   // 自选商品
@@ -139,7 +143,7 @@ export const useSymbols = defineStore("symbols", () => {
   }
 
   return {
-    getAllSymbol,
+    getSymbols,
     symbols,
     mySymbols,
     selectSymbols,

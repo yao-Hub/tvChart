@@ -128,7 +128,7 @@ async function init() {
     const list = await networkStore.getNodesDelay();
     if (list.length) {
       await userStore.getLoginInfo({ emitSocket: true, leading: true }); // 个人信息
-      await symbolsStore.getAllSymbol();
+      await symbolsStore.getSymbols();
       userStore.refreshToken(); // 倒计时刷新token
     }
   } finally {
@@ -216,6 +216,5 @@ onBeforeRouteLeave(async () => {
   top: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 99;
 }
 </style>

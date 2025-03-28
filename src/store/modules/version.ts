@@ -1,15 +1,19 @@
-import { generateUUID } from "@/utils/common";
 import { defineStore } from "pinia";
+import { ElNotification } from "element-plus";
+
+import { generateUUID } from "@/utils/common";
+import { versionQuery, IReqVersion } from "api/other";
+import { useDialog } from "./dialog";
+import i18n from "@/language/index";
 
 interface IState {
-  version: string;
   deviceId: string;
+  versionInfo: IReqVersion | null;
 }
 export const useVersion = defineStore("version", {
   state: (): IState => ({
-    // @ts-ignore
-    version: _VERSION_,
     deviceId: "",
+    versionInfo: null,
   }),
   actions: {
     changeVerisonToNum(strVersion: string) {
@@ -20,28 +24,29 @@ export const useVersion = defineStore("version", {
       window.localStorage.setItem("uuid", this.deviceId);
       return this.deviceId;
     },
-    async checkVersion() {
-      const nowVer = localStorage.getItem("version");
-      if (!nowVer) {
-        this.setVersion();
-      } else {
-        // todo 版本更新兼容
-        //   const nowVerNum = this.changeVerisonToNum(nowVer);
-        //   if (nowVerNum < 131) {
-        //     const databases = await indexedDB.databases();
-        //     const deletionPromises = databases.map((database) => {
-        //       if (database.name) {
-        //         indexedDB.deleteDatabase(database.name);
-        //       }
-        //     });
-        //     // 等待所有删除操作完成
-        //     await Promise.all(deletionPromises);
-        //   }
-        //   this.setVersion();
+    // 获取更新
+    async getUpdate(showStatusList: number[] = [-1, 0, 1, 2]) {
+      if (!process.env.IF_ELECTRON) {
+        return;
       }
-    },
-    setVersion() {
-      localStorage.setItem("version", this.version);
+      let type = -1;
+      const res = await versionQuery();
+      if (res.data) {
+        this.versionInfo = res.data;
+        type = res.data.updateType;
+      }
+      // useDialog().openDialog("updateVersionVisible");
+      // return;
+      if (showStatusList.includes(type)) {
+        if (type === -1) {
+          const t = i18n.global.t;
+          ElNotification.warning(
+            t("tip.failed", { type: t("update.getUpdate") })
+          );
+          return;
+        }
+        useDialog().openDialog("updateVersionVisible");
+      }
     },
   },
 });

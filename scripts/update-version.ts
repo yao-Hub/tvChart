@@ -157,18 +157,18 @@ async function updateRemoteTag(version: string) {
   }
 }
 
-async function updateVersion(
+async function updatePackageVersion(
   localVersion: string,
   updateType: TUpdate,
   remoteVersion: string | null | undefined
 ) {
-  const updateVersion = await getUpdateVersion(
+  const updatePackageVersion = await getUpdateVersion(
     localVersion,
     updateType,
     remoteVersion
   );
-  updatePackageJsonVersion(updateVersion);
-  updateRemoteTag(updateVersion);
+  updatePackageJsonVersion(updatePackageVersion);
+  updateRemoteTag(updatePackageVersion);
 }
 
 // 主函数
@@ -224,7 +224,7 @@ async function main() {
     if (updateType === "noUpdate") {
       return;
     }
-    updateVersion(localVersion, updateType, remoteVersion);
+    updatePackageVersion(localVersion, updateType, remoteVersion);
   } else {
     console.log("****本地版本号大于线上版本号，无需更新。****");
     updateRemoteTag(localVersion);

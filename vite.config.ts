@@ -68,11 +68,13 @@ export default defineConfig((mode: ConfigEnv) => {
       },
     },
     define: {
+      "process.env": {
+        ...process.env,
+      },
       _VERSION_: JSON.stringify(require("./package.json").version),
       __OS_PLATFORM__: JSON.stringify(os.platform()),
       _OS_RELEASE_: JSON.stringify(os.release()),
       _OS_HOSTNAME_: JSON.stringify(os.hostname()),
-      ELECTRON_PLATFORM: JSON.stringify(process.env.IF_ELECTRON || false),
     },
     server: {
       host: "0.0.0.0",

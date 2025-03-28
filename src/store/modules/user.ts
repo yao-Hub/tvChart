@@ -76,11 +76,15 @@ export const useUser = defineStore("user", () => {
 
   // 可用预付款
   const margin_free = computed(() => {
+    let result = "-";
     const nowMargin = margin.value === "-" ? 0 : margin.value;
     if (equity.value !== "-") {
-      return round(Number(equity.value) - Number(nowMargin), 2);
+      result = round(Number(equity.value) - Number(nowMargin), 2);
     }
-    return "-";
+    if (+result < 0) {
+      return "0.00";
+    }
+    return result;
   });
 
   // 预付款比例

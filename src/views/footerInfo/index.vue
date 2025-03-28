@@ -78,10 +78,6 @@ const profitTotal = computed(() => {
   box-sizing: border-box;
   height: 40px;
   @include background_color("background");
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
   overflow-x: auto;
   display: flex;
   align-items: center;

@@ -1,12 +1,9 @@
 import { PageEnum } from "@/constants/pageEnum";
 import { useUser } from "@/store/modules/user";
-import { useVersion } from "@/store/modules/version";
 import type { Router } from "vue-router";
 
 export function createPermissionGuard(router: Router) {
   const userStore = useUser();
-  const versionStore = useVersion();
-  versionStore.checkVersion();
   router.beforeEach(async (to) => {
     if (to.meta.passGuard) {
       return true;

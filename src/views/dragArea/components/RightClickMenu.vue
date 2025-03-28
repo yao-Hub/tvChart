@@ -77,12 +77,13 @@ import { ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { ISessionSymbolInfo } from "@/types/chart";
-import { symbolDetail } from "api/symbols";
+import { getSymbolDetail } from "api/symbols";
 import { DataSource } from "../SymbolList.vue";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
 import { useSymbols } from "@/store/modules/symbols";
+import { useUser } from "@/store/modules/user";
 
 const { t } = useI18n();
 const chartInitStore = useChartInit();
@@ -170,7 +171,10 @@ const getDetail = async () => {
   try {
     orderLoading.value = true;
     loading.value = true;
-    const res = await symbolDetail({ symbol: props.rowData.symbol });
+    const res = await getSymbolDetail({
+      symbol: props.rowData.symbol,
+      group: useUser().state.loginInfo!.group,
+    });
     symbolInfo.value = res.data;
     ifError.value = false;
   } catch (error) {

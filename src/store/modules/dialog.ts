@@ -11,10 +11,15 @@ interface IState {
   floatMenuParams: FloatMenuParams; // 订单线加号按钮菜单
   disclaimersVisible: boolean; // 快捷交易声明弹窗
   feedbackVisible: boolean; // 我的反馈弹窗
+  updateVersionVisible: boolean; // 版本更新弹窗
   zIndex: number;
 }
 
-type TVisible = "orderDialogVisible" | "disclaimersVisible" | "feedbackVisible";
+type TVisible =
+  | "orderDialogVisible"
+  | "disclaimersVisible"
+  | "feedbackVisible"
+  | "updateVersionVisible";
 
 export const useDialog = defineStore("dialog", {
   state: (): IState => {
@@ -22,6 +27,7 @@ export const useDialog = defineStore("dialog", {
       disclaimersVisible: false,
       orderDialogVisible: false, // 订单弹窗
       feedbackVisible: false,
+      updateVersionVisible: false,
       floatMenuParams: {
         visible: false,
         clientX: 0,

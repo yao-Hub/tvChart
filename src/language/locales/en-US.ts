@@ -10,6 +10,7 @@ export default {
   feedback: "Feedback",
   upload: "Upload",
   clearCache: "Clear Cache",
+  checkUpdate: "Check for updates",
 
   QuickTransactions: "Quick Transactions",
   lightTheme: "LightTheme",
@@ -373,5 +374,14 @@ export default {
   deposit: {
     amount: "Deposit Amount",
     goOn: "continue",
+  },
+  update: {
+    mustUpdate: "Must be updated to continue using",
+    updateNow: "Immediate Updating",
+    versionUpdate: "版本更新",
+    versionHasReleased: "The new version {version} has been released",
+    versionHasLatest:
+      "The current version {version} is already the latest version",
+    getUpdate: "Get updates",
   },
 };

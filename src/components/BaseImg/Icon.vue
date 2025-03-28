@@ -1,5 +1,5 @@
 <template>
-  <img :src="iconSrc" />
+  <img :src="iconSrc" :class="[props.iconName]" />
 </template>
 
 <script setup lang="ts">

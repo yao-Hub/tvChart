@@ -186,14 +186,17 @@
               "
               >{{ t("table.cancelAllOrders") }}</el-button
             >
-            <Deposit v-show="activeKey === 'blanceRecord' && useNetwork().currentLine?.isOfficial === '1'"></Deposit>
+            <Deposit
+              v-show="
+                activeKey === 'blanceRecord' &&
+                useNetwork().currentLine?.isOfficial === '1'
+              "
+            ></Deposit>
           </div>
         </div>
       </HorizontalScrolling>
 
-      <el-auto-resizer
-        style="height: calc(100% - var(--component-size) - 1px - 4px)"
-      >
+      <el-auto-resizer style="height: calc(100% - var(--base-height))">
         <template #default="{ height, width }">
           <el-table-v2
             :key="activeKey"
@@ -1057,8 +1060,7 @@ const getTableData = (type: string) => {
 
   .container {
     box-sizing: border-box;
-    // -tabH - tabBorder - containerBoder
-    height: calc(100% - var(--component-size) - 1px - 4px);
+    height: calc(100% - var(--component-size) - 4px);
     padding: 8px;
     border: 4px solid;
     border-bottom: none;
