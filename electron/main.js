@@ -34,7 +34,7 @@ if (!gotTheLock) {
       switch (platform) {
         case "darwin":
           return {
-            height: sw && sw >= 2560 ? 1080 : 800,
+            height: sw && sw >= 2560 ? 1080 : 850,
             width: sw && sw >= 2560 ? 1980 : 1400,
           }
         default:

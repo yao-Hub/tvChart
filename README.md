@@ -1,9 +1,33 @@
-# Vue 3 + TypeScript + Vite
+# Utrader
+vue3 + vite + electron
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## 运行注意事项：
+- 需要使用electron时，只能使用npm
 
-## Recommended Setup
+## 打包注意事项
+- 当打包生成mac的dmg包时，不在本机安装应用时，需要运行dmg包完成安装后，打开term终端输入指令
+```bash
+sudo xattr -rd com.apple.quarantine /Applications/UTrader.app
+```
+- 由于mac的芯片不同，所支持的dmg包不同，通过 electron/config/macOS 配置生成不同的包
+- 打包不同环境的包，需要在 electron/main.js 中设置不同环境设置打包路径
+```js
+// dev
+const userDataPath = path.join(app.getPath('userData'), 'dev');
+app.setPath('userData', userDataPath);
 
-- [VS Code](https://code.visualstudio.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (previously Volar) and disable Vetur
-
-- Use [vue-tsc](https://github.com/vuejs/language-tools/tree/master/packages/tsc) for performing the same type checking from the command line, or for generating d.ts files for SFCs.
+// prod
+const userDataPath = path.join(app.getPath('userData'), 'prod');
+app.setPath('userData', userDataPath);
+```
+- 为了更好的管理打包目录，可以在 electron/config 配置生成目录的地址
+```json
+// dev
+directories: {
+    output: 'release_electron/${version}-dev/macOS/arm64'
+},
+// prod
+directories: {
+    output: 'release_electron/${version}-prod/macOS/arm64'
+},
+```
