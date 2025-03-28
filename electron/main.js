@@ -2,7 +2,7 @@ const { app, BrowserWindow, screen, Menu, ipcMain, net } = require('electron');
 const path = require('path');
 
 // 不同环境设置打包路径
-const userDataPath = path.join(app.getPath('userData'), 'prod');
+const userDataPath = path.join(app.getPath('userData'), 'dev');
 app.setPath('userData', userDataPath);
 
 let mainWindow;
