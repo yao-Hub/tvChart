@@ -4,7 +4,7 @@ module.exports.default = {
   asar: false,
   productName: 'UTrader',
   directories: {
-    output: 'release_electron/${version}-prod/windows/win7'
+    output: 'release_electron/${version}-dev/windows/win7'
   },
   extraResources: {
     from: "public/charting_library",
