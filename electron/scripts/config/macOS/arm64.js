@@ -4,7 +4,7 @@ module.exports.default = {
   asar: false,
   productName: 'UTrader',
   directories: {
-    output: 'release_electron/${version}-dev/macOS/arm64'
+    output: 'release_electron/${version}-${env.NODE_ENV}/macOS/arm64'
   },
   extraResources: {
     from: "public/charting_library",

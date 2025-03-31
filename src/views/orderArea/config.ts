@@ -191,6 +191,13 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       align: "right",
     },
     {
+      title: t("table.comment"),
+      dataKey: "comment",
+      key: "comment",
+      width: 300,
+      align: "right",
+    },
+    {
       dataKey: "orderAction",
       key: "action",
       width: 40,
@@ -271,6 +278,13 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       key: "time_done",
       width: 200,
       minWidth: 190,
+      align: "right",
+    },
+    {
+      title: t("table.comment"),
+      dataKey: "comment",
+      key: "comment",
+      width: 300,
       align: "right",
     },
     // 占位，用于最尾的列拉伸

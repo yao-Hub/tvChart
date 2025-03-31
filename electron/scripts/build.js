@@ -1,14 +1,15 @@
 const { execSync } = require('child_process');
 const isWindows = process.platform === 'win32'; //是否为windows
-console.log("platform--------------------->", process.platform);
-const mode = process.env.NODE_ENV;
-console.log("mode--------------------->", mode);
+console.log("platform---->", process.platform);
+
 function runCommand(command) {
   execSync(command, { stdio: 'inherit' });
 }
 
 function main() {
-  runCommand(`cross-env IF_ELECTRON=true vite build --mode ${mode}`);
+  const mode = process.env.NODE_ENV;
+  console.log("mode---->", mode);
+  runCommand(`vite build --mode ${mode}`);
   if (isWindows) {
     // console.log('\n', '/*********************** win7 ***********************/', '\n');
     // runCommand('electron-builder --config ./electron/scripts/config/windows/x64-win7.js');

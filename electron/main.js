@@ -1,8 +1,10 @@
 const { app, BrowserWindow, screen, Menu, ipcMain, net } = require('electron');
 const path = require('path');
 
+const NODE_ENV = process.env.NODE_ENV;
+
 // 不同环境设置打包路径
-const userDataPath = path.join(app.getPath('userData'), 'dev');
+const userDataPath = path.join(app.getPath('userData'), NODE_ENV);
 app.setPath('userData', userDataPath);
 
 let mainWindow;
@@ -36,15 +38,14 @@ if (!gotTheLock) {
           return {
             height: sw && sw >= 2560 ? 1080 : 850,
             width: sw && sw >= 2560 ? 1980 : 1400,
-          }
+          };
         default:
           return {
             height: sw && sw >= 2560 ? 1080 : 900,
             width: sw && sw >= 2560 ? 1980 : 1600,
-          }
+          };
       }
-    }
-
+    };
 
     // 创建浏览器窗口
     mainWindow = new BrowserWindow({
