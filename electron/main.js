@@ -1,12 +1,6 @@
 const { app, BrowserWindow, screen, Menu, ipcMain, net } = require('electron');
 const path = require('path');
 
-const NODE_ENV = process.env.NODE_ENV;
-
-// 不同环境设置打包路径
-const userDataPath = path.join(app.getPath('userData'), NODE_ENV);
-app.setPath('userData', userDataPath);
-
 let mainWindow;
 
 // 尝试获取单实例锁
@@ -54,7 +48,7 @@ if (!gotTheLock) {
       webPreferences: {
         preload: path.join(__dirname, "preload.js"), // 预加载脚本
         contextIsolation: true, // 启用上下文隔离
-        nodeIntegration: true, // 禁用 Node.js 集成（推荐false）
+        nodeIntegration: true, // 禁用 Node.js 集成（推荐false） 为了打开默认浏览器升级设置为true
       },
     });
 

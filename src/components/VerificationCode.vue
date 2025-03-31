@@ -93,7 +93,6 @@ const startTimer = (type: string) => {
 
   const timerData = timers.value[type];
   timerData.showTimer = true;
-  timerData.leftTime = 60;
 
   // 清除旧定时器
   if (timerData.timerId) {

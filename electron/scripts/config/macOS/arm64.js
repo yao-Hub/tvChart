@@ -1,8 +1,17 @@
+const nameMap = {
+  test: "UTrader_dev",
+  production: "UTrader",
+};
+const appIdMap = {
+  test: "com.electron.UTrader_dev",
+  production: "com.electron.UTrader",
+};
+
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
-  appId: 'com.electron.UTrader',
+  appId: appIdMap[process.env.NODE_ENV],
+  productName: nameMap[process.env.NODE_ENV],
   asar: false,
-  productName: 'UTrader',
   directories: {
     output: 'release_electron/${version}-${env.NODE_ENV}/macOS/arm64'
   },
