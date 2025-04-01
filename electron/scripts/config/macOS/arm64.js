@@ -1,5 +1,5 @@
 const nameMap = {
-  test: "UTrader_dev",
+  test: "UTrader dev",
   production: "UTrader",
 };
 const appIdMap = {
@@ -11,6 +11,9 @@ module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
   appId: appIdMap[process.env.NODE_ENV],
   productName: nameMap[process.env.NODE_ENV],
+  extraMetadata: {
+    name: nameMap[process.env.NODE_ENV] // 缓存文件名字
+  },
   asar: false,
   directories: {
     output: 'release_electron/${version}-${env.NODE_ENV}/macOS/arm64'

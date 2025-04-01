@@ -1,6 +1,6 @@
 
 const nameMap = {
-  test: "UTrader_dev",
+  test: "UTrader dev",
   production: "UTrader",
 };
 const appIdMap = {
@@ -12,9 +12,12 @@ module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
   appId: appIdMap[process.env.NODE_ENV],
   asar: false,
-  productName: nameMap[process.env.NODE_ENV],
+  productName: nameMap[process.env.NODE_ENV], // 安装名字 路径名字
+  extraMetadata: {
+    name: nameMap[process.env.NODE_ENV] // 缓存文件名字
+  },
   directories: {
-    output: 'release_electron/${version}-${env.NODE_ENV}/windows/common'
+    output: 'release_electron/${version}-${env.NODE_ENV}/windows/common' // 安装包输出文件路径
   },
   extraResources: {
     from: "public/charting_library",
