@@ -29,6 +29,10 @@ module.exports.default = {
         target: "dmg",
         arch: ["x64"],
       },
+      {
+        target: 'pkg',
+        arch: ["x64"],
+      }
     ],
     artifactName: "${productName}-Mac-${version}-x64.${ext}",
     icon: "public/logo_512.png",

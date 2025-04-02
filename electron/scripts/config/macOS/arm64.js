@@ -28,6 +28,10 @@ module.exports.default = {
       {
         target: 'dmg',
         arch: ['arm64']
+      },
+      {
+        target: 'pkg',
+        arch: ['arm64']
       }
     ],
     artifactName: '${productName}-Mac-${version}-arm64.${ext}',
