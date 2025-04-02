@@ -100,6 +100,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "comment",
       key: "comment",
       width: 300,
+      minWidth: 80,
       align: "right",
     },
     {
@@ -195,6 +196,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "comment",
       key: "comment",
       width: 300,
+      minWidth: 80,
       align: "right",
     },
     {
@@ -285,6 +287,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "comment",
       key: "comment",
       width: 300,
+      minWidth: 80,
       align: "right",
     },
     // 占位，用于最尾的列拉伸
@@ -397,6 +400,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "comment",
       key: "comment",
       width: 100,
+      minWidth: 80,
       align: "right",
     },
     {
@@ -464,6 +468,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       dataKey: "comment",
       key: "comment",
       width: 300,
+      minWidth: 80,
       align: "right",
     },
     // 占位，用于最尾的列拉伸

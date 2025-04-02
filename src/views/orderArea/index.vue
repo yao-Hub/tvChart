@@ -542,7 +542,11 @@ const adjustTable = debounce(() => {
       const columns_widths_dec = new Decimal(columns_widths);
       state.columns[activeKey.value].forEach((item) => {
         const minw = item.minWidth || MIN_COLUMN_WIDTH;
-        const width = new Decimal(item.width);
+        let width = new Decimal(item.width);
+        if (columns_widths > container_width && item.minWidth) {
+          width = new Decimal(item.minWidth);
+        }
+        // width / columns_widths_dec * container_width_dec
         const result = width
           .div(columns_widths_dec)
           .mul(container_width_dec)

@@ -3,7 +3,7 @@ import "dayjs/locale/en";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/zh-tw";
 import { ElConfigProvider } from "element-plus";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { LANGUAGE_LIST } from "@/constants/common";
@@ -12,6 +12,7 @@ import { sendTrack } from "@/utils/track";
 import { useSize } from "@/store/modules/size";
 import { useTheme } from "@/store/modules/theme";
 import { useVersion } from "@/store/modules/version";
+import { useUser } from "./store/modules/user";
 
 const sizeStore = useSize();
 
@@ -20,10 +21,16 @@ useTheme().initTheme(); // 系统主题
 useVersion().getDeviceId(); // 生成设备唯一id
 
 // 打点
-sendTrack({
-  actionType: "open",
-  actionObject: location.pathname,
-});
+watch(
+  () => useUser().account.server,
+  () => {
+    sendTrack({
+      actionType: "open",
+      actionObject: location.pathname,
+    });
+  },
+  { once: true }
+);
 
 // 国际化
 const I18n = useI18n();
