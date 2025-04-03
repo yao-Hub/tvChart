@@ -122,7 +122,6 @@ const initRender = () => {
 async function init() {
   try {
     chartInitStore.state.loading = true;
-    await rootStore.resetAllStore();
     await useInit().init();
     await networkStore.initNode(); // 网络节点
     const list = await networkStore.getNodesDelay();
@@ -143,7 +142,8 @@ async function init() {
 // 全局刷新重置store 热更新
 watch(
   () => chartInitStore.state.globalRefresh,
-  (val) => {
+  async (val) => {
+    await rootStore.resetAllStore();
     val && init();
   }
 );
@@ -160,9 +160,10 @@ eventBus.on("socket-connect", () => {
 eventBus.on("socket-error", () => {
   socketState.value = "error";
 });
-const handleVisibilityChange = () => {
+const handleVisibilityChange = async () => {
   const state = document.visibilityState;
   if (state === "visible" && socketState.value === "disconnect") {
+    await rootStore.resetAllStore();
     chartInitStore.systemRefresh();
   }
 };
@@ -187,7 +188,6 @@ onBeforeRouteLeave(async () => {
   await rootStore.resetAllStore();
   document.removeEventListener("visibilitychange", handleVisibilityChange);
   window.removeEventListener("resize", resizeUpdate);
-  chartInitStore.state.loading = true;
   return true;
 });
 </script>

@@ -2,7 +2,7 @@
   <div :style="styles.addOrder">
     <div :style="styles.area">
       <div :style="wordStyle('sell')">
-        {{ bid }}
+        {{ getQuotes("bid") }}
       </div>
       <div :style="btnStyle('sell')" @click="addOrder(1)">
         {{ t("order.sell") }}
@@ -22,7 +22,7 @@
         {{ t("order.buy") }}
       </div>
       <div :style="wordStyle('buy')">
-        {{ ask }}
+        {{ getQuotes("ask") }}
       </div>
     </div>
   </div>
@@ -159,18 +159,11 @@ const props = defineProps<Props>();
 
 const nowSymbol = computed(() => {
   const chartSymbol = chartInitStore.getChartSymbol(props.id);
-  return chartSymbol || props.symbol;
+  return props.symbol || chartSymbol;
 });
 
-const bid = computed(() => {
-  return getQuotes("bid", nowSymbol.value);
-});
-
-const ask = computed(() => {
-  return getQuotes("ask", nowSymbol.value);
-});
-
-const getQuotes = (type: "bid" | "ask", symbol: string) => {
+const getQuotes = (type: "bid" | "ask") => {
+  const symbol = nowSymbol.value;
   const digits = symbolInfo.value?.digits;
   if (quotesStore.qoutes[symbol] && digits) {
     return quotesStore.qoutes[symbol][type].toFixed(digits);
