@@ -1,10 +1,8 @@
 import { defineStore } from "pinia";
-import { ElNotification } from "element-plus";
 
 import { generateUUID } from "@/utils/common";
 import { versionQuery, IReqVersion } from "api/other";
 import { useDialog } from "./dialog";
-import i18n from "@/language/index";
 
 interface IState {
   deviceId: string;
@@ -53,28 +51,18 @@ export const useVersion = defineStore("version", {
       }
 
       let type = 0;
-      try {
-        const res = await versionQuery();
-        if (res.data) {
-          this.versionInfo = res.data;
-          type = res.data.updateType;
-          if (res.data.tipsFrequency === 1) {
-            localStorage.setItem(
-              "upDateStamp",
-              new Date().getTime().toString()
-            );
-          } else {
-            localStorage.removeItem("upDateStamp");
-          }
+      const res = await versionQuery();
+      if (res.data) {
+        this.versionInfo = res.data;
+        type = res.data.updateType;
+        if (res.data.tipsFrequency === 1) {
+          localStorage.setItem("upDateStamp", new Date().getTime().toString());
+        } else {
+          localStorage.removeItem("upDateStamp");
         }
-        if (status.includes(type)) {
-          useDialog().openDialog("updateVersionVisible");
-        }
-      } catch (error) {
-        const t = i18n.global.t;
-        ElNotification.warning(
-          t("tip.failed", { type: t("update.getUpdate") })
-        );
+      }
+      if (status.includes(type)) {
+        useDialog().openDialog("updateVersionVisible");
       }
     },
   },
