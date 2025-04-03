@@ -266,7 +266,7 @@ const getPrice = (symbol: string, type: "bid" | "ask") => {
     const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
     const digits = symbolInfo?.digits;
     if (digits && target[type]) {
-      return target[type].toFixed(digits);
+      return target[type].toFixed(digits ?? 2);
     }
     return target[type] || "-";
   }

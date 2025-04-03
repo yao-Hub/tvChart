@@ -165,8 +165,8 @@ const nowSymbol = computed(() => {
 const getQuotes = (type: "bid" | "ask") => {
   const symbol = nowSymbol.value;
   const digits = symbolInfo.value?.digits;
-  if (quotesStore.qoutes[symbol] && digits) {
-    return quotesStore.qoutes[symbol][type].toFixed(digits);
+  if (quotesStore.qoutes[symbol]) {
+    return quotesStore.qoutes[symbol][type].toFixed(digits ?? 2);
   }
   return "-";
 };
