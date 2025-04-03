@@ -150,7 +150,7 @@ export interface DataSource {
   bid?: string | number;
   ask?: string | number;
   variation?: string | number;
-  topSort: number | null;
+  topSort: number;
   ctm_ms?: number;
 }
 const dataSource = shallowRef<DataSource[]>([]);
@@ -334,22 +334,24 @@ const sortChange = ({ order, prop }: any) => {
       variation: +quotesStore.getVariation(item.symbol).value.replace("%", ""),
     };
   });
-  let result: any;
+  let result: DataSource[] = [];
   if (order === "ascending") {
-    result = orderBy(arr, [prop], ["asc"]);
+    result = orderBy(arr, [prop], ["asc"]) as DataSource[];
   }
   if (order === "descending") {
-    result = orderBy(arr, [prop], ["desc"]);
+    result = orderBy(arr, [prop], ["desc"]) as DataSource[];
   }
   if (order === null) {
-    result = symbolsStore.mySymbols_sort;
+    result = symbolsStore.mySymbols;
     createSortable();
   }
   if (order && sortBox.value) {
     sortBox.value.destroy();
     sortBox.value = null;
   }
-  dataSource.value = result;
+  const topSortList = result.filter((e) => e.topSort === 1);
+  const noTopSortList = result.filter((e) => e.topSort === 0);
+  dataSource.value = [...topSortList, ...noTopSortList];
 };
 
 // 只一个展开

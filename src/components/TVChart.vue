@@ -257,8 +257,10 @@ const initonReady = () => {
         localStorage.setItem("chartTheme", sysTheme);
       }
 
-      // 涨跌颜色
-      themeStore.setUpDownTheme();
+      setTimeout(() => {
+        // 涨跌颜色
+        themeStore.setUpDownTheme();
+      }, 200);
 
       emit("initChart", { id: props.chartId, widget });
     });

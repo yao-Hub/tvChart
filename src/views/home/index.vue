@@ -143,8 +143,10 @@ async function init() {
 watch(
   () => chartInitStore.state.globalRefresh,
   async (val) => {
-    await rootStore.resetAllStore();
-    val && init();
+    if (val) {
+      await rootStore.resetAllStore();
+      init();
+    }
   }
 );
 
@@ -163,7 +165,6 @@ eventBus.on("socket-error", () => {
 const handleVisibilityChange = async () => {
   const state = document.visibilityState;
   if (state === "visible" && socketState.value === "disconnect") {
-    await rootStore.resetAllStore();
     chartInitStore.systemRefresh();
   }
 };

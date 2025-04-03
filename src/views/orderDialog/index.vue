@@ -320,17 +320,19 @@ const domVisableOption = {
 
 // 重置表单 自动填充
 const initForm = () => {
-  formState.symbol = chartInitStore.getDefaultSymbol();
   const initState = orderStore.state.initOrderState;
   if (initState) {
     formState.symbol = initState.symbol;
     // 快捷交易买入卖出直接弹到确认订单
     if (initState.mode === "confirm") {
       formState.orderType = "price";
+      directionType.value = initState.type;
       formState.volume = initState.volume;
-      showConfirmModal(initState.type);
+      priceConfirm.value = true;
     }
+    return;
   }
+  formState.symbol = chartInitStore.getDefaultSymbol();
 };
 
 const freshKey = ref(0);
@@ -404,6 +406,10 @@ const showConfirmModal = debounce(async (type: number) => {
   const valid = await valids();
   directionType.value = type;
   if (valid) {
+    if (orderStore.state.ifOne) {
+      createPriceOrder();
+      return;
+    }
     priceConfirm.value = true;
   }
 }, 200);

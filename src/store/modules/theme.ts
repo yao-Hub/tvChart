@@ -82,8 +82,8 @@ export const useTheme = defineStore("theme", () => {
 
     const red = "#F53058";
     const green = "#2E9C76";
-    const lightRed = "rgba(242, 54, 69, 0.5)";
-    const lightGreen = "rgba(8, 153, 129, 0.5)";
+    const lightRed = "#f23645";
+    const lightGreen = "#089981";
     const proRed = "#f5a6ae";
     const proGreen = "#a9dcc3";
 
