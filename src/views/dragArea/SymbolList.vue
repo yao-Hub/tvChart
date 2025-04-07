@@ -124,6 +124,7 @@
       v-model:visible="menuVisible"
       :pos="pos"
       :rowData="rowData"
+      :variOrder="variOrder"
       @toogleTopUp="topUp"
       @cancelFav="getQuery"
     ></RightClickMenu>
@@ -327,7 +328,9 @@ const rowContextmenu = (row: DataSource, column: any, event: MouseEvent) => {
 };
 
 // 排序日变化
+const variOrder = ref(null);
 const sortChange = ({ order, prop }: any) => {
+  variOrder.value = order;
   const arr = dataSource.value.map((item) => {
     return {
       ...item,

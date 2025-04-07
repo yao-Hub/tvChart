@@ -4,7 +4,13 @@
       <div :style="wordStyle('sell')">
         {{ getQuotes("bid") }}
       </div>
-      <div :style="btnStyle('sell')" @click="addOrder(1)">
+      <div
+        :style="{
+          ...btnStyle('sell'),
+          cursor: loading ? 'not-allowed' : 'pointer',
+        }"
+        @click="addOrder(1)"
+      >
         {{ t("order.sell") }}
       </div>
     </div>
@@ -12,13 +18,19 @@
       <BaseImg :style="styles.icon" iconName="caretDown" @click="reduceNum" />
       <input
         :style="{ ...styles.input, textAlign: 'center' }"
-        type="text"
+        type="number"
         v-model="volume"
       />
       <BaseImg iconName="caretUp" :style="styles.icon" @click="addNum" />
     </div>
     <div :style="styles.area">
-      <div :style="btnStyle('buy')" @click="addOrder(0)">
+      <div
+        :style="{
+          ...btnStyle('buy'),
+          cursor: loading ? 'not-allowed' : 'pointer',
+        }"
+        @click="addOrder(0)"
+      >
         {{ t("order.buy") }}
       </div>
       <div :style="wordStyle('buy')">
@@ -208,49 +220,68 @@ const reduceNum = () => {
 };
 
 const regex = /^-?\d+(\.\d+)?$/;
-const valid = () => {
+const valid = async () => {
+  const symbols = symbolsStore.symbols_tradeAllow.map((item) => item.symbol);
+  if (symbols.indexOf(nowSymbol.value) === -1) {
+    ElMessage.warning(t("tip.symbolNoAllowTrading"));
+    return false;
+  }
+  const tradAble = await orderStore.getTradAble(nowSymbol.value);
+  if (tradAble) {
+    return false;
+  }
   const value = volume.value;
   if (value === undefined) {
-    ElMessage.error("请输入手数");
+    ElMessage.error(t("tip.volumeRequired"));
     return false;
   }
   if (!regex.test(value)) {
-    ElMessage.error("请输入正确的数字格式");
+    ElMessage.error(t("tip.numberFormatEror"));
     return false;
   }
   if (+value < minVolume.value) {
-    ElMessage.error(`不能小于单笔最小手数${minVolume.value}`);
+    ElMessage.error(`${t("tip.volumeMin")}: ${minVolume.value}`);
     return false;
   }
   if (+value > maxVolume.value) {
-    ElMessage.error(`不能大于单笔最大手数${maxVolume.value}`);
+    ElMessage.error(`${t("tip.volumeMax")}: ${maxVolume.value}`);
     return false;
   }
   return true;
 };
+const loading = ref(false);
 const addOrder = debounce(
   async (type: 0 | 1) => {
-    if (orderStore.state.ifOne === null) {
-      dialogStore.openDialog("disclaimersVisible");
-      return;
-    }
-    if (!orderStore.state.ifOne) {
-      orderStore.createOrder({
-        symbol: nowSymbol.value,
-        mode: "confirm",
-        type,
-        volume: volume.value,
-      });
-      return;
-    }
-    const v = valid();
-    if (v) {
+    try {
+      if (loading.value) {
+        return;
+      }
+      loading.value = true;
+      if (orderStore.state.ifOne === null) {
+        dialogStore.openDialog("disclaimersVisible");
+        return;
+      }
+      const v = await valid();
+      if (!v) {
+        return;
+      }
+      if (!orderStore.state.ifOne) {
+        orderStore.createOrder({
+          symbol: nowSymbol.value,
+          mode: "confirm",
+          type,
+          volume: volume.value,
+        });
+        return;
+      }
       const updata: ReqOrderAdd = {
         symbol: nowSymbol.value,
         type,
         volume: +volume.value,
       };
       orderStore.addMarketOrder(updata);
+    } finally {
+      loading.value = false;
     }
   },
   200,

@@ -9,11 +9,11 @@
       <el-icon class="loading" v-if="orderLoading"><Loading /></el-icon>
     </div>
     <div class="item" @click="addChart">{{ t("chart.new") }}</div>
-    <div class="item" @click="showDialog">{{ t("symbolInfo") }}</div>
+    <div class="item" @click="showDetailDialog">{{ t("symbolInfo") }}</div>
     <div class="item" @click="toogleTopUp">
       {{ t(`${props.rowData.topSort ? "unTop" : "topUp"}`) }}
     </div>
-    <div :class="{ item: true, pending: delLoading }" @click="cancelFav">
+    <div :class="{ item: true, pending: delLoading }" @click="handleCancelFav">
       <span>{{ t("delete") }}</span>
       <el-icon class="loading" v-if="delLoading"><Loading /></el-icon>
     </div>
@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { get } from "lodash";
+import { get, orderBy } from "lodash";
 import { ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -98,6 +98,7 @@ interface Props {
     left: number;
   };
   rowData: DataSource;
+  variOrder: string | null;
 }
 const props = defineProps<Props>();
 const model = defineModel<boolean>("visible", {
@@ -188,7 +189,7 @@ const getDetail = async () => {
 import { useDialog } from "@/store/modules/dialog";
 const dialogStore = useDialog();
 const dialogVisible = ref<boolean>(false);
-const showDialog = () => {
+const showDetailDialog = () => {
   dialogStore.incrementZIndex();
   dialogVisible.value = true;
   model.value = false;
@@ -196,19 +197,30 @@ const showDialog = () => {
 };
 
 const toogleTopUp = () => {
-  const list = symbolsStore.mySymbols;
+  let list = symbolsStore.mySymbols.map((item) => {
+    return {
+      ...item,
+      variation: +useQuotes().getVariation(item.symbol).value.replace("%", ""),
+    };
+  });
   const index = list.findIndex((e) => e.symbol === props.rowData.symbol);
   if (index !== -1) {
-    const target = list.splice(index, 1)[0];
-    list.unshift({
-      ...target,
-      topSort: +!props.rowData.topSort,
-    });
-    const topList = list.filter((e) => e.topSort === 1);
-    const downList = list.filter((e) => e.topSort === 0);
-    const sortList = [...topList, ...downList];
-    sortList.forEach((item, index) => (item.sort = index));
-    symbolsStore.mySymbols = sortList;
+    list[index].topSort = +!list[index].topSort;
+
+    const sortArr = ["desc"] as Array<boolean | "desc" | "asc">;
+    const propArr = ["topSort"];
+
+    if (props.variOrder === "ascending") {
+      sortArr.push("asc");
+      propArr.push("variation");
+    }
+    if (props.variOrder === "descending") {
+      sortArr.push("desc");
+      propArr.push("variation");
+    }
+    const resut = orderBy(list, propArr, sortArr);
+    resut.forEach((item, index) => (item.sort = index));
+    symbolsStore.mySymbols = resut;
     emit("toogleTopUp");
     model.value = false;
   }
@@ -216,7 +228,7 @@ const toogleTopUp = () => {
 
 import { delOptionalQuery } from "api/symbols/index";
 const delLoading = ref(false);
-const cancelFav = async () => {
+const handleCancelFav = async () => {
   try {
     delLoading.value = true;
     await delOptionalQuery({ symbols: [props.rowData.symbol] });
@@ -264,6 +276,7 @@ import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 import { flattenDeep, groupBy, set, uniq } from "lodash";
 import { ElMessage } from "element-plus";
+import { useQuotes } from "@/store/modules/quotes";
 const timeStore = useTime();
 const tableData = ref<any[]>([{}, {}]);
 const columns = ref<{ prop: string; label: string }[]>([]);
