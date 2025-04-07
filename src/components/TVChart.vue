@@ -34,7 +34,7 @@ const props = defineProps({
     type: Boolean,
   },
   symbol: {
-    default: "XAU",
+    default: "",
     type: String,
   },
   interval: {
@@ -176,7 +176,7 @@ const initonReady = () => {
 
   // 读取缓存数据
   const savedData = chartInitStore.getChartSavedData(props.chartId);
-  if (savedData) {
+  if (savedData && Object.keys(savedData).length) {
     widgetOptions.saved_data = savedData;
   }
 
@@ -201,7 +201,7 @@ const initonReady = () => {
         .onSymbolChanged()
         .subscribe({}, () => {
           chartInitStore.state.activeChartId = props.chartId;
-          // 图表撤回操作会触发这个哦
+          // 图表撤回操作会触发
           const newSymbol = widget.activeChart().symbol();
           const target = chartInitStore.state.chartWidgetList.find(
             (e) => e.id === props.chartId
@@ -209,6 +209,8 @@ const initonReady = () => {
           if (target && target.symbol !== newSymbol) {
             target.symbol = newSymbol;
           }
+
+          chartInitStore.saveCharts();
         });
 
       // 监听周期变化
@@ -216,15 +218,16 @@ const initonReady = () => {
         .activeChart()
         .onIntervalChanged()
         .subscribe(null, (interval) => {
-          console.log(interval);
           chartInitStore.state.activeChartId = props.chartId;
-          // 图表撤回操作会触发这个哦
+          // 图表撤回操作会触发
           const target = chartInitStore.state.chartWidgetList.find(
             (e) => e.id === props.chartId
           );
           if (target && target.interval !== interval) {
             target.interval = interval;
           }
+
+          chartInitStore.saveCharts();
         });
 
       // 监听鼠标按下
