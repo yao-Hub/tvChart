@@ -31,11 +31,16 @@ module.exports.default = {
       },
       {
         target: 'pkg',
-        arch: ['arm64']
-      }
+        arch: ['arm64'],
+      },
     ],
+    minimumSystemVersion: '12.0',
     artifactName: '${productName}-Mac-${version}-arm64.${ext}',
     icon: 'public/logo_512.png',
+    entitlements: "entitlements.plist",
+    entitlementsInherit: "entitlements.child.plist",
+    hardenedRuntime: true,
+    gatekeeperAssess: false,
   },
   electronVersion: '34.0.2'
 };

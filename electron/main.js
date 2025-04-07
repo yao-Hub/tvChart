@@ -49,6 +49,7 @@ if (!gotTheLock) {
         preload: path.join(__dirname, "preload.js"), // 预加载脚本
         contextIsolation: true, // 启用上下文隔离
         nodeIntegration: true, // 禁用 Node.js 集成（推荐false） 为了打开默认浏览器升级设置为true
+        sandbox: true
       },
     });
 
