@@ -22,7 +22,7 @@
     <div class="container">
       <el-table
         v-if="!ifSearch"
-        ref="table"
+        ref="tableRef"
         :data="dataSource"
         :style="{ width: '100%', height: '100% ' }"
         :header-row-style="{
@@ -124,6 +124,7 @@
       v-model:visible="menuVisible"
       :pos="pos"
       :rowData="rowData"
+      :variOrder="variOrder"
       @toogleTopUp="topUp"
       @cancelFav="getQuery"
     ></RightClickMenu>
@@ -150,7 +151,7 @@ export interface DataSource {
   bid?: string | number;
   ask?: string | number;
   variation?: string | number;
-  topSort: number | null;
+  topSort: number;
   ctm_ms?: number;
 }
 const dataSource = shallowRef<DataSource[]>([]);
@@ -199,7 +200,7 @@ watch(
 import { editOptionalQuery } from "api/symbols/index";
 import Sortable from "sortablejs";
 const sortBox = ref();
-const table = ref();
+const tableRef = ref();
 const createSortable = () => {
   const tbody = document.querySelector(".el-table__body tbody");
   if (tbody) {
@@ -266,7 +267,7 @@ const getPrice = (symbol: string, type: "bid" | "ask") => {
     const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
     const digits = symbolInfo?.digits;
     if (digits && target[type]) {
-      return target[type].toFixed(digits);
+      return target[type].toFixed(digits ?? 2);
     }
     return target[type] || "-";
   }
@@ -327,29 +328,33 @@ const rowContextmenu = (row: DataSource, column: any, event: MouseEvent) => {
 };
 
 // 排序日变化
+const variOrder = ref(null);
 const sortChange = ({ order, prop }: any) => {
+  variOrder.value = order;
   const arr = dataSource.value.map((item) => {
     return {
       ...item,
       variation: +quotesStore.getVariation(item.symbol).value.replace("%", ""),
     };
   });
-  let result: any;
+  let result: DataSource[] = [];
   if (order === "ascending") {
-    result = orderBy(arr, [prop], ["asc"]);
+    result = orderBy(arr, [prop], ["asc"]) as DataSource[];
   }
   if (order === "descending") {
-    result = orderBy(arr, [prop], ["desc"]);
+    result = orderBy(arr, [prop], ["desc"]) as DataSource[];
   }
   if (order === null) {
-    result = symbolsStore.mySymbols_sort;
+    result = symbolsStore.mySymbols;
     createSortable();
   }
   if (order && sortBox.value) {
     sortBox.value.destroy();
     sortBox.value = null;
   }
-  dataSource.value = result;
+  const topSortList = result.filter((e) => e.topSort === 1);
+  const noTopSortList = result.filter((e) => e.topSort === 0);
+  dataSource.value = [...topSortList, ...noTopSortList];
 };
 
 // 只一个展开
@@ -359,9 +364,17 @@ const expandChange = (row: any, expandedRows: any[]) => {
   expandRowKeys.value = expandedRows.length ? [row.symbol] : [];
 };
 
-const topUp = () => {
-  editOptionalQuery({ symbols: symbolsStore.mySymbols });
-  getQuery();
+const topUp = (e: DataSource) => {
+  tableRef.value.sort("variation", null);
+  const list = [...symbolsStore.mySymbols];
+  const index = list.findIndex((item) => e.symbol === item.symbol);
+  if (index !== -1) {
+    list[index].topSort = +!list[index].topSort;
+    const resut = orderBy(list, ["topSort"], ["desc"]);
+    symbolsStore.mySymbols = resut;
+    editOptionalQuery({ symbols: resut });
+    getQuery();
+  }
 };
 </script>
 

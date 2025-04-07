@@ -54,7 +54,14 @@ onMounted(async () => {
   window.addEventListener("online", handleNetworkChange);
   window.addEventListener("offline", handleNetworkChange);
   // 获取更新
-  setTimeout(() => useVersion().getUpdate([1, 2]), 1000);
+  setTimeout(
+    () =>
+      useVersion().getUpdate({
+        status: [1, 2],
+        ifCheckFrequency: true,
+      }),
+    1000
+  );
 });
 onUnmounted(() => {
   window.removeEventListener("online", handleNetworkChange);

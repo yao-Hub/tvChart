@@ -246,6 +246,9 @@ export default {
     symbolNoAllowTrading: "当前商品禁止交易",
     agreeTermsFirst: "请先勾选同意条款",
     marketClosed: "市场关闭",
+    numberFormatEror: "数字格式错误",
+    volumeMin: "最小手数",
+    volumeMax: "最大手数",
   },
 
   time: {

@@ -32,7 +32,7 @@ export const getAllSymbol = (data: { group: string }) => {
 export interface reqOptionalQuery {
   symbol: string; //	商品
   sort: number; //	排序
-  topSort: number | null; //	置顶排序
+  topSort: number; //	置顶排序
 }
 
 export const allSymbolQuotes = () => {

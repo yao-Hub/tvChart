@@ -244,6 +244,9 @@ export default {
     NodeUnavailable: "Node unavailable",
     agreeTermsFirst: "Please check the agreement terms first",
     marketClosed: "Market Closed",
+    numberFormatEror: "Number format error",
+    volumeMin: "Min Volume",
+    volumeMax: "Max Volume",
   },
 
   time: {

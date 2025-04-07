@@ -9,13 +9,14 @@ import { useSocket } from "./socket";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
 
+interface IChart {
+  widget?: IChartingLibraryWidget;
+  id: string;
+  symbol: string;
+  interval?: ResolutionString;
+}
 interface IState {
-  chartWidgetList: {
-    widget?: IChartingLibraryWidget;
-    id: string;
-    symbol: string;
-    interval?: ResolutionString;
-  }[];
+  chartWidgetList: IChart[];
   chartLayoutType: "single" | "multiple" | "row" | "column";
   loading: Boolean; // 整个图表区域的加载
   chartLoading: Record<string, boolean>; // 各个图表的加载状态
@@ -149,6 +150,9 @@ export const useChartInit = defineStore("chartInit", () => {
     if (id === state.activeChartId) {
       state.activeChartId = firstChart.id;
     }
+
+    delete state.ifFinishLoad[id];
+    saveCharts();
   }
 
   // 增加一个图表
@@ -185,10 +189,10 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 默认商品（初始化的商品）
   function getDefaultSymbol() {
-    const firstSymbol = symbolStore.symbols_tradeAllow[0]?.symbol;
+    const firstSymbol = symbolStore.symbols[0]?.symbol;
     const chartSymbol = getChartSymbol(state.activeChartId);
     if (chartSymbol) {
-      const index = symbolStore.symbols_tradeAllow.findIndex(
+      const index = symbolStore.symbols.findIndex(
         (e) => e.symbol === chartSymbol
       );
       if (index > -1) {
@@ -245,11 +249,9 @@ export const useChartInit = defineStore("chartInit", () => {
   // 保存图表状态
   function saveCharts() {
     try {
-      if (!ifAllChartLoadingEnd()) {
-        return;
-      }
       const saveMap: Record<string, object> = {};
       state.chartWidgetList.forEach((item) => {
+        saveMap[item.id] = {};
         item.widget?.save((state) => {
           saveMap[item.id] = state;
         });
@@ -266,7 +268,7 @@ export const useChartInit = defineStore("chartInit", () => {
       storageStore.setItem("chartInfoMap", saveMap);
       storageStore.setItem("activeChartId", state.activeChartId);
     } catch (error) {
-      console.log("saveChart error", error);
+      console.log(error);
     }
   }
 
@@ -276,6 +278,19 @@ export const useChartInit = defineStore("chartInit", () => {
     let result = [{ id: "chart_1", symbol: activeSymbol }];
     const wList = storageStore.getItem("chartList");
     if (wList && wList.length) {
+      wList.forEach((item: IChart) => {
+        const index = symbolStore.symbols.findIndex(
+          (e) => e.symbol === item.symbol
+        );
+        if (index === -1) {
+          item.symbol = symbolStore.symbols[0].symbol;
+          const infoMap = storageStore.getItem("chartInfoMap");
+          if (infoMap && infoMap[item.id]) {
+            delete infoMap[item.id];
+          }
+          storageStore.setItem("chartInfoMap", infoMap);
+        }
+      });
       result = wList;
     }
     state.chartWidgetList = result;
@@ -284,22 +299,6 @@ export const useChartInit = defineStore("chartInit", () => {
     const sMap = storageStore.getItem("chartInfoMap");
     if (sMap) {
       return sMap[id];
-    }
-  }
-  // 加载图表最后的操作形态
-  function loadCharts(id?: string) {
-    const sMap = storageStore.getItem("chartInfoMap");
-    if (sMap) {
-      if (id) {
-        const found = state.chartWidgetList.find((e) => e.id === id);
-        if (found) found.widget?.load(sMap[id]);
-        return;
-      }
-      state.chartWidgetList.forEach((item) => {
-        if (sMap[item.id]) {
-          item.widget?.load(sMap[item.id]);
-        }
-      });
     }
   }
 
@@ -340,7 +339,6 @@ export const useChartInit = defineStore("chartInit", () => {
     saveCharts,
     loadChartList,
     getChartSavedData,
-    loadCharts,
     getDefaultSymbol,
     setChartLoadingEndType,
     $reset,

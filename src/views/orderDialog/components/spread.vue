@@ -1,11 +1,11 @@
 <template>
   <div class="spread">
-    <span class="sellWord">{{ quote?.bid?.toFixed(props.digits) }}</span>
+    <span class="sellWord">{{ quote?.bid?.toFixed(props.digits ?? 2) }}</span>
     <div class="spread_point">
       <span class="title">{{ t("order.spread") }} {{ spread }}</span>
       <BaseImg class="icon" iconName="icon_arrow"></BaseImg>
     </div>
-    <span class="buyWord">{{ quote?.ask?.toFixed(props.digits) }}</span>
+    <span class="buyWord">{{ quote?.ask?.toFixed(props.digits ?? 2) }}</span>
   </div>
 </template>
 
