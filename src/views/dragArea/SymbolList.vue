@@ -22,7 +22,7 @@
     <div class="container">
       <el-table
         v-if="!ifSearch"
-        ref="table"
+        ref="tableRef"
         :data="dataSource"
         :style="{ width: '100%', height: '100% ' }"
         :header-row-style="{
@@ -200,7 +200,7 @@ watch(
 import { editOptionalQuery } from "api/symbols/index";
 import Sortable from "sortablejs";
 const sortBox = ref();
-const table = ref();
+const tableRef = ref();
 const createSortable = () => {
   const tbody = document.querySelector(".el-table__body tbody");
   if (tbody) {
@@ -364,9 +364,17 @@ const expandChange = (row: any, expandedRows: any[]) => {
   expandRowKeys.value = expandedRows.length ? [row.symbol] : [];
 };
 
-const topUp = () => {
-  editOptionalQuery({ symbols: symbolsStore.mySymbols });
-  getQuery();
+const topUp = (e: DataSource) => {
+  tableRef.value.sort("variation", null);
+  const list = [...symbolsStore.mySymbols];
+  const index = list.findIndex((item) => e.symbol === item.symbol);
+  if (index !== -1) {
+    list[index].topSort = +!list[index].topSort;
+    const resut = orderBy(list, ["topSort"], ["desc"]);
+    symbolsStore.mySymbols = resut;
+    editOptionalQuery({ symbols: resut });
+    getQuery();
+  }
 };
 </script>
 

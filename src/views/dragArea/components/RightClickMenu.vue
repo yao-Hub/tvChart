@@ -72,7 +72,7 @@
 </template>
 
 <script setup lang="ts">
-import { get, orderBy } from "lodash";
+import { get } from "lodash";
 import { ref, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -197,33 +197,33 @@ const showDetailDialog = () => {
 };
 
 const toogleTopUp = () => {
-  let list = symbolsStore.mySymbols.map((item) => {
-    return {
-      ...item,
-      variation: +useQuotes().getVariation(item.symbol).value.replace("%", ""),
-    };
-  });
-  const index = list.findIndex((e) => e.symbol === props.rowData.symbol);
-  if (index !== -1) {
-    list[index].topSort = +!list[index].topSort;
+  // let list = symbolsStore.mySymbols.map((item) => {
+  //   return {
+  //     ...item,
+  //     variation: +useQuotes().getVariation(item.symbol).value.replace("%", ""),
+  //   };
+  // });
+  // const index = list.findIndex((e) => e.symbol === props.rowData.symbol);
+  // if (index !== -1) {
+  //   list[index].topSort = +!list[index].topSort;
 
-    const sortArr = ["desc"] as Array<boolean | "desc" | "asc">;
-    const propArr = ["topSort"];
+  //   const sortArr = ["desc"] as Array<boolean | "desc" | "asc">;
+  //   const propArr = ["topSort"];
 
-    if (props.variOrder === "ascending") {
-      sortArr.push("asc");
-      propArr.push("variation");
-    }
-    if (props.variOrder === "descending") {
-      sortArr.push("desc");
-      propArr.push("variation");
-    }
-    const resut = orderBy(list, propArr, sortArr);
-    resut.forEach((item, index) => (item.sort = index));
-    symbolsStore.mySymbols = resut;
-    emit("toogleTopUp");
-    model.value = false;
-  }
+  //   if (props.variOrder === "ascending") {
+  //     sortArr.push("asc");
+  //     propArr.push("variation");
+  //   }
+  //   if (props.variOrder === "descending") {
+  //     sortArr.push("desc");
+  //     propArr.push("variation");
+  //   }
+  //   const resut = orderBy(list, propArr, sortArr);
+  //   resut.forEach((item, index) => (item.sort = index));
+  //   symbolsStore.mySymbols = resut;
+  // }
+  emit("toogleTopUp", props.rowData);
+  model.value = false;
 };
 
 import { delOptionalQuery } from "api/symbols/index";
@@ -276,7 +276,6 @@ import { useTime } from "@/store/modules/time";
 import dayjs from "dayjs";
 import { flattenDeep, groupBy, set, uniq } from "lodash";
 import { ElMessage } from "element-plus";
-import { useQuotes } from "@/store/modules/quotes";
 const timeStore = useTime();
 const tableData = ref<any[]>([{}, {}]);
 const columns = ref<{ prop: string; label: string }[]>([]);
