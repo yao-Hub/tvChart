@@ -386,5 +386,8 @@ export default {
     versionHasLatest:
       "The current version {version} is already the latest version",
     getUpdate: "Get updates",
+    downloading: "Update Downloading",
+    downloadCompleted: "Update Download Completed",
+    downloadError: "Update Download Error",
   },
 };

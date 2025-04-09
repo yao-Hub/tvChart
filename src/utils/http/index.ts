@@ -184,7 +184,7 @@ service.interceptors.response.use(
       data.err === 1 &&
       data.errmsg &&
       typeof data.errmsg === "string" &&
-      ["invalid token", "invalid group", "invalid login"].includes(data.errmsg)
+      ["invalid token", "disable login", "disable group"].includes(data.errmsg)
     ) {
       handleTokenErr();
       return Promise.reject(data);

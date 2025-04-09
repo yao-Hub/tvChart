@@ -1,12 +1,12 @@
 import { createVNode, render, App } from "vue";
-import CheckVersion from "../components/CheckVersion/index.vue";
+import UpdateNotice from "../components/updateNotice.vue";
 
 const checkVersionPlugin = {
   install(app: App) {
     const div = document.createElement("div");
     document.body.appendChild(div);
 
-    const vnode = createVNode(CheckVersion);
+    const vnode = createVNode(UpdateNotice);
     vnode.appContext = app._context; // Share the main app's context
 
     render(vnode, div);

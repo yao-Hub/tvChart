@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+
 import "dayjs/locale/en";
 import "dayjs/locale/zh-cn";
 import "dayjs/locale/zh-tw";
-import { ElConfigProvider } from "element-plus";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+
+import { ElConfigProvider } from "element-plus";
 
 import { LANGUAGE_LIST } from "@/constants/common";
 import { sendTrack } from "@/utils/track";
@@ -50,7 +52,7 @@ const handleNetworkChange = () => {
   networkStatus.value = navigator.onLine;
 };
 
-onMounted(async () => {
+onMounted(() => {
   window.addEventListener("online", handleNetworkChange);
   window.addEventListener("offline", handleNetworkChange);
   // 获取更新

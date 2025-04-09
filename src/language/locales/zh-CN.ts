@@ -385,6 +385,9 @@ export default {
     versionHasReleased: "新版本{version}已发布",
     versionHasLatest: "当前版本{version}已是最新版本",
     getUpdate: "获取更新",
+    downloading: "更新下载中",
+    downloadCompleted: "更新下载完成",
+    downloadError: "更新下载出错",
   },
 
   "refresh page": "刷新页面",

@@ -14,7 +14,12 @@ export function useUpdateVersion() {
   };
   const update = () => {
     if (versionInfo.value) {
-      window.electronAPI.openExternal(versionInfo.value.downloadUrl);
+      closeDialog();
+      useDialog().openDialog("updateNoticeVisible");
+      window.electronAPI.invoke(
+        "start-download",
+        versionInfo.value.downloadUrl
+      );
     }
   };
   return { t, closeDialog, update, versionInfo };

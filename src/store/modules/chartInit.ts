@@ -189,7 +189,10 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 默认商品（初始化的商品）
   function getDefaultSymbol() {
-    const firstSymbol = symbolStore.symbols[0]?.symbol;
+    let firstSymbol = "";
+    if (symbolStore.symbols.length) {
+      firstSymbol = symbolStore.symbols[0]?.symbol;
+    }
     const chartSymbol = getChartSymbol(state.activeChartId);
     if (chartSymbol) {
       const index = symbolStore.symbols.findIndex(
@@ -283,7 +286,7 @@ export const useChartInit = defineStore("chartInit", () => {
           (e) => e.symbol === item.symbol
         );
         if (index === -1) {
-          item.symbol = symbolStore.symbols[0].symbol;
+          item.symbol = activeSymbol;
           const infoMap = storageStore.getItem("chartInfoMap");
           if (infoMap && infoMap[item.id]) {
             delete infoMap[item.id];

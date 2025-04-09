@@ -28,6 +28,9 @@ export const useVersion = defineStore("version", {
     },
     // 获取更新
     async getUpdate(params?: IGetUpdate) {
+      if (!process.env.IF_ELECTRON) {
+        return;
+      }
       let status = [-1, 0, 1, 2];
       let ifCheckFrequency = false;
 
@@ -36,9 +39,6 @@ export const useVersion = defineStore("version", {
         ifCheckFrequency = params.ifCheckFrequency || false;
       }
 
-      if (!process.env.IF_ELECTRON) {
-        return;
-      }
       const upDateStamp = localStorage.getItem("upDateStamp");
       if (upDateStamp && ifCheckFrequency) {
         const currentTime = new Date().getTime();

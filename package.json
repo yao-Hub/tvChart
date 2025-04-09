@@ -1,7 +1,7 @@
 {
   "name": "wp-tradeview",
   "private": true,
-  "version": "1.7.5",
+  "version": "1.0.0",
   "main": "electron/main.js",
   "description": "utrader",
   "author": "wp",
@@ -34,7 +34,8 @@
     "crypto-js": "4.2.0",
     "dayjs": "1.11.11",
     "decimal.js": "10.4.3",
-    "electron-updater": "^6.6.2",
+    "downloads-folder": "3.0.3",
+    "electron-updater": "6.6.2",
     "element-plus": "2.8.4",
     "inquirer": "12.4.1",
     "pinia": "2.1.7",

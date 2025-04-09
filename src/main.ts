@@ -16,6 +16,7 @@ import ElementPlus from "element-plus";
 import { initLogDB } from "@/utils/IndexedDB/logDatabase";
 
 import updateVersionDialog from "@/plugins/updateVersion";
+import updateNotice from "@/plugins/updateNotice";
 
 const bootstrap = () => {
   const app = createApp(App);
@@ -30,6 +31,7 @@ const bootstrap = () => {
   app.use(i18n);
 
   app.use(updateVersionDialog);
+  app.use(updateNotice);
 
   for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component);
