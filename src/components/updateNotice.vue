@@ -1,7 +1,7 @@
 <template>
-  <div class="notice" v-if="useDialog().updateNoticeVisible">
+  <div class="notice" v-if="useDialog().updateNoticeVisible" ref="noticeRef">
     <div class="notice__group">
-      <h2 class="notice__title">{{ title }}</h2>
+      <h2 class="notice__title" ref="headerRef">{{ title }}</h2>
       <div class="notice__content">
         <el-progress :percentage="progress" :status="status" />
       </div>
@@ -11,8 +11,9 @@
 
 <script setup lang="ts">
 import { useDialog } from "@/store/modules/dialog";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useDraggable } from "@/hooks/use-draggable";
 
 const { t } = useI18n();
 
@@ -20,6 +21,10 @@ const progress = ref(0);
 
 const status = ref<"" | "success" | "warning" | "exception">("");
 const title = ref(t("update.downloading"));
+
+const noticeRef = ref();
+const headerRef = ref();
+const draggable = computed(() => true);
 
 onMounted(() => {
   window.electronAPI?.on("download-progress", (progressData) => {
@@ -37,6 +42,8 @@ onMounted(() => {
     status.value = "exception";
   });
 });
+
+useDraggable(noticeRef, headerRef, draggable);
 </script>
 
 <style lang="scss" scoped>
@@ -50,12 +57,6 @@ onMounted(() => {
   position: fixed;
   background-color: var(--el-bg-color-overlay);
   box-shadow: var(--el-box-shadow-light);
-  transition: opacity var(--el-transition-duration),
-    transform var(--el-transition-duration), left var(--el-transition-duration),
-    right var(--el-transition-duration), top 0.4s,
-    bottom var(--el-transition-duration);
-  overflow-wrap: break-word;
-  overflow: hidden;
   top: 16px;
   right: 16px;
   z-index: 9999;
@@ -71,6 +72,7 @@ onMounted(() => {
   line-height: 24px;
   color: var(--el-text-color-primary);
   margin: 0;
+  cursor: grab;
 }
 .notice__content {
   font-size: var(--el-font-size-base);

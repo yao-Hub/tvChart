@@ -72,9 +72,9 @@ export default defineConfig((mode: ConfigEnv) => {
         ...process.env,
       },
       _VERSION_: JSON.stringify(require("./package.json").version),
-      __OS_PLATFORM__: JSON.stringify(os.platform()),
-      _OS_RELEASE_: JSON.stringify(os.release()),
-      _OS_HOSTNAME_: JSON.stringify(os.hostname()),
+      WEB_PLATFORM: JSON.stringify(os.platform()),
+      WEB_RELEASE: JSON.stringify(os.release()),
+      WEB_HOSTNAME: JSON.stringify(os.hostname()),
     },
     server: {
       host: "0.0.0.0",

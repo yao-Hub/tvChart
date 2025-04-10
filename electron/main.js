@@ -2,11 +2,36 @@ const { app, BrowserWindow, screen, Menu, ipcMain, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
+const { debounce } = require('lodash');
 
 let mainWindow;
 
 // 尝试获取单实例锁
 const gotTheLock = app.requestSingleInstanceLock();
+
+// ========== 安装器执行模块 ==========
+class Installer {
+  static async run(exePath, options = {}) {
+    // 参数验证
+    if (!fs.existsSync(exePath)) {
+      throw new Error('安装文件不存在');
+    }
+
+    // 跨平台处理
+    const command = process.platform === 'win32'
+      ? `${exePath} /SILENT` // NSIS默认静默参数
+      : process.platform === 'darwin'
+        ? `open ${exePath}`
+        : `xdg-open ${exePath}`;
+
+    return new Promise((resolve, reject) => {
+      const child = exec(command, { windowsHide: true }, (error) => {
+        if (error) return reject(error);
+        resolve();
+      });
+    });
+  }
+}
 
 // 创建主窗口
 function createWindow() {
@@ -37,8 +62,8 @@ function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
-      nodeIntegration: true, // 禁用 Node.js 集成（推荐false） 为了打开默认浏览器升级设置为true
-      sandbox: true,
+      nodeIntegration: false, // 禁用 Node.js 集成（推荐false）
+      sandbox: false,
     },
   });
 
@@ -56,52 +81,86 @@ function createWindow() {
     // 生产环境：加载打包后的文件
     mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
-}
 
-if (!gotTheLock) {
-  // 如果没有获取到锁，说明已经有一个实例在运行，直接退出当前实例
-  app.quit();
-} else {
-  // 如果获取到锁，说明这是第一个实例
-  app.on('second-instance', (event, commandLine, workingDirectory) => {
-    // 当第二个实例启动时，聚焦到主窗口
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
+  mainWindow.on('close', (event) => {
+    const { dialog } = require('electron');
+    const choice = dialog.showMessageBoxSync(mainWindow, {
+      type: 'question',
+      buttons: ['立即关闭', '取消'],
+      title: '下载进行中',
+      message: '当前正在下载更新，关闭将暂停下载。确定要退出吗？',
+      defaultId: 1 // 默认选中"取消"
+    });
+    if (choice === 0) {
+      saveProcess();
+    } else {
+      event.preventDefault();
     }
   });
-
-  // 当 Electron 完成初始化并准备创建浏览器窗口时调用 createWindow 函数
-  app.whenReady().then(createWindow);
-
-  app.on('activate', function () {
-    // 在 macOS 上，当点击 Dock 图标并且没有其他窗口打开时，重新创建一个窗口
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-
-  // 当所有窗口关闭时退出应用（除了在 macOS 上）
-  app.on('window-all-closed', function () {
-    if (process.platform !== 'darwin') app.quit();
-  });
-
 }
 
-ipcMain.handle('start-download', (event, downloadUrl) => {
-  // 从URL中提取文件名
-  const filename = path.basename(new URL(downloadUrl).pathname); // 自动获取文件名
-  const savePath = path.join(app.getPath('downloads'), filename);
+// 缓存下载进度
+const saveDownloadState = debounce((state) => {
+  const statePath = path.join(app.getPath('userData'), 'downloadState.json');
+  fs.writeFileSync(statePath, JSON.stringify(state));
+}, 200);
 
-  const request = net.request(downloadUrl);
-  const tmpPath = `${savePath}.part`;
+// 读取缓存进度
+function loadDownloadState() {
+  const statePath = path.join(app.getPath('userData'), 'downloadState.json');
+  if (fs.existsSync(statePath)) {
+    return JSON.parse(fs.readFileSync(statePath, 'utf-8'));
+  }
+  return null;
+}
+
+// 清除缓存进度
+function clearDownloadState() {
+  const statePath = path.join(app.getPath('userData'), 'downloadState.json');
+  if (fs.existsSync(statePath)) {
+    const state = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
+    const { tmpPath } = state;
+
+    // 删除临时文件
+    if (tmpPath && fs.existsSync(tmpPath)) {
+      fs.unlinkSync(tmpPath);
+    }
+    fs.unlinkSync(statePath);
+  }
+}
+
+let activeDownload = null;
+
+// 开始更新
+ipcMain.handle('start-download', (event, downloadUrl) => {
+
+  let tmpPath;
   let receivedBytes = 0;
   let totalBytes = 0;
+
+  const filename = path.basename(new URL(downloadUrl).pathname);
+  const savePath = path.join(app.getPath('downloads'), filename);
+
+  // 检查是否存在未完成的下载
+  const existingState = loadDownloadState();
+
+  if (existingState && existingState.downloadUrl === downloadUrl && existingState.safeSave) {
+    // 恢复下载
+    tmpPath = existingState.tmpPath;
+    receivedBytes = existingState.receivedBytes;
+  } else {
+    tmpPath = `${savePath}.part`;
+  }
+  const request = net.request(downloadUrl);
 
   // 创建可写流（追加模式支持断点续传）
   const fileStream = fs.createWriteStream(tmpPath, { flags: 'a' });
 
   request.on('response', (response) => {
     // 获取文件总大小
-    totalBytes = parseInt(response.headers['content-length'], 10) || 0;
+    totalBytes = parseInt(response.headers['content-length']) || 0;
+
+    saveDownloadState({ tmpPath, downloadUrl, receivedBytes, totalBytes });
 
     // 处理断点续传
     const rangeHeader = response.headers['content-range'];
@@ -112,6 +171,18 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
 
     response.on('data', (chunk) => {
       receivedBytes += chunk.length;
+
+      // 实时保存进度
+      saveDownloadState({ tmpPath, downloadUrl, receivedBytes, totalBytes });
+
+      activeDownload = {
+        request,
+        tmpPath,
+        downloadUrl,
+        receivedBytes,
+        totalBytes
+      };
+
       fileStream.write(chunk);
 
       // 实时发送进度
@@ -144,29 +215,59 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
   }
 
   request.end();
-  // });
 });
 
-// ========== 安装器执行模块 ==========
-class Installer {
-  static async run(exePath, options = {}) {
-    // 参数验证
-    if (!fs.existsSync(exePath)) {
-      throw new Error('安装文件不存在');
-    }
-
-    // 跨平台处理
-    const command = process.platform === 'win32'
-      ? `${exePath} /SILENT` // NSIS默认静默参数
-      : process.platform === 'darwin'
-        ? `open ${exePath}`
-        : `xdg-open ${exePath}`;
-
-    return new Promise((resolve, reject) => {
-      const child = exec(command, { windowsHide: true }, (error) => {
-        if (error) return reject(error);
-        resolve();
-      });
-    });
+// 刷新or重新进入应用检查是否有未完成的更新
+ipcMain.handle('check-download-status', () => {
+  const state = loadDownloadState();
+  // 验证临时文件是否存在
+  if (state && fs.existsSync(state.tmpPath)) return state;
+  else {
+    clearDownloadState();
+    return null;
   }
+});
+
+ipcMain.on('clear-download-state', () => {
+  clearDownloadState();
+});
+
+function saveProcess() {
+  if (activeDownload) {
+    const { request, ...state } = activeDownload;
+
+    request.abort();
+
+    // 保存当前进度
+    saveDownloadState({ ...state, safeSave: true });
+
+    activeDownload = null;
+  }
+}
+
+if (!gotTheLock) {
+  // 如果没有获取到锁，说明已经有一个实例在运行，直接退出当前实例
+  app.quit();
+} else {
+  // 如果获取到锁，说明这是第一个实例
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    // 当第二个实例启动时，聚焦到主窗口
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
+  // 当 Electron 完成初始化并准备创建浏览器窗口时调用 createWindow 函数
+  app.whenReady().then(createWindow);
+
+  app.on('activate', function () {
+    // 在 macOS 上，当点击 Dock 图标并且没有其他窗口打开时，重新创建一个窗口
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+
+  // 当所有窗口关闭时退出应用
+  app.on('window-all-closed', (event) => {
+    app.quit();
+  });
 }

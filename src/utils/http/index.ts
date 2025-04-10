@@ -7,7 +7,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
-// import { addCancelTokenSource, cancelAllRequests } from "./axiosCancel";
+import { addCancelTokenSource, cancelAllRequests } from "./axiosCancel";
 
 import eventBus from "utils/eventBus";
 
@@ -38,7 +38,7 @@ type reqConfig = InternalAxiosRequestConfig<any> & IOption;
 type resConfig = AxiosRequestConfig<any> & IOption;
 
 function handleTokenErr() {
-  // cancelAllRequests();
+  cancelAllRequests();
   eventBus.emit("go-login");
 }
 
@@ -70,11 +70,12 @@ const service = axios.create({
     // @ts-ignore
     "x-u-app-version": _VERSION_,
     // @ts-ignore
-    "x-u-device-type": __OS_PLATFORM__,
+    "x-u-device-type": window.electronAPI?.getOSInfo().platform || WEB_PLATFORM,
     // @ts-ignore
-    "x-u-device-info": _OS_RELEASE_,
-    // @ts-ignore
-    "x-u-device-model": _OS_HOSTNAME_,
+    "x-u-device-info": window.electronAPI?.getOSInfo().release || WEB_RELEASE,
+    "x-u-device-model":
+      // @ts-ignore
+      window.electronAPI?.getOSInfo().hostname || WEB_HOSTNAME,
     "accept-language": acceptLanguage,
   },
 });
@@ -123,11 +124,11 @@ service.interceptors.request.use(
     config.url = baseURL + config.url;
 
     // 请求cancel
-    // if (!config.noBeCancel) {
-    //   const source = axios.CancelToken.source();
-    //   addCancelTokenSource(source);
-    //   config.cancelToken = source.token;
-    // }
+    if (!config.noBeCancel) {
+      const source = axios.CancelToken.source();
+      addCancelTokenSource(source);
+      config.cancelToken = source.token;
+    }
 
     // 请求数据处理
     if (!config.customData) {
@@ -181,7 +182,7 @@ service.interceptors.response.use(
       return response;
     }
     if (
-      data.err === 1 &&
+      data.err !== 0 &&
       data.errmsg &&
       typeof data.errmsg === "string" &&
       ["invalid token", "disable login", "disable group"].includes(data.errmsg)
@@ -206,9 +207,14 @@ service.interceptors.response.use(
       return Promise.reject(err);
     }
     if (res && res.data) {
-      if (res.data.errmsg && res.data.errmsg.includes("invalid token")) {
+      if (
+        res.data.errmsg &&
+        ["invalid token", "disable login", "disable group"].includes(
+          res.data.errmsg
+        )
+      ) {
         handleTokenErr();
-        return Promise.reject(err);
+        return Promise.reject(res.data);
       }
       ElNotification({
         message: t(res.data.errmsg || res.data.msg) || res.data.msg || "error",

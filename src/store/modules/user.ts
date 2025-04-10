@@ -185,7 +185,6 @@ export const useUser = defineStore("user", () => {
   })();
 
   async function executeLogic(params?: IGetInfo) {
-    // 实际业务逻辑
     const res = await loginInfo({
       login: account.value.login,
     });

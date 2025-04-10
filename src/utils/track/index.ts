@@ -69,9 +69,9 @@ export async function sendTrack(params: ITrackAgre) {
     userAgent,
     properties: {
       // @ts-ignore
-      deviceModel: _OS_HOSTNAME_,
+      deviceModel: window.electronAPI?.getOSInfo().hostname || WEB_HOSTNAME,
       // @ts-ignore
-      deviceInfo: _OS_RELEASE_,
+      deviceInfo: window.electronAPI?.getOSInfo().release || WEB_RELEASE,
       // @ts-ignore
       appVersion: _VERSION_,
       deviceBrand,

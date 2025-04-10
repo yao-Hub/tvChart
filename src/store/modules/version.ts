@@ -28,9 +28,20 @@ export const useVersion = defineStore("version", {
     },
     // 获取更新
     async getUpdate(params?: IGetUpdate) {
-      if (!process.env.IF_ELECTRON) {
+      // if (!process.env.IF_ELECTRON) {
+      //   return;
+      // }
+
+      const state = await window.electronAPI.invoke("check-download-status");
+
+      if (state) {
+        // 自动恢复下载
+        useDialog().openDialog("updateNoticeVisible");
+        // @ts-ignore
+        window.electronAPI.invoke("start-download", state.downloadUrl);
         return;
       }
+
       let status = [-1, 0, 1, 2];
       let ifCheckFrequency = false;
 
