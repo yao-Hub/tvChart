@@ -389,5 +389,8 @@ export default {
     downloading: "Update Downloading",
     downloadCompleted: "Update Download Completed",
     downloadError: "Update Download Error",
+    shutdown: "shutdown",
+    exitTip:
+      "Currently downloading updates, closing will pause the download. Are you sure you want to exit?",
   },
 };

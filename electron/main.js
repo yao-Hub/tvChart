@@ -8,6 +8,12 @@ let mainWindow;
 
 let activeDownload = null;
 
+// 翻译
+let translationsCache = {};
+ipcMain.on('set-translations', (event, translations) => {
+  translationsCache = translations;
+});
+
 // 尝试获取单实例锁
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -87,11 +93,15 @@ function createWindow() {
   mainWindow.on('close', (event) => {
     if (activeDownload) {
       const { dialog } = require('electron');
+      const { shutdown,
+        cancel,
+        exitTip,
+        downLoading } = translationsCache;
       const choice = dialog.showMessageBoxSync(mainWindow, {
         type: 'question',
-        buttons: ['立即关闭', '取消'],
-        title: '下载进行中',
-        message: '当前正在下载更新，关闭将暂停下载。确定要退出吗？',
+        buttons: [shutdown, cancel],
+        title: downLoading,
+        message: exitTip,
         defaultId: 1 // 默认选中"取消"
       });
       if (choice === 0) {

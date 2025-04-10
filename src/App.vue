@@ -64,6 +64,12 @@ onMounted(() => {
       }),
     1000
   );
+  window.electronAPI?.send("set-translations", {
+    shutdown: I18n.t("update.shutdown"),
+    cancel: I18n.t("cancel"),
+    exitTip: I18n.t("update.exitTip"),
+    downLoading: I18n.t("update.downloading"),
+  });
 });
 onUnmounted(() => {
   window.removeEventListener("online", handleNetworkChange);

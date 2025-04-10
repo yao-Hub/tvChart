@@ -388,6 +388,8 @@ export default {
     downloading: "更新下载中",
     downloadCompleted: "更新下载完成",
     downloadError: "更新下载出错",
+    shutdown: "立即关闭",
+    exitTip: "当前正在下载更新，关闭将暂停下载。确定要退出吗？",
   },
 
   "refresh page": "刷新页面",

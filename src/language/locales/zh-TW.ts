@@ -389,6 +389,8 @@ export default {
     downloading: "更新下載中",
     downloadCompleted: "更新下載完成",
     downloadError: "更新下載出錯",
+    shutdown: "立即關閉",
+    exitTip: "當前正在下載更新，關閉將暫停下載。 確定要退出嗎？",
   },
 
   "refresh page": "刷新頁面",

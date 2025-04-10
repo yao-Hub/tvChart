@@ -28,9 +28,9 @@ export const useVersion = defineStore("version", {
     },
     // 获取更新
     async getUpdate(params?: IGetUpdate) {
-      if (!process.env.IF_ELECTRON) {
-        return;
-      }
+      // if (!process.env.IF_ELECTRON) {
+      //   return;
+      // }
 
       const state = await window.electronAPI.invoke("check-download-status");
 
