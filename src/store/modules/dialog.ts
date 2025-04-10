@@ -50,5 +50,16 @@ export const useDialog = defineStore("dialog", {
     incrementZIndex() {
       this.zIndex++;
     },
+    $reset() {
+      this.disclaimersVisible = false;
+      this.orderDialogVisible = false;
+      this.feedbackVisible = false;
+      this.floatMenuParams = {
+        visible: false,
+        clientX: 0,
+        clientY: 0,
+      };
+      this.zIndex = 10;
+    },
   },
 });

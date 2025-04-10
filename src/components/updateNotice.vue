@@ -28,18 +28,21 @@ const draggable = computed(() => true);
 
 onMounted(() => {
   window.electronAPI?.on("download-progress", (progressData) => {
+    if (progress.value > 99) {
+      return;
+    }
     progress.value = +progressData.progress;
     title.value = t("update.downloading");
-
-    if (progress.value === 100) {
-      title.value = t("update.downloadCompleted");
-      status.value = "success";
-      setTimeout(() => useDialog().closeDialog("updateNoticeVisible"), 3000);
-    }
   });
   window.electronAPI?.on("download-error", () => {
     title.value = t("update.downloadError");
     status.value = "exception";
+  });
+  window.electronAPI?.on("download-completed", () => {
+    title.value = t("update.downloadCompleted");
+    status.value = "success";
+    progress.value = 100;
+    setTimeout(() => useDialog().closeDialog("updateNoticeVisible"), 3000);
   });
 });
 

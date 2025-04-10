@@ -6,6 +6,8 @@ const { debounce } = require('lodash');
 
 let mainWindow;
 
+let activeDownload = null;
+
 // 尝试获取单实例锁
 const gotTheLock = app.requestSingleInstanceLock();
 
@@ -83,24 +85,27 @@ function createWindow() {
   }
 
   mainWindow.on('close', (event) => {
-    const { dialog } = require('electron');
-    const choice = dialog.showMessageBoxSync(mainWindow, {
-      type: 'question',
-      buttons: ['立即关闭', '取消'],
-      title: '下载进行中',
-      message: '当前正在下载更新，关闭将暂停下载。确定要退出吗？',
-      defaultId: 1 // 默认选中"取消"
-    });
-    if (choice === 0) {
-      saveProcess();
-    } else {
-      event.preventDefault();
+    if (activeDownload) {
+      const { dialog } = require('electron');
+      const choice = dialog.showMessageBoxSync(mainWindow, {
+        type: 'question',
+        buttons: ['立即关闭', '取消'],
+        title: '下载进行中',
+        message: '当前正在下载更新，关闭将暂停下载。确定要退出吗？',
+        defaultId: 1 // 默认选中"取消"
+      });
+      if (choice === 0) {
+        saveProcess();
+      } else {
+        event.preventDefault();
+      }
     }
   });
 }
 
 // 缓存下载进度
-const saveDownloadState = debounce((state) => {
+const saveDownloadState = debounce((params = {}) => {
+  const state = { ...activeDownload, ...params };
   const statePath = path.join(app.getPath('userData'), 'downloadState.json');
   fs.writeFileSync(statePath, JSON.stringify(state));
 }, 200);
@@ -129,8 +134,6 @@ function clearDownloadState() {
   }
 }
 
-let activeDownload = null;
-
 // 开始更新
 ipcMain.handle('start-download', (event, downloadUrl) => {
 
@@ -147,7 +150,6 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
   if (existingState && existingState.downloadUrl === downloadUrl && existingState.safeSave) {
     // 恢复下载
     tmpPath = existingState.tmpPath;
-    receivedBytes = existingState.receivedBytes;
   } else {
     tmpPath = `${savePath}.part`;
   }
@@ -160,8 +162,6 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
     // 获取文件总大小
     totalBytes = parseInt(response.headers['content-length']) || 0;
 
-    saveDownloadState({ tmpPath, downloadUrl, receivedBytes, totalBytes });
-
     // 处理断点续传
     const rangeHeader = response.headers['content-range'];
     if (rangeHeader) {
@@ -172,9 +172,6 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
     response.on('data', (chunk) => {
       receivedBytes += chunk.length;
 
-      // 实时保存进度
-      saveDownloadState({ tmpPath, downloadUrl, receivedBytes, totalBytes });
-
       activeDownload = {
         request,
         tmpPath,
@@ -183,6 +180,8 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
         totalBytes
       };
 
+      // 实时保存进度
+      saveDownloadState();
       fileStream.write(chunk);
 
       // 实时发送进度
@@ -195,10 +194,14 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
 
     response.on('end', () => {
       fileStream.end();
+      activeDownload = null;
       fs.renameSync(tmpPath, savePath);
-
+      event.sender.send('download-completed');
       // 安装
       Installer.run(savePath);
+      setTimeout(() => {
+        app.quit();
+      }, 500);
     });
   });
 
@@ -234,12 +237,12 @@ ipcMain.on('clear-download-state', () => {
 
 function saveProcess() {
   if (activeDownload) {
-    const { request, ...state } = activeDownload;
+    const { request } = activeDownload;
 
     request.abort();
 
     // 保存当前进度
-    saveDownloadState({ ...state, safeSave: true });
+    saveDownloadState({ safeSave: true });
 
     activeDownload = null;
   }
