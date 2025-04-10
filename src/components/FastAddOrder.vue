@@ -18,7 +18,6 @@
       <BaseImg :style="styles.icon" iconName="caretDown" @click="reduceNum" />
       <input
         :style="{ ...styles.input, textAlign: 'center' }"
-        type="number"
         v-model="volume"
       />
       <BaseImg iconName="caretUp" :style="styles.icon" @click="addNum" />
