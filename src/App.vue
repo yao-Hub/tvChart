@@ -64,12 +64,15 @@ onMounted(() => {
       }),
     1000
   );
+
+  // electron 多语言传递
   window.electronAPI?.send("set-translations", {
     shutdown: I18n.t("update.shutdown"),
     cancel: I18n.t("cancel"),
     exitTip: I18n.t("update.exitTip"),
     downLoading: I18n.t("update.downloading"),
   });
+  useVersion().subUpdate();
 });
 onUnmounted(() => {
   window.removeEventListener("online", handleNetworkChange);

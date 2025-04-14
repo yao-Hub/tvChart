@@ -2,11 +2,12 @@ const { app, BrowserWindow, screen, Menu, ipcMain, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
-const { debounce } = require('lodash');
 
 let mainWindow;
 
 let activeDownload = null;
+
+let writeCompletionCallback = null;
 
 // 翻译
 let translationsCache = {};
@@ -16,30 +17,6 @@ ipcMain.on('set-translations', (event, translations) => {
 
 // 尝试获取单实例锁
 const gotTheLock = app.requestSingleInstanceLock();
-
-// ========== 安装器执行模块 ==========
-class Installer {
-  static async run(exePath, options = {}) {
-    // 参数验证
-    if (!fs.existsSync(exePath)) {
-      throw new Error('安装文件不存在');
-    }
-
-    // 跨平台处理
-    const command = process.platform === 'win32'
-      ? `${exePath} /SILENT` // NSIS默认静默参数
-      : process.platform === 'darwin'
-        ? `open ${exePath}`
-        : `xdg-open ${exePath}`;
-
-    return new Promise((resolve, reject) => {
-      const child = exec(command, { windowsHide: true }, (error) => {
-        if (error) return reject(error);
-        resolve();
-      });
-    });
-  }
-}
 
 // 创建主窗口
 function createWindow() {
@@ -90,7 +67,8 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
 
-  mainWindow.on('close', (event) => {
+  mainWindow.on('close', async (event) => {
+    event.preventDefault();
     if (activeDownload) {
       const { dialog } = require('electron');
       const { shutdown,
@@ -102,23 +80,64 @@ function createWindow() {
         buttons: [shutdown, cancel],
         title: downLoading,
         message: exitTip,
-        defaultId: 1 // 默认选中"取消"
+        defaultId: 1, // 默认选中"取消"
+        cancelId: 1
       });
       if (choice === 0) {
-        saveProcess();
-      } else {
-        event.preventDefault();
+        await safeSaveDownload("close");
+        mainWindow.destroy();
+        mainWindow = null;
       }
+      return;
     }
+    mainWindow.destroy();
+    mainWindow = null;
   });
 }
 
+// 关闭应用前确保完整保存文件数据和进度
+async function safeSaveDownload() {
+  if (activeDownload) {
+    const { request } = activeDownload;
+    request.abort();
+    // 等待当前写入操作完成
+    await new Promise((resolve) => {
+      writeCompletionCallback = resolve;
+    });
+    activeDownload = null;
+  }
+}
+
+// ========== 安装器执行模块 ==========
+class Installer {
+  static async run(exePath, options = {}) {
+    // 参数验证
+    if (!fs.existsSync(exePath)) {
+      throw new Error('安装文件不存在');
+    }
+
+    // 跨平台处理
+    const command = process.platform === 'win32'
+      ? `${exePath} /SILENT` // NSIS默认静默参数
+      : process.platform === 'darwin'
+        ? `open ${exePath}`
+        : `xdg-open ${exePath}`;
+
+    return new Promise((resolve, reject) => {
+      exec(command, { windowsHide: true }, (error) => {
+        if (error) return reject(error);
+        resolve();
+      });
+    });
+  }
+}
+
 // 缓存下载进度
-const saveDownloadState = debounce((params = {}) => {
+const saveDownloadState = (params = {}) => {
   const state = { ...activeDownload, ...params };
   const statePath = path.join(app.getPath('userData'), 'downloadState.json');
   fs.writeFileSync(statePath, JSON.stringify(state));
-}, 200);
+};
 
 // 读取缓存进度
 function loadDownloadState() {
@@ -151,7 +170,9 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
   let receivedBytes = 0;
   let totalBytes = 0;
 
+  // 下载地址
   const filename = path.basename(new URL(downloadUrl).pathname);
+  // 下载保存位置
   const savePath = path.join(app.getPath('downloads'), filename);
 
   // 检查是否存在未完成的下载
@@ -160,6 +181,7 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
   if (existingState && existingState.downloadUrl === downloadUrl && existingState.safeSave) {
     // 恢复下载
     tmpPath = existingState.tmpPath;
+    receivedBytes = existingState.receivedBytes;
   } else {
     tmpPath = `${savePath}.part`;
   }
@@ -173,6 +195,7 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
     totalBytes = parseInt(response.headers['content-length']) || 0;
 
     // 处理断点续传
+    if (receivedBytes > 0) totalBytes += receivedBytes;
     const rangeHeader = response.headers['content-range'];
     if (rangeHeader) {
       const match = rangeHeader.match(/bytes (\d+)-(\d+)\/(\d+)/);
@@ -187,26 +210,35 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
         tmpPath,
         downloadUrl,
         receivedBytes,
-        totalBytes
+        totalBytes,
+        completed: false
       };
 
       // 实时保存进度
       saveDownloadState();
-      fileStream.write(chunk);
+      fileStream.write(chunk, () => {
+        if (writeCompletionCallback) {
+          writeCompletionCallback(); // 通知写入完成
+          writeCompletionCallback = null;
+        }
+      });
 
       // 实时发送进度
       event.sender.send('download-progress', {
-        progress: totalBytes > 0 ? (receivedBytes / totalBytes * 100).toFixed(2) : 0,
+        progress: Math.min((receivedBytes / totalBytes * 100).toFixed(2), 99),
         received: receivedBytes,
         total: totalBytes
       });
     });
 
-    response.on('end', () => {
+    response.on('end', async () => {
       fileStream.end();
-      activeDownload = null;
+      activeDownload.completed = true;
+      saveDownloadState();
+      // 更改下载安装包名字
       fs.renameSync(tmpPath, savePath);
       event.sender.send('download-completed');
+      activeDownload = null;
       // 安装
       Installer.run(savePath);
       setTimeout(() => {
@@ -230,33 +262,37 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
   request.end();
 });
 
-// 刷新or重新进入应用检查是否有未完成的更新
-ipcMain.handle('check-download-status', () => {
+ipcMain.handle('start-install', async (event, downloadUrl) => {
+  const filename = path.basename(new URL(downloadUrl).pathname);
+  const savePath = path.join(app.getPath('downloads'), filename);
+  Installer.run(savePath);
+  setTimeout(() => {
+    app.quit();
+  }, 500);
+});
+
+// 检查更新状态
+ipcMain.handle('check-download-status', (event, url) => {
   const state = loadDownloadState();
+
   // 验证临时文件是否存在
-  if (state && fs.existsSync(state.tmpPath)) return state;
-  else {
-    clearDownloadState();
-    return null;
-  }
-});
-
-ipcMain.on('clear-download-state', () => {
+  if (state) {
+    // 是否下载完毕
+    const filename = path.basename(new URL(url).pathname);
+    const savePath = path.join(app.getPath('downloads'), filename);
+    if (fs.existsSync(savePath)) {
+      return state;
+    }
+    // 缓存是否是更新地址
+    if (state.downloadUrl === url && fs.existsSync(state.tmpPath)) {
+      return state;
+    }
+  };
   clearDownloadState();
+  return null;
 });
 
-function saveProcess() {
-  if (activeDownload) {
-    const { request } = activeDownload;
-
-    request.abort();
-
-    // 保存当前进度
-    saveDownloadState({ safeSave: true });
-
-    activeDownload = null;
-  }
-}
+ipcMain.handle('clear-download-cache', () => clearDownloadState());
 
 if (!gotTheLock) {
   // 如果没有获取到锁，说明已经有一个实例在运行，直接退出当前实例

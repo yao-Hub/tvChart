@@ -130,7 +130,7 @@
               tradeDisabled
             "
             @click="modify"
-            >{{ t("tip.confirm", { type: t("modify") }) }}</el-button
+            >{{ t("dialog.confirmModify") }}</el-button
           >
         </el-tooltip>
       </template>

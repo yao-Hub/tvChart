@@ -181,28 +181,26 @@ export const useChartInit = defineStore("chartInit", () => {
   // 获取chart的symbol
   function getChartSymbol(id: string) {
     const symbol = state.chartWidgetList.find((e) => e.id === id)?.symbol;
-    if (symbol) {
+    const index = symbolStore.symbols.findIndex((e) => e.symbol === symbol);
+    if (index > -1) {
       return symbol;
+    }
+    if (symbolStore.symbols.length) {
+      return symbolStore.symbols[0].symbol;
     }
     return "";
   }
 
   // 默认商品（初始化的商品）
   function getDefaultSymbol() {
-    let firstSymbol = "";
-    if (symbolStore.symbols.length) {
-      firstSymbol = symbolStore.symbols[0]?.symbol;
-    }
     const chartSymbol = getChartSymbol(state.activeChartId);
     if (chartSymbol) {
-      const index = symbolStore.symbols.findIndex(
-        (e) => e.symbol === chartSymbol
-      );
-      if (index > -1) {
-        return chartSymbol;
-      }
+      return chartSymbol;
     }
-    return firstSymbol;
+    if (symbolStore.symbols.length) {
+      return symbolStore.symbols[0].symbol;
+    }
+    return "";
   }
 
   // 设置图表显示商品

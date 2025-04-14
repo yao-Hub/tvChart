@@ -12,7 +12,7 @@ interface IState {
   disclaimersVisible: boolean; // 快捷交易声明弹窗
   feedbackVisible: boolean; // 我的反馈弹窗
   updateVersionVisible: boolean; // 版本更新弹窗
-  updateNoticeVisible: boolean; // 下载进度弹窗
+  updateProgressVisible: boolean; // 下载进度弹窗
   zIndex: number;
 }
 
@@ -21,7 +21,7 @@ type TVisible =
   | "disclaimersVisible"
   | "feedbackVisible"
   | "updateVersionVisible"
-  | "updateNoticeVisible";
+  | "updateProgressVisible";
 
 export const useDialog = defineStore("dialog", {
   state: (): IState => {
@@ -30,7 +30,7 @@ export const useDialog = defineStore("dialog", {
       orderDialogVisible: false, // 订单弹窗
       feedbackVisible: false,
       updateVersionVisible: false,
-      updateNoticeVisible: false,
+      updateProgressVisible: false,
       floatMenuParams: {
         visible: false,
         clientX: 0,

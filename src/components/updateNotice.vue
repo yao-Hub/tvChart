@@ -1,5 +1,5 @@
 <template>
-  <div class="notice" v-if="useDialog().updateNoticeVisible" ref="noticeRef">
+  <div class="notice" v-if="useDialog().updateProgressVisible" ref="noticeRef">
     <div class="notice__group">
       <h2 class="notice__title" ref="headerRef">{{ title }}</h2>
       <div class="notice__content">
@@ -11,41 +11,49 @@
 
 <script setup lang="ts">
 import { useDialog } from "@/store/modules/dialog";
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDraggable } from "@/hooks/use-draggable";
+import { useVersion } from "@/store/modules/version";
 
 const { t } = useI18n();
-
-const progress = ref(0);
-
-const status = ref<"" | "success" | "warning" | "exception">("");
-const title = ref(t("update.downloading"));
 
 const noticeRef = ref();
 const headerRef = ref();
 const draggable = computed(() => true);
 
-onMounted(() => {
-  window.electronAPI?.on("download-progress", (progressData) => {
-    if (progress.value > 99) {
-      return;
-    }
-    progress.value = +progressData.progress;
-    title.value = t("update.downloading");
-  });
-  window.electronAPI?.on("download-error", () => {
-    title.value = t("update.downloadError");
-    status.value = "exception";
-  });
-  window.electronAPI?.on("download-completed", () => {
-    title.value = t("update.downloadCompleted");
-    status.value = "success";
-    progress.value = 100;
-    setTimeout(() => useDialog().closeDialog("updateNoticeVisible"), 3000);
-  });
-});
+type TStatus = "success" | "downloading" | "error" | "none";
+type IStatus = {
+  [K in TStatus]: {
+    status: "success" | "warning" | "";
+    title: string;
+  };
+};
 
+const statusMap = {
+  success: {
+    status: "success",
+    title: t("update.downloadCompleted"),
+  },
+  downloading: {
+    status: "",
+    title: t("update.downloading"),
+  },
+  error: {
+    status: "warning",
+    title: t("update.downloadError"),
+  },
+  none: {
+    status: "",
+    title: t("update.downloading"),
+  },
+} as IStatus;
+
+const status = computed(() => statusMap[useVersion().updateInfo.status].status);
+const title = computed(() => statusMap[useVersion().updateInfo.status].title);
+const progress = computed(() => useVersion().updateInfo.progress);
+
+// 可拖拽
 useDraggable(noticeRef, headerRef, draggable);
 </script>
 

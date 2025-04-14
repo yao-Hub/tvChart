@@ -74,3 +74,24 @@ export function getPort(url: string) {
   }
   return "";
 }
+
+interface IRepositionArr {
+  oldIndex: number;
+  newIndex: number;
+  arr: unknown[];
+}
+export function repositionArr(params: IRepositionArr) {
+  const { oldIndex, newIndex, arr } = params;
+  if (
+    oldIndex < 0 ||
+    oldIndex >= arr.length ||
+    newIndex < 0 ||
+    newIndex >= arr.length
+  ) {
+    console.error("索引超出了数组范围");
+    return arr;
+  }
+  const [removed] = arr.splice(oldIndex, 1);
+  arr.splice(newIndex, 0, removed);
+  return arr;
+}

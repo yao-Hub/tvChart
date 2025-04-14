@@ -4,13 +4,7 @@
       <div :style="wordStyle('sell')">
         {{ getQuotes("bid") }}
       </div>
-      <div
-        :style="{
-          ...btnStyle('sell'),
-          cursor: loading ? 'not-allowed' : 'pointer',
-        }"
-        @click="addOrder(1)"
-      >
+      <div :style="btnStyle('sell')" @click="addOrder(1)">
         {{ t("order.sell") }}
       </div>
     </div>
@@ -23,13 +17,7 @@
       <BaseImg iconName="caretUp" :style="styles.icon" @click="addNum" />
     </div>
     <div :style="styles.area">
-      <div
-        :style="{
-          ...btnStyle('buy'),
-          cursor: loading ? 'not-allowed' : 'pointer',
-        }"
-        @click="addOrder(0)"
-      >
+      <div :style="btnStyle('buy')" @click="addOrder(0)">
         {{ t("order.buy") }}
       </div>
       <div :style="wordStyle('buy')">
@@ -103,7 +91,6 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    cursor: "pointer",
     color: "#fff",
   },
   word: {
@@ -146,6 +133,8 @@ const btnStyle = (type: DirectionType) => {
   return {
     ...styles.btn,
     backgroundColor: type === "sell" ? btnDownColor.value : btnUpColor.value,
+    opacity: ifCanTrade.value && !loading.value ? 1 : 0.5,
+    cursor: ifCanTrade.value && !loading.value ? "pointer" : "not-allowed",
   };
 };
 
@@ -163,20 +152,24 @@ const inputAreaStyle = computed(() => {
 });
 
 interface Props {
-  symbol: string;
   id: string;
 }
 const props = defineProps<Props>();
 
+const ifCanTrade = computed(() => {
+  const symbols = symbolsStore.symbols_tradeAllow.map((item) => item.symbol);
+  return symbols.includes(nowSymbol.value);
+});
+
 const nowSymbol = computed(() => {
   const chartSymbol = chartInitStore.getChartSymbol(props.id);
-  return props.symbol || chartSymbol;
+  return chartSymbol || "";
 });
 
 const getQuotes = (type: "bid" | "ask") => {
   const symbol = nowSymbol.value;
   const digits = symbolInfo.value?.digits;
-  if (quotesStore.qoutes[symbol]) {
+  if (symbol && quotesStore.qoutes[symbol]) {
     return quotesStore.qoutes[symbol][type].toFixed(digits ?? 2);
   }
   return "-";
@@ -221,6 +214,9 @@ const reduceNum = () => {
 const regex = /^-?\d+(\.\d+)?$/;
 const valid = async () => {
   const symbols = symbolsStore.symbols_tradeAllow.map((item) => item.symbol);
+  if (nowSymbol.value === undefined) {
+    return false;
+  }
   if (symbols.indexOf(nowSymbol.value) === -1) {
     ElMessage.warning(t("tip.symbolNoAllowTrading"));
     return false;
@@ -252,7 +248,7 @@ const loading = ref(false);
 const addOrder = debounce(
   async (type: 0 | 1) => {
     try {
-      if (loading.value) {
+      if (!nowSymbol.value || !ifCanTrade.value || loading.value) {
         return;
       }
       loading.value = true;

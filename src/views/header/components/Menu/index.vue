@@ -5,9 +5,9 @@
     @visible-change="visible = $event"
     placement="bottom-end"
   >
-    <div class="menu">
+    <div class="menuIcon">
       <BaseImg
-        :iconName="visible ? 'menuactive' : 'menu'"
+        :iconName="visible ? 'menuActive' : 'menuUnactive'"
         @click="toggle(!visible)"
       ></BaseImg>
     </div>
@@ -82,7 +82,7 @@ const ifElectron = process.env.IF_ELECTRON;
 :deep(.el-dropdown) {
   height: 100%;
 }
-.menu {
+.menuIcon {
   width: 48px;
   height: 48px;
   display: flex;

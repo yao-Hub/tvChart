@@ -25,8 +25,9 @@
     >
       <div
         class="charts_container_item"
-        v-for="{ id, symbol, interval } in chartInitStore.state.chartWidgetList"
-        :key="id"
+        v-for="({ id, symbol, interval }, index) in chartInitStore.state
+          .chartWidgetList"
+        :key="id + index"
         :id="id"
         v-show="activedId === id || chartType !== 'single'"
       >
@@ -43,6 +44,7 @@
           @symbolCommand="symbolCommand"
           @resolutionCommand="resolutionCommand"
           @tabClose="tabClose"
+          :style="{ marginLeft: index === 0 ? '14px' : '0' }"
         ></chartTab>
         <TVChart
           style="flex: 1"
@@ -76,6 +78,7 @@ import { useChartSub } from "@/store/modules/chartSub";
 import { useTime } from "@/store/modules/time";
 
 import { datafeed } from "@/config/chartConfig";
+import { repositionArr } from "utils/common";
 
 import chartTab from "./components/chartTab/index.vue";
 
@@ -162,8 +165,12 @@ onMounted(() => {
       chartInitStore.saveCharts();
     },
     onEnd: (evt: any) => {
-      const id = evt.item.id;
-      chartInitStore.chartRefresh(id);
+      const { oldIndex, newIndex } = evt;
+      repositionArr({
+        oldIndex,
+        newIndex,
+        arr: chartInitStore.state.chartWidgetList,
+      });
     },
   });
 

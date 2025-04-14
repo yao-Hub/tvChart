@@ -230,10 +230,7 @@
                 <div>{{ column.title || "" }}</div>
                 <div
                   class="drag-line"
-                  v-show="
-                    columnIndex !== state.columns[activeKey].length - 1 &&
-                    dragLineList.includes(columnIndex)
-                  "
+                  v-show="dragLineList.includes(columnIndex)"
                   @mousedown="(e: MouseEvent) => mousedown(e, columnIndex)"
                 >
                   |
@@ -509,44 +506,34 @@ onMounted(() => {
   observer.observe(container.value);
 });
 
-const ifRequest = reactive<{
-  [key in orderTypes.TableTabKey]?: boolean;
-}>({});
 // 动态调整表格的列宽
 watch(
   () => activeKey.value,
   () => {
     adjustTable();
-    if (ifRequest[activeKey.value]) {
-      return;
-    }
-    try {
-      orderStore.getData(activeKey.value);
-      ifRequest[activeKey.value] = true;
-    } catch (error) {}
+    orderStore.getData(activeKey.value);
   }
 );
 const adjustTable = debounce(() => {
-  const epsilon = 3;
   const columns_widths = state.columns[activeKey.value].reduce(
-    (pre, next) => pre + next.width,
+    (pre, next) =>
+      pre + (next.width === "auto" ? MIN_COLUMN_WIDTH : next.width),
     0
   );
   if (container.value) {
     // - margin padding border
     const container_width = container.value.offsetWidth - 32;
+    const container_width_dec = new Decimal(container_width);
+    const columns_widths_dec = new Decimal(columns_widths);
 
-    // 使用一个误差范围来比较浮点数
-    if (Math.abs(columns_widths - container_width) > epsilon) {
-      const container_width_dec = new Decimal(container_width);
-      const columns_widths_dec = new Decimal(columns_widths);
+    // 表格列宽度和大于容器
+    if (columns_widths > container_width) {
       state.columns[activeKey.value].forEach((item) => {
         const minw = item.minWidth || MIN_COLUMN_WIDTH;
         let width = new Decimal(item.width);
         if (columns_widths > container_width && item.minWidth) {
           width = new Decimal(item.minWidth);
         }
-        // width / columns_widths_dec * container_width_dec
         const result = width
           .div(columns_widths_dec)
           .mul(container_width_dec)
@@ -554,7 +541,38 @@ const adjustTable = debounce(() => {
         const floorRes = Math.floor(+result);
         item.width = floorRes < minw ? minw : floorRes;
       });
+      return;
     }
+
+    // 表格列宽度和 小于容器
+    const autoWidhtColums = state.columns[activeKey.value].filter(
+      (item) => item.width === "auto"
+    );
+    const hanveWidthSum = state.columns[activeKey.value].reduce(
+      (pre, next) => pre + (next.width === "auto" ? 0 : next.width),
+      0
+    );
+    const hanveWidthSum_dec = new Decimal(hanveWidthSum);
+    const leftWidth = +container_width_dec.sub(hanveWidthSum_dec);
+    const leftWidth_dec = new Decimal(leftWidth);
+    const singleWidth = leftWidth_dec.div(new Decimal(autoWidhtColums.length));
+    state.columns[activeKey.value].forEach((item) => {
+      if (item.width === "auto") {
+        item.width = +singleWidth.toString();
+      }
+    });
+
+    const newColumnWidth = state.columns[activeKey.value].reduce(
+      (pre, next) => pre + (next.width as number),
+      0
+    );
+    const newColumnWidth_dec = new Decimal(newColumnWidth);
+    state.columns[activeKey.value].forEach((item) => {
+      const itemWidht_dec = new Decimal(item.width);
+      const perc = itemWidht_dec.div(newColumnWidth_dec);
+      const prec_dec = new Decimal(perc);
+      item.width = +prec_dec.mul(container_width_dec).toString();
+    });
   }
 });
 
@@ -567,31 +585,49 @@ const columnRefresh = (x: number, index: number) => {
   const nowCol = state.columns[activeKey.value][index];
   const nextCol = state.columns[activeKey.value][index + 1];
 
-  // 上一个单元格移动
+  // 当前单元格移动
   const minNowW = nowCol.minWidth || MIN_COLUMN_WIDTH;
-  // 向左
+  // 向左拖动  不能小于最小宽度
   if (x < 0 && nowCol.width <= minNowW) {
     return;
   }
-  const nowW = nowCol.width + x;
+  const nowW = (nowCol.width as number) + x;
 
+  let nextW;
   // 下一个单元格移动
-  const minNextW = nextCol.minWidth || MIN_COLUMN_WIDTH;
-  // 向右
-  if (x > 0 && nextCol.width <= minNextW) {
-    return;
-  }
-  const nextW = nextCol.width - x;
+  if (nextCol) {
+    const minNextW = nextCol.minWidth || MIN_COLUMN_WIDTH;
+    // 向右
+    if (x > 0 && nextCol.width <= minNextW) {
+      return;
+    }
+    nextW = (nextCol.width as number) - x;
 
-  const allWidth = nowCol.width + nextCol.width;
-  if (nowW + nextW > allWidth + 1) {
-    return;
+    const allWidth = (nowCol.width as number) + (nextCol.width as number);
+    if (nowW + nextW > allWidth) {
+      return;
+    }
   }
-  nowCol.width = nowW;
+
+  // 最后一个单元格向右
+  if (!nextCol && x > 0) {
+    const allWidth = state.columns[activeKey.value].reduce(
+      (pre, next) => pre + (next.width as number),
+      0
+    );
+    const container_width = container.value.offsetWidth - 32;
+    if (allWidth > container_width - 3) {
+      return;
+    }
+  }
+
+  nowCol.width = +nowW.toFixed(0);
   storageStore.saveOrderTableColumn(activeKey.value, nowCol.dataKey, nowW);
 
-  nextCol.width = nextW;
-  storageStore.saveOrderTableColumn(activeKey.value, nextCol.dataKey, nextW);
+  if (nextW) {
+    nextCol.width = +nextW.toFixed(0);
+    storageStore.saveOrderTableColumn(activeKey.value, nextCol.dataKey, nextW);
+  }
 };
 let isResizing = false;
 let isEnter = false;
@@ -813,7 +849,7 @@ watch(
       const index = list.findIndex((e) => e.dataKey === "profit");
       const targetList = list.slice(0, index + 1);
       const width = targetList.reduce((pre, next) => {
-        return pre + next.width;
+        return pre + +next.width;
       }, 0);
       MOHFWidth.value = width - tableXScroll.value + "px";
     }

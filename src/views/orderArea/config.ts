@@ -6,9 +6,14 @@ const t = i18n.global.t;
 interface IColumn {
   dataKey: string;
   key: string;
+  width: number | "auto";
 }
 
-export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
+export const tableColumns: Record<
+  TableTabKey,
+  Array<Omit<Column, "width"> & IColumn>
+> = {
+  // 持仓
   marketOrder: [
     {
       title: t("table.id"),
@@ -35,9 +40,9 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.openingTime"),
       dataKey: "time_setup",
       key: "time_setup",
-      width: 200,
+      width: 170,
       align: "right",
-      minWidth: 190,
+      minWidth: 170,
     },
     {
       title: t("table.volume"),
@@ -118,6 +123,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       minWidth: 40,
     },
   ],
+  // 挂单
   pendingOrder: [
     {
       title: t("table.id"),
@@ -144,8 +150,8 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.pendingAddTime"),
       dataKey: "time_setup",
       key: "time_setup",
-      width: 200,
-      minWidth: 190,
+      width: 170,
+      minWidth: 170,
       align: "right",
     },
     {
@@ -187,8 +193,8 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.expirationDate"),
       dataKey: "time_expiration",
       key: "time_expiration",
-      width: 200,
-      minWidth: 190,
+      width: 170,
+      minWidth: 170,
       align: "right",
     },
     {
@@ -207,7 +213,7 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       minWidth: 40,
     },
   ],
-  // 挂单历史
+  // 挂单历史（失效）
   pendingOrderHistory: [
     {
       title: t("table.id"),
@@ -234,8 +240,8 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.orderActivationTime"),
       dataKey: "time_setup",
       key: "time_setup",
-      width: 200,
-      minWidth: 190,
+      width: 170,
+      minWidth: 170,
       align: "right",
     },
     {
@@ -270,36 +276,28 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.expirationDate"),
       dataKey: "time_expiration",
       key: "time_expiration",
-      width: 200,
-      minWidth: 190,
+      width: 170,
+      minWidth: 170,
       align: "right",
     },
     {
       title: t("table.closingTime"),
       dataKey: "time_done",
       key: "time_done",
-      width: 200,
-      minWidth: 190,
+      width: 170,
+      minWidth: 170,
       align: "right",
     },
     {
       title: t("table.comment"),
       dataKey: "comment",
       key: "comment",
-      width: 300,
+      width: "auto",
       minWidth: 80,
       align: "right",
     },
-    // 占位，用于最尾的列拉伸
-    {
-      title: "",
-      dataKey: "Placeholder",
-      key: "Placeholder",
-      width: 1,
-      minWidth: 1,
-    },
   ],
-  // 持仓历史
+  // 持仓历史（历史）
   marketOrderHistory: [
     {
       title: t("table.id"),
@@ -326,16 +324,16 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.openingTime"),
       dataKey: "time_setup",
       key: "open_time",
-      width: 200,
-      minWidth: 190,
+      width: 170,
+      minWidth: 170,
       align: "right",
     },
     {
       title: t("table.positionClosingTime"),
       dataKey: "close_time",
       key: "close_time",
-      width: 200,
-      minWidth: 190,
+      width: 170,
+      minWidth: 170,
       align: "right",
     },
     {
@@ -366,13 +364,6 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       width: 100,
       align: "right",
     },
-    // {
-    //   title: t("table.closeOrderId"),
-    //   dataKey: "from_id",
-    //   key: "from_id",
-    //   width: 130,
-    //   align: "right",
-    // },
     {
       title: t("table.exitPrice"),
       dataKey: "close_price",
@@ -424,14 +415,6 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       width: 100,
       align: "right",
     },
-    // 占位，用于最尾的列拉伸
-    {
-      title: "",
-      dataKey: "Placeholder",
-      key: "Placeholder",
-      width: 1,
-      minWidth: 1,
-    },
   ],
   blanceRecord: [
     {
@@ -445,8 +428,8 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.time"),
       dataKey: "time_setup",
       key: "open_time",
-      width: 200,
-      minWidth: 190,
+      width: 170,
+      minWidth: 170,
       align: "right",
     },
     {
@@ -467,17 +450,9 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       title: t("table.comment"),
       dataKey: "comment",
       key: "comment",
-      width: 300,
+      width: "auto",
       minWidth: 80,
       align: "right",
-    },
-    // 占位，用于最尾的列拉伸
-    {
-      title: "",
-      dataKey: "Placeholder",
-      key: "Placeholder",
-      width: 1,
-      minWidth: 1,
     },
   ],
   log: [
@@ -509,14 +484,6 @@ export const tableColumns: Record<TableTabKey, Array<IColumn & Column>> = {
       key: "detail",
       width: 800,
       align: "left",
-    },
-    // 占位，用于最尾的列拉伸
-    {
-      title: "",
-      dataKey: "Placeholder",
-      key: "Placeholder",
-      width: 1,
-      minWidth: 1,
     },
   ],
 };

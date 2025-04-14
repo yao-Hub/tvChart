@@ -53,8 +53,7 @@ export const useChartAction = defineStore("chartAction", {
         grandpa.style.order = "-1";
         const separator = <HTMLElement>grandpa.nextSibling;
         separator.remove();
-        const symbol = widget.activeChart().symbol();
-        const orderComp = createApp(FastAddOrder, { symbol, id });
+        const orderComp = createApp(FastAddOrder, { id });
         orderComp.use(i18n);
         orderComp.mount(Button);
 

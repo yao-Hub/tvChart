@@ -21,7 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { onBeforeRouteLeave } from "vue-router";
 
@@ -169,15 +169,20 @@ const handleVisibilityChange = async () => {
   }
 };
 
+const saveCharts = () => {
+  chartInitStore.saveCharts();
+};
+
 // 浏览器页面变化布局随之变化
 onMounted(() => {
-  console.log("onMounted");
   init();
   window.addEventListener("resize", resizeUpdate);
   document.addEventListener("visibilitychange", handleVisibilityChange);
-  window.addEventListener("beforeunload", () => {
-    chartInitStore.saveCharts();
-  });
+  window.addEventListener("beforeunload", saveCharts);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("beforeunload", saveCharts);
 });
 
 // 离开页面保存图表操作

@@ -363,12 +363,12 @@ watch(
 
 // 订单类型
 const orderTypeOptions = [
-  { value: "buyLimit", label: "buy limit" },
-  { value: "sellLimit", label: "sell limit" },
-  { value: "buyStop", label: "buy stop" },
-  { value: "sellStop", label: "sell stop" },
-  { value: "buyStopLimit", label: "buy stop limit" },
-  { value: "sellStopLimit", label: "sell stop limit" },
+  { value: "buyLimit", label: "Buy Limit" },
+  { value: "sellLimit", label: "Sell Limit" },
+  { value: "buyStop", label: "Buy Stop" },
+  { value: "sellStop", label: "Sell Stop" },
+  { value: "buyStopLimit", label: "Buy Stop Limit" },
+  { value: "sellStopLimit", label: "Sell Stop Limit" },
 ];
 
 /** 当前商品 */

@@ -102,7 +102,7 @@
       >{{ t("leftBook") }}{{ t("article.userAgreement")
       }}{{ t("rightBook") }}</el-link
     >
-    <span class="word"> {{ t("and") }} </span>
+    <span class="word">&nbsp;{{ t("and") }}&nbsp;</span>
     <el-link
       type="primary"
       target="_blank"
@@ -347,8 +347,7 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
-  margin-top: auto;
+  padding: 6px 0;
 }
 [data-theme="light"] .article {
   background-color: #fff9eb;

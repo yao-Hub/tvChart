@@ -15,7 +15,7 @@ export function useUpdateVersion() {
   const update = () => {
     if (versionInfo.value) {
       closeDialog();
-      useDialog().openDialog("updateNoticeVisible");
+      useDialog().openDialog("updateProgressVisible");
       window.electronAPI.invoke(
         "start-download",
         versionInfo.value.downloadUrl

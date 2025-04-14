@@ -33,7 +33,7 @@ const { t } = useI18n();
 
 dayjs.extend(relativeTime);
 
-const dateFormat = "YY-MM-DD HH:mm:ss";
+const dateFormat = "YYYY-MM-DD HH:mm:ss";
 
 const model = defineModel<string | number>("term");
 

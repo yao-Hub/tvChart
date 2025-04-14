@@ -2,6 +2,7 @@
   <div class="clearCache" @click="handleClearCache">
     <BaseImg class="logo" iconName="icon_20" />
     <span>{{ t("clearCache") }}</span>
+    <el-icon class="loading" v-if="loading"><Loading /></el-icon>
   </div>
 </template>
 
@@ -14,8 +15,11 @@ import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
 
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
+import { ref } from "vue";
 
 const { t } = useI18n();
+
+const loading = ref(false);
 
 const handleClearCache = async () => {
   const login = useUser().account.login;
@@ -29,8 +33,10 @@ const handleClearCache = async () => {
     logName: "clearCache",
     detail: `${login}: clearCache (dc: ${useNetwork().nodeName})`,
   };
+  loading.value = true;
   await logIndexedDB.addData(logData);
   useStorage().removeNowUserStorage();
+  loading.value = false;
 };
 </script>
 
@@ -38,5 +44,10 @@ const handleClearCache = async () => {
 .clearCache {
   display: flex;
   gap: 5px;
+  align-items: center;
+  width: 100%;
+}
+.loading {
+  margin-left: auto;
 }
 </style>

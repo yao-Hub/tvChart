@@ -79,7 +79,7 @@ export const useStorage = defineStore("storage", {
       if (Object.keys(this.columnsMap).length === 0) {
         this.columnsMap = this.getItem("tableColumns") || {};
       }
-      set(this.columnsMap, [tableKey, field], width);
+      set(this.columnsMap, [tableKey, field], +width.toFixed(0));
       this.setItem("tableColumns", this.columnsMap);
     },
     delUtraderKey(key: string) {
