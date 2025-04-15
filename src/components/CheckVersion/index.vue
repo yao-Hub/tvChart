@@ -3,7 +3,7 @@
     v-if="dialogStore.updateVersionVisible"
     v-model="dialogStore.updateVersionVisible"
     width="450"
-    :zIndex="dialogStore.zIndex + 1"
+    :zIndex="998"
     destroy-on-close
     :show-close="false"
     :close-on-press-escape="false"

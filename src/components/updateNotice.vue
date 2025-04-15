@@ -22,7 +22,7 @@ const noticeRef = ref();
 const headerRef = ref();
 const draggable = computed(() => true);
 
-type TStatus = "success" | "downloading" | "error" | "none";
+type TStatus = "success" | "downloading" | "error" | "none" | "stop";
 type IStatus = {
   [K in TStatus]: {
     status: "success" | "warning" | "";
@@ -46,6 +46,10 @@ const statusMap = {
   none: {
     status: "",
     title: t("update.downloading"),
+  },
+  stop: {
+    status: "",
+    title: t("update.downloadStop"),
   },
 } as IStatus;
 

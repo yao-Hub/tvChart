@@ -68,7 +68,6 @@ function createWindow() {
   }
 
   mainWindow.on('close', async (event) => {
-    event.preventDefault();
     if (activeDownload) {
       const { dialog } = require('electron');
       const { shutdown,
@@ -81,17 +80,15 @@ function createWindow() {
         title: downLoading,
         message: exitTip,
         defaultId: 1, // 默认选中"取消"
-        cancelId: 1
+        cancelId: 1, // 关闭默认选中"取消"
       });
       if (choice === 0) {
-        await safeSaveDownload("close");
-        mainWindow.destroy();
-        mainWindow = null;
+        await safeSaveDownload();
+        mainWindow.close();
+      } else {
+        event.preventDefault();
       }
-      return;
     }
-    mainWindow.destroy();
-    mainWindow = null;
   });
 }
 
@@ -100,6 +97,9 @@ async function safeSaveDownload() {
   if (activeDownload) {
     const { request } = activeDownload;
     request.abort();
+
+    mainWindow.webContents.send("download-stop");
+
     // 等待当前写入操作完成
     await new Promise((resolve) => {
       writeCompletionCallback = resolve;

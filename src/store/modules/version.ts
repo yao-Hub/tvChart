@@ -12,7 +12,7 @@ interface IState {
   versionInfo: IReqVersion | null;
   updateInfo: {
     progress: number;
-    status: "success" | "downloading" | "error" | "none";
+    status: "success" | "downloading" | "error" | "none" | "stop";
   };
 }
 interface IGetUpdate {
@@ -54,9 +54,9 @@ export const useVersion = defineStore("version", {
      *          ii.每次启动: 直接弹窗 done
      */
     async getUpdate(params?: IGetUpdate) {
-      if (!process.env.IF_ELECTRON) {
-        return;
-      }
+      // if (!process.env.IF_ELECTRON) {
+      //   return;
+      // }
 
       this.updateInfo.status = "none";
       this.updateInfo.progress = 0;
@@ -96,7 +96,7 @@ export const useVersion = defineStore("version", {
         if (
           res.data.updateType === 1 &&
           ifCheckFrequency &&
-          res.data.tipsFrequency === 1
+          res.data.tipsFrequency === "1"
         ) {
           // 非强制更新 一天提示一次 自动检查更新（非手动触发）
           const upDateStamp = localStorage.getItem("upDateStamp");
@@ -108,6 +108,11 @@ export const useVersion = defineStore("version", {
             if (timeDifference < oneDayInMilliseconds) {
               return;
             }
+          } else {
+            localStorage.setItem(
+              "upDateStamp",
+              JSON.stringify(new Date().getTime())
+            );
           }
         }
       } else {
@@ -143,6 +148,9 @@ export const useVersion = defineStore("version", {
           () => useDialog().closeDialog("updateProgressVisible"),
           3000
         );
+      });
+      window.electronAPI?.on("download-stop", () => {
+        this.updateInfo.status = "stop";
       });
 
       // 拦截浏览器刷新
