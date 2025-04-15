@@ -227,7 +227,9 @@
                 @mouseenter="headerMouseenter(columnIndex)"
                 @mouseleave="headerMouseLeave"
               >
-                <div>{{ column.title || "" }}</div>
+                <div class="header-box__title" :title="column.title">
+                  {{ column.title || "" }}
+                </div>
                 <div
                   class="drag-line"
                   v-show="dragLineList.includes(columnIndex)"
@@ -906,43 +908,44 @@ const closeMarketOrder = debounce(
 );
 
 // 全部关闭市价单
-const closeMarketOrders = (command: number) => {
-  ElMessageBox.confirm(t("order.confirmPositionClosure")).then(async () => {
-    let errmsg = "";
-    let logStr = "";
-    const typeList = [
-      "",
-      "allPositionsClose",
-      "closeAllLongPositions",
-      "closeAllShortPositions",
-      "closeProfitablePositions",
-      "closeLosingPositions",
-    ];
-    try {
-      const res = await orders.marketOrdersCloseMulti({ multi_type: command });
-      orderStore.getData("order_closed");
-      logStr = res.data.closed_ids.map((id) => `#${id}`).join(",");
-      ElMessage.success(t("order.positionClosedSuccessfully"));
-    } catch (error) {
-      errmsg =
-        get(error, "errmsg") || get(error, "message") || JSON.stringify(error);
-    } finally {
-      const logData = {
-        logType: errmsg ? "error" : "info",
-        origin: "trades",
-        logName: "close market orders",
-        detail: `${useUser().account.login}: close market orders ${
-          typeList[command]
-        } ${errmsg ? `error ${errmsg}` : ""} ${logStr}`,
-        login: useUser().account.login,
-        time: dayjs().format("HH:mm:ss.SSS"),
-        id: new Date().getTime(),
-        day: dayjs().format("YYYY.MM.DD"),
-      };
-      await logIndexedDB.addData(logData);
-      useOrder().getData("log");
-    }
-  });
+const closeMarketOrders = async (command: number) => {
+  if (!orderStore.state.ifOne) {
+    await ElMessageBox.confirm(t("order.confirmPositionClosure"));
+  }
+  let errmsg = "";
+  let logStr = "";
+  const typeList = [
+    "",
+    "allPositionsClose",
+    "closeAllLongPositions",
+    "closeAllShortPositions",
+    "closeProfitablePositions",
+    "closeLosingPositions",
+  ];
+  try {
+    const res = await orders.marketOrdersCloseMulti({ multi_type: command });
+    orderStore.getData("order_closed");
+    logStr = res.data.closed_ids.map((id) => `#${id}`).join(",");
+    ElMessage.success(t("order.positionClosedSuccessfully"));
+  } catch (error) {
+    errmsg =
+      get(error, "errmsg") || get(error, "message") || JSON.stringify(error);
+  } finally {
+    const logData = {
+      logType: errmsg ? "error" : "info",
+      origin: "trades",
+      logName: "close market orders",
+      detail: `${useUser().account.login}: close market orders ${
+        typeList[command]
+      } ${errmsg ? `error ${errmsg}` : ""} ${logStr}`,
+      login: useUser().account.login,
+      time: dayjs().format("HH:mm:ss.SSS"),
+      id: new Date().getTime(),
+      day: dayjs().format("YYYY.MM.DD"),
+    };
+    await logIndexedDB.addData(logData);
+    useOrder().getData("log");
+  }
 };
 
 // 批量撤单
@@ -1124,15 +1127,18 @@ const getTableData = (type: string) => {
 }
 .header-box {
   position: relative;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
+
   @include background_color("table-colored");
   height: 100%;
   width: 100%;
   padding: 0 16px;
   line-height: 32px;
   font-weight: 400;
+  &__title {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 
   .drag-line {
     position: absolute;

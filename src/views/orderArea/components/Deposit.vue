@@ -39,12 +39,12 @@
                   >{{ t("deposit.amount") }} {{ loginInfo?.currency }}</el-text
                 >
                 <el-text type="info">{{
-                  `${t("deposit.amount")}${t("tip.need")}≤1000000`
+                  `${t("deposit.amount")} ≤ 1000000`
                 }}</el-text>
               </div>
             </template>
             <el-input
-              v-model.number="amountForm.amount"
+              v-model="amountForm.amount"
               :placeholder="t('tip.depositRequired')"
             />
             <el-form-item>
@@ -139,6 +139,10 @@ const amountForm = reactive({
   amount: "",
 });
 const checkAmount = (rule: any, value: any, callback: any) => {
+  const regex = /^-?\d+(\.\d+)?$/;
+  if (!regex.test(value)) {
+    return callback(new Error(t("tip.numberFormatEror")));
+  }
   if (!value) {
     return callback(new Error(t("tip.depositRequired")));
   }
@@ -268,6 +272,7 @@ const handleCancel = () => {
   if (emailFormRef.value) {
     emailFormRef.value.resetFields();
   }
+  state.value = "amount";
 };
 </script>
 

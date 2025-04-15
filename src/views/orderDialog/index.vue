@@ -1,7 +1,6 @@
 <template>
   <el-dialog
     v-if="dialogStore.orderDialogVisible"
-    :key="freshKey"
     v-model="dialogStore.orderDialogVisible"
     class="order_dialog scrollList"
     width="450"
@@ -246,7 +245,7 @@
 </template>
 
 <script setup lang="ts">
-import { cloneDeep, debounce, eq } from "lodash";
+import { cloneDeep, debounce } from "lodash";
 import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -335,19 +334,11 @@ const initForm = () => {
   formState.symbol = chartInitStore.getDefaultSymbol();
 };
 
-const freshKey = ref(0);
-
-// 右键菜单新图表时初始化数据
+// 初始化数据
 watch(
-  () => [orderStore.state.initOrderState, dialogStore.orderDialogVisible],
-  (nowValue, oldValue) => {
-    const [nowState, nowVisible] = nowValue;
-    const [preState] = oldValue;
-    const ifEq = eq(nowState, preState);
-    !ifEq && (freshKey.value = +!freshKey.value);
-    if (nowVisible) {
-      initForm();
-    }
+  () => dialogStore.orderDialogVisible,
+  (val) => {
+    val && initForm();
   }
 );
 
@@ -574,6 +565,10 @@ const handleCancel = () => {
     grid-template-columns: 50% 50%;
     grid-row-gap: 8px;
     gap: 8px;
+    &_item {
+      display: flex;
+      gap: 5px;
+    }
     &_item span {
       display: inline-block;
       min-width: 70px;

@@ -112,11 +112,15 @@ const referMargin = computed(() => {
 watch(
   () => props.symbolInfo?.symbol,
   (val, oldval) => {
+    if (!oldval && model.value) {
+      return;
+    }
+
     if (val && !props.disabled) {
       model.value = step.value;
-      if (oldval) {
-        percentage.value = 0;
-      }
+    }
+    if (oldval) {
+      percentage.value = 0;
     }
   },
   { deep: true, immediate: true }

@@ -237,6 +237,7 @@ export default {
     reversePosition:
       "Are you sure you want to close the current position and simultaneously open a position of the same size in the opposite direction?",
     noSimuServer: "Unable to find official simulation server",
+    symbolNoAllowTrading: "The current symbol is prohibited from trading",
     addMyOption: "Add Varieties",
     required: "{label} is required",
     imageOnly: "Only supports image upload",
@@ -342,7 +343,6 @@ export default {
     content: "Content",
     date: "Date",
     days: "{num}day",
-    symbolNoAllowTrading: "The current symbol is prohibited from trading",
     origin: "Origin",
     logType: "Type",
     logName: "logName",

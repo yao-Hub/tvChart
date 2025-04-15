@@ -120,3 +120,7 @@
 .el-form-item--label-top .el-form-item__label {
   margin-bottom: 4px;
 }
+
+.el-table-v2 {
+  --el-table-header-bg-color: var(--light-8);
+}
