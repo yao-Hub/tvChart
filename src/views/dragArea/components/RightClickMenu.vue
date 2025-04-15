@@ -197,31 +197,6 @@ const showDetailDialog = () => {
 };
 
 const toogleTopUp = () => {
-  // let list = symbolsStore.mySymbols.map((item) => {
-  //   return {
-  //     ...item,
-  //     variation: +useQuotes().getVariation(item.symbol).value.replace("%", ""),
-  //   };
-  // });
-  // const index = list.findIndex((e) => e.symbol === props.rowData.symbol);
-  // if (index !== -1) {
-  //   list[index].topSort = +!list[index].topSort;
-
-  //   const sortArr = ["desc"] as Array<boolean | "desc" | "asc">;
-  //   const propArr = ["topSort"];
-
-  //   if (props.variOrder === "ascending") {
-  //     sortArr.push("asc");
-  //     propArr.push("variation");
-  //   }
-  //   if (props.variOrder === "descending") {
-  //     sortArr.push("desc");
-  //     propArr.push("variation");
-  //   }
-  //   const resut = orderBy(list, propArr, sortArr);
-  //   resut.forEach((item, index) => (item.sort = index));
-  //   symbolsStore.mySymbols = resut;
-  // }
   emit("toogleTopUp", props.rowData);
   model.value = false;
 };

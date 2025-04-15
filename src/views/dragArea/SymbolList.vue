@@ -125,7 +125,7 @@
       :pos="pos"
       :rowData="rowData"
       :variOrder="variOrder"
-      @toogleTopUp="topUp"
+      @toogleTopUp="toogleTopUp"
       @cancelFav="getQuery"
     ></RightClickMenu>
   </div>
@@ -364,16 +364,28 @@ const expandChange = (row: any, expandedRows: any[]) => {
   expandRowKeys.value = expandedRows.length ? [row.symbol] : [];
 };
 
-const topUp = (e: DataSource) => {
+const toogleTopUp = (e: DataSource) => {
   tableRef.value.sort("variation", null);
   const list = [...symbolsStore.mySymbols];
   const index = list.findIndex((item) => e.symbol === item.symbol);
   if (index !== -1) {
-    list[index].topSort = +!list[index].topSort;
-    const resut = orderBy(list, ["topSort"], ["desc"]);
-    symbolsStore.mySymbols = resut;
-    editOptionalQuery({ symbols: resut });
+    const topSort = list[index].topSort;
+    const item = list[index];
+    if (topSort === 0) {
+      item.topSort = 1;
+      list.splice(index, 1);
+      list.unshift(item);
+    }
+    if (topSort === 1) {
+      list.splice(index, 1);
+      const topList = list.filter((e) => e.topSort === 1);
+      item.topSort = 0;
+      list.splice(topList.length, 0, item);
+    }
+    list.forEach((item, index) => (item.sort = index));
+    symbolsStore.mySymbols = list;
     getQuery();
+    editOptionalQuery({ symbols: symbolsStore.mySymbols_sort });
   }
 };
 </script>

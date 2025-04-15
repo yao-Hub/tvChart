@@ -74,7 +74,7 @@ export const useSymbols = defineStore("symbols", () => {
 
   // 排序自选商品
   const mySymbols_sort = computed(() => {
-    return orderBy(mySymbols.value, ["sort"]);
+    return orderBy(mySymbols.value, ["topSort", "sort"], ["desc", "asc"]);
   });
 
   // 获取分类

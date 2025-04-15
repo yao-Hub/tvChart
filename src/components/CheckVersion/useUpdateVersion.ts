@@ -16,7 +16,7 @@ export function useUpdateVersion() {
     if (versionInfo.value) {
       closeDialog();
       useDialog().openDialog("updateProgressVisible");
-      window.electronAPI.invoke(
+      window.electronAPI?.invoke(
         "start-download",
         versionInfo.value.downloadUrl
       );

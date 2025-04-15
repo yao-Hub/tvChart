@@ -54,9 +54,9 @@ export const useVersion = defineStore("version", {
      *          ii.每次启动: 直接弹窗 done
      */
     async getUpdate(params?: IGetUpdate) {
-      // if (!process.env.IF_ELECTRON) {
-      //   return;
-      // }
+      if (!process.env.IF_ELECTRON) {
+        return;
+      }
 
       this.updateInfo.status = "none";
       this.updateInfo.progress = 0;
