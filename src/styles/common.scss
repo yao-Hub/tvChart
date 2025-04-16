@@ -177,10 +177,6 @@ body {
   @include background_color("background");
 }
 
-.word {
-  @include font_color("word");
-}
-
 .icon {
   width: 1em;
   height: 1em;

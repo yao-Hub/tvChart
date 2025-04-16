@@ -41,22 +41,24 @@
         </el-form-item>
 
         <el-checkbox v-model="formState.agree">
-          <span>{{ t("article.readAgree") }}&nbsp;</span>
-          <el-link
-            type="primary"
-            target="_blank"
-            :underline="false"
-            @click.prevent="goProtocol('service-article')"
-            >{{ t("article.userAgreement") }}</el-link
-          >
-          <span class="word">&nbsp;{{ t("and") }}&nbsp;</span>
-          <el-link
-            type="primary"
-            target="_blank"
-            :underline="false"
-            @click.prevent="goProtocol('privacy-policy')"
-            >{{ t("article.privacyPolicy") }}</el-link
-          >
+          <div class="protocol">
+            <el-text type="info">{{ t("article.readAgree") }}&nbsp;</el-text>
+            <el-link
+              type="primary"
+              target="_blank"
+              :underline="false"
+              @click.prevent="goProtocol('service-article')"
+              >{{ t("article.userAgreement") }}</el-link
+            >
+            <el-text type="info">&nbsp;{{ t("and") }}&nbsp;</el-text>
+            <el-link
+              type="primary"
+              target="_blank"
+              :underline="false"
+              @click.prevent="goProtocol('privacy-policy')"
+              >{{ t("article.privacyPolicy") }}</el-link
+            >
+          </div>
         </el-checkbox>
 
         <el-button
@@ -358,5 +360,11 @@ onUnmounted(() => {
   &:hover {
     @include font_color("primary");
   }
+}
+
+.protocol {
+  display: flex;
+  flex-wrap: wrap;
+  line-height: 24px;
 }
 </style>

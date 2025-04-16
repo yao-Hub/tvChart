@@ -1,15 +1,13 @@
 <template>
   <div class="page">
-    <el-result sub-title="Sorry, the page you visited does not exist">
+    <el-result :sub-title="t('tip.page404')">
       <template #icon>
-        <BaseImg iconName="404" catalog="images" imgSuffix="jpg" />
+        <BaseImg iconName="icon_404" />
       </template>
       <template #extra>
-        <el-button
-          type="primary"
-          @click="$router.replace({ path: '/login' })"
-          >{{ t("goHome") }}</el-button
-        >
+        <el-button type="primary" @click="$router.replace({ path: '/' })">{{
+          t("goHome")
+        }}</el-button>
       </template>
     </el-result>
   </div>

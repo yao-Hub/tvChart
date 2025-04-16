@@ -248,6 +248,7 @@ export default {
     numberFormatEror: "Number format error",
     volumeMin: "Min Volume",
     volumeMax: "Max Volume",
+    page404: "Sorry, the page you visited does not exist",
   },
 
   time: {

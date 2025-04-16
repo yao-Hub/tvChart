@@ -93,7 +93,7 @@
     </el-form>
   </div>
   <div class="article">
-    <span class="word">{{ t("article.loginsee") }}</span>
+    <el-text type="info">{{ t("article.loginsee") }}</el-text>
     <el-link
       type="primary"
       target="_blank"
@@ -102,7 +102,7 @@
       >{{ t("leftBook") }}{{ t("article.userAgreement")
       }}{{ t("rightBook") }}</el-link
     >
-    <span class="word">&nbsp;{{ t("and") }}&nbsp;</span>
+    <el-text type="info">&nbsp;{{ t("and") }}&nbsp;</el-text>
     <el-link
       type="primary"
       target="_blank"

@@ -250,6 +250,7 @@ export default {
     numberFormatEror: "数字格式错误",
     volumeMin: "最小手数",
     volumeMax: "最大手数",
+    page404: "抱歉，您访问的页面不存在",
   },
 
   time: {
