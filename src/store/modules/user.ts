@@ -145,12 +145,13 @@ export const useUser = defineStore("user", () => {
     trailing?: boolean;
     wait?: number;
   }
-  const getLoginInfo = (() => {
+  const createGetLoginInfo = () => {
     let timeout: NodeJS.Timeout | null = null;
     let lastArgs: IGetInfo | undefined; // 保存最新参数
     let hasExecutedLeading = false; // 标记是否已执行leading
 
     return async (params?: IGetInfo) => {
+      console.log("params", params);
       const leading = params?.leading ?? false;
       const trailing = params?.trailing ?? true;
       const wait = params?.wait ?? 1200;
@@ -172,19 +173,18 @@ export const useUser = defineStore("user", () => {
       // 设置 trailing 边缘
       if (trailing) {
         timeout = setTimeout(async () => {
-          // 使用最后一次的参数执行
-          if (trailing && (!leading || !hasExecutedLeading)) {
-            await executeLogic(lastArgs);
-          }
-          // 重置状态
+          if (!leading || !hasExecutedLeading) await executeLogic(lastArgs);
           hasExecutedLeading = false;
           timeout = null;
         }, wait);
       }
     };
-  })();
+  };
+
+  const getLoginInfo = createGetLoginInfo();
 
   async function executeLogic(params?: IGetInfo) {
+    console.log("executeLogic");
     const res = await loginInfo({
       login: account.value.login,
     });
@@ -389,6 +389,7 @@ export const useUser = defineStore("user", () => {
     changeCurrentAccountOption,
     logout,
     getLoginInfo,
+    executeLogic,
     addAccount,
     removeAccount,
     login,

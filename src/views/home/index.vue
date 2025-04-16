@@ -126,7 +126,11 @@ async function init() {
     await networkStore.initNode(); // 网络节点
     const list = await networkStore.getNodesDelay();
     if (list.length) {
-      await userStore.getLoginInfo({ emitSocket: true, leading: true }); // 个人信息
+      try {
+        await userStore.getLoginInfo({ emitSocket: true, leading: true }); // 个人信息
+      } catch (error) {
+        console.log("getLoginInfo Error", error);
+      }
       await symbolsStore.getSymbols();
       userStore.refreshToken(); // 倒计时刷新token
     }

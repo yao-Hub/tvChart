@@ -225,24 +225,11 @@ export const datafeed = (id: string) => {
       onResetCacheNeededCallback: Function
     ) => {
       const endBar = temBar[id];
-      // 初始化没有UID
-      if (!UID && endBar) {
-        chartLineStore.newbar[subscriberUID] = cloneDeep(endBar);
-      }
-      // 更改了图表周期或者商品之后再次触发
-      if (UID && endBar) {
+      if (endBar) {
         chartLineStore.newbar[subscriberUID] = cloneDeep(endBar);
       }
       UID = `${id}@${subscriberUID}`;
       subId = subscriberUID;
-
-      const subscribed = chartLineStore.subscribed;
-      for (const ID in subscribed) {
-        const chartId = ID.split("@")[0];
-        if (chartId === id) {
-          chartLineStore.unsubscribed(ID);
-        }
-      }
 
       chartLineStore.subscribed[UID] = {
         onRealtimeCallback,

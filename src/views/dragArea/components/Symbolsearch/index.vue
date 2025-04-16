@@ -173,15 +173,13 @@ const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
         symbolsStore.mySymbols.splice(index, 1);
         break;
       case "add":
-        await addOptionalQuery({ symbols: symbolsStore.mySymbols });
-        symbolsStore.mySymbols.push({
+        const item = {
           symbol: listItem.symbol,
           sort: symbolsStore.mySymbols.length,
           topSort: 0,
-        });
-        symbolsStore.mySymbols.forEach((item, index) => {
-          item.sort = index;
-        });
+        };
+        await addOptionalQuery({ symbols: [...symbolsStore.mySymbols, item] });
+        symbolsStore.mySymbols.push(item);
         break;
       default:
         break;
