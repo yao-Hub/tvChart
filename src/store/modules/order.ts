@@ -211,11 +211,7 @@ export const useOrder = defineStore("order", () => {
     switch (type) {
       // 单个平仓
       case "single_marketOrder_close":
-        Promise.all([
-          getMarketOrderHistory(),
-          getBlanceRecord(),
-          userStore.getLoginInfo(),
-        ]);
+        Promise.all([getMarketOrderHistory(), userStore.getLoginInfo()]);
         break;
       // 监听订单已建仓
       case "order_opened":
@@ -226,7 +222,6 @@ export const useOrder = defineStore("order", () => {
         Promise.all([
           getMarketOrders(),
           getMarketOrderHistory(),
-          getBlanceRecord(),
           userStore.getLoginInfo(),
         ]);
         break;

@@ -36,7 +36,7 @@ export const useSymbols = defineStore("symbols", () => {
   const symbolPaths = ref<resSymbolAllPath[]>([]);
 
   // 可交易商品
-  const symbols_tradeAllow = computed(() => {
+  const symbolsTradeAllow = computed(() => {
     let limitSymbols = symbols.value.map((item) => item.symbol);
     const loginInfo = useUser().state.loginInfo;
     if (loginInfo && loginInfo.symbols_limit) {
@@ -150,7 +150,7 @@ export const useSymbols = defineStore("symbols", () => {
     chartSymbols,
     getMySymbols,
     mySymbols_sort,
-    symbols_tradeAllow,
+    symbolsTradeAllow,
     haveQuoteSymbols,
     getPath,
     symbolPaths,

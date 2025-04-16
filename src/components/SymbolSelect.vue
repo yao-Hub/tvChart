@@ -70,7 +70,7 @@ const handleChange = (symbols: string[] | string) => {
 const symbols = computed(() => {
   // 可交易商品
   if (props.symbolType === "tradeAllow") {
-    return symbolsStore.symbols_tradeAllow;
+    return symbolsStore.symbolsTradeAllow;
   }
   return symbolsStore.haveQuoteSymbols;
 });

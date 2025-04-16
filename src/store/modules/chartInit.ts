@@ -180,13 +180,12 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 获取chart的symbol
   function getChartSymbol(id: string) {
-    const symbol = state.chartWidgetList.find((e) => e.id === id)?.symbol;
-    const index = symbolStore.symbols.findIndex((e) => e.symbol === symbol);
-    if (index > -1) {
-      return symbol;
+    const target = state.chartWidgetList.find((e) => e.id === id);
+    if (target) {
+      return target.symbol;
     }
-    if (symbolStore.symbols.length) {
-      return symbolStore.symbols[0].symbol;
+    if (symbolStore.symbolsTradeAllow.length) {
+      return symbolStore.symbolsTradeAllow[0].symbol;
     }
     return "";
   }
@@ -194,11 +193,20 @@ export const useChartInit = defineStore("chartInit", () => {
   // 默认商品（初始化的商品）
   function getDefaultSymbol() {
     const chartSymbol = getChartSymbol(state.activeChartId);
-    if (chartSymbol) {
+    const tradeSymbols = [...symbolStore.symbolsTradeAllow];
+    const index = tradeSymbols.findIndex((e) => e.symbol === chartSymbol);
+    if (chartSymbol && index > -1) {
       return chartSymbol;
     }
-    if (symbolStore.symbols.length) {
-      return symbolStore.symbols[0].symbol;
+    if (tradeSymbols.length) {
+      const canTradeCharts = tradeSymbols.filter(
+        (item) =>
+          state.chartWidgetList.findIndex((e) => e.symbol === item.symbol) > -1
+      );
+      if (canTradeCharts.length) {
+        return canTradeCharts[0].symbol;
+      }
+      return tradeSymbols[0].symbol;
     }
     return "";
   }

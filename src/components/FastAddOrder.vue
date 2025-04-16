@@ -157,7 +157,7 @@ interface Props {
 const props = defineProps<Props>();
 
 const ifCanTrade = computed(() => {
-  const symbols = symbolsStore.symbols_tradeAllow.map((item) => item.symbol);
+  const symbols = symbolsStore.symbolsTradeAllow.map((item) => item.symbol);
   return symbols.includes(nowSymbol.value);
 });
 
@@ -213,7 +213,7 @@ const reduceNum = () => {
 
 const regex = /^-?\d+(\.\d+)?$/;
 const valid = async () => {
-  const symbols = symbolsStore.symbols_tradeAllow.map((item) => item.symbol);
+  const symbols = symbolsStore.symbolsTradeAllow.map((item) => item.symbol);
   if (nowSymbol.value === undefined) {
     return false;
   }
@@ -280,6 +280,6 @@ const addOrder = debounce(
     }
   },
   200,
-  { leading: true }
+  { leading: true, trailing: false }
 );
 </script>

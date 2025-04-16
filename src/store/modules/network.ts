@@ -107,7 +107,7 @@ export const useNetwork = defineStore("network", {
               const delay = endTime - startTime;
               resolve({ url, delay });
             })
-            .catch((e) => resolve({ url, delay: null }));
+            .catch(() => resolve({ url, delay: null }));
         });
       });
       const results = await Promise.all(requests);
