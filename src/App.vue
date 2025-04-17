@@ -15,6 +15,7 @@ import { useSize } from "@/store/modules/size";
 import { useTheme } from "@/store/modules/theme";
 import { useVersion } from "@/store/modules/version";
 import { useUser } from "./store/modules/user";
+import { useChartInit } from "./store/modules/chartInit";
 
 const sizeStore = useSize();
 
@@ -36,18 +37,18 @@ watch(
 
 // 国际化
 const I18n = useI18n();
-const value = I18n.locale.value as keyof typeof LANGUAGE_LIST;
 
 // 系统语言
 const locale = computed(() => {
-  return LANGUAGE_LIST[value];
+  const value = I18n.locale.value;
+  return LANGUAGE_LIST[value as keyof typeof LANGUAGE_LIST];
 });
 
 const networkStatus = ref(navigator.onLine);
 
 const handleNetworkChange = () => {
   if (!networkStatus.value) {
-    window.location.reload();
+    useChartInit().systemRefresh();
   }
   networkStatus.value = navigator.onLine;
 };
@@ -82,7 +83,7 @@ onUnmounted(() => {
 
 <template>
   <el-config-provider :locale="locale" :size="sizeStore.systemSize">
-    <router-view></router-view>
+    <router-view :key="locale.name"></router-view>
   </el-config-provider>
 </template>
 

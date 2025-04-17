@@ -1,19 +1,30 @@
 <template>
-  <el-tooltip :content="content" placement="top" :disabled="tooltipDisabled">
+  <el-tooltip
+    :content="renderContent"
+    placement="top"
+    :disabled="tooltipDisabled"
+  >
     <div ref="textRef" class="contentWord" @mouseenter="checkOverflow">
-      {{ content }}
+      {{ renderContent }}
     </div>
   </el-tooltip>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 interface Props {
-  content: string;
+  content?: string | number;
 }
 
-defineProps<Props>();
+const renderContent = computed(() => {
+  if (typeof props.content === "number") {
+    return props.content.toString();
+  }
+  return props.content;
+});
+
+const props = defineProps<Props>();
 const textRef = ref<HTMLElement | null>(null);
 const tooltipDisabled = ref(true);
 

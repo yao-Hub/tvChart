@@ -40,7 +40,7 @@
           <el-select
             :suffix-icon="SelectSuffixIcon"
             style="width: 130px"
-            v-if="['marketOrder', 'pendingOrder'].includes(activeKey)"
+            v-if="['marketOrder'].includes(activeKey)"
             v-model="orderStore.state.dataFilter[activeKey].direction"
             clearable
             :placeholder="t('table.direction')"
@@ -59,6 +59,22 @@
             <el-option value="profit" :label="t('order.profit')"></el-option>
             <el-option value="loss" :label="t('order.loss')"></el-option>
           </el-select>
+
+          <el-select
+            :suffix-icon="SelectSuffixIcon"
+            style="width: 130px"
+            v-if="['pendingOrder'].includes(activeKey)"
+            v-model="orderStore.state.dataFilter[activeKey].orderType"
+            clearable
+            :placeholder="t('table.direction')"
+          >
+            <el-option
+              v-for="item in orderTypeOptions"
+              :value="item.value"
+              :label="item.label"
+            ></el-option>
+          </el-select>
+
           <TimeRange
             v-if="activeKey === 'pendingOrderHistory'"
             v-model:value="orderStore.state.dataFilter[activeKey].createTime"
@@ -229,7 +245,9 @@
                 @mouseenter="headerMouseenter(columnIndex)"
                 @mouseleave="headerMouseLeave"
               >
-                <OverFlowWord :content="column.title"></OverFlowWord>
+                <div class="textEllipsis" :title="column.title">
+                  {{ column.title || "" }}
+                </div>
                 <div
                   class="drag-line"
                   v-show="dragLineList.includes(columnIndex)"
@@ -421,24 +439,30 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from "vue";
 import Decimal from "decimal.js";
+import dayjs from "dayjs";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { cloneDeep, debounce, get, isNil, minBy } from "lodash";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import * as orderTypes from "#/order";
-import { CLOSE_TYPE } from "@/constants/common";
 import * as orders from "api/order/index";
+
+import * as orderTypes from "#/order";
+import { CLOSE_TYPE, ORDERMAP } from "@/constants/common";
 import { ifNumber } from "utils/common/index";
 import { getOrderType, getTradingDirection } from "utils/order/index";
-import { tableColumns } from "./config";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
+import { accAdd } from "utils/arithmetic";
+
+import { tableColumns } from "./config";
 
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
 import { useStorage } from "@/store/modules/storage";
+import { useNetwork } from "@/store/modules/network";
 import { useTime } from "@/store/modules/time";
 import { useUser } from "@/store/modules/user";
 
@@ -459,6 +483,15 @@ const storageStore = useStorage();
 
 const MIN_COLUMN_WIDTH = 80;
 
+const orderTypeOptions = [
+  { value: "buyLimit", label: "Buy Limit" },
+  { value: "sellLimit", label: "Sell Limit" },
+  { value: "buyStop", label: "Buy Stop" },
+  { value: "sellStop", label: "Sell Stop" },
+  { value: "buyStopLimit", label: "Buy Stop Limit" },
+  { value: "sellStopLimit", label: "Sell Stop Limit" },
+];
+
 // 初始化列宽  有缓存
 const storageColumns = storageStore.getItem("tableColumns");
 if (storageColumns) {
@@ -466,7 +499,7 @@ if (storageColumns) {
     const tabKey = i as orderTypes.TableTabKey;
     const options = storageColumns[tabKey];
     for (const op in options) {
-      const target = tableColumns[tabKey].find((e) => e.dataKey === op);
+      const target = tableColumns()[tabKey].find((e) => e.dataKey === op);
       if (target) {
         target.width = options[op];
       }
@@ -483,7 +516,7 @@ const state = reactive({
     { label: t("table.blanceRecord"), key: "blanceRecord" },
     { label: t("table.log"), key: "log" },
   ],
-  columns: cloneDeep(tableColumns),
+  columns: cloneDeep(tableColumns()),
   marketDialogVisible: false,
   pendingDialogVisible: false,
   orderInfo: {} as orders.resOrders & orders.resPendingOrders,
@@ -689,7 +722,6 @@ const formatPrice = (price: number, digits: number) => {
 };
 
 // 出入金记录底部合计
-import { accAdd } from "utils/arithmetic";
 const profits = computed(() => {
   return (orderStore.state.orderData.blanceRecord || []).map(
     (item) => item.profit
@@ -746,12 +778,14 @@ const dataSource = computed(() => {
   const symbols = orderStore.state.dataFilter[active].symbol || [];
   const direction = orderStore.state.dataFilter[active].direction;
   const pol = orderStore.state.dataFilter[active].pol;
+  const orderType = orderStore.state.dataFilter[active].orderType;
   let result: orders.resOrders[] = [];
   if (originData) {
     result = originData.filter((item) => {
       let symbolResult = true;
       let directionResult = true;
       let polResult = true;
+      let orderTypeResult = true;
       if (symbols.length) {
         symbolResult = symbols.includes(item.symbol);
       }
@@ -764,7 +798,10 @@ const dataSource = computed(() => {
       if (pol && pol === "loss") {
         polResult = +item.profit < 0;
       }
-      return symbolResult && directionResult && polResult;
+      if (orderType) {
+        orderTypeResult = item.type === ORDERMAP[orderType];
+      }
+      return symbolResult && directionResult && polResult && orderTypeResult;
     });
   }
   return result;
@@ -781,7 +818,6 @@ const getCloseType = (e: orders.resHistoryOrders) => {
 };
 
 // 格式化表格时间字段
-import dayjs from "dayjs";
 const formatTime = (timestamp: string, format = "YYYY.MM.DD HH:mm:ss") => {
   const timezone = timeStore.settedTimezone;
   const result = dayjs.tz(timestamp, timezone).format(format);
@@ -819,8 +855,6 @@ const getOrderPrice = (e: orders.resPendingOrders) => {
 };
 
 // 交易历史盈亏合计位置
-import { watch } from "vue";
-import { useNetwork } from "@/store/modules/network";
 const MOHFWidth = ref("");
 const tableXScroll = ref(0);
 type ScrollParams = {

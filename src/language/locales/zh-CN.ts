@@ -352,6 +352,7 @@ export default {
   dialog: {
     createOrder: "下单",
     marketOrder: "市价单",
+    pendingOrder: "挂单",
     type: "类型",
     orderType: "订单类型",
     breakPrice: "突破价",

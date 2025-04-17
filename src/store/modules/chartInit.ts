@@ -282,8 +282,12 @@ export const useChartInit = defineStore("chartInit", () => {
           interval,
         };
       });
-      storageStore.setItem("chartList", saveChatList);
-      storageStore.setItem("chartInfoMap", saveMap);
+      if (saveChatList.length) {
+        storageStore.setItem("chartList", saveChatList);
+      }
+      if (Object.keys(saveMap).length) {
+        storageStore.setItem("chartInfoMap", saveMap);
+      }
       storageStore.setItem("activeChartId", state.activeChartId);
     } catch (error) {
       console.log(error);

@@ -353,6 +353,7 @@ export default {
   dialog: {
     createOrder: "下單",
     marketOrder: "市價單",
+    pendingOrder: "掛單",
     type: "類型",
     orderType: "訂單類型",
     breakPrice: "突破價",

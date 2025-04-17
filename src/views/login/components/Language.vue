@@ -1,15 +1,15 @@
 <template>
   <el-dropdown trigger="hover" placement="bottom-start">
     <div class="downOutner">
-      <el-text>{{ nowLocale }}</el-text>
+      <el-text>{{ languageStore.nowLocale }}</el-text>
       <BaseImg iconName="caretDown" />
     </div>
     <template #dropdown>
       <div class="downInner">
         <div
           class="innerItem"
-          v-for="(value, key) in localeList"
-          @click="changeLocale(key)"
+          v-for="(value, key) in languageStore.localeList"
+          @click="languageStore.changeLocale(key)"
         >
           <span>{{ value.nowLocale }}</span>
         </div>
@@ -19,28 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
-import i18n from "@/language/index";
-import { useI18n } from "vue-i18n";
-
-const { locale, messages } = useI18n();
-const localeList = i18n.global.messages.value;
-
+import { useLanguage } from "@/store/modules/language";
+const languageStore = useLanguage();
 const emit = defineEmits(["change"]);
-
-const changeLocale = (value: string) => {
-  if (value === locale.value) {
-    return;
-  }
-  localStorage.setItem("language", value);
-  window.location.reload();
-};
-const nowLocale = computed(() => {
-  const localeList = messages.value;
-  const curentLocale = locale.value;
-  return localeList[curentLocale].nowLocale;
-});
 </script>
 
 <style lang="scss" scoped>

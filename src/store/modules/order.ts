@@ -90,6 +90,7 @@ export const useOrder = defineStore("order", () => {
       },
       pendingOrder: {
         symbol: [],
+        orderType: "",
       },
       pendingOrderHistory: {
         symbol: [],

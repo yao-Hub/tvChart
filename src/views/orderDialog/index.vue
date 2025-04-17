@@ -47,7 +47,7 @@
           <el-radio-group v-model="formState.orderType">
             <el-radio-button :label="t('dialog.marketOrder')" value="price" />
             <el-radio-button
-              :label="t('table.pendingOrder')"
+              :label="t('dialog.pendingOrder')"
               :value="
                 formState.orderType === 'price'
                   ? 'buyLimit'
@@ -166,6 +166,7 @@
             <el-button
               class="sellBtn"
               :disabled="tradeDisabled"
+              :loading="priceBtnLoading"
               @click="showConfirmModal(1)"
               >{{ t("order.sell") }}</el-button
             >
@@ -178,6 +179,7 @@
             </template>
             <el-button
               class="buyBtn"
+              :loading="priceBtnLoading"
               :disabled="tradeDisabled"
               @click="showConfirmModal(0)"
               >{{ t("order.buy") }}</el-button
@@ -231,7 +233,9 @@
         </div>
       </div>
       <div class="btnGroup">
-        <el-button class="btn" @click="back">{{ t("dialog.back") }}</el-button>
+        <el-button class="btn" @click="back" :disabled="priceBtnLoading">{{
+          t("dialog.back")
+        }}</el-button>
         <el-button
           class="btn"
           type="primary"
