@@ -220,12 +220,8 @@
             @scroll="tableScroll"
             fixed
           >
-            <template #overlay>
-              <div
-                class="el-loading-mask"
-                v-loading="true"
-                v-if="orderStore.state.dataLoading[activeKey]"
-              ></div>
+            <template #overlay v-if="orderStore.state.dataLoading[activeKey]">
+              <div class="el-loading-mask" v-loading="true"></div>
             </template>
             <template #header-cell="{ column, columnIndex }">
               <div
@@ -1073,7 +1069,6 @@ const getTableData = (type: string) => {
 }
 :deep(.el-table-v2__overlay) {
   z-index: 10;
-  pointer-events: none;
 }
 :deep(.el-table-v2__header-cell) {
   text-overflow: ellipsis;
