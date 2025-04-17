@@ -152,6 +152,15 @@ export const useChartInit = defineStore("chartInit", () => {
     }
 
     delete state.ifFinishLoad[id];
+
+    // 移除渲染
+    const subscribed = chartLineStore.subscribed;
+    for (const ID in subscribed) {
+      const chartId = ID.split("@")[0];
+      if (chartId === id) {
+        chartLineStore.unsubscribed(ID);
+      }
+    }
     saveCharts();
   }
 
