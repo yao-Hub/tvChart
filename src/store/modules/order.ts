@@ -617,6 +617,7 @@ export const useOrder = defineStore("order", () => {
       time: dayjs().format("YYYY.MM.DD HH:mm:ss.SSS"),
       login: currentLogin.value,
       day: dayjs().format("YYYY.MM.DD"),
+      server: useUser().account.server,
     };
   };
 

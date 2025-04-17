@@ -1,7 +1,6 @@
 import IndexedDBService from "./index";
 
 const dbName = "logDatabase";
-const dbVersion = 1;
 const objectStoreName = "logStore";
 
 // 定义日志数据的格式接口
@@ -12,6 +11,7 @@ interface LogData {
   time: string;
   login: string | number;
   logName: string;
+  server: string;
   detail: string;
 }
 
@@ -24,6 +24,7 @@ function validateLogEntry(data: unknown): data is LogData {
     typeof entry.time === "string" &&
     typeof entry.logName === "string" &&
     typeof entry.detail === "string" &&
+    typeof entry.server === "string" &&
     ["string", "number"].includes(typeof entry.login) &&
     ["info", "error"].includes(entry.logType) &&
     ["network", "trades", "audit"].includes(entry.origin)
@@ -40,9 +41,8 @@ async function initLogDB() {
   if (!logIndexedDBServiceInstance) {
     logIndexedDBServiceInstance = new IndexedDBService(
       dbName,
-      dbVersion,
       objectStoreName,
-      ["id", "origin", "time", "login", "logType", "day"]
+      ["id", "origin", "time", "login", "logType", "day", "server"]
     );
     try {
       await logIndexedDBServiceInstance.openDatabase();
@@ -67,7 +67,6 @@ const proxiedLogDBService = new Proxy({} as IndexedDBService, {
     if (!logIndexedDBServiceInstance) {
       throw new Error("Log 数据库服务实例未正确初始化。");
     }
-    // return Reflect.get(logIndexedDBServiceInstance, prop);
     const originalMethod = Reflect.get(logIndexedDBServiceInstance, prop);
 
     // 对 addData 和 updateData 方法进行数据验证

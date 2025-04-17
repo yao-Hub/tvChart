@@ -383,6 +383,7 @@ const addMarket = async (state: "reverse" | "double") => {
         get(error, "errmsg") || get(error, "message") || JSON.stringify(error);
     } finally {
       const login = useUser().account.login;
+      const server = useUser().account.server;
       const logErr = errmsg ? `error ${errmsg}` : "";
       logStr = `${login}: #${id} ${state} market ${logErr} ${logStr}`;
       const logData = {
@@ -393,6 +394,7 @@ const addMarket = async (state: "reverse" | "double") => {
         origin: "trades",
         time: dayjs().format("YYYY.MM.DD HH:mm:ss.SSS"),
         login,
+        server,
         day: dayjs().format("YYYY.MM.DD"),
       };
       await logIndexedDB.addData(logData);

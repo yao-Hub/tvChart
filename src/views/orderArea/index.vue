@@ -939,6 +939,7 @@ const closeMarketOrders = async (command: number) => {
         typeList[command]
       } ${errmsg ? `error ${errmsg}` : ""} ${logStr}`,
       login: useUser().account.login,
+      server: useUser().account.server,
       time: dayjs().format("HH:mm:ss.SSS"),
       id: new Date().getTime(),
       day: dayjs().format("YYYY.MM.DD"),

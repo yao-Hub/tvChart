@@ -5,16 +5,18 @@ class IndexedDBService {
   private objectStoreName: string;
   private fields: string[];
 
-  constructor(
-    dbName: string,
-    dbVersion: number,
-    objectStoreName: string,
-    fields: string[]
-  ) {
+  constructor(dbName: string, objectStoreName: string, fields: string[]) {
     this.dbName = dbName;
-    this.dbVersion = dbVersion;
     this.objectStoreName = objectStoreName;
     this.fields = fields;
+
+    let version = 1;
+    // @ts-ignore
+    const systemVersion = _VERSION_;
+    if (systemVersion) {
+      version = +systemVersion.split(".").join("");
+    }
+    this.dbVersion = version;
   }
 
   async openDatabase() {
@@ -27,22 +29,33 @@ class IndexedDBService {
         );
       };
 
+      // 成功打开
       request.onsuccess = (event) => {
         this.db = (event.target as IDBRequest).result;
         this.checkStorageQuota();
         resolve(this.db as IDBDatabase);
       };
 
+      // indexedDB版本更新
       request.onupgradeneeded = (event) => {
-        const db = (event.target as IDBRequest).result;
-        if (!db.objectStoreNames.contains(this.objectStoreName)) {
-          const objectStore = db.createObjectStore(this.objectStoreName, {
+        const target = event.target as IDBRequest;
+        const db = target.result;
+        const obName = this.objectStoreName;
+        let objectStore: IDBObjectStore;
+        if (!db.objectStoreNames.contains(obName)) {
+          objectStore = db.createObjectStore(obName, {
             keyPath: "id",
           });
-          this.fields.forEach((field) => {
-            objectStore.createIndex(field, field, { unique: false });
-          });
         }
+        // 获取已存在的对象存储
+        objectStore = target.transaction!.objectStore(obName);
+
+        // 增加索引
+        this.fields.forEach((field) => {
+          if (!objectStore.indexNames.contains(field)) {
+            objectStore.createIndex(field, field, { unique: false });
+          }
+        });
       };
     });
   }

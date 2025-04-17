@@ -319,6 +319,7 @@ export const useUser = defineStore("user", () => {
                 origin: "network",
                 time: dayjs().format("HH:mm:ss.SSS"),
                 login: updata.login,
+                server: updata.server,
                 logName: "login",
                 detail,
                 day: dayjs().format("YYYY.MM.DD"),
@@ -355,6 +356,7 @@ export const useUser = defineStore("user", () => {
         detail,
         id: endTime,
         login: account.value.login,
+        server: account.value.server,
         time: dayjs().format("HH:mm:ss.SSS"),
         day: dayjs().format("YYYY.MM.DD"),
       };

@@ -23,6 +23,7 @@ const loading = ref(false);
 
 const handleClearCache = async () => {
   const login = useUser().account.login;
+  const server = useUser().account.server;
   const logData = {
     id: new Date().getTime(),
     time: dayjs().format("HH:mm:ss.SSS"),
@@ -30,6 +31,7 @@ const handleClearCache = async () => {
     origin: "audit",
     logType: "info",
     login,
+    server,
     logName: "clearCache",
     detail: `${login}: clearCache (dc: ${useNetwork().nodeName})`,
   };
