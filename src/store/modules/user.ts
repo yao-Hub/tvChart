@@ -151,7 +151,6 @@ export const useUser = defineStore("user", () => {
     let hasExecutedLeading = false; // 标记是否已执行leading
 
     return async (params?: IGetInfo) => {
-      console.log("params", params);
       const leading = params?.leading ?? false;
       const trailing = params?.trailing ?? true;
       const wait = params?.wait ?? 1200;
@@ -184,7 +183,6 @@ export const useUser = defineStore("user", () => {
   const getLoginInfo = createGetLoginInfo();
 
   async function executeLogic(params?: IGetInfo) {
-    console.log("executeLogic");
     const res = await loginInfo({
       login: account.value.login,
     });

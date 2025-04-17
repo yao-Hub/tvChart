@@ -13,6 +13,7 @@
       <input
         :style="{ ...styles.input, textAlign: 'center' }"
         v-model="volume"
+        @input="handleInput"
       />
       <BaseImg iconName="caretUp" :style="styles.icon" @click="addNum" />
     </div>
@@ -36,6 +37,7 @@ import { DirectionType } from "#/order";
 
 import { ISessionSymbolInfo } from "@/types/chart";
 import { ReqOrderAdd } from "api/order/index";
+import { limitdigit } from "@/utils/common";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useDialog } from "@/store/modules/dialog";
@@ -209,6 +211,10 @@ const reduceNum = () => {
     minVolume.value
   );
   volume.value = String(result);
+};
+
+const handleInput = () => {
+  volume.value = limitdigit(volume.value, 2).toString();
 };
 
 const regex = /^-?\d+(\.\d+)?$/;
