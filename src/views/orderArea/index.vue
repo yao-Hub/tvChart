@@ -229,9 +229,7 @@
                 @mouseenter="headerMouseenter(columnIndex)"
                 @mouseleave="headerMouseLeave"
               >
-                <div class="header-box__title" :title="column.title">
-                  {{ column.title || "" }}
-                </div>
+                <OverFlowWord :content="column.title"></OverFlowWord>
                 <div
                   class="drag-line"
                   v-show="dragLineList.includes(columnIndex)"
@@ -308,16 +306,14 @@
                   rowData.fee
                 }}</span>
               </template>
-              <template v-else-if="column.dataKey === 'close_type'">{{
-                getCloseType(rowData)
-              }}</template>
+              <template v-else-if="column.dataKey === 'close_type'">
+                <OverFlowWord :content="getCloseType(rowData)"></OverFlowWord>
+              </template>
               <template v-else-if="column.dataKey === 'days'">{{
                 getDays(rowData)
               }}</template>
               <template v-else-if="column.dataKey === 'comment'">
-                <el-tooltip :content="rowData.comment" placement="top">
-                  <span class="textEllipsis">{{ rowData.comment || "-" }}</span>
-                </el-tooltip>
+                <OverFlowWord :content="rowData.comment || '-'"></OverFlowWord>
               </template>
               <template v-else-if="column.dataKey === 'positionAction'">
                 <el-icon
@@ -347,15 +343,14 @@
                   ><Loading
                 /></el-icon>
               </template>
-              <template v-else-if="column.dataKey === 'Placeholder'">
-                <span></span>
-              </template>
               <template v-else>
-                {{
-                  [null, undefined, ""].includes(rowData[column.dataKey])
-                    ? "-"
-                    : rowData[column.dataKey] || "-"
-                }}
+                <OverFlowWord
+                  :content="
+                    [null, undefined, ''].includes(rowData[column.dataKey])
+                      ? '-'
+                      : rowData[column.dataKey]
+                  "
+                ></OverFlowWord>
               </template>
             </template>
             <template #footer>
@@ -1139,11 +1134,6 @@ const getTableData = (type: string) => {
   padding: 0 16px;
   line-height: 32px;
   font-weight: 400;
-  &__title {
-    text-overflow: ellipsis;
-    overflow: hidden;
-    white-space: nowrap;
-  }
 
   .drag-line {
     position: absolute;

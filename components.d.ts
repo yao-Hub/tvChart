@@ -57,6 +57,7 @@ declare module 'vue' {
     Latest: typeof import('./src/components/CheckVersion/latest.vue')['default']
     MyFeedBack: typeof import('./src/components/Feedback/MyFeedBack.vue')['default']
     Normal: typeof import('./src/components/CheckVersion/normal.vue')['default']
+    OverFlowWord: typeof import('./src/components/OverFlowWord.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SelectSuffixIcon: typeof import('./src/components/SelectSuffixIcon.vue')['default']

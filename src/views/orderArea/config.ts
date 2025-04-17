@@ -375,8 +375,8 @@ export const tableColumns: Record<
       title: t("table.closeType"),
       dataKey: "close_type",
       key: "close_type",
-      width: 160,
-      minWidth: 160,
+      width: 90,
+      minWidth: 90,
       align: "right",
     },
     {
