@@ -19,7 +19,7 @@ import * as orderTypes from "#/order";
 import * as types from "@/types/chart";
 import * as orders from "api/order/index";
 
-import { cloneDeep, debounce, get, isNil } from "lodash";
+import { debounce, get, isNil } from "lodash";
 import { getTradingDirection, getOrderType } from "utils/order/index";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 import { getSymbolDetail } from "api/symbols";
@@ -420,19 +420,19 @@ export const useOrder = defineStore("order", () => {
 
   // 查询日志
   const getLog = async () => {
-    const filters = cloneDeep(state.dataFilter.log);
+    const filters = {
+      server: useUser().account.server,
+      login: useUser().account.login,
+      ...state.dataFilter.log,
+    };
     for (const i in filters) {
-      if (!filters[i]) {
+      if (filters[i] === "") {
         delete filters[i];
       }
     }
-    let data = state.orderData.log;
-    if (Object.keys(filters).length > 0) {
-      data = (await logIndexedDB.optimizedFilter(filters)) as orderTypes.ILog[];
-    } else {
-      data = (await logIndexedDB.getAllData()) as orderTypes.ILog[];
-    }
-    state.orderData.log = data;
+    state.orderData.log = (await logIndexedDB.optimizedFilter(
+      filters
+    )) as orderTypes.ILog[];
   };
 
   /** 获取盈亏

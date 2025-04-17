@@ -534,7 +534,7 @@ const adjustTable = debounce(() => {
     if (columns_widths > container_width) {
       state.columns[activeKey.value].forEach((item) => {
         const minw = item.minWidth || MIN_COLUMN_WIDTH;
-        let width = new Decimal(item.width);
+        let width = new Decimal(item.width === "auto" ? minw : item.width);
         if (columns_widths > container_width && item.minWidth) {
           width = new Decimal(item.minWidth);
         }
@@ -835,28 +835,21 @@ type ScrollParams = {
   scrollTop: number;
 };
 const tableScroll = (e: ScrollParams) => {
-  if (activeKey.value !== "marketOrderHistory") {
-    tableXScroll.value = 0;
-    return;
-  }
   tableXScroll.value = e.scrollLeft;
 };
 watch(
   () => [state.columns.marketOrderHistory, tableXScroll, activeKey],
   () => {
-    const list = state.columns.marketOrderHistory;
-    const cell = document.querySelector(".profitcell");
-    if (cell) {
-      const cellRight = cell.getBoundingClientRect().right;
-      MOHFWidth.value = cellRight + "px";
-    } else {
-      const index = list.findIndex((e) => e.dataKey === "profit");
-      const targetList = list.slice(0, index + 1);
-      const width = targetList.reduce((pre, next) => {
-        return pre + +next.width;
-      }, 0);
-      MOHFWidth.value = width - tableXScroll.value + "px";
+    if (activeKey.value !== "marketOrderHistory") {
+      return;
     }
+    const list = state.columns.marketOrderHistory;
+    const index = list.findIndex((e) => e.dataKey === "profit");
+    const targetList = list.slice(0, index + 1);
+    const width = targetList.reduce((pre, next) => {
+      return pre + +next.width;
+    }, 0);
+    MOHFWidth.value = width - tableXScroll.value + "px";
   },
   { deep: true, flush: "post" }
 );
