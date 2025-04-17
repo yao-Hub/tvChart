@@ -200,7 +200,6 @@
         <template #default="{ height, width }">
           <el-table-v2
             :key="activeKey"
-            v-loading="orderStore.state.dataLoading[activeKey]"
             :columns="state.columns[activeKey]"
             :data="dataSource"
             :row-height="32"
@@ -221,6 +220,13 @@
             @scroll="tableScroll"
             fixed
           >
+            <template #overlay>
+              <div
+                class="el-loading-mask"
+                v-loading="true"
+                v-if="orderStore.state.dataLoading[activeKey]"
+              ></div>
+            </template>
             <template #header-cell="{ column, columnIndex }">
               <div
                 :class="{ 'header-box': !!column.title }"
@@ -1065,6 +1071,9 @@ const getTableData = (type: string) => {
 .baseTabs .baseTabs_item:nth-of-type(1) {
   border-radius: 0 4px 0 0;
 }
+:deep(.el-table-v2__overlay) {
+  z-index: 10;
+}
 :deep(.el-table-v2__header-cell) {
   text-overflow: ellipsis;
   overflow: hidden;
@@ -1112,6 +1121,12 @@ const getTableData = (type: string) => {
     margin: 0 4px;
     @include border_color("background-component");
     @include background_color("background");
+
+    .el-loading-mask {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     .filter {
       min-height: 32px;
