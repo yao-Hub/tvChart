@@ -1073,6 +1073,7 @@ const getTableData = (type: string) => {
 }
 :deep(.el-table-v2__overlay) {
   z-index: 10;
+  pointer-events: none;
 }
 :deep(.el-table-v2__header-cell) {
   text-overflow: ellipsis;
