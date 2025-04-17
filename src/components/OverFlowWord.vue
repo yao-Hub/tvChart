@@ -7,13 +7,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, nextTick } from "vue";
+import { ref } from "vue";
 
 interface Props {
   content: string;
 }
 
-const props = defineProps<Props>();
+defineProps<Props>();
 const textRef = ref<HTMLElement | null>(null);
 const tooltipDisabled = ref(true);
 
@@ -23,15 +23,6 @@ const checkOverflow = () => {
     tooltipDisabled.value = scrollWidth <= clientWidth;
   }
 };
-
-onMounted(() => {
-  nextTick(checkOverflow);
-});
-
-watch(
-  () => props.content,
-  () => nextTick(checkOverflow)
-);
 </script>
 
 <style lang="scss" scoped>
