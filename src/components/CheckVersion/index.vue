@@ -1,7 +1,7 @@
 <template>
   <el-dialog
-    v-if="dialogStore.updateVersionVisible"
-    v-model="dialogStore.updateVersionVisible"
+    v-if="dialogStore.visibles.updateVersionVisible"
+    v-model="dialogStore.visibles.updateVersionVisible"
     width="450"
     :zIndex="dialogStore.zIndex + 1"
     destroy-on-close

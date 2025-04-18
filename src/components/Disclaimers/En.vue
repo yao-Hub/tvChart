@@ -1,7 +1,7 @@
 <template>
   <el-dialog
-    v-if="dialogStore.disclaimersVisible"
-    v-model="dialogStore.disclaimersVisible"
+    v-if="dialogStore.visibles.disclaimersVisible"
+    v-model="dialogStore.visibles.disclaimersVisible"
     width="900"
     :zIndex="dialogStore.zIndex"
     destroy-on-close

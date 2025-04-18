@@ -397,6 +397,11 @@ export default {
     exitTip: "當前正在下載更新，關閉將暫停下載。 確定要退出嗎？",
   },
 
+  serverInfo: {
+    seeDetail: "查看詳情",
+    info: "交易商詳情",
+  },
+
   "refresh page": "刷新頁面",
   "network error": "網絡錯誤",
   "invalid token": "登入過期",

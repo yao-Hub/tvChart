@@ -1,7 +1,7 @@
 <template>
   <el-dialog
-    v-if="dialogStore.feedbackVisible"
-    v-model="dialogStore.feedbackVisible"
+    v-if="dialogStore.visibles.feedbackVisible"
+    v-model="dialogStore.visibles.feedbackVisible"
     width="486"
     :zIndex="dialogStore.zIndex"
     @close="onClose"

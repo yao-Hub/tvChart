@@ -75,10 +75,13 @@
 
     <el-descriptions :column="2" style="margin-top: 20px">
       <el-descriptions-item :label="t('brokerName')">
-        <el-text>{{
-          networkStore.currentLine?.brokerName
-        }}</el-text></el-descriptions-item
-      >
+        <el-text
+          style="cursor: pointer"
+          type="primary"
+          @click="dialogStore.openDialog('serverVisible')"
+          >{{ networkStore.currentLine?.brokerName }}</el-text
+        >
+      </el-descriptions-item>
       <el-descriptions-item :label="t('nodeName')">
         <el-text>{{ networkStore.nodeName }}</el-text></el-descriptions-item
       >

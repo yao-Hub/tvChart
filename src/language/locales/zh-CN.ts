@@ -396,6 +396,11 @@ export default {
     exitTip: "当前正在下载更新，关闭将暂停下载。确定要退出吗？",
   },
 
+  serverInfo: {
+    seeDetail: "查看详情",
+    info: "交易商详情",
+  },
+
   "refresh page": "刷新页面",
   "network error": "网络错误",
   "invalid token": "登录过期",

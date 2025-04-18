@@ -21,6 +21,7 @@
     >
       <el-form-item prop="server" :label="t('order.tradingRoute')">
         <el-select
+          ref="serverRef"
           v-model="formState.server"
           filterable
           default-first-option
@@ -32,7 +33,22 @@
             :key="item.lineName"
             :label="item.lineName"
             :value="item.lineName"
-          />
+          >
+            <div
+              class="option"
+              @mouseenter="mouseEnterLineName = item.lineName"
+            >
+              <span>{{ item.lineName }}</span>
+              <el-text
+                type="primary"
+                style="cursor: pointer"
+                v-show="mouseEnterLineName === item.lineName"
+                @click.stop="watchDetail"
+              >
+                {{ t("serverInfo.seeDetail") }}
+              </el-text>
+            </div>
+          </el-option>
         </el-select>
       </el-form-item>
 
@@ -197,6 +213,15 @@ const ifSimulatedServer = computed(() => {
   return false;
 });
 
+import { useDialog } from "@/store/modules/dialog";
+import type { ElSelect } from "element-plus";
+const mouseEnterLineName = ref("");
+const serverRef = ref<InstanceType<typeof ElSelect>>();
+const watchDetail = () => {
+  serverRef.value!.handleEsc();
+  useDialog().openDialog("serverVisible");
+};
+
 import { protocolAgree } from "api/account/index";
 
 const goProtocol = (columnCode: string) => {
@@ -323,6 +348,13 @@ onUnmounted(() => {
   &-button {
     width: 100%;
   }
+}
+.option {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .link {

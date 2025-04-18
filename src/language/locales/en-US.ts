@@ -398,5 +398,10 @@ export default {
       "Currently downloading updates, closing will pause the download. Are you sure you want to exit?",
   },
 
+  serverInfo: {
+    seeDetail: "Details",
+    info: "Server Info",
+  },
+
   "refresh page": "Reload",
 };

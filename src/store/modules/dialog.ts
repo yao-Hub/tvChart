@@ -7,30 +7,36 @@ interface FloatMenuParams {
 }
 
 interface IState {
-  orderDialogVisible: boolean; // 订单弹窗的显示
+  visibles: Record<TVisible, boolean>;
   floatMenuParams: FloatMenuParams; // 订单线加号按钮菜单
-  disclaimersVisible: boolean; // 快捷交易声明弹窗
-  feedbackVisible: boolean; // 我的反馈弹窗
-  updateVersionVisible: boolean; // 版本更新弹窗
-  updateProgressVisible: boolean; // 下载进度弹窗
   zIndex: number;
 }
 
 type TVisible =
+  // 订单弹窗
   | "orderDialogVisible"
+  // 快捷交易声明弹窗
   | "disclaimersVisible"
+  // 我的反馈弹窗
   | "feedbackVisible"
+  // 版本提示更新弹窗
   | "updateVersionVisible"
-  | "updateProgressVisible";
+  // 下载进度弹窗
+  | "updateProgressVisible"
+  // 交易服务器详情弹窗
+  | "serverVisible";
 
 export const useDialog = defineStore("dialog", {
   state: (): IState => {
     return {
-      disclaimersVisible: false,
-      orderDialogVisible: false, // 订单弹窗
-      feedbackVisible: false,
-      updateVersionVisible: false,
-      updateProgressVisible: false,
+      visibles: {
+        disclaimersVisible: false,
+        orderDialogVisible: false,
+        feedbackVisible: false,
+        updateVersionVisible: false,
+        updateProgressVisible: false,
+        serverVisible: false,
+      },
       floatMenuParams: {
         visible: false,
         clientX: 0,
@@ -42,18 +48,21 @@ export const useDialog = defineStore("dialog", {
   actions: {
     openDialog(type: TVisible) {
       this.incrementZIndex();
-      this[type] = true;
+      this.visibles[type] = true;
     },
     closeDialog(type: TVisible) {
-      this[type] = false;
+      this.visibles[type] = false;
     },
     incrementZIndex() {
       this.zIndex++;
     },
     $reset() {
-      this.disclaimersVisible = false;
-      this.orderDialogVisible = false;
-      this.feedbackVisible = false;
+      for (const i in this.visibles) {
+        if (["updateVersionVisible", "updateProgressVisible"].includes(i)) {
+          break;
+        }
+        this.visibles[i as TVisible] = false;
+      }
       this.floatMenuParams = {
         visible: false,
         clientX: 0,

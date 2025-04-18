@@ -1,7 +1,7 @@
 <template>
   <el-dialog
-    v-if="dialogStore.orderDialogVisible"
-    v-model="dialogStore.orderDialogVisible"
+    v-if="dialogStore.visibles.orderDialogVisible"
+    v-model="dialogStore.visibles.orderDialogVisible"
     class="order_dialog scrollList"
     width="450"
     :zIndex="dialogStore.zIndex"
@@ -340,7 +340,7 @@ const initForm = () => {
 
 // 初始化数据
 watch(
-  () => dialogStore.orderDialogVisible,
+  () => dialogStore.visibles.orderDialogVisible,
   (val) => {
     val && initForm();
   }

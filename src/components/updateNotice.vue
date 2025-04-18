@@ -1,5 +1,9 @@
 <template>
-  <div class="notice" v-if="useDialog().updateProgressVisible" ref="noticeRef">
+  <div
+    class="notice"
+    v-if="useDialog().visibles.updateProgressVisible"
+    ref="noticeRef"
+  >
     <div class="notice__group">
       <h2 class="notice__title" ref="headerRef">{{ title }}</h2>
       <div class="notice__content">
