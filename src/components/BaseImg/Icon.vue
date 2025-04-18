@@ -13,6 +13,7 @@ interface Props {
   iconName?: string;
   imgSuffix?: string;
   fullPath?: string;
+  theme?: "light" | "dark";
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -25,7 +26,7 @@ const iconSrc = computed(() => {
     return props.fullPath;
   }
   if (props.iconName) {
-    const theme = themeStore.systemTheme;
+    const theme = props.theme || themeStore.systemTheme;
     // const result = `/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
     const result = new URL(
       `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,

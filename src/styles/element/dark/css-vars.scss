@@ -153,4 +153,8 @@ html.dark {
   .el-form-item--label-top .el-form-item__label {
     margin-bottom: 4px;
   }
+
+  .el-descriptions__body {
+    background-color: var(--dark-3);
+  }
 }

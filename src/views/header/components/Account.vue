@@ -72,32 +72,30 @@
         <el-icon class="closeBtn" @click="close"><Close /></el-icon>
       </div>
     </template>
-    <el-row>
-      <el-col :span="24">
-        <el-text type="info">{{ t("brokerName") }}</el-text>
-        <el-text>{{ networkStore.currentLine?.brokerName }}</el-text>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="12">
-        <el-text type="info">{{ t("nodeName") }}</el-text>
-        <el-text>{{ networkStore.nodeName }}</el-text>
-      </el-col>
-      <el-col :span="12">
-        <el-text type="info">{{ t("loginId") }}</el-text>
-        <el-text>{{ userStore.state.loginInfo?.login }}</el-text>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="12">
-        <el-text type="info">{{ t("ip") }}</el-text>
-        <el-text>{{ networkStore.currentNode?.ip }}</el-text>
-      </el-col>
-      <el-col :span="12">
-        <el-text type="info">{{ t("connectedNode") }}</el-text>
-        <el-text>{{ networkStore.currentNode?.nodeName }}</el-text>
-      </el-col>
-    </el-row>
+
+    <el-descriptions :column="2" style="margin-top: 20px">
+      <el-descriptions-item :label="t('brokerName')">
+        <el-text>{{
+          networkStore.currentLine?.brokerName
+        }}</el-text></el-descriptions-item
+      >
+      <el-descriptions-item :label="t('nodeName')">
+        <el-text>{{ networkStore.nodeName }}</el-text></el-descriptions-item
+      >
+      <el-descriptions-item :label="t('loginId')">
+        <el-text>{{
+          userStore.state.loginInfo?.login
+        }}</el-text></el-descriptions-item
+      >
+      <el-descriptions-item :label="t('ip')"
+        ><el-text>{{ networkStore.currentNode?.ip }}</el-text>
+      </el-descriptions-item>
+      <el-descriptions-item :label="t('connectedNode')"
+        ><el-text>{{
+          networkStore.currentNode?.nodeName
+        }}</el-text></el-descriptions-item
+      >
+    </el-descriptions>
   </el-dialog>
 
   <ResetPassword v-model:open="resetPasswordOpen"></ResetPassword>

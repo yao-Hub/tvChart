@@ -9,13 +9,23 @@
       </div>
     </div>
     <div :style="{ ...inputAreaStyle, boxSizing: 'border-box' }">
-      <BaseImg :style="styles.icon" iconName="caretDown" @click="reduceNum" />
+      <BaseImg
+        :style="styles.icon"
+        iconName="caretDown"
+        :theme="colorScheme"
+        @click="reduceNum"
+      />
       <input
         :style="{ ...styles.input, textAlign: 'center' }"
         v-model="volume"
         @input="handleInput"
       />
-      <BaseImg iconName="caretUp" :style="styles.icon" @click="addNum" />
+      <BaseImg
+        iconName="caretUp"
+        :style="styles.icon"
+        :theme="colorScheme"
+        @click="addNum"
+      />
     </div>
     <div :style="styles.area">
       <div :style="btnStyle('buy')" @click="addOrder(0)">
@@ -140,11 +150,15 @@ const btnStyle = (type: DirectionType) => {
   };
 };
 
+const colorScheme = computed(() => {
+  const scheme = themeStore.iframesColorScheme[props.id];
+  return scheme || themeStore.systemTheme;
+});
+
 const inputAreaStyle = computed(() => {
-  const color = themeStore.systemTheme === "light" ? "#000" : "#fff";
-  const borderColor =
-    themeStore.systemTheme === "light" ? "#DEE2E9" : "#2C2F35";
-  const backgroundColor = themeStore.systemTheme === "light" ? "#fff" : "#000";
+  const color = colorScheme.value === "light" ? "#000" : "#fff";
+  const borderColor = colorScheme.value === "light" ? "#DEE2E9" : "#2C2F35";
+  const backgroundColor = colorScheme.value === "light" ? "#fff" : "#000";
   return {
     ...styles.inputArea,
     color,

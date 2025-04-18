@@ -14,6 +14,8 @@ export const useTheme = defineStore("theme", () => {
   const systemTheme = ref<TsystemTheme>("dark");
   const upDownTheme = ref<TupDownTheme>("upRedDownGreen");
 
+  const iframesColorScheme = ref<Record<string, TsystemTheme>>({});
+
   watch(
     () => isDark.value,
     () => {
@@ -165,6 +167,19 @@ export const useTheme = defineStore("theme", () => {
     } catch (error) {}
   };
 
+  const getIframesColorScheme = () => {
+    const iframes = document.querySelectorAll("iframe");
+    iframes.forEach((ifr, index) => {
+      const ifrDom = ifr.contentDocument || ifr.contentWindow!.document;
+      const htmlDom = ifrDom.querySelector("html");
+      if (htmlDom) {
+        const htmlStyles = window.getComputedStyle(htmlDom);
+        const colorScheme = htmlStyles.colorScheme as TsystemTheme;
+        const id = useChartInit().state.chartWidgetList[index].id;
+        iframesColorScheme.value[id] = colorScheme;
+      }
+    });
+  };
   function $reset() {}
   return {
     systemTheme,
@@ -176,6 +191,8 @@ export const useTheme = defineStore("theme", () => {
     setUpDownTheme,
     getSystemTheme,
     saveChartTheme,
+    getIframesColorScheme,
+    iframesColorScheme,
     $reset,
   };
 });

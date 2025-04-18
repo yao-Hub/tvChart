@@ -251,6 +251,15 @@ const initonReady = () => {
         .getTimezoneApi()
         .setTimezone(timeStore.settedTimezone as Ttime);
 
+      widget
+        .activeChart()
+        .onChartTypeChanged()
+        .subscribe(null, () => {
+          setTimeout(() => {
+            themeStore.getIframesColorScheme();
+          });
+        });
+
       // canvas图表主题
       const storageThemeMap = useStorage().getItem("chartThemeMap") || {};
       const chart_theme = storageThemeMap[props.chartId];

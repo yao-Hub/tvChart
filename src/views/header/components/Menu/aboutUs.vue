@@ -18,32 +18,17 @@
         <el-icon class="closeBtn" @click="close"><Close /></el-icon>
       </div>
     </template>
-    <el-row>
-      <el-col :span="24">
-        <el-text type="info">{{ t("company") }}</el-text>
-        <el-text>广州微派</el-text>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="12">
-        <el-text type="info">Tel</el-text>
-        <el-text>+86 8803 445</el-text>
-      </el-col>
-      <el-col :span="12">
-        <el-text type="info">FaX</el-text>
-        <el-text>+86 8803 445</el-text>
-      </el-col>
-    </el-row>
-    <el-row>
-      <el-col :span="12">
-        <el-text type="info">Web</el-text>
-        <el-text>www.weipai.com</el-text>
-      </el-col>
-      <el-col :span="12">
-        <el-text type="info">Email</el-text>
-        <el-text>info@utrader.com</el-text>
-      </el-col>
-    </el-row>
+    <el-descriptions :column="2" style="margin-top: 20px">
+      <el-descriptions-item :label="t('company')"
+        >广州微派</el-descriptions-item
+      >
+      <el-descriptions-item label="Tel">+86 8803 445</el-descriptions-item>
+      <el-descriptions-item label="FaX">+86 8803 445</el-descriptions-item>
+      <el-descriptions-item label="Web">www.weipai.com </el-descriptions-item>
+      <el-descriptions-item label="Email"
+        >info@utrader.com</el-descriptions-item
+      >
+    </el-descriptions>
   </el-dialog>
 </template>
 
@@ -73,12 +58,6 @@ const handleClick = () => {
   display: flex;
   gap: 5px;
   align-items: center;
-}
-.el-row {
-  margin-bottom: 16px;
-}
-.el-row:first-child {
-  margin-top: 20px;
 }
 .header {
   width: 100%;
