@@ -273,11 +273,11 @@
                 }}</span>
               </template>
               <template v-else-if="column.dataKey === 'orderType'">
-                <span
+                <OverFlowWord
                   :class="[(rowData.type & 1) === 0 ? 'buyWord' : 'sellWord']"
-                  >{{ getOrderType(rowData.type) }}</span
-                ></template
-              >
+                  :content="getOrderType(rowData.type)"
+                ></OverFlowWord>
+              </template>
               <template v-else-if="column.dataKey === 'open_price'">{{
                 formatPrice(rowData.open_price, rowData.digits)
               }}</template>
@@ -481,7 +481,7 @@ const timeStore = useTime();
 const quotesStore = useQuotes();
 const storageStore = useStorage();
 
-const MIN_COLUMN_WIDTH = 80;
+const MIN_COLUMN_WIDTH = 60;
 
 const orderTypeOptions = [
   { value: "buyLimit", label: "Buy Limit" },
@@ -575,7 +575,6 @@ const adjustTable = debounce(() => {
       });
       return;
     }
-
     // 表格列宽度和 小于容器
     const autoWidhtColums = state.columns[activeKey.value].filter(
       (item) => item.width === "auto"
@@ -587,10 +586,12 @@ const adjustTable = debounce(() => {
     const hanveWidthSum_dec = new Decimal(hanveWidthSum);
     const leftWidth = +container_width_dec.sub(hanveWidthSum_dec);
     const leftWidth_dec = new Decimal(leftWidth);
-    const singleWidth = leftWidth_dec.div(new Decimal(autoWidhtColums.length));
+    const singleWidth = +leftWidth_dec
+      .div(new Decimal(autoWidhtColums.length))
+      .toString();
     state.columns[activeKey.value].forEach((item) => {
       if (item.width === "auto") {
-        item.width = +singleWidth.toString();
+        item.width = +singleWidth.toFixed(0);
       }
     });
 
@@ -603,7 +604,8 @@ const adjustTable = debounce(() => {
       const itemWidht_dec = new Decimal(item.width);
       const perc = itemWidht_dec.div(newColumnWidth_dec);
       const prec_dec = new Decimal(perc);
-      item.width = +prec_dec.mul(container_width_dec).toString();
+      const result = +prec_dec.mul(container_width_dec).toString();
+      item.width = +result.toFixed(0);
     });
   }
 });
@@ -642,16 +644,16 @@ const columnRefresh = (x: number, index: number) => {
   }
 
   // 最后一个单元格向右
-  if (!nextCol && x > 0) {
-    const allWidth = state.columns[activeKey.value].reduce(
-      (pre, next) => pre + (next.width as number),
-      0
-    );
-    const container_width = container.value.offsetWidth - 32;
-    if (allWidth > container_width - 3) {
-      return;
-    }
-  }
+  // if (!nextCol && x > 0) {
+  //   const allWidth = state.columns[activeKey.value].reduce(
+  //     (pre, next) => pre + (next.width as number),
+  //     0
+  //   );
+  //   const container_width = container.value.offsetWidth - 32;
+  //   if (allWidth > container_width - 3) {
+  //     return;
+  //   }
+  // }
 
   nowCol.width = +nowW.toFixed(0);
   storageStore.saveOrderTableColumn(activeKey.value, nowCol.dataKey, nowW);

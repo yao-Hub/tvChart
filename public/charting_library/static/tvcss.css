@@ -12,3 +12,9 @@
 .statuses-Lgtz1OtS {
   display: none;
 }
+
+div[data-name="open-image-in-new-tab"],
+div[data-name="tweet-chart-image"],
+div[data-name="copy-link-to-the-chart-image"] {
+  display: none;
+}
