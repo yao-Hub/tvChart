@@ -17,10 +17,8 @@ function createComponent(component: Component) {
 // 导入组件
 import UpdateNotice from "../components/updateNotice.vue";
 import CheckVersion from "../components/CheckVersion/index.vue";
-import ServerInfo from "../views/serverInfo/index.vue";
 
 const updateNoticePlugin = createComponent(UpdateNotice);
 const checkVersionPlugin = createComponent(CheckVersion);
-const ServerInfoPlugin = createComponent(ServerInfo);
 
-export default { updateNoticePlugin, checkVersionPlugin, ServerInfoPlugin };
+export default { updateNoticePlugin, checkVersionPlugin };

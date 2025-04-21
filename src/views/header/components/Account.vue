@@ -1,9 +1,5 @@
 <template>
-  <el-dropdown
-    trigger="contextmenu"
-    ref="dropdown"
-    @visible-change="visible = $event"
-  >
+  <el-dropdown trigger="contextmenu" ref="dropdown" @visible-change="visible = $event">
     <div class="info" @click="toogleDropdown">
       <el-text>{{ networkStore.server }}</el-text>
       <el-divider direction="vertical" />
@@ -12,14 +8,8 @@
     </div>
     <template #dropdown>
       <div class="aList">
-        <div
-          class="aItem"
-          v-for="(item, index) in accounts"
-          :class="{ aItemActive: item.ifLogin }"
-          @click="changeLogin(item)"
-          @mouseover="hoverMap[index] = true"
-          @mouseleave="hoverMap[index] = false"
-        >
+        <div class="aItem" v-for="(item, index) in accounts" :class="{ aItemActive: item.ifLogin }"
+          @click="changeLogin(item)" @mouseover="hoverMap[index] = true" @mouseleave="hoverMap[index] = false">
           <BaseImg class="icon" :fullPath="getLogo(item.server)" />
           <span>{{ item.server }}</span>
           <span>|</span>
@@ -29,10 +19,7 @@
           <span>|</span>
           <span>{{ item.currency }}</span>
           <div class="del" @click.stop="delAccount(item)">
-            <div
-              class="delIcon"
-              v-show="hoverMap[index] && !item.ifLogin"
-            ></div>
+            <div class="delIcon" v-show="hoverMap[index] && !item.ifLogin"></div>
           </div>
         </div>
       </div>
@@ -45,60 +32,52 @@
           t("changePassword")
         }}</el-text>
         <el-divider direction="vertical" />
-        <el-text
-          type="info"
-          @click="$router.push({ path: PageEnum.LOGIN_HOME })"
-          >{{ t("addAccount") }}</el-text
-        >
+        <el-text type="info" @click="$router.push({ path: PageEnum.LOGIN_HOME })">{{ t("addAccount") }}</el-text>
         <el-divider direction="vertical" />
         <span @click="logout">{{ t("logOut") }}</span>
       </div>
     </template>
   </el-dropdown>
 
-  <el-dialog
-    v-if="modalOpen"
-    v-model="modalOpen"
-    width="486"
-    :zIndex="dialogStore.zIndex"
-    destroy-on-close
-    :show-close="false"
-  >
+  <el-dialog v-if="modalOpen" v-model="modalOpen" width="486" :zIndex="dialogStore.zIndex" destroy-on-close
+    :show-close="false">
     <template #header="{ close, titleId, titleClass }">
       <div class="dialog_title">
         <span :id="titleId" :class="titleClass">{{
           t("personalInformation")
         }}</span>
-        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+        <el-icon class="closeBtn" @click="close">
+          <Close />
+        </el-icon>
       </div>
     </template>
 
-    <el-descriptions :column="2" style="margin-top: 20px">
-      <el-descriptions-item :label="t('brokerName')">
-        <el-text
-          style="cursor: pointer"
-          type="primary"
-          @click="dialogStore.openDialog('serverVisible')"
-          >{{ networkStore.currentLine?.brokerName }}</el-text
-        >
-      </el-descriptions-item>
-      <el-descriptions-item :label="t('nodeName')">
-        <el-text>{{ networkStore.nodeName }}</el-text></el-descriptions-item
-      >
-      <el-descriptions-item :label="t('loginId')">
-        <el-text>{{
-          userStore.state.loginInfo?.login
-        }}</el-text></el-descriptions-item
-      >
-      <el-descriptions-item :label="t('ip')"
-        ><el-text>{{ networkStore.currentNode?.ip }}</el-text>
-      </el-descriptions-item>
-      <el-descriptions-item :label="t('connectedNode')"
-        ><el-text>{{
-          networkStore.currentNode?.nodeName
-        }}</el-text></el-descriptions-item
-      >
-    </el-descriptions>
+    <table>
+      <tr>
+        <td><el-text type="info">{{ t("brokerName") }}</el-text></td>
+        <td>
+          <el-text style="cursor: pointer" type="primary" @click="showServerDialog">
+            {{ networkStore.currentLine?.brokerName }}
+          </el-text>
+        </td>
+      </tr>
+      <tr>
+        <td><el-text type="info">{{ t("nodeName") }}</el-text></td>
+        <td><el-text>{{ networkStore.currentLine?.lineName }}</el-text></td>
+      </tr>
+      <tr>
+        <td><el-text type="info">{{ t("loginId") }}</el-text></td>
+        <td><el-text>{{ userStore.state.loginInfo?.login }}</el-text></td>
+      </tr>
+      <tr>
+        <td><el-text type="info">{{ t("ip") }}</el-text></td>
+        <td><el-text>{{ networkStore.currentNode?.ip }}</el-text></td>
+      </tr>
+      <tr>
+        <td><el-text type="info">{{ t("connectedNode") }}</el-text></td>
+        <td><el-text>{{ networkStore.currentNode?.nodeName }}</el-text></td>
+      </tr>
+    </table>
   </el-dialog>
 
   <ResetPassword v-model:open="resetPasswordOpen"></ResetPassword>
@@ -108,6 +87,8 @@
 import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import type { DropdownInstance } from "element-plus";
+
+import plugins from "@/plugins/propsComponents";
 
 import { PageEnum } from "@/constants/pageEnum";
 
@@ -217,24 +198,36 @@ const openResetPwd = () => {
   dialogStore.incrementZIndex();
   resetPasswordOpen.value = true;
 };
+
+const showServerDialog = () => {
+  plugins.serverInfoPlugin.mount({
+    server: networkStore.currentLine?.brokerName,
+  });
+  dialogStore.openDialog("serverVisible");
+};
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+
 .delIcon {
   width: 18px;
   height: 18px;
   background-size: contain;
   background-repeat: no-repeat;
 }
+
 [data-theme="light"] .delIcon {
   background-image: url("@/assets/icons/light/delete.svg");
+
   &:hover {
     background-image: url("@/assets/icons/light/deleteHover.svg");
   }
 }
+
 [data-theme="dark"] .delIcon {
   background-image: url("@/assets/icons/dark/delete.svg");
+
   &:hover {
     background-image: url("@/assets/icons/dark/deleteHover.svg");
   }
@@ -266,29 +259,35 @@ const openResetPwd = () => {
     box-sizing: border-box;
     gap: 4px;
     cursor: pointer;
+
     &:hover {
       @include background_color("background-hover");
     }
+
     &:active {
       @include background_color("background-active");
     }
+
     span {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       max-width: 120px;
     }
+
     .icon {
       width: 20px;
       height: 20px;
       border-radius: 44px;
     }
+
     .del {
       width: 18px;
       height: 18px;
       margin-left: auto;
     }
   }
+
   .aItemActive {
     @include background_color("background-active");
   }
@@ -304,37 +303,42 @@ const openResetPwd = () => {
   padding: 0 16px;
   @include background_color("background-dialog");
   @include border_color("border");
+
   span {
     cursor: pointer;
     white-space: nowrap;
+
     &:hover {
       @include font_color("primary");
     }
+
     &:last-child {
       color: #dc1d43;
     }
   }
 }
 
-.header {
-  font-weight: bold;
-  font-size: 16px;
-  @include font_color("word");
-}
-
-.el-row {
-  margin-bottom: 16px;
-}
-.el-row:first-child {
-  margin-top: 20px;
-}
 :deep(.el-dropdown-menu__item) {
   margin: 0 8px;
   border-radius: 4px;
   padding: 0;
 }
+
 :deep(.el-text.el-text--info) {
-  min-width: 90px;
   display: inline-block;
+}
+
+table {
+  margin: 12px 0 12px 0;
+
+  tr {
+    height: 36px;
+
+    td {
+      padding-right: 8px;
+      vertical-align: middle;
+      font-weight: 400;
+    }
+  }
 }
 </style>

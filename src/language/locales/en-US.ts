@@ -375,6 +375,8 @@ export default {
     orderClose: "The order of {volume} lots of {symbol} has been closed",
     pendingClosingSuccessfully: "Pending Closing Successfully",
     confirmModify: "Modify",
+    orderTip:
+      "Important: In market execution mode, the actual fill price may differ from the requested price due to market volatility.",
   },
 
   deposit: {
@@ -401,6 +403,16 @@ export default {
   serverInfo: {
     seeDetail: "Details",
     info: "Server Info",
+    company: "Company",
+    registrationNO: "Registration NO",
+    registeredAddress: "Registered Address",
+    supervision: "Supervision",
+    officeLocation: "Office Location",
+    website: "Website",
+    generalEmail: "General Email",
+    abuseReportEmail: "Abuse Report Email",
+    telephone: "Telephone",
+    tip: "Risk Notice: \n This application may include brokers that are not regulated in your country/region. Before opening an account with any broker, exercise caution and conduct thorough due diligence. Each company provides detailed contact information—use it to verify their regulatory status and services.",
   },
 
   "refresh page": "Reload",

@@ -374,6 +374,8 @@ export default {
     orderClose: "{volume}手{symbol}的订单已关闭",
     pendingClosingSuccessfully: "删除挂单成功",
     confirmModify: "确认修改",
+    orderTip:
+      "注意：市价交易模式下的实际成交价格，可能会和请求价格有一定差异！",
   },
 
   deposit: {
@@ -399,6 +401,16 @@ export default {
   serverInfo: {
     seeDetail: "查看详情",
     info: "交易商详情",
+    company: "公司",
+    registrationNO: "注册编号",
+    registeredAddress: "注册地址",
+    supervision: "监管",
+    officeLocation: "办公司位置",
+    website: "网站",
+    generalEmail: "通用电子邮件",
+    abuseReportEmail: "滥用报告电子邮件",
+    telephone: "电话",
+    tip: "注意：该应用程序可能包含在您所在国家 /地区不受监管的交易商。在任何交易商开设账户之前请务必谨慎了解，每家公司均提供详细联系信息。通过它们进一步了解其监管状况和服务。Utrader不会拥有有关特定国家/地区交易商监管状况的完整且最新的信息，并且对其可靠性或声誉不做任何担保。",
   },
 
   "refresh page": "刷新页面",

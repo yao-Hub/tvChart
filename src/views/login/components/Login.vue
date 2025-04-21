@@ -43,7 +43,7 @@
                 type="primary"
                 style="cursor: pointer"
                 v-show="mouseEnterLineName === item.lineName"
-                @click.stop="watchDetail"
+                @click.stop="watchDetail(item.lineName)"
               >
                 {{ t("serverInfo.seeDetail") }}
               </el-text>
@@ -215,10 +215,14 @@ const ifSimulatedServer = computed(() => {
 
 import { useDialog } from "@/store/modules/dialog";
 import type { ElSelect } from "element-plus";
+import plugins from "@/plugins/propsComponents";
 const mouseEnterLineName = ref("");
 const serverRef = ref<InstanceType<typeof ElSelect>>();
-const watchDetail = () => {
+const watchDetail = (server: string) => {
   serverRef.value!.handleEsc();
+  plugins.serverInfoPlugin.mount({
+    server,
+  });
   useDialog().openDialog("serverVisible");
 };
 

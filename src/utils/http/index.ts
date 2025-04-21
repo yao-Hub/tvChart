@@ -37,6 +37,8 @@ interface IOption {
 type reqConfig = InternalAxiosRequestConfig<any> & IOption;
 type resConfig = AxiosRequestConfig<any> & IOption;
 
+const errorTokenList = ["invalid token", "disable login", "disable group"];
+
 function handleTokenErr() {
   // cancelAllRequests();
   eventBus.emit("go-login");
@@ -185,7 +187,7 @@ service.interceptors.response.use(
       data.err !== 0 &&
       data.errmsg &&
       typeof data.errmsg === "string" &&
-      ["invalid token", "disable login", "disable group"].includes(data.errmsg)
+      errorTokenList.includes(data.errmsg)
     ) {
       handleTokenErr();
       return Promise.reject(data);
@@ -207,12 +209,7 @@ service.interceptors.response.use(
       return Promise.reject(err);
     }
     if (res && res.data) {
-      if (
-        res.data.errmsg &&
-        ["invalid token", "disable login", "disable group"].includes(
-          res.data.errmsg
-        )
-      ) {
+      if (res.data.errmsg && errorTokenList.includes(res.data.errmsg)) {
         handleTokenErr();
         return Promise.reject(res.data);
       }

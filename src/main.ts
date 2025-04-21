@@ -15,7 +15,7 @@ import ElementPlus from "element-plus";
 
 import { initLogDB } from "@/utils/IndexedDB/logDatabase";
 
-import globalComponet from "@/plugins/globalComponents";
+import plugins from "@/plugins";
 
 const bootstrap = () => {
   const app = createApp(App);
@@ -29,7 +29,7 @@ const bootstrap = () => {
 
   app.use(i18n);
 
-  Object.values(globalComponet).forEach((plugin) => {
+  plugins.forEach((plugin) => {
     app.use(plugin);
   });
 

@@ -19,7 +19,9 @@
         <span :id="titleId" :class="titleClass">{{
           t("dialog.createOrder")
         }}</span>
-        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+        <el-icon class="closeBtn" @click="close">
+          <Close />
+        </el-icon>
       </div>
     </template>
 
@@ -55,6 +57,9 @@
               "
             />
           </el-radio-group>
+          <el-text class="orderTip" type="info">
+            {{ t("dialog.orderTip") }}
+          </el-text>
           <div class="divider"></div>
         </el-col>
         <el-col :span="24" v-if="formState.orderType !== 'price'">
@@ -484,11 +489,13 @@ const handleCancel = () => {
 
 <style lang="scss">
 @import "@/styles/_handle.scss";
+
 .order_dialog {
   pointer-events: auto;
   max-height: 85vh;
   overflow: auto;
 }
+
 .order_dialog_modal {
   pointer-events: none;
 }
@@ -496,25 +503,32 @@ const handleCancel = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+
 :deep(.el-input__wrapper) {
   height: var(--base-height);
 }
+
 :deep(.el-select__wrapper) {
   height: var(--base-height);
 }
+
 :deep(.el-date-editor.el-input, .el-date-editor.el-input__wrapper) {
   height: var(--base-height);
 }
+
 :deep(.el-col) {
   padding: 0;
 }
+
 :deep(.el-radio-group) {
   width: 100%;
   display: flex;
 }
+
 :deep(.el-radio-button) {
   flex: 1;
 }
+
 :deep(.el-radio-button__inner) {
   height: var(--radio-height);
   display: flex;
@@ -522,43 +536,60 @@ const handleCancel = () => {
   justify-content: center;
   width: 100%;
 }
+
 :deep(.el-form-item--default) {
   margin-bottom: 16px;
 }
+
+.orderTip {
+  margin-top: 12px;
+  line-height: 16px;
+  font-size: 12px;
+  display: inline-block;
+}
+
 .divider {
   width: 100%;
   height: 1px;
   @include background_color("border");
-  margin: 24px 0;
+  margin: 8px 0 24px 0;
 }
+
 .sellBtn,
 .buyBtn {
   color: #fff !important;
   width: 168px;
+
   &:active {
     border: none;
   }
 }
+
 .pendingBtn {
   width: 100%;
   margin-top: 8px;
 }
+
 .confirmBox {
   display: flex;
   flex-direction: column;
   align-items: center;
+
   .icon {
     width: 64px;
     height: 64px;
     margin-top: 48px;
   }
+
   .title {
     font-size: 18px;
     margin-top: 8px;
   }
+
   .tip {
     margin-top: 8px;
   }
+
   .infobox {
     margin-top: 24px;
     width: 100%;
@@ -569,21 +600,25 @@ const handleCancel = () => {
     grid-template-columns: 50% 50%;
     grid-row-gap: 8px;
     gap: 8px;
+
     &_item {
       display: flex;
       gap: 5px;
     }
+
     &_item span {
       display: inline-block;
       min-width: 70px;
     }
   }
+
   .btnGroup {
     width: 100%;
     display: flex;
     justify-content: space-between;
     margin-top: 105px;
     gap: 16px;
+
     .btn {
       flex: 1;
       height: var(--base-height);

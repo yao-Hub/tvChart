@@ -15,6 +15,7 @@ enum Api {
   ProtocolAgree = "/admin/protocol/protocol_agree",
   RefreshToken = "/login/refresh_token",
   BalanceAdd = "/admin/my/balance_add",
+  QueryBroker = "/admin/server/queryBroker",
 }
 export interface Order {
   id: number; //	订单ID
@@ -299,5 +300,29 @@ export const addBalance = (data: IReqAddBalance) => {
     data,
     urlType: "admin",
     needLogin: true,
+  });
+};
+
+interface IReqQueryBroker {
+  brokerName: string;
+}
+export interface IResQueryBroker {
+  brokerName: string; //	公司
+  registrationCode: string; //	注册编号
+  brokerAddress: string; //	注册地址
+  regulatoryArea: string; //	监管
+  officeAddress: string; //	办公室位置
+  website: string; //	网站、网址
+  generalEmail: string; //	通用电子邮件
+  reportEmail: string; //	滥用报告电子邮件
+  telephone: string; //	电话
+}
+
+export const queryBroker = (data: IReqQueryBroker) => {
+  return request<IResQueryBroker>({
+    url: Api.QueryBroker,
+    method: "post",
+    data,
+    urlType: "admin",
   });
 };
