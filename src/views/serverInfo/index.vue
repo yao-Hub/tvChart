@@ -46,7 +46,7 @@
           <td><el-text type="info">{{ t("serverInfo.generalEmail") }}</el-text></td>
           <td>
             <el-text>{{ getValue("generalEmail") }}</el-text>
-            <BaseImg iconName="icon_copy" v-if="serverInfo?.generalEmail" @click="handleCopy('generalEmail')" />
+            <BaseImg iconName="icon_copy" @click="handleCopy('generalEmail')" />
           </td>
         </tr>
         <tr>
@@ -150,5 +150,9 @@ table {
 .icon_copy {
   margin-left: 10px;
   cursor: pointer;
+
+  &:hover {
+    color: var(--color-3);
+  }
 }
 </style>

@@ -43,7 +43,7 @@
                 type="primary"
                 style="cursor: pointer"
                 v-show="mouseEnterLineName === item.lineName"
-                @click.stop="watchDetail(item.lineName)"
+                @click.stop="watchDetail(item.brokerName)"
               >
                 {{ t("serverInfo.seeDetail") }}
               </el-text>
@@ -313,18 +313,21 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 @import "@/styles/_handle.scss";
+
 .Login {
   padding: 0 32px;
   position: relative;
   height: calc(100% - 55px);
   overflow: auto;
   box-sizing: border-box;
+
   .plogin {
     font-size: 24px;
     height: 40px;
     line-height: 40px;
     display: block;
   }
+
   .padd {
     font-weight: 400;
     font-size: 14px;
@@ -338,21 +341,25 @@ onUnmounted(() => {
   margin-top: 24px;
   width: 100%;
   font-size: 16px !important;
+
   &-remember {
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
+
   &-account {
     width: 100%;
     display: flex;
     justify-content: center;
   }
+
   &-button {
     width: 100%;
   }
 }
+
 .option {
   width: 100%;
   height: 100%;
@@ -364,9 +371,11 @@ onUnmounted(() => {
 .link {
   @include font_color("word-gray");
   cursor: pointer;
+
   &:hover {
     @include font_color("primary");
   }
+
   &:active {
     @include font_color("primary-active");
   }
@@ -385,9 +394,11 @@ onUnmounted(() => {
   justify-content: center;
   padding: 6px 0;
 }
+
 [data-theme="light"] .article {
   background-color: #fff9eb;
 }
+
 [data-theme="dark"] .article {
   background: #262b35;
 }

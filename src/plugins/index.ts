@@ -20,6 +20,4 @@ for (const path in pluginFiles) {
   }
 }
 
-console.log(plugins);
-
 export default plugins;

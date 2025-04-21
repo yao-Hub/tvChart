@@ -352,9 +352,7 @@ const sortChange = ({ order, prop }: any) => {
     sortBox.value.destroy();
     sortBox.value = null;
   }
-  const topSortList = result.filter((e) => e.topSort === 1);
-  const noTopSortList = result.filter((e) => e.topSort === 0);
-  dataSource.value = [...topSortList, ...noTopSortList];
+  dataSource.value = [...result];
 };
 
 // 只一个展开

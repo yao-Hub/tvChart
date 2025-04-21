@@ -26,14 +26,14 @@
         process: your order will be submitted when you:<br />
         - Use the instant order panel on the chart.<br />
         -Click the "x" on the position or pending order in the trading panel to
-        quickly close a position or cancel an order.<br />
+        quickly close a position.<br />
       </p>
       <p class="section">
         When disabled, the default mode for order submission is a two-step
         process: your order will not be submitted when you:<br />
         - Click "Buy" or "Sell" on the instant order panel on the chart.<br />
         -Click the "x" on the position or pending order in the trading panel to
-        quickly close a position or cancel an order.<br />
+        quickly close a position.<br />
         A secondary pop-up will appear to confirm the submission of your order.
         You must complete both steps in the process to submit your order. <br />
       </p>

@@ -324,5 +324,7 @@ export const queryBroker = (data: IReqQueryBroker) => {
     method: "post",
     data,
     urlType: "admin",
+    noNeedServer: true,
+    noNeedToken: true,
   });
 };
