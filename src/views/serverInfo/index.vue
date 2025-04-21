@@ -1,7 +1,6 @@
 <template>
   <el-dialog v-if="dialogStore.visibles.serverVisible" v-model="dialogStore.visibles.serverVisible" width="650"
-    :zIndex="dialogStore.zIndex + 1" destroy-on-close :show-close="false" align-center v-loading="loading"
-    @close="handleClose">
+    :zIndex="dialogStore.zIndex + 1" destroy-on-close :show-close="false" align-center @close="handleClose">
     <template #header="{ close, titleId, titleClass }">
       <div class="dialog_title">
         <span :id="titleId" :class="titleClass">{{
@@ -13,57 +12,59 @@
       </div>
     </template>
 
-    <table>
-      <tr>
-        <td><el-text type="info">{{ t("serverInfo.company") }}</el-text></td>
-        <td><el-text>{{ getValue("brokerName") }}</el-text></td>
-      </tr>
-      <tr>
-        <td><el-text type="info">{{ t("serverInfo.registrationNO") }}</el-text></td>
-        <td><el-text>{{ getValue("registrationCode") }}</el-text></td>
-      </tr>
-      <tr>
-        <td><el-text type="info">{{ t("serverInfo.registeredAddress") }}</el-text></td>
-        <td><el-text>{{ getValue("brokerAddress") }}</el-text></td>
-      </tr>
-      <tr>
-        <td><el-text type="info">{{ t("serverInfo.supervision") }}</el-text></td>
-        <td><el-text>{{ getValue("regulatoryArea") }}</el-text></td>
-      </tr>
-      <tr>
-        <td><el-text type="info">{{ t("serverInfo.officeLocation") }}</el-text></td>
-        <td><el-text>{{ getValue("officeAddress") }}</el-text></td>
-      </tr>
-      <tr>
-        <td><el-text type="info">{{ t("serverInfo.website") }}</el-text></td>
-        <td>
-          <el-text :type="serverInfo?.website ? 'primary' : ''" style="cursor: pointer" @click="openWebsite">
-            {{ getValue("website") }}
-          </el-text>
-        </td>
-      </tr>
-      <tr>
-        <td><el-text type="info">{{ t("serverInfo.generalEmail") }}</el-text></td>
-        <td>
-          <el-text>{{ getValue("generalEmail") }}</el-text>
-          <BaseImg iconName="icon_copy" v-if="serverInfo?.generalEmail" @click="handleCopy('generalEmail')" />
-        </td>
-      </tr>
-      <tr>
-        <td><el-text type="info">{{ t("serverInfo.abuseReportEmail") }}</el-text></td>
-        <td>
-          <el-text>{{ getValue("reportEmail") }}</el-text>
-          <BaseImg iconName="icon_copy" v-if="serverInfo?.reportEmail" @click="handleCopy('reportEmail')" />
-        </td>
-      </tr>
-      <tr>
-        <td><el-text type="info">{{ t("serverInfo.telephone") }}</el-text></td>
-        <td><el-text>{{ getValue("telephone") }}</el-text>
-        </td>
-      </tr>
-    </table>
+    <div v-loading="loading">
+      <table>
+        <tr>
+          <td><el-text type="info">{{ t("serverInfo.company") }}</el-text></td>
+          <td><el-text>{{ getValue("brokerName") }}</el-text></td>
+        </tr>
+        <tr>
+          <td><el-text type="info">{{ t("serverInfo.registrationNO") }}</el-text></td>
+          <td><el-text>{{ getValue("registrationCode") }}</el-text></td>
+        </tr>
+        <tr>
+          <td><el-text type="info">{{ t("serverInfo.registeredAddress") }}</el-text></td>
+          <td><el-text>{{ getValue("brokerAddress") }}</el-text></td>
+        </tr>
+        <tr>
+          <td><el-text type="info">{{ t("serverInfo.supervision") }}</el-text></td>
+          <td><el-text>{{ getValue("regulatoryArea") }}</el-text></td>
+        </tr>
+        <tr>
+          <td><el-text type="info">{{ t("serverInfo.officeLocation") }}</el-text></td>
+          <td><el-text>{{ getValue("officeAddress") }}</el-text></td>
+        </tr>
+        <tr>
+          <td><el-text type="info">{{ t("serverInfo.website") }}</el-text></td>
+          <td>
+            <el-text :type="serverInfo?.website ? 'primary' : ''" style="cursor: pointer" @click="openWebsite">
+              {{ getValue("website") }}
+            </el-text>
+          </td>
+        </tr>
+        <tr>
+          <td><el-text type="info">{{ t("serverInfo.generalEmail") }}</el-text></td>
+          <td>
+            <el-text>{{ getValue("generalEmail") }}</el-text>
+            <BaseImg iconName="icon_copy" v-if="serverInfo?.generalEmail" @click="handleCopy('generalEmail')" />
+          </td>
+        </tr>
+        <tr>
+          <td><el-text type="info">{{ t("serverInfo.abuseReportEmail") }}</el-text></td>
+          <td>
+            <el-text>{{ getValue("reportEmail") }}</el-text>
+            <BaseImg iconName="icon_copy" v-if="serverInfo?.reportEmail" @click="handleCopy('reportEmail')" />
+          </td>
+        </tr>
+        <tr>
+          <td><el-text type="info">{{ t("serverInfo.telephone") }}</el-text></td>
+          <td><el-text>{{ getValue("telephone") }}</el-text>
+          </td>
+        </tr>
+      </table>
 
-    <el-text class="tip" type="info">{{ t("serverInfo.tip") }}</el-text>
+      <el-text class="tip" type="info">{{ t("serverInfo.tip") }}</el-text>
+    </div>
   </el-dialog>
 </template>
 
