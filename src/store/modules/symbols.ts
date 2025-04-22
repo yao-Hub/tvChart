@@ -1,4 +1,4 @@
-import { compact, debounce, orderBy, uniq } from "lodash";
+import { compact, debounce, isEqual, orderBy, uniq } from "lodash";
 import { defineStore } from "pinia";
 import { computed, ref, watch } from "vue";
 
@@ -95,6 +95,9 @@ export const useSymbols = defineStore("symbols", () => {
           orderData[i].forEach((item) => arr.add(item.symbol));
         }
       }
+      if (isEqual(orderSymbols.value, Array.from(arr))) {
+        return;
+      }
       orderSymbols.value = Array.from(arr);
     }, 200),
     { deep: true }
@@ -108,7 +111,7 @@ export const useSymbols = defineStore("symbols", () => {
       ...selectSymbols.value,
       ...chartSymbols.value,
     ];
-    const result = uniq(compact(arr)).sort();
+    const result = uniq(compact(arr));
     return result;
   });
   watch(

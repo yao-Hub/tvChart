@@ -100,11 +100,8 @@ const initRender = () => {
     // 初始化各个模块位置
     initDragResizeArea();
     await nextTick();
-    Promise.all([
-      quotesStore.getAllSymbolQuotes(),
-      rateStore.getAllRates(),
-      orderStore.initTableData(),
-    ]);
+    await quotesStore.getAllSymbolQuotes();
+    Promise.all([rateStore.getAllRates(), orderStore.initTableData()]);
   });
 };
 

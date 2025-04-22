@@ -36,6 +36,21 @@
   --color-10: #cee5e1;
   --color-11: #f6d0db;
 }
+
+[data-theme="light"] {
+  --upRedDownGreen-upLight: var(--color-11);
+  --upGreenDownRed-upLight: var(--color-10);
+  --upRedDownGreen-downLight: var(--color-10);
+  --upGreenDownRed-downLight: var(--color-11);
+}
+
+[data-theme="dark"] {
+  --upRedDownGreen-upLight: var(--color-4);
+  --upGreenDownRed-upLight: var(--color-7);
+  --upRedDownGreen-downLight: var(--color-7);
+  --upGreenDownRed-downLight: var(--color-4);
+}
+
 $systemThemes: (
   light: (
     background: var(--light-1),
@@ -90,20 +105,20 @@ $updwonThemes: (
     up: var(--color-4),
     upHover: var(--color-5),
     upActive: var(--color-6),
-    upLight: var(--color-11),
+    upLight: var(--upRedDownGreen-upLight),
     down: var(--color-7),
     downHover: var(--color-8),
     downActive: var(--color-9),
-    downLight: var(--color-10),
+    downLight: var(--upRedDownGreen-downLight),
   ),
   upGreenDownRed: (
     up: var(--color-7),
     upHover: var(--color-8),
     upActive: var(--color-9),
-    upLight: var(--color-10),
+    upLight: var(--upGreenDownRed-upLight),
     down: var(--color-4),
     downHover: var(--color-5),
     downActive: var(--color-6),
-    downLight: var(--color-11),
+    downLight: var(--upGreenDownRed-downLight),
   ),
 );

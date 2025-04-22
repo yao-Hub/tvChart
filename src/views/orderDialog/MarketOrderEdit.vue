@@ -459,8 +459,14 @@ const nowProfit = computed(() => {
     if (volume === "") {
       return "-";
     }
-    const { storage, fee, open_price, type, symbol, pre_currency } =
+    const { storage, fee, open_price, type, symbol, pre_currency, profit } =
       props.orderInfo;
+
+    const symbolInfo = useSymbols().symbols.find((e) => e.symbol === symbol);
+    if (!symbolInfo) {
+      profitClass.value = +profit > 0 ? "up" : "down";
+      return profit;
+    }
     const direction = getTradingDirection(type);
     const closePrice =
       direction === "buy" ? get(quote.value, "bid") : get(quote.value, "ask");

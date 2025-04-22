@@ -128,6 +128,12 @@ export const useOrder = defineStore("order", () => {
       state.orderData.marketOrder.forEach((item) => {
         const { volume, symbol, open_price, type, fee, storage, pre_currency } =
           item;
+        const symbolInfo = useSymbols().symbols.find(
+          (e) => e.symbol === symbol
+        );
+        if (!symbolInfo) {
+          return;
+        }
         const quote = qoutes[symbol];
         const closePrice = type ? get(quote, "ask") : get(quote, "bid");
         if (!isNil(closePrice)) {

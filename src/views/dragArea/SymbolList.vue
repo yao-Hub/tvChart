@@ -22,6 +22,7 @@
     <div class="container">
       <el-table
         v-if="!ifSearch"
+        v-loading="tableLoading"
         ref="tableRef"
         :data="dataSource"
         :style="{ width: '100%', height: '100% ' }"
@@ -390,25 +391,31 @@ const toogleTopUp = (e: DataSource) => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+
 :deep(.el-table td.el-table__cell div) {
   box-sizing: border-box;
   word-wrap: break-word;
   white-space: nowrap;
 }
+
 :deep(.body-cell) {
   border: none !important;
 }
+
 :deep(.el-table__empty-text) {
   line-height: normal;
 }
+
 .symbolList {
   width: 100%;
   @include background_color("background-component");
   box-sizing: border-box;
   padding: 4px;
 }
+
 .input {
   width: calc(100% - 12px);
+
   .closeIcon {
     width: 18px;
     height: 18px;
@@ -432,12 +439,14 @@ const toogleTopUp = (e: DataSource) => {
   align-items: center;
   gap: 8px;
   margin-top: 60px;
+
   .tipWords {
     @include font_color("word-info");
     display: flex;
     flex-direction: column;
     align-items: center;
   }
+
   .addBtn {
     min-width: 86px;
     margin-top: 8px;
