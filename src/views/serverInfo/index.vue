@@ -57,6 +57,11 @@
           </td>
         </tr>
         <tr>
+          <td><el-text type="info">{{ t("serverInfo.telPrefix") }}</el-text></td>
+          <td><el-text>{{ getValue("telPrefix") }}</el-text>
+          </td>
+        </tr>
+        <tr>
           <td><el-text type="info">{{ t("serverInfo.telephone") }}</el-text></td>
           <td><el-text>{{ getValue("telephone") }}</el-text>
           </td>

@@ -412,6 +412,7 @@ export default {
     generalEmail: "General Email",
     abuseReportEmail: "Abuse Report Email",
     telephone: "Telephone",
+    telPrefix: "Tel Prefix",
     tip: "Risk Notice: \n This application may include brokers that are not regulated in your country/region. Before opening an account with any broker, exercise caution and conduct thorough due diligence. Each company provides detailed contact information—use it to verify their regulatory status and services.",
   },
 

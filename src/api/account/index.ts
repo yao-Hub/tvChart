@@ -316,6 +316,7 @@ export interface IResQueryBroker {
   generalEmail: string; //	通用电子邮件
   reportEmail: string; //	滥用报告电子邮件
   telephone: string; //	电话
+  telPrefix: string; //	电话区号;
 }
 
 export const queryBroker = (data: IReqQueryBroker) => {
