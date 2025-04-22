@@ -56,7 +56,7 @@
       <tr>
         <td><el-text type="info">{{ t("brokerName") }}</el-text></td>
         <td>
-          <el-text style="cursor: pointer" type="primary" @click="showServerDialog">
+          <el-text type="primary" @click="showServerDialog">
             {{ networkStore.currentLine?.brokerName }}
           </el-text>
         </td>

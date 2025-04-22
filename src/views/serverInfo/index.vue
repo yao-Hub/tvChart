@@ -37,7 +37,7 @@
         <tr>
           <td><el-text type="info">{{ t("serverInfo.website") }}</el-text></td>
           <td>
-            <el-text :type="serverInfo?.website ? 'primary' : ''" style="cursor: pointer" @click="openWebsite">
+            <el-text :type="serverInfo?.website ? 'primary' : ''" @click="openWebsite">
               {{ getValue("website") }}
             </el-text>
           </td>
@@ -62,7 +62,7 @@
           </td>
         </tr>
       </table>
-
+      <el-divider />
       <el-text class="tip" type="info">{{ t("serverInfo.tip") }}</el-text>
     </div>
   </el-dialog>
@@ -128,6 +128,8 @@ const handleClose = () => {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/_handle.scss";
+
 table {
   margin: 24px 0 12px 0;
 
@@ -143,8 +145,9 @@ table {
 
 .tip {
   margin: 8px 0;
-  line-height: 16px;
-  font-size: 12px;
+  line-height: 24px;
+  font-size: 14px;
+  @include font_color("word-gray")
 }
 
 .icon_copy {

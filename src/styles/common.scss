@@ -311,6 +311,17 @@ body {
     cursor: pointer;
   }
 }
+
 .el-table-v2__row-cell {
   line-height: normal;
+}
+
+.el-text--primary {
+  cursor: pointer;
+  &:hover {
+    color: #ffd051;
+  }
+  &:active {
+    color: #e28602;
+  }
 }

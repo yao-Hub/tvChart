@@ -41,7 +41,6 @@
               <span>{{ item.lineName }}</span>
               <el-text
                 type="primary"
-                style="cursor: pointer"
                 v-show="mouseEnterLineName === item.lineName"
                 @click.stop="watchDetail(item.brokerName)"
               >
@@ -98,35 +97,23 @@
         >
       </el-form-item>
 
-      <el-form-item style="margin-bottom: 0">
-        <div class="login-form-account">
-          <span> {{ t("account.noAccount") }}&nbsp;</span>
-          <el-text type="primary" style="cursor: pointer" @click="goRegister">{{
-            t("account.createAccount")
-          }}</el-text>
-        </div>
-      </el-form-item>
+      <div class="login-form-account">
+        <span> {{ t("account.noAccount") }}&nbsp;</span>
+        <el-text type="primary" @click="goRegister">
+          {{ t("account.createAccount") }}
+        </el-text>
+      </div>
     </el-form>
   </div>
   <div class="article">
     <el-text type="info">{{ t("article.loginsee") }}</el-text>
-    <el-link
-      type="primary"
-      target="_blank"
-      :underline="false"
-      @click="goProtocol('service-article')"
-      >{{ t("leftBook") }}{{ t("article.userAgreement")
-      }}{{ t("rightBook") }}</el-link
-    >
+    <el-text type="primary" @click="goProtocol('service-article')">
+      {{ t("leftBook") }}{{ t("article.userAgreement") }}{{ t("rightBook") }}
+    </el-text>
     <el-text type="info">&nbsp;{{ t("and") }}&nbsp;</el-text>
-    <el-link
-      type="primary"
-      target="_blank"
-      :underline="false"
-      @click="goProtocol('privacy-policy')"
-      >{{ t("leftBook") }}{{ t("article.privacyPolicy")
-      }}{{ t("rightBook") }}</el-link
-    >
+    <el-text type="primary" @click="goProtocol('privacy-policy')">
+      {{ t("leftBook") }}{{ t("article.privacyPolicy") }}{{ t("rightBook") }}
+    </el-text>
   </div>
 </template>
 
@@ -392,7 +379,7 @@ onUnmounted(() => {
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  padding: 6px 0;
+  padding: 6px;
 }
 
 [data-theme="light"] .article {

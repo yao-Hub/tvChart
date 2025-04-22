@@ -43,21 +43,19 @@
         <el-checkbox v-model="formState.agree">
           <div class="protocol">
             <el-text type="info">{{ t("article.readAgree") }}&nbsp;</el-text>
-            <el-link
+            <el-text
               type="primary"
-              target="_blank"
-              :underline="false"
               @click.prevent="goProtocol('service-article')"
-              >{{ t("article.userAgreement") }}</el-link
             >
+              {{ t("article.userAgreement") }}
+            </el-text>
             <el-text type="info">&nbsp;{{ t("and") }}&nbsp;</el-text>
-            <el-link
+            <el-text
               type="primary"
-              target="_blank"
-              :underline="false"
               @click.prevent="goProtocol('privacy-policy')"
-              >{{ t("article.privacyPolicy") }}</el-link
             >
+              {{ t("article.privacyPolicy") }}
+            </el-text>
           </div>
         </el-checkbox>
 

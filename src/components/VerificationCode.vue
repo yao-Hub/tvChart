@@ -1,5 +1,4 @@
 <template>
-  <!-- 模板部分无需改动 -->
   <el-input v-model="model" :placeholder="t('tip.codeRequired')">
     <template #suffix>
       <el-button
@@ -76,8 +75,7 @@ const handleClick = async () => {
     if (res.err === 0) {
       startTimer(props.type);
     }
-    loading.value = false;
-  } catch (error) {
+  } finally {
     loading.value = false;
   }
 };

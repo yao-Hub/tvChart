@@ -139,7 +139,6 @@ const formatTime = (time: number) => {
     display: flex;
     justify-content: space-between;
     .expand {
-      cursor: pointer;
       -moz-user-select: none;
       -o-user-select: none;
       -khtml-user-select: none;
