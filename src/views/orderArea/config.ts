@@ -123,8 +123,8 @@ export const tableColumns = (): TTableColums => {
         title: t("table.profit"),
         dataKey: "profit",
         key: "profit",
-        width: 60,
-        minWidth: 60,
+        width: 70,
+        minWidth: 70,
         align: "right",
       },
       {

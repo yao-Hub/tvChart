@@ -258,19 +258,23 @@
               </div>
             </template>
             <template #cell="{ column, rowData }">
-              <template v-if="column.dataKey.includes('time')">{{
-                formatTime(rowData[column.dataKey])
-              }}</template>
-              <template v-else-if="column.dataKey === 'dayId'">{{
-                formatTime(rowData.id, "YYYY.MM.DD HH:mm:ss.SSS")
-              }}</template>
-              <template v-else-if="column.dataKey === 'volume'">{{
-                rowData.volume / 100
-              }}</template>
+              <template v-if="column.dataKey.includes('time')">
+                <OverFlowWord
+                  :content="formatTime(rowData[column.dataKey])"
+                ></OverFlowWord>
+              </template>
+              <template v-else-if="column.dataKey === 'dayId'">
+                <OverFlowWord
+                  :content="formatTime(rowData.id, 'YYYY.MM.DD HH:mm:ss.SSS')"
+                ></OverFlowWord
+              ></template>
+              <template v-else-if="column.dataKey === 'volume'">
+                <OverFlowWord :content="rowData.volume / 100"></OverFlowWord
+              ></template>
               <template v-else-if="column.dataKey === 'type'">
-                <span>{{
-                  t(`order.${getTradingDirection(rowData.type)}`)
-                }}</span>
+                <OverFlowWord
+                  :content="t(`order.${getTradingDirection(rowData.type)}`)"
+                ></OverFlowWord>
               </template>
               <template v-else-if="column.dataKey === 'orderType'">
                 <OverFlowWord
@@ -278,58 +282,67 @@
                   :content="getOrderType(rowData.type)"
                 ></OverFlowWord>
               </template>
-              <template v-else-if="column.dataKey === 'open_price'">{{
-                formatPrice(rowData.open_price, rowData.digits)
-              }}</template>
-              <template v-else-if="column.dataKey === 'now_price'">{{
-                getNowPrice(rowData)
-              }}</template>
-              <template v-else-if="column.dataKey === 'order_price'">{{
-                getOrderPrice(rowData)
-              }}</template>
+              <template v-else-if="column.dataKey === 'open_price'">
+                <OverFlowWord
+                  :content="formatPrice(rowData.open_price, rowData.digits)"
+                ></OverFlowWord
+              ></template>
+              <template v-else-if="column.dataKey === 'now_price'">
+                <OverFlowWord :content="getNowPrice(rowData)"></OverFlowWord
+              ></template>
+              <template v-else-if="column.dataKey === 'order_price'">
+                <OverFlowWord :content="getOrderPrice(rowData)"></OverFlowWord>
+              </template>
               <template
                 v-else-if="['tp_price', 'sl_price'].includes(column.dataKey)"
               >
-                <div
-                  class="operaCell"
+                <OverFlowWord
                   :style="{
                     cursor: ['marketOrder', 'pendingOrder'].includes(activeKey)
                       ? 'pointer'
                       : 'default',
                   }"
+                  :content="
+                    formatPrice(rowData[column.dataKey], rowData.digits)
+                  "
                   @click="showOrderDialog(rowData)"
-                >
-                  {{ formatPrice(rowData[column.dataKey], rowData.digits) }}
-                </div>
+                ></OverFlowWord>
               </template>
               <template v-else-if="column.dataKey === 'profit'">
-                <span :class="[getCellClass(rowData.profit), 'profitcell']">
-                  <span v-if="activeKey === 'blanceRecord'">{{
+                <OverFlowWord
+                  v-if="activeKey === 'blanceRecord'"
+                  :class="[getCellClass(rowData.profit)]"
+                  :content="
                     +rowData.profit > 0 ? `+${rowData.profit}` : rowData.profit
-                  }}</span>
-                  <span v-else>{{
-                    isNil(rowData.profit) ? "-" : rowData.profit
-                  }}</span>
-                </span>
+                  "
+                ></OverFlowWord>
+                <OverFlowWord
+                  v-else
+                  :class="[getCellClass(rowData.profit)]"
+                  :content="isNil(rowData.profit) ? '-' : rowData.profit"
+                ></OverFlowWord>
               </template>
               <template v-else-if="column.dataKey === 'blanceType'">
-                <span>{{
-                  rowData.profit > 0
-                    ? t("table.deposit")
-                    : t("table.withdrawal")
-                }}</span>
+                <OverFlowWord
+                  :content="
+                    rowData.profit > 0
+                      ? t('table.deposit')
+                      : t('table.withdrawal')
+                  "
+                ></OverFlowWord>
               </template>
               <template v-else-if="column.dataKey === 'fee'">
-                <span :class="[getCellClass(+rowData.fee)]">{{
-                  rowData.fee
-                }}</span>
+                <OverFlowWord
+                  :class="[getCellClass(+rowData.fee)]"
+                  :content="rowData.fee"
+                ></OverFlowWord>
               </template>
               <template v-else-if="column.dataKey === 'close_type'">
                 <OverFlowWord :content="getCloseType(rowData)"></OverFlowWord>
               </template>
-              <template v-else-if="column.dataKey === 'days'">{{
-                getDays(rowData)
-              }}</template>
+              <template v-else-if="column.dataKey === 'days'">
+                <OverFlowWord :content="getDays(rowData)"></OverFlowWord>
+              </template>
               <template v-else-if="column.dataKey === 'comment'">
                 <OverFlowWord :content="rowData.comment || '-'"></OverFlowWord>
               </template>
@@ -342,9 +355,12 @@
                 >
                   <CloseBold />
                 </el-icon>
-                <el-icon v-if="marketCloseLodingMap[rowData.id]" class="loading"
-                  ><Loading
-                /></el-icon>
+                <el-icon
+                  v-if="marketCloseLodingMap[rowData.id]"
+                  class="loading"
+                >
+                  <Loading />
+                </el-icon>
               </template>
               <template v-else-if="column.dataKey === 'orderAction'">
                 <el-icon
@@ -358,8 +374,9 @@
                 <el-icon
                   v-if="pendingCloseLodingMap[rowData.id]"
                   class="loading"
-                  ><Loading
-                /></el-icon>
+                >
+                  <Loading />
+                </el-icon>
               </template>
               <template v-else>
                 <OverFlowWord
@@ -373,7 +390,9 @@
             </template>
             <template #footer>
               <div class="loadingFooter" v-if="pageLoading">
-                <el-icon class="loading"><Loading /></el-icon>
+                <el-icon class="loading">
+                  <Loading />
+                </el-icon>
               </div>
               <div
                 class="blaRecFooter"
@@ -620,9 +639,9 @@ const columnRefresh = (x: number, index: number) => {
   const nextCol = state.columns[activeKey.value][index + 1];
 
   // 当前单元格移动
-  const minNowW = nowCol.minWidth || MIN_COLUMN_WIDTH;
+  // const minNowW = nowCol.minWidth || MIN_COLUMN_WIDTH;
   // 向左拖动  不能小于最小宽度
-  if (x < 0 && nowCol.width <= minNowW) {
+  if (x < 0 && (nowCol.width as number) <= MIN_COLUMN_WIDTH) {
     return;
   }
   const nowW = (nowCol.width as number) + x;
@@ -630,9 +649,9 @@ const columnRefresh = (x: number, index: number) => {
   let nextW;
   // 下一个单元格移动
   if (nextCol) {
-    const minNextW = nextCol.minWidth || MIN_COLUMN_WIDTH;
+    // const minNextW = nextCol.minWidth || MIN_COLUMN_WIDTH;
     // 向右
-    if (x > 0 && nextCol.width <= minNextW) {
+    if (x > 0 && (nextCol.width as number) <= MIN_COLUMN_WIDTH) {
       return;
     }
     nextW = (nextCol.width as number) - x;
@@ -1088,18 +1107,22 @@ const getTableData = (type: string) => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+
 .baseTabs .baseTabs_item:nth-of-type(1) {
   border-radius: 0 4px 0 0;
 }
+
 :deep(.el-table-v2__overlay) {
   z-index: 10;
 }
+
 :deep(.el-table-v2__header-cell) {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   padding: 0;
 }
+
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;
@@ -1111,12 +1134,14 @@ const getTableData = (type: string) => {
     box-sizing: border-box;
     width: 100%;
     height: var(--component-size);
+
     &_right {
       flex: 1;
       height: 100%;
       display: flex;
       justify-content: flex-end;
       align-items: center;
+
       .feedback {
         padding: 0 16px;
         display: flex;
@@ -1124,6 +1149,7 @@ const getTableData = (type: string) => {
         @include font_color("word-gray");
         cursor: pointer;
         align-items: center;
+
         &:hover {
           @include font_color("primary");
         }
@@ -1161,6 +1187,7 @@ const getTableData = (type: string) => {
     }
   }
 }
+
 .header-box {
   position: relative;
 
@@ -1181,6 +1208,7 @@ const getTableData = (type: string) => {
     @include font_color("border");
   }
 }
+
 .operaCell {
   width: 100%;
   height: 100%;
@@ -1188,16 +1216,19 @@ const getTableData = (type: string) => {
   align-items: center;
   justify-content: flex-end;
 }
+
 .loadingFooter {
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .blaRecFooter {
   height: 32px;
   display: flex;
   align-items: center;
+
   &_item {
     padding: 0 15px;
     min-width: 150px;
@@ -1208,6 +1239,7 @@ const getTableData = (type: string) => {
     @include border_color("border");
   }
 }
+
 .MOHFooter {
   height: 32px;
   display: flex;

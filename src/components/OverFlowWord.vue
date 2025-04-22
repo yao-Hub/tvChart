@@ -1,13 +1,15 @@
 <template>
-  <el-tooltip
-    :content="renderContent"
-    placement="top"
-    :disabled="tooltipDisabled"
-  >
-    <div ref="textRef" class="contentWord" @mouseenter="checkOverflow">
-      {{ renderContent }}
-    </div>
-  </el-tooltip>
+  <div style="width: 100%">
+    <el-tooltip
+      :content="renderContent"
+      placement="top"
+      :disabled="tooltipDisabled"
+    >
+      <div ref="textRef" class="contentWord" @mouseenter="checkOverflow">
+        {{ renderContent }}
+      </div>
+    </el-tooltip>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -43,5 +45,6 @@ const checkOverflow = () => {
   white-space: nowrap;
   display: inline-block;
   width: 100%;
+  vertical-align: middle;
 }
 </style>
