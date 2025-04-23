@@ -152,6 +152,8 @@ table {
   margin: 8px 0;
   line-height: 24px;
   font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-all;
   @include font_color("word-gray")
 }
 

@@ -238,18 +238,19 @@ export const useUser = defineStore("user", () => {
   type TCallback = ({
     ending,
     success,
+    errmsg,
   }: {
     ending?: boolean;
     success?: boolean;
+    errmsg?: string;
   }) => void;
 
   const login = async (updata: any, callback?: TCallback) => {
-    callback && callback({ ending: false, success: false });
+    const t = i18n.global.t;
     const networkStore = useNetwork();
     networkStore.server = updata.server;
     const nodeList = await networkStore.getNodes(updata.server);
     if (nodeList.length === 0) {
-      const t = i18n.global.t;
       ElMessage.info(t("tip.networkNodeNotFound"));
       callback && callback({ ending: true, success: false });
       return Promise.reject();
@@ -257,81 +258,83 @@ export const useUser = defineStore("user", () => {
     // 选择连接延迟最低的网络节点
     const delayList = await networkStore.getNodesDelay();
     const beginTime = new Date().getTime();
-
-    if (delayList.length) {
-      // 排序
-      const orderList = sortBy(delayList, ["delay"]);
-      const process = (index: number) => {
-        if (index >= orderList.length) {
-          callback && callback({ ending: true, success: false });
-          return;
-        }
-        const webApi = orderList[index].url;
-        const nodeName = nodeList.find((e) => e.webApi === webApi)?.nodeName;
-        if (nodeName) {
-          networkStore.nodeName = nodeName;
-          const socketStore = useSocket();
-          let logType = "info";
-          let errmsg = "";
-
-          // 长连接主socket
-          socketStore.initSocket();
-          Login(updata)
-            .then((res) => {
-              const token = res.data.token;
-              // 缓存登录信息
-              addAccount({
-                ...updata,
-                queryNode: nodeName,
-                token,
-                ifLogin: true,
-              });
-              // 发送登录状态
-              socketStore.sendToken({ login: updata.login, token });
-              if (callback) {
-                callback({ ending: true, success: true });
-              }
-              ElMessage.success(i18n.global.t("loginSucceeded"));
-            })
-            .catch((error) => {
-              errmsg = get(error, "errmsg") || error;
-              const err = get(error, ["err"]);
-              logType = "error";
-              if (err === 205) {
-                if (callback) {
-                  callback({ ending: true, success: false });
-                }
-                return;
-              }
-              process(index + 1);
-            })
-            .finally(async () => {
-              const endTime = new Date().getTime();
-              const ping = endTime - beginTime;
-              const detail = `${updata.login}: ${
-                logType === "error" ? `login ${errmsg}` : "login"
-              } (dc:${
-                networkStore.nodeName || "none"
-              },ping:${ping}ms,port: ${getPort(webApi || "")})`;
-              const logData = {
-                id: endTime,
-                logType,
-                origin: "network",
-                time: dayjs().format("HH:mm:ss.SSS"),
-                login: updata.login,
-                server: updata.server,
-                logName: "login",
-                detail,
-                day: dayjs().format("YYYY.MM.DD"),
-              };
-              logIndexedDB.addData(logData);
-            });
-        }
-      };
-      process(0);
-    } else {
-      callback && callback({ ending: true, success: false });
+    if (!delayList.length) {
+      callback &&
+        callback({
+          ending: true,
+          success: false,
+          errmsg: t("tip.NodeDelayError"),
+        });
+      return Promise.reject();
     }
+    // 延迟排序
+    const orderList = sortBy(delayList, ["delay"]);
+    const process = (index: number) => {
+      if (index >= orderList.length) {
+        callback && callback({ ending: true, success: false });
+        return;
+      }
+      const webApi = orderList[index].url;
+      const nodeName = nodeList.find((e) => e.webApi === webApi)?.nodeName;
+      if (nodeName) {
+        networkStore.nodeName = nodeName;
+        const socketStore = useSocket();
+        let logType = "info";
+        let errmsg = "";
+
+        // 长连接主socket
+        socketStore.initSocket();
+        Login(updata)
+          .then((res) => {
+            const token = res.data.token;
+            // 缓存登录信息
+            addAccount({
+              ...updata,
+              queryNode: nodeName,
+              token,
+              ifLogin: true,
+            });
+            // 发送登录状态
+            socketStore.sendToken({ login: updata.login, token });
+            callback && callback({ ending: true, success: true });
+            ElMessage.success(i18n.global.t("loginSucceeded"));
+          })
+          .catch((error) => {
+            errmsg = get(error, "errmsg") || error;
+            const err = get(error, ["err"]);
+            logType = "error";
+            // 账号密码错误等等的用户错误
+            if (err === 205) {
+              callback && callback({ ending: true, success: false });
+              return;
+            }
+            callback && callback({ ending: true, success: false, errmsg });
+            process(index + 1);
+          })
+          .finally(() => {
+            const endTime = new Date().getTime();
+            const ping = endTime - beginTime;
+            const detail = `${updata.login}: ${
+              logType === "error" ? `login ${errmsg}` : "login"
+            } (dc:${
+              networkStore.nodeName || "none"
+            },ping:${ping}ms,port: ${getPort(webApi || "")})`;
+            const logData = {
+              id: endTime,
+              logType,
+              origin: "network",
+              time: dayjs().format("HH:mm:ss.SSS"),
+              login: updata.login,
+              server: updata.server,
+              logName: "login",
+              detail,
+              day: dayjs().format("YYYY.MM.DD"),
+            };
+            logIndexedDB.addData(logData);
+          });
+      }
+    };
+    process(0);
   };
 
   const logout = async () => {

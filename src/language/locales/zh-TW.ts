@@ -251,6 +251,7 @@ export default {
     volumeMin: "最小手數",
     volumeMax: "最大手數",
     page404: "抱歉，您訪問的頁面不存在",
+    NodeDelayError: "連接節點失敗",
   },
 
   time: {
@@ -412,7 +413,7 @@ export default {
     abuseReportEmail: "濫用報告電子郵件",
     telephone: "電話",
     telPrefix: "電話區號",
-    tip: "注意：該應用程序可能包含在您所在國家/地區不受監管的交易商。 在任何交易商開設帳戶之前請務必謹慎瞭解，每家公司均提供詳細聯系資訊。 通過它們進一步瞭解其監管狀況和服務。 Utrader不會擁有有關特定國家/地區交易商監管狀況的完整且最新的資訊，並且對其可靠性或聲譽不做任何擔保。",
+    tip: "注意：該應用程序可能包含在您所在國家/地區不受監管的交易商，在任何交易商開設帳戶之前請務必謹慎瞭解。每家公司均提供詳細聯系資訊，通過它們進一步瞭解其監管狀況和服務。 Utrader不會擁有有關特定國家/地區交易商監管狀況的完整且最新的資訊，並且對其可靠性或聲譽不做任何擔保。",
   },
 
   "refresh page": "刷新頁面",
@@ -435,7 +436,7 @@ export default {
   "invalid action": "無效的操作",
   "invalid logins": "無效的賬戶組",
   "invalid login format": "無效的賬戶格式",
-  "login exists xxx": "xxx賬戶已存在",
+  "login exists": "賬戶已存在",
   "invalid admin": "無效的管理員",
   "invalid permission": "無效的權限",
   "invalid group": "無效的組別",

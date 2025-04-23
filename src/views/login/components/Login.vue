@@ -120,7 +120,12 @@
 <script setup lang="ts">
 import { PageEnum } from "@/constants/pageEnum";
 import { Search } from "@element-plus/icons-vue";
-import { ElMessage, type FormInstance, type FormRules } from "element-plus";
+import {
+  ElMessage,
+  ElNotification,
+  type FormInstance,
+  type FormRules,
+} from "element-plus";
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -243,7 +248,7 @@ const happyStart = async (actionObject: string) => {
         login: formState.login,
       }).catch(() => (loading.value = false));
     }
-    userStore.login(formState, ({ ending, success }) => {
+    userStore.login(formState, ({ ending, success, errmsg }) => {
       loading.value = !ending;
       if (ending && success) {
         sendTrack({
@@ -251,6 +256,12 @@ const happyStart = async (actionObject: string) => {
           actionObject,
         });
         router.push({ path: "/" });
+      }
+      if (ending && !success && errmsg) {
+        ElNotification({
+          message: errmsg,
+          type: "error",
+        });
       }
     });
   } catch (e) {
