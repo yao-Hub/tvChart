@@ -121,7 +121,7 @@ const validatePass = (rule: any, value: any, callback: any) => {
     callback(new Error(t("tip.enterNewPwd")));
   } else {
     // 匹配6-24位数字和字母组合，不能包含空格
-    const regex = /^[a-zA-Z0-9]{6,24}$/;
+    const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,24}$/;
     if (regex.test(value)) {
       callback();
     } else {
