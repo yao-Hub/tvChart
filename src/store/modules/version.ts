@@ -62,6 +62,7 @@ export const useVersion = defineStore("version", {
       this.updateInfo.progress = 0;
 
       let status = [-1, 0, 1, 2];
+      // 是否自动触发检查更新（app启动时自动触发）
       let ifCheckFrequency = false;
 
       if (params) {

@@ -127,5 +127,13 @@ export const useNetwork = defineStore("network", {
       }
       return successfulResults;
     },
+
+    openWebsite(href: string) {
+      if (!process.env.IF_ELECTRON) {
+        window.open(href, "_blank");
+        return;
+      }
+      window.electronAPI.openExternal(href);
+    },
   },
 });

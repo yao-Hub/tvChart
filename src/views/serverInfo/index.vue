@@ -82,6 +82,7 @@ import useClipboard from "vue-clipboard3";
 import { useDialog } from "@/store/modules/dialog";
 
 import { queryBroker, IResQueryBroker } from "api/account";
+import { useNetwork } from "@/store/modules/network";
 
 const dialogStore = useDialog();
 const { toClipboard } = useClipboard();
@@ -107,7 +108,7 @@ onMounted(async () => {
 const openWebsite = () => {
   if (serverInfo.value) {
     const website = serverInfo.value.website;
-    window.open(website, "_blank");
+    useNetwork().openWebsite(`https://${website}`);
   }
 };
 
