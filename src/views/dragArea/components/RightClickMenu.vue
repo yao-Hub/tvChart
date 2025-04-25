@@ -147,7 +147,6 @@ const addOrder = async () => {
   try {
     const ifTrader = orderStore.ifCanTrader(props.rowData.symbol);
     if (!ifTrader) {
-      ElMessage.warning(t("symbolNoAllowTrading"));
       return;
     }
     await getDetail();

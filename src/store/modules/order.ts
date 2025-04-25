@@ -632,6 +632,7 @@ export const useOrder = defineStore("order", () => {
   const ifCanTrader = (symbol: string) => {
     const symbols = useSymbols().symbolsTradeAllow.map((item) => item.symbol);
     if (symbols.indexOf(symbol) === -1) {
+      ElMessage.warning(t("tip.symbolNoAllowTrading"));
       return false;
     }
     return true;
@@ -773,19 +774,21 @@ export const useOrder = defineStore("order", () => {
   const delMarketOrder = (updata: orders.reqMarketClose & { type: number }) => {
     let errmsg = "";
     let logStr = "";
+    let ifTrader = true;
     const { id, symbol, volume, type } = updata;
     const direction = getTradingDirection(type);
     logStr = `#${id} (${direction} ${volume} ${symbol} `;
     return new Promise(async (resolve, reject) => {
       try {
-        const ifTrader = ifCanTrader(symbol);
-        if (!ifTrader) {
-          errmsg = "symbolNoAllowTrading";
+        const ICT = ifCanTrader(symbol);
+        if (!ICT) {
+          ifTrader = false;
           reject();
           return;
         }
-        const SDres = await getTradAble(symbol);
-        if (SDres) {
+        const GTA = await getTradAble(symbol);
+        if (GTA) {
+          ifTrader = false;
           reject();
           return;
         }
@@ -817,6 +820,9 @@ export const useOrder = defineStore("order", () => {
           JSON.stringify(error);
         reject(error);
       } finally {
+        if (!ifTrader) {
+          return;
+        }
         if (errmsg) {
           ElNotification.error({
             title: t("tip.failed", { type: t("dialog.createOrder") }),
@@ -989,20 +995,22 @@ export const useOrder = defineStore("order", () => {
     const orderType = getOrderType(type);
     let logStr = "";
     let errmsg = "";
+    let ifTrader = true;
     logStr = `#${id} (${orderType} ${
       volume / 100
     } ${symbol} at ${order_price})`;
 
     return new Promise(async (resolve, reject) => {
       try {
-        const ifTrader = ifCanTrader(symbol);
-        if (!ifTrader) {
-          errmsg = "symbolNoAllowTrading";
+        const ICT = ifCanTrader(symbol);
+        if (!ICT) {
+          ifTrader = false;
           reject();
           return;
         }
-        const SDres = await getTradAble(symbol);
-        if (SDres) {
+        const GTA = await getTradAble(symbol);
+        if (GTA) {
+          ifTrader = false;
           reject();
           return;
         }
@@ -1031,6 +1039,9 @@ export const useOrder = defineStore("order", () => {
           JSON.stringify(error);
         reject(errmsg);
       } finally {
+        if (!ifTrader) {
+          return;
+        }
         if (errmsg) {
           ElNotification.error({
             title: t("tip.failed", { type: t("delete") }),

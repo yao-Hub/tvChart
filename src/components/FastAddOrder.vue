@@ -238,7 +238,6 @@ const valid = async () => {
   }
   const ifTrader = orderStore.ifCanTrader(nowSymbol.value);
   if (!ifTrader) {
-    ElMessage.warning(t("symbolNoAllowTrading"));
     return false;
   }
   const tradAble = await orderStore.getTradAble(nowSymbol.value);

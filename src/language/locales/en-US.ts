@@ -237,6 +237,7 @@ export default {
     reversePosition:
       "Are you sure you want to close the current position and simultaneously open a position of the same size in the opposite direction?",
     noSimuServer: "Unable to find official simulation server",
+    symbolNoAllowTrading: "The current symbol is prohibited from trading",
     addMyOption: "Add Varieties",
     required: "{label} is required",
     imageOnly: "Only supports image upload",
@@ -416,7 +417,6 @@ export default {
     tip: `Note: This application may include brokers that are not regulated in your country/region. Please be sure to carefully understand before opening an account with any broker.Each company provides detailed contact information, through which you can further understand their regulatory status and services. Utrader does not have complete and up-to-date information on the regulatory status of brokers in specific countries/regions, and makes no guarantees regarding their reliability or reputation.`,
   },
 
-  symbolNoAllowTrading: "The current symbol is prohibited from trading",
   "refresh page": "Reload",
   "network error": "network Error",
   "invalid token": "Invalid Tken",
