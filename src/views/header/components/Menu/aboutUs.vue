@@ -18,17 +18,22 @@
         <el-icon class="closeBtn" @click="close"><Close /></el-icon>
       </div>
     </template>
-    <el-descriptions :column="2" style="margin-top: 20px">
-      <el-descriptions-item :label="t('company')"
-        >广州微派</el-descriptions-item
-      >
-      <el-descriptions-item label="Tel">+86 8803 445</el-descriptions-item>
-      <el-descriptions-item label="FaX">+86 8803 445</el-descriptions-item>
-      <el-descriptions-item label="Web">www.weipai.com </el-descriptions-item>
-      <el-descriptions-item label="Email"
-        >info@utrader.com</el-descriptions-item
-      >
-    </el-descriptions>
+    <table>
+      <tr>
+        <td>
+          <el-text type="info">{{ t("company") }}</el-text>
+        </td>
+        <td>
+          <el-text>{{ t("companyName") }}</el-text>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <el-text type="info">{{ t("account.email") }}</el-text>
+        </td>
+        <td><el-text>it.trader@uptech.info</el-text></td>
+      </tr>
+    </table>
   </el-dialog>
 </template>
 
@@ -52,6 +57,20 @@ const handleClick = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+
+table {
+  margin: 24px 0 12px 0;
+
+  tr {
+    height: 36px;
+
+    td {
+      padding-right: 8px;
+      vertical-align: middle;
+    }
+  }
+}
+
 .aboutUs {
   height: 100%;
   width: 100%;

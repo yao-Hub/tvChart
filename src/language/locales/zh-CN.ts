@@ -8,6 +8,7 @@ export default {
   goHome: "回首页",
 
   company: "公司",
+  companyName: "富荣金融科技有限公司",
   aboutUs: "关于我们",
   feedback: "意见反馈",
   upload: "上传",

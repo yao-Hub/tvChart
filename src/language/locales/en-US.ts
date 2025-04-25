@@ -6,6 +6,7 @@ export default {
   goHome: "Go Home",
   welcomeToUTrader: "Welcome to CTOTrader",
   company: "Company",
+  companyName: "Furong Uptech Solution Co., Ltd",
   aboutUs: "About us",
   feedback: "Feedback",
   upload: "Upload",
