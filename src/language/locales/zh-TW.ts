@@ -3,7 +3,7 @@ export default {
   lauguage: "語言",
   switchLanguage: "切換語言",
 
-  welcomeToUTrader: "歡迎使用UTrader",
+  welcomeToUTrader: "歡迎使用CTOTrader",
 
   goHome: "回首頁",
 
@@ -74,7 +74,7 @@ export default {
   article: {
     readAgree: "請閱讀並同意",
     accountClause: "開戶條款",
-    dataPolicy: "UTrader數據保護政策",
+    dataPolicy: "CTOTrader數據保護政策",
     loginsee: "登入視為您已閱讀並同意",
     userAgreement: "用戶協議",
     privacyPolicy: "隱私政策",
@@ -414,7 +414,7 @@ export default {
     abuseReportEmail: "濫用報告電子郵件",
     telephone: "電話",
     telPrefix: "電話區號",
-    tip: "注意：該應用程序可能包含在您所在國家/地區不受監管的交易商，在任何交易商開設帳戶之前請務必謹慎瞭解。每家公司均提供詳細聯系資訊，通過它們進一步瞭解其監管狀況和服務。 Utrader不會擁有有關特定國家/地區交易商監管狀況的完整且最新的資訊，並且對其可靠性或聲譽不做任何擔保。",
+    tip: "注意：該應用程序可能包含在您所在國家/地區不受監管的交易商，在任何交易商開設帳戶之前請務必謹慎瞭解。每家公司均提供詳細聯系資訊，通過它們進一步瞭解其監管狀況和服務。 CTOTrader不會擁有有關特定國家/地區交易商監管狀況的完整且最新的資訊，並且對其可靠性或聲譽不做任何擔保。",
   },
 
   "refresh page": "刷新頁面",

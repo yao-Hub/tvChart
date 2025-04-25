@@ -3,7 +3,7 @@ const nameMap = {
   production: "CTOTrader",
 };
 const appIdMap = {
-  test: "com.electron.UTrader_dev",
+  test: "com.electron.CTOTrader_dev",
   production: "com.electron.CTOTrader",
 };
 

@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.8.12",
   "main": "electron/main.js",
-  "description": "utrader",
+  "description": "CTOTrader",
   "author": "wp",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --open",

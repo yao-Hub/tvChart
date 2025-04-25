@@ -415,7 +415,7 @@ export default {
     abuseReportEmail: "Abuse Reporting Email",
     telephone: "Tel",
     telPrefix: "Tel Prefix",
-    tip: `Note: This application may include brokers that are not regulated in your country/region. Please be sure to carefully understand before opening an account with any broker.Each company provides detailed contact information, through which you can further understand their regulatory status and services. Utrader does not have complete and up-to-date information on the regulatory status of brokers in specific countries/regions, and makes no guarantees regarding their reliability or reputation.`,
+    tip: `Note: This application may include brokers that are not regulated in your country/region. Please be sure to carefully understand before opening an account with any broker.Each company provides detailed contact information, through which you can further understand their regulatory status and services. CTOTrader does not have complete and up-to-date information on the regulatory status of brokers in specific countries/regions, and makes no guarantees regarding their reliability or reputation.`,
   },
 
   "refresh page": "Reload",
