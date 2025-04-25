@@ -43,7 +43,6 @@ import { computed, onUnmounted, reactive, ref, watch } from "vue";
 import { IQuote, ISessionSymbolInfo } from "@/types/chart";
 
 import { useOrder } from "@/store/modules/order";
-import { useQuotes } from "@/store/modules/quotes";
 import { useRate } from "@/store/modules/rate";
 import { useTheme } from "@/store/modules/theme";
 import { useUser } from "@/store/modules/user";
@@ -54,7 +53,6 @@ import { isNil } from "lodash";
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
-const quotesStore = useQuotes();
 const userStore = useUser();
 const themeStore = useTheme();
 const orderStore = useOrder();
@@ -71,6 +69,7 @@ interface Props {
   };
   orderType: string;
   orderPrice: string | number;
+  limitedPrice: string | number;
 }
 const props = defineProps<Props>();
 const model = defineModel<string | number>("volume", { default: "" });
@@ -94,17 +93,34 @@ const referMargin = computed(() => {
   const symbolInfo = props.symbolInfo;
   if (symbolInfo) {
     const symbol = symbolInfo.symbol;
-    const currentQuote = quotesStore.qoutes[symbol];
-    const direction = props.orderType.includes("buy") ? "buy" : "sell";
-    const bulidPrice =
-      direction === "sell" ? currentQuote.bid : currentQuote.ask;
-    const volume = model.value;
-    const referMargin = orderStore.getReferMargin({
-      symbol,
-      volume,
-      bulidPrice,
-    });
-    return referMargin === "-" ? "-" : round(referMargin, 2);
+    let bulidPrice;
+    switch (props.orderType) {
+      case "price":
+        bulidPrice = props.quote?.bid;
+        break;
+      case "buyLimit":
+      case "sellLimit":
+      case "buyStop":
+      case "sellStop":
+        bulidPrice = props.orderPrice;
+        break;
+      case "buyStopLimit":
+      case "sellStopLimit":
+        bulidPrice = props.limitedPrice;
+        break;
+      default:
+        break;
+    }
+    if (bulidPrice) {
+      const volume = model.value;
+      const referMargin = orderStore.getReferMargin({
+        symbol,
+        volume,
+        bulidPrice,
+      });
+      return referMargin === "-" ? "-" : round(referMargin, 2);
+    }
+    return "-";
   }
   return "-";
 });

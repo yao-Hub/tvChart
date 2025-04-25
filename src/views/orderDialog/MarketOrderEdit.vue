@@ -178,7 +178,10 @@
         </el-col>
         <el-col :span="12">
           <el-text type="info">{{ t("dialog.tradingVolume") }}：</el-text>
-          <el-text>{{ closeFormState.volume }}</el-text>
+          <el-text v-if="confirmType === 'close'">{{
+            closeFormState.volume
+          }}</el-text>
+          <el-text v-else>{{ props.orderInfo.volume / 100 }}</el-text>
         </el-col>
       </el-row>
 

@@ -84,6 +84,7 @@
             :orderType="formState.orderType"
             :formOption="{ name: 'volume', label: t('table.volume') }"
             :orderPrice="formState.orderPrice"
+            :limitedPrice="formState.limitedPrice"
           ></Volume>
         </el-col>
         <el-col :span="12">
