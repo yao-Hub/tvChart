@@ -100,10 +100,9 @@ export const useChartLine = defineStore("chartLine", {
           for (const UID in this.subscribed) {
             const item = this.subscribed[UID];
             const itemSymbol = item.symbolInfo.name;
-            const subscriberUID = UID.split("@")[1];
-            const bar = this.newbar[subscriberUID];
+            const bar = this.newbar[UID];
             if (bar && itemSymbol === symbol) {
-              this.updateSubscribed(UID, { ...this.newbar[subscriberUID] });
+              this.updateSubscribed(UID, { ...this.newbar[UID] });
             }
           }
         }, 300);
@@ -124,8 +123,7 @@ export const useChartLine = defineStore("chartLine", {
         for (const UID in this.subscribed) {
           const item = this.subscribed[UID];
           const itemSymbol = item.symbolInfo.name;
-          const subscriberUID = UID.split("@")[1];
-          const bar = this.newbar[subscriberUID];
+          const bar = this.newbar[UID];
           if (bar && itemSymbol === dSymbol) {
             const bartime = bar.time;
             const high = setHigh(d.bid, bar.high);
@@ -141,7 +139,7 @@ export const useChartLine = defineStore("chartLine", {
               volume: volume + 1,
               time: bartime,
             };
-            this.newbar[subscriberUID] = { ...result };
+            this.newbar[UID] = { ...result };
           }
         }
 
@@ -171,8 +169,7 @@ export const useChartLine = defineStore("chartLine", {
         for (const UID in this.subscribed) {
           const item = this.subscribed[UID];
           const symbol = item.symbolInfo.name;
-          const subscriberUID = UID.split("@")[1];
-          const nowBar = this.newbar[subscriberUID];
+          const nowBar = this.newbar[UID];
           if (
             nowBar &&
             d.symbol === symbol &&
@@ -194,7 +191,7 @@ export const useChartLine = defineStore("chartLine", {
               if (!nowbarTime || nowbarTime < dTime) {
                 result.time = dTime;
               }
-              this.newbar[subscriberUID] = { ...result };
+              this.newbar[UID] = { ...result };
               this.updateSubscribed(UID, result);
               quotesStore.qoutes[d.symbol]["close"] = close;
               quotesStore.qoutes[d.symbol]["open"] = open;
@@ -209,6 +206,7 @@ export const useChartLine = defineStore("chartLine", {
 
     unsubscribed(UID: string) {
       delete this.subscribed[UID];
+      delete this.newbar[UID];
     },
 
     removeChartSub(charId: string) {

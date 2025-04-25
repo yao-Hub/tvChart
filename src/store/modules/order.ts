@@ -628,6 +628,14 @@ export const useOrder = defineStore("order", () => {
     };
   };
 
+  // 是否可交易
+  const ifCanTrader = (symbol: string) => {
+    const symbols = useSymbols().symbolsTradeAllow.map((item) => item.symbol);
+    if (symbols.indexOf(symbol) === -1) {
+      return false;
+    }
+    return true;
+  };
   // 是否休市
   const getTradAble = async (symbol: string) => {
     const res = await getSymbolDetail({
@@ -770,6 +778,12 @@ export const useOrder = defineStore("order", () => {
     logStr = `#${id} (${direction} ${volume} ${symbol} `;
     return new Promise(async (resolve, reject) => {
       try {
+        const ifTrader = ifCanTrader(symbol);
+        if (!ifTrader) {
+          errmsg = "symbolNoAllowTrading";
+          reject();
+          return;
+        }
         const SDres = await getTradAble(symbol);
         if (SDres) {
           reject();
@@ -981,6 +995,12 @@ export const useOrder = defineStore("order", () => {
 
     return new Promise(async (resolve, reject) => {
       try {
+        const ifTrader = ifCanTrader(symbol);
+        if (!ifTrader) {
+          errmsg = "symbolNoAllowTrading";
+          reject();
+          return;
+        }
         const SDres = await getTradAble(symbol);
         if (SDres) {
           reject();
@@ -1118,6 +1138,7 @@ export const useOrder = defineStore("order", () => {
     modifyPendingOrder,
     delPendingOrder,
     getTradAble,
+    ifCanTrader,
     $reset,
   };
 });

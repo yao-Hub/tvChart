@@ -244,7 +244,6 @@ export default {
     imageOnly: "仅支持图片上传",
     limitImageSize: "图片不得大于{size}",
     NodeUnavailable: "节点不可用",
-    symbolNoAllowTrading: "当前商品禁止交易",
     agreeTermsFirst: "请先勾选同意条款",
     marketClosed: "市场关闭",
     numberFormatEror: "数字格式错误",
@@ -415,6 +414,7 @@ export default {
     tip: "注意：该应用程序可能包含在您所在国家/地区不受监管的交易商，在任何交易商开设账户之前请务必谨慎了解。每家公司均提供详细联系信息，通过它们进一步了解其监管状况和服务。Utrader不会拥有有关特定国家/地区交易商监管状况的完整且最新的信息，并且对其可靠性或声誉不做任何担保。",
   },
 
+  symbolNoAllowTrading: "当前商品禁止交易",
   "refresh page": "刷新页面",
   "network error": "网络错误",
   "invalid token": "登录过期",

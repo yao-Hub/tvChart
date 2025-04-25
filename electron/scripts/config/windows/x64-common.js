@@ -1,11 +1,11 @@
 
 const nameMap = {
-  test: "UTrader dev",
-  production: "UTrader",
+  test: "CTOTrader dev",
+  production: "CTOTrader",
 };
 const appIdMap = {
   test: "com.electron.UTrader_dev",
-  production: "com.electron.UTrader",
+  production: "com.electron.CTOTrader",
 };
 
 module.exports.default = {

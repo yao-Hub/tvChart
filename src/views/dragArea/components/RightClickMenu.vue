@@ -145,9 +145,9 @@ const infoList: Iitem[] = [
 const orderLoading = ref(false);
 const addOrder = async () => {
   try {
-    const symbols = symbolsStore.symbolsTradeAllow.map((item) => item.symbol);
-    if (symbols.indexOf(props.rowData.symbol) === -1) {
-      ElMessage.warning(t("tip.symbolNoAllowTrading"));
+    const ifTrader = orderStore.ifCanTrader(props.rowData.symbol);
+    if (!ifTrader) {
+      ElMessage.warning(t("symbolNoAllowTrading"));
       return;
     }
     await getDetail();

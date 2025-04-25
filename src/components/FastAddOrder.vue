@@ -233,12 +233,12 @@ const handleInput = () => {
 
 const regex = /^-?\d+(\.\d+)?$/;
 const valid = async () => {
-  const symbols = symbolsStore.symbolsTradeAllow.map((item) => item.symbol);
   if (nowSymbol.value === undefined) {
     return false;
   }
-  if (symbols.indexOf(nowSymbol.value) === -1) {
-    ElMessage.warning(t("tip.symbolNoAllowTrading"));
+  const ifTrader = orderStore.ifCanTrader(nowSymbol.value);
+  if (!ifTrader) {
+    ElMessage.warning(t("symbolNoAllowTrading"));
     return false;
   }
   const tradAble = await orderStore.getTradAble(nowSymbol.value);

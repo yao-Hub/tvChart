@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 
 import * as types from "@/types/chart";
 import { ResLineInfo, klineHistory } from "api/kline/index";
-import { cloneDeep, get, maxBy, orderBy } from "lodash";
+import { cloneDeep, maxBy, orderBy } from "lodash";
 
 const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();
@@ -48,7 +48,6 @@ let temBar: Record<string, ResLineInfo> = {};
 
 export const datafeed = (id: string) => {
   let UID = "";
-  let subId = "";
   return {
     onReady: (callback: Function) => {
       setTimeout(() => {
@@ -62,10 +61,9 @@ export const datafeed = (id: string) => {
       onSymbolResolvedCallback: Function,
       onResolveErrorCallback: Function
     ) => {
-      if (UID) {
-        chartLineStore.unsubscribed(UID);
-      }
-      subId = "";
+      // if (UID) {
+      //   chartLineStore.unsubscribed(UID);
+      // }
       UID = "";
       // 获取session
       const storeSymbolInfo = symbolsStore.symbols.find(
@@ -189,15 +187,6 @@ export const datafeed = (id: string) => {
             });
             const bar = maxBy(bars, "ctm");
             if (bar) {
-              const barTime = bar.time;
-              if (subId) {
-                const newbarTime = get(chartLineStore.newbar, [subId, "time"]);
-                if (!newbarTime || barTime > newbarTime) {
-                  chartLineStore.newbar[subId] = {
-                    ...bar,
-                  };
-                }
-              }
               temBar[id] = cloneDeep(bar);
             }
             setTimeout(() => {
@@ -224,12 +213,18 @@ export const datafeed = (id: string) => {
       subscriberUID: string,
       onResetCacheNeededCallback: Function
     ) => {
-      const endBar = temBar[id];
-      if (endBar) {
-        chartLineStore.newbar[subscriberUID] = cloneDeep(endBar);
-      }
       UID = `${id}@${subscriberUID}`;
-      subId = subscriberUID;
+
+      const endBar = temBar[id];
+
+      const newBar = chartLineStore.newbar[UID];
+
+      if (endBar) {
+        if (!newBar || (newBar && endBar.time >= newBar.time)) {
+          chartLineStore.newbar[UID] = cloneDeep(endBar);
+        }
+      }
+      delete temBar[id];
 
       chartLineStore.subscribed[UID] = {
         onRealtimeCallback,
@@ -244,9 +239,10 @@ export const datafeed = (id: string) => {
       symbolsStore.chartSymbols.push(symbolInfo.name);
     },
 
-    //取消订阅,撤销掉某条线的实时更新
+    //取消订阅
     unsubscribeBars: (subscriberUID: string) => {
-      // chartSubStore.unsubChartKlineQuote(subscriberUID);
+      const oldUID = `${id}@${subscriberUID}`;
+      chartLineStore.unsubscribed(oldUID);
     },
 
     // 查找商品（商品）
