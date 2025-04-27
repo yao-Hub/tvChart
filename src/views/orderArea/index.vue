@@ -458,7 +458,7 @@
 </template>
 
 <script setup lang="ts">
-import { watch } from "vue";
+import { nextTick, watch } from "vue";
 import Decimal from "decimal.js";
 import dayjs from "dayjs";
 import { ElMessage, ElMessageBox } from "element-plus";
@@ -563,12 +563,14 @@ const haveLoadMap = ref<Record<string, boolean>>({});
 watch(
   () => activeKey.value,
   async () => {
+    await nextTick();
     adjustTable();
     if (!haveLoadMap.value[activeKey.value]) {
       await orderStore.getData(activeKey.value);
       haveLoadMap.value[activeKey.value] = true;
     }
-  }
+  },
+  { immediate: true }
 );
 const adjustTable = debounce(() => {
   const columns_widths = state.columns[activeKey.value].reduce(

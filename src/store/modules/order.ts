@@ -284,7 +284,7 @@ export const useOrder = defineStore("order", () => {
   };
   const initTableData = async () => {
     const socketStore = useSocket();
-    await getMarketOrders();
+    // await getMarketOrders();
     // await Promise.all([
     //   getPendingOrders(),
     //   getMarketOrderHistory(),
