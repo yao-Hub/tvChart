@@ -231,12 +231,12 @@ const goOn = (formEl: FormInstance | undefined) => {
           verify_code: emailForm.code,
           profit: +amountForm.amount,
         });
+        useOrder().getData("balance_order_added");
         ElNotification.success({
           title: t("tip.succeed", { type: t("table.deposit") }),
         });
         handleCancel();
         visabled.value = false;
-        useOrder().getData("balance_order_added");
       } catch (error) {
         errmsg =
           get(error, "errmsg") ||

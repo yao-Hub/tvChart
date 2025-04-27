@@ -327,18 +327,4 @@ const showServerDialog = () => {
 :deep(.el-text.el-text--info) {
   display: inline-block;
 }
-
-table {
-  margin: 12px 0 12px 0;
-
-  tr {
-    height: 36px;
-
-    td {
-      padding-right: 8px;
-      vertical-align: middle;
-      font-weight: 400;
-    }
-  }
-}
 </style>

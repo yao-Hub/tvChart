@@ -213,20 +213,20 @@ export const useOrder = defineStore("order", () => {
     return state.ifQuick;
   };
 
-  const getData = (type: string) => {
+  const getData = async (type: string) => {
     const userStore = useUser();
     switch (type) {
       // 单个平仓
       case "single_marketOrder_close":
-        Promise.all([getMarketOrderHistory(), userStore.getLoginInfo()]);
+        await Promise.all([getMarketOrderHistory(), userStore.getLoginInfo()]);
         break;
       // 监听订单已建仓
       case "order_opened":
-        Promise.all([getMarketOrders(), userStore.getLoginInfo()]);
+        await Promise.all([getMarketOrders(), userStore.getLoginInfo()]);
         break;
       // 监听订单已平仓
       case "order_closed":
-        Promise.all([
+        await Promise.all([
           getMarketOrders(),
           getMarketOrderHistory(),
           userStore.getLoginInfo(),
@@ -234,7 +234,7 @@ export const useOrder = defineStore("order", () => {
         break;
       // 监听订单已修改（止盈止损）
       case "order_modified":
-        getMarketOrders();
+        await getMarketOrders();
         break;
       // 监听挂单已创建
       // 监听挂单已更新;
@@ -242,15 +242,15 @@ export const useOrder = defineStore("order", () => {
       case "pending_order_opened":
       case "pending_order_modified":
       case "pending_order_valided":
-        getPendingOrders();
+        await getPendingOrders();
         break;
       // 监听挂单已删除
       case "pending_order_deleted":
-        Promise.all([getPendingOrders(), getPendingOrderHistory()]);
+        await Promise.all([getPendingOrders(), getPendingOrderHistory()]);
         break;
       // 监听挂单已成交
       case "pending_order_dealt":
-        Promise.all([
+        await Promise.all([
           getMarketOrders(),
           getPendingOrders(),
           userStore.getLoginInfo(),
@@ -258,25 +258,25 @@ export const useOrder = defineStore("order", () => {
         break;
       // 监听出入金
       case "balance_order_added":
-        Promise.all([getBlanceRecord(), userStore.getLoginInfo()]);
+        await Promise.all([getBlanceRecord(), userStore.getLoginInfo()]);
         break;
       case "marketOrder":
-        getMarketOrders();
+        await getMarketOrders();
         break;
       case "pendingOrder":
-        getPendingOrders();
+        await getPendingOrders();
         break;
       case "marketOrderHistory":
-        getMarketOrderHistory();
+        await getMarketOrderHistory();
         break;
       case "pendingOrderHistory":
-        getPendingOrderHistory();
+        await getPendingOrderHistory();
         break;
       case "blanceRecord":
-        getBlanceRecord();
+        await getBlanceRecord();
         break;
       case "log":
-        getLog();
+        await getLog();
         break;
       default:
         break;

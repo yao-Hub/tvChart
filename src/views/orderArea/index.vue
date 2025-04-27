@@ -224,7 +224,7 @@
               style: { padding: '0 16px' },
             }"
             :width="Math.floor(width)"
-            :height="getTableHeight(height)"
+            :height="height"
             :footer-height="
               pageLoading ||
               ['marketOrderHistory', 'blanceRecord'].includes(activeKey)
@@ -266,11 +266,11 @@
               <template v-else-if="column.dataKey === 'dayId'">
                 <OverFlowWord
                   :content="formatTime(rowData.id, 'YYYY.MM.DD HH:mm:ss.SSS')"
-                ></OverFlowWord
-              ></template>
+                ></OverFlowWord>
+              </template>
               <template v-else-if="column.dataKey === 'volume'">
-                <OverFlowWord :content="rowData.volume / 100"></OverFlowWord
-              ></template>
+                <OverFlowWord :content="rowData.volume / 100"></OverFlowWord>
+              </template>
               <template v-else-if="column.dataKey === 'type'">
                 <OverFlowWord
                   :content="t(`order.${getTradingDirection(rowData.type)}`)"
@@ -285,11 +285,11 @@
               <template v-else-if="column.dataKey === 'open_price'">
                 <OverFlowWord
                   :content="formatPrice(rowData.open_price, rowData.digits)"
-                ></OverFlowWord
-              ></template>
+                ></OverFlowWord>
+              </template>
               <template v-else-if="column.dataKey === 'now_price'">
-                <OverFlowWord :content="getNowPrice(rowData)"></OverFlowWord
-              ></template>
+                <OverFlowWord :content="getNowPrice(rowData)"></OverFlowWord>
+              </template>
               <template v-else-if="column.dataKey === 'order_price'">
                 <OverFlowWord :content="getOrderPrice(rowData)"></OverFlowWord>
               </template>
@@ -557,12 +557,17 @@ onMounted(() => {
   observer.observe(container.value);
 });
 
-// 动态调整表格的列宽
+// 已经加载过
+const haveLoadMap = ref<Record<string, boolean>>({});
+// 动态调整表格的列宽 tab第一次请求表格数据
 watch(
   () => activeKey.value,
-  () => {
+  async () => {
     adjustTable();
-    orderStore.getData(activeKey.value);
+    if (!haveLoadMap.value[activeKey.value]) {
+      await orderStore.getData(activeKey.value);
+      haveLoadMap.value[activeKey.value] = true;
+    }
   }
 );
 const adjustTable = debounce(() => {
@@ -731,12 +736,6 @@ onUnmounted(() => {
   document.removeEventListener("mousemove", mouseMove);
   document.removeEventListener("mouseup", mouseUp);
 });
-
-const getTableHeight = (height: number) => {
-  return ["marketOrderHistory"].includes(activeKey.value)
-    ? Math.min((dataSource.value.length + 2) * 32, height)
-    : height;
-};
 
 const formatPrice = (price: number, digits: number) => {
   return price ? price.toFixed(digits) : "-";
@@ -1114,6 +1113,7 @@ const getTableData = (type: string) => {
 
 :deep(.el-table-v2__overlay) {
   z-index: 10;
+  top: var(--base-height);
 }
 
 :deep(.el-table-v2__header-cell) {

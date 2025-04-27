@@ -15,7 +15,9 @@
     <template #header="{ close, titleId, titleClass }">
       <div class="dialog_title">
         <span :id="titleId" :class="titleClass">{{ t("aboutUs") }}</span>
-        <el-icon class="closeBtn" @click="close"><Close /></el-icon>
+        <el-icon class="closeBtn" @click="close">
+          <Close />
+        </el-icon>
       </div>
     </template>
     <table>
@@ -58,19 +60,6 @@ const handleClick = () => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
-table {
-  margin: 24px 0 12px 0;
-
-  tr {
-    height: 36px;
-
-    td {
-      padding-right: 8px;
-      vertical-align: middle;
-    }
-  }
-}
-
 .aboutUs {
   height: 100%;
   width: 100%;
@@ -78,20 +67,24 @@ table {
   gap: 5px;
   align-items: center;
 }
+
 .header {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   .title {
     font-weight: bold;
     font-size: var(--icon-size);
     @include font_color("word");
   }
+
   .icon {
     cursor: pointer;
   }
 }
+
 :deep(.el-text.el-text--info) {
   width: 44px;
   display: inline-block;

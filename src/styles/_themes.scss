@@ -45,10 +45,10 @@
 }
 
 [data-theme="dark"] {
-  --upRedDownGreen-upLight: var(--color-4);
-  --upGreenDownRed-upLight: var(--color-7);
-  --upRedDownGreen-downLight: var(--color-7);
-  --upGreenDownRed-downLight: var(--color-4);
+  --upRedDownGreen-upLight: #73273e;
+  --upGreenDownRed-upLight: #23524a;
+  --upRedDownGreen-downLight: #23524a;
+  --upGreenDownRed-downLight: #73273e;
 }
 
 $systemThemes: (
