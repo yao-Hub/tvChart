@@ -1,6 +1,6 @@
 <template>
   <div class="home" :key="localeKey">
-    <BaseImg class="title" iconName="title" imgSuffix="png" />
+    <BaseImg class="title" iconName="title" />
     <span class="welcome">{{ t("welcomeToUTrader") }}</span>
     <div class="functionalArea">
       <Theme></Theme>
