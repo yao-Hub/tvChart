@@ -1,5 +1,9 @@
 <template>
-  <el-dropdown trigger="contextmenu" ref="dropdown" @visible-change="visible = $event">
+  <el-dropdown
+    trigger="contextmenu"
+    ref="dropdown"
+    @visible-change="visible = $event"
+  >
     <div class="info" @click="toogleDropdown">
       <el-text>{{ networkStore.server }}</el-text>
       <el-divider direction="vertical" />
@@ -8,8 +12,14 @@
     </div>
     <template #dropdown>
       <div class="aList">
-        <div class="aItem" v-for="(item, index) in accounts" :class="{ aItemActive: item.ifLogin }"
-          @click="changeLogin(item)" @mouseover="hoverMap[index] = true" @mouseleave="hoverMap[index] = false">
+        <div
+          class="aItem"
+          v-for="(item, index) in accounts"
+          :class="{ aItemActive: item.ifLogin }"
+          @click="changeLogin(item)"
+          @mouseover="hoverMap[index] = true"
+          @mouseleave="hoverMap[index] = false"
+        >
           <BaseImg class="icon" :fullPath="getLogo(item.server)" />
           <span>{{ item.server }}</span>
           <span>|</span>
@@ -19,7 +29,10 @@
           <span>|</span>
           <span>{{ item.currency }}</span>
           <div class="del" @click.stop="delAccount(item)">
-            <div class="delIcon" v-show="hoverMap[index] && !item.ifLogin"></div>
+            <div
+              class="delIcon"
+              v-show="hoverMap[index] && !item.ifLogin"
+            ></div>
           </div>
         </div>
       </div>
@@ -32,15 +45,25 @@
           t("changePassword")
         }}</el-text>
         <el-divider direction="vertical" />
-        <el-text type="info" @click="$router.push({ path: PageEnum.LOGIN_HOME })">{{ t("addAccount") }}</el-text>
+        <el-text
+          type="info"
+          @click="$router.push({ path: PageEnum.LOGIN_HOME })"
+          >{{ t("addAccount") }}</el-text
+        >
         <el-divider direction="vertical" />
         <span @click="logout">{{ t("logOut") }}</span>
       </div>
     </template>
   </el-dropdown>
 
-  <el-dialog v-if="modalOpen" v-model="modalOpen" width="486" :zIndex="dialogStore.zIndex" destroy-on-close
-    :show-close="false">
+  <el-dialog
+    v-if="modalOpen"
+    v-model="modalOpen"
+    width="486"
+    :zIndex="dialogStore.zIndex"
+    destroy-on-close
+    :show-close="false"
+  >
     <template #header="{ close, titleId, titleClass }">
       <div class="dialog_title">
         <span :id="titleId" :class="titleClass">{{
@@ -54,7 +77,9 @@
 
     <table>
       <tr>
-        <td><el-text type="info">{{ t("brokerName") }}</el-text></td>
+        <td>
+          <el-text type="info">{{ t("brokerName") }}</el-text>
+        </td>
         <td>
           <el-text type="primary" @click="showServerDialog">
             {{ networkStore.currentLine?.brokerName }}
@@ -62,20 +87,36 @@
         </td>
       </tr>
       <tr>
-        <td><el-text type="info">{{ t("nodeName") }}</el-text></td>
-        <td><el-text>{{ networkStore.currentLine?.lineName }}</el-text></td>
+        <td>
+          <el-text type="info">{{ t("nodeName") }}</el-text>
+        </td>
+        <td>
+          <el-text>{{ networkStore.currentLine?.lineName }}</el-text>
+        </td>
       </tr>
       <tr>
-        <td><el-text type="info">{{ t("loginId") }}</el-text></td>
-        <td><el-text>{{ userStore.state.loginInfo?.login }}</el-text></td>
+        <td>
+          <el-text type="info">{{ t("loginId") }}</el-text>
+        </td>
+        <td>
+          <el-text>{{ userStore.state.loginInfo?.login }}</el-text>
+        </td>
       </tr>
       <tr>
-        <td><el-text type="info">{{ t("ip") }}</el-text></td>
-        <td><el-text>{{ networkStore.currentNode?.ip }}</el-text></td>
+        <td>
+          <el-text type="info">{{ t("ip") }}</el-text>
+        </td>
+        <td>
+          <el-text>{{ networkStore.currentNode?.ip }}</el-text>
+        </td>
       </tr>
       <tr>
-        <td><el-text type="info">{{ t("connectedNode") }}</el-text></td>
-        <td><el-text>{{ networkStore.currentNode?.nodeName }}</el-text></td>
+        <td>
+          <el-text type="info">{{ t("connectedNode") }}</el-text>
+        </td>
+        <td>
+          <el-text>{{ networkStore.currentNode?.nodeName }}</el-text>
+        </td>
       </tr>
     </table>
   </el-dialog>
@@ -326,5 +367,23 @@ const showServerDialog = () => {
 
 :deep(.el-text.el-text--info) {
   display: inline-block;
+}
+
+table {
+  margin: 24px 0 12px 0;
+
+  tr {
+    height: 36px;
+
+    td:first-child {
+      word-wrap: break-word;
+      white-space: nowrap;
+    }
+
+    td {
+      padding-right: 8px;
+      vertical-align: middle;
+    }
+  }
 }
 </style>

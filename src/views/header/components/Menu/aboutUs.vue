@@ -60,6 +60,24 @@ const handleClick = () => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
+table {
+  margin: 24px 0 12px 0;
+
+  tr {
+    height: 36px;
+
+    td:first-child {
+      word-wrap: break-word;
+      white-space: nowrap;
+    }
+
+    td {
+      padding-right: 8px;
+      vertical-align: middle;
+    }
+  }
+}
+
 .aboutUs {
   height: 100%;
   width: 100%;

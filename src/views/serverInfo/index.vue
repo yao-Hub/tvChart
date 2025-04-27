@@ -1,6 +1,14 @@
 <template>
-  <el-dialog v-if="dialogStore.visibles.serverVisible" v-model="dialogStore.visibles.serverVisible" width="650"
-    :zIndex="dialogStore.zIndex + 1" destroy-on-close :show-close="false" align-center @close="handleClose">
+  <el-dialog
+    v-if="dialogStore.visibles.serverVisible"
+    v-model="dialogStore.visibles.serverVisible"
+    width="650"
+    :zIndex="dialogStore.zIndex + 1"
+    destroy-on-close
+    :show-close="false"
+    align-center
+    @close="handleClose"
+  >
     <template #header="{ close, titleId, titleClass }">
       <div class="dialog_title">
         <span :id="titleId" :class="titleClass">{{
@@ -24,10 +32,16 @@
               <BaseImg iconName="icon_copy" @click="copy(item.prop)" />
             </td>
             <td v-else-if="item.prop === 'telephone'">
-              <el-text type="info">{{ getValue("telPrefix") }},{{ getValue("telephone") }}</el-text>
+              <el-text type="info"
+                >{{ getValue("telPrefix") }},{{
+                  getValue("telephone")
+                }}</el-text
+              >
             </td>
             <td v-else-if="item.prop === 'website'">
-              <el-text type="primary" @click="openWebsite">{{ getValue("website") }}</el-text>
+              <el-text type="primary" @click="openWebsite">{{
+                getValue("website")
+              }}</el-text>
             </td>
             <td v-else>
               <el-text type="info">{{ getValue(item.prop) }}</el-text>
@@ -69,43 +83,43 @@ const tableColumns: Array<{
   prop: TKey;
   label: string;
 }> = [
-    {
-      prop: "brokerName",
-      label: t("serverInfo.company"),
-    },
-    {
-      prop: "registrationCode",
-      label: t("serverInfo.registrationNO"),
-    },
-    {
-      prop: "brokerAddress",
-      label: t("serverInfo.registeredAddress"),
-    },
-    {
-      prop: "regulatoryArea",
-      label: t("serverInfo.supervision"),
-    },
-    {
-      prop: "officeAddress",
-      label: t("serverInfo.officeLocation"),
-    },
-    {
-      prop: "website",
-      label: t("serverInfo.website"),
-    },
-    {
-      prop: "generalEmail",
-      label: t("serverInfo.generalEmail"),
-    },
-    {
-      prop: "reportEmail",
-      label: t("serverInfo.abuseReportEmail"),
-    },
-    {
-      prop: "telephone",
-      label: t("serverInfo.telephone"),
-    },
-  ];
+  {
+    prop: "brokerName",
+    label: t("serverInfo.company"),
+  },
+  {
+    prop: "registrationCode",
+    label: t("serverInfo.registrationNO"),
+  },
+  {
+    prop: "brokerAddress",
+    label: t("serverInfo.registeredAddress"),
+  },
+  {
+    prop: "regulatoryArea",
+    label: t("serverInfo.supervision"),
+  },
+  {
+    prop: "officeAddress",
+    label: t("serverInfo.officeLocation"),
+  },
+  {
+    prop: "website",
+    label: t("serverInfo.website"),
+  },
+  {
+    prop: "generalEmail",
+    label: t("serverInfo.generalEmail"),
+  },
+  {
+    prop: "reportEmail",
+    label: t("serverInfo.abuseReportEmail"),
+  },
+  {
+    prop: "telephone",
+    label: t("serverInfo.telephone"),
+  },
+];
 
 onMounted(async () => {
   try {
@@ -147,6 +161,24 @@ const handleClose = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+
+table {
+  margin: 24px 0 12px 0;
+
+  tr {
+    height: 36px;
+
+    td:first-child {
+      word-wrap: break-word;
+      white-space: nowrap;
+    }
+
+    td {
+      padding-right: 8px;
+      vertical-align: middle;
+    }
+  }
+}
 
 .tip {
   margin: 8px 0;
