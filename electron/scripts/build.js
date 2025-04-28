@@ -6,26 +6,6 @@ function runCommand(command) {
   execSync(command, { stdio: 'inherit' });
 }
 
-function playCompletionSound() {
-  // 直接指向项目根目录下的音频文件
-  const soundDir = path.join(__dirname, "assets");
-  const soundFile = path.join(soundDir, "张韶涵-不害怕.wav");
-  const isWindows = process.platform === "win32";
-
-  try {
-    if (isWindows) {
-      execSync(
-        `powershell -c "(New-Object Media.SoundPlayer '${soundFile}').PlaySync()"`,
-        { stdio: "inherit" }
-      );
-    } else {
-      execSync(`afplay "${soundFile}"`, { stdio: "inherit" });
-    }
-  } catch (error) {
-    console.error("播放失败:", error);
-  }
-}
-
 function main() {
   const mode = process.env.NODE_ENV;
   console.log("mode---->", mode);
@@ -47,7 +27,6 @@ function main() {
     runCommand('electron-builder --config ./electron/scripts/config/macOS/arm64.js');
     console.log('\n', '/*********************** macOSarm64打包完成 ***********************/', '\n');
   }
-  playCompletionSound();
 }
 
 main();
