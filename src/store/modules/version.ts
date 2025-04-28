@@ -33,11 +33,11 @@ export const useVersion = defineStore("version", {
       return +strVersion.split(".").join("");
     },
     async getDeviceId() {
-      if (window.electronAPI) {
-        this.deviceId = await window.electronAPI.getDeviceId();
-      } else {
+      if (!process.env.IF_ELECTRON) {
         this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
         window.localStorage.setItem("uuid", this.deviceId);
+      } else {
+        this.deviceId = await window.electronAPI.getDeviceId();
       }
       return this.deviceId;
     },
