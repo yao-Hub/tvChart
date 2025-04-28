@@ -11,4 +11,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
     release: os.release(),
     hostname: os.hostname(),
   }),
+  getDeviceId: () => ipcRenderer.invoke('getDeviceId'), // 新增
 });

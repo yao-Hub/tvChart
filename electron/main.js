@@ -2,6 +2,7 @@ const { app, BrowserWindow, screen, Menu, ipcMain, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
+const si = require('systeminformation');
 
 let mainWindow;
 
@@ -320,3 +321,34 @@ if (!gotTheLock) {
     app.quit();
   });
 }
+
+function generateUUID() {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c == "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+// 获取设备标识
+const getHardwareId = async () => {
+  try {
+    const deviceId = window.localStorage.getItem("uuid") || generateUUID();
+
+    // 尝试获取主板 UUID
+    const { uuid } = await si.system();
+    if (uuid && uuid !== 'Default string') return uuid;
+
+    // 回退到 MachineGUID（Windows）
+    const { value: machineGuid } = (await si.osInfo()).uuid;
+    if (machineGuid) return machineGuid;
+
+    // 其他回退方案（如 BIOS 序列号）
+    const { serial } = await si.bios();
+    return serial || deviceId; // 最终回退
+  } catch {
+    return deviceId;
+  }
+};
+ipcMain.handle('getDeviceId', async () => {
+  return await getHardwareId();
+});

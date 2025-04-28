@@ -54,7 +54,7 @@ export async function sendTrack(params: ITrackAgre) {
   const versionStore = useVersion();
   const actionId = generateUUID();
   const actionTime = new Date().getTime();
-  const deviceId = versionStore.getDeviceId();
+  const deviceId = versionStore.deviceId;
   const userAgent = navigator.userAgent;
   const userStore = useUser();
   const userId = userStore.account.login || "anonymous";

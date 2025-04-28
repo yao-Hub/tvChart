@@ -32,9 +32,13 @@ export const useVersion = defineStore("version", {
     changeVerisonToNum(strVersion: string) {
       return +strVersion.split(".").join("");
     },
-    getDeviceId() {
-      this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
-      window.localStorage.setItem("uuid", this.deviceId);
+    async getDeviceId() {
+      if (window.electronAPI) {
+        this.deviceId = await window.electronAPI.getDeviceId();
+      } else {
+        this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
+        window.localStorage.setItem("uuid", this.deviceId);
+      }
       return this.deviceId;
     },
     /** 应用更新

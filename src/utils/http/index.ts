@@ -87,7 +87,7 @@ service.interceptors.request.use(
   (config: reqConfig) => {
     const versionStore = useVersion();
     const themeStore = useTheme();
-    config.headers["x-u-device-id"] = versionStore.getDeviceId();
+    config.headers["x-u-device-id"] = versionStore.deviceId;
     config.headers["x-u-app-theme"] = themeStore.getSystemTheme();
 
     // 请求地址
@@ -190,7 +190,6 @@ service.interceptors.response.use(
       errorTokenList.includes(data.errmsg)
     ) {
       handleTokenErr();
-      return Promise.reject(data);
     }
 
     if (!config.noTip) {
@@ -211,7 +210,6 @@ service.interceptors.response.use(
     if (res && res.data) {
       if (res.data.errmsg && errorTokenList.includes(res.data.errmsg)) {
         handleTokenErr();
-        return Promise.reject(res.data);
       }
       ElNotification({
         message: t(res.data.errmsg || res.data.msg) || res.data.msg || "error",

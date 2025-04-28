@@ -9,5 +9,6 @@ declare interface Window {
       release: string;
       hostname: string;
     };
+    getDeviceId: <T>() => Promise<T>;
   };
 }

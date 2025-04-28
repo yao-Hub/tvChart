@@ -1,9 +1,10 @@
 class IndexedDBService {
-  private db: IDBDatabase | null = null;
-  private dbName: string;
-  private dbVersion: number;
-  private objectStoreName: string;
-  private fields: string[];
+  private db: IDBDatabase | null = null; // 数据库实例
+  private dbName: string; // 数据库名称
+  private dbVersion: number; // 数据库版本
+  private objectStoreName: string; // 对象仓库名称
+  private fields: string[]; // 字段
+  private backup: any[] = []; // 备份数据
 
   constructor(dbName: string, objectStoreName: string, fields: string[]) {
     this.dbName = dbName;
@@ -18,20 +19,40 @@ class IndexedDBService {
     }
     this.dbVersion = version;
   }
-
-  async openDatabase() {
-    return new Promise<IDBDatabase>((resolve, reject) => {
+  private async tryOpen(isRetry = false) {
+    return new Promise(async (resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.dbVersion);
 
-      request.onerror = (event) => {
-        reject(
-          new Error("数据库打开失败: " + (event.target as IDBRequest).error)
-        );
+      request.onerror = async (event) => {
+        const error = (event.target as IDBRequest).error;
+        // 版本过低错误处理
+        if (error && error.name === "VersionError" && !isRetry) {
+          console.warn("数据库版本过低，尝试迁移数据...");
+          // 1. 备份旧数据
+          this.backup = await this.backupOldData();
+
+          // 2. 删除旧数据库
+          await this.deleteOldDatabase();
+
+          // 3. 重新打开新数据库并恢复数据
+          console.log("创建新数据库并恢复数据");
+          const newDb = await this.tryOpen(true);
+          resolve(newDb);
+        } else {
+          reject(
+            new Error("数据库打开失败: " + (event.target as IDBRequest).error)
+          );
+        }
       };
 
       // 成功打开
-      request.onsuccess = (event) => {
+      request.onsuccess = async (event) => {
+        console.log("数据库成功打开", this.dbName);
         this.db = (event.target as IDBRequest).result;
+        // 备份数据写入
+        if (this.backup.length) {
+          await this.restoreData();
+        }
         this.checkStorageQuota();
         resolve(this.db as IDBDatabase);
       };
@@ -56,10 +77,77 @@ class IndexedDBService {
             objectStore.createIndex(field, field, { unique: false });
           }
         });
+        resolve(db);
       };
     });
   }
 
+  async openDatabase() {
+    await this.tryOpen(); // 初始尝试打开
+  }
+
+  // 获取备份
+  private async backupOldData(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      const oldDbRequest = indexedDB.open(this.dbName);
+
+      oldDbRequest.onsuccess = (event) => {
+        const db = (event.target as IDBRequest).result;
+        const tx = db.transaction(this.objectStoreName, "readonly");
+        const store = tx.objectStore(this.objectStoreName);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+          console.log("备份成功");
+          db.close(); // 及时关闭旧连接
+          resolve(request.result);
+        };
+
+        request.onerror = () => reject(request.error);
+      };
+
+      oldDbRequest.onerror = (event) =>
+        reject(
+          new Error("旧数据库访问失败: " + (event.target as IDBRequest).error)
+        );
+    });
+  }
+
+  // 数据恢复
+  private async restoreData(): Promise<void> {
+    if (!this.db) throw new Error("数据库未打开");
+
+    const tx = this.db.transaction(this.objectStoreName, "readwrite");
+    const store = tx.objectStore(this.objectStoreName);
+
+    return new Promise((resolve, reject) => {
+      this.backup.forEach((item) => store.put(item));
+
+      tx.oncomplete = () => {
+        console.log(`成功恢复 ${this.backup.length} 条数据`);
+        this.backup = [];
+        resolve();
+      };
+
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  // 删除旧数据库
+  private async deleteOldDatabase(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const deleteRequest = indexedDB.deleteDatabase(this.dbName);
+
+      deleteRequest.onsuccess = () => {
+        console.log("旧数据库已删除");
+        resolve();
+      };
+      deleteRequest.onerror = () =>
+        reject(new Error("数据库删除失败: " + deleteRequest.error));
+    });
+  }
+
+  // 关闭当前数据库
   async closeDatabase() {
     return new Promise<void>((resolve, reject) => {
       if (this.db) {
@@ -77,6 +165,7 @@ class IndexedDBService {
     });
   }
 
+  // 数据库添加数据
   async addData<T extends { id: number }>(data: T) {
     if (!this.db) {
       throw new Error("数据库未打开");
@@ -112,6 +201,7 @@ class IndexedDBService {
     });
   }
 
+  // 根据id更新某一条数据库数据
   async updateData<T extends { id: number }>(data: T) {
     if (!this.db) {
       throw new Error("数据库未打开");
@@ -136,6 +226,7 @@ class IndexedDBService {
     });
   }
 
+  // 删除当前数据库
   async deleteData(id: number) {
     if (!this.db) {
       throw new Error("数据库未打开");

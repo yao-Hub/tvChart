@@ -19,9 +19,9 @@ import { useChartInit } from "./store/modules/chartInit";
 
 const sizeStore = useSize();
 
+useVersion().getDeviceId(); // 生成设备唯一id
 sizeStore.initSize(); // 初始化字体大小
 useTheme().initTheme(); // 系统主题
-useVersion().getDeviceId(); // 生成设备唯一id
 
 // 打点
 watch(

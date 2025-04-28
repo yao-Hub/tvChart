@@ -1,9 +1,11 @@
 const nameMap = {
-  test: "CTOTrader dev",
+  staging: "CTOTrader staging",
+  development: "CTOTrader dev",
   production: "CTOTrader",
 };
 const appIdMap = {
-  test: "com.electron.CTOTrader_dev",
+  staging: "com.electron.CTOTrader_staging",
+  development: "com.electron.CTOTrader_dev",
   production: "com.electron.CTOTrader",
 };
 

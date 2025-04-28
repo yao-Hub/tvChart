@@ -12,6 +12,7 @@ dist
 dist-electron
 release_electron
 dist-ssr
+.vite
 *.local
 
 # Editor directories and files
