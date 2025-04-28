@@ -7,6 +7,7 @@
   "author": "wp",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --open",
+    "staging": "vite --mode staging --open",
     "prod": "vite --mode production --open",
     "prepackage": "npx tsc scripts/update-version.ts && node scripts/update-version.js && git add package.json",
     "build": "vite build",
