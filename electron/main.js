@@ -331,9 +331,8 @@ function generateUUID() {
 }
 // 获取设备标识
 const getHardwareId = async () => {
+  const deviceId = window.localStorage.getItem("uuid") || generateUUID();
   try {
-    const deviceId = window.localStorage.getItem("uuid") || generateUUID();
-
     // 尝试获取主板 UUID
     const { uuid } = await si.system();
     if (uuid && uuid !== 'Default string') return uuid;
@@ -344,8 +343,12 @@ const getHardwareId = async () => {
 
     // 其他回退方案（如 BIOS 序列号）
     const { serial } = await si.bios();
-    return serial || deviceId; // 最终回退
+    if (serial) return serial;
+
+    window.localStorage.setItem('uuid', deviceId);
+    return deviceId;
   } catch {
+    window.localStorage.setItem('uuid', deviceId);
     return deviceId;
   }
 };
