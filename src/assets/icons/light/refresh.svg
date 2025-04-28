@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_50_light</title>
+    <g id="icon_50_light" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="编组" stroke="#63636A" stroke-width="1.4">
+            <g id="01-图标/浅色版/基础样式#通用/布局">
+                <path d="M15.3507066,4.13429963 C13.8884272,2.22860041 11.5876911,1 9,1 C4.581722,1 1,4.581722 1,9 C1,13.418278 4.581722,17 9,17 C13.418278,17 17,13.418278 17,9" id="路径"></path>
+                <polyline id="路径" points="15.7586582 1.44280977 15.7586582 4.44280977 12.7586582 4.44280977"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

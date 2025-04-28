@@ -1,0 +1,130 @@
+@forward "element-plus/theme-chalk/src/common/var.scss" with (
+  $colors: (
+    "primary": (
+      "base": #f4b201,
+    ),
+  ),
+  $dialog: (
+    "bg-color": #f6f8fb,
+    "padding-primary": 24px 32px,
+    "box-shadow": 0px 12px 32px 8px rgba(8, 22, 46, 0.24),
+  ),
+  $slider: (
+    "height": 8px,
+    "button-size": 12px,
+    "main-bg-color": #000,
+  ),
+  $dropdown: (
+    "menuItem-hover-color": #000,
+    "menuItem-hover-fill": #efefef,
+  ),
+  $select-option: (
+    "hover-background": #efefef,
+  ),
+  $text: (
+    "color": #000000,
+  ),
+  $menu: (
+    "bg-color": #f6f8fb,
+  ),
+  $table: (
+    "header-text-color": #63636a,
+    "text-color": #000,
+  ),
+  $checkbox: (
+    "text-color": #63636a,
+    "checked-text-color": #63636a,
+  )
+);
+// 如果你想导入所有样式:
+@use "element-plus/theme-chalk/src/index.scss" as *;
+
+:root {
+  --el-font-size-large: 16px;
+  --el-font-size-medium: 14px;
+  --el-font-size-base: 14px;
+  --el-font-size-small: 12px;
+  --el-bg-color-overlay: #f6f8fb;
+  --el-color-info: #63636a;
+  --el-text-color-regular: #000;
+}
+.el-button--primary {
+  --el-button-text-color: #000000;
+  --el-button-disabled-bg-color: #bec2c9;
+  --el-button-disabled-border-color: #bec2c9;
+  --el-button-hover-text-color: #000000;
+  --el-button-active-bg-color: #e28602;
+  --el-button-active-border-color: #e28602;
+}
+.el-form-item__label {
+  color: #000;
+}
+
+.el-table .top-row {
+  --el-table-tr-bg-color: var(--el-fill-color-light);
+  --el-table-row-hover-bg-color: #e0e0e0;
+}
+.el-table thead th {
+  font-weight: 400;
+}
+.el-table__expand-icon {
+  content: url("@/assets/icons/light/caretDown.svg");
+  width: 10px;
+  height: 6px;
+}
+.el-table__expand-icon--expanded {
+  transform: rotate(180deg);
+}
+.el-table-v2__header {
+  background-color: #f1f3f6;
+}
+
+.el-select-v2__caret {
+  content: url("/static/icons/light/caretDown.svg");
+}
+
+.el-slider__stop {
+  border: 2px solid #dee2e9;
+  transform: translate(-50%, -20%);
+}
+.el-slider__bar {
+  background-color: #dee2e9;
+}
+.el-divider--horizontal {
+  margin: 8px 0;
+}
+.el-message-box {
+  background-color: #f6f8fb;
+}
+
+.el-radio-button {
+  --el-radio-button-checked-bg-color: #f0f0f0;
+  --el-radio-button-checked-border-color: #dee2e9;
+  --el-radio-button-checked-text-color: #000;
+}
+.el-radio-button__inner {
+  color: #63636a;
+}
+.el-segmented {
+  --el-segmented-item-selected-bg-color: #dee2e9;
+  --el-segmented-bg-color: #fff;
+  height: 24px;
+  min-height: 24px;
+  padding: 0;
+  border: 1px solid #dee2e9;
+}
+.el-dropdown__popper.el-popper {
+  box-shadow: 0px 12px 32px 8px rgba(8, 22, 46, 0.24);
+}
+
+.el-form-item--label-top .el-form-item__label {
+  margin-bottom: 4px;
+}
+
+.el-table-v2 {
+  --el-table-header-bg-color: var(--light-8);
+}
+
+.el-descriptions__body {
+  background-color: var(--color-1);
+}

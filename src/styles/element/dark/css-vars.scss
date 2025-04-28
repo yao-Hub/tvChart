@@ -1,0 +1,160 @@
+html.dark {
+  .el-text {
+    --el-text-color: var(--light-1);
+  }
+  .el-text--default {
+    --el-text-color: var(--light-1);
+  }
+  .el-text--info {
+    --el-text-color: var(--dark-9);
+  }
+  .el-text--primary {
+    --el-text-color: var(--color-3);
+  }
+  .el-text--danger {
+    --el-text-color: var(--el-color-danger);
+  }
+
+  .el-form-item__label {
+    color: var(--light-1);
+  }
+
+  .el-button--primary {
+    --el-button-disabled-bg-color: #4c515d;
+    --el-button-disabled-border-color: #4c515d;
+    --el-button-active-bg-color: var(--color-2);
+    --el-button-active-border-color: var(--color-2);
+    --el-button-hover-bg-color: #ffd051;
+    --el-button-hover-border-color: #ffd051;
+  }
+
+  .el-table {
+    --el-table-bg-color: var(--dark-1);
+    --el-table-text-color: var(--light-1);
+    --el-table-header-text-color: var(--dark-9);
+    --el-table-tr-bg-color: var(--dark-1);
+  }
+  .el-table .top-row {
+    --el-table-tr-bg-color: var(--el-fill-color-light);
+    --el-table-row-hover-bg-color: #2a2c31;
+  }
+  .el-table__expand-icon {
+    content: url("@/assets/icons/dark/caretDown.svg");
+    width: 10px;
+    height: 6px;
+  }
+  .el-table__expand-icon--expanded {
+    transform: rotate(180deg);
+  }
+  .el-table-v2__header {
+    background-color: #1b1f29;
+  }
+  .el-table-v2__row {
+    background-color: var(--dark-1);
+  }
+  .el-table-v2__row:hover {
+    background-color: var(--el-table-row-hover-bg-color);
+  }
+  .el-table-v2 {
+    --el-table-header-text-color: var(--dark-9);
+    --el-table-tr-bg-color: var(--light-1);
+  }
+  .el-table-v2__header-cell {
+    background-color: var(--dark-4);
+  }
+  .el-table-v2__main {
+    background-color: var(--dark-1);
+  }
+
+  .el-input__wrapper {
+    background-color: var(--dark-1);
+  }
+
+  .el-tag.el-tag--info {
+    --el-tag-text-color: var(--light-1);
+  }
+
+  .el-dialog {
+    --el-dialog-bg-color: #1d222d;
+    box-shadow: 0px 12px 32px 8px #000000;
+  }
+  .el-message-box {
+    background-color: #1d222d;
+  }
+
+  .el-dropdown__popper.el-popper {
+    box-shadow: 0px 12px 32px 8px #000000;
+  }
+  .el-dropdown-menu__item:not(.is-disabled):focus,
+  .el-dropdown-menu__item:not(.is-disabled):hover {
+    background-color: #383d47;
+    color: var(--light-1);
+  }
+
+  .el-select__wrapper {
+    background-color: var(--dark-1);
+  }
+
+  .el-select-dropdown__item.is-hovering {
+    color: var(--light-1);
+    background-color: #383d47;
+  }
+
+  .el-slider {
+    --el-slider-button-size: 14px;
+    --el-slider-height: 4px;
+  }
+  .el-slider__stop {
+    border: none;
+    background-color: #0c0f15;
+    transform: translate(-50%, -33%);
+    border: 2px solid #2c2f35;
+    height: 8px;
+    width: 8px;
+  }
+  .el-slider__bar {
+    background-color: #2c2f35;
+  }
+
+  .el-divider--horizontal {
+    margin: 8px 0;
+  }
+
+  .el-autocomplete-suggestion li.highlighted,
+  .el-autocomplete-suggestion li:hover {
+    background-color: #383d47;
+    color: var(--light-1);
+  }
+
+  .el-radio-button {
+    --el-radio-button-checked-bg-color: #1d222d;
+    --el-radio-button-checked-border-color: #2c2f35;
+    --el-radio-button-checked-text-color: #fff;
+  }
+  .el-radio-button__inner {
+    background: #0c0f15;
+    border-color: #2c2f35;
+  }
+
+  .el-checkbox {
+    --el-checkbox-text-color: var(--dark-9);
+    --el-checkbox-checked-text-color: var(--dark-9);
+  }
+
+  .el-segmented {
+    --el-segmented-bg-color: var(--dark-1);
+    --el-segmented-item-selected-bg-color: #2c2f35;
+    height: 24px;
+    min-height: 24px;
+    padding: 0;
+    border: 1px solid #2c2f35;
+  }
+
+  .el-form-item--label-top .el-form-item__label {
+    margin-bottom: 4px;
+  }
+
+  .el-descriptions__body {
+    background-color: var(--dark-3);
+  }
+}

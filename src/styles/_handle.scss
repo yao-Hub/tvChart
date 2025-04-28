@@ -1,0 +1,82 @@
+@import "./themes";
+
+:root {
+  --font-size: 14px;
+  --icon-size: 18px;
+}
+
+[data-size="small"] {
+  --font-size: 12px;
+  --icon-size: 16px;
+  --tip-size: 12px;
+  --component-size: 24px;
+  --base-height: 32px;
+  --radio-height: 28px;
+}
+[data-size="default"] {
+  --font-size: 14px;
+  --icon-size: 18px;
+  --tip-size: 12px;
+  --component-size: 32px;
+  --base-height: 40px;
+  --radio-height: 36px;
+}
+[data-size="large"] {
+  --font-size: 16px;
+  --icon-size: 20px;
+  --tip-size: 14px;
+  --component-size: 40px;
+  --base-height: 48px;
+  --radio-height: 42px;
+}
+
+@mixin themeify {
+  @each $theme-name, $theme-map in $systemThemes {
+    // 局部变量强升为全局变量
+    $theme-map: $theme-map !global;
+
+    // @content: 混合器插槽
+    [data-theme="#{$theme-name}"] & {
+      @content;
+    }
+  }
+
+  @each $theme-name, $theme-map in $updwonThemes {
+    $theme-map: $theme-map !global;
+
+    [upDown-theme="#{$theme-name}"] & {
+      @content;
+    }
+  }
+}
+
+@function themed($key) {
+  @return map-get($theme-map, $key);
+}
+
+// 字体颜色
+@mixin font_color($color) {
+  @include themeify {
+    color: themed($color) !important;
+  }
+}
+
+// 边框颜色
+@mixin border_color($color) {
+  @include themeify {
+    border-color: themed($color);
+  }
+}
+
+// 背景颜色
+@mixin background_color($color) {
+  @include themeify {
+    background-color: themed($color);
+  }
+}
+
+@mixin box_shadow() {
+  @include themeify {
+    box-shadow: themed("box-shadow");
+  }
+}

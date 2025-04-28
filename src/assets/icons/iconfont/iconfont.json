@@ -1,0 +1,51 @@
+{
+  "id": "4646450",
+  "name": "utrader",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "微派",
+  "glyphs": [
+    {
+      "icon_id": "29787187",
+      "name": "20px-绿涨红跌",
+      "font_class": "a-20px-lvzhanghongdie",
+      "unicode": "e605",
+      "unicode_decimal": 58885
+    },
+    {
+      "icon_id": "40943110",
+      "name": "v3.1-16px-line-Light红涨绿跌",
+      "font_class": "a-v31-16px-line-Lighthongzhanglvdie",
+      "unicode": "e7f9",
+      "unicode_decimal": 59385
+    },
+    {
+      "icon_id": "29164197",
+      "name": "icon／信号／无信号",
+      "font_class": "iconxinhaowuxinhao-copy-copy-copy",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "37866306",
+      "name": "icon_2times",
+      "font_class": "icon_2times",
+      "unicode": "e6a4",
+      "unicode_decimal": 59044
+    },
+    {
+      "icon_id": "36038900",
+      "name": "横向布局-copy-copy-copy",
+      "font_class": "hengxiangbuju-copy",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "36038614",
+      "name": "横向布局-copy-copy",
+      "font_class": "hengxiangbuju",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    }
+  ]
+}

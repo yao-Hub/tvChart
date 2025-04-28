@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="16px" height="16px" viewBox="0 0 16 16" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_clone_dark备份</title>
+    <g id="icon_clone_dark备份" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <g id="编组" stroke="#818588" stroke-width="1.24444444">
+            <g id="编组" transform="translate(2.666667, 1.777778)">
+                <polygon id="路径" points="1.88235294 10.5777778 10.6666667 10.5777778 10.6666667 3.73333333 7.21568627 3.73333333 7.21568627 0 1.88235294 0"></polygon>
+                <line x1="7.21568627" y1="0" x2="10.6666667" y2="3.73333333" id="路径"></line>
+                <polyline id="路径" points="0 4.97777778 0 12.4444444 6.58823529 12.4444444"></polyline>
+                <line x1="3.76470588" y1="4.97777778" x2="5.01960784" y2="4.97777778" id="路径"></line>
+                <line x1="3.76470588" y1="7.46666667" x2="7.52941176" y2="7.46666667" id="路径"></line>
+            </g>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,124 @@
+:root {
+  --light-1: #fff;
+  --light-2: #eef2f6;
+  --light-3: #e8e9ec;
+  --light-4: #d8dadc;
+  --light-5: #dee2e9;
+  --light-6: #e8ebf0;
+  --light-7: #efefef;
+  --light-8: #f1f3f6;
+  --light-9: #94959b;
+  --light-10: #63636a;
+  --light-11: #333;
+
+  --dark-1: #000;
+  --dark-2: #323745;
+  --dark-3: #1d222d;
+  --dark-4: #1b1f29;
+  --dark-5: #1a1d23;
+  --dark-6: #383d47;
+  --dark-7: #56585c;
+  --dark-8: #818588;
+  --dark-9: #b0b1b3;
+  --dark-10: #bec2c9;
+  --dark-11: #d1d4dc;
+
+  --color-1: #f6f8fb;
+  --color-2: #e28602;
+  --color-3: #f4b201;
+
+  --color-4: #f53058;
+  --color-5: #f75173;
+  --color-6: #ce284a;
+  --color-7: #2e9c76;
+  --color-8: #50ac8c;
+  --color-9: #278363;
+  --color-10: #cee5e1;
+  --color-11: #f6d0db;
+}
+
+[data-theme="light"] {
+  --upRedDownGreen-upLight: var(--color-11);
+  --upGreenDownRed-upLight: var(--color-10);
+  --upRedDownGreen-downLight: var(--color-10);
+  --upGreenDownRed-downLight: var(--color-11);
+}
+
+[data-theme="dark"] {
+  --upRedDownGreen-upLight: #73273e;
+  --upGreenDownRed-upLight: #23524a;
+  --upRedDownGreen-downLight: #23524a;
+  --upGreenDownRed-downLight: #73273e;
+}
+
+$systemThemes: (
+  light: (
+    background: var(--light-1),
+    background-component: var(--light-2),
+    background-dialog: var(--color-1),
+    background-hover: var(--light-3),
+    background-active: var(--light-4),
+    background-table-active: var(--color-2),
+    background-login-container: var(--light-1),
+    primary-active: var(--color-2),
+    primary: var(--color-2),
+    border: var(--light-5),
+    word: var(--dark-1),
+    word-info: var(--light-10),
+    word-gray: var(--light-9),
+    closeBtn: var(--light-11),
+    tabActive: var(--light-2),
+    tabHover: var(--light-7),
+    tabHoverTextColor: var(--light-10),
+    btnDisabled: var(--dark-8),
+    inputDisabled: var(--light-2),
+    table-colored: var(--light-8),
+    box-shadow: 0px 12px 32px 8px rgba(8, 22, 46, 0.24),
+  ),
+  dark: (
+    background: var(--dark-1),
+    background-component: var(--dark-2),
+    background-dialog: var(--dark-3),
+    background-hover: var(--dark-5),
+    background-active: var(--dark-6),
+    background-table-active: var(--color-1),
+    background-login-container: var(--dark-3),
+    primary: var(--color-3),
+    primary-active: var(--color-2),
+    border: var(--dark-7),
+    word: var(--light-1),
+    word-info: var(--dark-9),
+    word-gray: var(--dark-8),
+    closeBtn: var(--dark-11),
+    tabActive: var(--dark-2),
+    tabHover: var(--dark-5),
+    tabHoverTextColor: var(--dark-9),
+    btnDisabled: var(--dark-10),
+    inputDisabled: var(--light-2),
+    table-colored: var(--dark-4),
+    box-shadow: 0px 12px 32px 8px var(--dark-1),
+  ),
+);
+
+$updwonThemes: (
+  upRedDownGreen: (
+    up: var(--color-4),
+    upHover: var(--color-5),
+    upActive: var(--color-6),
+    upLight: var(--upRedDownGreen-upLight),
+    down: var(--color-7),
+    downHover: var(--color-8),
+    downActive: var(--color-9),
+    downLight: var(--upRedDownGreen-downLight),
+  ),
+  upGreenDownRed: (
+    up: var(--color-7),
+    upHover: var(--color-8),
+    upActive: var(--color-9),
+    upLight: var(--upGreenDownRed-upLight),
+    down: var(--color-4),
+    downHover: var(--color-5),
+    downActive: var(--color-6),
+    downLight: var(--upGreenDownRed-downLight),
+  ),
+);

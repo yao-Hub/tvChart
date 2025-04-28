@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/logo_16.png" sizes="16x16" />
+    <link rel="icon" type="image/png" href="./logo_32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="./logo_64.png" sizes="64x64" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="script-src 'self' 'unsafe-inline';"
+    />
+    <link
+      rel="preload"
+      href="./src/assets/images/light/loginBg@1x.png"
+      as="image"
+      media="(prefers-color-scheme: light)"
+      srcset="
+        ./src/assets/images/light/loginBg@1x.png 1x,
+        ./src/assets/images/light/loginBg@2x.png 2x
+      "
+    />
+    <link
+      rel="preload"
+      href="./src/assets/images/dark/loginBg@1x.png"
+      as="image"
+      media="(prefers-color-scheme: dark)"
+      srcset="
+        ./src/assets/images/dark/loginBg@1x.png 1x,
+        ./src/assets/images/dark/loginBg@2x.png 2x
+      "
+    />
+    <title>CTOTrader</title>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/assets/icons/iconfont/iconfont.js"></script>
+
+    <div style="display: none">
+      <img src="/src/assets/images/light/loginBg@1x.png" />
+      <img src="/src/assets/images/dark/loginBg@1x.png" />
+      <img src="/src/assets/images/light/loginBg@2x.png" />
+      <img src="/src/assets/images/dark/loginBg@2x.png" />
+    </div>
+  </body>
+</html>
