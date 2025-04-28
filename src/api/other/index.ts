@@ -1,7 +1,7 @@
 import request from "utils/http";
 
 enum Api {
-  Version = "/admin/version/version_query",
+  Version = "/admin-api/version/version_query",
 }
 
 export interface IReqVersion {

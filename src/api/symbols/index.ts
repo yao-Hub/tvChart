@@ -4,11 +4,11 @@ import request from "utils/http";
 enum Api {
   Symbols = "/symbol/all_symbols",
   allSymbolsQuotes = "/quote/all_symbol_quotes",
-  SymbolAllPath = "/admin/symbol/all_path",
-  MySymbols = "/admin/my/optional_query",
-  DelMySymbols = "/admin/my/optional_delete",
-  AddMySymbols = "/admin/my/optional_add",
-  EditMySymbols = "/admin/my/optional_update",
+  SymbolAllPath = "/admin-api/symbol/all_path",
+  MySymbols = "/admin-api/my/optional_query",
+  DelMySymbols = "/admin-api/my/optional_delete",
+  AddMySymbols = "/admin-api/my/optional_add",
+  EditMySymbols = "/admin-api/my/optional_update",
   SymbolDetail = "/symbol/one_symbol",
   AllRates = "/rate/all_rates",
 }
