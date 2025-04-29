@@ -33,13 +33,17 @@ export const useVersion = defineStore("version", {
       return +strVersion.split(".").join("");
     },
     async getDeviceId() {
-      if (!process.env.IF_ELECTRON) {
+      try {
+        if (!process.env.IF_ELECTRON) {
+          this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
+          window.localStorage.setItem("uuid", this.deviceId);
+        } else {
+          this.deviceId = await window.electronAPI.invoke("getDeviceId");
+        }
+      } catch (error) {
         this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
         window.localStorage.setItem("uuid", this.deviceId);
-      } else {
-        this.deviceId = await window.electronAPI.getDeviceId();
       }
-      return this.deviceId;
     },
     /** 应用更新
      * step 1.服务器获取更新

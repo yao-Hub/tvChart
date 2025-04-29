@@ -81,86 +81,86 @@ export default defineConfig((mode: ConfigEnv) => {
       disableHostCheck: true,
       port: 8080,
       proxy: {
-        [env.VITE_HTTP_BASE_URL_admin]: {
+        [env.VITE_HTTP_URL_admin]: {
           target: env.VITE_HTTP_URL_admin,
           changeOrigin: true,
           rewrite: (path) =>
-            path.replace(new RegExp("^" + env.VITE_HTTP_BASE_URL_admin), ""),
+            path.replace(new RegExp("^" + env.VITE_HTTP_URL_admin), ""),
         },
-        [env.VITE_HTTP_URL_FILE]: {
-          target: "http://120.79.80.70:8084",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(new RegExp("^" + env.VITE_HTTP_URL_FILE), "");
-          },
-        },
-        "/client-api-120-79-186-23-13556": {
-          target: "http://120.79.186.23:13556",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(
-              new RegExp("^" + "/client-api-120-79-186-23-13556"),
-              ""
-            );
-          },
-        },
-        "/client-api-120-79-80-70-8098": {
-          target: "http://120.79.80.70:8098",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(
-              new RegExp("^" + "/client-api-120-79-80-70-8098"),
-              ""
-            );
-          },
-        },
-        "/client-api-103-75-0-197-17556": {
-          target: "http://103.75.0.197:17556",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(
-              new RegExp("^" + "/client-api-103-75-0-197-17556"),
-              ""
-            );
-          },
-        },
-        "/client-api-103-75-0-197-8098": {
-          target: "http://103.75.0.197:8098",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(
-              new RegExp("^" + "/client-api-103-75-0-197-8098"),
-              ""
-            );
-          },
-        },
-        "/client-api-120-79-80-70-8555": {
-          target: "http://120.79.80.70:8555",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(
-              new RegExp("^" + "/client-api-120-79-80-70-8555"),
-              ""
-            );
-          },
-        },
-        "/client-api-8-153-78-97-8098": {
-          target: "http://8.153.78.97:8098",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(
-              new RegExp("^" + "/client-api-8-153-78-97-8098"),
-              ""
-            );
-          },
-        },
-        "/client-api": {
-          target: "http://120.79.186.23:13556",
-          changeOrigin: true,
-          rewrite: (path) => {
-            return path.replace(new RegExp("^" + "/client-api"), "");
-          },
-        },
+        //     [env.VITE_HTTP_URL_FILE]: {
+        //       target: "http://120.79.80.70:8084",
+        //       changeOrigin: true,
+        //       rewrite: (path) => {
+        //         return path.replace(new RegExp("^" + env.VITE_HTTP_URL_FILE), "");
+        //       },
+        //     },
+        //     "/client-api-120-79-186-23-13556": {
+        //       target: "http://120.79.186.23:13556",
+        //       changeOrigin: true,
+        //       rewrite: (path) => {
+        //         return path.replace(
+        //           new RegExp("^" + "/client-api-120-79-186-23-13556"),
+        //           ""
+        //         );
+        //       },
+        //     },
+        //     "/client-api-120-79-80-70-8098": {
+        //       target: "http://120.79.80.70:8098",
+        //       changeOrigin: true,
+        //       rewrite: (path) => {
+        //         return path.replace(
+        //           new RegExp("^" + "/client-api-120-79-80-70-8098"),
+        //           ""
+        //         );
+        //       },
+        //     },
+        //     "/client-api-103-75-0-197-17556": {
+        //       target: "http://103.75.0.197:17556",
+        //       changeOrigin: true,
+        //       rewrite: (path) => {
+        //         return path.replace(
+        //           new RegExp("^" + "/client-api-103-75-0-197-17556"),
+        //           ""
+        //         );
+        //       },
+        //     },
+        //     "/client-api-103-75-0-197-8098": {
+        //       target: "http://103.75.0.197:8098",
+        //       changeOrigin: true,
+        //       rewrite: (path) => {
+        //         return path.replace(
+        //           new RegExp("^" + "/client-api-103-75-0-197-8098"),
+        //           ""
+        //         );
+        //       },
+        //     },
+        //     "/client-api-120-79-80-70-8555": {
+        //       target: "http://120.79.80.70:8555",
+        //       changeOrigin: true,
+        //       rewrite: (path) => {
+        //         return path.replace(
+        //           new RegExp("^" + "/client-api-120-79-80-70-8555"),
+        //           ""
+        //         );
+        //       },
+        //     },
+        //     "/client-api-8-153-78-97-8098": {
+        //       target: "http://8.153.78.97:8098",
+        //       changeOrigin: true,
+        //       rewrite: (path) => {
+        //         return path.replace(
+        //           new RegExp("^" + "/client-api-8-153-78-97-8098"),
+        //           ""
+        //         );
+        //       },
+        //     },
+        //     "/client-api": {
+        //       target: "http://120.79.186.23:13556",
+        //       changeOrigin: true,
+        //       rewrite: (path) => {
+        //         return path.replace(new RegExp("^" + "/client-api"), "");
+        //       },
+        //     },
       },
     },
   };

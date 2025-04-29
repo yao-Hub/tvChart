@@ -295,6 +295,34 @@ ipcMain.handle('check-download-status', (event, url) => {
 
 ipcMain.handle('clear-download-cache', () => clearDownloadState());
 
+// 获取设备标识
+const getHardwareId = async () => {
+  const deviceId = window.localStorage.getItem("uuid") || generateUUID();
+  try {
+    // 尝试获取主板 UUID
+    const { uuid } = await si.system();
+    if (uuid && uuid !== 'Default string') return uuid;
+
+    // 回退到 MachineGUID（Windows）
+    const { value: machineGuid } = (await si.osInfo()).uuid;
+    if (machineGuid) return machineGuid;
+
+    // 其他回退方案（如 BIOS 序列号）
+    const { serial } = await si.bios();
+    if (serial) return serial;
+
+    window.localStorage.setItem('uuid', deviceId);
+    return deviceId;
+  } catch {
+    window.localStorage.setItem('uuid', deviceId);
+    return deviceId;
+  }
+};
+
+ipcMain.handle('getDeviceId', async () => {
+  return await getHardwareId();
+});
+
 if (!gotTheLock) {
   // 如果没有获取到锁，说明已经有一个实例在运行，直接退出当前实例
   app.quit();
@@ -329,29 +357,4 @@ function generateUUID() {
     return v.toString(16);
   });
 }
-// 获取设备标识
-const getHardwareId = async () => {
-  const deviceId = window.localStorage.getItem("uuid") || generateUUID();
-  try {
-    // 尝试获取主板 UUID
-    const { uuid } = await si.system();
-    if (uuid && uuid !== 'Default string') return uuid;
 
-    // 回退到 MachineGUID（Windows）
-    const { value: machineGuid } = (await si.osInfo()).uuid;
-    if (machineGuid) return machineGuid;
-
-    // 其他回退方案（如 BIOS 序列号）
-    const { serial } = await si.bios();
-    if (serial) return serial;
-
-    window.localStorage.setItem('uuid', deviceId);
-    return deviceId;
-  } catch {
-    window.localStorage.setItem('uuid', deviceId);
-    return deviceId;
-  }
-};
-ipcMain.handle('getDeviceId', async () => {
-  return await getHardwareId();
-});

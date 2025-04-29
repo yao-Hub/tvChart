@@ -24,17 +24,18 @@ const props = defineProps<Props>();
 const path = ref("");
 const percentage = ref(0);
 const loading = ref(false);
-const ifDev = import.meta.env.MODE === "development";
+// const ifDev = import.meta.env.MODE === "native";
 
 const getImage = () => {
   percentage.value = 0;
   loading.value = true;
 
-  const urlObj = new URL(props.src);
-  const pathname = urlObj.pathname;
-  const devUrl = import.meta.env.VITE_HTTP_URL_FILE;
+  // const urlObj = new URL(props.src);
+  // const pathname = urlObj.pathname;
+  // const devUrl = import.meta.env.VITE_HTTP_URL_FILE;
   axios({
-    url: `${ifDev ? `${devUrl}${pathname}` : props.src}`,
+    // url: `${ifDev ? `${devUrl}${pathname}` : props.src}`,
+    url: props.src,
     responseType: "blob",
     onDownloadProgress: (progressEvent) => {
       const { loaded, total } = progressEvent;

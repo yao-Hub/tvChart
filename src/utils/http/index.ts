@@ -44,14 +44,16 @@ function handleTokenErr() {
   eventBus.emit("go-login");
 }
 
-function changeLocalUrl(str: string) {
-  return str
-    .replace(/^https?:\/\//, "-")
-    .replace(/\./g, "-")
-    .replace(/:/g, "-");
-}
+// function changeLocalUrl(str: string) {
+//   return str
+//     .replace(/^https?:\/\//, "-")
+//     .replace(/\./g, "-")
+//     .replace(/:/g, "-");
+// }
 
-const ifLocal = import.meta.env.MODE === "development";
+console.log("import.meta.env.MODE", import.meta.env.MODE);
+
+// const ifLocal = import.meta.env.MODE === "native";
 const ifPro = import.meta.env.MODE === "production";
 
 const nowLocale = i18n.global.locale.value;
@@ -95,20 +97,21 @@ service.interceptors.request.use(
     const webApi = useNetwork().currentNode?.webApi;
 
     // client地址
-    const CLIENT_BASE_URL = import.meta.env.VITE_HTTP_BASE_URL_client;
-    const CLIENT_SUFFIX_URL = webApi ? changeLocalUrl(webApi) : "";
-    const CLIENT_URL = `${CLIENT_BASE_URL}${CLIENT_SUFFIX_URL}`;
-    const clientUrl = ifLocal ? CLIENT_URL : webApi || "";
+    // const CLIENT_BASE_URL = import.meta.env.VITE_HTTP_BASE_URL_client;
+    // const CLIENT_SUFFIX_URL = webApi ? changeLocalUrl(webApi) : "";
+    // const CLIENT_URL = `${CLIENT_BASE_URL}${CLIENT_SUFFIX_URL}`;
+    // const clientUrl = ifLocal ? CLIENT_URL : webApi || "";
 
     // admin地址
-    const DEV_ADMIN_URL = import.meta.env.VITE_HTTP_BASE_URL_admin;
+    // const DEV_ADMIN_URL = import.meta.env.VITE_HTTP_BASE_URL_admin;
     const ADMIN_URL = import.meta.env.VITE_HTTP_URL_admin;
-    const adminUrl = ifLocal ? DEV_ADMIN_URL : ADMIN_URL;
+    // const adminUrl = ifLocal ? DEV_ADMIN_URL : ADMIN_URL;
 
     if (config.urlType && config.urlType === "admin") {
-      baseURL = adminUrl;
+      baseURL = ADMIN_URL;
     } else {
-      baseURL = clientUrl;
+      // baseURL = clientUrl;
+      baseURL = webApi;
     }
 
     // action
