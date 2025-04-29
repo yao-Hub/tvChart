@@ -1,10 +1,10 @@
 {
-  "name": "wp-tradeview",
+  "name": "ctotrader",
   "private": true,
   "version": "1.0.0",
   "main": "electron/main.js",
   "description": "CTOTrader",
-  "author": "wp",
+  "author": "Furong Uptech Solution Co., Ltd",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --open",
     "staging": "vite --mode staging --open",
@@ -84,7 +84,6 @@
     "vue-tsc": "2.0.6"
   },
   "keywords": [
-    "wp-tradeview",
     "CTOTrader",
     "utrader"
   ],

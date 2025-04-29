@@ -29,7 +29,6 @@ interface IOption {
   urlType?: string;
   needLogin?: boolean;
   noBeCancel?: boolean;
-  noNeedEncryption?: boolean;
   noTip?: boolean;
   customData?: boolean;
 }
@@ -50,8 +49,6 @@ function handleTokenErr() {
 //     .replace(/\./g, "-")
 //     .replace(/:/g, "-");
 // }
-
-console.log("import.meta.env.MODE", import.meta.env.MODE);
 
 // const ifLocal = import.meta.env.MODE === "native";
 const ifPro = import.meta.env.MODE === "production";
@@ -152,19 +149,16 @@ service.interceptors.request.use(
       if (!config.data.login && config.needLogin) {
         config.data.login = userStore.account.login;
       }
-      // 加密
-      if (!config.noNeedEncryption) {
-        const p = {
-          action,
-          d: encrypt(JSON.stringify(config.data)),
-        };
-        !ifPro &&
-          console.log("request----", {
-            url: config.url,
-            data: config.data,
-          });
-        config.data = JSON.stringify(p);
-      }
+      const p = {
+        action,
+        d: encrypt(JSON.stringify(config.data)),
+      };
+      !ifPro &&
+        console.log("request----", {
+          url: config.url,
+          data: config.data,
+        });
+      config.data = JSON.stringify(p);
     }
     return config;
   },
@@ -180,7 +174,7 @@ service.interceptors.response.use(
     const data = response.data;
     const config: resConfig = response.config;
     if (data.err === 0 || data.code === 0) {
-      if (data.data && !config.noNeedEncryption) {
+      if (data.data) {
         data.data = JSON.parse(decrypt(data.data));
       }
       !ifPro && console.log("response....", { url: config.url, data });

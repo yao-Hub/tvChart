@@ -38,7 +38,7 @@ export const useVersion = defineStore("version", {
           this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
           window.localStorage.setItem("uuid", this.deviceId);
         } else {
-          this.deviceId = await window.electronAPI.invoke("getDeviceId");
+          this.deviceId = await window.electronAPI.invoke("getUnitId");
         }
       } catch (error) {
         this.deviceId = window.localStorage.getItem("uuid") || generateUUID();

@@ -174,7 +174,8 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
   // 下载地址
   const filename = path.basename(new URL(downloadUrl).pathname);
   // 下载保存位置
-  const savePath = path.join(app.getPath('downloads'), filename);
+  // const savePath = path.join(app.getPath('downloads'), filename);
+  const savePath = path.join(app.getPath('userData'), filename);
 
   // 检查是否存在未完成的下载
   const existingState = loadDownloadState();
@@ -319,7 +320,7 @@ const getHardwareId = async () => {
   }
 };
 
-ipcMain.handle('getDeviceId', async () => {
+ipcMain.handle('getUnitId', async () => {
   return await getHardwareId();
 });
 

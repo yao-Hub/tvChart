@@ -2,7 +2,7 @@ import request from "utils/http";
 enum Api {
   SaveFeedback = "/admin-api/feedback/save_feedback",
   Myfeedback = "/admin-api/feedback/select_my_feedback",
-  UploadFile = "/admin-api/common/sysFile/upload",
+  UploadFile = "/admin-api/my/upload_files",
 }
 interface reqSaveFeedback {
   platform: string;
@@ -56,16 +56,15 @@ export const uploadFile = (params: { file: File; type: number }) => {
     method: "post",
     data: {
       file: params.file,
-      req: {
+      req: JSON.stringify({
         action: "my/upload_files",
         d: encrypt(JSON.stringify(req)),
-      },
+      }),
     },
     headers: {
       "Content-Type": "multipart/form-data",
     },
     urlType: "admin",
     customData: true,
-    noNeedEncryption: true,
   });
 };

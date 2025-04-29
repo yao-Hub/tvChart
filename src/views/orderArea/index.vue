@@ -236,9 +236,6 @@
             @scroll="tableScroll"
             fixed
           >
-            <template #overlay v-if="orderStore.state.dataLoading[activeKey]">
-              <div class="el-loading-mask" v-loading="true"></div>
-            </template>
             <template #header-cell="{ column, columnIndex }">
               <div
                 :class="{ 'header-box': !!column.title }"
@@ -550,9 +547,7 @@ onMounted(() => {
   adjustTable();
   // 拖拽时改变table的高
   observer = new ResizeObserver(() => {
-    requestAnimationFrame(() => {
-      adjustTable();
-    });
+    adjustTable();
   });
   observer.observe(container.value);
 });
@@ -589,9 +584,6 @@ const adjustTable = debounce(() => {
       state.columns[activeKey.value].forEach((item) => {
         const minw = item.minWidth || MIN_COLUMN_WIDTH;
         let width = new Decimal(item.width === "auto" ? minw : item.width);
-        if (columns_widths > container_width && item.minWidth) {
-          width = new Decimal(item.minWidth);
-        }
         const result = width
           .div(columns_widths_dec)
           .mul(container_width_dec)
@@ -634,7 +626,7 @@ const adjustTable = debounce(() => {
       item.width = +result.toFixed(0);
     });
   }
-});
+}, 100);
 
 // 列分割线改变列宽逻辑
 const dragLineList = ref<number[]>([]);
@@ -1169,12 +1161,6 @@ const getTableData = (type: string) => {
     margin: 0 4px;
     @include border_color("background-component");
     @include background_color("background");
-
-    .el-loading-mask {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
 
     .filter {
       min-height: 32px;
