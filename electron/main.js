@@ -10,6 +10,9 @@ let activeDownload = null;
 
 let writeCompletionCallback = null;
 
+const saveFileRouteName = "userData";
+const saveCacheRouteName = "userData";
+
 // 翻译
 let translationsCache = {};
 ipcMain.on('set-translations', (event, translations) => {
@@ -136,13 +139,13 @@ class Installer {
 // 缓存下载进度
 const saveDownloadState = (params = {}) => {
   const state = { ...activeDownload, ...params };
-  const statePath = path.join(app.getPath('userData'), 'downloadState.json');
+  const statePath = path.join(app.getPath(saveCacheRouteName), 'downloadState.json');
   fs.writeFileSync(statePath, JSON.stringify(state));
 };
 
 // 读取缓存进度
 function loadDownloadState() {
-  const statePath = path.join(app.getPath('userData'), 'downloadState.json');
+  const statePath = path.join(app.getPath(saveCacheRouteName), 'downloadState.json');
   if (fs.existsSync(statePath)) {
     return JSON.parse(fs.readFileSync(statePath, 'utf-8'));
   }
@@ -151,7 +154,7 @@ function loadDownloadState() {
 
 // 清除缓存进度
 function clearDownloadState() {
-  const statePath = path.join(app.getPath('userData'), 'downloadState.json');
+  const statePath = path.join(app.getPath(saveCacheRouteName), 'downloadState.json');
   if (fs.existsSync(statePath)) {
     const state = JSON.parse(fs.readFileSync(statePath, 'utf-8'));
     const { tmpPath } = state;
@@ -174,8 +177,7 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
   // 下载地址
   const filename = path.basename(new URL(downloadUrl).pathname);
   // 下载保存位置
-  // const savePath = path.join(app.getPath('downloads'), filename);
-  const savePath = path.join(app.getPath('userData'), filename);
+  const savePath = path.join(app.getPath(saveFileRouteName), filename);
 
   // 检查是否存在未完成的下载
   const existingState = loadDownloadState();
@@ -266,7 +268,7 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
 
 ipcMain.handle('start-install', async (event, downloadUrl) => {
   const filename = path.basename(new URL(downloadUrl).pathname);
-  const savePath = path.join(app.getPath('downloads'), filename);
+  const savePath = path.join(app.getPath(saveFileRouteName), filename);
   Installer.run(savePath);
   setTimeout(() => {
     app.quit();
@@ -281,7 +283,7 @@ ipcMain.handle('check-download-status', (event, url) => {
   if (state) {
     // 是否下载完毕
     const filename = path.basename(new URL(url).pathname);
-    const savePath = path.join(app.getPath('downloads'), filename);
+    const savePath = path.join(app.getPath(saveFileRouteName), filename);
     if (fs.existsSync(savePath)) {
       return state;
     }
