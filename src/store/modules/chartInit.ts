@@ -21,7 +21,7 @@ interface IState {
   loading: Boolean; // 整个图表区域的加载
   chartLoading: Record<string, boolean>; // 各个图表的加载状态
   activeChartId: string; // 当前激活的chart
-  globalRefresh: boolean; // 是否全局刷新
+  globalRefresh: 0 | 1; // 是否全局刷新
   ifFinishLoad: Record<string, boolean>; // 图表是否渲染完成
   chartFreshKeys: Record<string, number>; // 图表刷新
 }
@@ -39,7 +39,7 @@ export const useChartInit = defineStore("chartInit", () => {
     chartLayoutType: "single",
     chartLoading: {},
     activeChartId: "chart_1",
-    globalRefresh: false,
+    globalRefresh: 0,
     ifFinishLoad: {},
     chartFreshKeys: {},
   });
@@ -108,7 +108,7 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 系统刷新
   function systemRefresh() {
-    state.globalRefresh = true;
+    state.globalRefresh = state.globalRefresh ? 0 : 1;
   }
 
   // 创建图表实例

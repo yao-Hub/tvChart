@@ -21,9 +21,9 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { nextTick, onMounted, onUnmounted } from "vue";
 import { useI18n } from "vue-i18n";
-import { onBeforeRouteLeave } from "vue-router";
+import { onBeforeRouteLeave, useRouter } from "vue-router";
 
 import { useInit } from "@/store/modules/init";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -43,6 +43,8 @@ import {
   initDragResizeArea,
   resizeUpdate,
 } from "utils/dragResize/drag_position";
+import eventBus from "utils/eventBus";
+import { PageEnum } from "@/constants/pageEnum";
 
 import dragArea from "../dragArea/index.vue";
 import FooterInfo from "../footerInfo/index.vue";
@@ -67,9 +69,6 @@ const I18n = useI18n();
 const { locale } = I18n;
 
 // 情求token无效时 兼容electron的路由跳转
-import { PageEnum } from "@/constants/pageEnum";
-import eventBus from "utils/eventBus";
-import { useRouter } from "vue-router";
 const router = useRouter();
 eventBus.on("go-login", () => {
   const login = userStore.account.login;
@@ -90,18 +89,21 @@ const initRender = () => {
   layoutStore.initLayout(); // 布局显示隐藏
   chartInitStore.intLayoutType(); // 单图表 or 多图表
   chartInitStore.loadChartList(); // 加载图表
-  // 记忆动作（没什么用(>^ω^<)喵）
+  // 记忆动作
   // if (rootStore.cacheAction) {
   //   rootStore[rootStore.cacheAction]();
   //   rootStore.clearCacheAction();
   // }
   chartInitStore.state.loading = false;
   setTimeout(async () => {
+    await nextTick();
     // 初始化各个模块位置
     initDragResizeArea();
-    await nextTick();
-    await quotesStore.getAllSymbolQuotes();
-    Promise.all([rateStore.getAllRates(), orderStore.initTableData()]);
+    Promise.all([
+      quotesStore.getAllSymbolQuotes(),
+      rateStore.getAllRates(),
+      orderStore.initTableData(),
+    ]);
   });
 };
 
@@ -129,42 +131,8 @@ async function init() {
     }
   } finally {
     initRender(); // 渲染页面
-    if (!chartInitStore.state.globalRefresh) {
-      socketStore.emitOnline();
-    }
-    chartInitStore.state.globalRefresh = false;
   }
 }
-
-// 全局刷新重置store 热更新
-watch(
-  () => chartInitStore.state.globalRefresh,
-  async (val) => {
-    if (val) {
-      await rootStore.resetAllStore();
-      init();
-    }
-  }
-);
-
-// 当浏览器超出内存时，切换标签页会自动断开socket连接
-// 断开连接重新热更新页面
-const socketState = ref("");
-eventBus.on("socket-disconnect", () => {
-  socketState.value = "disconnect";
-});
-eventBus.on("socket-connect", () => {
-  socketState.value = "connect";
-});
-eventBus.on("socket-error", () => {
-  socketState.value = "error";
-});
-const handleVisibilityChange = async () => {
-  const state = document.visibilityState;
-  if (state === "visible" && socketState.value === "disconnect") {
-    chartInitStore.systemRefresh();
-  }
-};
 
 const saveCharts = () => {
   chartInitStore.saveCharts();
@@ -174,7 +142,6 @@ const saveCharts = () => {
 onMounted(() => {
   init();
   window.addEventListener("resize", resizeUpdate);
-  document.addEventListener("visibilitychange", handleVisibilityChange);
   window.addEventListener("beforeunload", saveCharts);
 });
 
@@ -189,7 +156,6 @@ onBeforeRouteLeave(async () => {
   chartInitStore.saveCharts();
   socketStore.closeAllSocket();
   await rootStore.resetAllStore();
-  document.removeEventListener("visibilitychange", handleVisibilityChange);
   window.removeEventListener("resize", resizeUpdate);
   return true;
 });

@@ -10,19 +10,21 @@ import { ElConfigProvider } from "element-plus";
 
 import { LANGUAGE_LIST } from "@/constants/common";
 import { sendTrack } from "@/utils/track";
+import eventBus from "utils/eventBus";
 
 import { useSize } from "@/store/modules/size";
 import { useTheme } from "@/store/modules/theme";
 import { useVersion } from "@/store/modules/version";
 import { useUser } from "./store/modules/user";
 import { useChartInit } from "./store/modules/chartInit";
+import { useSocket } from "./store/modules/socket";
 
 const sizeStore = useSize();
 
 sizeStore.initSize(); // 初始化字体大小
 useTheme().initTheme(); // 系统主题
 
-// 打点
+// 启动应用打点
 watch(
   () => useUser().account.server,
   () => {
@@ -34,6 +36,18 @@ watch(
   { once: true }
 );
 
+// 在线人数打点
+const ifHasEmitOnline = ref(false);
+watch(
+  () => useUser().account,
+  (account) => {
+    if (account.login && account.token && !ifHasEmitOnline.value) {
+      useSocket().emitOnline();
+      ifHasEmitOnline.value = true;
+    }
+  }
+);
+
 // 国际化
 const I18n = useI18n();
 
@@ -43,8 +57,32 @@ const locale = computed(() => {
   return LANGUAGE_LIST[value as keyof typeof LANGUAGE_LIST];
 });
 
-const networkStatus = ref(navigator.onLine);
+// 刷新key
+const freshKey = computed(() => {
+  const result = `${locale.value.name}${useChartInit().state.globalRefresh}`;
+  return result;
+});
 
+// 被动断开socket连接返回页面重新热更新页面
+const socketState = ref("");
+eventBus.on("socket-disconnect", () => {
+  socketState.value = "disconnect";
+});
+eventBus.on("socket-connect", () => {
+  socketState.value = "connect";
+});
+eventBus.on("socket-error", () => {
+  socketState.value = "error";
+});
+const handleVisibilityChange = async () => {
+  const state = document.visibilityState;
+  if (state === "visible" && socketState.value === "disconnect") {
+    useChartInit().systemRefresh();
+  }
+};
+
+// 网络重新连接触发刷新
+const networkStatus = ref(navigator.onLine);
 const handleNetworkChange = () => {
   if (!networkStatus.value) {
     useChartInit().systemRefresh();
@@ -55,6 +93,7 @@ const handleNetworkChange = () => {
 onMounted(() => {
   window.addEventListener("online", handleNetworkChange);
   window.addEventListener("offline", handleNetworkChange);
+  document.addEventListener("visibilitychange", handleVisibilityChange);
   // 获取更新
   setTimeout(
     () =>
@@ -77,12 +116,13 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener("online", handleNetworkChange);
   window.removeEventListener("offline", handleNetworkChange);
+  document.removeEventListener("visibilitychange", handleVisibilityChange);
 });
 </script>
 
 <template>
   <el-config-provider :locale="locale" :size="sizeStore.systemSize">
-    <router-view :key="locale.name"></router-view>
+    <router-view :key="freshKey"></router-view>
   </el-config-provider>
 </template>
 
