@@ -89,12 +89,14 @@ export const useUser = defineStore("user", () => {
 
   // 预付款比例
   const margin_level = computed(() => {
-    const nowMargin = margin.value === "-" ? 0 : margin.value;
-    if (nowMargin === 0) {
+    if (margin.value === "-") {
+      return "-";
+    }
+    if (margin.value === 0) {
       return 0;
     }
     if (equity.value !== "-") {
-      return round((+equity.value / +nowMargin) * 100, 2) + " %";
+      return round((+equity.value / +margin.value) * 100, 2) + " %";
     }
     return "-";
   });
