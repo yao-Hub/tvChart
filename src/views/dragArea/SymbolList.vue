@@ -173,20 +173,26 @@ const symbolsStore = useSymbols();
 const userStore = useUser();
 const tableLoading = ref(false);
 const getQuery = async (fromHttp?: boolean) => {
-  tableLoading.value = true;
-  if (fromHttp) {
-    await symbolsStore.getMySymbols();
-  }
-  dataSource.value = cloneDeep(symbolsStore.mySymbols_sort);
-  tableLoading.value = false;
-  await nextTick();
+  try {
+    tableLoading.value = true;
+    if (fromHttp) {
+      await symbolsStore.getMySymbols();
+    }
+    dataSource.value = cloneDeep(symbolsStore.mySymbols_sort);
+    tableLoading.value = false;
+    await nextTick();
 
-  // 拖拽
-  const trs = document.querySelectorAll(".el-table__body tbody .el-table__row");
-  trs.forEach((tr, index) => {
-    tr.setAttribute("data-id", `${dataSource.value[index].symbol}`);
-  });
-  createSortable();
+    // 拖拽
+    const trs = document.querySelectorAll(
+      ".el-table__body tbody .el-table__row"
+    );
+    trs.forEach((tr, index) => {
+      tr.setAttribute("data-id", `${dataSource.value[index].symbol}`);
+    });
+    createSortable();
+  } catch (error) {
+    tableLoading.value = false;
+  }
 };
 
 watch(
