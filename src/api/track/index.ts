@@ -44,6 +44,7 @@ export const trackAction = (data: ITrackAction) => {
     url: Api.Action,
     method: "post",
     data,
+    action: "track/user/action",
     urlType: "admin",
     noNeedToken: true,
     noBeCancel: true,

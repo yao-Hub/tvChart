@@ -37,20 +37,11 @@ type reqConfig = InternalAxiosRequestConfig<any> & IOption;
 type resConfig = AxiosRequestConfig<any> & IOption;
 
 const errorTokenList = ["invalid token", "disable login", "disable group"];
-
 function handleTokenErr() {
   // cancelAllRequests();
   eventBus.emit("go-login");
 }
 
-// function changeLocalUrl(str: string) {
-//   return str
-//     .replace(/^https?:\/\//, "-")
-//     .replace(/\./g, "-")
-//     .replace(/:/g, "-");
-// }
-
-// const ifLocal = import.meta.env.MODE === "native";
 const ifPro = import.meta.env.MODE === "production";
 
 const nowLocale = i18n.global.locale.value;
@@ -93,33 +84,22 @@ service.interceptors.request.use(
     let baseURL = "";
     const webApi = useNetwork().currentNode?.webApi;
 
-    // client地址
-    // const CLIENT_BASE_URL = import.meta.env.VITE_HTTP_BASE_URL_client;
-    // const CLIENT_SUFFIX_URL = webApi ? changeLocalUrl(webApi) : "";
-    // const CLIENT_URL = `${CLIENT_BASE_URL}${CLIENT_SUFFIX_URL}`;
-    // const clientUrl = ifLocal ? CLIENT_URL : webApi || "";
-
     // admin地址
-    // const DEV_ADMIN_URL = import.meta.env.VITE_HTTP_BASE_URL_admin;
     const ADMIN_URL = import.meta.env.VITE_HTTP_URL_admin;
-    // const adminUrl = ifLocal ? DEV_ADMIN_URL : ADMIN_URL;
 
     if (config.urlType && config.urlType === "admin") {
       baseURL = ADMIN_URL;
     } else {
-      // baseURL = clientUrl;
       baseURL = webApi;
     }
 
     // action
-    let action = config.action || config.url || "";
-    if (action.startsWith("/")) {
-      action = action.slice(1);
+    let action = config.url?.replace("/admin-api/", "");
+    if (config.action) {
+      action = config.action;
     }
-    if (config.urlType && config.urlType === "admin") {
-      const actionList = action.split("/");
-      actionList.splice(0, 1);
-      action = actionList.join("/");
+    if (action?.startsWith("/")) {
+      action = action.slice(1);
     }
 
     // 最终请求地址
@@ -189,12 +169,11 @@ service.interceptors.response.use(
       handleTokenErr();
     }
 
-    if (!config.noTip) {
+    !config.noTip &&
       ElNotification({
         message: t(data.errmsg || "error"),
         type: "error",
       });
-    }
     return Promise.reject(data);
   },
   // 状态码!===200
@@ -208,13 +187,15 @@ service.interceptors.response.use(
       if (res.data.errmsg && errorTokenList.includes(res.data.errmsg)) {
         handleTokenErr();
       }
-      ElNotification({
-        message: t(res.data.errmsg || res.data.msg) || res.data.msg || "error",
-        type: "error",
-      });
+      !res.config.noTip &&
+        ElNotification({
+          message:
+            t(res.data.errmsg || res.data.msg) || res.data.msg || "error",
+          type: "error",
+        });
       return Promise.reject(err);
     }
-    if (res && res.status) {
+    if (res && res.status && !res.config.noTip) {
       ElNotification({
         message: `statusCode: ${res.status}`,
         type: "error",
