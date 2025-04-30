@@ -11,7 +11,7 @@ export const useInit = defineStore("init", () => {
     useUser().initAccount(); // 账户信息
     useSize().initSize(); // 初始化字体大小
     useTheme().initTheme(); // 系统主题（亮色暗色）
-    await useVersion().getDeviceId(); // 生成设备唯一id
+    useVersion().getDeviceId(); // 生成设备唯一id
     await useNetwork().getLines(); //  交易线路
   };
 

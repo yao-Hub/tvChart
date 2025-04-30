@@ -2,7 +2,6 @@ const { app, BrowserWindow, screen, Menu, ipcMain, net } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
-const si = require('systeminformation');
 
 let mainWindow;
 
@@ -269,26 +268,27 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
 ipcMain.handle('start-install', async (event, downloadUrl) => {
   const filename = path.basename(new URL(downloadUrl).pathname);
   const savePath = path.join(app.getPath(saveFileRouteName), filename);
-  Installer.run(savePath);
-  setTimeout(() => {
-    app.quit();
-  }, 500);
+  if (savePath) {
+    Installer.run(savePath);
+    setTimeout(() => {
+      app.quit();
+    }, 500);
+  }
 });
 
 // 检查更新状态
 ipcMain.handle('check-download-status', (event, url) => {
   const state = loadDownloadState();
 
-  // 验证临时文件是否存在
   if (state) {
-    // 是否下载完毕
     const filename = path.basename(new URL(url).pathname);
     const savePath = path.join(app.getPath(saveFileRouteName), filename);
-    if (fs.existsSync(savePath)) {
+    // 存在下载完成的文件
+    if (fs.existsSync(savePath) && state.downloadUrl === url) {
       return state;
     }
-    // 缓存是否是更新地址
-    if (state.downloadUrl === url && fs.existsSync(state.tmpPath)) {
+    // 存在下载未完成的临时文件
+    if (fs.existsSync(state.tmpPath) && state.downloadUrl === url) {
       return state;
     }
   };
@@ -297,34 +297,6 @@ ipcMain.handle('check-download-status', (event, url) => {
 });
 
 ipcMain.handle('clear-download-cache', () => clearDownloadState());
-
-// 获取设备标识
-const getHardwareId = async () => {
-  const deviceId = window.localStorage.getItem("uuid") || generateUUID();
-  try {
-    // 尝试获取主板 UUID
-    const { uuid } = await si.system();
-    if (uuid && uuid !== 'Default string') return uuid;
-
-    // 回退到 MachineGUID（Windows）
-    const { value: machineGuid } = (await si.osInfo()).uuid;
-    if (machineGuid) return machineGuid;
-
-    // 其他回退方案（如 BIOS 序列号）
-    const { serial } = await si.bios();
-    if (serial) return serial;
-
-    window.localStorage.setItem('uuid', deviceId);
-    return deviceId;
-  } catch {
-    window.localStorage.setItem('uuid', deviceId);
-    return deviceId;
-  }
-};
-
-ipcMain.handle('getUnitId', async () => {
-  return await getHardwareId();
-});
 
 if (!gotTheLock) {
   // 如果没有获取到锁，说明已经有一个实例在运行，直接退出当前实例
@@ -352,12 +324,3 @@ if (!gotTheLock) {
     app.quit();
   });
 }
-
-function generateUUID() {
-  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
-    const r = (Math.random() * 16) | 0,
-      v = c == "x" ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-

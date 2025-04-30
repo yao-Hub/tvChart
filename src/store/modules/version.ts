@@ -32,18 +32,9 @@ export const useVersion = defineStore("version", {
     changeVerisonToNum(strVersion: string) {
       return +strVersion.split(".").join("");
     },
-    async getDeviceId() {
-      try {
-        if (!process.env.IF_ELECTRON) {
-          this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
-          window.localStorage.setItem("uuid", this.deviceId);
-        } else {
-          this.deviceId = await window.electronAPI.invoke("getUnitId");
-        }
-      } catch (error) {
-        this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
-        window.localStorage.setItem("uuid", this.deviceId);
-      }
+    getDeviceId() {
+      this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
+      window.localStorage.setItem("uuid", this.deviceId);
     },
     /** 应用更新
      * step 1.服务器获取更新

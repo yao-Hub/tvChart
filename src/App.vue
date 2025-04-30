@@ -95,14 +95,10 @@ onMounted(() => {
   window.addEventListener("offline", handleNetworkChange);
   document.addEventListener("visibilitychange", handleVisibilityChange);
   // 获取更新
-  setTimeout(
-    () =>
-      useVersion().getUpdate({
-        status: [1, 2],
-        ifCheckFrequency: true,
-      }),
-    1000
-  );
+  useVersion().getUpdate({
+    status: [1, 2],
+    ifCheckFrequency: true,
+  });
 
   // electron 多语言传递
   window.electronAPI?.send("set-translations", {
