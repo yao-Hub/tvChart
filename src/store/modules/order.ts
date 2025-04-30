@@ -48,6 +48,7 @@ interface IState {
   dataFilter: Record<orderTypes.TableTabKey, any>;
   ifOne: boolean | null;
   ifQuick: boolean;
+  ifLoadedMap: Record<orderTypes.TableTabKey, boolean>;
 }
 
 export const useOrder = defineStore("order", () => {
@@ -116,6 +117,14 @@ export const useOrder = defineStore("order", () => {
     },
     ifOne: null, // 一键交易
     ifQuick: true, // 快捷交易(图表是否显示快捷交易组件)
+    ifLoadedMap: {
+      marketOrder: false,
+      pendingOrder: false,
+      pendingOrderHistory: false,
+      marketOrderHistory: false,
+      blanceRecord: false,
+      log: false,
+    },
   });
 
   const currentLogin = computed(() => useUser().account.login);
@@ -284,7 +293,8 @@ export const useOrder = defineStore("order", () => {
   };
   const initTableData = async () => {
     const socketStore = useSocket();
-    // await getMarketOrders();
+    await getMarketOrders();
+    state.ifLoadedMap.marketOrder = true;
     // await Promise.all([
     //   getPendingOrders(),
     //   getMarketOrderHistory(),

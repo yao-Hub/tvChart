@@ -99,11 +99,6 @@ const initRender = () => {
     await nextTick();
     // 初始化各个模块位置
     initDragResizeArea();
-    Promise.all([
-      quotesStore.getAllSymbolQuotes(),
-      rateStore.getAllRates(),
-      orderStore.initTableData(),
-    ]);
   });
 };
 
@@ -128,6 +123,11 @@ async function init() {
       await userStore.executeLogic({ emitSocket: true }); // 个人信息
       await symbolsStore.getSymbols();
       userStore.refreshToken(); // 倒计时刷新token
+      Promise.all([
+        quotesStore.getAllSymbolQuotes(),
+        rateStore.getAllRates(),
+        orderStore.initTableData(),
+      ]);
     }
   } finally {
     initRender(); // 渲染页面

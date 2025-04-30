@@ -552,20 +552,17 @@ onMounted(() => {
   observer.observe(container.value);
 });
 
-// 已经加载过
-const haveLoadMap = ref<Record<string, boolean>>({});
 // 动态调整表格的列宽 tab第一次请求表格数据
 watch(
   () => activeKey.value,
   async () => {
     await nextTick();
     adjustTable();
-    if (!haveLoadMap.value[activeKey.value]) {
+    if (!orderStore.state.ifLoadedMap[activeKey.value]) {
       await orderStore.getData(activeKey.value);
-      haveLoadMap.value[activeKey.value] = true;
+      orderStore.state.ifLoadedMap[activeKey.value] = true;
     }
-  },
-  { immediate: true }
+  }
 );
 const adjustTable = debounce(() => {
   const columns_widths = state.columns[activeKey.value].reduce(
