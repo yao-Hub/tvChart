@@ -20,9 +20,12 @@
       </div>
     </template>
 
-    <div v-loading="loading">
+    <div v-loading="loading" style="min-height: 300px">
       <table>
-        <tr v-for="item in tableColumns">
+        <tr
+          v-for="item in tableColumns"
+          :style="{ height: getValue(item.prop) ? '36px' : '0' }"
+        >
           <template v-if="getValue(item.prop)">
             <td>
               <el-text type="info">{{ item.label }}</el-text>
@@ -133,7 +136,7 @@ onMounted(async () => {
 
 const getValue = (key: TKey) => {
   if (serverInfo.value) {
-    return serverInfo.value[key] || "-";
+    return serverInfo.value[key] || "";
   }
   return "";
 };
