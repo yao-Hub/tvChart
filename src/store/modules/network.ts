@@ -19,6 +19,7 @@ interface IState {
   nodeName: string;
   nodeList: Array<resQueryNode & { webApiDelay?: number | null }>;
   queryTradeLines: resQueryTradeLine[];
+  getLinesLoading: boolean;
 }
 interface RequestResult {
   url: string;
@@ -32,6 +33,7 @@ export const useNetwork = defineStore("network", {
       nodeName: "",
       nodeList: [],
       queryTradeLines: [],
+      getLinesLoading: false,
     };
   },
 
@@ -73,9 +75,14 @@ export const useNetwork = defineStore("network", {
     },
 
     // 交易线路
-    async getLines() {
-      const res = await queryTradeLine({});
-      this.queryTradeLines = res.data;
+    async getLines(lineName: string = "") {
+      try {
+        this.getLinesLoading = true;
+        const res = await queryTradeLine({ lineName });
+        this.queryTradeLines = res.data;
+      } finally {
+        this.getLinesLoading = false;
+      }
     },
 
     // 网络节点

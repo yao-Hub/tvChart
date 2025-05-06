@@ -27,6 +27,9 @@
           default-first-option
           :suffix-icon="Search"
           autocomplete="new-password"
+          remote
+          :remote-method="networkStore.getLines"
+          :loading="networkStore.getLinesLoading"
         >
           <el-option
             v-for="item in networkStore.queryTradeLines"

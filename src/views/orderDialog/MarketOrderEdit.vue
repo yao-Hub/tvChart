@@ -504,6 +504,19 @@ const handleCancel = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+
+:deep(.el-input__wrapper) {
+  height: var(--base-height);
+}
+
+:deep(.el-select__wrapper) {
+  height: var(--base-height);
+}
+
+:deep(.el-date-editor.el-input, .el-date-editor.el-input__wrapper) {
+  height: var(--base-height);
+}
+
 .up {
   @include background_color("upLight");
 }
