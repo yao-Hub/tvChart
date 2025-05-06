@@ -52,6 +52,7 @@ function createWindow() {
       contextIsolation: true, // 启用上下文隔离
       nodeIntegration: false, // 禁用 Node.js 集成（推荐false）
       sandbox: false,
+      devTools: process.env.NODE_ENV !== "development"
     },
   });
 

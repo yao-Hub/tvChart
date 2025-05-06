@@ -28,11 +28,11 @@
           :suffix-icon="Search"
           autocomplete="new-password"
           remote
-          :remote-method="networkStore.getLines"
-          :loading="networkStore.getLinesLoading"
+          :remote-method="remoteLines"
+          :loading="linesLoading"
         >
           <el-option
-            v-for="item in networkStore.queryTradeLines"
+            v-for="item in tadeLines"
             :key="item.lineName"
             :label="item.lineName"
             :value="item.lineName"
@@ -121,22 +121,31 @@
 </template>
 
 <script setup lang="ts">
-import { PageEnum } from "@/constants/pageEnum";
+import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
 import { Search } from "@element-plus/icons-vue";
 import {
   ElMessage,
   ElNotification,
   type FormInstance,
   type FormRules,
+  type ElSelect,
 } from "element-plus";
-import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRoute, useRouter } from "vue-router";
+import { debounce, uniqBy } from "lodash";
 
+import { PageEnum } from "@/constants/pageEnum";
+import { sendTrack } from "@/utils/track";
+import plugins from "@/plugins/propsComponents";
+import {
+  queryTradeLine,
+  resQueryTradeLine,
+  protocolAgree,
+} from "api/account/index";
+
+import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
-
-import { sendTrack } from "@/utils/track";
 
 const { t } = useI18n();
 
@@ -194,6 +203,22 @@ const ifloginBack = computed(() => {
   return userStore.state.accountList.length;
 });
 
+const tadeLines = ref<resQueryTradeLine[]>([]);
+const linesLoading = ref(false);
+const remoteLines = debounce((lineName: string) => {
+  try {
+    linesLoading.value = true;
+    queryTradeLine({ lineName }).then((res) => {
+      tadeLines.value = res.data;
+      const globalLines = networkStore.queryTradeLines;
+      globalLines.push(...res.data);
+      networkStore.queryTradeLines = uniqBy(globalLines, "lineName");
+    });
+  } finally {
+    linesLoading.value = false;
+  }
+}, 100);
+
 // 是否是官方模拟服务器
 const ifSimulatedServer = computed(() => {
   if (formState.server) {
@@ -208,9 +233,6 @@ const ifSimulatedServer = computed(() => {
   return false;
 });
 
-import { useDialog } from "@/store/modules/dialog";
-import type { ElSelect } from "element-plus";
-import plugins from "@/plugins/propsComponents";
 const mouseEnterLineName = ref("");
 const serverRef = ref<InstanceType<typeof ElSelect>>();
 const watchDetail = (server: string) => {
@@ -220,8 +242,6 @@ const watchDetail = (server: string) => {
   });
   useDialog().openDialog("serverVisible");
 };
-
-import { protocolAgree } from "api/account/index";
 
 const goProtocol = (columnCode: string) => {
   const { href } = router.resolve({

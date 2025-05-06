@@ -46,6 +46,19 @@ export const useDialog = defineStore("dialog", {
     };
   },
   actions: {
+    getMaxZIndex() {
+      let maxZIndex = 0;
+      const allElements = document.getElementsByTagName("*");
+      for (let i = 0; i < allElements.length; i++) {
+        const element = allElements[i];
+        const zIndex = parseInt(window.getComputedStyle(element).zIndex);
+        if (!isNaN(zIndex) && zIndex > maxZIndex) {
+          maxZIndex = zIndex;
+        }
+      }
+      return maxZIndex;
+    },
+
     openDialog(type: TVisible) {
       this.incrementZIndex();
       this.visibles[type] = true;
@@ -54,7 +67,8 @@ export const useDialog = defineStore("dialog", {
       this.visibles[type] = false;
     },
     incrementZIndex() {
-      this.zIndex++;
+      const maxZIndex = this.getMaxZIndex();
+      this.zIndex = maxZIndex + 1;
     },
     $reset() {
       for (const i in this.visibles) {

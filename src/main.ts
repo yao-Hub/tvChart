@@ -1,5 +1,5 @@
 import i18n from "@/language/index";
-import { createApp } from "vue";
+import { createApp, h } from "vue";
 import App from "./App.vue";
 import { setupRouter } from "./router";
 import { setupStore } from "./store";
@@ -12,12 +12,38 @@ import "./styles/element/index.scss";
 
 import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import ElementPlus from "element-plus";
+import { ElMessage } from "element-plus";
+
+import BaseImg from "@/components/BaseImg/index.vue";
 
 import { initLogDB } from "@/utils/IndexedDB/logDatabase";
 
 import plugins from "@/plugins";
-
 const bootstrap = () => {
+  type MessageType = "success" | "warning";
+
+  const MySuccessIcon = h(BaseImg, { class: "icon_success" });
+  const MyWarningIcon = h(BaseImg, { iconName: "icon_waring" });
+
+  const iconMap: Record<MessageType, ReturnType<typeof h>> = {
+    success: MySuccessIcon,
+    warning: MyWarningIcon,
+  };
+
+  const types: MessageType[] = ["success", "warning"];
+  types.forEach((type) => {
+    const original = ElMessage[type];
+    ElMessage[type] = (options) => {
+      if (typeof options === "string") {
+        options = { message: options };
+      }
+      return original({
+        ...options,
+        icon: iconMap[type],
+      });
+    };
+  });
+
   const app = createApp(App);
   // 安装初始化store
   setupStore(app);

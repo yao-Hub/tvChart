@@ -21,7 +21,7 @@ interface IGetUpdate {
 }
 export const useVersion = defineStore("version", {
   state: (): IState => ({
-    deviceId: "",
+    deviceId: window.localStorage.getItem("uuid") || "",
     versionInfo: null,
     updateInfo: {
       progress: 0,

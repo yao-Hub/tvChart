@@ -197,7 +197,7 @@ export interface resQueryTradeLine {
 }
 
 // 查询所有交易线路
-export const queryTradeLine = (data: reqQueryTradeLine) => {
+export const queryTradeLine = (data?: reqQueryTradeLine) => {
   return request<resQueryTradeLine[]>({
     url: Api.QueryTradeLine,
     method: "post",

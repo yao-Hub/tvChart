@@ -12,14 +12,13 @@ import {
 import { getPort } from "utils/common";
 
 import { useUser } from "./user";
-import { orderBy } from "lodash";
+import { orderBy, uniq, uniqBy } from "lodash";
 
 interface IState {
   server: string;
   nodeName: string;
   nodeList: Array<resQueryNode & { webApiDelay?: number | null }>;
   queryTradeLines: resQueryTradeLine[];
-  getLinesLoading: boolean;
 }
 interface RequestResult {
   url: string;
@@ -33,7 +32,6 @@ export const useNetwork = defineStore("network", {
       nodeName: "",
       nodeList: [],
       queryTradeLines: [],
-      getLinesLoading: false,
     };
   },
 
@@ -75,14 +73,18 @@ export const useNetwork = defineStore("network", {
     },
 
     // 交易线路
-    async getLines(lineName: string = "") {
-      try {
-        this.getLinesLoading = true;
-        const res = await queryTradeLine({ lineName });
-        this.queryTradeLines = res.data;
-      } finally {
-        this.getLinesLoading = false;
-      }
+    async getLines() {
+      const result: resQueryTradeLine[] = [];
+      const accountList = useUser().state.accountList;
+      const serverList = uniq(["", ...accountList.map((e) => e.server)]);
+      const httpList = serverList.map((lineName) => {
+        return queryTradeLine({ lineName });
+      });
+      const resList = await Promise.all(httpList);
+      resList.forEach((item) => {
+        result.push(...item.data);
+      });
+      this.queryTradeLines = uniqBy(result, "lineName");
     },
 
     // 网络节点

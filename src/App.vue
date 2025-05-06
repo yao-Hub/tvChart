@@ -23,6 +23,7 @@ const sizeStore = useSize();
 
 sizeStore.initSize(); // 初始化字体大小
 useTheme().initTheme(); // 系统主题
+useVersion().getDeviceId(); // 生成设备唯一id
 
 // 启动应用打点
 watch(
