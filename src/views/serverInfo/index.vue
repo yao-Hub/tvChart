@@ -165,6 +165,9 @@ const handleClose = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+:deep(.el-divider--horizontal) {
+  margin: 24px 0 !important;
+}
 
 table {
   margin: 24px 0 12px 0;
@@ -177,7 +180,7 @@ table {
 
     td {
       line-height: normal;
-      padding: 4px 4px 4px 0;
+      padding: 8px 21px 8px 0;
     }
   }
 }
