@@ -20,38 +20,60 @@
       :rules="rules"
     >
       <el-form-item prop="server" :label="t('order.tradingRoute')">
-        <el-select
-          ref="serverRef"
-          v-model="formState.server"
-          filterable
-          default-first-option
-          :suffix-icon="Search"
-          autocomplete="new-password"
-          remote
-          :remote-method="remoteLines"
-          :loading="linesLoading"
+        <el-popover
+          placement="bottom-start"
+          :visible="visible"
+          :show-arrow="false"
+          :width="414"
+          popper-class="lines-popover"
+          :teleported="false"
         >
-          <el-option
-            v-for="item in tadeLines"
-            :key="item.lineName"
-            :label="item.lineName"
-            :value="item.lineName"
-          >
-            <div
-              class="option"
-              @mouseenter="mouseEnterLineName = item.lineName"
-            >
-              <span>{{ item.lineName }}</span>
-              <el-text
-                type="primary"
-                v-show="mouseEnterLineName === item.lineName"
-                @click.stop="watchDetail(item.brokerName)"
-              >
-                {{ t("serverInfo.seeDetail") }}
-              </el-text>
+          <template #reference>
+            <el-input
+              v-model="inputLine"
+              :placeholder="linePlaceholder"
+              :suffix-icon="Search"
+              clearable
+              @clear="linesClear"
+              @input="linesInput"
+              @focus="linesFoucus"
+              @blur="linesBlur"
+            ></el-input>
+          </template>
+          <template #default>
+            <div v-if="linesLoading" class="lines-type">
+              <span>{{ t("tip.loading") }}</span>
             </div>
-          </el-option>
-        </el-select>
+            <div
+              v-if="!linesLoading && tadeLines.length !== 0"
+              class="lines-content"
+              @mouseleave="mouseEnterLineName = ''"
+            >
+              <div
+                class="lines-content_option"
+                v-for="item in tadeLines"
+                :key="item.lineName"
+                @mouseenter="mouseEnterLineName = item.lineName"
+                @click="choseLine(item.lineName)"
+              >
+                <span>{{ item.lineName }}</span>
+                <el-text
+                  type="primary"
+                  v-show="mouseEnterLineName === item.lineName"
+                  @click.stop="watchDetail(item.brokerName)"
+                >
+                  {{ t("serverInfo.seeDetail") }}
+                </el-text>
+              </div>
+            </div>
+            <div
+              v-if="!linesLoading && tadeLines.length === 0"
+              class="lines-type"
+            >
+              <span>{{ t("tip.noneData") }}</span>
+            </div>
+          </template>
+        </el-popover>
       </el-form-item>
 
       <el-form-item :label="t('account.accountNum')" prop="login">
@@ -130,7 +152,6 @@ import {
   ElNotification,
   type FormInstance,
   type FormRules,
-  type ElSelect,
 } from "element-plus";
 import { debounce, uniqBy } from "lodash";
 
@@ -196,28 +217,79 @@ const rules = reactive<FormRules<typeof formState>>({
 });
 
 const disabled = computed(() => {
-  return !(formState.login && formState.password);
+  return !(formState.login && formState.password && formState.server);
 });
 
 const ifloginBack = computed(() => {
   return userStore.state.accountList.length;
 });
 
-const tadeLines = ref<resQueryTradeLine[]>([]);
+// 筛选服务器失焦不清除筛选信息
+const visible = ref(false);
 const linesLoading = ref(false);
-const remoteLines = debounce((lineName: string) => {
-  try {
-    linesLoading.value = true;
-    queryTradeLine({ lineName }).then((res) => {
-      tadeLines.value = res.data;
-      const globalLines = networkStore.queryTradeLines;
-      globalLines.push(...res.data);
-      networkStore.queryTradeLines = uniqBy(globalLines, "lineName");
-    });
-  } finally {
-    linesLoading.value = false;
+const inputLine = ref("");
+const tadeLines = ref<resQueryTradeLine[]>([]);
+const linePlaceholder = ref(t("tip.serverRequired"));
+const linesClear = () => {
+  formState.server = "";
+};
+const linesInput = (val: string) => {
+  getLines(val);
+  if (!inputLine.value) {
+    linePlaceholder.value = formState.server || t("tip.serverRequired");
+  } else {
+    linePlaceholder.value = t("tip.serverRequired");
   }
-}, 100);
+};
+const linesFoucus = async () => {
+  const target = tadeLines.value.find(
+    (item) => item.lineName === inputLine.value
+  );
+  if (target) {
+    linePlaceholder.value = inputLine.value;
+    inputLine.value = "";
+  }
+  visible.value = true;
+};
+const linesBlur = () => {
+  visible.value = false;
+  if (!inputLine.value) {
+    inputLine.value = formState.server;
+    getLines(formState.server);
+  }
+  if (!formState.server) {
+    linePlaceholder.value = t("tip.serverRequired");
+  }
+};
+// 获取服务器列表
+const getLines = debounce(
+  (lineName: string) => {
+    linesLoading.value = true;
+    try {
+      queryTradeLine({ lineName }).then((res) => {
+        tadeLines.value = res.data;
+        const globalLines = networkStore.queryTradeLines;
+        globalLines.push(...res.data);
+        networkStore.queryTradeLines = uniqBy(globalLines, "lineName");
+      });
+    } finally {
+      linesLoading.value = false;
+    }
+  },
+  250,
+  { leading: false }
+);
+const choseLine = (lineName: string) => {
+  formState.server = lineName;
+  inputLine.value = lineName;
+};
+const mouseEnterLineName = ref("");
+const watchDetail = (server: string) => {
+  plugins.serverInfoPlugin.mount({
+    server,
+  });
+  useDialog().openDialog("serverVisible");
+};
 
 // 是否是官方模拟服务器
 const ifSimulatedServer = computed(() => {
@@ -232,16 +304,6 @@ const ifSimulatedServer = computed(() => {
   }
   return false;
 });
-
-const mouseEnterLineName = ref("");
-const serverRef = ref<InstanceType<typeof ElSelect>>();
-const watchDetail = (server: string) => {
-  serverRef.value!.handleEsc();
-  plugins.serverInfoPlugin.mount({
-    server,
-  });
-  useDialog().openDialog("serverVisible");
-};
 
 const goProtocol = (columnCode: string) => {
   const { href } = router.resolve({
@@ -318,7 +380,9 @@ onMounted(() => {
   }
   if (query.server) {
     formState.server = String(query.server);
+    inputLine.value = String(query.server);
   }
+  getLines(formState.server);
   document.addEventListener("keydown", handleKeydown);
 });
 
@@ -332,6 +396,12 @@ onUnmounted(() => {
 });
 </script>
 
+<style lang="scss">
+.lines-popover {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+}
+</style>
 <style scoped lang="scss">
 @import "@/styles/_handle.scss";
 
@@ -381,12 +451,26 @@ onUnmounted(() => {
   }
 }
 
-.option {
-  width: 100%;
-  height: 100%;
+.lines-type {
   display: flex;
+  height: 48px;
+  display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-between;
+}
+.lines-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 48px;
+  &_option {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 48px;
+    width: 100%;
+  }
 }
 
 .link {

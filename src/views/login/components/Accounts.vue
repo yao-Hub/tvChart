@@ -46,21 +46,27 @@
 </template>
 
 <script setup lang="ts">
-import { PageEnum } from "@/constants/pageEnum";
-import { AccountListItem, useUser } from "@/store/modules/user";
-import { orderBy } from "lodash";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useRouter } from "vue-router";
-
+import { orderBy } from "lodash";
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
 
+import { PageEnum } from "@/constants/pageEnum";
+
+import { AccountListItem, useUser } from "@/store/modules/user";
+import { useNetwork } from "@/store/modules/network";
+
+const { t } = useI18n();
 const router = useRouter();
+
+const networkStore = useNetwork();
 const userStore = useUser();
 
 type TList = AccountListItem & { actived: boolean };
 
 const list = ref<TList[]>([]);
+
+networkStore.getLines(); //  交易线路
 
 const initList = () => {
   const accounts = userStore.state.accountList;
@@ -92,8 +98,6 @@ const delAccount = (e: any) => {
   }
 };
 
-import { useNetwork } from "@/store/modules/network";
-const networkStore = useNetwork();
 const logoMap = computed(() => {
   const obj: Record<string, string> = {};
   networkStore.queryTradeLines.forEach((item) => {
@@ -191,6 +195,7 @@ onUnmounted(() => {
     height: 56px;
     padding: 0 24px;
     font-size: 14px;
+    line-height: normal;
     cursor: pointer;
     &_left {
       display: flex;

@@ -22,17 +22,18 @@
 
     <div v-loading="loading" style="min-height: 300px">
       <table>
-        <tr
-          v-for="item in tableColumns"
-          :style="{ height: getValue(item.prop) ? '36px' : '0' }"
-        >
+        <tr v-for="item in tableColumns">
           <template v-if="getValue(item.prop)">
             <td>
               <el-text type="info">{{ item.label }}</el-text>
             </td>
             <td v-if="['generalEmail', 'reportEmail'].includes(item.prop)">
               <el-text type="info">{{ getValue(item.prop) }}</el-text>
-              <BaseImg iconName="icon_copy" @click="copy(item.prop)" />
+              <BaseImg
+                iconName="icon_copy"
+                @click="copy(item.prop)"
+                :title="t('account.copy')"
+              />
             </td>
             <td v-else-if="item.prop === 'telephone'">
               <el-text type="info"
@@ -169,16 +170,14 @@ table {
   margin: 24px 0 12px 0;
 
   tr {
-    height: 36px;
-
     td:first-child {
       word-wrap: break-word;
       white-space: nowrap;
     }
 
     td {
-      padding-right: 8px;
-      vertical-align: middle;
+      line-height: normal;
+      padding: 4px 4px 4px 0;
     }
   }
 }
@@ -195,9 +194,10 @@ table {
 .icon_copy {
   margin-left: 10px;
   cursor: pointer;
+  @include font_color("word-gray");
 
   &:hover {
-    color: var(--color-3);
+    @include font_color("primary");
   }
 }
 </style>

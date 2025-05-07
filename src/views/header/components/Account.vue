@@ -20,7 +20,7 @@
           @mouseover="hoverMap[index] = true"
           @mouseleave="hoverMap[index] = false"
         >
-          <BaseImg class="icon" :fullPath="getLogo(item.server)" />
+          <img :src="getLogo(item.server)" class="icon" />
           <span>{{ item.server }}</span>
           <span>|</span>
           <span>{{ item.login }}</span>

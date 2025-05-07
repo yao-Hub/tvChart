@@ -1,10 +1,14 @@
 <template>
-  <img :src="iconSrc" :class="[props.iconName]" />
+  <i
+    :class="['inline-svg-wrapper', props.iconName]"
+    :style="{ color: inheritColor }"
+    v-html="iconSvgContent"
+  ></i>
 </template>
 
 <script setup lang="ts">
 import { useTheme } from "@/store/modules/theme";
-import { computed } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 const themeStore = useTheme();
 
@@ -12,8 +16,8 @@ interface Props {
   catalog?: string;
   iconName?: string;
   imgSuffix?: string;
-  fullPath?: string;
   theme?: "light" | "dark";
+  color?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -21,21 +25,46 @@ const props = withDefaults(defineProps<Props>(), {
   imgSuffix: "svg",
 });
 
-const iconSrc = computed(() => {
-  if (props.fullPath) {
-    return props.fullPath;
+const inheritColor = computed(() => props.color || "currentColor");
+const iconSvgContent = ref("");
+
+const setIconSvgContent = async () => {
+  const theme = props.theme || themeStore.systemTheme;
+
+  const path = new URL(
+    `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
+    import.meta.url
+  ).href;
+  try {
+    const iconCache = themeStore.getIconCache(path);
+    if (iconCache) {
+      iconSvgContent.value = iconCache;
+      return;
+    }
+    const response = await fetch(path);
+    iconSvgContent.value = await response.text();
+    themeStore.setIconCache({ path, content: iconSvgContent.value });
+  } catch (e) {
+    console.error("Failed to load SVG:", e);
   }
-  if (props.iconName) {
-    const theme = props.theme || themeStore.systemTheme;
-    // const result = `/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
-    const result = new URL(
-      `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
-      import.meta.url
-    ).href;
-    return result;
-  }
-  return "";
-});
+};
+
+watch(
+  () => [themeStore.systemTheme, props.theme],
+  () => setIconSvgContent()
+);
+
+onMounted(() => setIconSvgContent());
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.inline-svg-wrapper {
+  display: inline-block;
+  vertical-align: middle;
+
+  svg {
+    fill: currentColor;
+    stroke: currentColor;
+  }
+}
+</style>

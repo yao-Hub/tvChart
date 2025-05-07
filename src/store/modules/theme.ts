@@ -6,7 +6,10 @@ import { useStorage } from "./storage";
 
 type TsystemTheme = "light" | "dark"; // 系统主题
 type TupDownTheme = "upRedDownGreen" | "upGreenDownRed"; // 涨跌风格
-
+interface ICacheItem {
+  content: string;
+  path: string;
+}
 export const useTheme = defineStore("theme", () => {
   const isDark = useDark();
   const toggleDark = useToggle(isDark);
@@ -15,6 +18,8 @@ export const useTheme = defineStore("theme", () => {
   const upDownTheme = ref<TupDownTheme>("upRedDownGreen");
 
   const iframesColorScheme = ref<Record<string, TsystemTheme>>({});
+
+  const cacheContent = ref<ICacheItem[]>([]);
 
   watch(
     () => isDark.value,
@@ -180,6 +185,22 @@ export const useTheme = defineStore("theme", () => {
       }
     });
   };
+
+  const setIconCache = (params: ICacheItem) => {
+    const target = cacheContent.value?.find(
+      (item) => item.path === params.path
+    );
+    if (!target) {
+      cacheContent.value?.push(params);
+    }
+  };
+
+  const getIconCache = (path: string) => {
+    const target = cacheContent.value?.find((item) => item.path === path);
+    if (target) return target.content;
+    return null;
+  };
+
   function $reset() {}
   return {
     systemTheme,
@@ -193,6 +214,8 @@ export const useTheme = defineStore("theme", () => {
     saveChartTheme,
     getIframesColorScheme,
     iframesColorScheme,
+    setIconCache,
+    getIconCache,
     $reset,
   };
 });

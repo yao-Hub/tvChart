@@ -253,6 +253,8 @@ export default {
     volumeMax: "最大手数",
     page404: "抱歉，您访问的页面不存在",
     NodeDelayError: "连接节点失败",
+    loading: "加载中",
+    noneData: "无数据",
   },
 
   time: {

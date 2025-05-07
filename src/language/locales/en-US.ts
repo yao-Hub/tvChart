@@ -251,6 +251,8 @@ export default {
     volumeMax: "Max Volume",
     page404: "Sorry, the page you visited does not exist",
     NodeDelayError: "Node connection failed",
+    loading: "loading",
+    noneData: "No Data",
   },
 
   time: {

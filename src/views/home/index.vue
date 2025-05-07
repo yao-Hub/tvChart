@@ -117,7 +117,9 @@ async function init() {
   try {
     chartInitStore.state.loading = true;
     await useInit().init();
+    await networkStore.getLines(); //  交易线路
     await networkStore.initNode(); // 网络节点
+
     const list = await networkStore.getNodesDelay();
     if (list.length) {
       await userStore.executeLogic({ emitSocket: true }); // 个人信息
