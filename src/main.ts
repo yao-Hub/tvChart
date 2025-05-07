@@ -22,7 +22,7 @@ import plugins from "@/plugins";
 const bootstrap = () => {
   type MessageType = "success" | "warning";
 
-  const MySuccessIcon = h(BaseImg, { class: "icon_success" });
+  const MySuccessIcon = h(BaseImg, { iconName: "icon_success" });
   const MyWarningIcon = h(BaseImg, { iconName: "icon_waring" });
 
   const iconMap: Record<MessageType, ReturnType<typeof h>> = {
