@@ -438,8 +438,6 @@ export const useOrder = defineStore("order", () => {
   // 查询日志
   const getLog = async () => {
     const filters = {
-      server: useUser().account.server,
-      login: useUser().account.login,
       ...state.dataFilter.log,
     };
     for (const i in filters) {
@@ -1129,6 +1127,14 @@ export const useOrder = defineStore("order", () => {
         origin: "",
         type: "",
       },
+    };
+    state.ifLoadedMap = {
+      marketOrder: false,
+      pendingOrder: false,
+      pendingOrderHistory: false,
+      marketOrderHistory: false,
+      blanceRecord: false,
+      log: false,
     };
     state.ifOne = null; // 一键交易
     state.ifQuick = true; // 快捷交易(图表是否显示快捷交易组件)
