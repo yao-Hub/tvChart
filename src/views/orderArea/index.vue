@@ -1129,6 +1129,7 @@ const getTableData = (type: string) => {
     display: flex;
     box-sizing: border-box;
     width: fit-content;
+    min-width: 100%;
     height: var(--component-size);
 
     &_right {
