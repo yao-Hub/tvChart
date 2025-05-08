@@ -252,7 +252,7 @@ const linesFoucus = async () => {
   visible.value = true;
 };
 const linesBlur = () => {
-  visible.value = false;
+  // visible.value = false;
   if (!inputLine.value) {
     inputLine.value = formState.server;
     getLines(formState.server);
@@ -398,8 +398,7 @@ onUnmounted(() => {
 
 <style lang="scss">
 .lines-popover {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
+  padding: 0 !important;
 }
 </style>
 <style scoped lang="scss">
@@ -470,6 +469,11 @@ onUnmounted(() => {
     justify-content: space-between;
     height: 48px;
     width: 100%;
+    padding: var(--el-popover-padding);
+    box-sizing: border-box;
+    &:hover {
+      @include background_color("selectHover");
+    }
   }
 }
 

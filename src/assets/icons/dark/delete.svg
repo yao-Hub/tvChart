@@ -2,7 +2,7 @@
 <svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
     <title>icon_49</title>
     <g id="icon_49" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
-        <g id="编组" stroke="#B0B1B3" stroke-width="1.4">
+        <g id="编组" stroke="currentColor" stroke-width="1.4">
             <g id="编组" transform="translate(2.000000, 2.000000)">
                 <polygon id="路径" points="1.75 2.1 1.75 14 12.25 14 12.25 2.1"></polygon>
                 <line x1="5.6" y1="5.6" x2="5.6" y2="10.15" id="路径"></line>

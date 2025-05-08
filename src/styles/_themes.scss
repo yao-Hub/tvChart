@@ -74,6 +74,7 @@ $systemThemes: (
     inputDisabled: var(--light-2),
     table-colored: var(--light-8),
     box-shadow: 0px 12px 32px 8px rgba(8, 22, 46, 0.24),
+    selectHover: rgba(0, 0, 0, 0.06),
   ),
   dark: (
     background: var(--dark-1),
@@ -97,6 +98,7 @@ $systemThemes: (
     inputDisabled: var(--light-2),
     table-colored: var(--dark-4),
     box-shadow: 0px 12px 32px 8px var(--dark-1),
+    selectHover: rgba(255, 255, 255, 0.06),
   ),
 );
 

@@ -422,7 +422,7 @@ export default {
 
   "refresh page": "Reload",
   "network error": "network Error",
-  "invalid token": "Invalid Tken",
+  "invalid token": "Invalid Token",
   "invalid login": "Invalid Login",
   "invalid server": "Invalid Server",
   "system database error": "System Database Error",

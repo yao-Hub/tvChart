@@ -28,11 +28,13 @@
           <span>{{ item.blance }}</span>
           <span>|</span>
           <span>{{ item.currency }}</span>
-          <div class="del" @click.stop="delAccount(item)">
-            <div
-              class="delIcon"
+          <div class="del">
+            <el-icon
               v-show="hoverMap[index] && !item.ifLogin"
-            ></div>
+              @click.stop="delAccount(item)"
+            >
+              <BaseImg iconName="delete" />
+            </el-icon>
           </div>
         </div>
       </div>
@@ -250,27 +252,10 @@ const showServerDialog = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
-.delIcon {
-  width: 18px;
-  height: 18px;
-  background-size: contain;
-  background-repeat: no-repeat;
-}
-
-[data-theme="light"] .delIcon {
-  background-image: url("@/assets/icons/light/delete.svg");
-
+.delete {
+  @include font_color("word-info");
   &:hover {
-    background-image: url("@/assets/icons/light/deleteHover.svg");
-  }
-}
-
-[data-theme="dark"] .delIcon {
-  background-image: url("@/assets/icons/dark/delete.svg");
-
-  &:hover {
-    background-image: url("@/assets/icons/dark/deleteHover.svg");
+    @include font_color("word");
   }
 }
 

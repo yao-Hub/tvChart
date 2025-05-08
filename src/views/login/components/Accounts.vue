@@ -19,11 +19,9 @@
             <el-icon v-if="account.actived && !ifOpera">
               <BaseImg iconName="select" />
             </el-icon>
-            <div
-              class="delIcon"
-              v-if="ifOpera"
-              @click.stop="delAccount(account)"
-            ></div>
+            <el-icon v-if="ifOpera" @click.stop="delAccount(account)">
+              <BaseImg iconName="delete" />
+            </el-icon>
           </div>
         </div>
       </el-scrollbar>
@@ -34,7 +32,10 @@
       type="primary"
       :loading="loading"
       @click="happyStart"
-      >{{ ifOpera ? t("done") : t("account.login") }}</el-button
+    >
+      <span class="btnText">{{
+        ifOpera ? t("done") : t("account.login")
+      }}</span></el-button
     >
 
     <div class="footer">
@@ -227,9 +228,10 @@ onUnmounted(() => {
     margin-top: 40px;
     height: 56px;
     width: 100%;
-    font-size: 16px;
-    font-weight: 400;
-    flex-shrink: 0;
+    .btnText {
+      font-size: 16px;
+      font-weight: 400;
+    }
   }
 
   .footer {
@@ -255,25 +257,10 @@ onUnmounted(() => {
   }
 }
 
-.delIcon {
-  width: 18px;
-  height: 18px;
-  background-size: contain;
-  background-repeat: no-repeat;
+.delete {
+  @include font_color("word-info");
   &:hover {
-    background-image: url("@/assets/icons/light/deleteHover.svg");
-  }
-}
-[data-theme="light"] .delIcon {
-  background-image: url("@/assets/icons/light/delete.svg");
-  &:hover {
-    background-image: url("@/assets/icons/light/deleteHover.svg");
-  }
-}
-[data-theme="dark"] .delIcon {
-  background-image: url("@/assets/icons/dark/delete.svg");
-  &:hover {
-    background-image: url("@/assets/icons/dark/deleteHover.svg");
+    @include font_color("word");
   }
 }
 </style>
