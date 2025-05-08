@@ -423,6 +423,7 @@ export default {
   "network error": "網絡錯誤",
   "invalid token": "登入過期",
   "invalid login": "無效的賬戶",
+  "disable login": "無效的賬戶",
   "invalid server": "無效的服務器",
   "system database error": "數據庫異常",
   "system busy": "系統繁忙",

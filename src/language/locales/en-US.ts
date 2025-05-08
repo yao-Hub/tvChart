@@ -424,6 +424,7 @@ export default {
   "network error": "network Error",
   "invalid token": "Invalid Token",
   "invalid login": "Invalid Login",
+  "disable login": "Disable Login",
   "invalid server": "Invalid Server",
   "system database error": "System Database Error",
   "system busy": "System Busy",

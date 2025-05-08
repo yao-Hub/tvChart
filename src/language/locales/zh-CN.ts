@@ -422,6 +422,7 @@ export default {
   "network error": "网络错误",
   "invalid token": "登录过期",
   "invalid login": "无效的账户",
+  "disable login": "无效的账户",
   "invalid server": "无效的服务商",
   "system database error": "系统数据库异常",
   "system busy": "系统繁忙",
