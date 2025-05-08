@@ -33,10 +33,14 @@ const isSvg = computed(() => props.imgSuffix === "svg");
 
 const iconSrc = computed(() => {
   const theme = themeStore.systemTheme;
-  return `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
+  // 使用新的路径格式
+  return new URL(
+    `../../assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
+    import.meta.url
+  ).href;
 });
 const setIconSvgContent = async () => {
-  const path = new URL(iconSrc.value, import.meta.url).href;
+  const path = iconSrc.value;
   try {
     const iconCache = themeStore.getIconCache(path);
     if (iconCache) {
