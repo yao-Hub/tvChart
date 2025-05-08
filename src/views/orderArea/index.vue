@@ -16,7 +16,7 @@
             @click="dialogStore.openDialog('feedbackVisible')"
           >
             <BaseImg class="logo" iconName="icon_17" />
-            <el-text type="info">{{ t("feedback") }}</el-text>
+            <span>{{ t("feedback") }}</span>
           </div>
         </div>
       </div>
@@ -1114,6 +1114,11 @@ const getTableData = (type: string) => {
   padding: 0;
 }
 
+:deep(.el-select__icon) {
+  width: auto;
+  display: flex;
+}
+
 .orderArea {
   box-sizing: border-box;
   border-radius: 5px;
@@ -1123,12 +1128,10 @@ const getTableData = (type: string) => {
   .header {
     display: flex;
     box-sizing: border-box;
-    width: 100%;
+    width: fit-content;
     height: var(--component-size);
 
     &_right {
-      flex: 1;
-      height: 100%;
       display: flex;
       justify-content: flex-end;
       align-items: center;

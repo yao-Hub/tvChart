@@ -49,22 +49,24 @@
               class="lines-content"
               @mouseleave="mouseEnterLineName = ''"
             >
-              <div
-                class="lines-content_option"
-                v-for="item in tadeLines"
-                :key="item.lineName"
-                @mouseenter="mouseEnterLineName = item.lineName"
-                @click="choseLine(item.lineName)"
-              >
-                <span>{{ item.lineName }}</span>
-                <el-text
-                  type="primary"
-                  v-show="mouseEnterLineName === item.lineName"
-                  @click.stop="watchDetail(item.brokerName)"
+              <el-scrollbar max-height="120px">
+                <div
+                  class="lines-content_option"
+                  v-for="item in tadeLines"
+                  :key="item.lineName"
+                  @mouseenter="mouseEnterLineName = item.lineName"
+                  @click="choseLine(item.lineName)"
                 >
-                  {{ t("serverInfo.seeDetail") }}
-                </el-text>
-              </div>
+                  <span>{{ item.lineName }}</span>
+                  <el-text
+                    type="primary"
+                    v-show="mouseEnterLineName === item.lineName"
+                    @click.stop="watchDetail(item.brokerName)"
+                  >
+                    {{ t("serverInfo.seeDetail") }}
+                  </el-text>
+                </div>
+              </el-scrollbar>
             </div>
             <div
               v-if="!linesLoading && tadeLines.length === 0"
@@ -252,7 +254,7 @@ const linesFoucus = async () => {
   visible.value = true;
 };
 const linesBlur = () => {
-  // visible.value = false;
+  visible.value = false;
   if (!inputLine.value) {
     inputLine.value = formState.server;
     getLines(formState.server);

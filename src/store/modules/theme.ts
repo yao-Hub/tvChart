@@ -9,6 +9,7 @@ type TupDownTheme = "upRedDownGreen" | "upGreenDownRed"; // 涨跌风格
 interface ICacheItem {
   content: string;
   path: string;
+  attributes: Record<string, string>;
 }
 export const useTheme = defineStore("theme", () => {
   const isDark = useDark();
@@ -197,7 +198,7 @@ export const useTheme = defineStore("theme", () => {
 
   const getIconCache = (path: string) => {
     const target = cacheContent.value?.find((item) => item.path === path);
-    if (target) return target.content;
+    if (target) return target;
     return null;
   };
 

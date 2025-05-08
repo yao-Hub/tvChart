@@ -20,42 +20,32 @@
       </div>
     </template>
 
-    <div v-loading="loading" style="min-height: 300px">
-      <table>
-        <tr v-for="item in tableColumns">
-          <template v-if="getValue(item.prop)">
-            <td>
-              <el-text type="info">{{ item.label }}</el-text>
-            </td>
-            <td v-if="['generalEmail', 'reportEmail'].includes(item.prop)">
-              <el-text type="info">{{ getValue(item.prop) }}</el-text>
-              <BaseImg
-                iconName="icon_copy"
-                @click="copy(item.prop)"
-                :title="t('account.copy')"
-              />
-            </td>
-            <td v-else-if="item.prop === 'telephone'">
-              <el-text type="info"
-                >{{ getValue("telPrefix") }},{{
-                  getValue("telephone")
-                }}</el-text
-              >
-            </td>
-            <td v-else-if="item.prop === 'website'">
-              <el-text type="primary" @click="openWebsite">{{
-                getValue("website")
-              }}</el-text>
-            </td>
-            <td v-else>
-              <el-text type="info">{{ getValue(item.prop) }}</el-text>
-            </td>
-          </template>
-        </tr>
-      </table>
-      <el-divider />
-      <el-text class="tip" type="info">{{ t("serverInfo.tip") }}</el-text>
-    </div>
+    <table v-loading="loading" style="min-height: 300px; width: 100%">
+      <tr v-for="item in tableColumns" v-show="getValue(item.prop)">
+        <td>
+          <span class="label">{{ item.label }}</span>
+        </td>
+        <td v-if="['generalEmail', 'reportEmail'].includes(item.prop)">
+          <span class="value">{{ getValue(item.prop) }}</span>
+          <BaseImg iconName="icon_copy" @click="copy(item.prop)" />
+        </td>
+        <td v-else-if="item.prop === 'telephone'">
+          <span class="value"
+            >{{ getValue("telPrefix") }},{{ getValue("telephone") }}</span
+          >
+        </td>
+        <td v-else-if="item.prop === 'website'">
+          <span class="website" @click="openWebsite">{{
+            getValue("website")
+          }}</span>
+        </td>
+        <td v-else>
+          <span class="value">{{ getValue(item.prop) }}</span>
+        </td>
+      </tr>
+    </table>
+    <el-divider />
+    <el-text class="tip" type="info">{{ t("serverInfo.tip") }}</el-text>
   </el-dialog>
 </template>
 
@@ -137,9 +127,9 @@ onMounted(async () => {
 
 const getValue = (key: TKey) => {
   if (serverInfo.value) {
-    return serverInfo.value[key] || "";
+    return serverInfo.value[key];
   }
-  return "";
+  return true;
 };
 
 const openWebsite = () => {
@@ -165,22 +155,33 @@ const handleClose = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-:deep(.el-divider--horizontal) {
-  margin: 24px 0 !important;
-}
 
 table {
   margin: 24px 0 12px 0;
 
   tr {
+    height: 36px;
+
     td:first-child {
       word-wrap: break-word;
       white-space: nowrap;
     }
 
     td {
-      line-height: normal;
-      padding: 8px 21px 8px 0;
+      padding-right: 8px;
+      vertical-align: middle;
+
+      .value {
+        @include font_color("word");
+      }
+
+      .label {
+        @include font_color("word-gray");
+      }
+
+      .website {
+        @include font_color("primary");
+      }
     }
   }
 }
@@ -197,10 +198,9 @@ table {
 .icon_copy {
   margin-left: 10px;
   cursor: pointer;
-  @include font_color("word-gray");
 
   &:hover {
-    @include font_color("primary");
+    color: var(--color-3);
   }
 }
 </style>

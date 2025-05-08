@@ -1,16 +1,11 @@
 <template>
-  <i
+  <svg
     v-if="isSvg"
     :class="['inline-svg-wrapper', props.iconName]"
-    :style="{ color: inheritColor }"
+    v-bind="svgAttributes"
     v-html="iconSvgContent"
-  ></i>
-  <img
-    v-else
-    :src="iconSrc"
-    :alt="props.iconName"
-    :style="{ color: inheritColor }"
-  />
+  ></svg>
+  <img v-else :src="iconSrc" />
 </template>
 
 <script setup lang="ts">
@@ -23,9 +18,7 @@ interface Props {
   catalog?: string;
   iconName?: string;
   imgSuffix?: string;
-  theme?: "light" | "dark";
-  color?: string;
-  customColor?: boolean;
+  clearColor?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -33,13 +26,13 @@ const props = withDefaults(defineProps<Props>(), {
   imgSuffix: "svg",
 });
 
-const inheritColor = computed(() => props.color || "currentColor");
 const iconSvgContent = ref("");
+const svgAttributes = ref<Record<string, string>>();
 
 const isSvg = computed(() => props.imgSuffix === "svg");
 
 const iconSrc = computed(() => {
-  const theme = props.theme || themeStore.systemTheme;
+  const theme = themeStore.systemTheme;
   return `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
 });
 const setIconSvgContent = async () => {
@@ -47,18 +40,41 @@ const setIconSvgContent = async () => {
   try {
     const iconCache = themeStore.getIconCache(path);
     if (iconCache) {
-      iconSvgContent.value = iconCache;
+      iconSvgContent.value = iconCache.content;
+      svgAttributes.value = iconCache.attributes;
       return;
     }
     const response = await fetch(path);
     let svgText = await response.text();
-    if (props.color || props.customColor) {
-      svgText = svgText
-        .replace(/fill="[^"]*"/g, "")
-        .replace(/stroke="[^"]*"/g, "");
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(svgText, "image/svg+xml");
+    const svgElement = doc.documentElement;
+
+    if (props.clearColor) {
+      const elements = svgElement.querySelectorAll("*");
+      elements.forEach((el) => {
+        if (el.hasAttribute("fill")) {
+          el.setAttribute("fill", "currentColor");
+        }
+        if (el.hasAttribute("stroke")) {
+          el.setAttribute("stroke", "currentColor");
+        }
+      });
     }
-    iconSvgContent.value = svgText;
-    themeStore.setIconCache({ path, content: iconSvgContent.value });
+
+    svgAttributes.value = {
+      viewBox: svgElement.getAttribute("viewBox") || "",
+      width: svgElement.getAttribute("width") || "",
+      height: svgElement.getAttribute("height") || "",
+    };
+
+    iconSvgContent.value = svgElement.innerHTML;
+
+    themeStore.setIconCache({
+      path,
+      content: iconSvgContent.value,
+      attributes: svgAttributes.value,
+    });
   } catch (e) {
     console.error("Failed to load SVG:", e);
   }
@@ -73,14 +89,4 @@ watch(
 onMounted(() => setIconSvgContent());
 </script>
 
-<style lang="scss">
-.inline-svg-wrapper {
-  display: inline-block;
-  vertical-align: middle;
-
-  svg {
-    fill: currentColor;
-    stroke: currentColor;
-  }
-}
-</style>
+<style lang="scss" scoped></style>

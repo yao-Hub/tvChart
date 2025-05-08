@@ -8,7 +8,7 @@
       <span>{{ networkStore.server }}</span>
       <el-divider direction="vertical" />
       <span>{{ userStore.account.login }}</span>
-      <BaseImg iconName="caretDown" customColor />
+      <BaseImg iconName="caretDown" clearColor />
     </div>
     <template #dropdown>
       <div class="aList">
@@ -20,7 +20,7 @@
           @mouseover="hoverMap[index] = true"
           @mouseleave="hoverMap[index] = false"
         >
-          <img :src="getLogo(item.server)" class="icon" />
+          <img :src="getLogo(item.server)" class="avatar" />
           <span>{{ item.server }}</span>
           <span>|</span>
           <span>{{ item.login }}</span>
@@ -28,7 +28,7 @@
           <span>{{ item.blance }}</span>
           <span>|</span>
           <span>{{ item.currency }}</span>
-          <div class="del">
+          <div class="delBox">
             <el-icon
               v-show="hoverMap[index] && !item.ifLogin"
               @click.stop="delAccount(item)"
@@ -252,12 +252,6 @@ const showServerDialog = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-.delete {
-  @include font_color("word-info");
-  &:hover {
-    @include font_color("word");
-  }
-}
 
 .info {
   display: flex;
@@ -305,16 +299,20 @@ const showServerDialog = () => {
       max-width: 120px;
     }
 
-    .icon {
+    .avatar {
       width: 20px;
       height: 20px;
       border-radius: 44px;
     }
 
-    .del {
+    .delBox {
       width: 18px;
       height: 18px;
       margin-left: auto;
+      @include font_color("word-info");
+      &:hover {
+        @include font_color("word");
+      }
     }
   }
 

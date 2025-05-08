@@ -796,13 +796,18 @@ function sortDemosByStorage() {
     const itemId = item.getAttribute("data-id");
     const childId = item.getAttribute("data-child");
     if (itemId) {
+      let resultIds = childId;
       const stoIds = storageStore.getItem(itemId);
-      const resultIds = stoIds || childId;
-      const ids = resultIds!.split("|");
-      ids.forEach((id: any) => {
-        const target = document.querySelector(`.demo[data-id="${id}"]`);
-        target && item.appendChild(target);
-      });
+      if (stoIds !== null) {
+        resultIds = stoIds;
+      }
+      if (resultIds) {
+        const ids = resultIds.split("|");
+        ids.forEach((id: any) => {
+          const target = document.querySelector(`.demo[data-id="${id}"]`);
+          target && item.appendChild(target);
+        });
+      }
     }
   });
 }

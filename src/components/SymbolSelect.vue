@@ -1,6 +1,6 @@
 <template>
   <el-select-v2
-    :suffix-icon="SelectSuffixIcon"
+    ref="selectRef"
     v-model="model"
     :options="symbols"
     :props="{
@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import { useSymbols } from "@/store/modules/symbols";
-import { computed, createApp, onMounted, onUnmounted } from "vue";
+import { computed, createApp, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -42,17 +42,17 @@ const emit = defineEmits(["change"]);
 
 const model = defineModel();
 
+const selectRef = ref();
 onMounted(() => {
-  const selects = document.querySelectorAll(".el-select__caret");
-  Array.from(selects).forEach((item) => {
-    const oldSvg = item?.querySelector("svg");
-    const tempContainer = document.createElement("div");
-    createApp(SelectSuffixIcon).mount(tempContainer);
-    const newIcon = tempContainer.firstElementChild;
-    if (newIcon && oldSvg) {
-      item?.replaceChild(newIcon, oldSvg);
-    }
-  });
+  const suffix = selectRef.value?.$el?.querySelector(".el-select__caret");
+  if (!suffix) return;
+
+  // 清除现有后缀图标
+  suffix.querySelector("svg")?.remove();
+
+  const tempContainer = document.createElement("div");
+  createApp(SelectSuffixIcon).mount(tempContainer);
+  suffix.appendChild(tempContainer);
 });
 
 const handleChange = (symbols: string[] | string) => {

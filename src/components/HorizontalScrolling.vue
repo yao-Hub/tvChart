@@ -26,11 +26,10 @@ const container = ref();
 
 function updateScrollButtons() {
   const tabs = container.value;
-  // showScrollLeft.value = tabs.scrollLeft > 0;
   if (tabs) {
-    showScrollLeft.value = tabs.scrollWidth > tabs.clientWidth;
-    // showScrollRight.value = tabs.scrollLeft < tabs.scrollWidth - tabs.clientWidth;
-    showScrollRight.value = tabs.scrollWidth > tabs.clientWidth;
+    showScrollLeft.value = tabs.scrollLeft > 0;
+    showScrollRight.value =
+      tabs.scrollLeft < tabs.scrollWidth - tabs.clientWidth;
   }
 }
 
@@ -80,7 +79,7 @@ onUpdated(() => {
   align-items: center;
   overflow: hidden;
   justify-content: space-between;
-  gap: 2px;
+  gap: 4px;
 }
 .scrolling_container {
   overflow-x: auto;
@@ -95,6 +94,7 @@ onUpdated(() => {
 }
 .btn {
   padding: 0;
-  width: 20px;
+  box-sizing: border-box;
+  height: var(--component-size);
 }
 </style>
