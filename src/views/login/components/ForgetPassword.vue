@@ -9,7 +9,7 @@
       </div>
     </div>
     <div class="forget_title">
-      <img :src="lineInfo.lineLogo" class="img" />
+      <img :src="lineInfo.lineLogo" />
       <div class="forget_title_right">
         <span class="up">{{ lineInfo.lineName }}</span>
         <span class="down">{{ lineInfo.brokerName }}</span>
@@ -227,7 +227,7 @@ onUnmounted(() => {
   &_title {
     display: flex;
     height: 68px;
-    .img {
+    img {
       width: 64px;
       height: 64px;
       margin-right: 16px;

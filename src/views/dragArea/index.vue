@@ -109,7 +109,7 @@ const layoutStore = useLayout();
         align-items: center;
         justify-content: center;
         overflow: hidden;
-        img {
+        .icon_drag1 {
           height: 22px;
           width: 11px;
         }

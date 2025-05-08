@@ -9,7 +9,7 @@
       :show-text="false"
     ></el-progress>
   </div>
-  <el-image v-else v-bind="props" :src="props.src" class="image"></el-image>
+  <el-image v-else v-bind="props" class="image" lazy></el-image>
 </template>
 
 <script setup lang="ts">

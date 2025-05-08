@@ -1,9 +1,16 @@
 <template>
   <i
+    v-if="isSvg"
     :class="['inline-svg-wrapper', props.iconName]"
     :style="{ color: inheritColor }"
     v-html="iconSvgContent"
   ></i>
+  <img
+    v-else
+    :src="iconSrc"
+    :alt="props.iconName"
+    :style="{ color: inheritColor }"
+  />
 </template>
 
 <script setup lang="ts">
@@ -28,13 +35,14 @@ const props = withDefaults(defineProps<Props>(), {
 const inheritColor = computed(() => props.color || "currentColor");
 const iconSvgContent = ref("");
 
-const setIconSvgContent = async () => {
-  const theme = props.theme || themeStore.systemTheme;
+const isSvg = computed(() => props.imgSuffix === "svg");
 
-  const path = new URL(
-    `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
-    import.meta.url
-  ).href;
+const iconSrc = computed(() => {
+  const theme = props.theme || themeStore.systemTheme;
+  return `/src/assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`;
+});
+const setIconSvgContent = async () => {
+  const path = new URL(iconSrc.value, import.meta.url).href;
   try {
     const iconCache = themeStore.getIconCache(path);
     if (iconCache) {
@@ -50,8 +58,9 @@ const setIconSvgContent = async () => {
 };
 
 watch(
-  () => [themeStore.systemTheme, props.theme],
-  () => setIconSvgContent()
+  () => [themeStore.systemTheme, props],
+  () => setIconSvgContent(),
+  { deep: true }
 );
 
 onMounted(() => setIconSvgContent());

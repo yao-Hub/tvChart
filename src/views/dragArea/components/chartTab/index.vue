@@ -18,7 +18,7 @@
     >
       <div class="el-dropdown-link" @click.stop="toggleSymbolDropdown">
         <el-text :type="props.active ? '' : 'info'">{{ props.symbol }}</el-text>
-        <BaseImg class="caretDownIcon" iconName="caretDown" />
+        <BaseImg iconName="caretDown" />
       </div>
       <template #dropdown>
         <div class="search">
@@ -54,7 +54,7 @@
         <el-text :type="props.active ? '' : 'info'">{{
           nowResolution
         }}</el-text>
-        <BaseImg class="caretDownIcon" iconName="caretDown" />
+        <BaseImg iconName="caretDown" />
       </div>
       <template #dropdown>
         <div

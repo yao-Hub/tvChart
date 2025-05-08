@@ -8,7 +8,7 @@
       <el-text>{{ networkStore.server }}</el-text>
       <el-divider direction="vertical" />
       <el-text>{{ userStore.account.login }}</el-text>
-      <BaseImg class="caretDownIcon" iconName="caretDown" />
+      <BaseImg iconName="caretDown" />
     </div>
     <template #dropdown>
       <div class="aList">

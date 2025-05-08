@@ -172,7 +172,7 @@
             >
               <el-button type="primary">
                 <span class="label">{{ t("table.batchClose") }}</span>
-                <BaseImg class="caretDownIcon" iconName="caretDown" />
+                <BaseImg iconName="caretDown" />
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>

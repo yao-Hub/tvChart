@@ -10,7 +10,7 @@
     </div>
     <div class="Register_main" v-if="!ifSuccess">
       <div class="Register_main_title">
-        <img class="img" :src="lineInfo.lineLogo" />
+        <img :src="lineInfo.lineLogo" />
         <div class="Register_main_title_right">
           <span class="up">{{ lineInfo.lineName }}</span>
           <span class="down">{{ lineInfo.brokerName }}</span>
@@ -272,7 +272,7 @@ onUnmounted(() => {
       display: flex;
       height: 68px;
       margin-bottom: 24px;
-      .img {
+      img {
         width: 64px;
         height: 64px;
         margin-right: 16px;

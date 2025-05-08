@@ -7,6 +7,7 @@
   >
     <div class="menuIcon">
       <BaseImg
+        class="menuIcon_logo"
         :iconName="visible ? 'menuActive' : 'menuUnactive'"
         @click="toggle(!visible)"
       ></BaseImg>
@@ -90,7 +91,7 @@ const ifElectron = process.env.IF_ELECTRON;
   justify-content: center;
   box-sizing: border-box;
   padding: 8px;
-  img {
+  &_logo {
     cursor: pointer;
     &:hover {
       @include background_color("background-hover");
