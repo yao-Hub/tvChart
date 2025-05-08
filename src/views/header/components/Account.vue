@@ -5,10 +5,10 @@
     @visible-change="visible = $event"
   >
     <div class="info" @click="toogleDropdown">
-      <el-text>{{ networkStore.server }}</el-text>
+      <span>{{ networkStore.server }}</span>
       <el-divider direction="vertical" />
-      <el-text>{{ userStore.account.login }}</el-text>
-      <BaseImg iconName="caretDown" />
+      <span>{{ userStore.account.login }}</span>
+      <BaseImg iconName="caretDown" customColor />
     </div>
     <template #dropdown>
       <div class="aList">
@@ -268,6 +268,10 @@ const showServerDialog = () => {
   padding: 5px 0;
   box-sizing: border-box;
   cursor: pointer;
+  @include font_color("word");
+  &:hover {
+    @include font_color("primary");
+  }
 }
 
 .aList {

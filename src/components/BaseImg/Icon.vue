@@ -25,6 +25,7 @@ interface Props {
   imgSuffix?: string;
   theme?: "light" | "dark";
   color?: string;
+  customColor?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -50,7 +51,13 @@ const setIconSvgContent = async () => {
       return;
     }
     const response = await fetch(path);
-    iconSvgContent.value = await response.text();
+    let svgText = await response.text();
+    if (props.color || props.customColor) {
+      svgText = svgText
+        .replace(/fill="[^"]*"/g, "")
+        .replace(/stroke="[^"]*"/g, "");
+    }
+    iconSvgContent.value = svgText;
     themeStore.setIconCache({ path, content: iconSvgContent.value });
   } catch (e) {
     console.error("Failed to load SVG:", e);
