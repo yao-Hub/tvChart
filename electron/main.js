@@ -3,12 +3,16 @@ const path = require('path');
 const fs = require('fs');
 const { exec } = require('child_process');
 
-let mainWindow;
+// 所有通过createWindow创建的窗口
+const windowsMap = {};
 
+// 下载进度
 let activeDownload = null;
 
+// 是否已经下载完毕的回调
 let writeCompletionCallback = null;
 
+// 保存下载 缓存和文件地址
 const saveFileRouteName = "userData";
 const saveCacheRouteName = "userData";
 
@@ -21,10 +25,13 @@ ipcMain.on('set-translations', (event, translations) => {
 // 尝试获取单实例锁
 const gotTheLock = app.requestSingleInstanceLock();
 
-// 创建主窗口
-function createWindow() {
+// 创建窗口
+function createWindow(name, hash, screenWidth) {
 
-  const { width: sw, height: sh } = screen.getPrimaryDisplay().workAreaSize;
+  // electron是否是本地环境（electron环境只有production和development，打包之后运行都是production，本地运行就是development）
+  const ifDev = process.env.NODE_ENV === "development";
+
+  const { width: sw } = screen.getPrimaryDisplay().workAreaSize;
 
   const platform = process.platform;
 
@@ -32,53 +39,61 @@ function createWindow() {
     switch (platform) {
       case "darwin":
         return {
-          height: sw && sw >= 2560 ? 1080 : 850,
           width: sw && sw >= 2560 ? 1980 : 1400,
         };
       default:
         return {
-          height: sw && sw >= 2560 ? 1080 : 900,
           width: sw && sw >= 2560 ? 1980 : 1600,
         };
     }
   };
 
+  const renderWidth = screenWidth || screenMap().width;
+
   // 创建浏览器窗口
-  mainWindow = new BrowserWindow({
-    width: screenMap().width,
-    height: screenMap().height,
+  windowsMap[name] = new BrowserWindow({
+    width: renderWidth,
+    height: renderWidth / 16 * 9,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
       nodeIntegration: false, // 禁用 Node.js 集成（推荐false）
       sandbox: false,
-      devTools: process.env.NODE_ENV !== "development"
+      devTools: ifDev
     },
   });
 
-  mainWindow.setMenuBarVisibility(false);
+  windowsMap[name].setMenuBarVisibility(false);
 
   // 在 macOS 系统中全局去除菜单栏
   if (process.platform === 'darwin') {
     Menu.setApplicationMenu(null);
   }
 
-  if (process.env.NODE_ENV === "development") {
-    mainWindow.loadURL("http://localhost:8080");
-    mainWindow.webContents.openDevTools(); // 打开开发者工具
-  } else {
+  // 窗口加载地址
+  if (hash) {
+    windowsMap[name].loadFile(path.join(__dirname, `../dist/index.html`), { hash });
+  }
+  // 主窗口加载地址
+  if (ifDev && name === "mainWindow") {
+    windowsMap[name].loadURL("http://localhost:8080");
+    // windowsMap[name].webContents.openDevTools(); // 打开开发者工具
+  }
+  if (!ifDev && name === "mainWindow") {
     // 生产环境：加载打包后的文件
-    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
+    windowsMap[name].loadFile(path.join(__dirname, "../dist/index.html"));
   }
 
-  mainWindow.on('close', async (event) => {
-    if (activeDownload) {
+  // 窗口监听关闭
+  windowsMap[name].on('close', async (event) => {
+    // 主窗口关闭
+    if (activeDownload && name === "mainWindow") {
       const { dialog } = require('electron');
       const { shutdown,
         cancel,
         exitTip,
         downLoading } = translationsCache;
-      const choice = dialog.showMessageBoxSync(mainWindow, {
+      const choice = dialog.showMessageBoxSync(windowsMap.mainWindow, {
         type: 'question',
         buttons: [shutdown, cancel],
         title: downLoading,
@@ -88,21 +103,42 @@ function createWindow() {
       });
       if (choice === 0) {
         await safeSaveDownload();
-        mainWindow.close();
+        windowsMap.mainWindow.close();
       } else {
         event.preventDefault();
       }
+    } else {
+      delete windowsMap[name];
+    }
+  });
+
+  // 所有窗口快捷键阻止
+  windowsMap[name].webContents.on('before-input-event', (event, input) => {
+    if (ifDev) {
+      return;
+    }
+    // 阻止 F12
+    if (input.key === 'F12') {
+      event.preventDefault();
+    }
+    // 阻止 Ctrl+Shift+I (Windows/Linux)
+    if (input.control && input.shift && input.key.toLowerCase() === 'i') {
+      event.preventDefault();
+    }
+    // 阻止 Command+Option+I (macOS)
+    if (input.meta && input.alt && input.key.toLowerCase() === 'i') {
+      event.preventDefault();
     }
   });
 }
 
-// 关闭应用前确保完整保存文件数据和进度
+// 主窗口关闭应用前确保完整保存文件数据和进度
 async function safeSaveDownload() {
   if (activeDownload) {
     const { request } = activeDownload;
     request.abort();
 
-    mainWindow.webContents.send("download-stop");
+    windowsMap.mainWindow.webContents.send("download-stop");
 
     // 等待当前写入操作完成
     await new Promise((resolve) => {
@@ -245,9 +281,6 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
       activeDownload = null;
       // 安装
       Installer.run(savePath);
-      setTimeout(() => {
-        app.quit();
-      }, 500);
     });
   });
 
@@ -266,14 +299,12 @@ ipcMain.handle('start-download', (event, downloadUrl) => {
   request.end();
 });
 
+// 开始安装
 ipcMain.handle('start-install', async (event, downloadUrl) => {
   const filename = path.basename(new URL(downloadUrl).pathname);
   const savePath = path.join(app.getPath(saveFileRouteName), filename);
   if (savePath) {
     Installer.run(savePath);
-    setTimeout(() => {
-      app.quit();
-    }, 500);
   }
 });
 
@@ -297,8 +328,21 @@ ipcMain.handle('check-download-status', (event, url) => {
   return null;
 });
 
+// 清除下载缓存
 ipcMain.handle('clear-download-cache', () => clearDownloadState());
 
+// 创建新窗口
+ipcMain.handle('open-new-window', (event, params) => {
+  const { name, hash } = params;
+  // 已经存在窗口不在创建
+  if (windowsMap[name]) {
+    return;
+  }
+  createWindow(name, hash, 800);
+});
+
+
+/**** 启动应用 ****/
 if (!gotTheLock) {
   // 如果没有获取到锁，说明已经有一个实例在运行，直接退出当前实例
   app.quit();
@@ -306,18 +350,18 @@ if (!gotTheLock) {
   // 如果获取到锁，说明这是第一个实例
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     // 当第二个实例启动时，聚焦到主窗口
-    if (mainWindow) {
-      if (mainWindow.isMinimized()) mainWindow.restore();
-      mainWindow.focus();
+    if (windowsMap.mainWindow) {
+      if (mainWindow.isMinimized()) windowsMap.mainWindow.restore();
+      windowsMap.mainWindow.focus();
     }
   });
 
-  // 当 Electron 完成初始化并准备创建浏览器窗口时调用 createWindow 函数
-  app.whenReady().then(createWindow);
+  // 当 Electron 完成初始化 创建主窗口
+  app.whenReady().then(() => createWindow("mainWindow"));
 
   app.on('activate', function () {
     // 在 macOS 上，当点击 Dock 图标并且没有其他窗口打开时，重新创建一个窗口
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) createWindow("mainWindow");
   });
 
   // 当所有窗口关闭时退出应用

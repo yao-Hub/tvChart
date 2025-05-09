@@ -137,12 +137,19 @@ export const useNetwork = defineStore("network", {
       return successfulResults;
     },
 
-    openWebsite(href: string) {
+    openWebsite(href: string, name?: string) {
       if (!process.env.IF_ELECTRON) {
         window.open(href, "_blank");
         return;
       }
-      window.electronAPI.openExternal(href);
+      const webReg =
+        /^(((ht|f)tps?):\/\/)?([^!@#$%^&*?.\s-]([^!@#$%^&*?.\s]{0,63}[^!@#$%^&*?.\s])?\.)+[a-z]{2,6}\/?/;
+      if (webReg.test(href)) {
+        window.electronAPI.openExternal(href);
+        return;
+      }
+      console.log(name, href);
+      window.electronAPI.invoke("open-new-window", { name, hash: href });
     },
   },
 });
