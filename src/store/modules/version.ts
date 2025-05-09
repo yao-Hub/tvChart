@@ -171,5 +171,7 @@ export const useVersion = defineStore("version", {
         }
       });
     },
+
+    $reset() {},
   },
 });
