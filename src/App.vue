@@ -31,7 +31,7 @@ watch(
   () => {
     sendTrack({
       actionType: "open",
-      actionObject: location.pathname,
+      actionObject: location.href,
     });
   },
   { once: true }
