@@ -314,7 +314,7 @@ const goProtocol = (columnCode: string) => {
       columnCode,
     },
   });
-  window.open(href, "_blank");
+  networkStore.openWebsite(href, columnCode);
 };
 
 const happyStart = async (actionObject: string) => {

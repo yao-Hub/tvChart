@@ -35,7 +35,7 @@
           >
         </td>
         <td v-else-if="item.prop === 'website'">
-          <span class="website" @click="openWebsite">{{
+          <span class="website" @click="handleWebsite">{{
             getValue("website")
           }}</span>
         </td>
@@ -132,7 +132,7 @@ const getValue = (key: TKey) => {
   return true;
 };
 
-const openWebsite = () => {
+const handleWebsite = () => {
   if (serverInfo.value) {
     const website = serverInfo.value.website;
     useNetwork().openWebsite(`https://${website}`);
