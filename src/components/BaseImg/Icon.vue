@@ -27,7 +27,11 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const iconSvgContent = ref("");
-const svgAttributes = ref<Record<string, string>>();
+const svgAttributes = ref<Record<string, string>>({
+  viewBox: "0 0 0 0",
+  width: "0",
+  height: "0",
+});
 
 const isSvg = computed(() => props.imgSuffix === "svg");
 
