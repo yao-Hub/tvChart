@@ -8,7 +8,11 @@
         {{ t("order.sell") }}
       </div>
     </div>
-    <div :style="{ ...inputAreaStyle, boxSizing: 'border-box' }">
+    <div
+      :style="{ ...inputAreaStyle, boxSizing: 'border-box' }"
+      @mouseenter="ifHover = true"
+      @mouseleave="ifHover = false"
+    >
       <BaseImg
         :style="styles.icon"
         iconName="caretDown"
@@ -19,6 +23,7 @@
         :style="{ ...styles.input, textAlign: 'center' }"
         v-model="volume"
         @input="handleInput"
+        @blur="handleBlur"
       />
       <BaseImg
         iconName="caretUp"
@@ -155,7 +160,9 @@ const colorScheme = computed(() => {
   return scheme || themeStore.systemTheme;
 });
 
+const ifHover = ref(false);
 const inputAreaStyle = computed(() => {
+  const primary = colorScheme.value === "light" ? "#e28602" : "#f4b201";
   const color = colorScheme.value === "light" ? "#000" : "#fff";
   const borderColor = colorScheme.value === "light" ? "#DEE2E9" : "#2C2F35";
   const backgroundColor = colorScheme.value === "light" ? "#fff" : "#000";
@@ -163,7 +170,8 @@ const inputAreaStyle = computed(() => {
     ...styles.inputArea,
     color,
     backgroundColor,
-    borderColor,
+    borderColor: ifHover.value ? primary : borderColor,
+    borderRadius: "2px",
   };
 });
 
@@ -204,7 +212,7 @@ watchEffect(() => {
   const info = symbolsStore.symbols.find((e) => e.symbol === nowSymbol.value);
   if (info) {
     symbolInfo.value = info;
-    minVolume.value = info.volume_min / 100;
+    minVolume.value = info.volume_step / 100;
     maxVolume.value = info.volume_max / 100;
     volume.value = String(minVolume.value);
   }
@@ -215,12 +223,12 @@ const step = computed(() => {
 });
 
 const addNum = () => {
-  const result = orderStore.volumeAdd(+volume.value, step.value);
+  const result = orderStore.volumeAdd(volume.value, step.value);
   volume.value = String(result);
 };
 const reduceNum = () => {
   const result = orderStore.volumeSub(
-    +volume.value,
+    volume.value,
     step.value,
     minVolume.value
   );
@@ -229,6 +237,12 @@ const reduceNum = () => {
 
 const handleInput = () => {
   volume.value = limitdigit(volume.value, 2).toString();
+};
+
+const handleBlur = () => {
+  if (volume.value === "") {
+    volume.value = String(minVolume.value);
+  }
 };
 
 const regex = /^-?\d+(\.\d+)?$/;

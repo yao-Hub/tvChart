@@ -172,7 +172,7 @@
             >
               <el-button type="primary">
                 <span class="label">{{ t("table.batchClose") }}</span>
-                <BaseImg iconName="caretDown" />
+                <BaseImg iconName="caretDown" clearColor />
               </el-button>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -1172,6 +1172,10 @@ const getTableData = (type: string) => {
         flex: 1;
         display: flex;
         justify-content: flex-end;
+
+        .caretDown {
+          @include font_color("background");
+        }
       }
     }
   }

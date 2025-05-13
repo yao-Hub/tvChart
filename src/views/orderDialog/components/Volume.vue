@@ -13,6 +13,7 @@
       @sub="percentage = 0"
       @plus="percentage = 0"
       @input="handleInput"
+      @blur="handleBlur"
       style="width: 168px"
     ></StepNumInput>
     <div class="tips">
@@ -80,11 +81,11 @@ const step = computed(() => {
 });
 
 const customSub = () => {
-  const result = orderStore.volumeSub(+model.value, step.value, step.value);
+  const result = orderStore.volumeSub(model.value, step.value, step.value);
   return round(result, 2);
 };
 const customAdd = () => {
-  const result = orderStore.volumeAdd(+model.value, step.value);
+  const result = orderStore.volumeAdd(model.value, step.value);
   return round(result, 2);
 };
 
@@ -232,6 +233,11 @@ const sliderInput = (percentage: Arrayable<number>) => {
 const handleInput = (value: string | number) => {
   model.value = limitdigit(value, 2);
   percentage.value = 0;
+};
+const handleBlur = (val: string) => {
+  if (val === "") {
+    model.value = step.value;
+  }
 };
 </script>
 

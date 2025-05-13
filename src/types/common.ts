@@ -6,3 +6,12 @@ export interface IDepth {
   askWidth: string;
   bidWidth: string;
 }
+
+export interface ISymbolListDataSource {
+  symbol: string;
+  bid?: string | number;
+  ask?: string | number;
+  variation?: string | number;
+  topSort: number;
+  ctm_ms?: number;
+}

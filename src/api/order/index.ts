@@ -19,7 +19,7 @@ enum Api {
 export interface ReqOrderAdd {
   symbol: string; // 	商品
   type: number; // 	操作方向。0=buy，1=sell
-  volume: number; // 	手数。1=0.01手
+  volume: string | number; // 	手数。1=0.01手
   sl?: number; // 	止损价。1=0.01手
   tp?: number; // 	止盈价。1=0.01手
   comment?: string;
