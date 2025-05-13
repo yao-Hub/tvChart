@@ -249,18 +249,12 @@ const linesFoucus = async () => {
   );
   if (target) {
     linePlaceholder.value = inputLine.value;
-    inputLine.value = "";
   }
-  if (!inputLine.value) {
-    getLines("");
-  }
+  getLines(inputLine.value);
   visible.value = true;
 };
 const linesBlur = () => {
   visible.value = false;
-  if (!inputLine.value) {
-    inputLine.value = formState.server;
-  }
   if (!formState.server) {
     linePlaceholder.value = t("tip.serverRequired");
   }
