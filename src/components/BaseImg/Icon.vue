@@ -24,6 +24,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   catalog: "icons",
   imgSuffix: "svg",
+  clearColor: false,
 });
 
 const iconSvgContent = ref("");
@@ -43,48 +44,91 @@ const iconSrc = computed(() => {
     import.meta.url
   ).href;
 });
+
+const clearColor = () => {
+  const doc = new DOMParser().parseFromString(
+    iconSvgContent.value,
+    "image/svg+xml"
+  );
+  doc.querySelectorAll("*").forEach((el) => {
+    el.hasAttribute("fill") && el.setAttribute("fill", "currentColor");
+    el.hasAttribute("stroke") && el.setAttribute("stroke", "currentColor");
+  });
+  iconSvgContent.value = doc.documentElement.innerHTML;
+};
+
+const getCache = () => {
+  const iconCache = themeStore.getIconCache(iconSrc.value);
+  if (iconCache) {
+    iconSvgContent.value = iconCache.content;
+    svgAttributes.value = iconCache.attributes;
+    if (props.clearColor) {
+      clearColor();
+    }
+    return true;
+  }
+  return false;
+};
+
 const setIconSvgContent = async () => {
   const path = iconSrc.value;
+  const cacheKey = `${path}`; // 组合唯一键
+
+  // 尝试获取缓存
+  const ifCache = getCache();
+  if (ifCache) return;
+
+  // 检查是否有进行中的请求
+  if (themeStore.svgPendingRequests[cacheKey]) {
+    await themeStore.svgPendingRequests[cacheKey];
+    // 请求完成后再次检查缓存
+    const ifCache = getCache();
+    if (ifCache) return;
+    return;
+  }
+
+  // 创建新请求
   try {
-    const iconCache = themeStore.getIconCache(path);
-    if (iconCache) {
-      iconSvgContent.value = iconCache.content;
-      svgAttributes.value = iconCache.attributes;
-      return;
-    }
-    const response = await fetch(path);
-    let svgText = await response.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(svgText, "image/svg+xml");
-    const svgElement = doc.documentElement;
+    const requestPromise = (async () => {
+      const response = await fetch(path);
+      let svgText = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(svgText, "image/svg+xml");
 
-    if (props.clearColor) {
-      const elements = svgElement.querySelectorAll("*");
-      elements.forEach((el) => {
-        if (el.hasAttribute("fill")) {
-          el.setAttribute("fill", "currentColor");
-        }
-        if (el.hasAttribute("stroke")) {
-          el.setAttribute("stroke", "currentColor");
-        }
+      const titles = doc.querySelectorAll("title");
+      titles.forEach((title) => title.remove());
+
+      const svgElement = doc.documentElement;
+
+      const attributes = {
+        viewBox: svgElement.getAttribute("viewBox") || "",
+        width: svgElement.getAttribute("width") || "",
+        height: svgElement.getAttribute("height") || "",
+      };
+
+      themeStore.setIconCache({
+        path,
+        content: svgElement.innerHTML,
+        attributes,
+        clearColor: props.clearColor,
       });
-    }
 
-    svgAttributes.value = {
-      viewBox: svgElement.getAttribute("viewBox") || "",
-      width: svgElement.getAttribute("width") || "",
-      height: svgElement.getAttribute("height") || "",
-    };
+      svgAttributes.value = attributes;
+      iconSvgContent.value = svgElement.innerHTML;
 
-    iconSvgContent.value = svgElement.innerHTML;
+      if (props.clearColor) {
+        clearColor();
+      }
+    })();
 
-    themeStore.setIconCache({
-      path,
-      content: iconSvgContent.value,
-      attributes: svgAttributes.value,
-    });
+    // 存储 Promise 并等待完成
+    themeStore.svgPendingRequests[cacheKey] = requestPromise;
+    await requestPromise;
   } catch (e) {
     console.error("Failed to load SVG:", e);
+  } finally {
+    // 清理已完成请求
+    delete themeStore.svgPendingRequests[cacheKey];
   }
 };
 

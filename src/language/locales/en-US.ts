@@ -65,6 +65,8 @@ export default {
   klineArea: " Charts Panel",
   topUp: "Top",
   unTop: "unTop",
+  clickSell: "Click to sell",
+  clickBuy: "Click to buy",
 
   layout: {
     single: "Single Charts",

@@ -599,7 +599,7 @@ export const useOrder = defineStore("order", () => {
   };
 
   // 手数增加
-  const volumeAdd = (value: number, step: number) => {
+  const volumeAdd = (value: string | number, step: string | number) => {
     let dValue = new Decimal(value);
     let dStep = new Decimal(step);
     let result = dValue.plus(dStep);
@@ -612,12 +612,16 @@ export const useOrder = defineStore("order", () => {
   };
 
   // 手数减少
-  const volumeSub = (value: number, step: number, min?: number) => {
+  const volumeSub = (
+    value: string | number,
+    step: string | number,
+    min?: string | number
+  ) => {
     let dValue = new Decimal(value);
     let dStep = new Decimal(step);
     let result = dValue.sub(dStep);
     let remainder = result.mod(dStep);
-    if (!isNil(min) && result.toNumber() < min) {
+    if (!isNil(min) && result.toNumber() < +min) {
       result = new Decimal(min);
     } else if (remainder.toNumber() !== 0) {
       result = dValue.sub(remainder);

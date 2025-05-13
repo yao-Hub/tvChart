@@ -70,6 +70,8 @@ export default {
   klineArea: "商品K线面板",
   topUp: "置顶",
   unTop: "取消置顶",
+  clickSell: "点击卖出",
+  clickBuy: "点击买入",
 
   article: {
     readAgree: "请阅读并同意",

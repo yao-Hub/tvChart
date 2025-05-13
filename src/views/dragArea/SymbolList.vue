@@ -1,27 +1,34 @@
 <template>
   <div class="symbolList">
-    <el-input
-      v-model="input"
-      :placeholder="t('tip.searchSymbol')"
-      @click="ifSearch = true"
-      class="input"
-    >
-      <template #prefix>
-        <BaseImg class="logo" iconName="icon_search" />
-      </template>
-      <template #suffix>
+    <div class="header">
+      <el-input
+        v-model="input"
+        :placeholder="t('tip.searchSymbol')"
+        @click="ifSearch = true"
+      >
+        <template #prefix>
+          <BaseImg class="logo" iconName="icon_search" />
+        </template>
+        <template #suffix>
+          <BaseImg
+            class="closeIcon"
+            iconName="icon_close"
+            @click="closeSearch"
+            v-show="ifSearch"
+          />
+        </template>
+      </el-input>
+
+      <div class="modeSwitch" @click="changeMode">
         <BaseImg
-          class="closeIcon"
-          iconName="icon_close"
-          @click="closeSearch"
-          v-show="ifSearch"
-        />
-      </template>
-    </el-input>
+          :iconName="mode === 'table' ? 'icon_tabular' : 'icon_lists'"
+        ></BaseImg>
+      </div>
+    </div>
 
     <div class="container">
       <el-table
-        v-if="!ifSearch"
+        v-show="!ifSearch && mode === 'table'"
         v-loading="tableLoading"
         ref="tableRef"
         :data="dataSource"
@@ -106,18 +113,17 @@
         </el-table-column>
 
         <template #empty>
-          <div class="emptyBox">
-            <BaseImg iconName="icon_empty"></BaseImg>
-            <div class="tipWords">
-              <span>{{ t("tip.noData") }}</span>
-              <span>{{ t("tip.addMySymbol") }}</span>
-            </div>
-            <el-button type="primary" @click="ifSearch = true" class="addBtn">{{
-              t("tip.addMyOption")
-            }}</el-button>
-          </div>
+          <EmptyTip @btnClick="ifSearch = true"></EmptyTip>
         </template>
       </el-table>
+
+      <Lists
+        v-show="!ifSearch && mode === 'lists'"
+        v-loading="tableLoading"
+        :data="dataSource"
+        @emptyBtnClick="ifSearch = true"
+        @row-contextmenu="rowContextmenu"
+      ></Lists>
 
       <Search class="searchList" :input="input" v-if="ifSearch"></Search>
     </div>
@@ -133,32 +139,29 @@
 </template>
 
 <script setup lang="ts">
-import { IDepth } from "@/types/common";
+import { IDepth, ISymbolListDataSource } from "@/types/common";
 import { nextTick, ref, shallowRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import RightClickMenu from "./components/RightClickMenu.vue";
 import Search from "./components/Symbolsearch/index.vue";
 import Deep from "./components/deep/index.vue";
+import EmptyTip from "./components/EmptyTip.vue";
+import Lists from "./components/Lists.vue";
+
+import { useSymbolList } from "./useSymbolList";
 
 import { useQuotes } from "@/store/modules/quotes";
-
 const quotesStore = useQuotes();
 
 const { t } = useI18n();
 
-export interface DataSource {
-  symbol: string;
-  bid?: string | number;
-  ask?: string | number;
-  variation?: string | number;
-  topSort: number;
-  ctm_ms?: number;
-}
-const dataSource = shallowRef<DataSource[]>([]);
+const { getTime, getClass, getPrice } = useSymbolList();
+
+const dataSource = shallowRef<ISymbolListDataSource[]>([]);
 const depths = ref<Record<string, IDepth[]>>({});
 
-const tableRowClassName = ({ row }: { row: DataSource }) => {
+const tableRowClassName = ({ row }: { row: ISymbolListDataSource }) => {
   if (row.topSort) {
     return "top-row";
   }
@@ -257,54 +260,20 @@ const closeSearch = () => {
   getQuery();
 };
 
-const getClass = (rowData: DataSource, type: "ask" | "bid") => {
-  const classes = quotesStore.quotesClass;
-  const { symbol } = rowData;
-  if (classes[symbol]) {
-    return classes[symbol][type];
-  }
-  return "";
-};
-
-// 报价样式 实时数据
-const getPrice = (symbol: string, type: "bid" | "ask") => {
-  const quotes = quotesStore.qoutes;
-  const target = quotes[symbol];
-  if (target) {
-    const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
-    const digits = symbolInfo?.digits;
-    if (digits && target[type]) {
-      return target[type].toFixed(digits ?? 2);
-    }
-    return target[type] || "-";
-  }
-  return "-";
-};
-
-import { useTime } from "@/store/modules/time";
-import dayjs from "dayjs";
-const timeStore = useTime();
-const getTime = (symbol: string) => {
-  const quotes = quotesStore.qoutes;
-  const target = quotes[symbol];
-  if (target) {
-    const timezone = timeStore.settedTimezone;
-    const time = target.ctm_ms;
-    return dayjs(time).tz(timezone).format("HH:mm:ss");
-  }
-  return "-";
-};
-
 const menuVisible = ref(false);
 const pos = ref({
   left: 0,
   top: 0,
 });
-const rowData = ref<DataSource>({
+const rowData = ref<ISymbolListDataSource>({
   symbol: "",
   topSort: 0,
 });
-const rowContextmenu = (row: DataSource, column: any, event: MouseEvent) => {
+const rowContextmenu = (
+  row: ISymbolListDataSource,
+  column: any,
+  event: MouseEvent
+) => {
   event.preventDefault();
   rowData.value = row;
   const { clientX, clientY } = event;
@@ -344,12 +313,12 @@ const sortChange = ({ order, prop }: any) => {
       variation: +quotesStore.getVariation(item.symbol).value.replace("%", ""),
     };
   });
-  let result: DataSource[] = [];
+  let result: ISymbolListDataSource[] = [];
   if (order === "ascending") {
-    result = orderBy(arr, [prop], ["asc"]) as DataSource[];
+    result = orderBy(arr, [prop], ["asc"]) as ISymbolListDataSource[];
   }
   if (order === "descending") {
-    result = orderBy(arr, [prop], ["desc"]) as DataSource[];
+    result = orderBy(arr, [prop], ["desc"]) as ISymbolListDataSource[];
   }
   if (order === null) {
     result = symbolsStore.mySymbols;
@@ -369,7 +338,7 @@ const expandChange = (row: any, expandedRows: any[]) => {
   expandRowKeys.value = expandedRows.length ? [row.symbol] : [];
 };
 
-const toogleTopUp = (e: DataSource) => {
+const toogleTopUp = (e: ISymbolListDataSource) => {
   tableRef.value.sort("variation", null);
   const list = [...symbolsStore.mySymbols];
   const index = list.findIndex((item) => e.symbol === item.symbol);
@@ -393,6 +362,14 @@ const toogleTopUp = (e: DataSource) => {
     editOptionalQuery({ symbols: symbolsStore.mySymbols_sort });
   }
 };
+
+type IMode = "table" | "lists";
+const storageMode = localStorage.getItem("symbolListMode") as IMode;
+const mode = ref<IMode>(storageMode || "table");
+const changeMode = () => {
+  mode.value = mode.value === "table" ? "lists" : "table";
+  localStorage.setItem("symbolListMode", mode.value);
+};
 </script>
 
 <style lang="scss" scoped>
@@ -412,6 +389,10 @@ const toogleTopUp = (e: DataSource) => {
   line-height: normal;
 }
 
+:deep(.el-scrollbar__view) {
+  height: 100%;
+}
+
 .symbolList {
   width: 100%;
   @include background_color("background-component");
@@ -419,16 +400,33 @@ const toogleTopUp = (e: DataSource) => {
   padding: 4px;
 }
 
-.input {
+.header {
   width: calc(100% - 12px);
-
+  display: flex;
+  align-items: center;
+  gap: 4px;
   .closeIcon {
     width: 18px;
     height: 18px;
     cursor: pointer;
   }
+  .modeSwitch {
+    width: var(--el-component-size);
+    height: var(--el-component-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    cursor: pointer;
+    border-radius: 4px;
+    &:hover {
+      @include background_color("background-hover");
+    }
+    &:active {
+      @include background_color("background-active");
+    }
+  }
 }
-
 .container {
   width: 100%;
   // 减去顶部搜索框的高度 - padding
@@ -437,26 +435,6 @@ const toogleTopUp = (e: DataSource) => {
   box-sizing: border-box;
   border-radius: 4px;
   overflow: hidden;
-}
-
-.emptyBox {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-top: 60px;
-
-  .tipWords {
-    @include font_color("word-info");
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .addBtn {
-    min-width: 86px;
-    margin-top: 8px;
-  }
 }
 
 .searchList {

@@ -7,6 +7,7 @@ import { useStorage } from "./storage";
 type TsystemTheme = "light" | "dark"; // 系统主题
 type TupDownTheme = "upRedDownGreen" | "upGreenDownRed"; // 涨跌风格
 interface ICacheItem {
+  clearColor: boolean;
   content: string;
   path: string;
   attributes: Record<string, string>;
@@ -21,6 +22,7 @@ export const useTheme = defineStore("theme", () => {
   const iframesColorScheme = ref<Record<string, TsystemTheme>>({});
 
   const cacheContent = ref<ICacheItem[]>([]);
+  const svgPendingRequests = ref<Record<string, Promise<void> | undefined>>({});
 
   watch(
     () => isDark.value,
@@ -217,6 +219,7 @@ export const useTheme = defineStore("theme", () => {
     iframesColorScheme,
     setIconCache,
     getIconCache,
+    svgPendingRequests,
     $reset,
   };
 });

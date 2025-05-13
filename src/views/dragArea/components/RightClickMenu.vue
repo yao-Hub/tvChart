@@ -78,7 +78,7 @@ import { useI18n } from "vue-i18n";
 
 import { ISessionSymbolInfo } from "@/types/chart";
 import { getSymbolDetail } from "api/symbols";
-import { DataSource } from "../SymbolList.vue";
+import { ISymbolListDataSource } from "@/types/common";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
@@ -97,7 +97,7 @@ interface Props {
     top: number;
     left: number;
   };
-  rowData: DataSource;
+  rowData: ISymbolListDataSource;
   variOrder: string | null;
 }
 const props = defineProps<Props>();

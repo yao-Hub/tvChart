@@ -1,8 +1,8 @@
 :root {
   --light-1: #fff;
   --light-2: #eef2f6;
-  --light-3: #e8e9ec;
-  --light-4: #d8dadc;
+  --light-3: rgba(0, 0, 0, 0.06);
+  --light-4: rgba(0, 0, 0, 0.12);
   --light-5: #dee2e9;
   --light-6: #e8ebf0;
   --light-7: #efefef;
@@ -10,23 +10,28 @@
   --light-9: #94959b;
   --light-10: #63636a;
   --light-11: #333;
+  --light-12: #e8e9ec;
+  --light-13: #bec2c9;
+  --light-14: #d8dadc;
 
   --dark-1: #000;
   --dark-2: #323745;
   --dark-3: #1d222d;
   --dark-4: #1b1f29;
-  --dark-5: #1a1d23;
-  --dark-6: #383d47;
+  --dark-5: rgba(255, 255, 255, 0.06);
+  --dark-6: rgba(255, 255, 255, 0.12);
   --dark-7: #56585c;
   --dark-8: #818588;
   --dark-9: #b0b1b3;
   --dark-10: #bec2c9;
   --dark-11: #d1d4dc;
+  --dark-12: #383d47;
+  --dark-13: #4c515d;
+  --dark-14: #464a53;
 
   --color-1: #f6f8fb;
   --color-2: #e28602;
   --color-3: #f4b201;
-
   --color-4: #f53058;
   --color-5: #f75173;
   --color-6: #ce284a;
@@ -75,6 +80,10 @@ $systemThemes: (
     table-colored: var(--light-8),
     box-shadow: 0px 12px 32px 8px rgba(8, 22, 46, 0.24),
     selectHover: rgba(0, 0, 0, 0.06),
+    listsTopSort: var(--light-12),
+    listsTopSortHover: var(--light-14),
+    listsNormal: var(--light-13),
+    listsNormalHover: var(--light-5),
   ),
   dark: (
     background: var(--dark-1),
@@ -99,6 +108,10 @@ $systemThemes: (
     table-colored: var(--dark-4),
     box-shadow: 0px 12px 32px 8px var(--dark-1),
     selectHover: rgba(255, 255, 255, 0.06),
+    listsTopSort: var(--dark-12),
+    listsTopSortHover: var(--dark-14),
+    listsNormal: var(--dark-13),
+    listsNormalHover: var(--dark-8),
   ),
 );
 

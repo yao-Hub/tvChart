@@ -1,8 +1,13 @@
-import * as types from "@/types/chart";
-import { allSymbolQuotes } from "api/symbols/index";
-import { defineStore } from "pinia";
-import { round } from "utils/common/index";
 import { ref } from "vue";
+import { defineStore } from "pinia";
+import Decimal from "decimal.js";
+
+import { round } from "utils/common/index";
+import * as types from "@/types/chart";
+
+import { allSymbolQuotes } from "api/symbols/index";
+
+import { useSymbols } from "./symbols";
 
 interface IClass {
   [value: string]: {
@@ -62,6 +67,7 @@ export const useQuotes = defineStore("qoutes", () => {
   // 日变化
   const getVariation = (symbol: string) => {
     const result = {
+      numerator: "-",
       class: "",
       value: "-",
     };
@@ -71,11 +77,27 @@ export const useQuotes = defineStore("qoutes", () => {
       const open = quote.open;
       if (close && open) {
         const variation = round(((close - open) / open) * 100, 2);
+        result.numerator = (close - open).toFixed(2);
         result.value = `${variation}%`;
         result.class = +variation > 0 ? " buyWord" : " sellWord";
       }
     }
     return result;
+  };
+
+  // 点差
+  const getSpread = (symbol: string) => {
+    const quote = qoutes.value[symbol];
+    const info = useSymbols().symbols.find((e) => e.symbol === symbol);
+    if (quote && info) {
+      const ask = quote.ask;
+      const bid = quote.bid;
+      const digits = info.digits;
+      const dask = new Decimal(ask);
+      const dbid = new Decimal(bid);
+      return dask.minus(dbid).abs().times(new Decimal(10).pow(digits));
+    }
+    return "-";
   };
 
   function $reset() {
@@ -91,6 +113,7 @@ export const useQuotes = defineStore("qoutes", () => {
     getVariation,
     getAllSymbolQuotes,
     initAllQoutes,
+    getSpread,
     $reset,
   };
 });
