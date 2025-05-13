@@ -412,7 +412,7 @@ export default {
     registrationNO: "注册編號",
     registeredAddress: "註冊地址",
     supervision: "監管",
-    officeLocation: "辦公司位置",
+    officeLocation: "辦公室位置",
     website: "網站",
     generalEmail: "通用電子郵件",
     abuseReportEmail: "濫用報告電子郵件",

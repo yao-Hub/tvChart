@@ -411,7 +411,7 @@ export default {
     registrationNO: "注册编号",
     registeredAddress: "注册地址",
     supervision: "监管",
-    officeLocation: "办公司位置",
+    officeLocation: "办公室位置",
     website: "网站",
     generalEmail: "通用电子邮件",
     abuseReportEmail: "滥用报告电子邮件",
