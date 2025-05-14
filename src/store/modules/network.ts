@@ -110,7 +110,7 @@ export const useNetwork = defineStore("network", {
         return new Promise((resolve) => {
           const startTime = Date.now();
           axios
-            .get(url)
+            .get(url, { timeout: 1500 })
             .then(() => {
               const endTime = Date.now();
               const delay = endTime - startTime;

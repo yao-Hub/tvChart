@@ -4,7 +4,11 @@
       <div :style="wordStyle('sell')">
         {{ getQuotes("bid") }}
       </div>
-      <div :style="btnStyle('sell')" @click="addOrder(1)">
+      <div
+        :style="btnStyle('sell')"
+        @click="addOrder(1)"
+        :title="`${t('clickSell')}(${t('QuickTransactions')})`"
+      >
         {{ t("order.sell") }}
       </div>
     </div>
@@ -33,7 +37,11 @@
       />
     </div>
     <div :style="styles.area">
-      <div :style="btnStyle('buy')" @click="addOrder(0)">
+      <div
+        :style="btnStyle('buy')"
+        @click="addOrder(0)"
+        :title="`${t('clickBuy')}(${t('QuickTransactions')})`"
+      >
         {{ t("order.buy") }}
       </div>
       <div :style="wordStyle('buy')">

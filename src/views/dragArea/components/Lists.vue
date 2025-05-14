@@ -119,11 +119,11 @@ const handleContextmenu = (row: ISymbolListDataSource, event: MouseEvent) => {
 
 const getLow = (symbol: string) => {
   const quotes = quotesStore.qoutes[symbol];
-  return quotes.low || "-";
+  return quotes?.low || "-";
 };
 const getHigh = (symbol: string) => {
   const quotes = quotesStore.qoutes[symbol];
-  return quotes.high || "-";
+  return quotes?.high || "-";
 };
 const getStep = (symbol: string) => {
   const target = useSymbols().symbols.find((e) => e.symbol === symbol);
