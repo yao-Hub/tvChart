@@ -30,7 +30,7 @@
               placement="bottom-start"
               :visible="visible"
               :show-arrow="false"
-              :width="414"
+              width="100%"
               popper-class="lines-popover"
               :teleported="false"
             >

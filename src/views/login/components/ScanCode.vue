@@ -5,7 +5,7 @@
       class="qrcode-container"
       :style="{
         transform: ifGuide
-          ? 'translate(-17%, -50%) scale(0.75)'
+          ? 'translate(-17%, -50%) scale(0.72)'
           : 'translate(-50%, -50%) scale(1)',
       }"
     >
@@ -20,7 +20,7 @@
         <span class="tip">二维码已失效</span>
         <div class="btn">刷新</div>
       </div>
-      <BaseImg class="logo" iconName="logo@3x" imgSuffix="png"></BaseImg>
+      <!-- <BaseImg class="logo" iconName="logo@3x" imgSuffix="png"></BaseImg> -->
     </div>
     <img
       :style="{
@@ -28,7 +28,7 @@
         transform: ifGuide ? 'translate(-120%, -50%)' : 'translate(-50%, -50%)',
       }"
       class="guide"
-      src="https://img.alicdn.com/imgextra/i1/O1CN01z4Whpc1sWXrNMex9p_!!6000000005774-2-tps-236-298.png"
+      src="@/assets/images/guide.png"
     />
     <div class="scan-tip">
       <span>打开</span>
@@ -75,9 +75,8 @@ const ifGuide = ref(false);
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%);
-  width: 118px;
-  height: 149px;
+  width: 120px;
+  height: 161px;
   transition: all 1s ease;
   z-index: 1;
 }
@@ -117,15 +116,15 @@ const ifGuide = ref(false);
   transition: all 1s ease;
   z-index: 1;
 }
-.logo {
-  width: 20%;
-  height: 20%;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 2;
-}
+// .logo {
+//   width: 20%;
+//   height: 20%;
+//   position: absolute;
+//   top: 50%;
+//   left: 50%;
+//   transform: translate(-50%, -50%);
+//   z-index: 2;
+// }
 .expire {
   position: absolute;
   top: 0;
