@@ -42,11 +42,11 @@ const changeColor = (theme: "upRedDownGreen" | "upGreenDownRed") => {
 
 <style lang="scss" scoped>
 .colorsItem {
-  min-width: 150px;
+  min-width: 182px;
   display: flex;
   gap: 10px;
   align-items: center;
-  box-sizing: border-box;
+  padding: 4px 0;
 }
 .checkIcon {
   margin-left: auto;

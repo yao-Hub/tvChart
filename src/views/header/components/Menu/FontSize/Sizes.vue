@@ -31,11 +31,10 @@ const handleChange = (size: "small" | "default" | "large") => {
 
 <style lang="scss" scoped>
 .sizeItem {
-  width: 150px;
+  min-width: 182px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 5px;
-  box-sizing: border-box;
+  padding: 4px 0;
 }
 </style>

@@ -90,8 +90,4 @@ const layoutChange = async (
   @include font_color("word");
   box-sizing: border-box;
 }
-:deep(.el-dropdown-menu__item) {
-  margin: 0 8px;
-  border-radius: 4px;
-}
 </style>

@@ -20,11 +20,10 @@ const languageStore = useLanguage();
 
 <style lang="scss" scoped>
 .localeItem {
-  width: 150px;
+  min-width: 182px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 5px;
-  box-sizing: border-box;
+  padding: 4px 0;
 }
 </style>
