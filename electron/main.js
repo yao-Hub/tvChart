@@ -6,6 +6,10 @@ const { exec } = require('child_process');
 // 所有通过createWindow创建的窗口
 const windowsMap = {};
 
+// 输入的快捷键密钥
+const secretCodeQueue = [];
+const SECRET_CODE = 'utrader111';
+
 // 下载进度
 let activeDownload = null;
 
@@ -59,7 +63,6 @@ function createWindow(name, hash, screenWidth) {
       contextIsolation: true, // 启用上下文隔离
       nodeIntegration: false, // 禁用 Node.js 集成（推荐false）
       sandbox: false,
-      devTools: ifDev
     },
   });
 
@@ -77,7 +80,6 @@ function createWindow(name, hash, screenWidth) {
   // 主窗口加载地址
   if (ifDev && name === "mainWindow") {
     windowsMap[name].loadURL("http://localhost:8080");
-    // windowsMap[name].webContents.openDevTools(); // 打开开发者工具
   }
   if (!ifDev && name === "mainWindow") {
     // 生产环境：加载打包后的文件
@@ -114,9 +116,9 @@ function createWindow(name, hash, screenWidth) {
 
   // 所有窗口快捷键阻止
   windowsMap[name].webContents.on('before-input-event', (event, input) => {
-    if (ifDev) {
-      return;
-    }
+    // 仅处理 keydown 事件（跳过 keypress）
+    if (input.type !== 'keyDown') return;
+
     // 阻止 F12
     if (input.key === 'F12') {
       event.preventDefault();
@@ -128,6 +130,22 @@ function createWindow(name, hash, screenWidth) {
     // 阻止 Command+Option+I (macOS)
     if (input.meta && input.alt && input.key.toLowerCase() === 'i') {
       event.preventDefault();
+    }
+
+    // 监听字符输入（忽略修饰键）打开开发者工具
+    if (!input.control && !input.meta && !input.alt) {
+      const char = input.key.toLowerCase();
+      secretCodeQueue.push(char);
+
+      // 保持队列长度与密码一致
+      if (secretCodeQueue.length > SECRET_CODE.length) {
+        secretCodeQueue.shift();
+      }
+      // 检测匹配
+      if (secretCodeQueue.join('') === SECRET_CODE) {
+        windowsMap[name].webContents.openDevTools();
+        secretCodeQueue.length = 0; // 清空队列
+      }
     }
   });
 }
