@@ -247,7 +247,7 @@ export const useUser = defineStore("user", () => {
     errmsg?: string;
   }) => void;
 
-  const login = async (updata: any, callback?: TCallback) => {
+  const login = async (updata: any, callback: TCallback) => {
     const t = i18n.global.t;
     const networkStore = useNetwork();
     networkStore.server = updata.server;
@@ -273,7 +273,7 @@ export const useUser = defineStore("user", () => {
     const orderList = sortBy(delayList, ["delay"]);
     const process = (index: number) => {
       if (index >= orderList.length) {
-        callback && callback({ ending: true, success: false });
+        callback({ ending: true, success: false });
         return;
       }
       const webApi = orderList[index].url;
@@ -298,8 +298,9 @@ export const useUser = defineStore("user", () => {
             });
             // 发送登录状态
             socketStore.sendToken({ login: updata.login, token });
-            callback && callback({ ending: true, success: true });
+            callback({ ending: true, success: true });
             ElMessage.success(i18n.global.t("loginSucceeded"));
+            return;
           })
           .catch((error) => {
             errmsg = get(error, "errmsg") || error;
@@ -307,10 +308,9 @@ export const useUser = defineStore("user", () => {
             logType = "error";
             // 账号密码错误等等的用户错误
             if (err === 205) {
-              callback && callback({ ending: true, success: false });
+              callback({ ending: true, success: false });
               return;
             }
-            callback && callback({ ending: true, success: false, errmsg });
             process(index + 1);
           })
           .finally(() => {
