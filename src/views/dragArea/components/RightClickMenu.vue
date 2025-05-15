@@ -6,7 +6,7 @@
   >
     <div :class="{ item: true, pending: orderLoading }" @click="addOrder">
       <span>{{ t("order.new") }}</span>
-      <el-icon class="loading" v-if="orderLoading"><Loading /></el-icon>
+      <el-icon class="is-loading" v-if="orderLoading"><Loading /></el-icon>
     </div>
     <div class="item" @click="addChart">{{ t("chart.new") }}</div>
     <div class="item" @click="showDetailDialog">{{ t("symbolInfo") }}</div>
@@ -15,7 +15,7 @@
     </div>
     <div :class="{ item: true, pending: delLoading }" @click="handleCancelFav">
       <span>{{ t("delete") }}</span>
-      <el-icon class="loading" v-if="delLoading"><Loading /></el-icon>
+      <el-icon class="is-loading" v-if="delLoading"><Loading /></el-icon>
     </div>
   </div>
 
@@ -309,10 +309,13 @@ watchEffect(() => {
     cursor: pointer;
     padding: 10px 10px 10px 16px;
     width: 120px;
-    height: var(--component-size);
+    height: var(--base-height);
     box-sizing: border-box;
     &:hover {
       @include background_color("background-hover");
+    }
+    &:active {
+      @include background_color("background-active");
     }
   }
   .pending {

@@ -29,6 +29,7 @@ html.dark {
   }
 
   .el-table {
+    --el-table-header-bg-color: #0c0f15;
     --el-table-bg-color: var(--dark-1);
     --el-table-text-color: var(--light-1);
     --el-table-header-text-color: var(--dark-9);

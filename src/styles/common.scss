@@ -289,18 +289,6 @@ body {
   background-image: url("@/assets/icons/dark/icon_td2.svg");
 }
 
-@keyframes rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-.loading {
-  animation: rotate 1s linear infinite;
-}
-
 .dialog_title {
   font-size: 18px;
   font-weight: 500;

@@ -2,7 +2,7 @@
   <div class="clearCache" @click="handleClearCache">
     <BaseImg class="logo" iconName="icon_20" />
     <span>{{ t("clearCache") }}</span>
-    <el-icon class="loading" v-if="loading"><Loading /></el-icon>
+    <el-icon class="is-loading" v-if="loading"><Loading /></el-icon>
   </div>
 </template>
 
@@ -49,7 +49,7 @@ const handleClearCache = async () => {
   align-items: center;
   width: 100%;
 }
-.loading {
+.is-loading {
   margin-left: auto;
 }
 </style>

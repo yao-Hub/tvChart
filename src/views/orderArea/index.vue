@@ -354,7 +354,7 @@
                 </el-icon>
                 <el-icon
                   v-if="marketCloseLodingMap[rowData.id]"
-                  class="loading"
+                  class="is-loading"
                 >
                   <Loading />
                 </el-icon>
@@ -370,7 +370,7 @@
                 </el-icon>
                 <el-icon
                   v-if="pendingCloseLodingMap[rowData.id]"
-                  class="loading"
+                  class="is-loading"
                 >
                   <Loading />
                 </el-icon>
@@ -387,7 +387,7 @@
             </template>
             <template #footer>
               <div class="loadingFooter" v-if="pageLoading">
-                <el-icon class="loading">
+                <el-icon class="is-loading">
                   <Loading />
                 </el-icon>
               </div>
@@ -1103,8 +1103,10 @@ const getTableData = (type: string) => {
 }
 
 :deep(.el-table-v2__overlay) {
-  z-index: 10;
-  top: var(--base-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9;
 }
 
 :deep(.el-table-v2__header-cell) {
