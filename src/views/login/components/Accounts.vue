@@ -66,9 +66,6 @@ const userStore = useUser();
 type TList = AccountListItem & { actived: boolean };
 
 const list = ref<TList[]>([]);
-
-networkStore.getLines(); //  交易线路
-
 const initList = () => {
   const accounts = userStore.state.accountList;
   const orderAccounts = orderBy(accounts, ["ifLogin"], ["desc"]);
@@ -165,6 +162,8 @@ onUnmounted(() => {
   overflow: auto;
   display: flex;
   flex-direction: column;
+  width: 480px;
+
   .plogin {
     font-size: 24px;
     height: 40px;

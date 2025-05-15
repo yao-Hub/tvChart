@@ -28,6 +28,7 @@ import Language from "./components/Language.vue";
 import Theme from "./components/Theme.vue";
 
 import { useI18n } from "vue-i18n";
+import { useNetwork } from "@/store/modules/network";
 const { t } = useI18n();
 
 const router = useRouter();
@@ -36,6 +37,7 @@ const route = useRoute();
 const localeKey = ref("");
 
 useInit().init();
+useNetwork().getLines(); //  交易线路
 
 // 预加载home路由
 const homeComponentImport = () => import("@/views/home/index.vue");
@@ -97,7 +99,7 @@ watch(
 
 .goback {
   width: 100%;
-  height: 50px;
+  min-height: 50px;
   @include background_color("background-login-container");
   display: flex;
   align-items: center;
@@ -144,7 +146,6 @@ watch(
     position: fixed;
     right: 15%;
     top: 15%;
-    width: 480px;
     max-height: 648px;
     height: 70%;
     .main {

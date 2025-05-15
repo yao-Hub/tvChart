@@ -33,7 +33,7 @@ export type AccountListItem = IAccount & {
 interface IState {
   accountList: Array<AccountListItem>;
   loginInfo: UserInfo | null;
-  timer: NodeJS.Timeout | null;
+  timer: ReturnType<typeof setInterval> | null;
 }
 
 export const useUser = defineStore("user", () => {
@@ -148,7 +148,7 @@ export const useUser = defineStore("user", () => {
     wait?: number;
   }
   const createGetLoginInfo = () => {
-    let timeout: NodeJS.Timeout | null = null;
+    let timeout: ReturnType<typeof setInterval> | null = null;
     let lastArgs: IGetInfo | undefined; // 保存最新参数
     let hasExecutedLeading = false; // 标记是否已执行leading
 

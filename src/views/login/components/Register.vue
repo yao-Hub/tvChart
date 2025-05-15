@@ -265,6 +265,8 @@ onUnmounted(() => {
   box-sizing: border-box;
   overflow: auto;
   height: 100%;
+  width: 480px;
+
   &_main {
     width: 100%;
     box-sizing: border-box;

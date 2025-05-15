@@ -68,8 +68,8 @@ function shouldUpdate(
   return true;
 }
 
-// 是否可以更新
-function canUpdate(
+// 匹配远程版本
+function matchRemoteVersion(
   inputVersion: string,
   remoteVersion: string | null | undefined
 ): boolean {
@@ -101,9 +101,11 @@ async function getUpdateVersion(
           if (!versionRegex.test(input)) {
             return `${redColor}×${resetColor} 请输入有效的版本号，格式如  x.y.z`;
           }
-          const ifCanUpdate = canUpdate(input, remoteVersion);
-          if (!ifCanUpdate) {
-            return `${redColor}×${resetColor} 版本号小于远程版本号`;
+          const versionStatus = matchRemoteVersion(input, remoteVersion);
+          if (!versionStatus) {
+            console.log(
+              `${yellowColor}!!${resetColor}版本号小于远程最新版本号`
+            );
           }
           return true;
         },
@@ -162,13 +164,13 @@ async function updatePackageVersion(
   updateType: TUpdate,
   remoteVersion: string | null | undefined
 ) {
-  const updatePackageVersion = await getUpdateVersion(
+  const version = await getUpdateVersion(
     localVersion,
     updateType,
     remoteVersion
   );
-  updatePackageJsonVersion(updatePackageVersion);
-  updateRemoteTag(updatePackageVersion);
+  updatePackageJsonVersion(version);
+  updateRemoteTag(version);
 }
 
 // 主函数

@@ -224,6 +224,8 @@ onUnmounted(() => {
   overflow: auto;
   box-sizing: border-box;
   height: 100%;
+  width: 480px;
+
   &_title {
     display: flex;
     height: 68px;
