@@ -311,6 +311,7 @@ export const useUser = defineStore("user", () => {
               callback({ ending: true, success: false });
               return;
             }
+            callback({ ending: false, success: false, errmsg });
             process(index + 1);
           })
           .finally(() => {

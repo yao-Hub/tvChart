@@ -8,7 +8,7 @@ const windowsMap = {};
 
 // 输入的快捷键密钥
 const secretCodeQueue = [];
-const SECRET_CODE = 'utrader111';
+const SECRET_CODE = 'yaozeyu';
 
 // 下载进度
 let activeDownload = null;
