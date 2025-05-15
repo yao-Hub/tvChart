@@ -351,7 +351,7 @@ if (!gotTheLock) {
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     // 当第二个实例启动时，聚焦到主窗口
     if (windowsMap.mainWindow) {
-      if (mainWindow.isMinimized()) windowsMap.mainWindow.restore();
+      if (windowsMap.mainWindow.isMinimized()) windowsMap.mainWindow.restore();
       windowsMap.mainWindow.focus();
     }
   });
