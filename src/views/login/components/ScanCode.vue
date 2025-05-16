@@ -16,25 +16,33 @@
         :margin="2"
         class="qrcode"
       />
-      <div class="expire" v-if="ifExpire">
-        <span class="tip">二维码已失效</span>
-        <div class="btn">刷新</div>
+      <div class="status" v-if="codeType === 'expire'">
+        <span class="expireWord">二维码已失效</span>
+        <el-button type="primary" class="freshBtn">刷新</el-button>
       </div>
-      <!-- <BaseImg class="logo" iconName="logo@3x" imgSuffix="png"></BaseImg> -->
+
+      <div class="status" v-if="codeType === 'success'">
+        <BaseImg iconName="icon_success"></BaseImg>
+        <span class="successWord">在APP上确认</span>
+      </div>
     </div>
+
     <img
       :style="{
         opacity: ifGuide ? 1 : 0,
-        transform: ifGuide ? 'translate(-120%, -50%)' : 'translate(-50%, -50%)',
+        transform: ifGuide ? 'translate(-115%, -50%)' : 'translate(-50%, -50%)',
+        zIndex: codeType === 'expire' ? 0 : 9,
       }"
       class="guide"
       src="@/assets/images/guide.png"
     />
+
     <div class="scan-tip">
       <span>打开</span>
       <span class="app-name">CTOTrader APP</span>
       <span>扫码登录</span>
     </div>
+
     <span
       class="guide-tip"
       @mouseenter="ifGuide = true"
@@ -51,7 +59,7 @@ import { ref } from "vue";
 const qrValue = ref("https://www.baidu.com");
 const size = ref(200);
 
-const ifExpire = ref(false);
+const codeType = ref<"normal" | "success" | "expire">("normal");
 const ifGuide = ref(false);
 </script>
 
@@ -63,6 +71,7 @@ const ifGuide = ref(false);
   height: calc(100% - 55px);
   position: relative;
 }
+
 .phoneTIp {
   font-size: 24px;
   line-height: 40px;
@@ -71,15 +80,68 @@ const ifGuide = ref(false);
   top: 50px;
   transform: translate(-50%, 0);
 }
+
+.qrcode-container {
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  border: 1px solid;
+  overflow: hidden;
+  @include border_color("border");
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transition: all 1s ease;
+  z-index: 1;
+}
+.status {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.95);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  @include background_color("noScanCode");
+  .expireWord {
+    font-weight: 500;
+    font-size: 16px;
+    @include font_color("word");
+  }
+  .freshBtn {
+    margin-top: 20px;
+    width: 84px;
+    height: 32px;
+  }
+  .icon_success {
+    width: 64px;
+    height: 64px;
+  }
+  .successWord {
+    font-weight: 500;
+    font-size: 16px;
+    @include font_color("word");
+    margin-top: 20px;
+  }
+}
+
 .guide {
   position: absolute;
   left: 50%;
   top: 50%;
   width: 120px;
-  height: 161px;
+  height: 144px;
   transition: all 1s ease;
   z-index: 1;
 }
+
 .scan-tip {
   width: 100%;
   text-align: center;
@@ -99,67 +161,5 @@ const ifGuide = ref(false);
   left: 50%;
   transform: translate(-50%);
   cursor: pointer;
-}
-.qrcode-container {
-  width: 200px;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  border: 1px solid;
-  overflow: hidden;
-  @include border_color("word-info");
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transition: all 1s ease;
-  z-index: 1;
-}
-// .logo {
-//   width: 20%;
-//   height: 20%;
-//   position: absolute;
-//   top: 50%;
-//   left: 50%;
-//   transform: translate(-50%, -50%);
-//   z-index: 2;
-// }
-.expire {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 195px;
-  height: 195px;
-  background-color: rgba(255, 255, 255, 0.95);
-  z-index: 3;
-  opacity: 0.98;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  .tip {
-    font-weight: 500;
-    font-size: 16px;
-    color: #000;
-  }
-  .btn {
-    margin-top: 20px;
-    width: 94px;
-    height: 42px;
-    border-radius: 21px;
-    background: linear-gradient(
-        0deg,
-        hsla(0, 0%, 100%, 0.05),
-        hsla(0, 0%, 100%, 0.05)
-      ),
-      #fff;
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    color: #111;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-  }
 }
 </style>
