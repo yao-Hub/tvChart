@@ -42,7 +42,7 @@ function handleTokenErr() {
   eventBus.emit("go-login");
 }
 
-const ifPro = import.meta.env.MODE === "production";
+// const ifPro = import.meta.env.MODE === "production";
 
 const nowLocale = i18n.global.locale.value;
 const LOCALE_MAP: Record<string, string> = {
@@ -133,11 +133,11 @@ service.interceptors.request.use(
         action,
         d: encrypt(JSON.stringify(config.data)),
       };
-      !ifPro &&
-        console.log("request----", {
-          url: config.url,
-          data: config.data,
-        });
+      // !ifPro &&
+      console.log("request----", {
+        url: config.url,
+        data: config.data,
+      });
       config.data = JSON.stringify(p);
     }
     return config;
@@ -157,7 +157,8 @@ service.interceptors.response.use(
       if (data.data) {
         data.data = JSON.parse(decrypt(data.data));
       }
-      !ifPro && console.log("response....", { url: config.url, data });
+      // !ifPro &&
+      console.log("response....", { url: config.url, data });
       return response;
     }
     if (

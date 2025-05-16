@@ -139,16 +139,23 @@ async function init() {
 const saveCharts = () => {
   chartInitStore.saveCharts();
 };
+const handleResize = () => {
+  if (chartInitStore.state.loading) {
+    return;
+  }
+  resizeUpdate();
+};
 
 // 浏览器页面变化布局随之变化
 onMounted(() => {
   init();
-  window.addEventListener("resize", resizeUpdate);
+  window.addEventListener("resize", handleResize);
   window.addEventListener("beforeunload", saveCharts);
 });
 
 onUnmounted(() => {
   window.removeEventListener("beforeunload", saveCharts);
+  window.removeEventListener("resize", handleResize);
 });
 
 // 离开页面保存图表操作
@@ -158,7 +165,7 @@ onBeforeRouteLeave(async () => {
   chartInitStore.saveCharts();
   socketStore.closeAllSocket();
   await rootStore.resetAllStore();
-  window.removeEventListener("resize", resizeUpdate);
+  window.removeEventListener("resize", handleResize);
   return true;
 });
 </script>
