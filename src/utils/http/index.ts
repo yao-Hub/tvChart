@@ -69,6 +69,7 @@ const service = axios.create({
       // @ts-ignore
       window.electronAPI?.getOSInfo().hostname || WEB_HOSTNAME,
     "accept-language": acceptLanguage,
+    "x-u-app-market": "official_website",
   },
 });
 
