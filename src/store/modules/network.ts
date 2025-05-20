@@ -52,7 +52,7 @@ export const useNetwork = defineStore("network", {
       return state.queryTradeLines.find((e) => e.lineName === state.server);
     },
     port: (state) => {
-      const target = state.nodeList.find((e) => e.nodeName === state.server);
+      const target = state.nodeList.find((e) => e.nodeName === state.nodeName);
       if (target) {
         return getPort(target.webApi);
       }
