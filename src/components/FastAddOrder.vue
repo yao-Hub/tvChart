@@ -9,7 +9,7 @@
         @click="addOrder(1)"
         :title="`${t('quickTrade.clickSell')}(${t('quickTrade.title')})`"
       >
-        {{ t("order.sell") }}
+        {{ t("quickTrade.sell") }}
       </div>
     </div>
     <div
@@ -42,7 +42,7 @@
         @click="addOrder(0)"
         :title="`${t('quickTrade.clickBuy')}(${t('quickTrade.title')})`"
       >
-        {{ t("order.buy") }}
+        {{ t("quickTrade.buy") }}
       </div>
       <div :style="wordStyle('buy')">
         {{ getQuotes("ask") }}
