@@ -85,7 +85,10 @@ onBeforeUnmount(() => {
   justify-content: space-between;
   cursor: pointer;
   &:hover {
-    @include background_color("background");
+    @include background_color("background-hover");
+  }
+  &:active {
+    @include background_color("background-active");
   }
 }
 </style>

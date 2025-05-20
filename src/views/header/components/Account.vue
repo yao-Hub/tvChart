@@ -269,6 +269,7 @@ const showServerDialog = () => {
 }
 
 .aList {
+  width: 408px;
   display: flex;
   flex-direction: column;
   padding-bottom: 16px;
@@ -309,7 +310,7 @@ const showServerDialog = () => {
       width: 18px;
       height: 18px;
       margin-left: auto;
-      @include font_color("word-info");
+      @include font_color("word-gray");
       &:hover {
         @include font_color("word");
       }

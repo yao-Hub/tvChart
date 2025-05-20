@@ -38,13 +38,16 @@
                 <el-input
                   v-model="inputLine"
                   :placeholder="linePlaceholder"
-                  :suffix-icon="Search"
                   clearable
                   @clear="linesClear"
                   @input="linesInput"
                   @focus="linesFoucus"
                   @blur="linesBlur"
-                ></el-input>
+                >
+                  <template #suffix>
+                    <BaseImg iconName="icon_search"></BaseImg>
+                  </template>
+                </el-input>
               </template>
               <template #default>
                 <div v-if="linesLoading" class="lines-type">
@@ -156,7 +159,6 @@
 import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { Search } from "@element-plus/icons-vue";
 import {
   ElMessage,
   ElNotification,

@@ -1,6 +1,8 @@
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useStorage } from "@/store/modules/storage";
+import { useTheme } from "@/store/modules/theme";
+
 import { debounce } from "lodash";
 import Sortable from "sortablejs";
 
@@ -25,7 +27,11 @@ const minWidth = 300;
 const minHeight = 150;
 const lineWidth = 8;
 const dragAreaPadding = 8;
-const lineColor = "rgba(206,205,209,1)";
+
+const lineColor = () => {
+  const result = useTheme().systemTheme === "light" ? "#CECDD1" : "#56585C";
+  return result;
+};
 
 // 水平线初始拉伸位置
 let startY: number;
@@ -302,7 +308,7 @@ function createHoriLine(addNum: number) {
       if (iconHover.horizontalLine) {
         return;
       }
-      line.style.backgroundColor = lineColor;
+      line.style.backgroundColor = lineColor();
     });
     line.addEventListener("mouseout", function () {
       if (moving.horizontalLine) {
@@ -521,7 +527,7 @@ function createVertLine(addNum: number) {
       if (iconHover.verticalLine) {
         return;
       }
-      line.style.backgroundColor = lineColor;
+      line.style.backgroundColor = lineColor();
     });
     line.addEventListener("mouseout", function () {
       if (moving.verticalLine) {

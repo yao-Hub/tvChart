@@ -58,11 +58,11 @@ export const useTheme = defineStore("theme", () => {
     getUpDownTheme();
   };
   const changeSystemTheme = () => {
-    toggleDark();
     const theme = systemTheme.value === "dark" ? "light" : "dark";
     systemTheme.value = theme as TsystemTheme;
     document.documentElement.setAttribute("data-theme", systemTheme.value);
     localStorage.setItem("systemTheme", theme);
+    toggleDark();
   };
   const saveChartTheme = (id: string, theme: "light" | "dark") => {
     const themeMap = useStorage().getItem("chartThemeMap") || {};

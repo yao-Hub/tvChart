@@ -2,6 +2,7 @@
 :deep(.el-input__wrapper),
 :deep(.el-button) {
   height: calc(var(--base-height) + 8px);
+  font-weight: normal;
 }
 :deep(.el-select__selected-item span) {
   font-size: calc(var(--font-size) + 2px);
