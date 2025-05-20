@@ -173,6 +173,7 @@ const resoluteItemSelect = (key: number) => {
 :deep(.el-popper) {
   transform: translateX(-40px);
 }
+
 .chartTab {
   display: flex;
   padding: 0 8px;
@@ -201,19 +202,32 @@ const resoluteItemSelect = (key: number) => {
   justify-content: space-between;
   display: flex;
   width: 120px;
-  height: 40px;
+  height: var(--base-height);
   box-sizing: border-box;
   padding: 0 16px;
   @include background_color("background-dialog");
   cursor: pointer;
   &:hover {
-    @include background_color("background");
+    @include background_color("background-hover");
+  }
+  &:active {
+    @include background_color("background-active");
   }
 }
 
 .search {
   @include background_color("background-dialog");
   overflow: hidden;
+
+  :deep(.Block) {
+    height: var(--base-height);
+    &:hover {
+      @include background_color("background-hover");
+    }
+    &:active {
+      @include background_color("background-active");
+    }
+  }
 
   .input {
     margin: 8px;

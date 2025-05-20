@@ -7,7 +7,7 @@
       <div
         :style="btnStyle('sell')"
         @click="addOrder(1)"
-        :title="`${t('clickSell')}(${t('QuickTransactions')})`"
+        :title="`${t('quickTrade.clickSell')}(${t('quickTrade.title')})`"
       >
         {{ t("order.sell") }}
       </div>
@@ -40,7 +40,7 @@
       <div
         :style="btnStyle('buy')"
         @click="addOrder(0)"
-        :title="`${t('clickBuy')}(${t('QuickTransactions')})`"
+        :title="`${t('quickTrade.clickBuy')}(${t('quickTrade.title')})`"
       >
         {{ t("order.buy") }}
       </div>

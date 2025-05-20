@@ -4,16 +4,19 @@
     v-show="model"
     :style="{ top: `${pos.top}px`, left: `${pos.left}px` }"
   >
-    <div :class="{ item: true, pending: orderLoading }" @click="addOrder">
+    <div :class="{ menuItem: true, pending: orderLoading }" @click="addOrder">
       <span>{{ t("order.new") }}</span>
       <el-icon class="is-loading" v-if="orderLoading"><Loading /></el-icon>
     </div>
-    <div class="item" @click="addChart">{{ t("chart.new") }}</div>
-    <div class="item" @click="showDetailDialog">{{ t("symbolInfo") }}</div>
-    <div class="item" @click="toogleTopUp">
+    <div class="menuItem" @click="addChart">{{ t("chart.new") }}</div>
+    <div class="menuItem" @click="showDetailDialog">{{ t("symbolInfo") }}</div>
+    <div class="menuItem" @click="toogleTopUp">
       {{ t(`${props.rowData.topSort ? "unTop" : "topUp"}`) }}
     </div>
-    <div :class="{ item: true, pending: delLoading }" @click="handleCancelFav">
+    <div
+      :class="{ menuItem: true, pending: delLoading }"
+      @click="handleCancelFav"
+    >
       <span>{{ t("delete") }}</span>
       <el-icon class="is-loading" v-if="delLoading"><Loading /></el-icon>
     </div>
@@ -293,6 +296,22 @@ watchEffect(() => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
+:deep(.el-table__cell) {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0;
+}
+:deep(.el-table .cell) {
+  padding: 0;
+}
+html.dark .el-table {
+  --el-table-tr-bg-color: #1d222d;
+}
+.el-table {
+  --el-table-tr-bg-color: #f6f8fb;
+}
+
 .rightClickMenu {
   position: fixed;
   z-index: 999;
@@ -302,7 +321,7 @@ watchEffect(() => {
   display: flex;
   flex-direction: column;
   @include background_color("background-dialog");
-  .item {
+  .menuItem {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -323,9 +342,6 @@ watchEffect(() => {
   }
 }
 
-.title {
-  font-size: 18px;
-}
 .infoDetail {
   border-bottom: 1px solid;
   @include border_color("border");
@@ -343,10 +359,9 @@ watchEffect(() => {
   grid-row-gap: 16px;
   .item {
     display: flex;
+    gap: 24px;
     span:first-child {
       min-width: 98px;
-      padding-right: 8px;
-      display: block;
     }
   }
 }
@@ -354,15 +369,6 @@ watchEffect(() => {
   margin: 24px 0;
 }
 
-:deep(.el-table__cell) {
-  text-overflow: ellipsis;
-  overflow: hidden;
-  white-space: nowrap;
-  padding: 0;
-}
-:deep(.el-table .cell) {
-  padding: 0;
-}
 .weekday_header {
   position: relative;
   text-overflow: ellipsis;

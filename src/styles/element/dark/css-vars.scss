@@ -86,6 +86,9 @@ html.dark {
   .el-dropdown__popper.el-popper {
     box-shadow: 0px 12px 32px 8px #000000;
   }
+  .el-dropdown-menu {
+    background-color: #1d222d;
+  }
   .el-dropdown-menu__item:not(.is-disabled):focus,
   .el-dropdown-menu__item:not(.is-disabled):hover {
     background-color: #383d47;

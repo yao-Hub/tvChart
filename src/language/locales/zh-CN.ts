@@ -18,7 +18,6 @@ export default {
   shortcutkey: "快捷键",
 
   lightTheme: "亮色主题",
-  QuickTransactions: "快捷交易",
   updownColor: "涨跌颜色",
   upRedDownGreen: "红涨绿跌",
   upGreenDownRed: "绿涨红跌",
@@ -70,8 +69,14 @@ export default {
   klineArea: "商品K线面板",
   topUp: "置顶",
   unTop: "取消置顶",
-  clickSell: "点击卖出",
-  clickBuy: "点击买入",
+
+  quickTrade: {
+    clickSell: "点击卖出",
+    clickBuy: "点击买入",
+    title: "快捷交易",
+    sell: "卖出",
+    buy: "买入",
+  },
 
   article: {
     readAgree: "请阅读并同意",
@@ -387,6 +392,7 @@ export default {
   deposit: {
     amount: "入金金额",
     goOn: "继续",
+    email: "输入邮箱验证码以继续",
   },
 
   update: {

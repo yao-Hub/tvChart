@@ -211,9 +211,10 @@ onUnmounted(() => {
     &_right {
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
+      justify-content: center;
+      gap: 8px;
       .up {
-        font-size: 16px;
+        font-size: var(--icon-size);
       }
       .down {
         @include font_color("word-gray");

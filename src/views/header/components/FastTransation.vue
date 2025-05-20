@@ -1,6 +1,6 @@
 <!-- 快捷交易 -->
 <template>
-  <el-tooltip :content="t('QuickTransactions')">
+  <el-tooltip :content="t('quickTrade.title')">
     <div class="iconbox" @click="handleClick">
       <BaseImg
         :iconName="orderStore.state.ifQuick ? 'icon_3a' : 'icon_3'"

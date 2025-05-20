@@ -13,7 +13,6 @@ export default {
   clearCache: "Clear Cache",
   checkUpdate: "Check for updates",
 
-  QuickTransactions: "Quick Trade",
   lightTheme: "Light Theme",
   shortcutkey: "Shortcut",
   createChart: "Create Chart",
@@ -65,8 +64,14 @@ export default {
   klineArea: " Charts Panel",
   topUp: "Top",
   unTop: "unTop",
-  clickSell: "Click to sell",
-  clickBuy: "Click to buy",
+
+  quickTrade: {
+    clickSell: "Click to sell",
+    clickBuy: "Click to buy",
+    title: "Quick Trade",
+    sell: "SELL",
+    buy: "BUY",
+  },
 
   layout: {
     single: "Single Charts",
@@ -388,6 +393,7 @@ export default {
   deposit: {
     amount: "Deposit Amount",
     goOn: "continue",
+    email: "Enter email verification code to continue",
   },
   update: {
     mustUpdate: "Must be updated to continue using",

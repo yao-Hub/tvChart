@@ -55,7 +55,11 @@
           <el-text>{{ item.feedbackReply }}</el-text>
         </div>
       </div>
-      <el-empty v-if="commentList.length === 0" />
+      <el-empty v-if="!loading && commentList.length === 0">
+        <template #image>
+          <BaseImg iconName="icon_empty"></BaseImg>
+        </template>
+      </el-empty>
     </el-scrollbar>
   </el-dialog>
 </template>

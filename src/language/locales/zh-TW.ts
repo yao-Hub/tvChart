@@ -18,7 +18,6 @@ export default {
   shortcutkey: "快捷鍵",
 
   lightTheme: "亮色主題",
-  QuickTransactions: "快捷交易",
   updownColor: "漲跌顏色",
   upRedDownGreen: "紅漲綠跌",
   upGreenDownRed: "綠跌紅漲",
@@ -70,8 +69,14 @@ export default {
   klineArea: "商品K線面板",
   topUp: "置頂",
   unTop: "取消置頂",
-  clickSell: "單點賣出",
-  clickBuy: "單點買入",
+
+  quickTrade: {
+    clickSell: "單點賣出",
+    clickBuy: "單點買入",
+    title: "快捷交易",
+    sell: "賣出",
+    buy: "買入",
+  },
 
   article: {
     readAgree: "請閱讀並同意",
@@ -388,6 +393,7 @@ export default {
   deposit: {
     amount: "入金金額",
     goOn: "繼續",
+    email: "輸入郵箱驗證碼以繼續",
   },
 
   update: {

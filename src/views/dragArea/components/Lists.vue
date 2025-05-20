@@ -17,7 +17,7 @@
         </div>
         <div class="mid">
           <el-tooltip
-            :content="`${t('clickSell')}(${t('QuickTransactions')})`"
+            :content="`${t('quickTrade.clickSell')}(${t('quickTrade.title')})`"
             placement="top"
             :show-arrow="false"
             :offset="1"
@@ -26,12 +26,12 @@
               :class="['mid_btn', 'left', getClass(item, 'bid')]"
               @click="addOrder(1, item.symbol)"
             >
-              <span>SELL</span>
+              <span>{{ t("quickTrade.sell") }}</span>
               <span class="price">{{ getPrice(item.symbol, "bid") }}</span>
             </div>
           </el-tooltip>
           <el-tooltip
-            :content="`${t('clickBuy')}(${t('QuickTransactions')})`"
+            :content="`${t('quickTrade.clickBuy')}(${t('quickTrade.title')})`"
             placement="top"
             :show-arrow="false"
             :offset="1"
@@ -40,7 +40,7 @@
               :class="['mid_btn', 'right', getClass(item, 'ask')]"
               @click="addOrder(0, item.symbol)"
             >
-              <span>BUY</span>
+              <span>{{ t("quickTrade.buy") }}</span>
               <span class="price">{{ getPrice(item.symbol, "ask") }}</span>
             </div>
           </el-tooltip>

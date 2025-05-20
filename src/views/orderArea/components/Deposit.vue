@@ -63,7 +63,7 @@
           ref="emailFormRef"
           :model="emailForm"
         >
-          <el-form-item prop="email" :label="t('account.email')">
+          <el-form-item prop="email" :label="t('deposit.email')">
             <el-autocomplete
               v-model="emailForm.email"
               :fetch-suggestions="querySearch"
@@ -73,7 +73,7 @@
             />
           </el-form-item>
 
-          <el-form-item :label="t('account.verificationCode')" prop="code">
+          <el-form-item prop="code">
             <VerificationCode
               type="deposit"
               v-model:value="emailForm.code"
@@ -279,6 +279,12 @@ const handleCancel = () => {
 </script>
 
 <style lang="scss" scoped>
+:deep(.el-input__inner) {
+  height: var(--base-height);
+}
+:deep(.el-input__wrapper) {
+  padding: 0 11px;
+}
 :deep(.el-form-item__label) {
   width: 100%;
   padding-right: 0;

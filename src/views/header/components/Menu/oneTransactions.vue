@@ -2,7 +2,7 @@
   <div class="oneTransactions">
     <div class="oneTransactions_left">
       <BaseImg class="logo" iconName="icon_9" />
-      <span>{{ t("QuickTransactions") }}</span>
+      <span>{{ t("quickTrade.title") }}</span>
     </div>
     <el-switch v-model="switchVal" :before-change="beforeChange" />
   </div>
