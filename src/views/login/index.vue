@@ -7,7 +7,7 @@
       <Language></Language>
     </div>
     <router-view v-slot="{ Component }">
-      <div class="container">
+      <div class="home-container">
         <transition :name="direction" mode="out-in" appear>
           <div class="main" :key="routeName">
             <component :is="Component" />
@@ -142,7 +142,7 @@ watch(
     gap: 16px;
     align-items: center;
   }
-  .container {
+  .home-container {
     position: fixed;
     right: 15%;
     top: 15%;

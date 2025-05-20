@@ -3,7 +3,7 @@
     <el-text type="info" style="align-self: unset">{{
       t("marketDepth")
     }}</el-text>
-    <div class="container" v-if="depths.length">
+    <div class="deep-container" v-if="depths.length">
       <div class="box">
         <div class="item" v-for="item in depths">
           <span class="pre-value">{{ item.bid_size }}</span>
@@ -93,7 +93,7 @@ onUnmounted(() => {
   justify-content: space-between;
   border-radius: 4px;
 }
-.container {
+.deep-container {
   flex: 1;
   padding-top: 8px;
   display: flex;

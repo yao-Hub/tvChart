@@ -19,7 +19,7 @@
           <el-icon class="closeBtn" @click="close"><Close /></el-icon>
         </div>
       </template>
-      <div class="container">
+      <div class="order_dialog-container">
         <div class="container_top">
           <el-form
             ref="closeFormRef"
@@ -524,7 +524,7 @@ const handleCancel = () => {
   @include background_color("downLight");
 }
 
-.container {
+.order_dialog-container {
   display: flex;
   flex-direction: column;
   align-items: center;

@@ -21,7 +21,7 @@
         </div>
       </div>
     </HorizontalScrolling>
-    <div class="container" ref="container">
+    <div class="orderArea-container" ref="container">
       <HorizontalScrolling style="margin-bottom: 8px">
         <div class="filter">
           <SymbolSelect
@@ -1154,7 +1154,7 @@ const getTableData = (type: string) => {
     }
   }
 
-  .container {
+  .orderArea-container {
     box-sizing: border-box;
     height: calc(100% - var(--component-size) - 4px);
     padding: 8px;

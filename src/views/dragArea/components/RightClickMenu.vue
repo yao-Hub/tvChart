@@ -33,7 +33,7 @@
         <el-icon class="closeBtn" @click="close"><Close /></el-icon>
       </div>
     </template>
-    <div v-loading="loading" v-if="!ifError" class="container">
+    <div v-loading="loading" v-if="!ifError">
       <div class="infoDetail">
         <el-text class="secondaryTitle">{{
           getValue("description" as keyof ISessionSymbolInfo)

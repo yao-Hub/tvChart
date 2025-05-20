@@ -24,7 +24,7 @@
         </div>
       </template>
 
-      <div class="container">
+      <div class="deposit-container">
         <el-form
           v-if="state === 'amount'"
           label-position="top"
@@ -283,7 +283,7 @@ const handleCancel = () => {
   width: 100%;
   padding-right: 0;
 }
-.container {
+.deposit-container {
   margin-top: 24px;
 }
 .btn {

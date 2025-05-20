@@ -26,7 +26,7 @@
       </div>
     </div>
 
-    <div class="container">
+    <div class="symbolList-container">
       <el-table
         v-show="!ifSearch && mode === 'table'"
         v-loading="tableLoading"
@@ -427,7 +427,7 @@ const changeMode = () => {
     }
   }
 }
-.container {
+.symbolList-container {
   width: 100%;
   // 减去顶部搜索框的高度 - padding
   height: calc(100% - var(--component-size) - 8px);
