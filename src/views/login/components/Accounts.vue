@@ -1,47 +1,53 @@
 <template>
-  <div class="accounts scrollList">
-    <span class="plogin">{{ t("logAccount") }}</span>
-    <span class="padd">{{ t("noAccount") }}</span>
+  <div class="accountsList">
+    <ScanCode></ScanCode>
 
-    <div class="list">
-      <el-scrollbar always :height="Math.min(list.length, 3) * 56">
-        <div
-          class="item"
-          v-for="(account, index) in list"
-          @click="selectAccount(index)"
-        >
-          <div class="item_left">
-            <img :src="logoMap[account.server] || ''" class="icon" />
-            <span class="textEllipsis">{{ account.server }}</span>
-            <span class="textEllipsis">{{ account.login }}</span>
-          </div>
-          <div class="item_right">
-            <el-icon v-if="account.actived && !ifOpera">
-              <BaseImg iconName="select" />
-            </el-icon>
-            <el-icon v-if="ifOpera" @click.stop="delAccount(account)">
-              <BaseImg iconName="delete" />
-            </el-icon>
-          </div>
+    <div class="accountsList-container">
+      <div class="accounts scrollList">
+        <span class="plogin">{{ t("logAccount") }}</span>
+        <span class="padd">{{ t("noAccount") }}</span>
+
+        <div class="list">
+          <el-scrollbar always :height="Math.min(list.length, 3) * 56">
+            <div
+              class="item"
+              v-for="(account, index) in list"
+              @click="selectAccount(index)"
+            >
+              <div class="item_left">
+                <img :src="logoMap[account.server] || ''" class="icon" />
+                <span class="textEllipsis">{{ account.server }}</span>
+                <span class="textEllipsis">{{ account.login }}</span>
+              </div>
+              <div class="item_right">
+                <el-icon v-if="account.actived && !ifOpera">
+                  <BaseImg iconName="select" />
+                </el-icon>
+                <el-icon v-if="ifOpera" @click.stop="delAccount(account)">
+                  <BaseImg iconName="delete" />
+                </el-icon>
+              </div>
+            </div>
+          </el-scrollbar>
         </div>
-      </el-scrollbar>
-    </div>
 
-    <el-button
-      class="btn"
-      type="primary"
-      :loading="loading"
-      @click="happyStart"
-    >
-      <span class="btnText">{{
-        ifOpera ? t("done") : t("account.login")
-      }}</span></el-button
-    >
+        <el-button
+          class="btn"
+          type="primary"
+          :loading="loading"
+          @click="happyStart"
+        >
+          <span class="btnText">{{
+            ifOpera ? t("done") : t("account.login")
+          }}</span></el-button
+        >
 
-    <div class="footer">
-      <span @click="goLogin()">{{ t("addAccount") }}</span>
-      <el-divider direction="vertical" />
-      <span @click="ifOpera = true">{{ t("manageAccount") }}</span>
+        <div class="footer">
+          <span @click="goLogin()">{{ t("addAccount") }}</span>
+          <el-divider direction="vertical" />
+          <span @click="ifOpera = true">{{ t("manageAccount") }}</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -53,6 +59,8 @@ import { orderBy } from "lodash";
 import { useI18n } from "vue-i18n";
 
 import { PageEnum } from "@/constants/pageEnum";
+
+import ScanCode from "./ScanCode.vue";
 
 import { AccountListItem, useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
@@ -154,17 +162,29 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-.accounts {
-  padding: 32px;
-  position: relative;
+.accountsList {
+  display: flex;
   height: 100%;
+}
+.accountsList-container {
+  height: 100%;
+  margin-top: 32px;
+  width: 480px;
+  box-sizing: border-box;
+}
+.accounts {
+  padding: 0 32px;
+  position: relative;
   box-sizing: border-box;
   overflow: auto;
   display: flex;
   flex-direction: column;
-  width: 480px;
+  width: 100%;
+  border-left: 1px solid;
+  @include border_color("border");
 
   .plogin {
+    margin-top: 18px;
     font-size: 24px;
     height: 40px;
     line-height: 40px;
@@ -224,7 +244,7 @@ onUnmounted(() => {
     }
   }
   .btn {
-    margin-top: 40px;
+    margin: 40px 0 95px 0;
     height: 56px;
     width: 100%;
     .btnText {
@@ -241,7 +261,6 @@ onUnmounted(() => {
     font-size: 14px;
     box-sizing: border-box;
     height: 80px;
-    margin-top: auto;
     align-items: center;
     flex-shrink: 0;
     span {
