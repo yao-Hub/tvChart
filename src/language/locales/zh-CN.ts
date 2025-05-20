@@ -420,6 +420,16 @@ export default {
     tip: "注意：该应用程序可能包含在您所在国家/地区不受监管的交易商，在任何交易商开设账户之前请务必谨慎了解。每家公司均提供详细联系信息，通过它们进一步了解其监管状况和服务。CTOTrader不会拥有有关特定国家/地区交易商监管状况的完整且最新的信息，并且对其可靠性或声誉不做任何担保。",
   },
 
+  scanCode: {
+    title: "手机扫码登录",
+    open: "打开",
+    place: ` CTOTrader APP-我的 `,
+    action: "点击右上角扫一扫",
+    guide: "怎么扫码登录？",
+    invalidCode: "二维码已失效",
+    waitConfirm: "在APP上确认",
+  },
+
   "refresh page": "刷新页面",
   "network error": "网络错误",
   "invalid token": "登录过期",

@@ -1,6 +1,6 @@
 <template>
   <div class="scanCode">
-    <div class="phoneTIp">手机扫码登录</div>
+    <div class="phoneTIp">{{ t("scanCode.title") }}</div>
     <div
       class="qrcode-container"
       :style="{
@@ -17,13 +17,15 @@
         class="qrcode"
       />
       <div class="status" v-if="codeType === 'expire'">
-        <span class="expireWord">二维码已失效</span>
-        <el-button type="primary" class="freshBtn">刷新</el-button>
+        <span class="expireWord">{{ t("scanCode.invalidCode") }}</span>
+        <el-button type="primary" class="freshBtn">{{
+          t("refresh")
+        }}</el-button>
       </div>
 
       <div class="status" v-if="codeType === 'success'">
         <BaseImg iconName="icon_success"></BaseImg>
-        <span class="successWord">在APP上确认</span>
+        <span class="successWord">{{ t("scanCode.waitConfirm") }}</span>
       </div>
     </div>
 
@@ -38,16 +40,16 @@
     />
 
     <div class="scan-tip">
-      <span>打开</span>
-      <span class="app-name">CTOTrader APP</span>
-      <span>扫码登录</span>
+      <span>{{ t("scanCode.open") }}</span>
+      <span class="app-name">{{ t("scanCode.place") }}</span>
+      <span>{{ t("scanCode.action") }}</span>
     </div>
 
     <span
       class="guide-tip"
       @mouseenter="ifGuide = true"
       @mouseleave="ifGuide = false"
-      >如何扫码登录？</span
+      >{{ t("scanCode.guide") }}</span
     >
   </div>
 </template>
@@ -55,6 +57,9 @@
 <script setup lang="ts">
 import QRCodeVue from "qrcode.vue";
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const qrValue = ref("https://www.baidu.com");
 const size = ref(200);
@@ -73,6 +78,8 @@ const ifGuide = ref(false);
 }
 
 .phoneTIp {
+  width: 100%;
+  text-align: center;
   font-size: 24px;
   line-height: 40px;
   position: absolute;
@@ -146,9 +153,10 @@ const ifGuide = ref(false);
   width: 100%;
   text-align: center;
   position: absolute;
-  bottom: 145px;
+  bottom: 136px;
   left: 50%;
   transform: translate(-50%);
+  line-height: normal;
   .app-name {
     @include font_color("primary");
   }

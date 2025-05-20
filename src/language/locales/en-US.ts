@@ -422,6 +422,16 @@ export default {
     tip: `Note: This application may include brokers that are not regulated in your country/region. Please be sure to carefully understand before opening an account with any broker.Each company provides detailed contact information, through which you can further understand their regulatory status and services. CTOTrader does not have complete and up-to-date information on the regulatory status of brokers in specific countries/regions, and makes no guarantees regarding their reliability or reputation.`,
   },
 
+  scanCode: {
+    title: "Mobile QR Code Login",
+    open: "Open",
+    place: ` the CTOTrader APP → Go to "Me" → `,
+    action: "Click the scan icon in the upper right corner.",
+    guide: "How to log in by scanning the QR code?",
+    invalidCode: "The QR code has expired",
+    waitConfirm: "Confirm on the app",
+  },
+
   "refresh page": "Reload",
   "network error": "network Error",
   "invalid token": "Invalid Token",

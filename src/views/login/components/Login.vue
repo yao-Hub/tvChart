@@ -460,7 +460,7 @@ onUnmounted(() => {
 
 .login-form {
   flex: 1;
-  margin: 24px 0 12px 0;
+  margin: 24px 0 6px 0;
   font-size: 16px !important;
 
   &-remember {

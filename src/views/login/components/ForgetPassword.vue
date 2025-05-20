@@ -46,6 +46,7 @@
           type="password"
           :placeholder="t('tip.enterNewPwd')"
           show-password
+          autocomplete="new-password"
         />
       </el-form-item>
 
