@@ -9,9 +9,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref, watchEffect } from "vue";
+
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
-import { ref, watchEffect } from "vue";
+
+import eventBus from "utils/eventBus";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
@@ -25,10 +28,9 @@ watchEffect(() => {
   switchVal.value = !!orderStore.state.ifOne;
 });
 
-const emit = defineEmits(["closeDropdown"]);
-
 const beforeChange = () => {
-  emit("closeDropdown");
+  eventBus.emit("closeDropdown");
+
   if (!orderStore.state.ifOne) {
     dialogStore.openDialog("disclaimersVisible");
     return false;

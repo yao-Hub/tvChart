@@ -27,16 +27,14 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
-
+import eventBus from "utils/eventBus";
 import { useTheme } from "@/store/modules/theme";
+
+const { t } = useI18n();
 const themeStore = useTheme();
-
-const emit = defineEmits(["closeDropdown"]);
-
 const changeColor = (theme: "upRedDownGreen" | "upGreenDownRed") => {
-  emit("closeDropdown");
   themeStore.setUpDownTheme(theme);
+  eventBus.emit("closeDropdown");
 };
 </script>
 

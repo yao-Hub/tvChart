@@ -7,14 +7,14 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
-
 import { useDialog } from "@/store/modules/dialog";
+import eventBus from "utils/eventBus";
+
+const { t } = useI18n();
 const dialogStore = useDialog();
 
-const emit = defineEmits(["closeDropdown"]);
 const handleClick = () => {
-  emit("closeDropdown");
+  eventBus.emit("closeDropdown");
   dialogStore.openDialog("feedbackVisible");
 };
 </script>

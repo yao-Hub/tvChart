@@ -11,7 +11,7 @@
       </div>
     </div>
     <template #dropdown>
-      <Sizes @closeDropdown="emit('closeDropdown')"></Sizes>
+      <Sizes></Sizes>
     </template>
   </el-dropdown>
 </template>
@@ -22,7 +22,6 @@ const { t } = useI18n();
 import { useSize } from "@/store/modules/size";
 import Sizes from "./Sizes.vue";
 const sizeStore = useSize();
-const emit = defineEmits(["closeDropdown"]);
 </script>
 
 <style lang="scss" scoped>

@@ -2,7 +2,7 @@
   <el-dropdown
     ref="dropdown"
     trigger="contextmenu"
-    @visible-change="visible = $event"
+    @visible-change="handleVisibleChange"
     placement="bottom-end"
   >
     <div class="menuIcon">
@@ -15,33 +15,33 @@
     <template #dropdown>
       <div class="dropdownbox">
         <div class="dropdownbox_item">
-          <OneTransactions @closeDropdown="toggle(false)"></OneTransactions>
+          <OneTransactions></OneTransactions>
         </div>
         <el-divider />
         <div class="dropdownbox_item">
-          <Theme @closeDropdown="toggle(false)"></Theme>
+          <Theme></Theme>
         </div>
         <div class="dropdownbox_item">
-          <Language @closeDropdown="toggle(false)"></Language>
+          <Language></Language>
         </div>
         <div class="dropdownbox_item">
-          <UpDowncolor @closeDropdown="toggle(false)"></UpDowncolor>
+          <UpDowncolor></UpDowncolor>
         </div>
         <div class="dropdownbox_item">
-          <FontSize @closeDropdown="toggle(false)"></FontSize>
+          <FontSize></FontSize>
         </div>
         <el-divider />
         <div class="dropdownbox_item">
-          <sendFeedback @closeDropdown="toggle(false)"></sendFeedback>
+          <sendFeedback></sendFeedback>
         </div>
         <div class="dropdownbox_item">
-          <aboutUs @closeDropdown="toggle(false)"></aboutUs>
+          <aboutUs></aboutUs>
         </div>
         <div class="dropdownbox_item">
           <ClearCache></ClearCache>
         </div>
         <div class="dropdownbox_item" v-if="ifElectron">
-          <CheckUpdate @closeDropdown="toggle(false)"></CheckUpdate>
+          <CheckUpdate></CheckUpdate>
         </div>
       </div>
     </template>
@@ -50,6 +50,10 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
+import type { DropdownInstance } from "element-plus";
+
+import eventBus from "utils/eventBus";
+
 import FontSize from "./FontSize/index.vue";
 import Language from "./Language/index.vue";
 import UpDowncolor from "./UpDowncolor/index.vue";
@@ -60,22 +64,25 @@ import Theme from "./theme.vue";
 import ClearCache from "./clearCache.vue";
 import CheckUpdate from "./checkUpdate.vue";
 
-const visible = ref(false);
+const ifElectron = process.env.IF_ELECTRON;
 
-import type { DropdownInstance } from "element-plus";
+const visible = ref(false);
 
 const dropdown = ref<DropdownInstance>();
 
-function toggle(visible: boolean) {
+eventBus.on("closeDropdown", () => toggle(false));
+
+function toggle(val: boolean) {
   if (!dropdown.value) return;
-  if (visible) {
+  if (val) {
     dropdown.value.handleOpen();
   } else {
     dropdown.value.handleClose();
   }
 }
-
-const ifElectron = process.env.IF_ELECTRON;
+const handleVisibleChange = (val: boolean) => {
+  visible.value = val;
+};
 </script>
 
 <style lang="scss" scoped>

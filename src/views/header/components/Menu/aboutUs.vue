@@ -43,15 +43,16 @@
 import { useDialog } from "@/store/modules/dialog";
 import { ref } from "vue";
 
+import eventBus from "utils/eventBus";
+
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const dialogStore = useDialog();
 const open = ref<boolean>(false);
-const emit = defineEmits(["closeDropdown"]);
 
 const handleClick = () => {
-  emit("closeDropdown");
+  eventBus.emit("closeDropdown");
   dialogStore.incrementZIndex();
   open.value = true;
 };

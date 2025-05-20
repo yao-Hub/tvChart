@@ -7,12 +7,14 @@
 
 <script setup lang="ts">
 import { useVersion } from "@/store/modules/version";
+
+import eventBus from "utils/eventBus";
+
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
-const emit = defineEmits(["closeDropdown"]);
 const checkUpdate = () => {
+  eventBus.emit("closeDropdown");
   useVersion().getUpdate();
-  emit("closeDropdown");
 };
 </script>
 
