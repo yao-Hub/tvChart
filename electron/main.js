@@ -7,7 +7,8 @@ const { exec } = require('child_process');
 const windowsMap = {};
 
 // 输入的快捷键密钥
-const secretCodeQueue = [];
+let ctrlActivated = false;  // 标记Ctrl/Command是否被按过
+let inputIndex = 0;           // 当前输入的密码字符索引
 const SECRET_CODE = 'yaozeyu';
 
 // 下载进度
@@ -35,29 +36,16 @@ function createWindow(name, hash, screenWidth) {
   // electron是否是本地环境（electron环境只有production和development，打包之后运行都是production，本地运行就是development）
   const ifDev = process.env.NODE_ENV === "development";
 
+  // 窗口16:9
   const { width: sw } = screen.getPrimaryDisplay().workAreaSize;
-
-  const platform = process.platform;
-
-  const screenMap = () => {
-    switch (platform) {
-      case "darwin":
-        return {
-          width: sw && sw >= 2560 ? 1980 : 1400,
-        };
-      default:
-        return {
-          width: sw && sw >= 2560 ? 1980 : 1600,
-        };
-    }
-  };
-
-  const renderWidth = screenWidth || screenMap().width;
+  const width = sw >= 2560 ? 1980 : 1400;
+  const renderWidth = screenWidth || width;
+  const renderHight = Math.floor(renderWidth / 16 * 9);
 
   // 创建浏览器窗口
   windowsMap[name] = new BrowserWindow({
     width: renderWidth,
-    height: renderWidth / 16 * 9,
+    height: renderHight,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
@@ -132,19 +120,27 @@ function createWindow(name, hash, screenWidth) {
       event.preventDefault();
     }
 
-    // 监听字符输入（忽略修饰键）打开开发者工具
-    if (!input.control && !input.meta && !input.alt) {
-      const char = input.key.toLowerCase();
-      secretCodeQueue.push(char);
+    if (input.key === 'Control' || input.key === 'Meta') {
+      ctrlActivated = true; // 标记为已激活
+      inputIndex = 0;
+      return;
+    }
 
-      // 保持队列长度与密码一致
-      if (secretCodeQueue.length > SECRET_CODE.length) {
-        secretCodeQueue.shift();
-      }
-      // 检测匹配
-      if (secretCodeQueue.join('') === SECRET_CODE) {
-        windowsMap[name].webContents.openDevTools();
-        secretCodeQueue.length = 0; // 清空队列
+    // 监听字符输入（忽略修饰键）打开开发者工具
+    if (ctrlActivated && !input.control && !input.meta && !input.alt) {
+      const char = input.key.toLowerCase();
+      if (char === SECRET_CODE[inputIndex]) {
+        inputIndex++;
+        // 完全匹配时打开开发者工具
+        if (inputIndex === SECRET_CODE.length) {
+          windowsMap[name].webContents.openDevTools();
+          ctrlActivated = false;
+          inputIndex = 0;
+        }
+      } else {
+        // 输入错误字符，立即重置状态
+        ctrlActivated = false;
+        inputIndex = 0;
       }
     }
   });

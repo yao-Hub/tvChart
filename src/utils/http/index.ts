@@ -29,7 +29,6 @@ interface IOption {
   urlType?: string;
   needLogin?: boolean;
   noBeCancel?: boolean;
-  noTip?: boolean;
   customData?: boolean;
 }
 
@@ -41,8 +40,6 @@ function handleTokenErr() {
   // cancelAllRequests();
   eventBus.emit("go-login");
 }
-
-// const ifPro = import.meta.env.MODE === "production";
 
 const nowLocale = i18n.global.locale.value;
 const LOCALE_MAP: Record<string, string> = {
@@ -134,7 +131,6 @@ service.interceptors.request.use(
         action,
         d: encrypt(JSON.stringify(config.data)),
       };
-      // !ifPro &&
       console.log("request----", {
         url: config.url,
         data: config.data,
@@ -158,7 +154,6 @@ service.interceptors.response.use(
       if (data.data) {
         data.data = JSON.parse(decrypt(data.data));
       }
-      // !ifPro &&
       console.log("response....", { url: config.url, data });
       return response;
     }
@@ -171,11 +166,10 @@ service.interceptors.response.use(
       handleTokenErr();
     }
 
-    !config.noTip &&
-      ElNotification({
-        message: t(data.errmsg || "error"),
-        type: "error",
-      });
+    ElNotification({
+      message: t(data.errmsg || "error"),
+      type: "error",
+    });
     return Promise.reject(data);
   },
   // 状态码!===200
@@ -189,21 +183,20 @@ service.interceptors.response.use(
       if (res.data.errmsg && errorTokenList.includes(res.data.errmsg)) {
         handleTokenErr();
       }
-      !res.config.noTip &&
-        ElNotification({
-          message:
-            t(res.data.errmsg || res.data.msg) || res.data.msg || "error",
-          type: "error",
-        });
+      ElNotification({
+        message: t(res.data.errmsg || res.data.msg) || res.data.msg || "error",
+        type: "error",
+      });
       return Promise.reject(err);
     }
-    if (res && res.status && !res.config.noTip) {
+    if (res && res.status) {
       ElNotification({
         message: `statusCode: ${res.status}`,
         type: "error",
       });
       return Promise.reject(err);
     }
+    ElMessage.error(err);
     return Promise.reject(err);
   }
 );
