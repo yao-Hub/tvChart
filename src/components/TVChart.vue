@@ -274,6 +274,48 @@ const initonReady = () => {
         themeStore.setUpDownTheme();
       }, 200);
 
+      // widget.activeChart().createShape(
+      //   // channel: "open" | "high" | "low" | "close";
+      //   { time: new Date().getTime() - 5000, price: 0.594 },
+      //   { shape: "horizontal_line" }
+      // );
+
+      // const lastBarTime = widget.chart().getVisibleRange().to;
+      // createPositionLabelShape(widget.chart(), {·
+      //   price: 2.74,
+      //   time: 1716199200,
+      //   direction: "多头",
+      //   pnl: 75.2,
+      //   entryTime: new Date(),
+      // });
+
+      // 表示挂单（尚未成交的订单）
+      // const orderLine = widget.chart().createOrderLine();
+      // orderLine
+      //   .setPrice(0.588)
+      //   .setText("orderLine 买入 STOP: 73.5 (5,64%)")
+      //   .setLineLength(30)
+      //   .setQuantityBackgroundColor("red")
+      //   .onModify("onModify called", () => {
+      //     console.log("onModify called");
+      //   })
+      //   .onMove("move", () => {})
+      //   .onCancel("", () => {});
+
+      // // 表示持仓（已成交的头寸）
+      // const positionLine = widget.chart().createPositionLine();
+      // positionLine
+      //   .setPrice(0.59)
+      //   .setText(`positionLine 多头持仓\n盈亏：+$75.20`)
+      //   .setQuantity("1")
+      //   .setLineColor("#4CAF50")
+      //   .onModify("onModify called", (T) => {
+      //     console.log(T);
+      //   })
+      //   .onClose("onModify onClose", (T) => {
+      //     console.log(T);
+      //   });
+
       emit("initChart", { id: props.chartId, widget });
     });
   });
