@@ -59,6 +59,7 @@
           :symbol="symbol"
           :timezone="timeStore.settedTimezone"
           :disabledFeatures="disabledFeatures"
+          :enabledFeatures="enabledFeatures"
           @initChart="initChart"
         >
         </TVChart>
@@ -95,6 +96,7 @@ const disabledFeatures = [
   "symbol_search_hot_key",
   "header_resolutions",
 ];
+const enabledFeatures = ["disable_resolution_rebuild"];
 
 const chartType = computed(() => {
   return chartInitStore.state.chartLayoutType;

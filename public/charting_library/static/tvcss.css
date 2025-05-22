@@ -6,12 +6,12 @@
 #drawing-toolbar {
   transform: translateY(-3px);
 }
-.content-mBXAEZtB > *:last-child {
+/* .content-mBXAEZtB > *:last-child {
   display: none;
 }
 .statuses-Lgtz1OtS {
   display: none;
-}
+} */
 
 div[data-name="open-image-in-new-tab"],
 div[data-name="tweet-chart-image"],

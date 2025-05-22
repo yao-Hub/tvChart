@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 
 import * as types from "@/types/chart";
 import { ResLineInfo, klineHistory } from "api/kline/index";
-import { cloneDeep, maxBy, orderBy } from "lodash";
+import { cloneDeep, flattenDeep, groupBy, maxBy, orderBy } from "lodash";
 
 const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();
@@ -37,11 +37,11 @@ const config = {
   supported_resolutions: Object.keys(RESOLUTES),
 };
 
-// const formatTime = (time: number) => {
-//   const hours = Math.floor(time / 60);
-//   const second = time % 60;
-//   return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
-// };
+const formatTime = (time: number) => {
+  const hours = Math.floor(time / 60);
+  const second = time % 60;
+  return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
+};
 
 // 商品切换还未初始化，但是数据已经先到达，存储最新的那个bar
 let temBar: Record<string, ResLineInfo> = {};
@@ -69,40 +69,40 @@ export const datafeed = (id: string) => {
       const storeSymbolInfo = symbolsStore.symbols.find(
         (e) => e.symbol === symbolName
       );
-      // const ttimes = storeSymbolInfo ? storeSymbolInfo.ttimes : [];
-      // // 当时间为0 到 0时为关闭日
-      // const times = flattenDeep(Object.values(ttimes)).filter(
-      //   (obj) => symbolName === obj.symbol && obj.btime !== obj.etime
-      // );
-      // const grouptObj = groupBy(times, "week_day");
-      // const timeArr = [];
-      // for (const weekDay in grouptObj) {
-      //   const tItem = grouptObj[weekDay];
-      //   const fTime = tItem.reduce(
-      //     (pre: types.TimeUnit, next: types.TimeUnit) => {
-      //       const preSession = `${formatTime(pre.btime)}-${formatTime(
-      //         pre.etime
-      //       )}`;
-      //       const endSession = `${formatTime(next.btime)}-${formatTime(
-      //         next.etime
-      //       )}`;
-      //       return {
-      //         btime: pre.btime,
-      //         etime: next.etime,
-      //         symbol: symbolName,
-      //         week_day: Number(weekDay),
-      //         session: `${preSession},${endSession}:${Number(weekDay) + 1}`,
-      //       };
-      //     }
-      //   );
-      //   const resultTs =
-      //     fTime.session ||
-      //     `${formatTime(fTime.btime)}-${formatTime(fTime.etime)}:${
-      //       Number(weekDay) + 1
-      //     }`;
-      //   timeArr.push(resultTs);
-      // }
-      // const session = timeArr.join("|");
+      const ttimes = storeSymbolInfo ? storeSymbolInfo.ttimes : [];
+      // 当时间为0 到 0时为关闭日
+      const times = flattenDeep(Object.values(ttimes)).filter(
+        (obj) => symbolName === obj.symbol && obj.btime !== obj.etime
+      );
+      const grouptObj = groupBy(times, "week_day");
+      const timeArr = [];
+      for (const weekDay in grouptObj) {
+        const tItem = grouptObj[weekDay];
+        const fTime = tItem.reduce(
+          (pre: types.TimeUnit, next: types.TimeUnit) => {
+            const preSession = `${formatTime(pre.btime)}-${formatTime(
+              pre.etime
+            )}`;
+            const endSession = `${formatTime(next.btime)}-${formatTime(
+              next.etime
+            )}`;
+            return {
+              btime: pre.btime,
+              etime: next.etime,
+              symbol: symbolName,
+              week_day: Number(weekDay),
+              session: `${preSession},${endSession}:${Number(weekDay) + 1}`,
+            };
+          }
+        );
+        const resultTs =
+          fTime.session ||
+          `${formatTime(fTime.btime)}-${formatTime(fTime.etime)}:${
+            Number(weekDay) + 1
+          }`;
+        timeArr.push(resultTs);
+      }
+      const session = timeArr.join("|");
       const timeStore = useTime();
 
       const symbol_stub = {
@@ -112,15 +112,16 @@ export const datafeed = (id: string) => {
         minmov: 1, // 纵坐标比例
         minmov2: 0,
         pricescale: Math.pow(10, storeSymbolInfo?.digits || 2), // 纵坐标小数位数
-        // session,
-        session: "24x7",
+        session,
+        // session: "24x7",
         // has_empty_bars: true,
         ticker: symbolName,
         timezone: timeStore.settedTimezone,
         // type: "cfd",
-        has_intraday: true, // 分钟数据
-        has_daily: true, // 日k线数据
-        has_weekly_and_monthly: true, // 月，周数据
+        has_intraday: true, // 是否支持分钟数据
+        has_daily: true, // 是否支持日数据
+        has_weekly_and_monthly: true, // 是否支持月，周数据
+        intraday_multipliers: ["1", "5", "15", "30", "60", "240"], // 支持的分钟级周期
         supported_resolutions: [
           "D",
           "W",
