@@ -5,6 +5,7 @@ import { ConfigEnv, defineConfig, loadEnv } from "vite";
 
 import { visualizer } from "rollup-plugin-visualizer";
 import { ElementPlusResolver } from "unplugin-vue-components/resolvers";
+import viteCompression from "vite-plugin-compression";
 
 import electron from "vite-plugin-electron";
 
@@ -37,6 +38,15 @@ export default defineConfig((mode: ConfigEnv) => {
             importStyle: false,
           }),
         ],
+      }),
+      viteCompression({
+        algorithm: "gzip",
+        ext: ".gz",
+        threshold: 10240, // 大于 10KB 的文件才压缩
+        filter: /\.(js|css|html|svg|json)$/i, // 指定压缩的文件类型
+        deleteOriginFile: false, // 压缩后是否删除原始文件（不建议）
+        compressionOptions: { level: 9 }, // 压缩级别 1-9（9 最高）
+        verbose: true, // 输出压缩日志
       }),
       visualizer({
         open: false, //注意这里要设置为true，否则无效
