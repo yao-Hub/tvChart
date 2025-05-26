@@ -18,12 +18,14 @@ import { useVersion } from "@/store/modules/version";
 import { useUser } from "./store/modules/user";
 import { useChartInit } from "./store/modules/chartInit";
 import { useSocket } from "./store/modules/socket";
+import { useSystem } from "./store/modules/system";
 
 const sizeStore = useSize();
+const systemStore = useSystem();
 
+useSystem().getSystemInfo(); // 拿系统信息
 sizeStore.initSize(); // 初始化字体大小
 useTheme().initTheme(); // 系统主题
-useVersion().getDeviceId(); // 生成设备唯一id
 
 // 启动应用打点
 watch(
@@ -38,15 +40,17 @@ watch(
 );
 
 // 在线人数打点
-const ifHasEmitOnline = ref(false);
+const ifSendOnlineTrack = ref(false);
 watch(
-  () => useUser().account,
-  (account) => {
-    if (account.login && account.token && !ifHasEmitOnline.value) {
+  () => systemStore.systemInfo,
+  (info) => {
+    if (ifSendOnlineTrack.value) return;
+    if (info && info.deviceId) {
       useSocket().emitOnline();
-      ifHasEmitOnline.value = true;
+      ifSendOnlineTrack.value = true;
     }
-  }
+  },
+  { deep: true }
 );
 
 // 国际化

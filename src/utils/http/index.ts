@@ -16,7 +16,7 @@ import { generateUUID } from "@/utils/common";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
-import { useVersion } from "@/store/modules/version";
+import { useSystem } from "@/store/modules/system";
 import { useTheme } from "@/store/modules/theme";
 
 import i18n from "@/language/index";
@@ -56,15 +56,7 @@ const service = axios.create({
   headers: {
     "Content-Type": "application/json",
     "x-u-platform": "web",
-    // @ts-ignore
     "x-u-app-version": _VERSION_,
-    // @ts-ignore
-    "x-u-device-type": window.electronAPI?.getOSInfo().platform || WEB_PLATFORM,
-    // @ts-ignore
-    "x-u-device-info": window.electronAPI?.getOSInfo().release || WEB_RELEASE,
-    "x-u-device-model":
-      // @ts-ignore
-      window.electronAPI?.getOSInfo().hostname || WEB_HOSTNAME,
     "accept-language": acceptLanguage,
     "x-u-app-market": "official_website",
   },
@@ -72,10 +64,17 @@ const service = axios.create({
 
 // 请求拦截器
 service.interceptors.request.use(
-  (config: reqConfig) => {
-    const versionStore = useVersion();
+  async (config: reqConfig) => {
+    const systemStore = useSystem();
     const themeStore = useTheme();
-    config.headers["x-u-device-id"] = versionStore.deviceId;
+    if (!systemStore.systemInfo) {
+      await systemStore.getSystemInfo();
+    }
+    config.headers["x-u-device-id"] = systemStore.systemInfo!.deviceId;
+    config.headers["x-u-device-type"] = systemStore.systemInfo!.platform;
+    config.headers["x-u-device-info"] = systemStore.systemInfo!.deviceInfo;
+    config.headers["x-u-device-model"] = systemStore.systemInfo!.deviceModel;
+    config.headers["x-u-device-brand"] = systemStore.systemInfo!.deviceBrand;
     config.headers["x-u-app-theme"] = themeStore.getSystemTheme();
 
     // 请求地址

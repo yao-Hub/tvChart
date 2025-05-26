@@ -434,6 +434,7 @@ export default {
     guide: "怎么扫码登录？",
     invalidCode: "二维码已失效",
     waitConfirm: "在APP上确认",
+    logging: "登录中",
   },
 
   "refresh page": "刷新页面",

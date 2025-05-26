@@ -436,6 +436,7 @@ export default {
     guide: "How to log in by scanning the QR code?",
     invalidCode: "The QR code has expired",
     waitConfirm: "Confirm on the app",
+    logging: "Logging",
   },
 
   "refresh page": "Reload",

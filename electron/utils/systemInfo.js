@@ -1,7 +1,6 @@
 const { exec } = require('child_process');
 const os = require('os');
 const fs = require('fs');
-const path = require('path');
 
 /**
  * 获取设备唯一标识符
@@ -98,44 +97,22 @@ function getDeviceModel() {
 }
 
 /**
- * 获取设备类型
- */
-function getDeviceType() {
-  const platform = os.platform();
-  const isDesktop = os.totalmem() > 1024 * 1024 * 512; // 512MB 以上视为桌面设备
-
-  if (platform === 'win32') {
-    return isDesktop ? 'Desktop' : 'Laptop';
-  } else if (platform === 'darwin') {
-    return isDesktop ? 'Mac Desktop' : 'Mac Laptop';
-  } else if (platform === 'linux') {
-    return isDesktop ? 'Linux Desktop' : 'Linux Laptop';
-  } else {
-    return 'Unknown';
-  }
-}
-
-/**
  * 获取所有设备信息
  */
 async function getDeviceInfo() {
   try {
-    const [uuid, model, type] = await Promise.all([
+    const [uuid, model] = await Promise.all([
       getDeviceUUID(),
       getDeviceModel(),
-      getDeviceType()
     ]);
-
     return {
       uuid,
       model,
-      type,
       os: os.platform(),
       arch: os.arch(),
       release: os.release()
     };
   } catch (error) {
-    console.error('Failed to get device info:', error);
     return {
       error: error.message
     };

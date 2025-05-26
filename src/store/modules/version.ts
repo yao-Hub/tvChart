@@ -1,14 +1,12 @@
 import { defineStore } from "pinia";
 import { ElMessageBox } from "element-plus";
 
-import { generateUUID } from "@/utils/common";
 import { versionQuery, IReqVersion } from "api/other";
 import { useDialog } from "./dialog";
 
 import i18n from "@/language/index";
 
 interface IState {
-  deviceId: string;
   versionInfo: IReqVersion | null;
   updateInfo: {
     progress: number;
@@ -21,7 +19,6 @@ interface IGetUpdate {
 }
 export const useVersion = defineStore("version", {
   state: (): IState => ({
-    deviceId: window.localStorage.getItem("uuid") || "",
     versionInfo: null,
     updateInfo: {
       progress: 0,
@@ -31,10 +28,6 @@ export const useVersion = defineStore("version", {
   actions: {
     changeVerisonToNum(strVersion: string) {
       return +strVersion.split(".").join("");
-    },
-    getDeviceId() {
-      this.deviceId = window.localStorage.getItem("uuid") || generateUUID();
-      window.localStorage.setItem("uuid", this.deviceId);
     },
     /** 应用更新
      * step 1.服务器获取更新

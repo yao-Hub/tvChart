@@ -5,7 +5,7 @@ import SingletonSocket from "utils/socket";
 
 import { useUser } from "./user";
 import { useNetwork } from "./network";
-import { useVersion } from "./version";
+import { useSystem } from "./system";
 
 import { IRate, ISocketKlineNew, ISocketQuote } from "@/types/chart";
 import { encrypt } from "utils/DES/JS";
@@ -33,7 +33,7 @@ type TFooname =
 
 interface IState {
   socket: Socket | null;
-  instance: SingletonSocket;
+  mainInstance: SingletonSocket;
   // socket未初始化时，若调用了方法则先存储方法，等待socket初始化后再去执行
   noExecuteList: Array<{
     fooName: TFooname;
@@ -49,9 +49,10 @@ interface ChartProps {
   resolution: string | number;
   symbol: string;
 }
+
 export const useSocket = defineStore("socket", {
   state: (): IState => ({
-    instance: new SingletonSocket(),
+    mainInstance: new SingletonSocket(),
     socket: null,
     noExecuteList: [],
     onLineSocket: null,
@@ -76,7 +77,7 @@ export const useSocket = defineStore("socket", {
       const server = useUser().account.server || useNetwork().server;
       const searchMap: Record<string, string> = {
         "x-u-platform": "web",
-        "x-u-device-id": useVersion().deviceId,
+        "x-u-device-id": useSystem().systemInfo!.deviceId,
         server,
         action,
       };
@@ -98,7 +99,7 @@ export const useSocket = defineStore("socket", {
       const mainUri = networkStore.currentNode?.webWebsocket;
       if (mainUri) {
         const query = this.getUriQuery();
-        this.socket = this.instance.getInstance(mainUri, query);
+        this.socket = this.mainInstance.getInstance(mainUri, query);
         while (this.noExecuteList.length) {
           const item = this.noExecuteList.shift();
           if (item) {
@@ -237,8 +238,8 @@ export const useSocket = defineStore("socket", {
     sendToken({ login, token }: { login: string | number; token: string }) {
       const userStore = useUser();
       if (this.socket) {
-        this.socket.emit("set_login", {
-          action: "set_login",
+        this.socket.emit("set_online_login", {
+          action: "set_online_login",
           d: this.enData({
             ...this.reqData(),
             server: userStore.account.server,
@@ -423,11 +424,7 @@ export const useSocket = defineStore("socket", {
     // 埋点跟踪用户在线socket连接
     emitOnline() {
       const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
-      const dData = {
-        login: useUser().account.login,
-        token: useUser().account.token,
-      };
-      this.onLineSocket = io(`${uri}/${this.getUriQuery("online", dData)}`, {
+      this.onLineSocket = io(`${uri}/${this.getUriQuery("online", {})}`, {
         transports: ["websocket"],
         reconnection: true, // 开启重连功能
         reconnectionAttempts: 5,
@@ -435,6 +432,7 @@ export const useSocket = defineStore("socket", {
       });
     },
 
+    // socket意外断开未执行的发送任务重发
     reEmit() {
       setTimeout(() => {
         if (this.socket) {
@@ -461,9 +459,10 @@ export const useSocket = defineStore("socket", {
       if (this.onLineSocket) {
         this.onLineSocket.close();
       }
-      if (this.instance) {
-        this.instance.close();
+      if (this.mainInstance) {
+        this.mainInstance.close();
       }
+
       this.onLineSocket = null;
       this.socket = null;
     },

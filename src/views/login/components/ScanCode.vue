@@ -18,14 +18,23 @@
       />
       <div class="status" v-if="codeType === 'expire'">
         <span class="expireWord">{{ t("scanCode.invalidCode") }}</span>
-        <el-button type="primary" class="freshBtn">{{
+        <el-button type="primary" class="freshBtn" @click="emitScanCode">{{
           t("refresh")
         }}</el-button>
       </div>
 
+      <div class="status" v-if="codeType === 'waiting'">
+        <BaseImg iconName="icon_success"></BaseImg>
+        <span class="waitingWord">{{ t("scanCode.waitConfirm") }}</span>
+      </div>
+
+      <div class="status" v-if="codeType === 'pending'">
+        <div class="pendingBox" v-loading="true"></div>
+      </div>
+
       <div class="status" v-if="codeType === 'success'">
         <BaseImg iconName="icon_success"></BaseImg>
-        <span class="successWord">{{ t("scanCode.waitConfirm") }}</span>
+        <span class="waitingWord">{{ t("scanCode.logging") }}</span>
       </div>
     </div>
 
@@ -55,22 +64,129 @@
 </template>
 
 <script setup lang="ts">
-import QRCodeVue from "qrcode.vue";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
+import QRCodeVue from "qrcode.vue";
+
+import { decrypt, encrypt } from "utils/DES/JS";
+import { sendTrack } from "@/utils/track";
+
+import { useSocket } from "@/store/modules/socket";
+import { useSystem } from "@/store/modules/system";
+import { generateUUID } from "@/utils/common";
+import { useUser } from "@/store/modules/user";
 
 const { t } = useI18n();
+const router = useRouter();
 
-const qrValue = ref("https://www.baidu.com");
+const qrValue = ref();
 const size = ref(200);
+const systemStore = useSystem();
 
-const codeType = ref<"normal" | "success" | "expire">("normal");
+const codeType = ref<"pending" | "normal" | "waiting" | "expire" | "success">(
+  "normal"
+);
 const ifGuide = ref(false);
+
+const timer = ref<ReturnType<typeof setInterval>>();
+const countdown = ref<number>(0); // 剩余秒数
+// 初始化倒计时
+const initCountdown = (timestamp: number) => {
+  // 计算剩余秒数
+  const updateCountdown = () => {
+    const now = Date.now();
+    countdown.value = Math.max(0, Math.floor((timestamp - now) / 1000));
+    if (countdown.value <= 0) {
+      clearInterval(timer.value);
+      codeType.value = "expire";
+    }
+  };
+
+  // 立即更新一次
+  updateCountdown();
+  // 每秒更新一次
+  timer.value = setInterval(updateCountdown, 1000);
+};
+
+watch(
+  () => useSocket().onLineSocket,
+  () => {
+    emitScanCode();
+  },
+  { once: true }
+);
+const emitScanCode = async () => {
+  const socket = useSocket().onLineSocket;
+  if (!useSystem().systemInfo) {
+    await useSystem().getSystemInfo();
+  }
+  if (socket) {
+    const info = {
+      pc_device_id: systemStore.systemInfo!.deviceId,
+      pc_device_model: systemStore.systemInfo!.deviceModel,
+      pc_device_brand: systemStore.systemInfo!.deviceBrand,
+      pc_device_info: systemStore.systemInfo!.deviceInfo,
+      pc_ip: systemStore.systemInfo!.localIp,
+      req_id: generateUUID(),
+      req_time: Date.now(),
+    };
+    const data = {
+      action: "qrcode_init",
+      d: encrypt(JSON.stringify(info)),
+    };
+    codeType.value = "pending";
+    socket.emit("qrcode_init", data);
+
+    socket.on("qrcode_init", (d) => {
+      codeType.value = "normal";
+      const result = JSON.parse(decrypt(d.data));
+      qrValue.value = result.qr_code;
+      const expirationTime = result.expiration_time;
+      initCountdown(expirationTime);
+      const pcId = result.pc_device_id;
+      if (pcId !== info.pc_device_id) {
+        codeType.value = "expire";
+      }
+    });
+    // 扫码成功登录
+    socket.on("qr_code_login", (d) => {
+      const result = JSON.parse(decrypt(d.data));
+      const { server, login, pc_token, status } = result;
+      // 已扫码
+      if (status === 1) {
+        codeType.value = "waiting";
+        return;
+      }
+      // 已作废
+      if (status === 3) {
+        codeType.value = "expire";
+        return;
+      }
+      if (pc_token) {
+        codeType.value = "success";
+        useUser().addAccount({
+          token: pc_token,
+          server,
+          ifLogin: true,
+          login,
+        });
+        sendTrack({
+          actionType: "signUp",
+          actionObject: "scanCode",
+        });
+        router.push({ path: "/" });
+      }
+    });
+  }
+};
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+:deep(.el-loading-mask) {
+  background-color: unset;
+}
 .scanCode {
   width: 350px;
   height: calc(100% - 55px);
@@ -131,11 +247,15 @@ const ifGuide = ref(false);
     width: 64px;
     height: 64px;
   }
-  .successWord {
+  .waitingWord {
     font-weight: 500;
     font-size: 16px;
     @include font_color("word");
     margin-top: 20px;
+  }
+  .pendingBox {
+    width: 100%;
+    height: 100%;
   }
 }
 
@@ -153,7 +273,7 @@ const ifGuide = ref(false);
   width: 100%;
   text-align: center;
   position: absolute;
-  bottom: 136px;
+  bottom: 20%;
   left: 50%;
   transform: translate(-50%);
   line-height: normal;
@@ -165,7 +285,7 @@ const ifGuide = ref(false);
   width: 100%;
   text-align: center;
   position: absolute;
-  bottom: 30px;
+  bottom: 5%;
   left: 50%;
   transform: translate(-50%);
   cursor: pointer;

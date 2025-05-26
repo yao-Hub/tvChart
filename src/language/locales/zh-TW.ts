@@ -435,6 +435,7 @@ export default {
     guide: "怎麼掃碼登入？",
     invalidCode: "二維碼已失效",
     waitConfirm: "在APP上確認",
+    logging: "登入中",
   },
 
   "refresh page": "刷新頁面",

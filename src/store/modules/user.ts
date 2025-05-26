@@ -202,7 +202,7 @@ export const useUser = defineStore("user", () => {
     }
   }
 
-  const addAccount = (data: AccountListItem) => {
+  const addAccount = (data: any) => {
     state.accountList.forEach((item) => {
       item.ifLogin = false;
     });

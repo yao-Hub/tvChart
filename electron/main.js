@@ -34,10 +34,6 @@ const gotTheLock = app.requestSingleInstanceLock();
 // 创建窗口
 function createWindow(name, hash, screenWidth) {
 
-  getDeviceInfo().then(deviceInfo => {
-    windowsMap[name].webContents.send("deviceInfo", deviceInfo);
-  });
-
   // electron是否是本地环境（electron环境只有production和development，打包之后运行都是production，本地运行就是development）
   const ifDev = process.env.NODE_ENV === "development";
 
@@ -358,6 +354,12 @@ ipcMain.handle('open-new-window', (event, params) => {
     return;
   }
   createWindow(name, hash, 800);
+});
+
+// 获取系统信息
+ipcMain.handle('get-system-info', async () => {
+  const info = await getDeviceInfo();
+  return info;
 });
 
 
