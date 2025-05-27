@@ -107,7 +107,7 @@ export const useUser = defineStore("user", () => {
       const list = JSON.parse(stoStr);
       if (list.length > 0) {
         list.forEach((item: any) => {
-          item.password = CryptoJS.decrypt(item.password); // 解密
+          // item.password = CryptoJS.decrypt(item.password); // 解密
           item.token = CryptoJS.decrypt(item.token);
         });
       }
@@ -128,7 +128,7 @@ export const useUser = defineStore("user", () => {
     const storageList = state.accountList.map((item) => {
       return {
         ...item,
-        password: CryptoJS.encrypt(item.password), // 加密
+        // password: CryptoJS.encrypt(item.password), // 加密
         token: CryptoJS.encrypt(item.token),
       };
     });

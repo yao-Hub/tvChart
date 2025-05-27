@@ -26,7 +26,7 @@ function getDeviceUUID() {
           reject(error);
           return;
         }
-        const uuid = stdout.toString().split('"')[1];
+        const uuid = stdout.toString().split('=')[1];
         resolve(uuid);
       });
     } else if (platform === 'linux') {

@@ -113,6 +113,16 @@ watch(
   () => useSocket().onLineSocket,
   () => {
     emitScanCode();
+
+    // setTimeout(() => {
+    //   useUser().addAccount({
+    //     token: "77473d33-20f9-4969-81a1-6fcc80c3adeb",
+    //     server: "CTOTrader-demo",
+    //     ifLogin: true,
+    //     login: 9527,
+    //   });
+    //   router.push({ path: "/" });
+    // }, 2000);
   },
   { once: true }
 );
@@ -141,6 +151,7 @@ const emitScanCode = async () => {
     socket.on("qrcode_init", (d) => {
       codeType.value = "normal";
       const result = JSON.parse(decrypt(d.data));
+      console.log("qrcode_init", result);
       qrValue.value = result.qr_code;
       const expirationTime = result.expiration_time;
       initCountdown(expirationTime);
@@ -151,19 +162,23 @@ const emitScanCode = async () => {
     });
     // 扫码成功登录
     socket.on("qr_code_login", (d) => {
-      const result = JSON.parse(decrypt(d.data));
+      if (timer.value) {
+        clearInterval(timer.value);
+      }
+      const result = JSON.parse(decrypt(d));
+      console.log("qr_code_login", result);
       const { server, login, pc_token, status } = result;
       // 已扫码
-      if (status === 1) {
+      if (status === "1") {
         codeType.value = "waiting";
         return;
       }
       // 已作废
-      if (status === 3) {
+      if (status === "3") {
         codeType.value = "expire";
         return;
       }
-      if (pc_token) {
+      if (status === "2" && pc_token && login && server) {
         codeType.value = "success";
         useUser().addAccount({
           token: pc_token,
@@ -176,7 +191,9 @@ const emitScanCode = async () => {
           actionObject: "scanCode",
         });
         router.push({ path: "/" });
+        return;
       }
+      codeType.value = "expire";
     });
   }
 };

@@ -70,7 +70,7 @@ export const useSystem = defineStore("system", () => {
       return;
     }
     const res = await axios.get("https://ipv4.icanhazip.com/");
-    const localIp = res.data;
+    const localIp = res.data.replace("\n", "");
     // 桌面应用拿操作系统信息
     if (process.env.IF_ELECTRON) {
       const info: any = await window.electronAPI.invoke("get-system-info");
@@ -104,6 +104,7 @@ export const useSystem = defineStore("system", () => {
       deviceId,
       localIp,
     };
+    window.localStorage.setItem("uuid", deviceId);
   };
 
   function $reset() {}
