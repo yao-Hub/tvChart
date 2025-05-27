@@ -36,8 +36,10 @@ const route = useRoute();
 
 const localeKey = ref("");
 
-useInit().init();
-useNetwork().getLines(); //  交易线路
+(async function foo() {
+  await useInit().init();
+  await useNetwork().getLines(); //  交易线路
+})();
 
 // 预加载home路由
 const homeComponentImport = () => import("@/views/home/index.vue");

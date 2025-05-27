@@ -23,31 +23,45 @@ import { useSystem } from "./store/modules/system";
 const sizeStore = useSize();
 const systemStore = useSystem();
 
-useSystem().getSystemInfo(); // 拿系统信息
 sizeStore.initSize(); // 初始化字体大小
 useTheme().initTheme(); // 系统主题
 
-// 启动应用打点
-watch(
-  () => useUser().account.server,
-  () => {
+// 标志位：systemInfo 是否有值
+const systemInfoReady = ref(false);
+// 标志位：打点函数是否已执行
+const trackSent = ref(false);
+
+const checkAndSendTrack = () => {
+  if (systemInfoReady.value && useUser().account.server && !trackSent.value) {
+    trackSent.value = true; // 立即标记为已发送
     sendTrack({
       actionType: "open",
       actionObject: location.href,
     });
-  },
-  { once: true }
+  }
+};
+
+// 启动应用打点
+watch(
+  () => useUser().account.server,
+  (server) => {
+    if (server) {
+      checkAndSendTrack(); // 检查是否可以发送打点
+    }
+  }
 );
 
-// 在线人数打点
+// 在线人数打点、扫码登录初始化
 const ifSendOnlineTrack = ref(false);
 watch(
   () => systemStore.systemInfo,
   (info) => {
     if (ifSendOnlineTrack.value) return;
     if (info && info.deviceId) {
-      useSocket().emitOnline();
+      systemInfoReady.value = true;
+      useSocket().onlineSocketInit();
       ifSendOnlineTrack.value = true;
+      checkAndSendTrack();
     }
   },
   { deep: true }

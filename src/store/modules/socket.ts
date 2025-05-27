@@ -422,7 +422,7 @@ export const useSocket = defineStore("socket", {
     },
 
     // 埋点跟踪用户在线socket连接
-    emitOnline() {
+    onlineSocketInit() {
       const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
       this.onLineSocket = io(`${uri}/${this.getUriQuery("online", {})}`, {
         transports: ["websocket"],
