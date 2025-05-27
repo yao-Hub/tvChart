@@ -75,11 +75,11 @@ export const useSystem = defineStore("system", () => {
     if (process.env.IF_ELECTRON) {
       const info: any = await window.electronAPI.invoke("get-system-info");
       try {
-        const { uuid, model, os, release } = info;
+        const { uuid, model, os, release, manufacturer } = info;
         systemInfo.value = {
           deviceId: uuid,
-          deviceBrand: model.split(" ")[0],
-          deviceModel: model.split(" ").slice(1).join(" "),
+          deviceBrand: manufacturer,
+          deviceModel: model,
           platform: os,
           deviceInfo: release,
           localIp,

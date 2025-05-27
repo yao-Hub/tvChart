@@ -53,6 +53,44 @@ function getDeviceUUID() {
   });
 }
 
+// 获取设备制造商
+function getDeviceManufacturer() {
+  return new Promise((resolve, reject) => {
+    const platform = os.platform();
+    if (platform === 'win32') {
+      exec('wmic computersystem get manufacturer', (error, stdout) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        const manufacturer = stdout.trim().split('\n')[1]; // 过滤标题行
+        resolve(manufacturer);
+      });
+    } else if (platform === 'darwin') {
+      exec('system_profiler SPHardwareDataType | grep "Manufacturer"', (error, stdout) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        const manufacturer = stdout.trim().split(': ')[1]; // 提取冒号后的内容
+        resolve(manufacturer);
+      });
+    } else if (platform === 'linux') {
+      exec('dmidecode -s system-manufacturer', (error, stdout) => {
+        if (error) {
+          reject(error);
+          return;
+        }
+        const manufacturer = stdout.trim();
+        resolve(manufacturer);
+
+      });
+    } else {
+      reject(new Error('Unsupported platform'));
+    }
+  });
+}
+
 /**
  * 获取设备型号
  */
@@ -101,13 +139,15 @@ function getDeviceModel() {
  */
 async function getDeviceInfo() {
   try {
-    const [uuid, model] = await Promise.all([
+    const [uuid, model, manufacturer] = await Promise.all([
       getDeviceUUID(),
       getDeviceModel(),
+      getDeviceManufacturer(),
     ]);
     return {
       uuid,
       model,
+      manufacturer,
       os: os.platform(),
       arch: os.arch(),
       release: os.release()
