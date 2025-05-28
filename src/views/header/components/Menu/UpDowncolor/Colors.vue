@@ -1,24 +1,13 @@
 <template>
   <el-dropdown-menu>
-    <el-dropdown-item>
-      <div class="colorsItem" @click="changeColor('upRedDownGreen')">
-        <BaseImg class="logo" iconName="upRedDownGreen" />
-        <span>{{ t("upRedDownGreen") }}</span>
+    <el-dropdown-item v-for="theme in themeList">
+      <div class="colorsItem" @click="changeColor(theme.value)">
+        <BaseImg class="logo" :iconName="theme.value" noTheme />
+        <span>{{ theme.label }}</span>
         <BaseImg
           class="logo checkIcon"
           iconName="select"
-          v-if="themeStore.upDownTheme === 'upRedDownGreen'"
-        />
-      </div>
-    </el-dropdown-item>
-    <el-dropdown-item>
-      <div class="colorsItem" @click="changeColor('upGreenDownRed')">
-        <BaseImg class="logo" iconName="upGreenDownRed" />
-        <span>{{ t("upGreenDownRed") }}</span>
-        <BaseImg
-          class="logo checkIcon"
-          iconName="select"
-          v-if="themeStore.upDownTheme === 'upGreenDownRed'"
+          v-if="themeStore.upDownTheme === theme.value"
         />
       </div>
     </el-dropdown-item>
@@ -28,11 +17,38 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import eventBus from "utils/eventBus";
-import { useTheme } from "@/store/modules/theme";
+import { useTheme, TupDownTheme } from "@/store/modules/theme";
 
 const { t } = useI18n();
 const themeStore = useTheme();
-const changeColor = (theme: "upRedDownGreen" | "upGreenDownRed") => {
+
+const themeList: Array<{ label: string; value: TupDownTheme }> = [
+  {
+    label: t("updownTheme.upRedDownGreen"),
+    value: "upRedDownGreen",
+  },
+  {
+    label: t("updownTheme.upGreenDownRed"),
+    value: "upGreenDownRed",
+  },
+  {
+    label: t("updownTheme.classicUpRedDownGreen"),
+    value: "classicUpRedDownGreen",
+  },
+  {
+    label: t("updownTheme.classicUpGreenDownRed"),
+    value: "classicUpGreenDownRed",
+  },
+  {
+    label: t("updownTheme.CVD1"),
+    value: "CVD1",
+  },
+  {
+    label: t("updownTheme.CVD2"),
+    value: "CVD2",
+  },
+];
+const changeColor = (theme: TupDownTheme) => {
   themeStore.setUpDownTheme(theme);
   eventBus.emit("closeDropdown");
 };

@@ -19,9 +19,6 @@ export default {
   chartList: "Chart List",
   symbolList: "Symbol List",
   orderList: "Order List",
-  updownColor: "Color Scheme",
-  upRedDownGreen: "Red Rising,Green Falling",
-  upGreenDownRed: "Red Falling,Green Rising ",
   refresh: "Refresh",
   error: "Error",
   ok: "OK",
@@ -64,6 +61,16 @@ export default {
   klineArea: " Charts Panel",
   topUp: "Top",
   unTop: "unTop",
+
+  updownTheme: {
+    menuLabel: "Color Scheme",
+    upRedDownGreen: "Red Rising,Green Falling",
+    upGreenDownRed: "Red Falling,Green Rising",
+    classicUpRedDownGreen: "classic Red Rising,Green Falling",
+    classicUpGreenDownRed: "classic Red Rising,Green Falling",
+    CVD1: "Vision Problem1 (CVD)",
+    CVD2: "Vision Problem2 (CVD)",
+  },
 
   quickTrade: {
     clickSell: "Click to sell",

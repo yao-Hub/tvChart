@@ -2,7 +2,6 @@ import { ref } from "vue";
 import { defineStore } from "pinia";
 import Decimal from "decimal.js";
 
-import { round } from "utils/common/index";
 import * as types from "@/types/chart";
 
 import { allSymbolQuotes } from "api/symbols/index";
@@ -76,8 +75,14 @@ export const useQuotes = defineStore("qoutes", () => {
       const close = quote.close;
       const open = quote.open;
       if (close && open) {
-        const variation = round(((close - open) / open) * 100, 2);
-        result.numerator = (close - open).toFixed(2);
+        const dec_close = new Decimal(close);
+        const dec_open = new Decimal(open);
+        const variation = dec_close
+          .sub(dec_open)
+          .div(dec_open)
+          .mul(100)
+          .toFixed(2);
+        result.numerator = new Decimal(dec_close).sub(dec_open).toFixed(2);
         result.value = `${variation}%`;
         result.class = +variation > 0 ? " buyWord" : " sellWord";
       }

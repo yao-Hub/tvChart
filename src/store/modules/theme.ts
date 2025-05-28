@@ -5,7 +5,13 @@ import { useChartInit } from "./chartInit";
 import { useStorage } from "./storage";
 
 type TsystemTheme = "light" | "dark"; // 系统主题
-type TupDownTheme = "upRedDownGreen" | "upGreenDownRed"; // 涨跌风格
+export type TupDownTheme =
+  | "upRedDownGreen"
+  | "upGreenDownRed"
+  | "classicUpRedDownGreen"
+  | "classicUpGreenDownRed"
+  | "CVD1"
+  | "CVD2"; // 涨跌风格
 interface ICacheItem {
   clearColor: boolean;
   content: string;
@@ -92,86 +98,112 @@ export const useTheme = defineStore("theme", () => {
 
     const red = "#F53058";
     const green = "#2E9C76";
-    const lightRed = "#f23645";
-    const lightGreen = "#089981";
-    const proRed = "#f5a6ae";
-    const proGreen = "#a9dcc3";
+    const hoverRed = "#f6d0db";
+    const hoverGreen = "#cee5e1";
 
-    const downColor = upDownTheme.value === "upRedDownGreen" ? green : red;
-    const upColor = upDownTheme.value === "upRedDownGreen" ? red : green;
+    const classisRed = "#EA0071";
+    const classisGreen = "#73a600";
+    const classisRedHover = "#ff57a8";
+    const classisGreenHover = "#abd252";
 
-    const upLightColor =
-      upDownTheme.value === "upRedDownGreen" ? lightGreen : lightRed;
-    const downLightColor =
-      upDownTheme.value === "upRedDownGreen" ? lightGreen : lightRed;
+    const CVDYellow = "#f4b201";
+    const CVDYellowHover = "#ffd05";
+    const CVDBlue = "#3067b0";
+    const CVDBlueHover = "#5b90d5";
 
-    const upProjectionColor =
-      upDownTheme.value === "upRedDownGreen" ? proGreen : proRed;
-    const downProjectionColor =
-      upDownTheme.value === "upRedDownGreen" ? proRed : proGreen;
+    const colorMap = {
+      upRedDownGreen: {
+        downColor: green,
+        upColor: red,
+        upHoverColor: hoverRed,
+        downHoverColor: hoverGreen,
+      },
+      upGreenDownRed: {
+        downColor: red,
+        upColor: green,
+        upHoverColor: hoverGreen,
+        downHoverColor: hoverRed,
+      },
+      classicUpRedDownGreen: {
+        downColor: classisGreen,
+        upColor: classisRed,
+        upHoverColor: classisRedHover,
+        downHoverColor: classisGreenHover,
+      },
+      classicUpGreenDownRed: {
+        downColor: classisRed,
+        upColor: classisGreen,
+        upHoverColor: classisRedHover,
+        downHoverColor: classisGreenHover,
+      },
+      CVD1: {
+        downColor: CVDBlue,
+        upColor: CVDYellow,
+        upHoverColor: CVDYellowHover,
+        downHoverColor: CVDBlueHover,
+      },
+      CVD2: {
+        downColor: CVDYellow,
+        upColor: CVDBlue,
+        upHoverColor: CVDBlueHover,
+        downHoverColor: CVDYellowHover,
+      },
+    };
+
+    const upColor = colorMap[upDownTheme.value].upColor;
+    const downColor = colorMap[upDownTheme.value].downColor;
+
+    const upHoverColor = colorMap[upDownTheme.value].upHoverColor;
+    const downHoverColor = colorMap[upDownTheme.value].downHoverColor;
 
     try {
-      chartInitStore.state.chartWidgetList.forEach((item) => {
-        item.widget!.applyOverrides({
-          "mainSeriesProperties.candleStyle.upColor": upColor,
-          "mainSeriesProperties.candleStyle.downColor": downColor,
-          "mainSeriesProperties.candleStyle.borderUpColor": upColor,
-          "mainSeriesProperties.candleStyle.borderDownColor": downColor,
-          "mainSeriesProperties.candleStyle.wickUpColor": upColor,
-          "mainSeriesProperties.candleStyle.wickDownColor": downColor,
-          "mainSeriesProperties.hollowCandleStyle.upColor": upColor,
-          "mainSeriesProperties.hollowCandleStyle.downColor": downColor,
-          "mainSeriesProperties.hollowCandleStyle.borderUpColor": upColor,
-          "mainSeriesProperties.hollowCandleStyle.borderDownColor": downColor,
-          "mainSeriesProperties.hollowCandleStyle.wickUpColor": upColor,
-          "mainSeriesProperties.hollowCandleStyle.wickDownColor": downColor,
-          "mainSeriesProperties.haStyle.upColor": upColor,
-          "mainSeriesProperties.haStyle.downColor": downColor,
-          "mainSeriesProperties.haStyle.borderUpColor": upColor,
-          "mainSeriesProperties.haStyle.borderDownColor": downColor,
-          "mainSeriesProperties.haStyle.wickUpColor": upColor,
-          "mainSeriesProperties.haStyle.wickDownColor": downColor,
-          "mainSeriesProperties.barStyle.upColor": upColor,
-          "mainSeriesProperties.barStyle.downColor": downColor,
-          "mainSeriesProperties.columnStyle.upColor": upLightColor,
-          "mainSeriesProperties.columnStyle.downColor": downLightColor,
-          "mainSeriesProperties.renkoStyle.upColor": upColor,
-          "mainSeriesProperties.renkoStyle.downColor": downColor,
-          "mainSeriesProperties.renkoStyle.borderUpColor": upColor,
-          "mainSeriesProperties.renkoStyle.borderDownColor": downColor,
-          "mainSeriesProperties.renkoStyle.wickUpColor": upColor,
-          "mainSeriesProperties.renkoStyle.wickDownColor": downColor,
-          "mainSeriesProperties.pbStyle.upColor": upColor,
-          "mainSeriesProperties.pbStyle.downColor": downColor,
-          "mainSeriesProperties.pbStyle.borderUpColor": upColor,
-          "mainSeriesProperties.pbStyle.borderDownColor": downColor,
-          "mainSeriesProperties.kagiStyle.upColor": upColor,
-          "mainSeriesProperties.kagiStyle.downColor": downColor,
-          "mainSeriesProperties.pnfStyle.upColor": upColor,
-          "mainSeriesProperties.pnfStyle.downColor": downColor,
-          "mainSeriesProperties.renkoStyle.upColorProjection":
-            upProjectionColor,
-          "mainSeriesProperties.renkoStyle.downColorProjection":
-            downProjectionColor,
-          "mainSeriesProperties.renkoStyle.borderUpColorProjection":
-            upProjectionColor,
-          "mainSeriesProperties.renkoStyle.borderDownColorProjection":
-            downProjectionColor,
-          "mainSeriesProperties.pbStyle.upColorProjection": upProjectionColor,
-          "mainSeriesProperties.pbStyle.downColorProjection":
-            downProjectionColor,
-          "mainSeriesProperties.pbStyle.borderUpColorProjection":
-            upProjectionColor,
-          "mainSeriesProperties.pbStyle.borderDownColorProjection":
-            downProjectionColor,
-          "mainSeriesProperties.kagiStyle.upColorProjection": upProjectionColor,
-          "mainSeriesProperties.kagiStyle.downColorProjection":
-            downProjectionColor,
-          "mainSeriesProperties.pnfStyle.upColorProjection": upProjectionColor,
-          "mainSeriesProperties.pnfStyle.downColorProjection":
-            downProjectionColor,
-        });
-      });
+      setTimeout(() => {
+        chartInitStore.state.chartWidgetList.forEach((item) => {
+          item.widget!.applyOverrides({
+            // 正常k线图
+            "mainSeriesProperties.candleStyle.upColor": upColor,
+            "mainSeriesProperties.candleStyle.downColor": downColor,
+            "mainSeriesProperties.candleStyle.borderUpColor": upColor,
+            "mainSeriesProperties.candleStyle.borderDownColor": downColor,
+            "mainSeriesProperties.candleStyle.wickUpColor": upColor,
+            "mainSeriesProperties.candleStyle.wickDownColor": downColor,
+            // 空心k线图
+            "mainSeriesProperties.hollowCandleStyle.upColor": upColor,
+            "mainSeriesProperties.hollowCandleStyle.downColor": downColor,
+            "mainSeriesProperties.hollowCandleStyle.borderUpColor": upColor,
+            "mainSeriesProperties.hollowCandleStyle.borderDownColor": downColor,
+            "mainSeriesProperties.hollowCandleStyle.wickUpColor": upColor,
+            "mainSeriesProperties.hollowCandleStyle.wickDownColor": downColor,
+            // 美国线
+            "mainSeriesProperties.haStyle.upColor": upColor,
+            "mainSeriesProperties.haStyle.downColor": downColor,
+            "mainSeriesProperties.haStyle.borderUpColor": upColor,
+            "mainSeriesProperties.haStyle.borderDownColor": downColor,
+            "mainSeriesProperties.haStyle.wickUpColor": upColor,
+            "mainSeriesProperties.haStyle.wickDownColor": downColor,
+            "mainSeriesProperties.barStyle.upColor": upColor,
+            "mainSeriesProperties.barStyle.downColor": downColor,
+            // 柱状图
+            "mainSeriesProperties.columnStyle.upColor": upColor,
+            "mainSeriesProperties.columnStyle.downColor": downColor,
+            // HLC区域
+            "mainSeriesProperties.hlcAreaStyle.closeLowFillColor": upHoverColor,
+            "mainSeriesProperties.hlcAreaStyle.highCloseFillColor":
+              downHoverColor,
+            "mainSeriesProperties.hlcAreaStyle.highLineColor": downColor,
+            "mainSeriesProperties.hlcAreaStyle.lowLineColor": upColor,
+            // 基准线
+            "mainSeriesProperties.baselineStyle.bottomFillColor1":
+              downHoverColor,
+            "mainSeriesProperties.baselineStyle.bottomFillColor2":
+              downHoverColor,
+            "mainSeriesProperties.baselineStyle.bottomLineColor": downColor,
+            "mainSeriesProperties.baselineStyle.topFillColor1": upHoverColor,
+            "mainSeriesProperties.baselineStyle.topFillColor2": upHoverColor,
+            "mainSeriesProperties.baselineStyle.topLineColor": upColor,
+          }); // applyOverrides
+        }); // forEach
+      }); // setTimeout
     } catch (error) {}
   };
 

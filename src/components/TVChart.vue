@@ -188,8 +188,8 @@ const initonReady = () => {
   // 图表开始加载标志
   chartInitStore.setChartLoadingEndType(props.chartId, false);
 
-  widget?.onChartReady(() => {
-    widget?.headerReady().then(() => {
+  widget?.headerReady().then(() => {
+    widget?.onChartReady(() => {
       chartInitStore.createChartWidget(props.chartId, widget);
 
       // 快捷键监听
@@ -266,13 +266,10 @@ const initonReady = () => {
       const sysTheme = themeStore.systemTheme;
       if (chart_theme !== sysTheme) {
         widget.changeTheme(sysTheme as library.ThemeName);
-        localStorage.setItem("chartTheme", sysTheme);
       }
 
-      setTimeout(() => {
-        // 涨跌颜色
-        themeStore.setUpDownTheme();
-      }, 200);
+      // 涨跌颜色
+      themeStore.setUpDownTheme();
 
       // widget.activeChart().createShape(
       //   // channel: "open" | "high" | "low" | "close";

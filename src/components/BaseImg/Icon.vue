@@ -19,6 +19,7 @@ interface Props {
   iconName?: string;
   imgSuffix?: string;
   clearColor?: boolean;
+  noTheme?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -38,9 +39,10 @@ const isSvg = computed(() => props.imgSuffix === "svg");
 
 const iconSrc = computed(() => {
   const theme = themeStore.systemTheme;
+  const themePath = props.noTheme ? "" : `${theme}/`;
   // 使用新的路径格式
   return new URL(
-    `../../assets/${props.catalog}/${theme}/${props.iconName}.${props.imgSuffix}`,
+    `../../assets/${props.catalog}/${themePath}${props.iconName}.${props.imgSuffix}`,
     import.meta.url
   ).href;
 });

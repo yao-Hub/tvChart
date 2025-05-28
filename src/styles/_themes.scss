@@ -45,20 +45,60 @@
   --color-9: #278363;
   --color-10: #cee5e1;
   --color-11: #f6d0db;
+
+  --color-classic-1: #ea0071;
+  --color-classic-2: #73a600;
+  --color-classic-3: #ff57a8;
+  --color-classic-4: #abd252;
+  --color-classic-5: #cc0063;
+  --color-classic-6: #598000;
+
+  --color-dvd-1: #f4b201;
+  --color-dvd-2: #3067b0;
+  --color-dvd-3: #ffd051;
+  --color-dvd-4: #5b90d5;
+  --color-dvd-5: #e28602;
+  --color-dvd-6: #0a4189;
 }
 
 [data-theme="light"] {
   --upRedDownGreen-upLight: var(--color-11);
-  --upGreenDownRed-upLight: var(--color-10);
   --upRedDownGreen-downLight: var(--color-10);
+
+  --upGreenDownRed-upLight: var(--color-10);
   --upGreenDownRed-downLight: var(--color-11);
+
+  --classicUpRedDownGreen-upLight: #f4c6e0;
+  --classicUpRedDownGreen-downLight: #dce7c9;
+
+  --classicUpGreenDownRed-upLight: #dce7c9;
+  --classicUpGreenDownRed-downLight: #f4c6e0;
+
+  --CVD1-upLight: #f6eac9;
+  --CVD1-downLight: #cfdbec;
+
+  --CVD2-upLight: #cfdbec;
+  --CVD2-downLight: #f6eac9;
 }
 
 [data-theme="dark"] {
   --upRedDownGreen-upLight: #73273e;
-  --upGreenDownRed-upLight: #23524a;
   --upRedDownGreen-downLight: #23524a;
+
+  --upGreenDownRed-upLight: #23524a;
   --upGreenDownRed-downLight: #73273e;
+
+  --classicUpRedDownGreen-upLight: #6f1448;
+  --classicUpRedDownGreen-downLight: #3f561b;
+
+  --classicUpGreenDownRed-upLight: #3f561b;
+  --classicUpGreenDownRed-downLight: #6f1448;
+
+  --CVD1-upLight: #735b1b;
+  --CVD1-downLight: #243d61;
+
+  --CVD2-upLight: #243d61;
+  --CVD2-downLight: #735b1b;
 }
 
 $systemThemes: (
@@ -142,5 +182,46 @@ $updwonThemes: (
     downHover: var(--color-5),
     downActive: var(--color-6),
     downLight: var(--upGreenDownRed-downLight),
+  ),
+
+  classicUpRedDownGreen: (
+    up: var(--color-classic-1),
+    upHover: var(--color-classic-3),
+    upActive: var(--color-classic-5),
+    upLight: var(--classicUpRedDownGreen-upLight),
+    down: var(--color-classic-2),
+    downHover: var(--color-classic-4),
+    downActive: var(--color-classic-6),
+    downLight: var(--classicUpRedDownGreen-downLight),
+  ),
+  classicUpGreenDownRed: (
+    up: var(--color-classic-2),
+    upHover: var(--color-classic-4),
+    upActive: var(--color-classic-6),
+    upLight: var(--classicUpGreenDownRed-upLight),
+    down: var(--color-classic-1),
+    downHover: var(--color-classic-3),
+    downActive: var(--color-classic-5),
+    downLight: var(--classicUpGreenDownRed-downLight),
+  ),
+  CVD1: (
+    up: var(--color-dvd-1),
+    upHover: var(--color-dvd-3),
+    upActive: var(--color-dvd-5),
+    upLight: var(--CVD1-upLight),
+    down: var(--color-dvd-2),
+    downHover: var(--color-dvd-4),
+    downActive: var(--color-dvd-6),
+    downLight: var(--CVD1-downLight),
+  ),
+  CVD2: (
+    up: var(--color-dvd-2),
+    upHover: var(--color-dvd-4),
+    upActive: var(--color-dvd-6),
+    upLight: var(--CVD2-upLight),
+    down: var(--color-dvd-1),
+    downHover: var(--color-dvd-3),
+    downActive: var(--color-dvd-5),
+    downLight: var(--CVD2-downLight),
   ),
 );

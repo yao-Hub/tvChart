@@ -18,9 +18,6 @@ export default {
   shortcutkey: "快捷键",
 
   lightTheme: "亮色主题",
-  updownColor: "涨跌颜色",
-  upRedDownGreen: "红涨绿跌",
-  upGreenDownRed: "绿涨红跌",
   createChart: "增加图表",
 
   chartList: "图表列表",
@@ -69,6 +66,16 @@ export default {
   klineArea: "商品K线面板",
   topUp: "置顶",
   unTop: "取消置顶",
+
+  updownTheme: {
+    menuLabel: "配色方案",
+    upRedDownGreen: "红涨绿跌",
+    upGreenDownRed: "绿涨红跌",
+    classicUpRedDownGreen: "经典红涨绿跌",
+    classicUpGreenDownRed: "经典绿涨红跌",
+    CVD1: "视觉障碍1 (CVD)",
+    CVD2: "视觉障碍2 (CVD)",
+  },
 
   quickTrade: {
     clickSell: "点击卖出",

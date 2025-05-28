@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>01-图标/浅色版/基础样式#通用/配色方案-sjza2</title>
+    <g id="01-图标/浅色版/基础样式#通用/配色方案-sjza2" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <rect id="矩形" stroke="#3067B0" stroke-width="1.2" fill="#3067B0" stroke-linecap="round" transform="translate(12.833333, 9.000000) scale(-1, 1) translate(-12.833333, -9.000000) " x="10.6666667" y="3.66666667" width="4.33333333" height="10.6666667"></rect>
+        <rect id="矩形备份" stroke="#F4B201" stroke-width="1.2" fill="#F4B201" stroke-linecap="round" transform="translate(5.166667, 11.000000) scale(-1, 1) translate(-5.166667, -11.000000) " x="3" y="9" width="4.33333333" height="4"></rect>
+        <line x1="12.8333333" y1="3.49043659" x2="12.8333333" y2="1" id="路径-2" stroke="#3067B0" stroke-width="1.37142857" transform="translate(12.833333, 2.245218) scale(-1, 1) translate(-12.833333, -2.245218) "></line>
+        <line x1="5.16666667" y1="8.83242298" x2="5.16666667" y2="4.33333333" id="路径-2备份-2" stroke="#F4B201" stroke-width="1.37142857" transform="translate(5.166667, 6.582878) scale(-1, 1) translate(-5.166667, -6.582878) "></line>
+        <line x1="12.8333333" y1="17" x2="12.8333333" y2="14.4186846" id="路径-2备份" stroke="#3067B0" stroke-width="1.37142857" transform="translate(12.833333, 15.709342) scale(-1, 1) translate(-12.833333, -15.709342) "></line>
+        <line x1="5.16666667" y1="15.6666667" x2="5.16666667" y2="13.1707025" id="路径-2备份-3" stroke="#F4B201" stroke-width="1.37142857" transform="translate(5.166667, 14.418685) scale(-1, 1) translate(-5.166667, -14.418685) "></line>
+    </g>
+</svg>

@@ -3,10 +3,14 @@
     <div class="UpdownColor">
       <div class="UpdownColor_left">
         <BaseImg class="logo" iconName="icon_14" />
-        <span>{{ t("updownColor") }}</span>
+        <span>{{ t("updownTheme.menuLabel") }}</span>
       </div>
       <div class="UpdownColor_right">
-        <BaseImg class="logo checkIcon" :iconName="themeStore.upDownTheme" />
+        <BaseImg
+          class="logo checkIcon"
+          :iconName="themeStore.upDownTheme"
+          noTheme
+        />
         <BaseImg class="logo" iconName="turnRight" />
       </div>
     </div>
