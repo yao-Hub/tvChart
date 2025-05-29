@@ -41,8 +41,8 @@ export const tableColumns = (): TTableColums => {
       },
       {
         title: t("table.openingTime"),
-        dataKey: "time_setup",
-        key: "time_setup",
+        dataKey: "open_time",
+        key: "open_time",
         width: 170,
         minWidth: 170,
         align: "right",
@@ -350,7 +350,7 @@ export const tableColumns = (): TTableColums => {
       },
       {
         title: t("table.openingTime"),
-        dataKey: "time_setup",
+        dataKey: "open_time",
         key: "open_time",
         width: 170,
         minWidth: 170,

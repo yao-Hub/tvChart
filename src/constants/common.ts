@@ -32,14 +32,15 @@ export const ORDER_TYPE: Record<string, { buy: number; sell: number }> = {
   },
 };
 
-export const ORDERMAP = {
-  buyLimit: 2,
-  sellLimit: 3,
-  buyStop: 4,
-  sellStop: 5,
-  buyStopLimit: 6,
-  sellStopLimit: 7,
-} as Record<string, number>;
+// 订单类型
+export const orderTypeOptions = [
+  { value: "buyLimit", label: "Buy Limit", type: 2 },
+  { value: "sellLimit", label: "Sell Limit", type: 3 },
+  { value: "buyStop", label: "Buy Stop", type: 4 },
+  { value: "sellStop", label: "Sell Stop", type: 5 },
+  { value: "buyStopLimit", label: "Buy Stop Limit", type: 6 },
+  { value: "sellStopLimit", label: "Sell Stop Limit", type: 7 },
+];
 
 export const CLOSE_TYPE: Record<number, string> = {
   0: "manual", // 手动

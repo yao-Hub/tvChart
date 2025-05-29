@@ -88,9 +88,12 @@ export const useTheme = defineStore("theme", () => {
     }
     return upDownTheme.value;
   };
-  const setUpDownTheme = (type?: TupDownTheme) => {
-    if (type) {
-      upDownTheme.value = type;
+  const setUpDownTheme = (params?: {
+    type?: TupDownTheme;
+    chartId?: string;
+  }) => {
+    if (params && params.type) {
+      upDownTheme.value = params.type;
     }
     document.documentElement.setAttribute("upDown-theme", upDownTheme.value);
     localStorage.setItem("upDownTheme", upDownTheme.value);
@@ -156,54 +159,63 @@ export const useTheme = defineStore("theme", () => {
     const upHoverColor = colorMap[upDownTheme.value].upHoverColor;
     const downHoverColor = colorMap[upDownTheme.value].downHoverColor;
 
+    const overrides = {
+      // 正常k线图
+      "mainSeriesProperties.candleStyle.upColor": upColor,
+      "mainSeriesProperties.candleStyle.downColor": downColor,
+      "mainSeriesProperties.candleStyle.borderUpColor": upColor,
+      "mainSeriesProperties.candleStyle.borderDownColor": downColor,
+      "mainSeriesProperties.candleStyle.wickUpColor": upColor,
+      "mainSeriesProperties.candleStyle.wickDownColor": downColor,
+      // 空心k线图
+      "mainSeriesProperties.hollowCandleStyle.upColor": upColor,
+      "mainSeriesProperties.hollowCandleStyle.downColor": downColor,
+      "mainSeriesProperties.hollowCandleStyle.borderUpColor": upColor,
+      "mainSeriesProperties.hollowCandleStyle.borderDownColor": downColor,
+      "mainSeriesProperties.hollowCandleStyle.wickUpColor": upColor,
+      "mainSeriesProperties.hollowCandleStyle.wickDownColor": downColor,
+      // 美国线
+      "mainSeriesProperties.haStyle.upColor": upColor,
+      "mainSeriesProperties.haStyle.downColor": downColor,
+      "mainSeriesProperties.haStyle.borderUpColor": upColor,
+      "mainSeriesProperties.haStyle.borderDownColor": downColor,
+      "mainSeriesProperties.haStyle.wickUpColor": upColor,
+      "mainSeriesProperties.haStyle.wickDownColor": downColor,
+      "mainSeriesProperties.barStyle.upColor": upColor,
+      "mainSeriesProperties.barStyle.downColor": downColor,
+      // 柱状图
+      "mainSeriesProperties.columnStyle.upColor": upColor,
+      "mainSeriesProperties.columnStyle.downColor": downColor,
+      // HLC区域
+      "mainSeriesProperties.hlcAreaStyle.closeLowFillColor": upHoverColor,
+      "mainSeriesProperties.hlcAreaStyle.highCloseFillColor": downHoverColor,
+      "mainSeriesProperties.hlcAreaStyle.highLineColor": downColor,
+      "mainSeriesProperties.hlcAreaStyle.lowLineColor": upColor,
+      // 基准线
+      "mainSeriesProperties.baselineStyle.bottomFillColor1": downHoverColor,
+      "mainSeriesProperties.baselineStyle.bottomFillColor2": downHoverColor,
+      "mainSeriesProperties.baselineStyle.bottomLineColor": downColor,
+      "mainSeriesProperties.baselineStyle.topFillColor1": upHoverColor,
+      "mainSeriesProperties.baselineStyle.topFillColor2": upHoverColor,
+      "mainSeriesProperties.baselineStyle.topLineColor": upColor,
+    };
+
     try {
       setTimeout(() => {
+        if (params && params.chartId) {
+          const target = chartInitStore.state.chartWidgetList.find(
+            (e) => e.id === params.chartId
+          );
+          if (target) {
+            target.widget?.applyOverrides(overrides);
+            return;
+          }
+        }
+
         chartInitStore.state.chartWidgetList.forEach((item) => {
-          item.widget!.applyOverrides({
-            // 正常k线图
-            "mainSeriesProperties.candleStyle.upColor": upColor,
-            "mainSeriesProperties.candleStyle.downColor": downColor,
-            "mainSeriesProperties.candleStyle.borderUpColor": upColor,
-            "mainSeriesProperties.candleStyle.borderDownColor": downColor,
-            "mainSeriesProperties.candleStyle.wickUpColor": upColor,
-            "mainSeriesProperties.candleStyle.wickDownColor": downColor,
-            // 空心k线图
-            "mainSeriesProperties.hollowCandleStyle.upColor": upColor,
-            "mainSeriesProperties.hollowCandleStyle.downColor": downColor,
-            "mainSeriesProperties.hollowCandleStyle.borderUpColor": upColor,
-            "mainSeriesProperties.hollowCandleStyle.borderDownColor": downColor,
-            "mainSeriesProperties.hollowCandleStyle.wickUpColor": upColor,
-            "mainSeriesProperties.hollowCandleStyle.wickDownColor": downColor,
-            // 美国线
-            "mainSeriesProperties.haStyle.upColor": upColor,
-            "mainSeriesProperties.haStyle.downColor": downColor,
-            "mainSeriesProperties.haStyle.borderUpColor": upColor,
-            "mainSeriesProperties.haStyle.borderDownColor": downColor,
-            "mainSeriesProperties.haStyle.wickUpColor": upColor,
-            "mainSeriesProperties.haStyle.wickDownColor": downColor,
-            "mainSeriesProperties.barStyle.upColor": upColor,
-            "mainSeriesProperties.barStyle.downColor": downColor,
-            // 柱状图
-            "mainSeriesProperties.columnStyle.upColor": upColor,
-            "mainSeriesProperties.columnStyle.downColor": downColor,
-            // HLC区域
-            "mainSeriesProperties.hlcAreaStyle.closeLowFillColor": upHoverColor,
-            "mainSeriesProperties.hlcAreaStyle.highCloseFillColor":
-              downHoverColor,
-            "mainSeriesProperties.hlcAreaStyle.highLineColor": downColor,
-            "mainSeriesProperties.hlcAreaStyle.lowLineColor": upColor,
-            // 基准线
-            "mainSeriesProperties.baselineStyle.bottomFillColor1":
-              downHoverColor,
-            "mainSeriesProperties.baselineStyle.bottomFillColor2":
-              downHoverColor,
-            "mainSeriesProperties.baselineStyle.bottomLineColor": downColor,
-            "mainSeriesProperties.baselineStyle.topFillColor1": upHoverColor,
-            "mainSeriesProperties.baselineStyle.topFillColor2": upHoverColor,
-            "mainSeriesProperties.baselineStyle.topLineColor": upColor,
-          }); // applyOverrides
-        }); // forEach
-      }); // setTimeout
+          item.widget?.applyOverrides(overrides);
+        });
+      });
     } catch (error) {}
   };
 

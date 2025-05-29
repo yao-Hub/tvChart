@@ -18,9 +18,10 @@ import { useUser } from "./user";
 import * as orderTypes from "#/order";
 import * as types from "@/types/chart";
 import * as orders from "api/order/index";
+import { orderTypeOptions } from "@/constants/common";
 
 import { debounce, get, isNil } from "lodash";
-import { getTradingDirection, getOrderType } from "utils/order/index";
+import { getTradingDirection } from "utils/order/index";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 import { getSymbolDetail } from "api/symbols";
 
@@ -163,6 +164,14 @@ export const useOrder = defineStore("order", () => {
     },
     { deep: true, immediate: true }
   );
+
+  const getOrderType = (type: number) => {
+    const target = orderTypeOptions.find((e) => e.type === type);
+    if (target) {
+      return target.label;
+    }
+    return "-";
+  };
 
   const createOrder = <T extends ModeType>(
     params?: OrderStateWithDirectionRequired<T>

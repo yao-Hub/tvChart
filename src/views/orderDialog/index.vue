@@ -258,8 +258,11 @@
 import { cloneDeep, debounce } from "lodash";
 import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import type { FormInstance } from "element-plus";
 
 import { OrderType } from "#/order";
+import { orderTypeOptions } from "@/constants/common";
+import { ReqOrderAdd, reqPendingOrdersAdd } from "api/order/index";
 
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import BreakLimit from "./components/BreakLimit.vue";
@@ -284,7 +287,6 @@ const quotesStore = useQuotes();
 const dialogStore = useDialog();
 
 /** 表单处理 */
-import type { FormInstance } from "element-plus";
 const orderFormRef = ref<FormInstance>();
 interface FormState {
   symbol: string;
@@ -362,16 +364,6 @@ watch(
   }
 );
 
-// 订单类型
-const orderTypeOptions = [
-  { value: "buyLimit", label: "Buy Limit" },
-  { value: "sellLimit", label: "Sell Limit" },
-  { value: "buyStop", label: "Buy Stop" },
-  { value: "sellStop", label: "Sell Stop" },
-  { value: "buyStopLimit", label: "Buy Stop Limit" },
-  { value: "sellStopLimit", label: "Sell Stop Limit" },
-];
-
 /** 当前商品 */
 const symbolInfo = computed(() => {
   return symbolsStore.symbols.find((e) => e.symbol === formState.symbol);
@@ -416,7 +408,6 @@ const showConfirmModal = debounce(async (type: number) => {
 }, 200);
 
 // 市价单下单
-import { ReqOrderAdd } from "api/order/index";
 const priceBtnLoading = ref(false);
 const createPriceOrder = debounce(
   () => {
@@ -445,17 +436,18 @@ const createPriceOrder = debounce(
 );
 
 // 挂单下单
-import { ORDERMAP } from "@/constants/common";
-import { reqPendingOrdersAdd } from "api/order/index";
 const pendingBtnLoading = ref(false);
 const addPendingOrders = debounce(
   async () => {
     pendingBtnLoading.value = true;
     const values = await valids();
     if (values) {
+      const target = orderTypeOptions.find(
+        (e) => e.value === formState.orderType
+      );
       const updata: reqPendingOrdersAdd = {
         symbol: formState.symbol,
-        type: ORDERMAP[formState.orderType],
+        type: target!.type,
         volume: +formState.volume,
         order_price: +formState.orderPrice,
         time_expiration: +formState.dueDate,

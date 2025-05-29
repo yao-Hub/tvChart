@@ -23,108 +23,23 @@ const themeStore = useTheme();
 
 const { locale } = useI18n();
 
-// 字段含义见：https://zlq4863947.gitbook.io/tradingview/4-tu-biao-ding-zhi/widget-constructor
-const props = defineProps({
-  chartId: {
-    default: "",
-    type: String,
-  },
-  loading: {
-    default: false,
-    type: Boolean,
-  },
-  symbol: {
-    default: "",
-    type: String,
-  },
-  interval: {
-    default: "60",
-    type: String,
-  },
-  datafeed: {
-    default: () => {},
-    type: Object,
-  },
-  timezone: {
-    default: "Asia/Shanghai",
-    type: String,
-  },
-  debug: {
-    default: false,
-    type: Boolean,
-  },
-  width: {
-    default: 300,
-    type: Number,
-  },
-  height: {
-    default: 600,
-    type: Number,
-  },
-  fullscreen: {
-    default: false,
-    type: Boolean,
-  },
-  autosize: {
-    default: true,
-    type: Boolean,
-  },
-  symbolSearchRequestDelay: {
-    default: 100,
-    type: Number,
-  },
-  toolbarBg: {
-    default: "#f4f7f9",
-    type: String,
-  },
-  studyCountLimit: {
-    default: 5,
-    type: Number,
-  },
-  locale: {
-    default: "",
-    type: String,
-  },
-  disabledFeatures: {
-    default: [],
-    type: Array,
-  },
-  enabledFeatures: {
-    default: [],
-    type: Array,
-  },
-  chartsStorageUrl: {
-    default: "",
-    type: String,
-  },
-  chartsStorageApiVersion: {
-    default: "1.1",
-    type: String,
-  },
-  client_id: {
-    default: "client_id",
-    type: String,
-  },
-  user_id: {
-    default: "user_id",
-    type: String,
-  },
-  additionalSymbolInfoFields: {
-    default: [{ title: "Ticker", propertyName: "ticker" }],
-    type: Array,
-  },
-  compareSymbols: {
-    default: [],
-    type: Array,
-  },
-  timeframe: {
-    default: "1",
-    type: String,
-  },
-  contextMenu: {
-    default: () => {},
-    type: Object,
-  },
+interface IProps {
+  interval: library.ResolutionString;
+  chartId: string;
+  loading: boolean;
+  client_id: string;
+  user_id: string;
+  datafeed: library.IBasicDataFeed;
+  symbol: string;
+  timezone: library.Timezone;
+  disabledFeatures: library.ChartingLibraryFeatureset[];
+  enabledFeatures: library.ChartingLibraryFeatureset[];
+}
+
+const props = withDefaults(defineProps<IProps>(), {
+  timezone: "Asia/Shanghai",
+  loading: false,
+  interval: "60" as library.ResolutionString,
 });
 
 const chartContainer = ref();
@@ -144,31 +59,20 @@ const initonReady = () => {
   }
   const widgetOptions: library.ChartingLibraryWidgetOptions = {
     symbol: props.symbol,
-    interval: props.interval as library.ResolutionString,
+    interval: props.interval,
     container: chartContainer.value,
-    datafeed: props.datafeed as library.IBasicDataFeed,
-    timezone: props.timezone as library.Timezone,
-    debug: props.debug,
+    datafeed: props.datafeed,
+    timezone: props.timezone,
     library_path: "charting_library/",
     custom_css_url: "static/tvcss.css",
-    width: props.width,
-    height: props.height,
-    fullscreen: props.fullscreen,
-    autosize: props.autosize,
-    locale: (props.locale || locale.value) as library.LanguageCode,
-    charts_storage_url: props.chartsStorageUrl,
-    charts_storage_api_version:
-      props.chartsStorageApiVersion as library.AvailableSaveloadVersions,
+    locale: locale.value as library.LanguageCode,
     client_id: props.client_id,
     user_id: props.user_id,
     theme: themeStore.systemTheme,
-    enabled_features:
-      props.enabledFeatures as library.ChartingLibraryFeatureset[],
-    disabled_features:
-      props.disabledFeatures as library.ChartingLibraryFeatureset[],
-    compare_symbols: props.compareSymbols as library.CompareSymbol[],
-    context_menu: props.contextMenu,
+    enabled_features: props.enabledFeatures,
+    disabled_features: props.disabledFeatures,
     custom_timezones: timezoneOptions as library.CustomAliasedTimezone[],
+    autosize: true,
   };
 
   // 图表刷新key
@@ -269,7 +173,7 @@ const initonReady = () => {
       }
 
       // 涨跌颜色
-      themeStore.setUpDownTheme();
+      themeStore.setUpDownTheme({ chartId: props.chartId });
 
       // widget.activeChart().createShape(
       //   // channel: "open" | "high" | "low" | "close";

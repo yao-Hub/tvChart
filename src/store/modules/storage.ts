@@ -37,10 +37,6 @@ export const useStorage = defineStore("storage", {
         ls = `${login}_${server}`;
         return get(storageMap, [ls, key]);
       }
-      const winVal = localStorage.getItem(key);
-      if (winVal) {
-        return JSON.parse(winVal);
-      }
       return null;
     },
     setItem(key: string, value: any) {
@@ -52,8 +48,6 @@ export const useStorage = defineStore("storage", {
       if (login && server) {
         set(storageMap, [`${login}_${server}`, key], value);
         this.saveMap(storageMap);
-      } else {
-        localStorage.setItem(key, JSON.stringify(value));
       }
     },
     removeItem(key: string) {
@@ -65,8 +59,6 @@ export const useStorage = defineStore("storage", {
       if (login && server) {
         delete storageMap[`${login}_${server}`][key];
         this.saveMap(storageMap);
-      } else {
-        localStorage.removeItem(key);
       }
     },
     clear() {

@@ -49,7 +49,7 @@ const themeList: Array<{ label: string; value: TupDownTheme }> = [
   },
 ];
 const changeColor = (theme: TupDownTheme) => {
-  themeStore.setUpDownTheme(theme);
+  themeStore.setUpDownTheme({ type: theme });
   eventBus.emit("closeDropdown");
 };
 </script>

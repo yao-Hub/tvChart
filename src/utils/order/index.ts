@@ -1,6 +1,6 @@
 import { DirectionType } from "#/order";
-import { ORDER_TYPE, ORDERMAP } from "@/constants/common";
-import { findKey } from "lodash";
+import { ORDER_TYPE } from "@/constants/common";
+// import { findKey } from "lodash";
 
 type TOrderType = keyof typeof ORDER_TYPE; // 'price' | 'limit' | 'stop' | 'stopLimit'
 
@@ -16,9 +16,4 @@ export const getTradingDirection = (e: string | number) => {
     }
   }
   return "buy";
-};
-
-// 获取订单类型
-export const getOrderType = (e: number) => {
-  return findKey(ORDERMAP, (o) => o === e);
 };

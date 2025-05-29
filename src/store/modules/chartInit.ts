@@ -125,6 +125,7 @@ export const useChartInit = defineStore("chartInit", () => {
     } else {
       Object.assign(state.chartWidgetList[index], obj);
     }
+    setTimeout(() => saveCharts());
   }
 
   // 获取图表实例
@@ -297,7 +298,13 @@ export const useChartInit = defineStore("chartInit", () => {
   // 加载图表个数
   function loadChartList() {
     const activeSymbol = getDefaultSymbol();
-    let result = [{ id: "chart_1", symbol: activeSymbol }];
+    let result = [
+      {
+        id: "chart_1",
+        symbol: activeSymbol,
+        interval: "60" as ResolutionString,
+      },
+    ];
     const wList = storageStore.getItem("chartList");
     if (wList && wList.length) {
       wList.forEach((item: IChart) => {
@@ -320,8 +327,9 @@ export const useChartInit = defineStore("chartInit", () => {
   function getChartSavedData(id: string) {
     const sMap = storageStore.getItem("chartInfoMap");
     if (sMap) {
-      return sMap[id];
+      return sMap[id] || null;
     }
+    return null;
   }
 
   // 全部图表是否都加载完毕

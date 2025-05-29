@@ -276,7 +276,7 @@
               <template v-else-if="column.dataKey === 'orderType'">
                 <OverFlowWord
                   :class="[(rowData.type & 1) === 0 ? 'buyWord' : 'sellWord']"
-                  :content="getOrderType(rowData.type)"
+                  :content="formatOrderType(rowData.type)"
                 ></OverFlowWord>
               </template>
               <template v-else-if="column.dataKey === 'open_price'">
@@ -466,9 +466,9 @@ import { useI18n } from "vue-i18n";
 import * as orders from "api/order/index";
 
 import * as orderTypes from "#/order";
-import { CLOSE_TYPE, ORDERMAP } from "@/constants/common";
+import { CLOSE_TYPE, orderTypeOptions } from "@/constants/common";
 import { ifNumber } from "utils/common/index";
-import { getOrderType, getTradingDirection } from "utils/order/index";
+import { getTradingDirection } from "utils/order/index";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 import { accAdd } from "utils/arithmetic";
 
@@ -498,15 +498,6 @@ const quotesStore = useQuotes();
 const storageStore = useStorage();
 
 const MIN_COLUMN_WIDTH = 60;
-
-const orderTypeOptions = [
-  { value: "buyLimit", label: "Buy Limit" },
-  { value: "sellLimit", label: "Sell Limit" },
-  { value: "buyStop", label: "Buy Stop" },
-  { value: "sellStop", label: "Sell Stop" },
-  { value: "buyStopLimit", label: "Buy Stop Limit" },
-  { value: "sellStopLimit", label: "Sell Stop Limit" },
-];
 
 // 初始化列宽  有缓存
 const storageColumns = storageStore.getItem("tableColumns");
@@ -728,6 +719,14 @@ onUnmounted(() => {
   document.removeEventListener("mouseup", mouseUp);
 });
 
+const formatOrderType = (type: number) => {
+  const target = orderTypeOptions.find((e) => e.type === type);
+  if (target) {
+    return target.label;
+  }
+  return "-";
+};
+
 const formatPrice = (price: number, digits: number) => {
   return price ? price.toFixed(digits) : "-";
 };
@@ -810,7 +809,11 @@ const dataSource = computed(() => {
         polResult = +item.profit < 0;
       }
       if (orderType) {
-        orderTypeResult = item.type === ORDERMAP[orderType];
+        const target = orderTypeOptions.find((e) => e.value === orderType);
+        if (target) {
+          const type = target.type;
+          orderTypeResult = item.type === type;
+        }
       }
       return symbolResult && directionResult && polResult && orderTypeResult;
     });

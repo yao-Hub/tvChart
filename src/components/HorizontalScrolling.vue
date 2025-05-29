@@ -4,7 +4,7 @@
       class="btn"
       :icon="ArrowLeft"
       v-if="showScrollLeft"
-      @click="scrollLeft"
+      @click.stop="scrollLeft"
     />
     <div class="scrolling_container" ref="container">
       <slot></slot>
@@ -13,37 +13,38 @@
       class="btn"
       :icon="ArrowRight"
       v-if="showScrollRight"
-      @click="scrollRight"
+      @click.stop="scrollRight"
     />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight } from "@element-plus/icons-vue";
-import { onMounted, onUpdated, ref } from "vue";
+import { onMounted, onUnmounted, onUpdated, ref } from "vue";
 
 const container = ref();
-
-function updateScrollButtons() {
-  const tabs = container.value;
-  if (tabs) {
-    showScrollLeft.value = tabs.scrollLeft > 0;
-    showScrollRight.value =
-      tabs.scrollLeft < tabs.scrollWidth - tabs.clientWidth;
-  }
-}
+const updateScrollButtons = () => {
+  setTimeout(() => {
+    const tabs = container.value;
+    if (tabs) {
+      showScrollLeft.value = tabs.scrollLeft > 0;
+      showScrollRight.value =
+        tabs.scrollLeft < tabs.scrollWidth - tabs.clientWidth;
+    }
+  }, 200);
+};
 
 const scrollLeft = () => {
-  const left = (container.value.scrollLeft -= 200);
-  if (left < 0) {
-    container.value.scrollLeft = left < 0 ? 0 : left;
-  }
+  const tabs = container.value;
+  const newScroll = Math.max(0, tabs.scrollLeft - 200);
+  tabs.scrollLeft = newScroll;
   updateScrollButtons();
 };
 const scrollRight = () => {
-  const maxLeft = container.value.scrollWidth - container.value.offsetWidth;
-  const left = (container.value.scrollLeft += 200);
-  container.value.scrollLeft = left > maxLeft ? maxLeft : left;
+  const tabs = container.value;
+  const maxScroll = tabs.scrollWidth - tabs.clientWidth;
+  const newScroll = Math.min(maxScroll, tabs.scrollLeft + 200);
+  tabs.scrollLeft = newScroll;
   updateScrollButtons();
 };
 
@@ -66,6 +67,11 @@ onMounted(() => {
 
   const resizeObserver = new ResizeObserver(() => updateScrollButtons());
   resizeObserver.observe(container.value);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", updateScrollButtons);
+  container.value.removeEventListener("wheel", tabsMouseWheel);
 });
 
 onUpdated(() => {

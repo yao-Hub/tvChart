@@ -48,6 +48,7 @@
         ></chartTab>
         <TVChart
           style="flex: 1"
+          :interval="interval"
           :chartId="id"
           :key="chartInitStore.state.chartFreshKeys[id]"
           :loading="

@@ -158,14 +158,13 @@
 
 <script setup lang="ts">
 import dayjs from "dayjs";
-import { debounce, findKey } from "lodash";
+import { debounce } from "lodash";
 import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { ORDERMAP } from "@/constants/common";
+import { orderTypeOptions } from "@/constants/common";
 import { resPendingOrders } from "api/order/index";
 import type { FormInstance } from "element-plus";
-import { getOrderType } from "utils/order/index";
 
 import BreakLimit from "./components/BreakLimit.vue";
 import Price from "./components/Price.vue";
@@ -262,9 +261,9 @@ watch(
       } = props.orderInfo;
 
       const timezone = timeStore.settedTimezone;
-      const orderType = findKey(ORDERMAP, (o) => o === type);
-      if (orderType) {
-        formState.orderType = orderType;
+      const target = orderTypeOptions.find((e) => e.type === type);
+      if (target) {
+        formState.orderType = target.value;
       }
       formState.symbol = symbol;
       formState.volume = volume / 100;
@@ -277,6 +276,13 @@ watch(
     }
   }
 );
+
+const getOrderType = (type: number) => {
+  const target = orderTypeOptions.find((e) => e.type === type);
+  if (target) {
+    return target.label;
+  }
+};
 
 /** 当前商品 */
 import { useSymbols } from "@/store/modules/symbols";
@@ -304,9 +310,12 @@ const confirmEdit = debounce(
     editing.value = true;
     const values = await valids();
     if (values) {
+      const target = orderTypeOptions.find(
+        (e) => e.value === formState.orderType
+      );
       const updata: reqPendingOrdersAdd = {
         symbol: formState.symbol,
-        type: ORDERMAP[formState.orderType],
+        type: target!.type,
         volume: +formState.volume,
         order_price: +formState.orderPrice,
         time_expiration: +formState.dueDate,
