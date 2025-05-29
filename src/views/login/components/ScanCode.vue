@@ -1,65 +1,64 @@
 <template>
   <div class="scanCode">
-    <div class="phoneTIp">{{ t("scanCode.title") }}</div>
-    <div
-      class="qrcode-container"
-      :style="{
-        transform: ifGuide
-          ? 'translate(-17%, -50%) scale(0.72)'
-          : 'translate(-50%, -50%) scale(1)',
-      }"
-    >
-      <QRCodeVue
-        :value="qrValue"
-        :size="size"
-        level="H"
-        :margin="2"
-        class="qrcode"
-      />
-      <div class="status" v-if="codeType === 'expire'">
-        <span class="expireWord">{{ t("scanCode.invalidCode") }}</span>
-        <el-button type="primary" class="freshBtn" @click="emitScanCode">{{
-          t("refresh")
-        }}</el-button>
+    <el-scrollbar view-class="scrollbarView" always>
+      <div class="phoneTip">{{ t("scanCode.title") }}</div>
+      <div class="scanCode-container">
+        <div
+          class="qrcode"
+          :style="{
+            transform: ifGuide
+              ? 'translate(-10%) scale(0.75)'
+              : 'translate(-50%)',
+          }"
+        >
+          <div class="code">
+            <QRCodeVue :value="qrValue" :size="180" :margin="1" level="H" />
+          </div>
+          <div class="status" v-if="codeType === 'expire'">
+            <span class="expireWord">{{ t("scanCode.invalidCode") }}</span>
+            <el-button type="primary" class="freshBtn" @click="emitScanCode">{{
+              t("refresh")
+            }}</el-button>
+          </div>
+          <div class="status" v-if="codeType === 'waiting'">
+            <BaseImg iconName="icon_success"></BaseImg>
+            <span class="waitingWord">{{ t("scanCode.waitConfirm") }}</span>
+          </div>
+
+          <div class="status" v-if="codeType === 'pending'">
+            <div class="pendingBox" v-loading="true"></div>
+          </div>
+          <div class="status" v-if="codeType === 'success'">
+            <BaseImg iconName="icon_success"></BaseImg>
+            <span class="waitingWord">{{ t("scanCode.logging") }}</span>
+          </div>
+        </div>
+        <img
+          class="guide"
+          :style="{
+            opacity: ifGuide ? 1 : 0,
+            transform: ifGuide
+              ? 'translate(-120%, -49%)'
+              : 'translate(-50%, -50%)',
+            zIndex: codeType === 'expire' ? 0 : 9,
+          }"
+          src="@/assets/images/guide.png"
+        />
       </div>
 
-      <div class="status" v-if="codeType === 'waiting'">
-        <BaseImg iconName="icon_success"></BaseImg>
-        <span class="waitingWord">{{ t("scanCode.waitConfirm") }}</span>
+      <div class="scan-tip">
+        <span>{{ t("scanCode.open") }}</span>
+        <span class="app-name">{{ t("scanCode.place") }}</span>
+        <span>{{ t("scanCode.action") }}</span>
       </div>
 
-      <div class="status" v-if="codeType === 'pending'">
-        <div class="pendingBox" v-loading="true"></div>
-      </div>
-
-      <div class="status" v-if="codeType === 'success'">
-        <BaseImg iconName="icon_success"></BaseImg>
-        <span class="waitingWord">{{ t("scanCode.logging") }}</span>
-      </div>
-    </div>
-
-    <img
-      :style="{
-        opacity: ifGuide ? 1 : 0,
-        transform: ifGuide ? 'translate(-115%, -50%)' : 'translate(-50%, -50%)',
-        zIndex: codeType === 'expire' ? 0 : 9,
-      }"
-      class="guide"
-      src="@/assets/images/guide.png"
-    />
-
-    <div class="scan-tip">
-      <span>{{ t("scanCode.open") }}</span>
-      <span class="app-name">{{ t("scanCode.place") }}</span>
-      <span>{{ t("scanCode.action") }}</span>
-    </div>
-
-    <span
-      class="guide-tip"
-      @mouseenter="ifGuide = true"
-      @mouseleave="ifGuide = false"
-      >{{ t("scanCode.guide") }}</span
-    >
+      <span
+        class="guide-tip"
+        @mouseenter="ifGuide = true"
+        @mouseleave="ifGuide = false"
+        >{{ t("scanCode.guide") }}</span
+      >
+    </el-scrollbar>
   </div>
 </template>
 
@@ -81,7 +80,6 @@ const { t } = useI18n();
 const router = useRouter();
 
 const qrValue = ref();
-const size = ref(200);
 const systemStore = useSystem();
 
 const codeType = ref<"pending" | "normal" | "waiting" | "expire" | "success">(
@@ -194,105 +192,107 @@ const emitScanCode = async () => {
 }
 .scanCode {
   width: 350px;
-  height: calc(100% - 55px);
-  position: relative;
+  padding: 32px 0;
+  box-sizing: border-box;
 }
-
-.phoneTIp {
-  width: 100%;
-  text-align: center;
-  font-size: 24px;
-  line-height: 40px;
-  position: absolute;
-  left: 50%;
-  top: 50px;
-  transform: translate(-50%, 0);
-}
-
-.qrcode-container {
-  width: 200px;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  border: 1px solid;
-  overflow: hidden;
-  @include border_color("border");
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transition: all 1s ease;
-  z-index: 1;
-}
-.status {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+:deep(.scrollbarView) {
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.95);
-  z-index: 3;
+  min-height: 430px;
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
-  @include background_color("noScanCode");
-  .expireWord {
-    font-weight: 500;
-    font-size: 16px;
-    @include font_color("word");
-  }
-  .freshBtn {
-    margin-top: 20px;
-    width: 84px;
-    height: 32px;
-  }
-  .icon_success {
-    width: 64px;
-    height: 64px;
-  }
-  .waitingWord {
-    font-weight: 500;
-    font-size: 16px;
-    @include font_color("word");
-    margin-top: 20px;
-  }
-  .pendingBox {
-    width: 100%;
-    height: 100%;
-  }
 }
 
-.guide {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 120px;
-  height: 144px;
-  transition: all 1s ease;
-  z-index: 1;
+.phoneTip {
+  margin-top: 18px;
+  font-size: 24px;
+  line-height: 40px;
+}
+
+.scanCode-container {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  transition: all 0.5s ease;
+  .qrcode {
+    width: 200px;
+    height: 200px;
+    border: 1px solid;
+    @include border_color("border");
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transition: all 0.5s ease-in-out;
+    overflow: hidden;
+    box-sizing: border-box;
+    border-radius: 4px;
+
+    .code {
+      width: 200px;
+      height: 200px;
+      background-color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .status {
+      width: 100%;
+      height: 100%;
+      @include background_color("noScanCode");
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      .expireWord {
+        font-weight: 500;
+        font-size: 16px;
+        @include font_color("word");
+      }
+      .freshBtn {
+        width: 84px;
+        height: 32px;
+      }
+      .icon_success {
+        width: 64px;
+        height: 64px;
+      }
+      .waitingWord {
+        font-weight: 500;
+        font-size: 16px;
+        @include font_color("word");
+      }
+      .pendingBox {
+        width: 100%;
+        height: 100%;
+      }
+    }
+  }
+  .guide {
+    width: 120px;
+    height: 150px;
+    position: absolute;
+    transition: all 0.5s ease;
+    top: 50%;
+    left: 50%;
+  }
 }
 
 .scan-tip {
-  width: 100%;
   text-align: center;
-  position: absolute;
-  bottom: 20%;
-  left: 50%;
-  transform: translate(-50%);
   line-height: normal;
   .app-name {
     @include font_color("primary");
   }
 }
 .guide-tip {
-  width: 100%;
-  text-align: center;
-  position: absolute;
-  bottom: 5%;
-  left: 50%;
-  transform: translate(-50%);
   cursor: pointer;
+  margin-bottom: 32px;
 }
 </style>

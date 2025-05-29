@@ -3,51 +3,53 @@
     <ScanCode></ScanCode>
 
     <div class="accountsList-container">
-      <div class="accounts scrollList">
-        <span class="plogin">{{ t("logAccount") }}</span>
-        <span class="padd">{{ t("noAccount") }}</span>
+      <el-scrollbar always view-style="height:100%">
+        <div class="accounts">
+          <span class="plogin">{{ t("logAccount") }}</span>
+          <span class="padd">{{ t("noAccount") }}</span>
 
-        <div class="list">
-          <el-scrollbar always :height="Math.min(list.length, 3) * 56">
-            <div
-              class="item"
-              v-for="(account, index) in list"
-              @click="selectAccount(index)"
-            >
-              <div class="item_left">
-                <img :src="logoMap[account.server] || ''" class="icon" />
-                <span class="textEllipsis">{{ account.server }}</span>
-                <span class="textEllipsis">{{ account.login }}</span>
+          <div class="list">
+            <el-scrollbar always :height="Math.min(list.length, 3) * 56">
+              <div
+                class="item"
+                v-for="(account, index) in list"
+                @click="selectAccount(index)"
+              >
+                <div class="item_left">
+                  <img :src="logoMap[account.server] || ''" class="icon" />
+                  <span class="textEllipsis">{{ account.server }}</span>
+                  <span class="textEllipsis">{{ account.login }}</span>
+                </div>
+                <div class="item_right">
+                  <el-icon v-if="activeIndex === index && !ifOpera">
+                    <BaseImg iconName="select" />
+                  </el-icon>
+                  <el-icon v-if="ifOpera" @click.stop="delAccount(account)">
+                    <BaseImg iconName="delete" />
+                  </el-icon>
+                </div>
               </div>
-              <div class="item_right">
-                <el-icon v-if="account.actived && !ifOpera">
-                  <BaseImg iconName="select" />
-                </el-icon>
-                <el-icon v-if="ifOpera" @click.stop="delAccount(account)">
-                  <BaseImg iconName="delete" />
-                </el-icon>
-              </div>
-            </div>
-          </el-scrollbar>
-        </div>
+            </el-scrollbar>
+          </div>
 
-        <el-button
-          class="btn"
-          type="primary"
-          :loading="loading"
-          @click="happyStart"
-        >
-          <span class="btnText">{{
-            ifOpera ? t("done") : t("account.login")
-          }}</span></el-button
-        >
+          <el-button
+            class="btn"
+            type="primary"
+            :loading="loading"
+            @click="happyStart"
+          >
+            <span class="btnText">{{
+              ifOpera ? t("done") : t("account.login")
+            }}</span></el-button
+          >
 
-        <div class="footer">
-          <span @click="goLogin()">{{ t("addAccount") }}</span>
-          <el-divider direction="vertical" />
-          <span @click="ifOpera = true">{{ t("manageAccount") }}</span>
+          <div class="footer">
+            <span @click="goLogin()">{{ t("addAccount") }}</span>
+            <el-divider direction="vertical" />
+            <span @click="ifOpera = true">{{ t("manageAccount") }}</span>
+          </div>
         </div>
-      </div>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -62,7 +64,7 @@ import { PageEnum } from "@/constants/pageEnum";
 
 import ScanCode from "./ScanCode.vue";
 
-import { AccountListItem, useUser } from "@/store/modules/user";
+import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";
 
 const { t } = useI18n();
@@ -71,19 +73,13 @@ const router = useRouter();
 const networkStore = useNetwork();
 const userStore = useUser();
 
-type TList = AccountListItem & { actived: boolean };
+const activeIndex = ref(0);
 
-const list = ref<TList[]>([]);
-const initList = () => {
+const list = computed(() => {
   const accounts = userStore.state.accountList;
-  const orderAccounts = orderBy(accounts, ["ifLogin"], ["desc"]);
-  list.value = orderAccounts.map((item, index) => {
-    return {
-      ...item,
-      actived: index === 0,
-    };
-  });
-};
+  const result = orderBy(accounts, ["ifLogin"], ["desc"]);
+  return result;
+});
 
 const ifOpera = ref(false);
 
@@ -91,14 +87,14 @@ const selectAccount = (selectIndex: number) => {
   if (ifOpera.value) {
     return;
   }
-  list.value.forEach((item, index) => {
-    item.actived = index === selectIndex;
-  });
+  activeIndex.value = selectIndex;
 };
 
 const delAccount = (e: any) => {
   userStore.removeAccount(e);
-  initList();
+  if (activeIndex.value >= list.value.length) {
+    activeIndex.value = list.value.length - 1;
+  }
   if (list.value.length === 0) {
     goLogin();
   }
@@ -124,7 +120,7 @@ const happyStart = async () => {
       ifOpera.value = false;
       return;
     }
-    const account = list.value.find((item) => item.actived);
+    const account = list.value[activeIndex.value];
     if (account) {
       const { login, server } = account;
       // if (remember) {
@@ -152,7 +148,6 @@ function handleKeydown(event: KeyboardEvent) {
 }
 
 onMounted(() => {
-  initList();
   document.addEventListener("keydown", handleKeydown);
 });
 onUnmounted(() => {
@@ -167,16 +162,13 @@ onUnmounted(() => {
   height: 100%;
 }
 .accountsList-container {
-  height: 100%;
-  margin-top: 32px;
-  width: 480px;
-  box-sizing: border-box;
+  margin: 32px 0;
 }
 .accounts {
+  height: 100%;
   padding: 0 32px;
   position: relative;
   box-sizing: border-box;
-  overflow: auto;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -199,7 +191,6 @@ onUnmounted(() => {
   }
   .list {
     flex-shrink: 0;
-    // flex-basis: 1;
     margin-top: 40px;
     max-height: 168px;
     border: 1px solid;
@@ -244,7 +235,7 @@ onUnmounted(() => {
     }
   }
   .btn {
-    margin: 40px 0 95px 0;
+    margin-top: 40px;
     height: 56px;
     width: 100%;
     .btnText {
@@ -254,6 +245,7 @@ onUnmounted(() => {
   }
 
   .footer {
+    margin-top: auto;
     display: flex;
     justify-content: center;
     gap: 24px;

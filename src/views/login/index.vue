@@ -11,6 +11,10 @@
         <transition :name="direction" mode="out-in" appear>
           <div class="main" :key="routeName">
             <component :is="Component" />
+            <LoginArticle
+              class="main-article"
+              v-if="routeName.includes('login/home')"
+            ></LoginArticle>
           </div>
         </transition>
       </div>
@@ -26,6 +30,7 @@ import { useInit } from "@/store/modules/init";
 
 import Language from "./components/Language.vue";
 import Theme from "./components/Theme.vue";
+import LoginArticle from "./components/LoginArticle.vue";
 
 import { useI18n } from "vue-i18n";
 import { useNetwork } from "@/store/modules/network";
@@ -45,7 +50,10 @@ const localeKey = ref("");
 const homeComponentImport = () => import("@/views/home/index.vue");
 homeComponentImport();
 
-const routeName = computed(() => route.path);
+const routeName = computed(() => {
+  console.log(route.path);
+  return route.path;
+});
 
 const direction = ref("slide-forward");
 watch(
@@ -157,6 +165,12 @@ watch(
       @include box-shadow;
       border-radius: 8px;
       box-sizing: border-box;
+      position: relative;
+      .main-article {
+        position: absolute;
+        bottom: -52px;
+        left: 0;
+      }
     }
   }
 }

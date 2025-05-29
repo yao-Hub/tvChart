@@ -207,7 +207,7 @@ export const useUser = defineStore("user", () => {
       item.ifLogin = false;
     });
     let index = state.accountList.findIndex(
-      (e) => e.login === data.login && e.server === data.server
+      (e) => +e.login === +data.login && e.server === data.server
     );
     if (index === -1) {
       state.accountList.push(data);

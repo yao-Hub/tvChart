@@ -2,7 +2,7 @@
   <div class="loginList">
     <ScanCode></ScanCode>
 
-    <div class="Login scrollList">
+    <div class="Login">
       <div class="goback" v-if="ifloginBack">
         <div @click="goAccount">
           <el-icon>
@@ -11,146 +11,138 @@
           <span>{{ t("back") }}</span>
         </div>
       </div>
-      <div class="login_container">
-        <span
-          class="plogin"
-          :style="{ marginTop: ifloginBack ? '' : '24px' }"
-          >{{ t("logAccount") }}</span
-        >
-        <span class="padd">{{ t("noAccount") }}</span>
-        <el-form
-          ref="ruleFormRef"
-          :model="formState"
-          label-position="top"
-          class="login-form"
-          :rules="rules"
-        >
-          <el-form-item prop="server" :label="t('order.tradingRoute')">
-            <el-popover
-              placement="bottom-start"
-              :visible="visible"
-              :show-arrow="false"
-              width="100%"
-              popper-class="lines-popover"
-              :teleported="false"
-            >
-              <template #reference>
-                <el-input
-                  v-model="inputLine"
-                  :placeholder="linePlaceholder"
-                  clearable
-                  @clear="linesClear"
-                  @input="linesInput"
-                  @focus="linesFoucus"
-                  @blur="linesBlur"
-                >
-                  <template #suffix>
-                    <BaseImg iconName="icon_search"></BaseImg>
-                  </template>
-                </el-input>
-              </template>
-              <template #default>
-                <div v-if="linesLoading" class="lines-type">
-                  <span>{{ t("tip.loading") }}</span>
-                </div>
-                <div
-                  v-if="!linesLoading && tadeLines.length !== 0"
-                  class="lines-content"
-                  @mouseleave="mouseEnterLineName = ''"
-                >
-                  <el-scrollbar max-height="120px">
-                    <div
-                      class="lines-content_option"
-                      v-for="item in tadeLines"
-                      :key="item.lineName"
-                      @mouseenter="mouseEnterLineName = item.lineName"
-                      @click="choseLine(item.lineName)"
-                    >
-                      <span>{{ item.lineName }}</span>
-                      <el-text
-                        type="primary"
-                        v-show="mouseEnterLineName === item.lineName"
-                        @click.stop="watchDetail(item.brokerName)"
-                      >
-                        {{ t("serverInfo.seeDetail") }}
-                      </el-text>
-                    </div>
-                  </el-scrollbar>
-                </div>
-                <div
-                  v-if="!linesLoading && tadeLines.length === 0"
-                  class="lines-type"
-                >
-                  <span>{{ t("tip.noneData") }}</span>
-                </div>
-              </template>
-            </el-popover>
-          </el-form-item>
-
-          <el-form-item :label="t('account.accountNum')" prop="login">
-            <el-input
-              v-model="formState.login"
-              :placeholder="t('tip.usernameRequired')"
-            />
-          </el-form-item>
-
-          <el-form-item :label="t('account.password')" prop="password">
-            <el-input
-              v-model="formState.password"
-              type="password"
-              :placeholder="t('tip.passwordRequired')"
-              show-password
-              ref="pwd"
-              autocomplete="new-password"
-            />
-          </el-form-item>
-
-          <el-form-item>
-            <div class="login-form-remember">
-              <!-- <el-checkbox
-              class="link"
-              v-model="formState.remember"
-              :label="t('account.rememberMe')"
-            /> -->
-              <span
-                class="link"
-                style="margin-left: auto"
-                v-if="ifSimulatedServer"
-                @click="goForgetPassword"
-                >{{ t("account.forgetPassword") }}</span
+      <el-scrollbar always view-class="loginScrollbarView">
+        <div class="login_container">
+          <span
+            class="plogin"
+            :style="{ marginTop: ifloginBack ? '' : '24px' }"
+            >{{ t("logAccount") }}</span
+          >
+          <span class="padd">{{ t("noAccount") }}</span>
+          <el-form
+            ref="ruleFormRef"
+            :model="formState"
+            label-position="top"
+            class="login-form"
+            :rules="rules"
+          >
+            <el-form-item prop="server" :label="t('order.tradingRoute')">
+              <el-popover
+                placement="bottom-start"
+                :visible="visible"
+                :show-arrow="false"
+                width="100%"
+                popper-class="lines-popover"
+                :teleported="false"
               >
+                <template #reference>
+                  <el-input
+                    v-model="inputLine"
+                    :placeholder="linePlaceholder"
+                    clearable
+                    @clear="linesClear"
+                    @input="linesInput"
+                    @focus="linesFoucus"
+                    @blur="linesBlur"
+                  >
+                    <template #suffix>
+                      <BaseImg iconName="icon_search"></BaseImg>
+                    </template>
+                  </el-input>
+                </template>
+                <template #default>
+                  <div v-if="linesLoading" class="lines-type">
+                    <span>{{ t("tip.loading") }}</span>
+                  </div>
+                  <div
+                    v-if="!linesLoading && tadeLines.length !== 0"
+                    class="lines-content"
+                    @mouseleave="mouseEnterLineName = ''"
+                  >
+                    <el-scrollbar max-height="120px">
+                      <div
+                        class="lines-content_option"
+                        v-for="item in tadeLines"
+                        :key="item.lineName"
+                        @mouseenter="mouseEnterLineName = item.lineName"
+                        @click="choseLine(item.lineName)"
+                      >
+                        <span>{{ item.lineName }}</span>
+                        <el-text
+                          type="primary"
+                          v-show="mouseEnterLineName === item.lineName"
+                          @click.stop="watchDetail(item.brokerName)"
+                        >
+                          {{ t("serverInfo.seeDetail") }}
+                        </el-text>
+                      </div>
+                    </el-scrollbar>
+                  </div>
+                  <div
+                    v-if="!linesLoading && tadeLines.length === 0"
+                    class="lines-type"
+                  >
+                    <span>{{ t("tip.noneData") }}</span>
+                  </div>
+                </template>
+              </el-popover>
+            </el-form-item>
+
+            <el-form-item :label="t('account.accountNum')" prop="login">
+              <el-input
+                v-model="formState.login"
+                :placeholder="t('tip.usernameRequired')"
+              />
+            </el-form-item>
+
+            <el-form-item :label="t('account.password')" prop="password">
+              <el-input
+                v-model="formState.password"
+                type="password"
+                :placeholder="t('tip.passwordRequired')"
+                show-password
+                ref="pwd"
+                autocomplete="new-password"
+              />
+            </el-form-item>
+
+            <el-form-item>
+              <div class="login-form-remember">
+                <!-- <el-checkbox
+                  class="link"
+                  v-model="formState.remember"
+                  :label="t('account.rememberMe')"
+                /> -->
+                <span
+                  class="link"
+                  style="margin-left: auto"
+                  v-if="ifSimulatedServer"
+                  @click="goForgetPassword"
+                  >{{ t("account.forgetPassword") }}</span
+                >
+              </div>
+            </el-form-item>
+
+            <el-form-item>
+              <el-button
+                class="login-form-button"
+                type="primary"
+                :disabled="disabled"
+                @click="happyStart('loginBtn')"
+                :loading="loading"
+                >{{ t("account.login") }}</el-button
+              >
+            </el-form-item>
+
+            <div class="login-form-account">
+              <span> {{ t("account.noAccount") }}&nbsp;</span>
+              <el-text type="primary" @click="goRegister">
+                {{ t("account.createAccount") }}
+              </el-text>
             </div>
-          </el-form-item>
-
-          <el-form-item>
-            <el-button
-              class="login-form-button"
-              type="primary"
-              :disabled="disabled"
-              @click="happyStart('loginBtn')"
-              :loading="loading"
-              >{{ t("account.login") }}</el-button
-            >
-          </el-form-item>
-
-          <div class="login-form-account">
-            <span> {{ t("account.noAccount") }}&nbsp;</span>
-            <el-text type="primary" @click="goRegister">
-              {{ t("account.createAccount") }}
-            </el-text>
-          </div>
-        </el-form>
-      </div>
-    </div>
-    <div class="article">
-      <el-text type="info">{{ t("article.loginsee") }}</el-text>
-      <el-text type="primary" @click="goProtocol('service-article')">
-        {{ t("leftBook") }}{{ t("article.userAgreement") }}{{ t("rightBook") }}
-      </el-text>
-      <el-text type="info">&nbsp;{{ t("and") }}&nbsp;</el-text>
-      <el-text type="primary" @click="goProtocol('privacy-policy')">
-        {{ t("leftBook") }}{{ t("article.privacyPolicy") }}{{ t("rightBook") }}
-      </el-text>
+          </el-form>
+        </div>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -315,16 +307,6 @@ const ifSimulatedServer = computed(() => {
   return false;
 });
 
-const goProtocol = (columnCode: string) => {
-  const { href } = router.resolve({
-    name: "protocol",
-    query: {
-      columnCode,
-    },
-  });
-  networkStore.openWebsite(href, columnCode);
-};
-
 const happyStart = async (actionObject: string) => {
   try {
     if (disabled.value) {
@@ -418,6 +400,12 @@ onUnmounted(() => {
 <style scoped lang="scss">
 @import "@/styles/_handle.scss";
 
+:deep(.loginScrollbarView) {
+  height: 100%;
+  padding-bottom: 32px;
+  box-sizing: border-box;
+}
+
 .goback {
   padding-left: 24px;
   width: auto;
@@ -429,9 +417,7 @@ onUnmounted(() => {
 }
 
 .Login {
-  padding-right: 32px;
-  height: calc(100% - 55px);
-  overflow: auto;
+  height: 100%;
   box-sizing: border-box;
   width: 480px;
   flex-shrink: 0;
@@ -439,9 +425,13 @@ onUnmounted(() => {
   flex-direction: column;
 
   .login_container {
-    padding-left: 24px;
+    height: 100%;
+    padding: 0 32px 0 24px;
+    box-sizing: border-box;
     border-left: 1px solid;
     @include border_color("border");
+    display: flex;
+    flex-direction: column;
     .plogin {
       font-size: 24px;
       line-height: 40px;
@@ -460,8 +450,11 @@ onUnmounted(() => {
 
 .login-form {
   flex: 1;
-  margin: 24px 0 6px 0;
+  margin-top: 24px;
   font-size: 16px !important;
+
+  display: flex;
+  flex-direction: column;
 
   &-remember {
     width: 100%;
@@ -472,8 +465,12 @@ onUnmounted(() => {
 
   &-account {
     width: 100%;
+    text-align: center;
+    flex: 1;
     display: flex;
+    align-items: center;
     justify-content: center;
+    margin-bottom: 13px;
   }
 
   &-button {
@@ -519,27 +516,5 @@ onUnmounted(() => {
   &:active {
     @include font_color("primary-active");
   }
-}
-
-.article {
-  position: absolute;
-  bottom: 0;
-  margin-top: auto;
-  min-height: 56px;
-  width: 100%;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: center;
-  padding: 6px;
-}
-
-[data-theme="light"] .article {
-  background-color: #fff9eb;
-}
-
-[data-theme="dark"] .article {
-  background: #262b35;
 }
 </style>
