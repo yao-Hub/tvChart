@@ -456,14 +456,9 @@ export const useSocket = defineStore("socket", {
       if (this.socket) {
         this.socket.close();
       }
-      if (this.onLineSocket) {
-        this.onLineSocket.close();
-      }
       if (this.mainInstance) {
         this.mainInstance.close();
       }
-
-      this.onLineSocket = null;
       this.socket = null;
     },
 

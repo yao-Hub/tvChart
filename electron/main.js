@@ -68,6 +68,7 @@ function createWindow(name, hash, screenWidth) {
   }
   // 主窗口加载地址
   if (ifDev && name === "mainWindow") {
+    windowsMap[name].webContents.openDevTools();
     windowsMap[name].loadURL("http://localhost:8080");
   }
   if (!ifDev && name === "mainWindow") {

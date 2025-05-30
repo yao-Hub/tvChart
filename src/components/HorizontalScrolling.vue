@@ -71,7 +71,9 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener("resize", updateScrollButtons);
-  container.value.removeEventListener("wheel", tabsMouseWheel);
+  if (container.value) {
+    container.value.removeEventListener("wheel", tabsMouseWheel);
+  }
 });
 
 onUpdated(() => {

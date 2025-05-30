@@ -6,6 +6,13 @@ import { useTheme } from "@/store/modules/theme";
 import { debounce } from "lodash";
 import Sortable from "sortablejs";
 
+interface IAttrItem {
+  inw: number;
+  inh: number;
+  itemStyles: Record<string, string>;
+  demoStyles: Record<string, string>;
+}
+
 const chartInitStore = useChartInit();
 const chartSubStore = useChartSub();
 const storageStore = useStorage();
@@ -35,6 +42,18 @@ const lineColor = () => {
 
 // 水平线初始拉伸位置
 let startY: number;
+
+// 改变布局缓存 兼容旧版本
+const compatibleStoArr = () => {
+  let arrList: IAttrItem[] | null = storageStore.getItem("attr_2");
+  const stoAttr = storageStore.getItem("attr");
+
+  // 存在旧版
+  if (!arrList && stoAttr) {
+    arrList = [{ ...stoAttr }];
+  }
+  storageStore.setItem("attr_2", arrList);
+};
 
 // 初始化拖拽实例
 function initDragArea() {
@@ -93,12 +112,10 @@ function initDragArea() {
   // 还原缓存的item样式
   const inw = window.innerWidth;
   const inh = window.innerHeight;
-  const attr = storageStore.getItem("attr");
+  const attr: IAttrItem[] | null = storageStore.getItem("attr_2");
   let targetAttr = null;
   if (attr) {
-    if (attr.inw === inw && attr.inh === inh) {
-      targetAttr = attr;
-    }
+    targetAttr = attr.find((e) => e.inw === inw && e.inh === inh);
   }
   const dragArea_items = document.querySelectorAll(".dragArea_item");
   if (targetAttr) {
@@ -179,12 +196,10 @@ function initDemosPosition() {
   // 还原缓存的demo样式
   const inw = window.innerWidth;
   const inh = window.innerHeight;
-  const attr = storageStore.getItem("attr");
+  const attr: IAttrItem[] | null = storageStore.getItem("attr_2");
   let targetAttr = null;
   if (attr) {
-    if (attr.inw === inw && attr.inh === inh) {
-      targetAttr = attr;
-    }
+    targetAttr = attr.find((e) => e.inw === inw && e.inh === inh);
   }
   const demos = document.querySelectorAll(".demo");
   if (targetAttr) {
@@ -748,6 +763,7 @@ function resizeSetDemo() {
 }
 
 export const refreshLayout = debounce(() => {
+  compatibleStoArr();
   setDragAreaSize();
   setDemoPosition();
   operaHoriLine();
@@ -756,6 +772,7 @@ export const refreshLayout = debounce(() => {
 }, 20);
 
 export const resizeUpdate = debounce(() => {
+  compatibleStoArr();
   resizeSetItem();
   resizeSetDemo();
   operaHoriLine();
@@ -764,6 +781,19 @@ export const resizeUpdate = debounce(() => {
 }, 20);
 
 // 记住拉伸的样式
+const deSaveAttr = debounce((value: IAttrItem) => {
+  const stoAttr: IAttrItem[] = storageStore.getItem("attr_2") || [];
+  const index = stoAttr.findIndex(
+    (e) => e.inw === value.inw && e.inh === value.inh
+  );
+
+  if (index === -1) {
+    stoAttr.push(value);
+  } else {
+    Object.assign(stoAttr[index], value);
+  }
+  storageStore.setItem("attr_2", stoAttr);
+}, 200);
 function rememberAttr() {
   const inw = window.innerWidth;
   const inh = window.innerHeight;
@@ -792,7 +822,7 @@ function rememberAttr() {
     itemStyles,
     demoStyles,
   };
-  storageStore.setItem("attr", result);
+  deSaveAttr(result);
 }
 
 // 根据缓存排列demo顺序
@@ -820,6 +850,7 @@ function sortDemosByStorage() {
 
 // 初始化上下拖拽区域位置
 export function initDragResizeArea() {
+  compatibleStoArr();
   sortDemosByStorage();
   initDragArea();
   initDemosPosition();

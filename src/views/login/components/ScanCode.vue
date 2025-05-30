@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import QRCodeVue from "qrcode.vue";
@@ -109,10 +109,11 @@ const initCountdown = (timestamp: number) => {
 
 watch(
   () => useSocket().onLineSocket,
-  () => {
-    emitScanCode();
-  },
-  { once: true }
+  (val) => {
+    if (val && !qrValue.value) {
+      emitScanCode();
+    }
+  }
 );
 const emitScanCode = async () => {
   const socket = useSocket().onLineSocket;
@@ -183,6 +184,12 @@ const emitScanCode = async () => {
     });
   }
 };
+
+onMounted(() => {
+  if (!qrValue.value) {
+    emitScanCode();
+  }
+});
 </script>
 
 <style lang="scss" scoped>
