@@ -107,6 +107,12 @@ const initCountdown = (timestamp: number) => {
   timer.value = setInterval(updateCountdown, 1000);
 };
 
+const clearTimer = () => {
+  if (timer.value) {
+    clearInterval(timer.value);
+  }
+};
+
 watch(
   () => useSocket().onLineSocket,
   (val) => {
@@ -150,22 +156,24 @@ const emitScanCode = async () => {
     });
     // 扫码成功登录
     socket.on("qr_code_login", (d) => {
-      if (timer.value) {
-        clearInterval(timer.value);
-      }
+      clearTimer();
       const result = JSON.parse(decrypt(d));
       const { server, login, pc_token, status } = result;
       // 已扫码
       if (status === "1") {
+        const expirationTime = result.verify_time + 60;
+        initCountdown(expirationTime);
         codeType.value = "waiting";
         return;
       }
       // 已作废
       if (status === "3") {
+        clearTimer();
         codeType.value = "expire";
         return;
       }
       if (status === "2" && pc_token && login && server) {
+        clearTimer();
         codeType.value = "success";
         useUser().addAccount({
           token: pc_token,
