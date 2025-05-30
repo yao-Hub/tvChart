@@ -83,7 +83,7 @@ const qrValue = ref();
 const systemStore = useSystem();
 
 const codeType = ref<"pending" | "normal" | "waiting" | "expire" | "success">(
-  "normal"
+  "pending"
 );
 const ifGuide = ref(false);
 
@@ -161,7 +161,7 @@ const emitScanCode = async () => {
       const { server, login, pc_token, status } = result;
       // 已扫码
       if (status === "1") {
-        const expirationTime = result.verify_time + 60;
+        const expirationTime = result.verify_time + 6000;
         initCountdown(expirationTime);
         codeType.value = "waiting";
         return;

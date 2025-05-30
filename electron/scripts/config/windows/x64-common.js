@@ -1,22 +1,13 @@
 
-const nameMap = {
-  staging: "CTOTrader_staging",
-  development: "CTOTrader_dev",
-  production: "CTOTrader",
-};
-const appIdMap = {
-  staging: "com.electron.CTOTrader_staging",
-  development: "com.electron.CTOTrader_dev",
-  production: "com.electron.CTOTrader",
-};
+const { appIdMap, nameMap } = require("../options");
 
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
   appId: appIdMap[process.env.NODE_ENV],
   asar: false,
-  productName: nameMap[process.env.NODE_ENV], // 安装名字 路径名字
+  productName: nameMap[process.env.NODE_ENV], // 输出包前缀名称 | 缓存文件名称、安装名称、路径名称
   extraMetadata: {
-    name: nameMap[process.env.NODE_ENV] // 缓存文件名字
+    name: nameMap[process.env.NODE_ENV] // 缓存文件名称、安装名称、路径名称 （优先级 > productName）
   },
   directories: {
     output: 'release_electron/${version}-${env.NODE_ENV}/windows/common' // 安装包输出文件路径
