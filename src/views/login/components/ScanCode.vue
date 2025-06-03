@@ -121,8 +121,15 @@ watch(
     }
   }
 );
+
 const getScanCode = async () => {
   const socket = useSocket().onLineSocket;
+
+  if (!socket) {
+    useSocket().onlineSocketInit();
+    return;
+  }
+
   if (!useSystem().systemInfo) {
     await useSystem().getSystemInfo();
   }

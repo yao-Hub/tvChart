@@ -70,10 +70,13 @@ export const useSocket = defineStore("socket", {
       return encrypt(JSON.stringify(data));
     },
 
-    getUriQuery(
+    async getUriQuery(
       action: string = "connect",
       dData: Record<string, string> = {}
-    ): string {
+    ) {
+      if (!useSystem().systemInfo) {
+        await useSystem().getSystemInfo();
+      }
       const server = useUser().account.server || useNetwork().server;
       const searchMap: Record<string, string> = {
         "x-u-platform": "web",
@@ -94,11 +97,11 @@ export const useSocket = defineStore("socket", {
       return `?${queryParams}`;
     },
 
-    initSocket() {
+    async initSocket() {
       const networkStore = useNetwork();
       const mainUri = networkStore.currentNode?.webWebsocket;
       if (mainUri) {
-        const query = this.getUriQuery();
+        const query = await this.getUriQuery();
         this.socket = this.mainInstance.getInstance(mainUri, query);
         while (this.noExecuteList.length) {
           const item = this.noExecuteList.shift();
@@ -422,9 +425,10 @@ export const useSocket = defineStore("socket", {
     },
 
     // 埋点跟踪用户在线socket连接
-    onlineSocketInit() {
+    async onlineSocketInit() {
       const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
-      this.onLineSocket = io(`${uri}/${this.getUriQuery("online", {})}`, {
+      const query = await this.getUriQuery("online", {});
+      this.onLineSocket = io(`${uri}/${query}`, {
         transports: ["websocket"],
         reconnection: true, // 开启重连功能
         reconnectionAttempts: 5,
