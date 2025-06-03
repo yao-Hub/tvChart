@@ -434,6 +434,7 @@ export default {
   },
 
   scanCode: {
+    refresh: "刷新二维码",
     title: "手机扫码登录",
     open: "打开",
     place: ` CTOTrader APP-我的 `,

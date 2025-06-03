@@ -11,12 +11,12 @@
               : 'translate(-50%)',
           }"
         >
-          <div class="code">
+          <div class="code" @click="getScanCode" :title="t('scanCode.refresh')">
             <QRCodeVue :value="qrValue" :size="180" :margin="1" level="H" />
           </div>
           <div class="status" v-if="codeType === 'expire'">
             <span class="expireWord">{{ t("scanCode.invalidCode") }}</span>
-            <el-button type="primary" class="freshBtn" @click="emitScanCode">{{
+            <el-button type="primary" class="freshBtn" @click="getScanCode">{{
               t("refresh")
             }}</el-button>
           </div>
@@ -40,7 +40,7 @@
             transform: ifGuide
               ? 'translate(-120%, -49%)'
               : 'translate(-50%, -50%)',
-            zIndex: codeType === 'expire' ? 0 : 9,
+            zIndex: codeType !== 'expire' && ifGuide ? 9 : -1,
           }"
           src="@/assets/images/guide.png"
         />
@@ -117,11 +117,11 @@ watch(
   () => useSocket().onLineSocket,
   (val) => {
     if (val && !qrValue.value) {
-      emitScanCode();
+      getScanCode();
     }
   }
 );
-const emitScanCode = async () => {
+const getScanCode = async () => {
   const socket = useSocket().onLineSocket;
   if (!useSystem().systemInfo) {
     await useSystem().getSystemInfo();
@@ -195,7 +195,7 @@ const emitScanCode = async () => {
 
 onMounted(() => {
   if (!qrValue.value) {
-    emitScanCode();
+    getScanCode();
   }
 });
 </script>
@@ -250,6 +250,7 @@ onMounted(() => {
       display: flex;
       align-items: center;
       justify-content: center;
+      cursor: pointer;
     }
 
     .status {

@@ -436,6 +436,7 @@ export default {
   },
 
   scanCode: {
+    refresh: "Refresh Code",
     title: "Mobile QR Code Login",
     open: "Open",
     place: ` the CTOTrader APP → Go to "Me" → `,

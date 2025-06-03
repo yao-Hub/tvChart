@@ -435,6 +435,7 @@ export default {
   },
 
   scanCode: {
+    refresh: "重繪二維碼",
     title: "手機掃碼登入",
     open: "打開",
     place: ` CTOTrader APP-我的 `,
