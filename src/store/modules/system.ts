@@ -100,7 +100,7 @@ export const useSystem = defineStore("system", () => {
       deviceBrand: brower,
       deviceModel: browerVersion,
       platform: WEB_PLATFORM,
-      deviceInfo: WEB_RELEASE,
+      deviceInfo: `${OS_TYPE} ${OS_MACH}`,
       deviceId,
       localIp,
     };

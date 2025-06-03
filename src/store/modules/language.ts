@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { computed } from "vue";
 import i18n from "@/language/index";
-import { useRoot } from "../store";
 import { useChartInit } from "./chartInit";
 
 export const useLanguage = defineStore("language", () => {
@@ -12,9 +11,7 @@ export const useLanguage = defineStore("language", () => {
     if (value === locale.value) {
       return;
     }
-    useChartInit().state.loading = true;
     useChartInit().saveCharts();
-    await useRoot().resetAllStore();
     locale.value = value;
     localStorage.setItem("language", value);
   };
