@@ -50,10 +50,7 @@ const localeKey = ref("");
 const homeComponentImport = () => import("@/views/home/index.vue");
 homeComponentImport();
 
-const routeName = computed(() => {
-  console.log(route.path);
-  return route.path;
-});
+const routeName = computed(() => route.path);
 
 const direction = ref("slide-forward");
 watch(
