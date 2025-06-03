@@ -4,6 +4,7 @@ const path = require('path');
 const { getDeviceInfo } = require('./utils/systemInfo');
 const Downloader = require('./utils/downloader');
 const ShortcutManager = require('./utils/shortcutManager');
+const WindowStateManager = require('./utils/windowStateManager');
 
 // 所有通过createWindow创建的窗口
 const windowsMap = {};
@@ -35,10 +36,17 @@ function createWindow(name, hash, screenWidth) {
   const renderWidth = screenWidth || width;
   const renderHight = Math.floor(renderWidth / 16 * 9);
 
+  // 创建窗口状态管理器
+  const windowStateManager = new WindowStateManager(name);
+  windowStateManager.setDefaultSize(renderWidth, renderHight);
+  const windowState = windowStateManager.getState();
+
   // 创建浏览器窗口
   windowsMap[name] = new BrowserWindow({
-    width: renderWidth,
-    height: renderHight,
+    width: windowState.width,
+    height: windowState.height,
+    x: windowState.x,
+    y: windowState.y,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
@@ -70,6 +78,10 @@ function createWindow(name, hash, screenWidth) {
 
   // 窗口监听关闭
   windowsMap[name].on('close', async (event) => {
+    // 缓存窗口位置和尺寸
+    const bounds = windowsMap[name].getBounds();
+    windowStateManager.saveState(bounds);
+
     // 主窗口关闭
     if (downloader && downloader.activeDownload && name === "mainWindow") {
       const { shutdown,
