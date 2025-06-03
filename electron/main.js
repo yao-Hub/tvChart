@@ -3,15 +3,15 @@ const path = require('path');
 
 const { getDeviceInfo } = require('./utils/systemInfo');
 const Downloader = require('./utils/downloader');
+const ShortcutManager = require('./utils/shortcutManager');
 
 // 所有通过createWindow创建的窗口
 const windowsMap = {};
 
-// 输入的快捷键密钥
-let ctrlActivated = false;  // 标记Ctrl/Command是否被按过
-let inputIndex = 0;           // 当前输入的密码字符索引
-const SECRET_CODE = 'yaozeyu';
+// 创建快捷键管理器实例
+const shortcutManager = new ShortcutManager();
 
+// 下载控制器
 let downloader;
 
 // 翻译
@@ -95,48 +95,8 @@ function createWindow(name, hash, screenWidth) {
     }
   });
 
-  // 所有窗口快捷键阻止
-  windowsMap[name].webContents.on('before-input-event', (event, input) => {
-    // 仅处理 keydown 事件（跳过 keypress）
-    if (input.type !== 'keyDown') return;
-
-    // 阻止 F12
-    if (input.key === 'F12') {
-      event.preventDefault();
-    }
-    // 阻止 Ctrl+Shift+I (Windows/Linux)
-    if (input.control && input.shift && input.key.toLowerCase() === 'i') {
-      event.preventDefault();
-    }
-    // 阻止 Command+Option+I (macOS)
-    if (input.meta && input.alt && input.key.toLowerCase() === 'i') {
-      event.preventDefault();
-    }
-
-    if (input.key === 'Control' || input.key === 'Meta') {
-      ctrlActivated = true; // 标记为已激活
-      inputIndex = 0;
-      return;
-    }
-
-    // 监听字符输入（忽略修饰键）打开开发者工具
-    if (ctrlActivated && !input.control && !input.meta && !input.alt) {
-      const char = input.key.toLowerCase();
-      if (char === SECRET_CODE[inputIndex]) {
-        inputIndex++;
-        // 完全匹配时打开开发者工具
-        if (inputIndex === SECRET_CODE.length) {
-          windowsMap[name].webContents.openDevTools();
-          ctrlActivated = false;
-          inputIndex = 0;
-        }
-      } else {
-        // 输入错误字符，立即重置状态
-        ctrlActivated = false;
-        inputIndex = 0;
-      }
-    }
-  });
+  // 设置窗口快捷键
+  shortcutManager.setupWindowShortcuts(windowsMap[name]);
 }
 
 
