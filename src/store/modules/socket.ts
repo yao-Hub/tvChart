@@ -425,14 +425,25 @@ export const useSocket = defineStore("socket", {
     },
 
     // 埋点跟踪用户在线socket连接
-    async onlineSocketInit() {
-      const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
-      const query = await this.getUriQuery("online", {});
-      this.onLineSocket = io(`${uri}/${query}`, {
-        transports: ["websocket"],
-        reconnection: true, // 开启重连功能
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
+    onlineSocketInit(): Promise<Socket | null> {
+      return new Promise(async (resolve, reject) => {
+        const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
+        const query = await this.getUriQuery("online", {});
+        this.onLineSocket = io(`${uri}/${query}`, {
+          transports: ["websocket"],
+          reconnection: true, // 开启重连功能
+          reconnectionAttempts: 5,
+          reconnectionDelay: 1000,
+        });
+        this.onLineSocket.on("connect", () => {
+          resolve(this.onLineSocket as Socket);
+        });
+        this.onLineSocket.on("disconnect", () => {
+          reject(this.onLineSocket);
+        });
+        this.onLineSocket.on("error", () => {
+          reject(this.onLineSocket);
+        });
       });
     },
 

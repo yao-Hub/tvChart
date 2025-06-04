@@ -51,7 +51,7 @@ watch(
   }
 );
 
-// 在线人数打点、扫码登录初始化
+// 在线人数打点、online socket初始化
 const ifSendOnlineTrack = ref(false);
 watch(
   () => systemStore.systemInfo,
@@ -59,9 +59,17 @@ watch(
     if (ifSendOnlineTrack.value) return;
     if (info && info.deviceId) {
       systemInfoReady.value = true;
-      useSocket().onlineSocketInit();
-      ifSendOnlineTrack.value = true;
+      // 检查是否可以发送打点
       checkAndSendTrack();
+      // online socket 初始化
+      useSocket()
+        .onlineSocketInit()
+        .then(() => {
+          ifSendOnlineTrack.value = true;
+        })
+        .catch(() => {
+          ifSendOnlineTrack.value = false;
+        });
     }
   },
   { deep: true }

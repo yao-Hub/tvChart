@@ -1,6 +1,6 @@
 <template>
   <div class="scanCode">
-    <el-scrollbar view-class="scrollbarView" always>
+    <el-scrollbar view-class="scanCodeScrollbarView">
       <div class="phoneTip">{{ t("scanCode.title") }}</div>
       <div class="scanCode-container">
         <div
@@ -12,7 +12,15 @@
           }"
         >
           <div class="code" @click="getScanCode" :title="t('scanCode.refresh')">
-            <QRCodeVue :value="qrValue" :size="180" :margin="1" level="H" />
+            <QRCodeVue
+              :value="qrValue"
+              :size="180"
+              :margin="1"
+              level="H"
+              :image-settings="imageSettings"
+            />
+            <!-- 覆盖中心logo -->
+            <img class="scanCodeLogo" src="@/assets/icons/scanCodeLogo.svg" />
           </div>
           <div class="status" v-if="codeType === 'expire'">
             <span class="expireWord">{{ t("scanCode.invalidCode") }}</span>
@@ -45,7 +53,6 @@
           src="@/assets/images/guide.png"
         />
       </div>
-
       <div class="scan-tip">
         <span>{{ t("scanCode.open") }}</span>
         <span class="app-name">{{ t("scanCode.place") }}</span>
@@ -63,10 +70,11 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import QRCodeVue from "qrcode.vue";
+import type { ImageSettings } from "qrcode.vue";
 
 import { decrypt, encrypt } from "utils/DES/JS";
 import { sendTrack } from "@/utils/track";
@@ -81,6 +89,17 @@ const router = useRouter();
 
 const qrValue = ref();
 const systemStore = useSystem();
+
+const scanCodeImage = new URL(
+  `../../../assets/icons/scanCodeLogo.svg`,
+  import.meta.url
+).href;
+const imageSettings = ref<ImageSettings>({
+  src: scanCodeImage,
+  width: 32,
+  height: 32,
+  excavate: true, // logo旁边是否留白
+});
 
 const codeType = ref<"pending" | "normal" | "waiting" | "expire" | "success">(
   "pending"
@@ -113,26 +132,13 @@ const clearTimer = () => {
   }
 };
 
-watch(
-  () => useSocket().onLineSocket,
-  (val) => {
-    if (val && !qrValue.value) {
-      getScanCode();
-    }
-  }
-);
-
 const getScanCode = async () => {
-  const socket = useSocket().onLineSocket;
+  let socket = useSocket().onLineSocket;
 
   if (!socket) {
-    useSocket().onlineSocketInit();
-    return;
+    socket = await useSocket().onlineSocketInit();
   }
 
-  if (!useSystem().systemInfo) {
-    await useSystem().getSystemInfo();
-  }
   if (socket) {
     const info = {
       pc_device_id: systemStore.systemInfo!.deviceId,
@@ -207,6 +213,20 @@ onMounted(() => {
 });
 </script>
 
+<style lang="scss">
+@import "@/styles/_handle.scss";
+
+.scanCodeScrollbarView {
+  height: 100%;
+  min-height: 430px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: 1px solid;
+  position: relative;
+  @include border_color("border");
+}
+</style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 :deep(.el-loading-mask) {
@@ -217,17 +237,8 @@ onMounted(() => {
   padding: 32px 0;
   box-sizing: border-box;
 }
-:deep(.scrollbarView) {
-  height: 100%;
-  min-height: 430px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
-}
 
 .phoneTip {
-  margin-top: 18px;
   font-size: 24px;
   line-height: 40px;
 }
@@ -235,8 +246,9 @@ onMounted(() => {
 .scanCode-container {
   width: 100%;
   height: 200px;
-  position: relative;
   transition: all 0.5s ease;
+  position: absolute;
+  top: 108px;
   .qrcode {
     width: 200px;
     height: 200px;
@@ -258,6 +270,13 @@ onMounted(() => {
       align-items: center;
       justify-content: center;
       cursor: pointer;
+      position: relative;
+      .scanCodeLogo {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
     }
 
     .status {
@@ -310,12 +329,15 @@ onMounted(() => {
 .scan-tip {
   text-align: center;
   line-height: normal;
+  position: absolute;
+  top: 330px;
   .app-name {
     @include font_color("primary");
   }
 }
 .guide-tip {
+  position: absolute;
+  bottom: 5px;
   cursor: pointer;
-  margin-bottom: 32px;
 }
 </style>

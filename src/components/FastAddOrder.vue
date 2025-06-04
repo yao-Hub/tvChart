@@ -129,13 +129,11 @@ const styles = {
   },
 };
 
-const wordGreen = "#50AC8C";
-const wordRed = "#F75173";
 const wordDownColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? wordGreen : wordRed;
+  return themeStore.getUpDownColor("downHoverColor");
 });
 const wordUpColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? wordRed : wordGreen;
+  return themeStore.getUpDownColor("upHoverColor");
 });
 const wordStyle = (type: DirectionType) => {
   return {
@@ -145,13 +143,11 @@ const wordStyle = (type: DirectionType) => {
   };
 };
 
-const btnGreen = "#2E9C76";
-const btnRed = "#F53058";
 const btnDownColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? btnGreen : btnRed;
+  return themeStore.getUpDownColor("downColor");
 });
 const btnUpColor = computed(() => {
-  return themeStore.upDownTheme === "upRedDownGreen" ? btnRed : btnGreen;
+  return themeStore.getUpDownColor("upColor");
 });
 
 const btnStyle = (type: DirectionType) => {

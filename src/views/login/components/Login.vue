@@ -3,21 +3,16 @@
     <ScanCode></ScanCode>
 
     <div class="Login">
-      <div class="goback" v-if="ifloginBack">
-        <div @click="goAccount">
-          <el-icon>
-            <BaseImg iconName="turnleft" />
-          </el-icon>
-          <span>{{ t("back") }}</span>
-        </div>
-      </div>
-      <el-scrollbar always view-class="loginScrollbarView">
+      <el-scrollbar view-class="loginScrollbarView">
         <div class="login_container">
-          <span
-            class="plogin"
-            :style="{ marginTop: ifloginBack ? '' : '24px' }"
-            >{{ t("logAccount") }}</span
-          >
+          <div class="backBox">
+            <el-icon class="backBox_icon" @click="goAccount" v-if="ifloginBack">
+              <BaseImg iconName="turnleft" />
+            </el-icon>
+            <span class="plogin">{{
+              ifloginBack ? t("addAccount") : t("logAccount")
+            }}</span>
+          </div>
           <span class="padd">{{ t("noAccount") }}</span>
           <el-form
             ref="ruleFormRef"
@@ -402,13 +397,6 @@ onUnmounted(() => {
 
 :deep(.loginScrollbarView) {
   height: 100%;
-  padding-bottom: 32px;
-  box-sizing: border-box;
-}
-
-.goback {
-  padding-left: 24px;
-  width: auto;
 }
 
 .loginList {
@@ -418,33 +406,43 @@ onUnmounted(() => {
 
 .Login {
   height: 100%;
-  box-sizing: border-box;
   width: 480px;
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-
-  .login_container {
-    height: 100%;
-    padding: 0 32px 0 24px;
-    box-sizing: border-box;
-    border-left: 1px solid;
-    @include border_color("border");
+  padding: 32px 0;
+  box-sizing: border-box;
+}
+.login_container {
+  height: 100%;
+  padding: 0 32px 0 24px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  .backBox {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    font-size: 24px;
+    line-height: 40px;
+    gap: 8px;
+    position: sticky;
+    top: 0;
+    z-index: 9;
+    @include background_color("background-login-container");
+    &_icon {
+      cursor: pointer;
+    }
     .plogin {
-      font-size: 24px;
-      line-height: 40px;
+      font-size: inherit;
       display: block;
     }
+  }
 
-    .padd {
-      font-weight: 400;
-      font-size: 14px;
-      line-height: 20px;
-      display: block;
-      @include font_color("word-gray");
-    }
+  .padd {
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    display: block;
+    @include font_color("word-gray");
   }
 }
 
@@ -452,9 +450,9 @@ onUnmounted(() => {
   flex: 1;
   margin-top: 24px;
   font-size: 16px !important;
-
   display: flex;
   flex-direction: column;
+  position: relative;
 
   &-remember {
     width: 100%;
@@ -466,11 +464,8 @@ onUnmounted(() => {
   &-account {
     width: 100%;
     text-align: center;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 13px;
+    margin-top: auto;
+    height: 20px;
   }
 
   &-button {

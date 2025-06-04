@@ -11,13 +11,10 @@ export type TupDownTheme =
   | "classicUpRedDownGreen"
   | "classicUpGreenDownRed"
   | "CVD1"
-  | "CVD2"; // 涨跌风格
-interface ICacheItem {
-  clearColor: boolean;
-  content: string;
-  path: string;
-  attributes: Record<string, string>;
-}
+  | "CVD2";
+
+type TUpDownColor = "downColor" | "upColor" | "upHoverColor" | "downHoverColor";
+
 export const useTheme = defineStore("theme", () => {
   const isDark = useDark();
   const toggleDark = useToggle(isDark);
@@ -26,9 +23,6 @@ export const useTheme = defineStore("theme", () => {
   const upDownTheme = ref<TupDownTheme>("upRedDownGreen");
 
   const iframesColorScheme = ref<Record<string, TsystemTheme>>({});
-
-  const cacheContent = ref<ICacheItem[]>([]);
-  const svgPendingRequests = ref<Record<string, Promise<void> | undefined>>({});
 
   watch(
     () => isDark.value,
@@ -88,31 +82,22 @@ export const useTheme = defineStore("theme", () => {
     }
     return upDownTheme.value;
   };
-  const setUpDownTheme = (params?: {
-    type?: TupDownTheme;
-    chartId?: string;
-  }) => {
-    if (params && params.type) {
-      upDownTheme.value = params.type;
-    }
-    document.documentElement.setAttribute("upDown-theme", upDownTheme.value);
-    localStorage.setItem("upDownTheme", upDownTheme.value);
-    const chartInitStore = useChartInit();
 
+  const getUpDownColor = (colorType: TUpDownColor) => {
     const red = "#F53058";
     const green = "#2E9C76";
-    const hoverRed = "#f6d0db";
-    const hoverGreen = "#cee5e1";
+    const hoverRed = "#F75173";
+    const hoverGreen = "#50AC8C";
 
     const classisRed = "#EA0071";
     const classisGreen = "#73a600";
-    const classisRedHover = "#ff57a8";
-    const classisGreenHover = "#abd252";
+    const classisRedHover = "#FF57A8";
+    const classisGreenHover = "#ABD252";
 
     const CVDYellow = "#f4b201";
-    const CVDYellowHover = "#ffd05";
+    const CVDYellowHover = "#FFD051";
     const CVDBlue = "#3067b0";
-    const CVDBlueHover = "#5b90d5";
+    const CVDBlueHover = "#5B90D5";
 
     const colorMap = {
       upRedDownGreen: {
@@ -152,12 +137,25 @@ export const useTheme = defineStore("theme", () => {
         downHoverColor: CVDYellowHover,
       },
     };
+    return colorMap[upDownTheme.value][colorType];
+  };
 
-    const upColor = colorMap[upDownTheme.value].upColor;
-    const downColor = colorMap[upDownTheme.value].downColor;
+  const setUpDownTheme = (params?: {
+    type?: TupDownTheme;
+    chartId?: string;
+  }) => {
+    if (params && params.type) {
+      upDownTheme.value = params.type;
+    }
+    document.documentElement.setAttribute("upDown-theme", upDownTheme.value);
+    localStorage.setItem("upDownTheme", upDownTheme.value);
+    const chartInitStore = useChartInit();
 
-    const upHoverColor = colorMap[upDownTheme.value].upHoverColor;
-    const downHoverColor = colorMap[upDownTheme.value].downHoverColor;
+    const upColor = getUpDownColor("upColor");
+    const downColor = getUpDownColor("downColor");
+
+    const upHoverColor = getUpDownColor("upHoverColor");
+    const downHoverColor = getUpDownColor("downHoverColor");
 
     const overrides = {
       // 正常k线图
@@ -233,21 +231,6 @@ export const useTheme = defineStore("theme", () => {
     });
   };
 
-  const setIconCache = (params: ICacheItem) => {
-    const target = cacheContent.value?.find(
-      (item) => item.path === params.path
-    );
-    if (!target) {
-      cacheContent.value?.push(params);
-    }
-  };
-
-  const getIconCache = (path: string) => {
-    const target = cacheContent.value?.find((item) => item.path === path);
-    if (target) return target;
-    return null;
-  };
-
   function $reset() {}
   return {
     systemTheme,
@@ -261,9 +244,7 @@ export const useTheme = defineStore("theme", () => {
     saveChartTheme,
     getIframesColorScheme,
     iframesColorScheme,
-    setIconCache,
-    getIconCache,
-    svgPendingRequests,
+    getUpDownColor,
     $reset,
   };
 });

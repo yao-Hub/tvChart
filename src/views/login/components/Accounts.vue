@@ -172,11 +172,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-left: 1px solid;
-  @include border_color("border");
 
   .plogin {
-    margin-top: 18px;
     font-size: 24px;
     height: 40px;
     line-height: 40px;
@@ -245,16 +242,16 @@ onUnmounted(() => {
   }
 
   .footer {
-    margin-top: auto;
+    width: 100%;
     display: flex;
     justify-content: center;
-    gap: 24px;
-    width: 100%;
-    font-size: 14px;
-    box-sizing: border-box;
-    height: 80px;
-    align-items: center;
+    align-items: flex-end;
     flex-shrink: 0;
+    gap: 24px;
+    height: 80px;
+    font-size: 14px;
+    margin-top: auto;
+    padding-bottom: 5px;
     span {
       cursor: pointer;
       &:hover {
