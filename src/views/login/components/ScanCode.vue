@@ -233,7 +233,7 @@ onMounted(() => {
   background-color: unset;
 }
 .scanCode {
-  width: 350px;
+  width: 380px;
   padding: 32px 0;
   box-sizing: border-box;
 }

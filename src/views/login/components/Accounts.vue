@@ -166,7 +166,7 @@ onUnmounted(() => {
 }
 .accounts {
   height: 100%;
-  padding: 0 32px;
+  padding: 0 48px;
   position: relative;
   box-sizing: border-box;
   display: flex;
