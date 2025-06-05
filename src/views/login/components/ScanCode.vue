@@ -13,7 +13,7 @@
         >
           <div class="code" @click="getScanCode" :title="t('scanCode.refresh')">
             <QRCodeVue
-              :value="qrValue"
+              :value="qrcodeStore.qrcodeVal"
               :size="180"
               :margin="1"
               level="H"
@@ -22,21 +22,21 @@
             <!-- 覆盖中心logo -->
             <img class="scanCodeLogo" src="@/assets/icons/scanCodeLogo.svg" />
           </div>
-          <div class="status" v-if="codeType === 'expire'">
+          <div class="status" v-if="qrcodeStore.codeType === 'expire'">
             <span class="expireWord">{{ t("scanCode.invalidCode") }}</span>
             <el-button type="primary" class="freshBtn" @click="getScanCode">{{
               t("refresh")
             }}</el-button>
           </div>
-          <div class="status" v-if="codeType === 'waiting'">
+          <div class="status" v-if="qrcodeStore.codeType === 'waiting'">
             <BaseImg iconName="icon_success"></BaseImg>
             <span class="waitingWord">{{ t("scanCode.waitConfirm") }}</span>
           </div>
 
-          <div class="status" v-if="codeType === 'pending'">
+          <div class="status" v-if="qrcodeStore.codeType === 'pending'">
             <div class="pendingBox" v-loading="true"></div>
           </div>
-          <div class="status" v-if="codeType === 'success'">
+          <div class="status" v-if="qrcodeStore.codeType === 'success'">
             <BaseImg iconName="icon_success"></BaseImg>
             <span class="waitingWord">{{ t("scanCode.logging") }}</span>
           </div>
@@ -48,7 +48,7 @@
             transform: ifGuide
               ? 'translate(-120%, -49%)'
               : 'translate(-50%, -50%)',
-            zIndex: codeType !== 'expire' && ifGuide ? 9 : -1,
+            zIndex: qrcodeStore.codeType !== 'expire' && ifGuide ? 9 : -1,
           }"
           src="@/assets/images/guide.png"
         />
@@ -72,23 +72,14 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRouter } from "vue-router";
 import QRCodeVue from "qrcode.vue";
 import type { ImageSettings } from "qrcode.vue";
 
-import { decrypt } from "utils/DES/JS";
-import { sendTrack } from "@/utils/track";
-
 import { useSocket } from "@/store/modules/socket";
-import { useSystem } from "@/store/modules/system";
-import { useUser } from "@/store/modules/user";
-import dayjs from "dayjs";
+import { useQrcode } from "@/store/modules/qrcode";
 
 const { t } = useI18n();
-const router = useRouter();
-
-const qrValue = ref();
-const systemStore = useSystem();
+const qrcodeStore = useQrcode();
 
 const scanCodeImage = new URL(
   `../../../assets/icons/scanCodeLogo.svg`,
@@ -101,103 +92,13 @@ const imageSettings = ref<ImageSettings>({
   // excavate: true, // logo旁边是否留白
 });
 
-const codeType = ref<"pending" | "normal" | "waiting" | "expire" | "success">(
-  "pending"
-);
 const ifGuide = ref(false);
-
-const timer = ref<ReturnType<typeof setInterval>>();
-const countdown = ref<number>(0); // 剩余秒数
-// 初始化倒计时
-const initCountdown = (timestamp: number) => {
-  // 计算剩余秒数
-  const updateCountdown = () => {
-    const now = Date.now();
-    countdown.value = Math.max(0, Math.floor((timestamp - now) / 1000));
-    if (countdown.value <= 0) {
-      clearInterval(timer.value);
-      codeType.value = "expire";
-    }
-  };
-
-  // 立即更新一次
-  updateCountdown();
-  // 每秒更新一次
-  timer.value = setInterval(updateCountdown, 1000);
-};
-
-const clearTimer = () => {
-  if (timer.value) {
-    clearInterval(timer.value);
-  }
-};
-
 const getScanCode = () => {
   useSocket().emitQrcodeInit();
 };
 
 onMounted(() => {
-  if (!qrValue.value) {
-    getScanCode();
-  }
-  useSocket().subQrcodeInit((d) => {
-    codeType.value = "normal";
-    const result = JSON.parse(decrypt(d.data));
-    console.log("qrcode_init", result);
-    qrValue.value = result.qr_code;
-    const expirationTime = result.expiration_time;
-    console.log(
-      "qrcode_init 过期时间",
-      dayjs(expirationTime).format("YYYY-MM-DD HH:mm:ss")
-    );
-    clearTimer();
-    initCountdown(expirationTime);
-    const deviceId = systemStore.systemInfo!.deviceId;
-    const pcId = result.pc_device_id;
-    if (pcId !== deviceId) {
-      codeType.value = "expire";
-    }
-  });
-  useSocket().subQrcodeLogin((d) => {
-    clearTimer();
-    const result = JSON.parse(decrypt(d));
-    console.log("qrcode_login", result);
-    const { server, login, pc_token, status } = result;
-    if (result.verify_time) {
-      const expirationTime = result.verify_time + 60 * 1000;
-      console.log(
-        "qrcode_login 过期时间",
-        dayjs(expirationTime).format("YYYY-MM-DD HH:mm:ss")
-      );
-      initCountdown(expirationTime);
-    }
-    // 已扫码
-    if (status === "1") {
-      codeType.value = "waiting";
-      return;
-    }
-    // 已作废
-    if (status === "3") {
-      codeType.value = "expire";
-      return;
-    }
-    if (status === "2" && pc_token && login && server) {
-      codeType.value = "success";
-      useUser().addAccount({
-        token: pc_token,
-        server,
-        ifLogin: true,
-        login,
-      });
-      sendTrack({
-        actionType: "signUp",
-        actionObject: "scanCode",
-      });
-      router.push({ path: "/" });
-      return;
-    }
-    codeType.value = "expire";
-  });
+  qrcodeStore.init();
 });
 </script>
 
@@ -221,7 +122,7 @@ onMounted(() => {
   background-color: unset;
 }
 .scanCode {
-  width: 380px;
+  width: 440px;
   padding: 32px 0;
   box-sizing: border-box;
 }

@@ -163,6 +163,7 @@ onUnmounted(() => {
 }
 .accountsList-container {
   margin: 32px 0;
+  width: 560px;
 }
 .accounts {
   height: 100%;

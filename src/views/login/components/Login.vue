@@ -406,7 +406,7 @@ onUnmounted(() => {
 
 .Login {
   height: 100%;
-  width: 480px;
+  width: 560px;
   display: flex;
   flex-direction: column;
   padding: 32px 0;

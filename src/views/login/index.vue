@@ -7,13 +7,16 @@
       <Language></Language>
     </div>
     <router-view v-slot="{ Component }">
-      <div class="home-container">
+      <div
+        class="home-container"
+        :style="{ right: showArticle ? '86px' : '15%' }"
+      >
         <transition :name="direction" mode="out-in" appear>
-          <div class="main" :key="routeName">
+          <div class="main" :key="route.path">
             <component :is="Component" />
             <LoginArticle
               class="main-article"
-              v-if="routeName.includes('login/home')"
+              v-if="showArticle"
             ></LoginArticle>
           </div>
         </transition>
@@ -50,13 +53,27 @@ const localeKey = ref("");
 const homeComponentImport = () => import("@/views/home/index.vue");
 homeComponentImport();
 
-const routeName = computed(() => route.path);
+// 显示底部协议
+const checkPath = (path: string) => {
+  const patterns = ["/login/home", "/login/accounts"];
+  return patterns.some((item) => path.includes(item));
+};
+const showArticle = computed(() => {
+  const path = route.path.toLowerCase();
+  return checkPath(path);
+});
 
 const direction = ref("slide-forward");
 watch(
   () => router.currentRoute.value,
   (to, from) => {
-    if (to.meta.depth && from.meta.depth && to.meta.depth > from.meta.depth) {
+    const toPath = to.path.toLowerCase();
+    const fromPath = from.path.toLowerCase();
+    if (checkPath(toPath) && checkPath(fromPath)) {
+      direction.value = "";
+      return;
+    }
+    if (to.meta.depth && from.meta.depth && to.meta.depth > from!.meta.depth) {
       direction.value = "slide-forward";
     } else {
       direction.value = "slide-backward";
@@ -128,11 +145,10 @@ watch(
   overflow: hidden;
   .welcome {
     position: fixed;
-    left: 18.65%;
+    left: 12%;
     top: 20%;
     font-size: 40px;
     font-weight: bold;
-    height: 648px;
   }
   .title {
     position: fixed;
@@ -151,7 +167,6 @@ watch(
   }
   .home-container {
     position: fixed;
-    right: 15%;
     top: 15%;
     max-height: 648px;
     height: 70%;

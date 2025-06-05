@@ -47,8 +47,13 @@ class SingletonSocket {
       });
 
       this.instance.on("connect_error", (error) => {
-        console.error("websocket连接错误:", error);
+        console.log("websocket连接错误:", error);
         eventBus.emit("socket-error");
+        ElMessage.error("Socekt Connect Error");
+      });
+
+      this.instance.on("error", (error) => {
+        console.log("websocket error:", error);
         ElMessage.error("Socekt Connect Error");
       });
     }
