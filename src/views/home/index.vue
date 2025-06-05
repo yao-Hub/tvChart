@@ -100,6 +100,7 @@ const initRender = () => {
     // 初始化各个模块位置
     initDragResizeArea();
   });
+  socketStore.sendOnlineToken(); //埋点用户在线
 };
 
 /** 初始化 注意调用顺序
@@ -163,7 +164,6 @@ onUnmounted(() => {
 onBeforeRouteLeave(async () => {
   chartInitStore.state.loading = true;
   chartInitStore.saveCharts();
-  socketStore.closeAllSocket();
   await rootStore.resetAllStore();
   window.removeEventListener("resize", handleResize);
   return true;

@@ -64,8 +64,8 @@ export const useChartInit = defineStore("chartInit", () => {
     () => state.ifFinishLoad,
     () => {
       const ifEnding = ifAllChartLoadingEnd();
-      if (ifEnding && socketStore.socket === null) {
-        socketStore.initSocket();
+      if (ifEnding && socketStore.mainSocket === null) {
+        socketStore.initMainSocket();
       }
     },
     { deep: true }

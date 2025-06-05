@@ -76,13 +76,13 @@ import { useRouter } from "vue-router";
 import QRCodeVue from "qrcode.vue";
 import type { ImageSettings } from "qrcode.vue";
 
-import { decrypt, encrypt } from "utils/DES/JS";
+import { decrypt } from "utils/DES/JS";
 import { sendTrack } from "@/utils/track";
 
 import { useSocket } from "@/store/modules/socket";
 import { useSystem } from "@/store/modules/system";
-import { generateUUID } from "@/utils/common";
 import { useUser } from "@/store/modules/user";
+import dayjs from "dayjs";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -98,7 +98,7 @@ const imageSettings = ref<ImageSettings>({
   src: scanCodeImage,
   width: 32,
   height: 32,
-  excavate: true, // logo旁边是否留白
+  // excavate: true, // logo旁边是否留白
 });
 
 const codeType = ref<"pending" | "normal" | "waiting" | "expire" | "success">(
@@ -132,84 +132,72 @@ const clearTimer = () => {
   }
 };
 
-const getScanCode = async () => {
-  let socket = useSocket().onLineSocket;
-
-  if (!socket) {
-    socket = await useSocket().onlineSocketInit();
-  }
-
-  if (socket) {
-    const info = {
-      pc_device_id: systemStore.systemInfo!.deviceId,
-      pc_device_model: systemStore.systemInfo!.deviceModel,
-      pc_device_brand: systemStore.systemInfo!.deviceBrand,
-      pc_device_info: systemStore.systemInfo!.deviceInfo,
-      pc_ip: systemStore.systemInfo!.localIp,
-      req_id: generateUUID(),
-      req_time: Date.now(),
-    };
-    const data = {
-      action: "qrcode_init",
-      d: encrypt(JSON.stringify(info)),
-    };
-    codeType.value = "pending";
-    socket.emit("qrcode_init", data);
-
-    socket.on("qrcode_init", (d) => {
-      codeType.value = "normal";
-      const result = JSON.parse(decrypt(d.data));
-      qrValue.value = result.qr_code;
-      const expirationTime = result.expiration_time;
-      initCountdown(expirationTime);
-      const pcId = result.pc_device_id;
-      if (pcId !== info.pc_device_id) {
-        codeType.value = "expire";
-      }
-    });
-    // 扫码成功登录
-    socket.on("qr_code_login", (d) => {
-      clearTimer();
-      const result = JSON.parse(decrypt(d));
-      const { server, login, pc_token, status } = result;
-      // 已扫码
-      if (status === "1") {
-        const expirationTime = result.verify_time + 60 * 1000;
-        initCountdown(expirationTime);
-        codeType.value = "waiting";
-        return;
-      }
-      // 已作废
-      if (status === "3") {
-        clearTimer();
-        codeType.value = "expire";
-        return;
-      }
-      if (status === "2" && pc_token && login && server) {
-        clearTimer();
-        codeType.value = "success";
-        useUser().addAccount({
-          token: pc_token,
-          server,
-          ifLogin: true,
-          login,
-        });
-        sendTrack({
-          actionType: "signUp",
-          actionObject: "scanCode",
-        });
-        router.push({ path: "/" });
-        return;
-      }
-      codeType.value = "expire";
-    });
-  }
+const getScanCode = () => {
+  useSocket().emitQrcodeInit();
 };
 
 onMounted(() => {
   if (!qrValue.value) {
     getScanCode();
   }
+  useSocket().subQrcodeInit((d) => {
+    codeType.value = "normal";
+    const result = JSON.parse(decrypt(d.data));
+    console.log("qrcode_init", result);
+    qrValue.value = result.qr_code;
+    const expirationTime = result.expiration_time;
+    console.log(
+      "qrcode_init 过期时间",
+      dayjs(expirationTime).format("YYYY-MM-DD HH:mm:ss")
+    );
+    clearTimer();
+    initCountdown(expirationTime);
+    const deviceId = systemStore.systemInfo!.deviceId;
+    const pcId = result.pc_device_id;
+    if (pcId !== deviceId) {
+      codeType.value = "expire";
+    }
+  });
+  useSocket().subQrcodeLogin((d) => {
+    clearTimer();
+    const result = JSON.parse(decrypt(d));
+    console.log("qrcode_login", result);
+    const { server, login, pc_token, status } = result;
+    if (result.verify_time) {
+      const expirationTime = result.verify_time + 60 * 1000;
+      console.log(
+        "qrcode_login 过期时间",
+        dayjs(expirationTime).format("YYYY-MM-DD HH:mm:ss")
+      );
+      initCountdown(expirationTime);
+    }
+    // 已扫码
+    if (status === "1") {
+      codeType.value = "waiting";
+      return;
+    }
+    // 已作废
+    if (status === "3") {
+      codeType.value = "expire";
+      return;
+    }
+    if (status === "2" && pc_token && login && server) {
+      codeType.value = "success";
+      useUser().addAccount({
+        token: pc_token,
+        server,
+        ifLogin: true,
+        login,
+      });
+      sendTrack({
+        actionType: "signUp",
+        actionObject: "scanCode",
+      });
+      router.push({ path: "/" });
+      return;
+    }
+    codeType.value = "expire";
+  });
 });
 </script>
 

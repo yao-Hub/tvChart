@@ -9,7 +9,7 @@
           <span class="padd">{{ t("noAccount") }}</span>
 
           <div class="list">
-            <el-scrollbar always :height="Math.min(list.length, 3) * 56">
+            <el-scrollbar always :height="Math.min(list.length, 3) * 48">
               <div
                 class="item"
                 v-for="(account, index) in list"
@@ -188,7 +188,7 @@ onUnmounted(() => {
   }
   .list {
     flex-shrink: 0;
-    margin-top: 40px;
+    margin-top: 24px;
     max-height: 168px;
     border: 1px solid;
     border-radius: 4px;
@@ -200,7 +200,7 @@ onUnmounted(() => {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 56px;
+    height: 48px;
     padding: 0 24px;
     font-size: 14px;
     line-height: normal;
@@ -232,8 +232,8 @@ onUnmounted(() => {
     }
   }
   .btn {
-    margin-top: 40px;
-    height: 56px;
+    margin-top: 48px;
+    height: 48px;
     width: 100%;
     .btnText {
       font-size: 16px;

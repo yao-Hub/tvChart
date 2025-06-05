@@ -26,50 +26,24 @@ const systemStore = useSystem();
 sizeStore.initSize(); // 初始化字体大小
 useTheme().initTheme(); // 系统主题
 
-// 标志位：systemInfo 是否有值
-const systemInfoReady = ref(false);
 // 标志位：打点函数是否已执行
 const trackSent = ref(false);
 
-const checkAndSendTrack = () => {
-  if (systemInfoReady.value && useUser().account.server && !trackSent.value) {
-    trackSent.value = true; // 立即标记为已发送
-    sendTrack({
-      actionType: "open",
-      actionObject: location.href,
-    });
-  }
-};
-
-// 启动应用打点
+// online socket初始化
 watch(
-  () => useUser().account.server,
-  (server) => {
-    if (server) {
-      checkAndSendTrack(); // 检查是否可以发送打点
-    }
-  }
-);
-
-// 在线人数打点、online socket初始化
-const ifSendOnlineTrack = ref(false);
-watch(
-  () => systemStore.systemInfo,
-  (info) => {
-    if (ifSendOnlineTrack.value) return;
+  () => [systemStore.systemInfo, useUser().account.server],
+  async () => {
+    const info = systemStore.systemInfo;
+    const server = useUser().account.server;
     if (info && info.deviceId) {
-      systemInfoReady.value = true;
-      // 检查是否可以发送打点
-      checkAndSendTrack();
-      // online socket 初始化
-      useSocket()
-        .onlineSocketInit()
-        .then(() => {
-          ifSendOnlineTrack.value = true;
-        })
-        .catch(() => {
-          ifSendOnlineTrack.value = false;
-        });
+      useSocket().onlineSocketInit();
+    }
+    if (info && server && !trackSent.value) {
+      await sendTrack({
+        actionType: "open",
+        actionObject: location.href,
+      });
+      trackSent.value = true;
     }
   },
   { deep: true }

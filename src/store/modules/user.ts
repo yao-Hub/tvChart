@@ -285,7 +285,7 @@ export const useUser = defineStore("user", () => {
         let errmsg = "";
 
         // 长连接主socket
-        socketStore.initSocket();
+        socketStore.initMainSocket();
         Login(updata)
           .then((res) => {
             const token = res.data.token;

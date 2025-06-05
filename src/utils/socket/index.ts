@@ -12,14 +12,14 @@ class SingletonSocket {
   constructor() {}
 
   getInstance(mainUri: string, query: string = ""): Socket {
-    this.close();
-
-    this.instance = io(`${mainUri}${query}`, {
-      transports: ["websocket"],
-      reconnection: true, // 开启重连功能
-      // reconnectionAttempts: 5,
-      // reconnectionDelay: 3000,
-    });
+    if (!this.instance) {
+      this.instance = io(`${mainUri}${query}`, {
+        transports: ["websocket"],
+        reconnection: true, // 开启重连功能
+        // reconnectionAttempts: 5, //  重连次数
+        // reconnectionDelay: 3000, // 重连间隔
+      });
+    }
     this.setupSocketEvents();
     return this.instance;
   }

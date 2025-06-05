@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 
-import { Socket, io } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import SingletonSocket from "utils/socket";
 
 import { useUser } from "./user";
@@ -17,7 +17,7 @@ interface IQuote {
   bid: number;
   bid_size: number;
 }
-type TFooname =
+type TMainSocketFooname =
   | "emitKlineQuote"
   | "unsubKlineQuote"
   | "subQuote"
@@ -31,18 +31,30 @@ type TFooname =
   | "unSubRate"
   | "unSubQuoteDepth";
 
+type TOnLineSocketFooname =
+  | "sendOnlineToken"
+  | "emitQrcodeInit"
+  | "subQrcodeInit"
+  | "subQrcodeLogin";
+
 interface IState {
-  socket: Socket | null;
+  mainSocket: Socket | null;
   mainInstance: SingletonSocket;
   // socket未初始化时，若调用了方法则先存储方法，等待socket初始化后再去执行
-  noExecuteList: Array<{
-    fooName: TFooname;
+  mainSocketNoExecuteList: Array<{
+    fooName: TMainSocketFooname;
     options?: any;
   }>;
-  onLineSocket: Socket | null;
-  emitList: Array<{
+  mainSocketEmitList: Array<{
     action: string;
     data: Record<string, unknown>;
+  }>;
+
+  onLineInstance: SingletonSocket;
+  onLineSocket: Socket | null;
+  onLineSocketNoExecuteList: Array<{
+    fooName: TOnLineSocketFooname;
+    options?: any;
   }>;
 }
 interface ChartProps {
@@ -52,11 +64,14 @@ interface ChartProps {
 
 export const useSocket = defineStore("socket", {
   state: (): IState => ({
+    mainSocket: null,
     mainInstance: new SingletonSocket(),
-    socket: null,
-    noExecuteList: [],
+    mainSocketNoExecuteList: [],
+    mainSocketEmitList: [],
+
+    onLineInstance: new SingletonSocket(),
     onLineSocket: null,
-    emitList: [],
+    onLineSocketNoExecuteList: [],
   }),
 
   actions: {
@@ -97,14 +112,14 @@ export const useSocket = defineStore("socket", {
       return `?${queryParams}`;
     },
 
-    async initSocket() {
+    async initMainSocket() {
       const networkStore = useNetwork();
       const mainUri = networkStore.currentNode?.webWebsocket;
       if (mainUri) {
         const query = await this.getUriQuery();
-        this.socket = this.mainInstance.getInstance(mainUri, query);
-        while (this.noExecuteList.length) {
-          const item = this.noExecuteList.shift();
+        this.mainSocket = this.mainInstance.getInstance(mainUri, query);
+        while (this.mainSocketNoExecuteList.length) {
+          const item = this.mainSocketNoExecuteList.shift();
           if (item) {
             this[item.fooName](item.options);
           }
@@ -114,7 +129,7 @@ export const useSocket = defineStore("socket", {
 
     // 订阅k线和报价
     emitKlineQuote({ resolution, symbol }: ChartProps) {
-      if (this.socket) {
+      if (this.mainSocket) {
         const userStore = useUser();
         const klineData = {
           server: userStore.account.server,
@@ -125,7 +140,7 @@ export const useSocket = defineStore("socket", {
             },
           ],
         };
-        this.socket.emit("subscribe_kline", {
+        this.mainSocket.emit("subscribe_kline", {
           action: "subscribe_kline",
           d: this.enData({
             ...this.reqData(),
@@ -136,14 +151,14 @@ export const useSocket = defineStore("socket", {
           server: userStore.account.server,
           symbols: [symbol],
         };
-        this.socket.emit("subscribe_quote", {
+        this.mainSocket.emit("subscribe_quote", {
           action: "subscribe_quote",
           d: this.enData({
             ...this.reqData(),
             ...quoteData,
           }),
         });
-        this.emitList.push(
+        this.mainSocketEmitList.push(
           {
             action: "subscribe_kline",
             data: klineData,
@@ -154,7 +169,7 @@ export const useSocket = defineStore("socket", {
           }
         );
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "emitKlineQuote",
           options: { resolution, symbol },
         });
@@ -162,12 +177,12 @@ export const useSocket = defineStore("socket", {
     },
 
     subQuote(callback: (e: ISocketQuote) => void) {
-      if (this.socket) {
-        this.socket.on("quote", (d) => {
+      if (this.mainSocket) {
+        this.mainSocket.on("quote", (d) => {
           callback(d);
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "subQuote",
           options: callback,
         });
@@ -175,12 +190,12 @@ export const useSocket = defineStore("socket", {
     },
 
     subKline(callback: (e: ISocketKlineNew) => void) {
-      if (this.socket) {
-        this.socket.on("kline_new", (d) => {
+      if (this.mainSocket) {
+        this.mainSocket.on("kline_new", (d) => {
           callback(d);
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "subKline",
           options: callback,
         });
@@ -191,7 +206,7 @@ export const useSocket = defineStore("socket", {
     unsubKlineQuote({ resolution, symbol }: ChartProps) {
       const userStore = useUser();
 
-      if (this.socket) {
+      if (this.mainSocket) {
         const klineData = {
           server: userStore.account.server,
           symbol_period_type: [
@@ -201,7 +216,7 @@ export const useSocket = defineStore("socket", {
             },
           ],
         };
-        this.socket.emit("unsubscribe_kline", {
+        this.mainSocket.emit("unsubscribe_kline", {
           action: "unsubscribe_kline",
           d: this.enData({
             ...this.reqData(),
@@ -212,14 +227,14 @@ export const useSocket = defineStore("socket", {
           server: userStore.account.server,
           symbols: [symbol],
         };
-        this.socket.emit("unsubscribe_qoute", {
+        this.mainSocket.emit("unsubscribe_qoute", {
           action: "unsubscribe_qoute",
           d: this.enData({
             ...this.reqData(),
             ...quoteData,
           }),
         });
-        this.emitList.push(
+        this.mainSocketEmitList.push(
           {
             action: "unsubscribe_kline",
             data: klineData,
@@ -230,7 +245,7 @@ export const useSocket = defineStore("socket", {
           }
         );
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "unsubKlineQuote",
           options: { resolution, symbol },
         });
@@ -240,18 +255,19 @@ export const useSocket = defineStore("socket", {
     // 验证登录信息绑定交易账户
     sendToken({ login, token }: { login: string | number; token: string }) {
       const userStore = useUser();
-      if (this.socket) {
-        this.socket.emit("set_online_login", {
-          action: "set_online_login",
-          d: this.enData({
-            ...this.reqData(),
-            server: userStore.account.server,
-            login,
-            token,
-          }),
+      if (this.mainSocket) {
+        const d = this.enData({
+          ...this.reqData(),
+          server: userStore.account.server,
+          login,
+          token,
+        });
+        this.mainSocket.emit("set_login", {
+          action: "set_login",
+          d,
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "sendToken",
           options: { login, token },
         });
@@ -259,49 +275,49 @@ export const useSocket = defineStore("socket", {
     },
 
     orderChanges(callback: (type: string) => void) {
-      if (this.socket) {
+      if (this.mainSocket) {
         // 监听订单已建仓
-        this.socket.on("order_opened", function (d: unknown) {
+        this.mainSocket.on("order_opened", function (d: unknown) {
           console.log("order_opened", JSON.stringify(d));
           callback("order_opened");
         });
         // 监听订单已平仓
-        this.socket.on("order_closed", function (d: unknown) {
+        this.mainSocket.on("order_closed", function (d: unknown) {
           console.log("order_closed", JSON.stringify(d));
           callback("order_opened");
         });
         // 监听订单已修改（止盈止损）
-        this.socket.on("order_modified", function (d: unknown) {
+        this.mainSocket.on("order_modified", function (d: unknown) {
           console.log("order_modified", JSON.stringify(d));
           callback("order_modified");
         });
         // 监听挂单已创建
-        this.socket.on("pending_order_opened", function (d: unknown) {
+        this.mainSocket.on("pending_order_opened", function (d: unknown) {
           console.log("pending_order_opened", JSON.stringify(d));
           callback("pending_order_opened");
         });
         // 监听挂单已删除
-        this.socket.on("pending_order_deleted", function (d: unknown) {
+        this.mainSocket.on("pending_order_deleted", function (d: unknown) {
           console.log("pending_order_deleted", JSON.stringify(d));
           callback("pending_order_deleted");
         });
         // 监听挂单已更新
-        this.socket.on("pending_order_modified", function (d: unknown) {
+        this.mainSocket.on("pending_order_modified", function (d: unknown) {
           console.log("pending_order_modified", JSON.stringify(d));
           callback("pending_order_modified");
         });
         // 监听挂单已成交
-        this.socket.on("pending_order_dealt", function (d: unknown) {
+        this.mainSocket.on("pending_order_dealt", function (d: unknown) {
           console.log("pending_order_dealt", JSON.stringify(d));
           callback("pending_order_dealt");
         });
         // 监听出入金
-        this.socket.on("balance_order_added", function (d: unknown) {
+        this.mainSocket.on("balance_order_added", function (d: unknown) {
           console.log("balance_order_added", JSON.stringify(d));
           callback("balance_order_added");
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "orderChanges",
           options: callback,
         });
@@ -311,24 +327,24 @@ export const useSocket = defineStore("socket", {
     // 发送市场深度监听
     emitQuoteDepth(symbols: string[]) {
       const userStore = useUser();
-      if (this.socket) {
+      if (this.mainSocket) {
         const depthData = {
           server: userStore.account.server,
           symbols,
         };
-        this.socket.emit("subscribe_quote_depth", {
+        this.mainSocket.emit("subscribe_quote_depth", {
           action: "subscribe_quote_depth",
           d: this.enData({
             ...this.reqData(),
             ...depthData,
           }),
         });
-        this.emitList.push({
+        this.mainSocketEmitList.push({
           action: "subscribe_quote_depth",
           data: depthData,
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "emitQuoteDepth",
           options: symbols,
         });
@@ -337,12 +353,12 @@ export const useSocket = defineStore("socket", {
 
     // 市场深度返回监听
     subQuoteDepth(callback: (symbol: string, quotes: IQuote[]) => void) {
-      if (this.socket) {
-        this.socket.on("quote_depth", (d: any) => {
+      if (this.mainSocket) {
+        this.mainSocket.on("quote_depth", (d: any) => {
           callback(d.symbol, d.quotes);
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "subQuoteDepth",
           options: callback,
         });
@@ -351,25 +367,25 @@ export const useSocket = defineStore("socket", {
 
     //取消订阅市场深度
     unSubQuoteDepth(symbols: string[]) {
-      if (this.socket) {
+      if (this.mainSocket) {
         const userStore = useUser();
         const depthData = {
           server: userStore.account.server,
           symbols,
         };
-        this.socket.emit("unsubscribe_quote_depth", {
+        this.mainSocket.emit("unsubscribe_quote_depth", {
           action: "unsubscribe_quote_depth",
           d: this.enData({
             ...this.reqData(),
             ...depthData,
           }),
         });
-        this.emitList.push({
+        this.mainSocketEmitList.push({
           action: "unsubscribe_quote_depth",
           data: depthData,
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "unSubQuoteDepth",
         });
       }
@@ -377,9 +393,9 @@ export const useSocket = defineStore("socket", {
 
     // 订阅汇率
     emitRate() {
-      if (this.socket) {
+      if (this.mainSocket) {
         const userStore = useUser();
-        this.socket.emit("subscribe_rate", {
+        this.mainSocket.emit("subscribe_rate", {
           action: "subscribe_rate",
           d: this.enData({
             ...this.reqData(),
@@ -387,19 +403,19 @@ export const useSocket = defineStore("socket", {
           }),
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "emitRate",
         });
       }
     },
 
     subRate(callback: (e: IRate) => void) {
-      if (this.socket) {
-        this.socket.on("rate", (d) => {
+      if (this.mainSocket) {
+        this.mainSocket.on("rate", (d) => {
           callback(d);
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "subRate",
           options: callback,
         });
@@ -408,9 +424,9 @@ export const useSocket = defineStore("socket", {
 
     //取消订阅汇率
     unSubRate() {
-      if (this.socket) {
+      if (this.mainSocket) {
         const userStore = useUser();
-        this.socket.emit("unsubscribe_rate", {
+        this.mainSocket.emit("unsubscribe_rate", {
           action: "unsubscribe_rate",
           d: this.enData({
             ...this.reqData(),
@@ -418,43 +434,20 @@ export const useSocket = defineStore("socket", {
           }),
         });
       } else {
-        this.noExecuteList.push({
+        this.mainSocketNoExecuteList.push({
           fooName: "unSubRate",
         });
       }
     },
 
-    // 埋点跟踪用户在线socket连接
-    onlineSocketInit(): Promise<Socket | null> {
-      return new Promise(async (resolve, reject) => {
-        const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
-        const query = await this.getUriQuery("online", {});
-        this.onLineSocket = io(`${uri}/${query}`, {
-          transports: ["websocket"],
-          reconnection: true, // 开启重连功能
-          reconnectionAttempts: 5,
-          reconnectionDelay: 1000,
-        });
-        this.onLineSocket.on("connect", () => {
-          resolve(this.onLineSocket as Socket);
-        });
-        this.onLineSocket.on("disconnect", () => {
-          reject(this.onLineSocket);
-        });
-        this.onLineSocket.on("error", () => {
-          reject(this.onLineSocket);
-        });
-      });
-    },
-
     // socket意外断开未执行的发送任务重发
     reEmit() {
       setTimeout(() => {
-        if (this.socket) {
-          while (this.emitList.length) {
-            const item = this.emitList.shift();
+        if (this.mainSocket) {
+          while (this.mainSocketEmitList.length) {
+            const item = this.mainSocketEmitList.shift();
             if (item) {
-              this.socket.emit(item.action, {
+              this.mainSocket.emit(item.action, {
                 action: item.action,
                 d: this.enData({
                   ...this.reqData(),
@@ -467,19 +460,103 @@ export const useSocket = defineStore("socket", {
       }, 1000);
     },
 
-    closeAllSocket() {
-      if (this.socket) {
-        this.socket.close();
+    closeMainSocket() {
+      if (this.mainSocket) {
+        this.mainSocket.close();
       }
       if (this.mainInstance) {
         this.mainInstance.close();
       }
-      this.socket = null;
+      this.mainSocket = null;
+    },
+
+    // online socket连接
+    async onlineSocketInit() {
+      const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
+      const query = await this.getUriQuery("online", {});
+      this.onLineSocket = this.onLineInstance.getInstance(uri, query);
+      while (this.onLineSocketNoExecuteList.length) {
+        const item = this.onLineSocketNoExecuteList.shift();
+        if (item) {
+          this[item.fooName](item.options);
+        }
+      }
+    },
+
+    // 埋点用户在线
+    async sendOnlineToken() {
+      if (this.onLineSocket) {
+        const userStore = useUser();
+        const d = this.enData({
+          ...this.reqData(),
+          server: userStore.account.server,
+          login: userStore.account.login,
+          token: userStore.account.token,
+        });
+        this.onLineSocket.emit("set_online_login", {
+          action: "set_online_login",
+          d,
+        });
+      } else {
+        this.onLineSocketNoExecuteList.push({
+          fooName: "sendOnlineToken",
+        });
+      }
+    },
+
+    emitQrcodeInit() {
+      if (this.onLineSocket) {
+        const info = {
+          pc_device_id: useSystem().systemInfo!.deviceId,
+          pc_device_model: useSystem().systemInfo!.deviceModel,
+          pc_device_brand: useSystem().systemInfo!.deviceBrand,
+          pc_device_info: useSystem().systemInfo!.deviceInfo,
+          pc_ip: useSystem().systemInfo!.localIp,
+          req_id: generateUUID(),
+          req_time: Date.now(),
+        };
+        const data = {
+          action: "qrcode_init",
+          d: encrypt(JSON.stringify(info)),
+        };
+        this.onLineSocket.emit("qrcode_init", data);
+      } else {
+        this.onLineSocketNoExecuteList.push({
+          fooName: "emitQrcodeInit",
+        });
+      }
+    },
+
+    subQrcodeInit(callback: (params: any) => void) {
+      if (this.onLineSocket) {
+        this.onLineSocket.on("qrcode_init", (d) => {
+          callback(d);
+        });
+      } else {
+        this.onLineSocketNoExecuteList.push({
+          fooName: "subQrcodeInit",
+          options: callback,
+        });
+      }
+    },
+
+    subQrcodeLogin(callback: (params: any) => void) {
+      if (this.onLineSocket) {
+        this.onLineSocket.on("qr_code_login", (d) => {
+          callback(d);
+        });
+      } else {
+        this.onLineSocketNoExecuteList.push({
+          fooName: "subQrcodeLogin",
+          options: callback,
+        });
+      }
     },
 
     $reset() {
-      this.noExecuteList = [];
-      this.emitList = [];
+      this.mainSocketNoExecuteList = [];
+      this.mainSocketEmitList = [];
+      this.closeMainSocket();
     },
   },
 });
