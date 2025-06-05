@@ -492,6 +492,7 @@ export const useSocket = defineStore("socket", {
           server: userStore.account.server,
           login: userStore.account.login,
           token: userStore.account.token,
+          device_id: useSystem().systemInfo!.deviceId,
         });
         this.onLineSocket.emit("set_online_login", {
           action: "set_online_login",
