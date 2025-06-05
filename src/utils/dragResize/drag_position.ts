@@ -424,12 +424,23 @@ const resizeVertical = (event: MouseEvent) => {
   const headerHight =
     document.querySelector(".header")?.getBoundingClientRect().height || 48;
 
+  // 拉伸最小高度
+  let topMinHeight = minHeight;
+  let downMinHeight = minHeight;
+  const topDataMinHeight = result[0].getAttribute("data-minHeight");
+  const downDataMinHeight = result[1].getAttribute("data-minHeight");
+  if (topDataMinHeight) {
+    topMinHeight = Number(topDataMinHeight);
+  }
+  if (downDataMinHeight) {
+    downMinHeight = Number(downDataMinHeight);
+  }
   function resize(e: MouseEvent) {
     const mouseY = e.clientY - headerHight;
     const offset = e.pageY - startY;
     const topHeight = result_0_height + offset;
     const downHeight = result_1_height - offset;
-    if (topHeight < minHeight || downHeight < minHeight) {
+    if (topHeight < topMinHeight || downHeight < downMinHeight) {
       return;
     }
     lineTarget.style.top = `${mouseY - lineWidth / 2}px`;
@@ -664,11 +675,23 @@ function resizeHorizontal(event: MouseEvent) {
     }
   }
 
+  // 拉伸最小宽度
+  let leftMinWidth = minWidth;
+  let rightMinWidth = minWidth;
+  const leftDataMinWidth = result[0].getAttribute("data-minWidth");
+  const rightDataMinWidth = result[1].getAttribute("data-minWidth");
+  if (leftDataMinWidth) {
+    leftMinWidth = Number(leftDataMinWidth);
+  }
+  if (rightDataMinWidth) {
+    rightMinWidth = Number(rightDataMinWidth);
+  }
+
   function resize({ clientX }: MouseEvent) {
     const lineLeft = clientX;
     const leftWidht = clientX - result[0].getBoundingClientRect().left;
     const rightWidht = result[1].getBoundingClientRect().right - clientX;
-    if (leftWidht < minWidth || rightWidht < minWidth) {
+    if (leftWidht < leftMinWidth || rightWidht < rightMinWidth) {
       return;
     }
     result[0].style.width = `${leftWidht}px`;

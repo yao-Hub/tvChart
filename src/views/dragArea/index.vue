@@ -4,6 +4,7 @@
       class="dragArea_item nested-sortable"
       data-id="item_1"
       data-child="demo_1 | demo_2"
+      data-minHeight="200"
     >
       <!-- demo_1 -->
       <div
@@ -22,7 +23,7 @@
       <div
         class="demo nested-1"
         data-id="demo_2"
-        data-minWidth="360"
+        data-minWidth="480"
         data-initW="600"
         v-if="layoutStore.symbolsVisable"
       >
@@ -38,6 +39,7 @@
       data-id="item_2"
       data-child="demo_3"
       data-initH="322"
+      data-minHeight="216"
     >
       <!-- demo_3 -->
       <div
