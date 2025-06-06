@@ -225,6 +225,12 @@ watch(
   position: sticky;
   z-index: 9;
   top: 0;
+  &:hover {
+    @include font_color("primary");
+  }
+  &:active {
+    @include font_color("primary-active");
+  }
   div {
     display: flex;
     gap: 4px;

@@ -6,9 +6,10 @@
       <el-scrollbar view-class="loginScrollbarView">
         <div class="login_container">
           <div class="backBox">
-            <el-icon class="backBox_icon" @click="goAccount" v-if="ifloginBack">
+            <div class="backBox_back" @click="goAccount" v-if="ifloginBack">
               <BaseImg iconName="turnleft" />
-            </el-icon>
+              <span class="backBox_back_text">返回</span>
+            </div>
             <span class="plogin">{{
               ifloginBack ? t("addAccount") : t("logAccount")
             }}</span>
@@ -227,7 +228,7 @@ const ifloginBack = computed(() => {
 
 // 筛选服务器失焦不清除筛选信息
 const visible = ref(false);
-const linesLoading = ref(false);
+const linesLoading = ref(true);
 const inputLine = ref("");
 const tadeLines = ref<resQueryTradeLine[]>([]);
 const linePlaceholder = ref(t("tip.serverRequired"));
@@ -261,17 +262,17 @@ const linesBlur = () => {
 // 获取服务器列表
 const getTraderLines = debounce(
   (lineName: string) => {
-    linesLoading.value = true;
-    try {
-      queryTradeLine({ lineName }).then((res) => {
+    linesLoading.value = tadeLines.value.length === 0;
+    queryTradeLine({ lineName })
+      .then((res) => {
         tadeLines.value = res.data;
         const globalLines = networkStore.queryTradeLines;
         globalLines.push(...res.data);
         networkStore.queryTradeLines = uniqBy(globalLines, "lineName");
+      })
+      .finally(() => {
+        linesLoading.value = false;
       });
-    } finally {
-      linesLoading.value = false;
-    }
   },
   250,
   { leading: false }
@@ -421,19 +422,32 @@ onUnmounted(() => {
   .backBox {
     display: flex;
     align-items: center;
-    font-size: 24px;
     line-height: 40px;
-    gap: 8px;
+    gap: 16px;
     position: sticky;
     top: 0;
     z-index: 9;
     @include background_color("background-login-container");
-    &_icon {
+    &_back {
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      @include font_color("word");
+      &_text {
+        font-size: 18px;
+        font-weight: 500;
+      }
+      &:hover {
+        @include font_color("primary");
+      }
+      &:active {
+        @include font_color("primary-active");
+      }
     }
     .plogin {
-      font-size: inherit;
-      display: block;
+      font-size: 24px;
+      font-weight: 500;
     }
   }
 
