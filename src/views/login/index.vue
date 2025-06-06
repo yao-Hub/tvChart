@@ -1,4 +1,7 @@
 <template>
+  <div class="loginBg">
+    <BaseImg iconName="loginBg@2x" imgSuffix="png" catalog="images"></BaseImg>
+  </div>
   <div class="home" :key="localeKey">
     <BaseImg iconName="title" />
     <span class="welcome">{{ t("welcomeToUTrader") }}</span>
@@ -9,7 +12,7 @@
     <router-view v-slot="{ Component }">
       <div
         class="home-container"
-        :style="{ right: showArticle ? '86px' : '15%' }"
+        :style="{ right: showArticle ? '5%' : '15%' }"
       >
         <transition :name="direction" mode="out-in" appear>
           <div class="main" :key="route.path">
@@ -83,57 +86,24 @@ watch(
 </script>
 
 <style lang="scss" scoped>
-@import "./form.scss";
-</style>
-
-<style lang="scss">
 @import "@/styles/_handle.scss";
-[data-theme="light"] .home {
-  // 普通屏幕
-  background-image: url("/src/assets/images/light/loginBg@1x.png");
+@import "./form.scss";
 
-  // 视网膜屏（2倍分辨率）
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    background-image: url("/src/assets/images/light/loginBg@2x.png");
-  }
-  background-image: -webkit-image-set(
-    url("/src/assets/images/light/loginBg@1x.png") 1x,
-    url("/src/assets/images/light/loginBg@2x.png") 2x
-  );
-  // 现代浏览器支持image-set
-  background-image: image-set(
-    url("/src/assets/images/light/loginBg@1x.png") 1x,
-    url("/src/assets/images/light/loginBg@2x.png") 2x
-  );
-}
-[data-theme="dark"] .home {
-  background-image: url("/src/assets/images/dark/loginBg@1x.png");
-  @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    background-image: url("/src/assets/images/dark/loginBg@2x.png");
-  }
-  background-image: -webkit-image-set(
-    url("/src/assets/images/dark/loginBg@1x.png") 1x,
-    url("/src/assets/images/dark/loginBg@2x.png") 2x
-  );
-  background-image: image-set(
-    url("/src/assets/images/dark/loginBg@1x.png") 1x,
-    url("/src/assets/images/dark/loginBg@2x.png") 2x
-  );
-}
-
-.goback {
-  width: 100%;
-  min-height: 50px;
-  @include background_color("background-login-container");
+.loginBg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
   display: flex;
   align-items: center;
-  position: sticky;
-  z-index: 9;
-  top: 0;
-  div {
-    display: flex;
-    gap: 4px;
-    cursor: pointer;
+  justify-content: center;
+  @include background_color("loginBg");
+  img {
+    width: 100%;
+    height: 56.25vw;
+    min-width: 1000px;
+    min-height: calc(1000px / 16 * 9);
   }
 }
 .home {
@@ -145,10 +115,8 @@ watch(
   overflow: hidden;
   .welcome {
     position: fixed;
-    left: 12%;
-    top: 20%;
-    font-size: 40px;
     font-weight: bold;
+    transition: all 0.5s ease;
   }
   .title {
     position: fixed;
@@ -168,8 +136,9 @@ watch(
   .home-container {
     position: fixed;
     top: 15%;
-    max-height: 648px;
+    max-height: 592px;
     height: 70%;
+    transition: all 0.5s ease;
     .main {
       width: 100%;
       height: 100%;
@@ -186,7 +155,6 @@ watch(
     }
   }
 }
-
 /* 前进动画 */
 .slide-forward-enter-active,
 .slide-forward-leave-active {
@@ -213,5 +181,54 @@ watch(
 .slide-backward-leave-to {
   opacity: 0;
   transform: translateX(100%);
+}
+
+@media screen and (max-width: 1200px) {
+  .welcome {
+    top: 13%;
+    left: 72px;
+    font-size: 24px;
+  }
+}
+@media screen and (min-width: 1200px) {
+  .welcome {
+    top: 20%;
+    left: 12%;
+    font-size: 40px;
+  }
+}
+
+/* 屏幕宽度在601px-1400px之间时的样式 */
+@media screen and (min-width: 601px) and (max-width: 1400px) {
+  .home-container {
+    transform: scale(0.9);
+  }
+}
+
+/* 屏幕宽度大于1400px时的样式 */
+@media screen and (min-width: 1400px) {
+  .home-container {
+    transform: scale(1);
+  }
+}
+</style>
+
+<style lang="scss">
+@import "@/styles/_handle.scss";
+
+.goback {
+  width: 100%;
+  min-height: 50px;
+  @include background_color("background-login-container");
+  display: flex;
+  align-items: center;
+  position: sticky;
+  z-index: 9;
+  top: 0;
+  div {
+    display: flex;
+    gap: 4px;
+    cursor: pointer;
+  }
 }
 </style>

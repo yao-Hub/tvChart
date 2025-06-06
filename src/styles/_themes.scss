@@ -17,6 +17,8 @@
   --light-13: #bec2c9;
   --light-14: #d8dadc;
   --light-15: rgba(255, 255, 255, 0.95);
+  --light-16: #edeff1;
+  --light-17: #d4d8e0;
 
   --dark-1: #000;
   --dark-2: #323745;
@@ -33,6 +35,8 @@
   --dark-13: #4c515d;
   --dark-14: #464a53;
   --dark-15: rgba(0, 0, 0, 0.95);
+  --dark-16: #222325;
+  --dark-17: #17181a;
 
   --color-1: #f6f8fb;
   --color-2: #e28602;
@@ -103,8 +107,9 @@
 
 $systemThemes: (
   light: (
-    background: var(--light-1),
-    background-component: var(--light-2),
+    background-container: var(--light-1),
+    background: var(--light-16),
+    background-component: var(--light-17),
     background-dialog: var(--color-1),
     background-hover: var(--light-3),
     background-active: var(--light-4),
@@ -130,9 +135,11 @@ $systemThemes: (
     listsNormal: var(--light-13),
     listsNormalHover: var(--light-5),
     noScanCode: var(--light-15),
+    loginBg: #fff,
   ),
   dark: (
-    background: var(--dark-1),
+    background-container: var(--dark-17),
+    background: var(--dark-16),
     background-component: var(--dark-2),
     background-dialog: var(--dark-3),
     background-hover: var(--dark-5),
@@ -159,6 +166,7 @@ $systemThemes: (
     listsNormal: var(--dark-13),
     listsNormalHover: var(--dark-8),
     noScanCode: var(--dark-15),
+    loginBg: var(--dark-17),
   ),
 );
 

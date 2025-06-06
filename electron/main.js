@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, Menu, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, screen, Menu, ipcMain, dialog, nativeTheme } = require('electron');
 const path = require('path');
 
 const { getDeviceInfo } = require('./utils/systemInfo');
@@ -47,6 +47,8 @@ function createWindow(name, hash, screenWidth) {
     height: windowState.height,
     x: windowState.x,
     y: windowState.y,
+    minWidth: 1110,
+    minHeight: 640,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
@@ -128,6 +130,10 @@ ipcMain.handle('get-system-info', async () => {
   return info;
 });
 
+// 改变系统主题
+ipcMain.handle('dark-mode:toggle', (event, theme) => {
+  nativeTheme.themeSource = theme;
+});
 
 /**** 启动应用 ****/
 if (!gotTheLock) {

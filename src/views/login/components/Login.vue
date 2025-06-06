@@ -414,7 +414,7 @@ onUnmounted(() => {
 }
 .login_container {
   height: 100%;
-  padding: 0 48px;
+  padding: 0 104px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

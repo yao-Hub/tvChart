@@ -238,14 +238,7 @@ const addOrder = debounce(
 :deep(.el-input__suffix) {
   color: currentColor;
 }
-span {
-  @include font_color("word");
-}
-.scrollbar {
-  @include background_color("background");
-}
 .lists {
-  @include background_color("background");
   width: 100%;
   padding: 16px;
   box-sizing: border-box;

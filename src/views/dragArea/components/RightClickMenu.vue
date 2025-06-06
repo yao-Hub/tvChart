@@ -306,10 +306,10 @@ watchEffect(() => {
   padding: 0;
 }
 html.dark .el-table {
-  --el-table-tr-bg-color: #1d222d;
+  --el-table-tr-bg-color: var(--dark-17);
 }
 .el-table {
-  --el-table-tr-bg-color: #f6f8fb;
+  --el-table-tr-bg-color: var(--color-1);
 }
 
 .rightClickMenu {
@@ -374,7 +374,7 @@ html.dark .el-table {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  @include background_color("table-colored");
+  @include background_color("background");
   height: 42px;
   width: 100%;
   padding-left: 16px;

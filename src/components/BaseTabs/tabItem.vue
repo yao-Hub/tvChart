@@ -40,7 +40,7 @@ const tabClick = () => {
 .baseTabs_item {
   height: 100%;
   font-weight: 500;
-  min-width: 88px;
+  min-width: 160px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -51,6 +51,7 @@ const tabClick = () => {
   padding: 0 8px;
   @include border_color("border");
   @include font_color("tabHoverTextColor");
+  @include background_color("background-container");
   cursor: pointer;
   &:hover {
     @include background_color("background-hover");

@@ -81,7 +81,6 @@ const layoutStore = useLayout();
   width: 100%;
   position: relative;
   overflow: hidden;
-  @include background_color("background");
 
   .dragArea_item {
     width: 100%;

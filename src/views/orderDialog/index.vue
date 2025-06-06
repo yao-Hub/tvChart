@@ -588,7 +588,7 @@ const handleCancel = () => {
     width: 100%;
     padding: 16px;
     box-sizing: border-box;
-    @include background_color("background");
+    @include background_color("background-container");
     display: grid;
     grid-template-columns: 50% 50%;
     grid-row-gap: 8px;

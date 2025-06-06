@@ -435,9 +435,6 @@ const changeMode = () => {
   box-sizing: border-box;
   border-radius: 4px;
   overflow: hidden;
-}
-
-.searchList {
-  @include background_color("background");
+  @include background_color("background-container");
 }
 </style>

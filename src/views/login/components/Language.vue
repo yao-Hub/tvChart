@@ -44,7 +44,6 @@ const emit = defineEmits(["change"]);
 .downInner {
   min-width: 144px;
   border-radius: 4px;
-  @include background_color("background");
   .innerItem {
     display: flex;
     justify-content: space-between;

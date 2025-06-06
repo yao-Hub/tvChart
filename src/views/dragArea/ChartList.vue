@@ -215,7 +215,7 @@ const tabClose = (id: string) => {
   .tabs {
     display: flex;
     gap: 4px;
-    @include background_color("background");
+    @include background_color("background-container");
     margin-bottom: 2px;
   }
 

@@ -54,7 +54,7 @@ export const useTheme = defineStore("theme", () => {
     }
     systemTheme.value = stoTheme as TsystemTheme;
     document.documentElement.setAttribute("data-theme", systemTheme.value);
-
+    window.electronAPI?.invoke("dark-mode:toggle", systemTheme.value);
     getUpDownTheme();
   };
   const changeSystemTheme = () => {
@@ -63,6 +63,8 @@ export const useTheme = defineStore("theme", () => {
     document.documentElement.setAttribute("data-theme", systemTheme.value);
     localStorage.setItem("systemTheme", theme);
     toggleDark();
+
+    window.electronAPI?.invoke("dark-mode:toggle", theme);
   };
   const saveChartTheme = (id: string, theme: "light" | "dark") => {
     const themeMap = useStorage().getItem("chartThemeMap") || {};

@@ -29,11 +29,11 @@ html.dark {
   }
 
   .el-table {
-    --el-table-header-bg-color: #0c0f15;
-    --el-table-bg-color: var(--dark-1);
+    --el-table-header-bg-color: #17181a;
+    --el-table-bg-color: #17181a;
     --el-table-text-color: var(--light-1);
     --el-table-header-text-color: var(--dark-9);
-    --el-table-tr-bg-color: var(--dark-1);
+    --el-table-tr-bg-color: #17181a;
   }
   .el-table .top-row {
     --el-table-tr-bg-color: var(--el-fill-color-light);
@@ -48,10 +48,10 @@ html.dark {
     transform: rotate(180deg);
   }
   .el-table-v2__header {
-    background-color: #1b1f29;
+    background-color: var(--dark-16);
   }
   .el-table-v2__row {
-    background-color: var(--dark-1);
+    background-color: var(--dark-17);
   }
   .el-table-v2__row:hover {
     background-color: var(--el-table-row-hover-bg-color);
@@ -61,10 +61,10 @@ html.dark {
     --el-table-tr-bg-color: var(--light-1);
   }
   .el-table-v2__header-cell {
-    background-color: var(--dark-4);
+    background-color: var(--dark-16);
   }
   .el-table-v2__main {
-    background-color: var(--dark-1);
+    background-color: var(--dark-17);
   }
 
   .el-input__wrapper {
@@ -96,7 +96,7 @@ html.dark {
   }
 
   .el-select__wrapper {
-    background-color: var(--dark-1);
+    background-color: var(--dark-17);
   }
 
   .el-select-dropdown__item.is-hovering {

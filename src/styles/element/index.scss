@@ -5,7 +5,7 @@
     ),
   ),
   $dialog: (
-    "bg-color": #f6f8fb,
+    "bg-color": var(--color-1),
     "padding-primary": 24px 32px,
     "box-shadow": 0px 12px 32px 8px rgba(8, 22, 46, 0.24),
   ),
@@ -25,7 +25,7 @@
     "color": #000000,
   ),
   $menu: (
-    "bg-color": #f6f8fb,
+    "bg-color": var(--color-1),
   ),
   $table: (
     "header-text-color": #63636a,
@@ -47,7 +47,7 @@
   --el-font-size-medium: 14px;
   --el-font-size-base: 14px;
   --el-font-size-small: 12px;
-  --el-bg-color-overlay: #f6f8fb;
+  --el-bg-color-overlay: var(--color-1);
   --el-color-info: #63636a;
   --el-text-color-regular: #000;
   --el-border-color-hover: var(--color-3);
@@ -98,7 +98,7 @@
   margin: 8px 0;
 }
 .el-message-box {
-  background-color: #f6f8fb;
+  background-color: var(--color-1);
 }
 
 .el-radio-button {
