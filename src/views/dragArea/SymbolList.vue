@@ -411,8 +411,8 @@ const changeMode = () => {
     cursor: pointer;
   }
   .modeSwitch {
-    width: var(--el-component-size);
-    height: var(--el-component-size);
+    width: var(--component-size);
+    height: var(--component-size);
     display: flex;
     align-items: center;
     justify-content: center;

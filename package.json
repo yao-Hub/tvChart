@@ -25,7 +25,8 @@
     "electron:prod": "cross-env IF_ELECTRON=true NODE_ENV=production vite --mode production",
     "electron-build:dev": "npm run prepackage && cross-env NODE_ENV=development IF_ELECTRON=true node ./electron/scripts/build.js",
     "electron-build:staging": "npm run prepackage && cross-env NODE_ENV=staging IF_ELECTRON=true node ./electron/scripts/build.js",
-    "electron-build:prod": "npm run prepackage && cross-env NODE_ENV=production IF_ELECTRON=true node ./electron/scripts/build.js"
+    "electron-build:prod": "npm run prepackage && cross-env NODE_ENV=production IF_ELECTRON=true node ./electron/scripts/build.js",
+    "sign": "node scripts/sign.js"
   },
   "dependencies": {
     "@ant-design/icons-vue": "7.0.1",
@@ -54,6 +55,7 @@
     "vue-router": "4.3.2"
   },
   "devDependencies": {
+    "@electron/osx-sign": "^2.0.0",
     "@eslint/js": "9.2.0",
     "@rollup/plugin-strip": "3.0.4",
     "@types/crypto-js": "4.2.2",

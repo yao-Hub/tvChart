@@ -53,7 +53,6 @@ function createWindow(name, hash, screenWidth) {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
       nodeIntegration: false, // 禁用 Node.js 集成（推荐false）
-      sandbox: false,
     },
   });
 

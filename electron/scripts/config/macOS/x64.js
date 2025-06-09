@@ -29,6 +29,8 @@ module.exports.default = {
     ],
     artifactName: "${productName}-Mac-${version}-x64.${ext}",
     icon: "public/logo_512.png",
+    identity: "Furong Uptech Solution Co., Limited",
+    provisioningProfile: "build/CTOTrader_mac_profile.provisionprofile",
   },
   electronVersion: "34.0.2",
 };
