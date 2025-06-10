@@ -30,13 +30,14 @@ module.exports.default = {
     minimumSystemVersion: '12.0',
     artifactName: '${productName}-Mac-${version}-arm64.${ext}',
     icon: 'public/logo_512.png',
-    identity: "Mac Developer: luolin Tan (N3W2W6CHZ7)",
-    provisioningProfile: "build/MAC.provisionprofile", // profile
-    entitlements: "build/entitlements.plist", // 权限
-    entitlementsInherit: "build/entitlements.plist",
+    identity: null,
+    // identity: "Mac Developer: luolin Tan (N3W2W6CHZ7)",
+    // provisioningProfile: "build/MAC.provisionprofile", // profile
+    // entitlements: "build/entitlements.plist", // 权限
+    // entitlementsInherit: "build/entitlements.plist",
   },
-  pkg: {
-    identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)",
-  },
+  // pkg: {
+  //   identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)",
+  // },
   electronVersion: '34.0.2'
 };
