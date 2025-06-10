@@ -12,22 +12,22 @@ function main() {
   runCommand(`vite build --mode ${mode}`);
   if (isWindows) {
     // console.log('\n', '/*********************** win7 ***********************/', '\n');
-    // runCommand('electron-builder --config ./electron/scripts/config/windows/x64-win7.js');
+    // runCommand('electron-builder --config electron/scripts/config/windows/x64-win7.js');
     // console.log('\n', '/*********************** win7打包完成 ***********************/', '\n');
 
     console.log('\n', '/*********************** windows ***********************/', '\n');
-    runCommand('electron-builder --config ./electron/scripts/config/windows/x64-common.js');
+    runCommand('electron-builder --config electron/scripts/config/windows/x64-common.js');
     console.log('\n', '/*********************** windows打包完成 ***********************/', '\n');
   } else {
     // console.log('\n', '/*********************** macOSx64 ***********************/', '\n');
-    // runCommand('electron-builder --config ./electron/scripts/config/macOS/x64.js');
+    // runCommand('electron-builder --config electron/scripts/config/macOS/x64.js');
+    // runCommand(`cross-env chip=x64 node electron/scripts/sign.js`);
     // console.log('\n', '/*********************** macOSx64打包完成***********************/', '\n');
 
     console.log('\n', '/*********************** macOSarm64 ***********************/', '\n');
     runCommand('electron-builder --config electron/scripts/config/macOS/arm64.js');
+    runCommand(`cross-env chip=arm64 node electron/scripts/sign.js`);
     console.log('\n', '/*********************** macOSarm64打包完成 ***********************/', '\n');
-
-    // runCommand('node electron/scripts/sign.js');
   }
 }
 
