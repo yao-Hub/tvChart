@@ -25,7 +25,7 @@ module.exports.default = {
       }
     ],
     artifactName: '${productName}-Windows-${version}-x64.${ext}',
-    icon: 'public/logo_bg.png'
+    icon: 'build/icons/logo.png'
   },
   nsis: {
     oneClick: false,

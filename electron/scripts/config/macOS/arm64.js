@@ -5,7 +5,7 @@ module.exports.default = {
   appId: appIdMap[process.env.NODE_ENV],
   productName: appIdMap[process.env.NODE_ENV],
   extraMetadata: {
-    name: appIdMap[process.env.NODE_ENV] // 缓存文件名字
+    name: appIdMap[process.env.NODE_ENV], // 缓存文件名字
   },
   asar: false,
   directories: {
@@ -29,7 +29,7 @@ module.exports.default = {
     ],
     minimumSystemVersion: '12.0',
     artifactName: '${productName}-Mac-${version}-arm64.${ext}',
-    icon: 'public/logo_512.png',
+    icon: "build/icons/logo_512.png",
 
     // 生产环境
     identity: "Apple Distribution: Furong Uptech Solution Co., Limited (D322KZZJ5C)",
@@ -40,8 +40,8 @@ module.exports.default = {
     // provisioningProfile: "build/CTOTrader_Mac_Dev.provisionprofile'",
 
     entitlements: "build/entitlements.plist",
-    entitlementsInherit: "build/entitlements.plist",
-    hardenedRuntime: true,
+    entitlementsInherit: "build/entitlements.inherit.plist",
+    entitlementsLoginHelper: "build/entitlements.loginhelper.plist",
   },
   pkg: {
     identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)",

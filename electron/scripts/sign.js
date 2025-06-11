@@ -44,7 +44,7 @@ async function signApp() {
   // console.log('生产应用签名成功！');
 
   // 生成包含证书的pkg安装包
-  console.log('\n', `/**** ${appName}.app转化生成 ${appName}.pkg ....../`);
+  console.log('\n', `/**** ${appName}.app 转化生成 ${appName}.pkg ......`);
   await flat({
     app: appPath,
     identity: "3rd Party Mac Developer Installer: Furong Uptech Solution Co., Limited (D322KZZJ5C)",

@@ -28,7 +28,7 @@ module.exports.default = {
       }
     ],
     artifactName: "${productName}-Mac-${version}-x64.${ext}",
-    icon: "public/logo_512.png",
+    icon: "build/icons/logo_512.png",
     
     // 生产环境
     identity: "Apple Distribution: Furong Uptech Solution Co., Limited (D322KZZJ5C)",
@@ -39,8 +39,8 @@ module.exports.default = {
     // provisioningProfile: "build/CTOTrader_Mac_Dev.provisionprofile'",
 
     entitlements: "build/entitlements.plist",
-    entitlementsInherit: "build/entitlements.plist",
-    hardenedRuntime: true,
+    entitlementsInherit: "build/entitlements.inherit.plist",
+    entitlementsLoginHelper: "build/entitlements.loginhelper.plist",
   },
   pkg: {
     identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)",
