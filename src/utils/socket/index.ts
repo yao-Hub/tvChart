@@ -41,20 +41,28 @@ class SingletonSocket {
       });
 
       this.instance.on("disconnect", (reason: string) => {
+        // 调用方法主动断开不做处理
         console.log(`websocket已断开${reason}`);
+        if (reason === "io client disconnect") {
+          return;
+        }
         this.errReason = reason;
         eventBus.emit("socket-disconnect");
       });
 
       this.instance.on("connect_error", (error) => {
         console.log("websocket连接错误:", error);
-        eventBus.emit("socket-error");
         ElMessage.error("Socekt Connect Error");
+        eventBus.emit("socket-error");
       });
 
       this.instance.on("error", (error) => {
-        console.log("websocket error:", error);
-        ElMessage.error("Socekt Connect Error");
+        console.log("websocket错误:", error);
+        ElMessage.error("Socekt Error");
+        eventBus.emit("socket-error");
+        if (this.instance) {
+          this.instance.connect();
+        }
       });
     }
   }
