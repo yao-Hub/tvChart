@@ -15,7 +15,11 @@
         :style="{ right: showArticle ? '5%' : '15%' }"
       >
         <transition :name="direction" mode="out-in" appear>
-          <div class="main" :key="route.path">
+          <div
+            class="main"
+            :key="route.path"
+            :style="{ borderRadius: showArticle ? '8px 8px 0 0' : '8px' }"
+          >
             <component :is="Component" />
             <LoginArticle
               class="main-article"
@@ -144,7 +148,6 @@ watch(
       height: 100%;
       @include background_color("background-login-container");
       @include box-shadow;
-      border-radius: 8px;
       box-sizing: border-box;
       position: relative;
       .main-article {
