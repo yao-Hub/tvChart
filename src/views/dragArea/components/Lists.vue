@@ -26,7 +26,7 @@
               :class="['mid_btn', 'left', getClass(item, 'bid')]"
               @click="addOrder(1, item.symbol)"
             >
-              <span>{{ t("quickTrade.sell") }}</span>
+              <span class="mid_btn_text">{{ t("quickTrade.sell") }}</span>
               <span class="price">{{ getPrice(item.symbol, "bid") }}</span>
             </div>
           </el-tooltip>
@@ -40,7 +40,7 @@
               :class="['mid_btn', 'right', getClass(item, 'ask')]"
               @click="addOrder(0, item.symbol)"
             >
-              <span>{{ t("quickTrade.buy") }}</span>
+              <span class="mid_btn_text">{{ t("quickTrade.buy") }}</span>
               <span class="price">{{ getPrice(item.symbol, "ask") }}</span>
             </div>
           </el-tooltip>
@@ -289,6 +289,9 @@ const addOrder = debounce(
         padding: 6px 0;
         cursor: pointer;
         @include background_color("listsNormal");
+        &_text {
+          @include font_color("word");
+        }
       }
       &_btn:hover {
         @include background_color("listsNormalHover");
@@ -333,6 +336,7 @@ const addOrder = debounce(
       }
       .price {
         font-size: calc(var(--font-size) + 2px);
+        @include font_color("word");
       }
     }
   }

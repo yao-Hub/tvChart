@@ -5,9 +5,8 @@
     @visible-change="handleVisibleChange"
     placement="bottom-end"
   >
-    <div class="menuIcon">
+    <div class="menuBox">
       <BaseImg
-        class="menuIcon_logo"
         :iconName="visible ? 'menuActive' : 'menuUnactive'"
         @click="toggle(!visible)"
       ></BaseImg>
@@ -90,19 +89,19 @@ const handleVisibleChange = (val: boolean) => {
 :deep(.el-dropdown) {
   height: 100%;
 }
-.menuIcon {
-  width: 48px;
-  height: 48px;
+.menuBox {
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  padding: 2px;
+  cursor: pointer;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
-  padding: 8px;
-  &_logo {
-    cursor: pointer;
-    &:hover {
-      @include background_color("background-hover");
-    }
+  margin: 0 12px;
+  &:hover {
+    @include background_color("background-hover");
   }
 }
 

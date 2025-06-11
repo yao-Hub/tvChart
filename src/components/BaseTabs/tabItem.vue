@@ -59,7 +59,7 @@ const tabClick = () => {
 }
 .baseTabs_active {
   @include font_color("word");
-  @include background_color("tabActive");
+  @include background_color("background-component");
   border: none;
   font-weight: 500;
 }
