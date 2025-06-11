@@ -9,7 +9,7 @@
           <span class="padd">{{ t("noAccount") }}</span>
 
           <div class="list">
-            <el-scrollbar always :height="Math.min(list.length, 3) * 48">
+            <el-scrollbar always :height="Math.min(list.length, 5) * 48">
               <div
                 class="item"
                 v-for="(account, index) in list"
