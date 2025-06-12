@@ -5,12 +5,12 @@ const nodeEnv = process.env.NODE_ENV || "production";
 const chip = process.env.chipFile || "arm64";
 const chipFileMap = {
   "x64": "mac",
-  "arm64": "mac-arm64"
+  "arm64": "mas-arm64"
 }
 const chipFile = chipFileMap[chip];
 const appName = appIdMap[nodeEnv];
 
-const appPath = `release_electron/${version}-${nodeEnv}/macOS/${chip}/${chipFile}/${appName}.app`;
+const appPath = `release_electron/${version}-${nodeEnv}/macOS/${chip}/${chipFile}/ctotrader.app`;
 
 // function getEntitlementsForFile(filePath) {
 //   console.log(filePath)
@@ -47,7 +47,7 @@ async function signApp() {
   console.log('\n', `/**** ${appName}.app 转化生成 ${appName}.pkg ......`);
   await flat({
     app: appPath,
-    identity: "3rd Party Mac Developer Installer: Furong Uptech Solution Co., Limited (D322KZZJ5C)",
+    // identity: "3rd Party Mac Developer Installer: Furong Uptech Solution Co., Limited (D322KZZJ5C)",
   });
   console.log('\n', `/**** ${appName}.pkg生成成功！`);
 }
