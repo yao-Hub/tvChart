@@ -1,3 +1,4 @@
+import { findByProperties } from "@/utils/common";
 class IndexedDBService {
   private db: IDBDatabase | null = null; // 数据库实例
   private dbName: string; // 数据库名称
@@ -35,12 +36,16 @@ class IndexedDBService {
           await this.deleteOldDatabase();
 
           // 3. 重新打开新数据库并恢复数据
-          console.log("创建新数据库并恢复数据");
+          console.log("创建新数据库并恢复数据", this.dbName);
           const newDb = await this.tryOpen(true);
           resolve(newDb);
         } else {
           reject(
-            new Error("数据库打开失败: " + (event.target as IDBRequest).error)
+            new Error(
+              this.dbName +
+                "数据库打开失败: " +
+                (event.target as IDBRequest).error
+            )
           );
         }
       };
@@ -98,7 +103,7 @@ class IndexedDBService {
         const request = store.getAll();
 
         request.onsuccess = () => {
-          console.log("备份成功");
+          console.log("备份成功", this.dbName);
           db.close(); // 及时关闭旧连接
           resolve(request.result);
         };
@@ -115,7 +120,7 @@ class IndexedDBService {
 
   // 数据恢复
   private async restoreData(): Promise<void> {
-    if (!this.db) throw new Error("数据库未打开");
+    if (!this.db) throw new Error(this.dbName + "数据库未打开");
 
     const tx = this.db.transaction(this.objectStoreName, "readwrite");
     const store = tx.objectStore(this.objectStoreName);
@@ -124,7 +129,7 @@ class IndexedDBService {
       this.backup.forEach((item) => store.put(item));
 
       tx.oncomplete = () => {
-        console.log(`成功恢复 ${this.backup.length} 条数据`);
+        console.log(`${this.dbName} 成功恢复 ${this.backup.length} 条数据`);
         this.backup = [];
         resolve();
       };
@@ -139,11 +144,13 @@ class IndexedDBService {
       const deleteRequest = indexedDB.deleteDatabase(this.dbName);
 
       deleteRequest.onsuccess = () => {
-        console.log("旧数据库已删除");
+        console.log("旧数据库已删除", this.dbName);
         resolve();
       };
       deleteRequest.onerror = () =>
-        reject(new Error("数据库删除失败: " + deleteRequest.error));
+        reject(
+          new Error(this.dbName + "数据库删除失败: " + deleteRequest.error)
+        );
     });
   }
 
@@ -154,10 +161,10 @@ class IndexedDBService {
         try {
           this.db.close();
           this.db = null;
-          console.log("数据库已关闭");
+          console.log("数据库已关闭", this.dbName);
           resolve();
         } catch (error) {
-          reject(new Error("关闭数据库时出错: " + error));
+          reject(new Error(this.dbName + "关闭数据库时出错: " + error));
         }
       } else {
         resolve();
@@ -201,28 +208,68 @@ class IndexedDBService {
     });
   }
 
-  // 根据id更新某一条数据库数据
-  async updateData<T extends { id: number }>(data: T) {
+  // 更新数据
+  updateData(
+    condition: Record<string, string | number>,
+    stoData: Record<string, string | number>
+  ) {
     if (!this.db) {
       throw new Error("数据库未打开");
     }
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve) => {
       const transaction = this.db!.transaction(
         [this.objectStoreName],
         "readwrite"
       );
       const objectStore = transaction.objectStore(this.objectStoreName);
-      const request = objectStore.put(data);
+      const request = objectStore.openCursor();
 
-      request.onsuccess = () => {
-        resolve();
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+        if (cursor) {
+          const record = cursor.value;
+          let match = true;
+
+          // 检查记录是否匹配条件
+          for (const key in condition) {
+            if (record[key] === condition[key]) {
+              match = true;
+              break;
+            }
+            match = false;
+          }
+          // 如果全部匹配则更新记录
+          if (match) {
+            // 执行更新
+            cursor.update({
+              ...stoData,
+              id: record.id,
+            });
+            resolve();
+          } else {
+            cursor.continue();
+          }
+        }
       };
 
-      request.onerror = (event) => {
-        reject(
-          new Error("数据更新失败: " + (event.target as IDBRequest).error)
-        );
+      transaction.onerror = (event) => {
+        console.log("更新事务失败: " + (event.target as IDBRequest).error);
       };
+    });
+  }
+
+  // 精确查找数据
+  async findByCondition(condition: Record<string, string>) {
+    if (!this.db) {
+      throw new Error("数据库未打开");
+    }
+    return new Promise(async (resolve) => {
+      const allData = await this.getAllData();
+      const target = findByProperties(allData, condition);
+      if (target.length) {
+        resolve(target[target.length - 1]);
+      }
+      resolve(null);
     });
   }
 
@@ -252,22 +299,22 @@ class IndexedDBService {
   }
 
   // 获取对象存储空间中的所有数据
-  async getAllData() {
-    if (!this.db) {
-      throw new Error("数据库未打开");
-    }
-    try {
-      // 开启一个只读事务
-      const transaction = this.db.transaction(
-        [this.objectStoreName],
-        "readonly"
-      );
-      const objectStore = transaction.objectStore(this.objectStoreName);
+  async getAllData(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+      try {
+        if (!this.db) {
+          resolve([]);
+          return;
+        }
+        // 开启一个只读事务
+        const transaction = this.db.transaction(
+          [this.objectStoreName],
+          "readonly"
+        );
+        const objectStore = transaction.objectStore(this.objectStoreName);
 
-      // 获取所有数据
-      const request = objectStore.getAll();
-
-      return new Promise((resolve, reject) => {
+        // 获取所有数据
+        const request = objectStore.getAll();
         // 数据获取成功
         request.onsuccess = (event) => {
           const target = event.target as IDBRequest;
@@ -282,10 +329,10 @@ class IndexedDBService {
         request.onerror = () => {
           resolve([]);
         };
-      });
-    } catch (error) {
-      throw error;
-    }
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   // 查找（筛选过滤）数据
@@ -409,7 +456,7 @@ class IndexedDBService {
         console.warn("当前浏览器不支持Storage Manager API");
       }
     } catch (error) {
-      console.error("获取存储信息失败:", error);
+      console.error(this.dbName + "获取存储信息失败:", error);
     }
   }
 }

@@ -402,7 +402,7 @@ onUnmounted(() => {
 
 .loginList {
   display: flex;
-  height: 100%;
+  height: calc(100% - 56px);
 }
 
 .Login {

@@ -95,3 +95,30 @@ export function repositionArr(params: IRepositionArr) {
   arr.splice(newIndex, 0, removed);
   return arr;
 }
+
+/**
+ * 在数组对象中查找满足条件的元素
+ * @param {Array<Object>} array - 要搜索的数组
+ * @param {Object} conditions - 包含匹配条件的对象
+ * @param {boolean} [exactMatch=true] - 是否要求完全匹配所有属性
+ * @returns {Array<Object>} - 满足条件的元素数组
+ */
+export function findByProperties(
+  array: Array<any>,
+  conditions: Object,
+  exactMatch = true
+) {
+  return array.filter((item) => {
+    if (exactMatch) {
+      // 完全匹配：检查条件中的每个属性是否都存在于对象中且值相等
+      return Object.entries(conditions).every(
+        ([key, value]) => item[key] !== undefined && item[key] === value
+      );
+    } else {
+      // 部分匹配：检查对象是否包含条件中的至少一个属性且值相等
+      return Object.entries(conditions).some(
+        ([key, value]) => item[key] !== undefined && item[key] === value
+      );
+    }
+  });
+}

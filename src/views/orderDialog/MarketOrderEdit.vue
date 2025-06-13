@@ -20,7 +20,7 @@
         </div>
       </template>
       <div class="order_dialog-container">
-        <div class="container_top">
+        <div class="order_dialog-container_top">
           <el-form
             ref="closeFormRef"
             :model="closeFormState"

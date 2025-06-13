@@ -16,6 +16,7 @@
           @symbolCommand="symbolCommand"
           @resolutionCommand="resolutionCommand"
           @tabClose="tabClose"
+          @visibleChange="visibleChange(chart.id)"
         ></chartTab>
       </div>
     </HorizontalScrolling>
@@ -30,6 +31,7 @@
         :key="id + index"
         :id="id"
         v-show="activedId === id || chartType !== 'single'"
+        :style="{ borderColor: getBorderColorStyle(id) }"
       >
         <chartTab
           v-if="chartType !== 'single'"
@@ -44,6 +46,7 @@
           @symbolCommand="symbolCommand"
           @resolutionCommand="resolutionCommand"
           @tabClose="tabClose"
+          @visibleChange="visibleChange(id)"
           :style="{ marginLeft: index === 0 ? '14px' : '0' }"
         ></chartTab>
         <TVChart
@@ -106,6 +109,19 @@ const chartType = computed(() => {
 const activedId = computed(() => {
   return chartInitStore.state.activeChartId;
 });
+
+const getBorderColorStyle = (id: string) => {
+  if (chartType.value === "single") {
+    return "transparent";
+  }
+  if (chartInitStore.state.chartWidgetList.length === 1) {
+    return "transparent";
+  }
+  if (chartInitStore.state.activeChartId === id) {
+    return "#F4B201";
+  }
+  return "transparent";
+};
 
 const initChart = ({ id }: { id: string }) => {
   // widget.chart().createShape(
@@ -187,6 +203,9 @@ onMounted(() => {
   }
 });
 
+const visibleChange = (id: string) => {
+  chartInitStore.state.activeChartId = id;
+};
 const chartTabClick = (id: string) => {
   chartInitStore.state.activeChartId = id;
 };
@@ -223,15 +242,20 @@ const tabClose = (id: string) => {
     flex: 1;
     display: flex;
     flex-wrap: wrap;
-    gap: 4px;
+    gap: 2px;
     box-sizing: border-box;
     overflow-y: auto;
     @include background_color("background-component");
 
     &_item {
+      border: 1px solid;
+      box-sizing: border-box;
       flex: 1 1 calc(50% - 4px);
       display: flex;
       flex-direction: column;
+      overflow: hidden;
+      min-width: 254px;
+      min-height: 150px;
     }
   }
 }

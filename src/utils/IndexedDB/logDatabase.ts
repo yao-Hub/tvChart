@@ -46,10 +46,8 @@ async function initLogDB() {
     );
     try {
       await logIndexedDBServiceInstance.openDatabase();
-      console.log("Log 数据库已成功打开");
       isDBInitialized = true;
     } catch (error) {
-      console.error("打开 Log 数据库时出错:", error);
       logIndexedDBServiceInstance = null;
       isDBInitialized = false;
       throw error;

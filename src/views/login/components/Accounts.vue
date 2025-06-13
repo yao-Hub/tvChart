@@ -159,7 +159,7 @@ onUnmounted(() => {
 @import "@/styles/_handle.scss";
 .accountsList {
   display: flex;
-  height: 100%;
+  height: calc(100% - 56px);
 }
 .accountsList-container {
   margin: 32px 0;
@@ -190,7 +190,6 @@ onUnmounted(() => {
   .list {
     flex-shrink: 0;
     margin-top: 24px;
-    max-height: 168px;
     border: 1px solid;
     border-radius: 4px;
     @include border_color("border");

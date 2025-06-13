@@ -14,6 +14,7 @@ import * as ElementPlusIconsVue from "@element-plus/icons-vue";
 import ElementPlus from "element-plus";
 
 import { initLogDB } from "@/utils/IndexedDB/logDatabase";
+import { initAdminHttpDB } from "@/utils/IndexedDB/adminHttpDatabase";
 import { changeElementPlusMessageIcon } from "./utils/ElementPlus";
 
 import plugins from "@/plugins";
@@ -43,6 +44,8 @@ const bootstrap = () => {
 
   // 初始化log数据库
   initLogDB();
+  // 初始化adminhttp数据库
+  initAdminHttpDB();
 };
 
 // 启动

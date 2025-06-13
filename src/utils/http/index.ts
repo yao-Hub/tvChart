@@ -13,6 +13,7 @@ import eventBus from "utils/eventBus";
 
 import { decrypt, encrypt } from "utils/DES/JS";
 import { generateUUID } from "@/utils/common";
+import { adminHttpIndexedDB } from "utils/IndexedDB/adminHttpDatabase";
 
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
@@ -30,6 +31,7 @@ interface IOption {
   needLogin?: boolean;
   noBeCancel?: boolean;
   customData?: boolean;
+  isNotSaveDB?: boolean;
 }
 
 type reqConfig = InternalAxiosRequestConfig<any> & IOption;
@@ -146,33 +148,74 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   // 状态码正常返回200
-  (response) => {
-    const data = response.data;
+  async (response) => {
+    const resData = response.data;
     const config: resConfig = response.config;
-    if (data.err === 0 || data.code === 0) {
-      if (data.data) {
-        data.data = JSON.parse(decrypt(data.data));
+
+    // 解析请求数据
+    const configData = JSON.parse(config.data);
+    const ded = JSON.parse(decrypt(configData.d));
+    const { req_id, req_time, ...reqData } = ded;
+    const stoReqData = JSON.stringify(reqData);
+
+    if (resData.err === 0 || resData.code === 0) {
+      if (resData.data) {
+        resData.data = JSON.parse(decrypt(resData.data));
       }
-      console.log("response....", { url: config.url, data });
+
+      // admin的接口返回存储到indexedDB中
+      if (config.urlType === "admin" && !config.isNotSaveDB) {
+        try {
+          const searchData = { url: config.url!, reqData: stoReqData };
+          const stoData = await adminHttpIndexedDB.findByCondition(searchData);
+          const obj = {
+            id: req_id,
+            url: config.url!,
+            resData: JSON.stringify(response),
+            reqData: stoReqData,
+          };
+          if (stoData) {
+            // 更新
+            await adminHttpIndexedDB.updateData(searchData, obj);
+          } else {
+            // 添加
+            await adminHttpIndexedDB.addData(obj);
+          }
+        } catch (error) {}
+      }
+      console.log("response....", { url: config.url, data: resData });
       return response;
     }
+
     if (
-      data.err !== 0 &&
-      data.errmsg &&
-      typeof data.errmsg === "string" &&
-      errorTokenList.includes(data.errmsg)
+      resData.err !== 0 &&
+      resData.errmsg &&
+      typeof resData.errmsg === "string" &&
+      errorTokenList.includes(resData.errmsg)
     ) {
       handleTokenErr();
     }
 
     ElNotification({
-      message: t(data.errmsg || "error"),
+      message: t(resData.errmsg || "error"),
       type: "error",
     });
-    return Promise.reject(data);
+    return Promise.reject(resData);
   },
   // 状态码!===200
-  (err) => {
+  async (err) => {
+    const configData = JSON.parse(err.config.data);
+    const ded = JSON.parse(decrypt(configData.d));
+    const { req_id, req_time, ...reqData } = ded;
+    const stoReqData = JSON.stringify(reqData);
+    if (err.config.urlType === "admin" && !err.config.isNotSaveDB) {
+      const searchData = { url: err.config.url!, reqData: stoReqData };
+      const stoData: any = await adminHttpIndexedDB.findByCondition(searchData);
+      if (stoData) {
+        return JSON.parse(stoData.resData);
+      }
+    }
+
     const res = err.response;
     if (err.code === "ECONNABORTED") {
       ElMessage.error("request timeout");

@@ -41,17 +41,19 @@
             <span class="waitingWord">{{ t("scanCode.logging") }}</span>
           </div>
         </div>
-        <img
+
+        <div
           class="guide"
           :style="{
             opacity: ifGuide ? 1 : 0,
             transform: ifGuide
-              ? 'translate(-120%, -49%)'
-              : 'translate(-50%, -50%)',
+              ? 'translate(-94%, -49%) scale(0.75)'
+              : 'translate(-50%, -50%) scale(0.75)',
             zIndex: qrcodeStore.codeType !== 'expire' && ifGuide ? 9 : -1,
           }"
-          src="@/assets/images/guide.png"
-        />
+        >
+          <img src="@/assets/images/guide.png" />
+        </div>
       </div>
       <div class="scan-tip">
         <span>{{ t("scanCode.open") }}</span>
@@ -148,7 +150,6 @@ onMounted(() => {
     left: 50%;
     transition: all 0.5s ease-in-out;
     overflow: hidden;
-    box-sizing: border-box;
     border-radius: 4px;
 
     .code {
@@ -206,12 +207,17 @@ onMounted(() => {
     }
   }
   .guide {
-    width: 120px;
-    height: 150px;
+    width: 200px;
+    height: 200px;
     position: absolute;
     transition: all 0.5s ease;
     top: 50%;
     left: 50%;
+    padding: 1px;
+    img {
+      width: 100%;
+      height: 100%;
+    }
   }
 }
 

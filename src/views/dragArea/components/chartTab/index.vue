@@ -13,7 +13,7 @@
       placement="bottom-start"
       trigger="contextmenu"
       ref="symbolDropdown"
-      @visible-change="symbolVisible = $event"
+      @visible-change="handleVisibleChange"
       @command="emit('symbolCommand', $event, props.id)"
     >
       <div class="el-dropdown-link" @click.stop="toggleSymbolDropdown">
@@ -109,11 +109,17 @@ const emit = defineEmits([
   "symbolCommand",
   "resolutionCommand",
   "tabClose",
+  "visibleChange",
 ]);
 
 const symbolDropdown = ref<DropdownInstance>();
 const resolutionDropdown = ref<DropdownInstance>();
 const symbolVisible = ref(false);
+
+const handleVisibleChange = (visible: boolean) => {
+  symbolVisible.value = visible;
+  emit("visibleChange", visible);
+};
 // 商品下拉菜单显示隐藏
 const toggleSymbolDropdown = () => {
   if (!props.active) {
@@ -178,6 +184,7 @@ const resoluteItemSelect = (key: number) => {
   display: flex;
   padding: 0 8px;
   height: var(--component-size);
+  min-height: var(--component-size);
   align-items: center;
   gap: 8px;
   @include background_color("background");

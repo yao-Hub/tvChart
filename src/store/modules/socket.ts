@@ -105,6 +105,7 @@ export const useSocket = defineStore("socket", {
         ...this.reqData(),
       };
       const ed = this.enData(keyMap);
+      console.log("socketData", searchMap);
       // 后端文档要求
       searchMap.d = btoa(ed);
       const queryParams = Object.entries(searchMap)

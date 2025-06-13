@@ -1159,12 +1159,11 @@ const getTableData = (type: string) => {
 
   .orderArea-container {
     box-sizing: border-box;
-    height: calc(100% - var(--base-height) - 4px);
+    height: calc(100% - var(--base-height) - 8px);
     padding: 8px;
-    border: 4px solid;
     border-bottom: none;
     border-radius: 4px;
-    margin: 0 4px;
+    margin: 4px;
     @include border_color("background-component");
     @include background_color("background-container");
 

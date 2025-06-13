@@ -39,11 +39,11 @@ watch(
       useSocket().onlineSocketInit();
     }
     if (info && server && !trackSent.value) {
+      trackSent.value = true;
       await sendTrack({
         actionType: "open",
         actionObject: location.href,
       });
-      trackSent.value = true;
     }
   },
   { deep: true }
