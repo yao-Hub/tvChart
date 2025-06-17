@@ -148,7 +148,7 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   // 状态码正常返回200
-  async (response) => {
+  (response) => {
     const resData = response.data;
     const config: resConfig = response.config;
 
@@ -165,23 +165,29 @@ service.interceptors.response.use(
 
       // admin的接口返回存储到indexedDB中
       if (config.urlType === "admin" && !config.isNotSaveDB) {
-        try {
-          const searchData = { url: config.url!, reqData: stoReqData };
-          const stoData = await adminHttpIndexedDB.findByCondition(searchData);
-          const obj = {
-            id: req_id,
-            url: config.url!,
-            resData: JSON.stringify(response),
-            reqData: stoReqData,
-          };
-          if (stoData) {
-            // 更新
-            await adminHttpIndexedDB.updateData(searchData, obj);
-          } else {
-            // 添加
-            await adminHttpIndexedDB.addData(obj);
-          }
-        } catch (error) {}
+        setTimeout(async () => {
+          try {
+            const searchData = { url: config.url!, reqData: stoReqData };
+            const stoData = await adminHttpIndexedDB.findByCondition(
+              searchData
+            );
+            const obj = {
+              id: req_id,
+              url: config.url!,
+              resData: JSON.stringify(response),
+              reqData: stoReqData,
+            };
+            if (stoData) {
+              console.log("stoData", stoData);
+              // 更新
+              await adminHttpIndexedDB.updateData(searchData, obj);
+            } else {
+              console.log("addData", obj);
+              // 添加
+              await adminHttpIndexedDB.addData(obj);
+            }
+          } catch (error) {}
+        });
       }
       console.log("response....", { url: config.url, data: resData });
       return response;
@@ -226,7 +232,9 @@ service.interceptors.response.use(
         handleTokenErr();
       }
       ElNotification({
-        message: t(res.data.errmsg || res.data.msg) || res.data.msg || "error",
+        message: t(
+          res.data.errmsg || res.data.msg || res.data.error || "server error"
+        ),
         type: "error",
       });
       return Promise.reject(err);

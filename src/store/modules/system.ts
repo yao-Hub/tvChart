@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { generateUUID } from "@/utils/common";
-import axios from "axios";
 
 export const useSystem = defineStore("system", () => {
   interface ISystemInfo {
@@ -10,7 +9,6 @@ export const useSystem = defineStore("system", () => {
     platform: string;
     deviceInfo: string;
     deviceId: string;
-    localIp: string;
   }
 
   const systemInfo = ref<ISystemInfo>();
@@ -69,8 +67,6 @@ export const useSystem = defineStore("system", () => {
     if (systemInfo.value) {
       return;
     }
-    const res = await axios.get("https://ipv4.icanhazip.com/");
-    const localIp = res.data.replace("\n", "");
     // 桌面应用拿操作系统信息
     if (process.env.IF_ELECTRON) {
       const info: any = await window.electronAPI.invoke("get-system-info");
@@ -82,7 +78,6 @@ export const useSystem = defineStore("system", () => {
           deviceModel: model,
           platform: os,
           deviceInfo: release,
-          localIp,
         };
         return;
       } catch (error) {
@@ -102,7 +97,6 @@ export const useSystem = defineStore("system", () => {
       platform: WEB_PLATFORM,
       deviceInfo: `${OS_TYPE} ${OS_MACH}`,
       deviceId,
-      localIp,
     };
     window.localStorage.setItem("uuid", deviceId);
   };

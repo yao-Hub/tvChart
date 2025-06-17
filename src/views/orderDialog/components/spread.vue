@@ -1,11 +1,15 @@
 <template>
   <div class="spread">
-    <span class="sellWord">{{ quote?.bid?.toFixed(props.digits ?? 2) }}</span>
+    <span :class="[getClass('bid')]">{{
+      quote?.bid?.toFixed(props.digits ?? 2)
+    }}</span>
     <div class="spread_point">
       <span class="title">{{ t("order.spread") }} {{ spread }}</span>
       <BaseImg class="icon" iconName="icon_arrow"></BaseImg>
     </div>
-    <span class="buyWord">{{ quote?.ask?.toFixed(props.digits ?? 2) }}</span>
+    <span :class="[getClass('ask')]">{{
+      quote?.ask?.toFixed(props.digits ?? 2)
+    }}</span>
   </div>
 </template>
 
@@ -14,14 +18,27 @@ import { IQuote } from "@/types/chart";
 import Decimal from "decimal.js";
 import { computed } from "vue";
 
+import { useQuotes } from "@/store/modules/quotes";
+
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 interface Props {
   quote?: IQuote;
   digits?: number;
+  symbol?: string;
 }
+
 const props = defineProps<Props>();
+const getClass = (type: "ask" | "bid") => {
+  const classes = useQuotes().quotesClass;
+  if (props.symbol) {
+    if (classes[props.symbol]) {
+      return classes[props.symbol][type];
+    }
+  }
+  return "";
+};
 
 const spread = computed(() => {
   const ask = props.quote?.ask;

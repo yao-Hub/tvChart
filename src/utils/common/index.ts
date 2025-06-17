@@ -112,12 +112,12 @@ export function findByProperties(
     if (exactMatch) {
       // 完全匹配：检查条件中的每个属性是否都存在于对象中且值相等
       return Object.entries(conditions).every(
-        ([key, value]) => item[key] !== undefined && item[key] === value
+        ([key, value]) => item[key] === value
       );
     } else {
       // 部分匹配：检查对象是否包含条件中的至少一个属性且值相等
       return Object.entries(conditions).some(
-        ([key, value]) => item[key] !== undefined && item[key] === value
+        ([key, value]) => item[key] === value
       );
     }
   });

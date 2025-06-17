@@ -8,7 +8,7 @@
           <div class="backBox">
             <div class="backBox_back" @click="goAccount" v-if="ifloginBack">
               <BaseImg iconName="turnleft" />
-              <span class="backBox_back_text">返回</span>
+              <span class="backBox_back_text">{{ t("back") }}</span>
             </div>
             <span class="plogin">{{
               ifloginBack ? t("addAccount") : t("logAccount")

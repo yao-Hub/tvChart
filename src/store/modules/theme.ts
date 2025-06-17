@@ -123,20 +123,20 @@ export const useTheme = defineStore("theme", () => {
       classicUpGreenDownRed: {
         downColor: classisRed,
         upColor: classisGreen,
-        upHoverColor: classisRedHover,
-        downHoverColor: classisGreenHover,
+        upHoverColor: classisGreenHover,
+        downHoverColor: classisRedHover,
       },
       CVD1: {
-        downColor: CVDBlue,
-        upColor: CVDYellow,
-        upHoverColor: CVDYellowHover,
-        downHoverColor: CVDBlueHover,
-      },
-      CVD2: {
         downColor: CVDYellow,
         upColor: CVDBlue,
         upHoverColor: CVDBlueHover,
         downHoverColor: CVDYellowHover,
+      },
+      CVD2: {
+        downColor: CVDBlue,
+        upColor: CVDYellow,
+        upHoverColor: CVDYellowHover,
+        downHoverColor: CVDBlueHover,
       },
     };
     return colorMap[upDownTheme.value][colorType];

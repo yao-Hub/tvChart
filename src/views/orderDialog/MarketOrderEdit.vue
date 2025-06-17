@@ -57,7 +57,11 @@
               </div>
             </el-form-item>
             <el-col :span="24">
-              <Spread :quote="quote" :digits="symbolInfo?.digits"></Spread>
+              <Spread
+                :quote="quote"
+                :digits="symbolInfo?.digits"
+                :symbol="symbolInfo?.symbol"
+              ></Spread>
             </el-col>
             <el-col :span="24">
               <el-tooltip :disabled="!tradeDisabled" placement="top">

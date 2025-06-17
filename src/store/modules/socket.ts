@@ -514,7 +514,6 @@ export const useSocket = defineStore("socket", {
           pc_device_model: useSystem().systemInfo!.deviceModel,
           pc_device_brand: useSystem().systemInfo!.deviceBrand,
           pc_device_info: useSystem().systemInfo!.deviceInfo,
-          pc_ip: useSystem().systemInfo!.localIp,
           req_id: generateUUID(),
           req_time: Date.now(),
         };
