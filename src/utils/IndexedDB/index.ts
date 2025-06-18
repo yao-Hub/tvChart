@@ -294,7 +294,7 @@ class IndexedDBService {
   }
 
   // 删除当前数据库
-  async deleteData(id: number) {
+  async deleteData(id: number | string) {
     if (!this.db) {
       throw new Error("数据库未打开");
     }

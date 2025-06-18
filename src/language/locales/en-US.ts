@@ -139,8 +139,8 @@ export default {
   order: {
     loss: "Loss",
     symbol: "Symbols",
-    sellPrice: "Ask",
-    buyPrice: "Bid",
+    sellPrice: "Bid",
+    buyPrice: "Ask",
     new: "{type} New Order",
     create: "Create",
     point: "Point",

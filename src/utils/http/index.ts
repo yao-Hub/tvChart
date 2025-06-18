@@ -175,6 +175,7 @@ service.interceptors.response.use(
               url: config.url!,
               resData: JSON.stringify(cloneRes),
               reqData: stoReqData,
+              timeStamp: Date.now(),
             };
             await adminHttpIndexedDB.atomicUpsert(
               { url: config.url!, reqData: stoReqData },

@@ -8,6 +8,7 @@ interface IData {
   url: string;
   resData: string;
   reqData: string;
+  timeStamp?: number;
 }
 
 // 定义单例实例
@@ -33,6 +34,38 @@ async function initAdminHttpDB() {
     }
   }
   return httpIndexedDBServiceInstance;
+}
+
+// 去重
+async function duplicateRemoval() {
+  if (httpIndexedDBServiceInstance) {
+    const allData = await httpIndexedDBServiceInstance.getAllData();
+    // 找出所有重复的url和reqData组合
+    const duplicatesMap = new Map<string, IData[]>();
+    allData.forEach((item) => {
+      const key = `${item.url}_${JSON.stringify(item.reqData)}`;
+      if (!duplicatesMap.has(key)) {
+        duplicatesMap.set(key, []);
+      }
+      duplicatesMap.get(key)!.push(item);
+    });
+
+    for (const [_key, group] of duplicatesMap) {
+      if (group.length > 1) {
+        group.sort((a, b) => {
+          const bT = b.timeStamp || 0;
+          const aT = a.timeStamp || 0;
+          return bT - aT;
+        });
+        const idsToDelete = group.slice(1).map((item) => item.id);
+
+        // 删除旧数据
+        for (const id of idsToDelete) {
+          await httpIndexedDBServiceInstance.deleteData(id);
+        }
+      }
+    }
+  }
 }
 
 // 创建一个全局锁映射
@@ -75,6 +108,8 @@ async function atomicUpsert(
     } else {
       await httpIndexedDBServiceInstance.addData(obj);
     }
+
+    await duplicateRemoval();
   } finally {
     release();
   }
