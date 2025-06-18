@@ -4,7 +4,7 @@ const { appIdMap, nameMap } = require("../options");
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
   appId: appIdMap[process.env.NODE_ENV],
-  asar: false,
+  asar: true,
   productName: nameMap[process.env.NODE_ENV], // 输出包前缀名称 | 缓存文件名称、安装名称、路径名称
   extraMetadata: {
     name: nameMap[process.env.NODE_ENV] // 缓存文件名称、安装名称、路径名称 （优先级 > productName）

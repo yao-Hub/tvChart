@@ -2,7 +2,9 @@
   <div class="latest">
     <BaseImg iconName="update_logo" imgSuffix="png"></BaseImg>
     <el-text class="tip">{{
-      t("update.versionHasLatest", { version: versionInfo?.version })
+      t("update.versionHasLatest", {
+        version: versionInfo?.version || nowVersion,
+      })
     }}</el-text>
     <el-button type="primary" class="comfirm" @click="closeDialog">{{
       t("ok")
@@ -14,6 +16,8 @@
 import { useUpdateVersion } from "./useUpdateVersion";
 
 const { t, closeDialog, versionInfo } = useUpdateVersion();
+
+const nowVersion = _VERSION_;
 </script>
 
 <style lang="scss" scoped>

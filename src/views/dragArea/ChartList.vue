@@ -1,8 +1,11 @@
 <template>
-  <div class="charts">
+  <div
+    class="charts"
+    :style="{ paddingLeft: chartType === 'single' ? '0' : '16px' }"
+  >
     <HorizontalScrolling
       v-if="chartType === 'single'"
-      style="margin-left: 12px; width: calc(100% - 12px)"
+      style="margin-left: 16px"
     >
       <div class="tabs">
         <chartTab
@@ -46,7 +49,6 @@
           @symbolCommand="symbolCommand"
           @resolutionCommand="resolutionCommand"
           @tabClose="tabClose"
-          :style="{ marginLeft: index === 0 ? '14px' : '0' }"
         ></chartTab>
         <TVChart
           style="flex: 1"
@@ -206,7 +208,6 @@ onMounted(() => {
   .tabs {
     display: flex;
     gap: 4px;
-    @include background_color("background-container");
     margin-bottom: 2px;
   }
 
