@@ -21,12 +21,12 @@ export default defineConfig((mode: ConfigEnv) => {
     base: ifElectron ? "./" : "/",
     build: {
       minify: "terser",
-      // terserOptions: {
-      //   compress: {
-      //     drop_console: isProduction,
-      //     drop_debugger: isProduction,
-      //   },
-      // },
+      terserOptions: {
+        compress: {
+          drop_console: isProduction,
+          drop_debugger: isProduction,
+        },
+      },
       // 消除打包大小超过500kb警告
       chunkSizeWarningLimit: 2000,
     },
