@@ -219,6 +219,7 @@ export const useTheme = defineStore("theme", () => {
     } catch (error) {}
   };
 
+  // 获取图表iframe主题
   const getIframesColorScheme = () => {
     const iframes = document.querySelectorAll("iframe");
     iframes.forEach((ifr, index) => {

@@ -12,11 +12,10 @@
           :interval="chart.interval"
           :id="chart.id"
           :hide-close-btn="chartInitStore.state.chartWidgetList.length === 1"
-          @tabClick="chartTabClick(chart.id)"
+          @tabClick="handleTabClick"
           @symbolCommand="symbolCommand"
           @resolutionCommand="resolutionCommand"
           @tabClose="tabClose"
-          @visibleChange="visibleChange(chart.id)"
         ></chartTab>
       </div>
     </HorizontalScrolling>
@@ -28,9 +27,10 @@
         class="charts_container_item"
         v-for="({ id, symbol, interval }, index) in chartInitStore.state
           .chartWidgetList"
+        v-show="activedId === id || chartType !== 'single'"
+        :ref="(el) => setChartRef(el, id)"
         :key="id + index"
         :id="id"
-        v-show="activedId === id || chartType !== 'single'"
         :style="{ borderColor: getBorderColorStyle(id) }"
       >
         <chartTab
@@ -42,11 +42,10 @@
           :symbol="symbol"
           :interval="interval"
           :id="id"
-          @tabClick="chartTabClick(id)"
+          @tabClick="handleTabClick"
           @symbolCommand="symbolCommand"
           @resolutionCommand="resolutionCommand"
           @tabClose="tabClose"
-          @visibleChange="visibleChange(id)"
           :style="{ marginLeft: index === 0 ? '14px' : '0' }"
         ></chartTab>
         <TVChart
@@ -75,7 +74,7 @@
 <script setup lang="ts">
 import { ResolutionString } from "public/charting_library";
 import Sortable from "sortablejs";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import { useChartAction } from "@/store/modules/chartAction";
 import { useChartInit } from "@/store/modules/chartInit";
@@ -123,51 +122,38 @@ const getBorderColorStyle = (id: string) => {
   return "transparent";
 };
 
-const initChart = ({ id }: { id: string }) => {
-  // widget.chart().createShape(
-  //   { time: 1730771118, price: 2737 },
-  //   {
-  //     shape: "icon",
-  //     icon: 0xf0d8,
-  //     lock: true,
-  //     disableSelection: true,
-  //     zOrder: "top",
-  //     overrides: {
-  //       color: "red",
-  //       size: 12,
-  //     },
-  //   }
-  // );
-  // if (chartType.value === "multiple") {
-  //   widget.activeChart().executeActionById("drawingToolbarAction");
-  // }
-  // const from = Date.now() / 1000 - 15 * 60 * 60; // 5 days ago
-  // const to = Date.now() / 1000;
-  // widget.activeChart().createMultipointShape(
-  //   [
-  //     { time: from, price: 2710 },
-  //     { time: to, price: 2710 },
-  //   ],
-  //   {
-  //     shape: "trend_line",
-  //     lock: false,
-  //     disableSelection: true,
-  //     disableSave: true,
-  //     disableUndo: true,
-  //     text: "texttexttexttexttexttexttexttext",
-  //   }
-  // );
-  // widget.chart().createAnchoredShape(
-  //   { x: 0.1, y: 0.9 },
-  //   {
-  //     shape: "anchored_text",
-  //     text: "Hello, charts!",
-  //     overrides: { color: "green" },
-  //   }
-  // );
+// 筛选行点击
+const handleTabClick = (id: string) => {
+  chartInitStore.state.activeChartId = id;
+};
+// 品种选择
+const symbolCommand = (symbol: string, id: string) => {
+  chartInitStore.changeChartSymbol({ symbol, id });
+};
+// 周期选择
+const resolutionCommand = (resolution: ResolutionString, id: string) => {
+  chartInitStore.changeChartInterval({ resolution, id });
+};
+// 图表关闭
+const tabClose = (id: string) => {
+  chartInitStore.removeChartWidget(id);
+};
 
+// 存储图表引用的对象
+const chartRefs = ref<Record<string, any>>({});
+const setChartRef = (el: any, id: string) => {
+  if (el) {
+    chartRefs.value[id] = el;
+  }
+};
+
+const initChart = ({ id }: { id: string }) => {
   // 创建顶部栏快捷下单按钮
   chartActionStore.addOrderBtn(id);
+
+  // 捕获iframe
+  const chartDom = chartRefs.value[id];
+  chartActionStore.handleChartIframeMousedown(chartDom, id);
 
   // 图表已经加载完毕
   chartInitStore.setChartLoadingEndType(id, true);
@@ -175,6 +161,7 @@ const initChart = ({ id }: { id: string }) => {
 };
 
 onMounted(() => {
+  // 图表拖拽
   const dragArea = document.querySelector(".charts_container");
   new Sortable(dragArea, {
     animation: 150,
@@ -193,6 +180,7 @@ onMounted(() => {
     },
   });
 
+  // tab拖拽
   const tabs = document.querySelector(".tabs");
   if (tabs) {
     new Sortable(tabs, {
@@ -202,22 +190,6 @@ onMounted(() => {
     });
   }
 });
-
-const visibleChange = (id: string) => {
-  chartInitStore.state.activeChartId = id;
-};
-const chartTabClick = (id: string) => {
-  chartInitStore.state.activeChartId = id;
-};
-const symbolCommand = (symbol: string, id: string) => {
-  chartInitStore.changeChartSymbol({ symbol, id });
-};
-const resolutionCommand = (resolution: ResolutionString, id: string) => {
-  chartInitStore.changeChartInterval({ resolution, id });
-};
-const tabClose = (id: string) => {
-  chartInitStore.removeChartWidget(id);
-};
 </script>
 
 <style lang="scss" scoped>

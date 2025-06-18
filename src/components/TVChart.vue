@@ -43,6 +43,7 @@ const props = withDefaults(defineProps<IProps>(), {
 });
 
 const chartContainer = ref();
+
 const emit = defineEmits(["initChart"]);
 
 onMounted(() => {
@@ -99,13 +100,11 @@ const initonReady = () => {
       // 快捷键监听
       chartSubStore.subscribeKeydown(widget);
 
-      // 监听商品变化
+      // 监听商品变化 同步chartWidgetList
       widget
         .activeChart()
         .onSymbolChanged()
         .subscribe({}, () => {
-          chartInitStore.state.activeChartId = props.chartId;
-          // 图表撤回操作会触发
           const newSymbol = widget.activeChart().symbol();
           const target = chartInitStore.state.chartWidgetList.find(
             (e) => e.id === props.chartId
@@ -113,17 +112,15 @@ const initonReady = () => {
           if (target && target.symbol !== newSymbol) {
             target.symbol = newSymbol;
           }
-
+          // 保存图表
           chartInitStore.saveCharts();
         });
 
-      // 监听周期变化
+      // 监听周期变化 同步chartWidgetList
       widget
         .activeChart()
         .onIntervalChanged()
         .subscribe(null, (interval) => {
-          chartInitStore.state.activeChartId = props.chartId;
-          // 图表撤回操作会触发
           const target = chartInitStore.state.chartWidgetList.find(
             (e) => e.id === props.chartId
           );
@@ -133,15 +130,6 @@ const initonReady = () => {
 
           chartInitStore.saveCharts();
         });
-
-      // 监听鼠标按下
-      widget.subscribe("mouse_down", () => {
-        chartInitStore.state.activeChartId = props.chartId;
-        const bodyBox = document.querySelector(".bodyBox") as HTMLElement;
-        if (bodyBox) {
-          bodyBox.click();
-        }
-      });
 
       // 增加策略 第一个图表增加指标
       if (!savedData && chartInitStore.state.chartWidgetList.length === 1) {

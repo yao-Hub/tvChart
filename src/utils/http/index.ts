@@ -21,6 +21,7 @@ import { useSystem } from "@/store/modules/system";
 import { useTheme } from "@/store/modules/theme";
 
 import i18n from "@/language/index";
+import { cloneDeep } from "lodash";
 const t = i18n.global.t;
 
 interface IOption {
@@ -149,6 +150,8 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   // 状态码正常返回200
   (response) => {
+    const cloneRes = cloneDeep(response);
+
     const resData = response.data;
     const config: resConfig = response.config;
 
@@ -156,7 +159,7 @@ service.interceptors.response.use(
     const configData = JSON.parse(config.data);
     const ded = JSON.parse(decrypt(configData.d));
     const { req_id, req_time, ...reqData } = ded;
-    const stoReqData = JSON.stringify(reqData);
+    const stoReqData = encrypt(JSON.stringify(reqData));
 
     if (resData.err === 0 || resData.code === 0) {
       if (resData.data) {
@@ -165,29 +168,22 @@ service.interceptors.response.use(
 
       // admin的接口返回存储到indexedDB中
       if (config.urlType === "admin" && !config.isNotSaveDB) {
-        setTimeout(async () => {
+        (async () => {
           try {
-            const searchData = { url: config.url!, reqData: stoReqData };
-            const stoData = await adminHttpIndexedDB.findByCondition(
-              searchData
-            );
             const obj = {
               id: req_id,
               url: config.url!,
-              resData: JSON.stringify(response),
+              resData: JSON.stringify(cloneRes),
               reqData: stoReqData,
             };
-            if (stoData) {
-              console.log("stoData", stoData);
-              // 更新
-              await adminHttpIndexedDB.updateData(searchData, obj);
-            } else {
-              console.log("addData", obj);
-              // 添加
-              await adminHttpIndexedDB.addData(obj);
-            }
-          } catch (error) {}
-        });
+            await adminHttpIndexedDB.atomicUpsert(
+              { url: config.url!, reqData: stoReqData },
+              obj
+            );
+          } catch (error) {
+            console.error("IndexedDB存储失败", error);
+          }
+        })();
       }
       console.log("response....", { url: config.url, data: resData });
       return response;
@@ -210,15 +206,26 @@ service.interceptors.response.use(
   },
   // 状态码!===200
   async (err) => {
-    const configData = JSON.parse(err.config.data);
-    const ded = JSON.parse(decrypt(configData.d));
-    const { req_id, req_time, ...reqData } = ded;
-    const stoReqData = JSON.stringify(reqData);
     if (err.config.urlType === "admin" && !err.config.isNotSaveDB) {
+      const configData = JSON.parse(err.config.data);
+      const ded = JSON.parse(decrypt(configData.d));
+      const { req_id, req_time, ...reqData } = ded;
+      const stoReqData = encrypt(JSON.stringify(reqData));
       const searchData = { url: err.config.url!, reqData: stoReqData };
       const stoData: any = await adminHttpIndexedDB.findByCondition(searchData);
       if (stoData) {
-        return JSON.parse(stoData.resData);
+        const resData = JSON.parse(stoData.resData);
+        const serverData = resData.data.data;
+        const deData = JSON.parse(decrypt(serverData));
+        const result = {
+          err: 0,
+          errmsg: "success",
+          data: deData,
+        };
+        return Promise.resolve({
+          ...resData,
+          data: result,
+        });
       }
     }
 

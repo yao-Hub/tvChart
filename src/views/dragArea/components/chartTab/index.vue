@@ -122,10 +122,7 @@ const handleVisibleChange = (visible: boolean) => {
 };
 // 商品下拉菜单显示隐藏
 const toggleSymbolDropdown = () => {
-  if (!props.active) {
-    emit("tabClick", props.id);
-    return;
-  }
+  emit("tabClick", props.id);
   if (symbolDropdown.value) {
     !symbolVisible.value
       ? symbolDropdown.value.handleOpen()
@@ -135,10 +132,7 @@ const toggleSymbolDropdown = () => {
 const resolutionVisible = ref(false);
 // 周期下拉菜单显示隐藏
 const toggleResolutionDropdown = () => {
-  if (!props.active) {
-    emit("tabClick", props.id);
-    return;
-  }
+  emit("tabClick", props.id);
   if (resolutionDropdown.value) {
     resolutionDropdown.value.handleOpen();
     !resolutionVisible.value

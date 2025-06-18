@@ -1,4 +1,3 @@
-import { findByProperties } from "@/utils/common";
 class IndexedDBService {
   private db: IDBDatabase | null = null; // 数据库实例
   private dbName: string; // 数据库名称
@@ -209,10 +208,7 @@ class IndexedDBService {
   }
 
   // 更新数据
-  updateData(
-    condition: Record<string, string | number>,
-    stoData: Record<string, string | number>
-  ) {
+  updateData(condition: Record<string, string | number>, stoData: Object) {
     if (!this.db) {
       throw new Error("数据库未打开");
     }
@@ -232,11 +228,10 @@ class IndexedDBService {
 
           // 检查记录是否匹配条件
           for (const key in condition) {
-            if (record[key] === condition[key]) {
-              match = true;
-              break;
+            if (record[key] !== condition[key]) {
+              match = false;
+              break; // 发现不匹配立即退出
             }
-            match = false;
           }
           // 如果全部匹配则更新记录
           if (match) {
@@ -259,17 +254,42 @@ class IndexedDBService {
   }
 
   // 精确查找数据
-  async findByCondition(condition: Record<string, string>) {
-    if (!this.db) {
-      throw new Error("数据库未打开");
-    }
-    return new Promise(async (resolve) => {
-      const allData = await this.getAllData();
-      const target = findByProperties(allData, condition);
-      if (target.length) {
-        resolve(target[target.length - 1]);
-      }
-      resolve(null);
+  async findByCondition(condition: Record<string, any>) {
+    if (!this.db) throw new Error("数据库未打开");
+
+    return new Promise((resolve) => {
+      const transaction = this.db!.transaction(
+        this.objectStoreName,
+        "readonly"
+      );
+      const store = transaction.objectStore(this.objectStoreName);
+      const request = store.openCursor();
+
+      const results: any[] = [];
+
+      request.onsuccess = (event) => {
+        const cursor = (event.target as IDBRequest<IDBCursorWithValue>).result;
+        if (cursor) {
+          const record = cursor.value;
+          let match = true;
+
+          // 严格检查所有条件
+          for (const key in condition) {
+            if (record[key] !== condition[key]) {
+              match = false;
+              break;
+            }
+          }
+
+          if (match) results.push(record);
+          cursor.continue();
+        } else {
+          // 返回最后一条匹配记录（最近添加的）
+          resolve(results.length > 0 ? results[results.length - 1] : null);
+        }
+      };
+
+      request.onerror = () => resolve(null);
     });
   }
 

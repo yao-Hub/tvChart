@@ -122,5 +122,22 @@ export const useChartAction = defineStore("chartAction", {
           .setLineLength(25);
       });
     },
+
+    // 图表点击
+    handleChartIframeMousedown(chartDom: HTMLElement, id: string) {
+      const iframeDom = chartDom.querySelector("iframe");
+      if (iframeDom) {
+        const iframeDoc =
+          iframeDom.contentDocument || iframeDom.contentWindow!.document;
+        iframeDoc.addEventListener("mousedown", () => {
+          useChartInit().state.activeChartId = id;
+          // 若存在下拉框可以触发关闭
+          const bodyBox = document.querySelector(".bodyBox") as HTMLElement;
+          if (bodyBox) {
+            bodyBox.click();
+          }
+        });
+      }
+    },
   },
 });
