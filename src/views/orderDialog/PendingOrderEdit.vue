@@ -375,6 +375,7 @@ const delOrder = debounce(
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+@import "./common.scss";
 
 .sellBtn,
 .buyBtn {
@@ -382,17 +383,6 @@ const delOrder = debounce(
   @include font_color("background-component");
 }
 
-:deep(.el-input__wrapper) {
-  height: var(--base-height);
-}
-
-:deep(.el-select__wrapper) {
-  height: var(--base-height);
-}
-
-:deep(.el-date-editor.el-input, .el-date-editor.el-input__wrapper) {
-  height: var(--base-height);
-}
 :deep(.el-overlay) {
   background-color: transparent;
   pointer-events: none;

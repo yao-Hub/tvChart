@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>icon_tabular_dark</title>
-    <g id="icon_tabular_dark" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linejoin="round">
+    <title>icon_lb_dark</title>
+    <g id="icon_lb_dark" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
         <g id="编组" stroke="#B0B1B3" stroke-width="1.4">
-            <g id="01-图标/浅色版/基础样式#通用/切换表格">
-                <rect id="矩形" x="0.995151304" y="2.54187453" width="16" height="5"></rect>
-                <rect id="矩形备份" x="0.995151304" y="10.5418745" width="16" height="5"></rect>
+            <g id="01-图标/浅色版/基础样式#通用/布局">
+                <rect id="矩形备份" x="1" y="3" width="16" height="4"></rect>
+                <rect id="矩形备份-2" x="1" y="11" width="16" height="4"></rect>
             </g>
         </g>
     </g>

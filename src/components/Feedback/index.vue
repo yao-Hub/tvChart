@@ -44,7 +44,11 @@
         <el-icon><Plus /></el-icon>
       </div>
       <template #file="{ file }">
-        <div class="uploadList">
+        <div
+          class="uploadList"
+          @mouseover="ifHover = true"
+          @mouseleave="ifHover = false"
+        >
           <el-image
             class="uploadList_img"
             :src="file.url"
@@ -54,7 +58,8 @@
           />
           <span
             v-if="!loading"
-            class="el-upload-list__item-actions"
+            :style="{ opacity: ifHover ? 1 : 0 }"
+            class="uploadList_delete"
             @click="handleRemove(file)"
           >
             {{ t("delete") }}
@@ -64,10 +69,12 @@
     </el-upload>
 
     <template #footer>
-      <el-button @click="openMyfeedback">{{ t("myFeedback") }}</el-button>
-      <el-button type="primary" @click="handleOk" :loading="loading">{{
-        t("submit")
-      }}</el-button>
+      <div style="margin-top: 24px">
+        <el-button @click="openMyfeedback">{{ t("myFeedback") }}</el-button>
+        <el-button type="primary" @click="handleOk" :loading="loading">{{
+          t("submit")
+        }}</el-button>
+      </div>
     </template>
   </el-dialog>
 
@@ -115,7 +122,7 @@ const remark = ref<string>("");
 const fileList = ref<CustomUploadUserFile[]>([]);
 const uploadRef = ref<UploadInstance>();
 const loading = ref(false);
-
+const ifHover = ref(false);
 const handleRemove = (file: UploadFile) => {
   if (loading.value) {
     return;
@@ -190,13 +197,11 @@ const openMyfeedback = () => {
 };
 </script>
 
-<style lang="scss">
-.hideUpload .el-upload-list .el-upload--picture-card {
-  display: none;
-}
-</style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+:deep(.el-button) {
+  height: var(--base-height);
+}
 :deep(.el-upload-list__item) {
   width: 56px;
   height: 56px;
@@ -206,15 +211,16 @@ const openMyfeedback = () => {
   height: 56px;
 }
 :deep(.el-upload-list__item-actions) {
+  top: unset;
   bottom: 0;
   height: 25px;
-  top: unset;
   font-size: 14px;
   cursor: pointer;
 }
 
 .uploadList {
   position: relative;
+  width: 100%;
   &_img {
     width: 100%;
     height: 100%;
@@ -231,6 +237,8 @@ const openMyfeedback = () => {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
   }
 }
 </style>
