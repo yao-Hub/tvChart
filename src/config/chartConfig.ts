@@ -61,9 +61,6 @@ export const datafeed = (id: string) => {
       onSymbolResolvedCallback: Function,
       onResolveErrorCallback: Function
     ) => {
-      // if (UID) {
-      //   chartLineStore.unsubscribed(UID);
-      // }
       UID = "";
       // 获取session
       const storeSymbolInfo = symbolsStore.symbols.find(
@@ -247,41 +244,41 @@ export const datafeed = (id: string) => {
     },
 
     // 查找商品（商品）
-    // searchSymbols: (
-    //   userInput: string,
-    //   exchange: string,
-    //   symbolType: string,
-    //   onResultReadyCallback: Function
-    // ) => {
-    //   // 模糊匹配
-    //   const regex = new RegExp(userInput.split("").join(".*"), "i");
-    //   const matches = symbolsStore.symbols.map((item, index) => {
-    //     const exchangeMatch = regex.test(item.path);
-    //     const symbolMatch = regex.test(item.symbol);
-    //     return {
-    //       index,
-    //       count: (exchangeMatch ? 1 : 0) + (symbolMatch ? 1 : 0),
-    //     };
-    //   });
+    searchSymbols: (
+      userInput: string,
+      exchange: string,
+      symbolType: string,
+      onResultReadyCallback: Function
+    ) => {
+      // 模糊匹配
+      const regex = new RegExp(userInput.split("").join(".*"), "i");
+      const matches = symbolsStore.symbols.map((item, index) => {
+        const exchangeMatch = regex.test(item.path);
+        const symbolMatch = regex.test(item.symbol);
+        return {
+          index,
+          count: (exchangeMatch ? 1 : 0) + (symbolMatch ? 1 : 0),
+        };
+      });
 
-    //   // 匹配度排列
-    //   matches.sort((a, b) => b.count - a.count);
-    //   const sortedIndices = matches.map((match) => match.index);
-    //   const sortedArr = sortedIndices.map(
-    //     (index) => symbolsStore.symbols[index]
-    //   );
+      // 匹配度排列
+      matches.sort((a, b) => b.count - a.count);
+      const sortedIndices = matches.map((match) => match.index);
+      const sortedArr = sortedIndices.map(
+        (index) => symbolsStore.symbols[index]
+      );
 
-    //   const targetList = sortedArr.map((item: types.ISessionSymbolInfo) => {
-    //     return {
-    //       symbol: item.symbol,
-    //       full_name: item.symbol,
-    //       description: item.path,
-    //       exchange: item.path,
-    //       ticker: item.symbol,
-    //       force_session_rebuild: true,
-    //     };
-    //   });
-    //   onResultReadyCallback(targetList);
-    // },
+      const targetList = sortedArr.map((item: types.ISessionSymbolInfo) => {
+        return {
+          symbol: item.symbol,
+          full_name: item.symbol,
+          description: item.description,
+          exchange: item.path,
+          ticker: item.symbol,
+          force_session_rebuild: true,
+        };
+      });
+      onResultReadyCallback(targetList);
+    },
   };
 };

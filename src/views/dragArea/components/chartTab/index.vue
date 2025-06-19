@@ -222,12 +222,6 @@ const resoluteItemSelect = (key: number) => {
 
   :deep(.Block) {
     height: var(--base-height);
-    &:hover {
-      @include background_color("background-hover");
-    }
-    &:active {
-      @include background_color("background-active");
-    }
   }
 
   .input {
