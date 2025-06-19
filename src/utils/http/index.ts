@@ -207,8 +207,7 @@ service.interceptors.response.use(
   },
   // 状态码!===200
   async (err) => {
-    const res = err.response;
-    if (res && (res.status === 401 || res.code === 401)) {
+    if (err.status === 401) {
       ElNotification({
         message: t("invalid token"),
         type: "error",
@@ -244,6 +243,8 @@ service.interceptors.response.use(
       ElMessage.error("request timeout");
       return Promise.reject(err);
     }
+
+    const res = err.response;
     if (res && res.data) {
       if (res.data.errmsg && errorTokenList.includes(res.data.errmsg)) {
         handleTokenErr();
