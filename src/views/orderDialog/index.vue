@@ -2,7 +2,7 @@
   <el-dialog
     v-if="dialogStore.visibles.orderDialogVisible"
     v-model="dialogStore.visibles.orderDialogVisible"
-    class="order_dialog scrollList"
+    class="order_dialog"
     width="450"
     :zIndex="dialogStore.zIndex"
     :modal="false"
@@ -25,196 +25,198 @@
       </div>
     </template>
 
-    <el-form
-      v-show="!priceConfirm"
-      :model="formState"
-      ref="orderFormRef"
-      style="margin-top: 32px"
-    >
-      <el-row :gutter="24">
-        <el-col :span="24">
-          <el-form-item
-            prop="symbol"
-            :label="t('table.symbol')"
-            label-position="top"
-          >
-            <SymbolSelect
-              v-model="formState.symbol"
-              subSymbol
-              symbolType="tradeAllow"
-            ></SymbolSelect>
-          </el-form-item>
-        </el-col>
-        <el-col :span="24">
-          <el-radio-group v-model="formState.orderType">
-            <el-radio-button :label="t('dialog.marketOrder')" value="price" />
-            <el-radio-button
-              :label="t('dialog.pendingOrder')"
-              :value="
-                formState.orderType === 'price'
-                  ? 'buyLimit'
-                  : formState.orderType
-              "
-            />
-          </el-radio-group>
-          <el-text class="orderTip" type="info">
-            {{ t("dialog.orderTip") }}
-          </el-text>
-          <div class="divider"></div>
-        </el-col>
-        <el-col :span="24" v-if="formState.orderType !== 'price'">
-          <el-form-item
-            prop="orderType"
-            :label="t('dialog.type')"
-            label-position="top"
-          >
-            <el-select
-              v-model="formState.orderType"
-              filterable
-              :placeholder="t('dialog.orderType')"
-              :suffix-icon="SelectSuffixIcon"
+    <div class="scrollList formBox">
+      <el-form
+        v-show="!priceConfirm"
+        :model="formState"
+        ref="orderFormRef"
+        style="margin-top: 32px"
+      >
+        <el-row :gutter="24">
+          <el-col :span="24">
+            <el-form-item
+              prop="symbol"
+              :label="t('table.symbol')"
+              label-position="top"
             >
-              <el-option
-                v-for="item in orderTypeOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+              <SymbolSelect
+                v-model="formState.symbol"
+                subSymbol
+                symbolType="tradeAllow"
+              ></SymbolSelect>
+            </el-form-item>
+          </el-col>
+          <el-col :span="24">
+            <el-radio-group v-model="formState.orderType">
+              <el-radio-button :label="t('dialog.marketOrder')" value="price" />
+              <el-radio-button
+                :label="t('dialog.pendingOrder')"
+                :value="
+                  formState.orderType === 'price'
+                    ? 'buyLimit'
+                    : formState.orderType
+                "
               />
-            </el-select>
-          </el-form-item>
-        </el-col>
-        <el-col
-          :span="24"
-          v-if="domVisableOption.orderPrice.includes(formState.orderType)"
-        >
-          <Price
-            v-model:value="formState.orderPrice"
-            :formOption="{
-              name: 'orderPrice',
-              label: `${
-                formState.orderType.includes('Stop')
-                  ? t('dialog.breakPrice')
-                  : t('dialog.limitedPrice')
-              }`,
-            }"
-            :orderType="formState.orderType"
-            :symbolInfo="symbolInfo"
-            :quote="quote"
+            </el-radio-group>
+            <el-text class="orderTip" type="info">
+              {{ t("dialog.orderTip") }}
+            </el-text>
+            <div class="divider"></div>
+          </el-col>
+          <el-col :span="24" v-if="formState.orderType !== 'price'">
+            <el-form-item
+              prop="orderType"
+              :label="t('dialog.type')"
+              label-position="top"
+            >
+              <el-select
+                v-model="formState.orderType"
+                filterable
+                :placeholder="t('dialog.orderType')"
+                :suffix-icon="SelectSuffixIcon"
+              >
+                <el-option
+                  v-for="item in orderTypeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col
+            :span="24"
+            v-if="domVisableOption.orderPrice.includes(formState.orderType)"
           >
-          </Price>
-        </el-col>
-        <el-col
-          :span="24"
-          v-if="domVisableOption.limitedPrice.includes(formState.orderType)"
-        >
-          <BreakLimit
-            v-model:value="formState.limitedPrice"
-            :orderPrice="formState.orderPrice"
-            :formOption="{
-              name: 'limitedPrice',
-              label: t('dialog.limitedPrice'),
-            }"
-            :orderType="formState.orderType"
-            :symbolInfo="symbolInfo"
-          ></BreakLimit>
-        </el-col>
-        <el-col :span="24">
-          <Volume
-            v-model:volume="formState.volume"
-            :symbolInfo="symbolInfo"
-            :quote="quote"
-            :formOption="{ name: 'volume', label: t('table.volume') }"
-            :orderType="formState.orderType"
-            :orderPrice="formState.orderPrice"
-            :limitedPrice="formState.limitedPrice"
-          ></Volume>
-        </el-col>
-        <el-col :span="12">
-          <StopLossProfit
-            style="width: 168px"
-            type="stopLoss"
-            v-model:price="formState.stopLoss"
-            :volume="formState.volume"
-            :symbolInfo="symbolInfo"
-            :quote="quote"
-            :orderPrice="formState.orderPrice"
-            :orderType="formState.orderType"
-            :limitedPrice="formState.limitedPrice"
-          ></StopLossProfit>
-        </el-col>
-        <el-col :span="12">
-          <StopLossProfit
-            style="width: 168px"
-            type="stopProfit"
-            v-model:price="formState.stopProfit"
-            :volume="formState.volume"
-            :symbolInfo="symbolInfo"
-            :quote="quote"
-            :orderPrice="formState.orderPrice"
-            :orderType="formState.orderType"
-            :limitedPrice="formState.limitedPrice"
-          ></StopLossProfit>
-        </el-col>
-        <el-col
-          :span="24"
-          v-if="domVisableOption.dueDate.includes(formState.orderType)"
-        >
-          <Term v-model:term="formState.dueDate"></Term>
-        </el-col>
-        <el-col :span="24">
-          <Spread
-            :quote="quote"
-            :digits="symbolInfo?.digits"
-            :symbol="symbolInfo?.symbol"
-          ></Spread>
-        </el-col>
-        <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-          <el-tooltip :disabled="!tradeDisabled" placement="top">
-            <template #content>
-              <span>{{ t("tip.marketClosed") }}</span>
-            </template>
-            <el-button
-              class="sellBtn"
-              :disabled="tradeDisabled"
-              :loading="priceBtnLoading"
-              @click="showConfirmModal(1)"
-              >{{ t("order.sell") }}</el-button
+            <Price
+              v-model:value="formState.orderPrice"
+              :formOption="{
+                name: 'orderPrice',
+                label: `${
+                  formState.orderType.includes('Stop')
+                    ? t('dialog.breakPrice')
+                    : t('dialog.limitedPrice')
+                }`,
+              }"
+              :orderType="formState.orderType"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
             >
-          </el-tooltip>
-        </el-col>
-        <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
-          <el-tooltip :disabled="!tradeDisabled" placement="top">
-            <template #content>
-              <span>{{ t("tip.marketClosed") }}</span>
-            </template>
-            <el-button
-              class="buyBtn"
-              :loading="priceBtnLoading"
-              :disabled="tradeDisabled"
-              @click="showConfirmModal(0)"
-              >{{ t("order.buy") }}</el-button
-            >
-          </el-tooltip>
-        </el-col>
-        <el-col :span="24" v-if="!['price'].includes(formState.orderType)">
-          <el-tooltip :disabled="!tradeDisabled" placement="top">
-            <template #content>
-              <span>{{ t("tip.marketClosed") }}</span>
-            </template>
-            <el-button
-              :class="[
-                formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
-              ]"
-              class="pendingBtn"
-              :disabled="tradeDisabled"
-              :loading="pendingBtnLoading"
-              @click="addPendingOrders"
-              >{{ t("dialog.createOrder") }}</el-button
-            >
-          </el-tooltip>
-        </el-col>
-      </el-row>
-    </el-form>
+            </Price>
+          </el-col>
+          <el-col
+            :span="24"
+            v-if="domVisableOption.limitedPrice.includes(formState.orderType)"
+          >
+            <BreakLimit
+              v-model:value="formState.limitedPrice"
+              :orderPrice="formState.orderPrice"
+              :formOption="{
+                name: 'limitedPrice',
+                label: t('dialog.limitedPrice'),
+              }"
+              :orderType="formState.orderType"
+              :symbolInfo="symbolInfo"
+            ></BreakLimit>
+          </el-col>
+          <el-col :span="24">
+            <Volume
+              v-model:volume="formState.volume"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+              :formOption="{ name: 'volume', label: t('table.volume') }"
+              :orderType="formState.orderType"
+              :orderPrice="formState.orderPrice"
+              :limitedPrice="formState.limitedPrice"
+            ></Volume>
+          </el-col>
+          <el-col :span="12">
+            <StopLossProfit
+              style="width: 168px"
+              type="stopLoss"
+              v-model:price="formState.stopLoss"
+              :volume="formState.volume"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+              :orderPrice="formState.orderPrice"
+              :orderType="formState.orderType"
+              :limitedPrice="formState.limitedPrice"
+            ></StopLossProfit>
+          </el-col>
+          <el-col :span="12">
+            <StopLossProfit
+              style="width: 168px"
+              type="stopProfit"
+              v-model:price="formState.stopProfit"
+              :volume="formState.volume"
+              :symbolInfo="symbolInfo"
+              :quote="quote"
+              :orderPrice="formState.orderPrice"
+              :orderType="formState.orderType"
+              :limitedPrice="formState.limitedPrice"
+            ></StopLossProfit>
+          </el-col>
+          <el-col
+            :span="24"
+            v-if="domVisableOption.dueDate.includes(formState.orderType)"
+          >
+            <Term v-model:term="formState.dueDate"></Term>
+          </el-col>
+          <el-col :span="24">
+            <Spread
+              :quote="quote"
+              :digits="symbolInfo?.digits"
+              :symbol="symbolInfo?.symbol"
+            ></Spread>
+          </el-col>
+          <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
+            <el-tooltip :disabled="!tradeDisabled" placement="top">
+              <template #content>
+                <span>{{ t("tip.marketClosed") }}</span>
+              </template>
+              <el-button
+                class="sellBtn"
+                :disabled="tradeDisabled"
+                :loading="priceBtnLoading"
+                @click="showConfirmModal(1)"
+                >{{ t("order.sell") }}</el-button
+              >
+            </el-tooltip>
+          </el-col>
+          <el-col :span="12" v-if="['', 'price'].includes(formState.orderType)">
+            <el-tooltip :disabled="!tradeDisabled" placement="top">
+              <template #content>
+                <span>{{ t("tip.marketClosed") }}</span>
+              </template>
+              <el-button
+                class="buyBtn"
+                :loading="priceBtnLoading"
+                :disabled="tradeDisabled"
+                @click="showConfirmModal(0)"
+                >{{ t("order.buy") }}</el-button
+              >
+            </el-tooltip>
+          </el-col>
+          <el-col :span="24" v-if="!['price'].includes(formState.orderType)">
+            <el-tooltip :disabled="!tradeDisabled" placement="top">
+              <template #content>
+                <span>{{ t("tip.marketClosed") }}</span>
+              </template>
+              <el-button
+                :class="[
+                  formState.orderType.includes('sell') ? 'sellBtn' : 'buyBtn',
+                ]"
+                class="pendingBtn"
+                :disabled="tradeDisabled"
+                :loading="pendingBtnLoading"
+                @click="addPendingOrders"
+                >{{ t("dialog.createOrder") }}</el-button
+              >
+            </el-tooltip>
+          </el-col>
+        </el-row>
+      </el-form>
+    </div>
 
     <!-- 市价单下单确认 -->
     <div v-show="priceConfirm" class="confirmBox">
@@ -489,8 +491,8 @@ const handleCancel = () => {
 
 .order_dialog {
   pointer-events: auto;
-  max-height: 85vh;
-  overflow: auto;
+  // max-height: 85vh;
+  // overflow: auto;
 }
 
 .order_dialog_modal {
@@ -527,6 +529,13 @@ const handleCancel = () => {
   margin-bottom: 16px;
 }
 
+.formBox {
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0 -24px;
+  padding: 0 24px;
+}
 .orderTip {
   margin-top: 12px;
   line-height: 16px;

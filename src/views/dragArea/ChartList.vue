@@ -31,7 +31,7 @@
         v-for="({ id, symbol, interval }, index) in chartInitStore.state
           .chartWidgetList"
         v-show="activedId === id || chartType !== 'single'"
-        :ref="(el) => setChartRef(el, id)"
+        :ref="(el: any) => setChartRef(el, id)"
         :key="id + index"
         :id="id"
         :style="{ borderColor: getBorderColorStyle(id) }"

@@ -407,11 +407,12 @@ onUnmounted(() => {
 
 .Login {
   height: 100%;
-  width: 560px;
+  width: 558px;
   display: flex;
   flex-direction: column;
   padding: 32px 0;
   box-sizing: border-box;
+  margin-right: 2px;
 }
 .login_container {
   height: 100%;
