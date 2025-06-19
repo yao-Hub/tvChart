@@ -438,9 +438,9 @@ export default {
   scanCode: {
     refresh: "Refresh Code",
     title: "Mobile QR Code Login",
-    open: "Open",
-    place: ` the CTOTrader APP → Go to "Me" → `,
-    action: "Click the scan icon in the upper right corner.",
+    open: "",
+    place: `CTOTrader APP → Me → `,
+    action: "Scan (top right)",
     guide: "How to log in by scanning the QR code?",
     invalidCode: "The QR code has expired",
     waitConfirm: "Confirm on the app",

@@ -207,6 +207,16 @@ service.interceptors.response.use(
   },
   // 状态码!===200
   async (err) => {
+    const res = err.response;
+    if (res && (res.status === 401 || res.code === 401)) {
+      ElNotification({
+        message: t("invalid token"),
+        type: "error",
+      });
+      handleTokenErr();
+      return Promise.reject(err);
+    }
+
     if (err.config.urlType === "admin" && !err.config.isNotSaveDB) {
       const configData = JSON.parse(err.config.data);
       const ded = JSON.parse(decrypt(configData.d));
@@ -230,7 +240,6 @@ service.interceptors.response.use(
       }
     }
 
-    const res = err.response;
     if (err.code === "ECONNABORTED") {
       ElMessage.error("request timeout");
       return Promise.reject(err);
@@ -247,9 +256,9 @@ service.interceptors.response.use(
       });
       return Promise.reject(err);
     }
-    if (res && res.status) {
+    if (res && (res.status || res.code)) {
       ElNotification({
-        message: `statusCode: ${res.status}`,
+        message: `statusCode: ${res.status || res.code}`,
         type: "error",
       });
       return Promise.reject(err);
