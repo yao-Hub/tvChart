@@ -7,8 +7,8 @@ import { debounce } from "lodash";
 import Sortable from "sortablejs";
 
 interface IAttrItem {
-  inw: number;
-  inh: number;
+  inw?: number;
+  inh?: number;
   itemStyles: Record<string, string>;
   demoStyles: Record<string, string>;
 }
@@ -45,14 +45,22 @@ let startY: number;
 
 // 改变布局缓存 兼容旧版本
 const compatibleStoArr = () => {
-  let arrList: IAttrItem[] | null = storageStore.getItem("attr_2");
   const stoAttr = storageStore.getItem("attr");
-
-  // 存在旧版
-  if (!arrList && stoAttr) {
-    arrList = [{ ...stoAttr }];
+  const stoAttr_2 = storageStore.getItem("attr_2");
+  if (stoAttr) {
+    storageStore.setItem("attr_3", stoAttr);
+    storageStore.removeItem("attr");
   }
-  storageStore.setItem("attr_2", arrList);
+  if (stoAttr_2) {
+    const inw = window.innerWidth;
+    const inh = window.innerHeight;
+    const target = stoAttr_2.find(
+      (e: IAttrItem) => e.inw === inw && e.inh === inh
+    );
+    const lastAttr = stoAttr_2.pop();
+    storageStore.setItem("attr_3", target || lastAttr);
+    storageStore.removeItem("attr_2");
+  }
 };
 
 // 初始化拖拽实例
@@ -110,16 +118,10 @@ function initDragArea() {
     });
   }
   // 还原缓存的item样式
-  const inw = window.innerWidth;
-  const inh = window.innerHeight;
-  const attr: IAttrItem[] | null = storageStore.getItem("attr_2");
-  let targetAttr = null;
+  const attr: IAttrItem | null = storageStore.getItem("attr_3");
   if (attr) {
-    targetAttr = attr.find((e) => e.inw === inw && e.inh === inh);
-  }
-  const dragArea_items = document.querySelectorAll(".dragArea_item");
-  if (targetAttr) {
-    const itemStyles = targetAttr.itemStyles;
+    const dragArea_items = document.querySelectorAll(".dragArea_item");
+    const itemStyles = attr.itemStyles;
     dragArea_items.forEach((item) => {
       const itemId = item.getAttribute("data-id");
       if (itemId) {
@@ -127,6 +129,7 @@ function initDragArea() {
         item.setAttribute("style", style);
       }
     });
+    resizeUpdate();
   } else {
     setDragAreaSize();
   }
@@ -137,10 +140,9 @@ function setDragAreaSize() {
   const dragArea = document.querySelector(".dragArea");
   if (dragArea) {
     const dragItems = document.querySelectorAll(".dragArea_item");
-    const dh =
-      dragArea.getBoundingClientRect().height -
-      lineWidth * (dragItems.length - 1);
-    const dw = dragArea.getBoundingClientRect().width;
+    const dragAreaRect = dragArea.getBoundingClientRect();
+    const dh = dragAreaRect.height - lineWidth * (dragItems.length - 1);
+    const dw = dragAreaRect.width;
 
     // 先平分
     dragItems.forEach((item, index, arr) => {
@@ -194,16 +196,10 @@ function setDragAreaSize() {
 // 初始化demo宽高
 function initDemosPosition() {
   // 还原缓存的demo样式
-  const inw = window.innerWidth;
-  const inh = window.innerHeight;
-  const attr: IAttrItem[] | null = storageStore.getItem("attr_2");
-  let targetAttr = null;
-  if (attr) {
-    targetAttr = attr.find((e) => e.inw === inw && e.inh === inh);
-  }
+  const attr: IAttrItem | null = storageStore.getItem("attr_3");
   const demos = document.querySelectorAll(".demo");
-  if (targetAttr) {
-    const demoStyles = targetAttr.demoStyles;
+  if (attr) {
+    const demoStyles = attr.demoStyles;
     demos.forEach((item) => {
       const itemId = item.getAttribute("data-id");
       if (itemId) {
@@ -211,6 +207,7 @@ function initDemosPosition() {
         item.setAttribute("style", style);
       }
     });
+    resizeUpdate();
   } else {
     setDemoPosition();
   }
@@ -785,41 +782,31 @@ function resizeSetDemo() {
   });
 }
 
-export const refreshLayout = debounce(() => {
-  compatibleStoArr();
-  setDragAreaSize();
-  setDemoPosition();
-  operaHoriLine();
-  operaVertLine();
-  rememberAttr();
-}, 20);
+export const refreshLayout = () => {
+  requestAnimationFrame(() => {
+    setDragAreaSize();
+    setDemoPosition();
+    operaHoriLine();
+    operaVertLine();
+    rememberAttr();
+  });
+};
 
-export const resizeUpdate = debounce(() => {
-  compatibleStoArr();
-  resizeSetItem();
-  resizeSetDemo();
-  operaHoriLine();
-  operaVertLine();
-  rememberAttr();
-}, 20);
+export const resizeUpdate = () => {
+  requestAnimationFrame(() => {
+    resizeSetItem();
+    resizeSetDemo();
+    operaHoriLine();
+    operaVertLine();
+    rememberAttr();
+  });
+};
 
 // 记住拉伸的样式
 const deSaveAttr = debounce((value: IAttrItem) => {
-  const stoAttr: IAttrItem[] = storageStore.getItem("attr_2") || [];
-  const index = stoAttr.findIndex(
-    (e) => e.inw === value.inw && e.inh === value.inh
-  );
-
-  if (index === -1) {
-    stoAttr.push(value);
-  } else {
-    Object.assign(stoAttr[index], value);
-  }
-  storageStore.setItem("attr_2", stoAttr);
+  storageStore.setItem("attr_3", value);
 }, 200);
 function rememberAttr() {
-  const inw = window.innerWidth;
-  const inh = window.innerHeight;
   const itemStyles: Record<string, any> = {};
   // 记住上下区域的高度
   const dragAreaItem = document.querySelectorAll(".dragArea_item");
@@ -840,8 +827,6 @@ function rememberAttr() {
     }
   });
   const result = {
-    inw,
-    inh,
     itemStyles,
     demoStyles,
   };
