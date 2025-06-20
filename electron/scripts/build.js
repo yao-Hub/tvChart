@@ -11,21 +11,21 @@ function main() {
   console.log("mode---->", mode);
   runCommand(`vite build --mode ${mode}`);
   if (isWindows) {
-    // console.log('\n', '/*********************** win7 ***********************/', '\n');
-    // runCommand('electron-builder --config electron/scripts/config/windows/x64-win7.js');
-    // console.log('\n', '/*********************** win7打包完成 ***********************/', '\n');
-
     console.log('\n', '/*********************** windows ***********************/', '\n');
-    runCommand('electron-builder --config electron/scripts/config/windows/x64-common.js');
+    runCommand('electron-builder --config electron/scripts/config/windows/common.js');
     console.log('\n', '/*********************** windows打包完成 ***********************/', '\n');
   } else {
     // console.log('\n', '/*********************** macOSx64 ***********************/', '\n');
     // runCommand('electron-builder --config electron/scripts/config/macOS/x64.js');
     // console.log('\n', '/*********************** macOSx64打包完成***********************/', '\n');
 
-    console.log('\n', '/*********************** macOSarm64 ***********************/', '\n');
-    runCommand('electron-builder --config electron/scripts/config/macOS/arm64.js');
-    console.log('\n', '/*********************** macOSarm64打包完成 ***********************/', '\n');
+    // console.log('\n', '/*********************** macOSarm64 ***********************/', '\n');
+    // runCommand('electron-builder --config electron/scripts/config/macOS/arm64.js');
+    // console.log('\n', '/*********************** macOSarm64打包完成 ***********************/', '\n');
+
+    console.log('\n', '/*********************** macOS common ***********************/', '\n');
+    runCommand('electron-builder --config electron/scripts/config/macOS/common.js');
+    console.log('\n', '/*********************** macOS common打包完成 ***********************/', '\n');
   }
 }
 

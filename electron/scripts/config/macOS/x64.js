@@ -18,14 +18,8 @@ module.exports.default = {
   files: ["dist/**/*", "electron/**/*"],
   mac: {
     target: [
-      {
-        target: "dmg",
-        arch: ["x64"],
-      },
-      {
-        target: 'pkg',
-        arch: ["x64"],
-      }
+      { target: "dmg", arch: ["x64"] },
+      { target: 'pkg', arch: ["x64"] }
     ],
     artifactName: "${productName}-Mac-${version}-x64.${ext}",
     icon: "build/icons/logo_512.png",
