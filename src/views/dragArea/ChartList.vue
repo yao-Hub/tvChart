@@ -119,7 +119,7 @@ const getBorderColorStyle = (id: string) => {
     return "transparent";
   }
   if (chartInitStore.state.activeChartId === id) {
-    return "#F4B201";
+    return "rgba(244, 178, 1, 0.5)";
   }
   return "transparent";
 };
