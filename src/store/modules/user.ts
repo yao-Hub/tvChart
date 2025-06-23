@@ -367,9 +367,7 @@ export const useUser = defineStore("user", () => {
         day: dayjs().format("YYYY.MM.DD"),
       };
       logIndexedDB.addData(logData);
-      // changeCurrentAccountOption({
-      //   ifLogin: false,
-      // });
+      changeCurrentAccountOption({ token: "" });
     }
   };
 

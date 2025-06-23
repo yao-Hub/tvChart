@@ -10,10 +10,7 @@
       <Language></Language>
     </div>
     <router-view v-slot="{ Component }">
-      <div
-        class="home-container"
-        :style="{ right: showArticle ? '5%' : '15%' }"
-      >
+      <div class="home-container">
         <transition :name="direction" mode="out-in" appear>
           <div class="main" :key="route.path">
             <component :is="Component" />
@@ -88,6 +85,7 @@ watch(
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 @import "./form.scss";
+@import "./media.scss";
 
 .loginBg {
   position: fixed;
@@ -156,6 +154,7 @@ watch(
     }
   }
 }
+
 /* 前进动画 */
 .slide-forward-enter-active,
 .slide-forward-leave-active {
@@ -182,55 +181,6 @@ watch(
 .slide-backward-leave-to {
   opacity: 0;
   transform: translateX(100%);
-}
-
-// < 1200px
-@media screen and (max-width: 1200px) {
-  .welcome {
-    top: 12%;
-    left: 72px;
-    font-size: 24px;
-  }
-}
-
-// 1200px - 1600px
-@media screen and (min-width: 1200px) and (max-width: 1600px) {
-  .welcome {
-    top: 12%;
-    left: 72px;
-    font-size: 36px;
-  }
-}
-
-// 1201px - 1660px
-@media screen and (min-width: 1600px) and (max-width: 1660px) {
-  .welcome {
-    top: 17%;
-    left: 72px;
-    font-size: 40px;
-  }
-}
-
-// >= 1660px
-@media screen and (min-width: 1660px) {
-  .welcome {
-    top: 17%;
-    left: 12%;
-    font-size: 40px;
-  }
-}
-
-@media screen and (min-width: 601px) and (max-width: 1400px) {
-  .home-container {
-    transform: scale(0.9);
-  }
-}
-
-/* 屏幕宽度大于1400px时的样式 */
-@media screen and (min-width: 1400px) {
-  .home-container {
-    transform: scale(1);
-  }
 }
 </style>
 

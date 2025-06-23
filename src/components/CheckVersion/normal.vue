@@ -1,15 +1,15 @@
 <template>
   <div class="header">
     <span class="title">{{ t("update.versionUpdate") }}</span>
-    <BaseImg class="image" iconName="update" imgSuffix="png" catalog="images" />
+    <BaseImg iconName="update" imgSuffix="png" catalog="images" />
   </div>
   <el-text type="info" class="tip">{{
-    t("update.versionHasReleased", { version: versionInfo?.version })
+    t("update.versionHasReleased", { version: nowVersion })
   }}</el-text>
 
-  <el-scrollbar class="versionDetail">
+  <div class="versionDetail scrollList">
     <el-text type="info">{{ versionInfo?.tips }} </el-text>
-  </el-scrollbar>
+  </div>
 
   <div class="footer">
     <el-button @click="closeDialog">{{ t("close") }}</el-button>
@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import { useUpdateVersion } from "./useUpdateVersion";
 
-const { t, closeDialog, update, versionInfo } = useUpdateVersion();
+const { t, closeDialog, update, versionInfo, nowVersion } = useUpdateVersion();
 </script>
 
 <style lang="scss" scoped>
@@ -35,7 +35,7 @@ const { t, closeDialog, update, versionInfo } = useUpdateVersion();
     font-weight: 500;
     font-size: 24px;
   }
-  .image {
+  .update {
     position: absolute;
     right: 0;
     transform: translateY(-50%);
@@ -49,9 +49,11 @@ const { t, closeDialog, update, versionInfo } = useUpdateVersion();
 }
 .versionDetail {
   margin: 32px 0;
-  max-height: 269px;
   white-space: pre-wrap;
   line-height: 24px;
+  min-height: 72px;
+  max-height: 264px;
+  overflow-y: auto;
 }
 .footer {
   display: flex;

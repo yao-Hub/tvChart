@@ -5,7 +5,7 @@
     v-bind="svgAttributes"
     v-html="iconSvgContent"
   ></svg>
-  <img v-else :src="iconSrc" />
+  <img v-else :src="iconSrc" :class="[props.iconName]" />
 </template>
 
 <script setup lang="ts">

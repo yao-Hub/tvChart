@@ -9,6 +9,10 @@ export function useUpdateVersion() {
 
   const versionInfo = computed(() => useVersion().versionInfo);
 
+  const nowVersion = computed(() => {
+    return useVersion().versionInfo?.version || _VERSION_;
+  });
+
   const closeDialog = () => {
     useDialog().closeDialog("updateVersionVisible");
   };
@@ -22,5 +26,5 @@ export function useUpdateVersion() {
       );
     }
   };
-  return { t, closeDialog, update, versionInfo };
+  return { t, closeDialog, update, versionInfo, nowVersion };
 }

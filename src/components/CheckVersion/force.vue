@@ -2,11 +2,9 @@
   <div class="force">
     <BaseImg iconName="icon_cue" imgSuffix="png"></BaseImg>
     <el-text>{{ t("update.mustUpdate") }}</el-text>
-    <el-scrollbar height="160px" class="scrollBar">
-      <div class="box">
-        <el-text type="info">{{ versionInfo?.tips }} </el-text>
-      </div>
-    </el-scrollbar>
+    <div class="box scrollList">
+      <el-text type="info">{{ versionInfo?.tips }}</el-text>
+    </div>
     <el-button type="primary" class="updateBtn" @click="update">{{
       t("update.updateNow")
     }}</el-button>
@@ -39,14 +37,14 @@ const { t, update, versionInfo } = useUpdateVersion();
   line-height: 24px;
   padding: 16px;
   box-sizing: border-box;
-}
-.scrollBar {
-  width: 100%;
   @include background_color("background");
   @include border_color("border");
   border: 1px solid;
   border-radius: 4px;
   margin: 24px 0;
+  min-height: 72px;
+  max-height: 160px;
+  overflow-y: auto;
 }
 .updateBtn {
   width: 100%;
