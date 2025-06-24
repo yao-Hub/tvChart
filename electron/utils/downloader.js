@@ -1,7 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 const { net, ipcMain } = require("electron");
-const { dialog } = require('electron');
 
 class Downloader {
   constructor(app, mainWindow) {

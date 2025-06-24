@@ -2,6 +2,24 @@ const { exec } = require('child_process');
 const os = require('os');
 const fs = require('fs');
 
+const commandOptions = {
+  uuid: {
+    win32: `powershell -Command "Get-WmiObject Win32_ComputerSystemProduct | Select-Object -ExpandProperty UUID"`,
+    darwin: 'ioreg -rd1 -c IOPlatformExpertDevice | grep IOPlatformUUID',
+    linux: ['/var/lib/dbus/machine-id', '/etc/machine-id']
+  },
+  manufacturer: {
+    win32: `powershell -Command "Get-WmiObject Win32_ComputerSystem | Select-Object -ExpandProperty Manufacturer"`,
+    darwin: 'system_profiler SPHardwareDataType | grep "Manufacturer"',
+    linux: 'dmidecode -s system-manufacturer'
+  },
+  model: {
+    win32: `powershell -Command "Get-WmiObject Win32_ComputerSystem | Select-Object -ExpandProperty Model"`,
+    darwin: 'system_profiler SPHardwareDataType | grep "Model Name"',
+    linux: '/sys/class/dmi/id/product_name'
+  }
+};
+
 /**
  * 获取设备唯一标识符
  */
@@ -11,17 +29,16 @@ function getDeviceUUID() {
 
     if (platform === 'win32') {
       // Windows: 获取主板序列号
-      exec('wmic csproduct get uuid', (error, stdout) => {
+      exec(commandOptions.uuid.win32, (error, stdout) => {
         if (error) {
           reject(error);
           return;
         }
-        const uuid = stdout.toString().split('\n')[1].trim();
-        resolve(uuid);
+        resolve(stdout.toString().trim());
       });
     } else if (platform === 'darwin') {
       // macOS: 获取硬件 UUID
-      exec('ioreg -rd1 -c IOPlatformExpertDevice | grep IOPlatformUUID', (error, stdout) => {
+      exec(commandOptions.uuid.darwin, (error, stdout) => {
         if (error) {
           reject(error);
           return;
@@ -31,22 +48,20 @@ function getDeviceUUID() {
       });
     } else if (platform === 'linux') {
       // Linux: 读取机器 ID
-      const machineIdPath = '/var/lib/dbus/machine-id';
-      fs.readFile(machineIdPath, 'utf8', (error, data) => {
-        if (error) {
-          // 尝试备用路径
-          const altPath = '/etc/machine-id';
-          fs.readFile(altPath, 'utf8', (err, altData) => {
-            if (err) {
-              reject(err);
+      const readMachineId = (path, fallbackPath) => {
+        fs.readFile(path, 'utf8', (err, data) => {
+          if (err) {
+            if (fallbackPath) {
+              readMachineId(fallbackPath, null);
             } else {
-              resolve(altData.trim());
+              reject(err);
             }
-          });
-        } else {
-          resolve(data.trim());
-        }
-      });
+          } else {
+            resolve(data.trim());
+          }
+        });
+      };
+      readMachineId(...commandOptions.uuid.linux);
     } else {
       reject(new Error('Unsupported platform'));
     }
@@ -58,16 +73,15 @@ function getDeviceManufacturer() {
   return new Promise((resolve, reject) => {
     const platform = os.platform();
     if (platform === 'win32') {
-      exec('wmic computersystem get manufacturer', (error, stdout) => {
+      exec(commandOptions.manufacturer.win32, (error, stdout) => {
         if (error) {
           reject(error);
           return;
         }
-        const manufacturer = stdout.trim().split('\n')[1]; // 过滤标题行
-        resolve(manufacturer);
+        resolve(stdout.toString().trim());
       });
     } else if (platform === 'darwin') {
-      exec('system_profiler SPHardwareDataType | grep "Manufacturer"', (error, stdout) => {
+      exec(commandOptions.manufacturer.darwin, (error, stdout) => {
         if (error) {
           reject(error);
           return;
@@ -76,7 +90,7 @@ function getDeviceManufacturer() {
         resolve(manufacturer);
       });
     } else if (platform === 'linux') {
-      exec('dmidecode -s system-manufacturer', (error, stdout) => {
+      exec(commandOptions.manufacturer.linux, (error, stdout) => {
         if (error) {
           reject(error);
           return;
@@ -100,17 +114,16 @@ function getDeviceModel() {
 
     if (platform === 'win32') {
       // Windows: 获取系统型号
-      exec('wmic computersystem get model', (error, stdout) => {
+      exec(commandOptions.model.win32, (error, stdout) => {
         if (error) {
           reject(error);
           return;
         }
-        const model = stdout.toString().split('\n')[1].trim();
-        resolve(model);
+        resolve(stdout.toString().trim());
       });
     } else if (platform === 'darwin') {
       // macOS: 获取型号信息
-      exec('system_profiler SPHardwareDataType | grep "Model Name"', (error, stdout) => {
+      exec(commandOptions.model.darwin, (error, stdout) => {
         if (error) {
           reject(error);
           return;
@@ -120,8 +133,7 @@ function getDeviceModel() {
       });
     } else if (platform === 'linux') {
       // Linux: 读取产品名称
-      const modelPath = '/sys/class/dmi/id/product_name';
-      fs.readFile(modelPath, 'utf8', (error, data) => {
+      fs.readFile(commandOptions.model.linux, 'utf8', (error, data) => {
         if (error) {
           reject(error);
         } else {

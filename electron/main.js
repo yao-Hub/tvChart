@@ -49,11 +49,25 @@ function createWindow(name, hash, screenWidth) {
     y: windowState.y,
     minWidth: 1110,
     minHeight: 640,
+    show: false,  // 先隐藏窗口
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
       nodeIntegration: false, // 禁用 Node.js 集成（推荐false）
     },
+  });
+
+  // 监听窗口大小变化
+  windowStateManager.registerScreenSizeHandlers(windowsMap[name]);
+
+  // 恢复最大化状态（如果有）
+  if (windowState.isMaximized) {
+    windowsMap[name].maximize();
+  }
+
+  // 显示窗口（避免从普通状态切到最大化时的闪烁）
+  windowsMap[name].once('ready-to-show', () => {
+    windowsMap[name].show();
   });
 
   windowsMap[name].setMenuBarVisibility(false);
@@ -79,10 +93,6 @@ function createWindow(name, hash, screenWidth) {
 
   // 窗口监听关闭
   windowsMap[name].on('close', async (event) => {
-    // 缓存窗口位置和尺寸
-    const bounds = windowsMap[name].getBounds();
-    windowStateManager.saveState(bounds);
-
     // 主窗口关闭
     if (downloader && downloader.activeDownload && name === "mainWindow") {
       const { shutdown,

@@ -37,7 +37,7 @@
 // < 1400px
 @media screen and (max-width: 1400px) {
   .home-container {
-    transform: scale(0.9);
+    top: 20%;
     right: 5%;
   }
 }
@@ -45,15 +45,15 @@
 // 1400px - 1920px
 @media screen and (min-width: 1400px) and (max-width: 1920px) {
   .home-container {
-    transform: scale(1);
+    top: 15%;
     right: 5%;
   }
 }
 
-// >= 1920px
-@media screen and (min-width: 1920px) {
+// > 1920px
+@media screen and (min-width: 1921px) {
   .home-container {
-    transform: scale(1);
+    top: 15%;
     right: 10%;
   }
 }

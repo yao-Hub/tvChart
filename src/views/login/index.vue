@@ -133,7 +133,6 @@ watch(
   }
   .home-container {
     position: fixed;
-    top: 15%;
     max-height: 648px;
     height: 70%;
     transition: all 0.5s ease;

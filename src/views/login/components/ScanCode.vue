@@ -19,8 +19,6 @@
               level="H"
               :image-settings="imageSettings"
             />
-            <!-- 覆盖中心logo -->
-            <img class="scanCodeLogo" src="@/assets/icons/scanCodeLogo.svg" />
           </div>
           <div class="status" v-if="qrcodeStore.codeType === 'expire'">
             <span class="expireWord">{{ t("scanCode.invalidCode") }}</span>
@@ -47,8 +45,8 @@
           :style="{
             opacity: ifGuide ? 1 : 0,
             transform: ifGuide
-              ? 'translate(-94%, -49%) scale(0.75)'
-              : 'translate(-50%, -50%) scale(0.75)',
+              ? 'translate(-95%, -50%) scale(0.75)'
+              : 'translate(-50%, -50%)',
             zIndex: qrcodeStore.codeType !== 'expire' && ifGuide ? 9 : -1,
           }"
         >

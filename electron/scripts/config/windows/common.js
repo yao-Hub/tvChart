@@ -23,7 +23,7 @@ module.exports.default = {
         arch: ['x64']
       }
     ],
-    artifactName: '${productName}-Windows-${version}.${ext}',
+    artifactName: '${productName}-Windows-${version}-x64.${ext}',
     icon: 'build/icons/logo.png'
   },
   nsis: {

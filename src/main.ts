@@ -19,6 +19,13 @@ import { changeElementPlusMessageIcon } from "./utils/ElementPlus";
 
 import plugins from "@/plugins";
 const bootstrap = () => {
+  // 初始化log数据库
+  initLogDB();
+
+  // 初始化adminhttp数据库
+  initAdminHttpDB();
+
+  // 修改ElementPlus的Message组件图标
   changeElementPlusMessageIcon();
 
   const app = createApp(App);
@@ -36,16 +43,12 @@ const bootstrap = () => {
     app.use(plugin);
   });
 
+  // 注册ElementPlus的图标组件
   for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
     app.component(key, component);
   }
 
   app.mount("#app");
-
-  // 初始化log数据库
-  initLogDB();
-  // 初始化adminhttp数据库
-  initAdminHttpDB();
 };
 
 // 启动

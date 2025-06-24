@@ -70,7 +70,9 @@ export const useSystem = defineStore("system", () => {
     // 桌面应用拿操作系统信息
     if (process.env.IF_ELECTRON) {
       const info: any = await window.electronAPI.invoke("get-system-info");
-      try {
+      if (info.error) {
+        console.error("获取系统信息失败:", JSON.stringify(info.error));
+      } else {
         const { uuid, model, os, release, manufacturer } = info;
         systemInfo.value = {
           deviceId: uuid,
@@ -80,8 +82,6 @@ export const useSystem = defineStore("system", () => {
           deviceInfo: release,
         };
         return;
-      } catch (error) {
-        console.error("Failed to get device info:", error, info);
       }
     }
     // 浏览器拿浏览器信息
