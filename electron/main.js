@@ -61,7 +61,7 @@ function createWindow(name, hash, screenWidth) {
   windowStateManager.registerScreenSizeHandlers(windowsMap[name]);
 
   // 恢复最大化状态（如果有）
-  if (windowState.isMaximized) {
+  if (windowState && windowState.isMaximized) {
     windowsMap[name].maximize();
   }
 

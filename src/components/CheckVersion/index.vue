@@ -9,6 +9,7 @@
     :close-on-press-escape="false"
     :close-on-click-modal="false"
     align-center
+    style="padding: 48px 32px"
   >
     <component :is="stausMap[status]" />
   </el-dialog>

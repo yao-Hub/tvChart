@@ -134,7 +134,8 @@ watch(
   .home-container {
     position: fixed;
     max-height: 648px;
-    top: 15%;
+    top: 50%;
+    transform: translateY(-50%);
     height: 70%;
     transition: all 0.5s ease;
     .main {

@@ -26,7 +26,6 @@ const { t, closeDialog, nowVersion } = useUpdateVersion();
 .update_logo {
   width: 64px;
   height: 64px;
-  margin-bottom: 16px;
 }
 .tip {
   margin: 16px 0 24px 0;

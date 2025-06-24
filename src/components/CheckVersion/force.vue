@@ -1,7 +1,7 @@
 <template>
   <div class="force">
     <BaseImg iconName="icon_cue" imgSuffix="png"></BaseImg>
-    <el-text>{{ t("update.mustUpdate") }}</el-text>
+    <el-text style="font-size: 18px">{{ t("update.mustUpdate") }}</el-text>
     <div class="box scrollList">
       <el-text type="info">{{ versionInfo?.tips }}</el-text>
     </div>
@@ -37,7 +37,6 @@ const { t, update, versionInfo } = useUpdateVersion();
   line-height: 24px;
   padding: 16px;
   box-sizing: border-box;
-  @include background_color("background");
   @include border_color("border");
   border: 1px solid;
   border-radius: 4px;
