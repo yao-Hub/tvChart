@@ -134,6 +134,7 @@ watch(
   .home-container {
     position: fixed;
     max-height: 648px;
+    top: 15%;
     height: 70%;
     transition: all 0.5s ease;
     .main {
