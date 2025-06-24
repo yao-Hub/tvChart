@@ -19,11 +19,11 @@ module.exports.default = {
   mac: {
     target: [
       { target: "dmg", arch: ["x64"] },
-      { target: 'pkg', arch: ["x64"] }
+      { target: 'mas', arch: ['arm64'] },
     ],
-    artifactName: "${productName}-Mac-${version}-x64.${ext}",
+    artifactName: '${productName}-Mac-${version}-${arch}.${ext}',
     icon: "build/icons/logo_512.png",
-    
+
     // 生产环境
     identity: "Apple Distribution: Furong Uptech Solution Co., Limited (D322KZZJ5C)",
     provisioningProfile: "build/CTOTrader_Mac_Prod.provisionprofile",
