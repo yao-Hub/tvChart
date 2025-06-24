@@ -63,7 +63,7 @@ const showArticle = computed(() => {
   return checkPath(path);
 });
 
-const direction = ref("slide-forward");
+const direction = ref("");
 watch(
   () => router.currentRoute.value,
   (to, from) => {
