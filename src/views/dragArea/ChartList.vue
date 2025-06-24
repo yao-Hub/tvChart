@@ -1,7 +1,7 @@
 <template>
   <div
     class="charts"
-    :style="{ paddingLeft: chartType === 'single' ? '0' : '16px' }"
+    :style="{ paddingLeft: chartType === 'single' ? '4px' : '16px' }"
   >
     <HorizontalScrolling
       v-if="chartType === 'single'"
