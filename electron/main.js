@@ -44,6 +44,7 @@ function createWindow(name, hash, screenWidth) {
   const windowStateManager = new WindowStateManager(name);
   windowStateManager.setDefaultSize(renderWidth, renderHight);
   const windowState = windowStateManager.getState();
+  const ifInitHide = windowState && windowState.isMaximized;
 
   // 初始化主题色
   let systemTheme = "dark";
@@ -65,7 +66,7 @@ function createWindow(name, hash, screenWidth) {
     y: windowState.y,
     minWidth: 1110,
     minHeight: 640,
-    show: false,  // 先隐藏窗口
+    show: !ifInitHide,  // 如果是最大化先隐藏窗口
     backgroundColor: bgOptions[systemTheme], // ready-to-show之前显示的背景
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
