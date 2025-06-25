@@ -85,7 +85,7 @@ onUnmounted(() => {
 @import "@/styles/_handle.scss";
 
 .deep {
-  @include background-color("tabActive");
+  @include background-color("background-component");
   margin: 0 10px;
   padding: 8px;
   display: flex;

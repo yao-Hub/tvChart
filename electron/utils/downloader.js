@@ -98,6 +98,7 @@ class Downloader {
     let tmpPath;
     let receivedBytes = 0;
     let totalBytes = 0;
+    let nowProgress = 0;
 
     // 下载地址
     const filename = path.basename(new URL(downloadUrl).pathname);
@@ -159,12 +160,13 @@ class Downloader {
           }
         });
 
+        // 当前进度 并发送到主窗口
+        nowProgress = (receivedBytes / totalBytes).toFixed(2);
+        this.mainWindow.setProgressBar(Math.min(+nowProgress, 1));
+
         // 实时发送进度
         event.sender.send("download-progress", {
-          progress: Math.min(
-            +((receivedBytes / totalBytes) * 100).toFixed(2),
-            99
-          ),
+          progress: Math.min(+nowProgress * 100, 99),
           received: receivedBytes,
           total: totalBytes,
         });
@@ -186,6 +188,7 @@ class Downloader {
     request.on("error", (error) => {
       fs.unlink(tmpPath, () => { });
       event.sender.send("download-error", error);
+      this.mainWindow.setProgressBar(Math.min(+nowProgress, 1), { mode: "error" });
     });
 
     // 设置Range请求头（实现断点续传）

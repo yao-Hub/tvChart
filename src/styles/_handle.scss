@@ -58,26 +58,38 @@
 // 字体颜色
 @mixin font_color($color) {
   @include themeify {
-    color: themed($color);
+    $color-value: themed($color);
+    @if $color-value != null and $color-value != "" {
+      color: $color-value;
+    }
   }
 }
 
 // 边框颜色
 @mixin border_color($color) {
   @include themeify {
-    border-color: themed($color);
+    $color-value: themed($color);
+    @if $color-value != null and $color-value != "" {
+      border-color: $color-value;
+    }
   }
 }
 
 // 背景颜色
 @mixin background_color($color) {
   @include themeify {
-    background-color: themed($color);
+    $color-value: themed($color);
+    @if $color-value != null and $color-value != "" {
+      background-color: $color-value;
+    }
   }
 }
 
 @mixin box_shadow() {
   @include themeify {
-    box-shadow: themed("box-shadow");
+    $shadow-value: themed("box-shadow");
+    @if $shadow-value != null and $shadow-value != "" {
+      box-shadow: $shadow-value;
+    }
   }
 }

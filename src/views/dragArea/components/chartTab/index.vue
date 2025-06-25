@@ -181,7 +181,7 @@ const resoluteItemSelect = (key: number) => {
   min-height: var(--component-size);
   align-items: center;
   gap: 8px;
-  @include background_color("background");
+  @include background_color("background-container");
   box-sizing: border-box;
 }
 .tabActive {

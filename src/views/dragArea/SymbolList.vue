@@ -2,6 +2,7 @@
   <div class="symbolList">
     <div class="header">
       <el-input
+        class="symbolList-input"
         v-model="input"
         :placeholder="t('tip.searchSymbol')"
         @click="ifSearch = true"
@@ -372,9 +373,14 @@ const changeMode = () => {
 };
 </script>
 
+<style lang="scss">
+@import "@/styles/_handle.scss";
+.symbolList-input .el-input__wrapper {
+  @include background_color("background-container");
+}
+</style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
 :deep(.el-table td.el-table__cell div) {
   box-sizing: border-box;
   word-wrap: break-word;

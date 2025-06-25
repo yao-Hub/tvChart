@@ -1,5 +1,6 @@
 const { app, BrowserWindow, screen, Menu, ipcMain, dialog, nativeTheme } = require('electron');
 const path = require('path');
+const fs = require('fs');
 
 const { getDeviceInfo } = require('./utils/systemInfo');
 const Downloader = require('./utils/downloader');
@@ -24,6 +25,9 @@ ipcMain.on('set-translations', (event, translations) => {
 // 尝试获取单实例锁
 const gotTheLock = app.requestSingleInstanceLock();
 
+// 主题文件缓存路径
+const systemCachePath = path.join(app.getPath('userData'), `systemCache.json`);
+
 // 创建窗口
 function createWindow(name, hash, screenWidth) {
 
@@ -41,6 +45,18 @@ function createWindow(name, hash, screenWidth) {
   windowStateManager.setDefaultSize(renderWidth, renderHight);
   const windowState = windowStateManager.getState();
 
+  // 初始化主题色
+  let systemTheme = "dark";
+  const bgOptions = {
+    light: '#fff',
+    dark: '#17181A'
+  };
+  if (fs.existsSync(systemCachePath)) {
+    const systemData = fs.readFileSync(systemCachePath, 'utf8');
+    systemTheme = JSON.parse(systemData).systemTheme || 'dark';
+  }
+  nativeTheme.themeSource = systemTheme;
+
   // 创建浏览器窗口
   windowsMap[name] = new BrowserWindow({
     width: windowState.width,
@@ -50,15 +66,13 @@ function createWindow(name, hash, screenWidth) {
     minWidth: 1110,
     minHeight: 640,
     show: false,  // 先隐藏窗口
+    backgroundColor: bgOptions[systemTheme], // ready-to-show之前显示的背景
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
       nodeIntegration: false, // 禁用 Node.js 集成（推荐false）
     },
   });
-
-  // 监听窗口大小变化
-  windowStateManager.registerScreenSizeHandlers(windowsMap[name]);
 
   // 恢复最大化状态（如果有）
   if (windowState && windowState.isMaximized) {
@@ -70,7 +84,10 @@ function createWindow(name, hash, screenWidth) {
     windowsMap[name].show();
   });
 
-  windowsMap[name].setMenuBarVisibility(false);
+  // 监听窗口大小变化
+  windowStateManager.registerScreenSizeHandlers(windowsMap[name]);
+
+  windowsMap[name].setMenuBarVisibility(false); // Windows Linux 设置菜单栏是否可见
 
   // 在 macOS 系统中全局去除菜单栏
   if (process.platform === 'darwin') {
@@ -142,6 +159,8 @@ ipcMain.handle('get-system-info', async () => {
 // 改变系统主题
 ipcMain.handle('dark-mode:toggle', (event, theme) => {
   nativeTheme.themeSource = theme;
+  const saveState = JSON.stringify({ systemTheme: theme });
+  fs.writeFileSync(systemCachePath, saveState, 'utf8');
 });
 
 /**** 启动应用 ****/
