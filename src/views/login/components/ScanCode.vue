@@ -47,7 +47,7 @@
             transform: ifGuide
               ? 'translate(-95%, -50%) scale(0.75)'
               : 'translate(-50%, -50%)',
-            zIndex: qrcodeStore.codeType !== 'expire' && ifGuide ? 9 : -1,
+            zIndex: ifGuide ? 9 : -1,
           }"
         >
           <img src="@/assets/images/guide.png" />

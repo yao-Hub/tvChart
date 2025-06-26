@@ -158,7 +158,7 @@ service.interceptors.response.use(
     // 解析请求数据
     const configData = JSON.parse(config.data);
     const ded = JSON.parse(decrypt(configData.d));
-    const { req_id, req_time, ...reqData } = ded;
+    const { req_id, req_time, token, ...reqData } = ded;
     const stoReqData = encrypt(JSON.stringify(reqData));
 
     if (resData.err === 0 || resData.code === 0) {
@@ -219,7 +219,7 @@ service.interceptors.response.use(
     if (err.config.urlType === "admin" && !err.config.isNotSaveDB) {
       const configData = JSON.parse(err.config.data);
       const ded = JSON.parse(decrypt(configData.d));
-      const { req_id, req_time, ...reqData } = ded;
+      const { req_id, req_time, token, ...reqData } = ded;
       const stoReqData = encrypt(JSON.stringify(reqData));
       const searchData = { url: err.config.url!, reqData: stoReqData };
       const stoData: any = await adminHttpIndexedDB.findByCondition(searchData);

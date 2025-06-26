@@ -73,7 +73,8 @@ const router = useRouter();
 eventBus.on("go-login", () => {
   const login = userStore.account.login;
   const server = userStore.account.server;
-  router.push({
+  userStore.changeCurrentAccountOption({ token: "" }); // 清除token
+  router.replace({
     path: PageEnum.LOGIN_HOME,
     query: { login, server },
   });
