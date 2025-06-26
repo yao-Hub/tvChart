@@ -305,7 +305,7 @@ const ifSimulatedServer = computed(() => {
 
 const happyStart = async (actionObject: string) => {
   try {
-    if (disabled.value) {
+    if (disabled.value || loading.value) {
       return;
     }
     loading.value = true;
