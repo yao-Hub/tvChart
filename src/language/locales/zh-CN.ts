@@ -445,6 +445,7 @@ export default {
     logging: "登录中",
   },
 
+  "network offline": "无网络",
   "refresh page": "刷新页面",
   "network error": "网络错误",
   "invalid token": "登录过期",

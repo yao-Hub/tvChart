@@ -446,6 +446,7 @@ export default {
     logging: "登入中",
   },
 
+  "network offline": "無網絡",
   "refresh page": "刷新頁面",
   "network error": "網絡錯誤",
   "invalid token": "登入過期",

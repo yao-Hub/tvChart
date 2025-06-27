@@ -447,6 +447,7 @@ export default {
     logging: "Logging",
   },
 
+  "network offline": "No network",
   "refresh page": "Reload",
   "network error": "network Error",
   "invalid token": "Invalid Token",

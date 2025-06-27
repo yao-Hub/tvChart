@@ -6,7 +6,7 @@ import "dayjs/locale/zh-cn";
 import "dayjs/locale/zh-tw";
 import { useI18n } from "vue-i18n";
 
-import { ElConfigProvider } from "element-plus";
+import { ElConfigProvider, ElMessage } from "element-plus";
 
 import { LANGUAGE_LIST } from "@/constants/common";
 import { sendTrack } from "@/utils/track";
@@ -78,22 +78,30 @@ eventBus.on("socket-error", () => {
 const handleVisibilityChange = async () => {
   const state = document.visibilityState;
   if (state === "visible" && socketState.value === "disconnect") {
+    socketState.value = "";
     useChartInit().systemRefresh();
   }
 };
 
 // 网络重新连接触发刷新
-const networkStatus = ref(navigator.onLine);
-const handleNetworkChange = () => {
-  if (!networkStatus.value) {
+const ifOnline = ref(true);
+const handleOnline = () => {
+  if (!ifOnline.value) {
+    ifOnline.value = true;
     useChartInit().systemRefresh();
   }
-  networkStatus.value = navigator.onLine;
+};
+const handleOffline = () => {
+  ifOnline.value = false;
+  ElMessage.error({
+    message: I18n.t("network offline"),
+    duration: 3000,
+  });
 };
 
 onMounted(() => {
-  window.addEventListener("online", handleNetworkChange);
-  window.addEventListener("offline", handleNetworkChange);
+  window.addEventListener("online", handleOnline);
+  window.addEventListener("offline", handleOffline);
   document.addEventListener("visibilitychange", handleVisibilityChange);
   // 获取更新
   useVersion().getUpdate({
@@ -111,8 +119,8 @@ onMounted(() => {
   useVersion().subUpdate();
 });
 onUnmounted(() => {
-  window.removeEventListener("online", handleNetworkChange);
-  window.removeEventListener("offline", handleNetworkChange);
+  window.removeEventListener("online", handleOnline);
+  window.removeEventListener("offline", handleOffline);
   document.removeEventListener("visibilitychange", handleVisibilityChange);
 });
 </script>
