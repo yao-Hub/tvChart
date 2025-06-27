@@ -54,6 +54,12 @@ onMounted(() => {
   }
 });
 
+const localeMap: Record<string, library.LanguageCode> = {
+  zhTw: "zh_TW",
+  zh: "zh",
+  en: "en",
+};
+
 const initonReady = () => {
   if (!props.chartId) {
     return new Error("chartId is no defined");
@@ -66,7 +72,7 @@ const initonReady = () => {
     timezone: props.timezone,
     library_path: "charting_library/",
     custom_css_url: "static/tvcss.css",
-    locale: locale.value as library.LanguageCode,
+    locale: localeMap[locale.value] || locale.value,
     client_id: props.client_id,
     user_id: props.user_id,
     theme: themeStore.systemTheme,
