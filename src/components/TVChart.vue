@@ -163,6 +163,11 @@ const initonReady = () => {
       // 涨跌颜色
       themeStore.setUpDownTheme({ chartId: props.chartId });
 
+      // 设置功能栏背景色
+      if (sysTheme === "dark") {
+        widget.setCSSCustomProperty("--tv-color-pane-background", "#17181A");
+      }
+
       // widget.activeChart().createShape(
       //   // channel: "open" | "high" | "low" | "close";
       //   { time: new Date().getTime() - 5000, price: 0.594 },

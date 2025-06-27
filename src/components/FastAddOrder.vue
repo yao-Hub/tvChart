@@ -13,7 +13,7 @@
       </div>
     </div>
     <div
-      :style="{ ...inputAreaStyle, boxSizing: 'border-box' }"
+      :style="{ ...inputAreaStyle }"
       @mouseenter="ifHover = true"
       @mouseleave="ifHover = false"
     >
@@ -24,7 +24,8 @@
         @click="reduceNum"
       />
       <input
-        :style="{ ...styles.input, textAlign: 'center' }"
+        :style="{ ...styles.input }"
+        :id="`${props.id}_input`"
         v-model="volume"
         @input="handleInput"
         @blur="handleBlur"
@@ -53,7 +54,7 @@
 
 <script lang="ts" setup>
 import { ElMessage } from "element-plus";
-import { computed, ref, watchEffect } from "vue";
+import { computed, ref, watchEffect, CSSProperties } from "vue";
 import { debounce } from "lodash";
 
 import { DirectionType } from "#/order";
@@ -80,7 +81,7 @@ const symbolsStore = useSymbols();
 const quotesStore = useQuotes();
 
 // 样式
-const styles = {
+const styles: Record<string, CSSProperties> = {
   addOrder: {
     display: "flex",
     height: "24px",
@@ -102,6 +103,8 @@ const styles = {
     border: "none",
     width: "50px",
     height: "14px",
+    textAlign: "center",
+    background: "inherit",
   },
   icon: {
     fontSize: "12px",
@@ -165,7 +168,7 @@ const colorScheme = computed(() => {
 });
 
 const ifHover = ref(false);
-const inputAreaStyle = computed(() => {
+const inputAreaStyle = computed<CSSProperties>(() => {
   const primary = colorScheme.value === "light" ? "#e28602" : "#f4b201";
   const color = colorScheme.value === "light" ? "#000" : "#fff";
   const borderColor = colorScheme.value === "light" ? "#DEE2E9" : "#2C2F35";
@@ -176,6 +179,7 @@ const inputAreaStyle = computed(() => {
     backgroundColor,
     borderColor: ifHover.value ? primary : borderColor,
     borderRadius: "2px",
+    boxSizing: "border-box",
   };
 });
 
