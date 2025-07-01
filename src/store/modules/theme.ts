@@ -73,8 +73,9 @@ export const useTheme = defineStore("theme", () => {
   };
   const changeChartTheme = () => {
     useChartInit().state.chartWidgetList.forEach((item) => {
-      item.widget?.changeTheme(systemTheme.value);
-      saveChartTheme(item.id, systemTheme.value);
+      item.widget?.changeTheme(systemTheme.value).then(() => {
+        saveChartTheme(item.id, systemTheme.value);
+      });
     });
   };
   const getUpDownTheme = () => {
