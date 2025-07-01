@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import * as library from "../../public/charting_library";
@@ -60,6 +60,18 @@ const localeMap: Record<string, library.LanguageCode> = {
   en: "en",
 };
 
+watch(
+  () => themeStore.systemTheme,
+  (theme) => {
+    chartInitStore.state.chartWidgetList.forEach((chart) => {
+      chart.widget?.setCSSCustomProperty(
+        "--tv-color-pane-background",
+        theme === "dark" ? "#17181A" : "#FFFFFF"
+      );
+    });
+  }
+);
+
 const initonReady = () => {
   if (!props.chartId) {
     return new Error("chartId is no defined");
@@ -80,6 +92,9 @@ const initonReady = () => {
     disabled_features: props.disabledFeatures,
     custom_timezones: timezoneOptions as library.CustomAliasedTimezone[],
     autosize: true,
+    // overrides: {
+    //   "linetooltrendline.linecolor": "red",
+    // },
   };
 
   // 图表刷新key
@@ -170,9 +185,10 @@ const initonReady = () => {
       themeStore.setUpDownTheme({ chartId: props.chartId });
 
       // 设置功能栏背景色
-      if (sysTheme === "dark") {
-        widget.setCSSCustomProperty("--tv-color-pane-background", "#17181A");
-      }
+      widget.setCSSCustomProperty(
+        "--tv-color-pane-background",
+        sysTheme === "dark" ? "#17181A" : "#FFFFFF"
+      );
 
       // widget.activeChart().createShape(
       //   // channel: "open" | "high" | "low" | "close";
@@ -192,10 +208,11 @@ const initonReady = () => {
       // 表示挂单（尚未成交的订单）
       // const orderLine = widget.chart().createOrderLine();
       // orderLine
-      //   .setPrice(0.588)
+      //   .setPrice(3340)
       //   .setText("orderLine 买入 STOP: 73.5 (5,64%)")
       //   .setLineLength(30)
-      //   .setQuantityBackgroundColor("red")
+      //   .setQuantityBackgroundColor("pink")
+      //   .setLineColor("pink")
       //   .onModify("onModify called", () => {
       //     console.log("onModify called");
       //   })
@@ -205,16 +222,58 @@ const initonReady = () => {
       // // 表示持仓（已成交的头寸）
       // const positionLine = widget.chart().createPositionLine();
       // positionLine
-      //   .setPrice(0.59)
+      //   .setPrice(3360)
       //   .setText(`positionLine 多头持仓\n盈亏：+$75.20`)
       //   .setQuantity("1")
-      //   .setLineColor("#4CAF50")
+      //   .setLineColor("#fff")
       //   .onModify("onModify called", (T) => {
       //     console.log(T);
       //   })
       //   .onClose("onModify onClose", (T) => {
       //     console.log(T);
       //   });
+
+      // // 一条点到点的线
+      // const from = Date.now() / 1000 - 3 * 24 * 3600; // 5 days ago
+      // const to = Date.now() / 1000 - 1 * 24 * 3600;
+      // widget.activeChart().createMultipointShape(
+      //   [
+      //     { time: from, price: 3365 },
+      //     { time: to, price: 3320 },
+      //   ],
+      //   {
+      //     shape: "trend_line",
+      //     lock: true,
+      //     disableSelection: true,
+      //     disableSave: true,
+      //     disableUndo: true,
+      //     text: "这是价格",
+      //     icon: 5,
+      //   }
+      // );
+
+      // // 交易历史
+      // const executionLine = widget.activeChart().createExecutionShape();
+      // executionLine
+      //   .setText("这是文字@1,320.75 Limit Buy 1")
+      //   .setTooltip("@1,320.75 Limit Buy 1")
+      //   .setTextColor("rgba(255,0,0,0.5)") // 文本颜色
+      //   .setArrowColor("green") // 箭头颜色
+      //   .setDirection("buy")
+      //   .setTime(Date.now() / 1000 - 60 * 60 * 9) // 60 minutes ago
+      //   // .setTime(widget.activeChart().getVisibleRange().from)
+      //   .setPrice(3340);
+
+      // const executionLine_1 = widget.activeChart().createExecutionShape();
+      // executionLine_1
+      //   .setText("这是文字@1,320.75 Limit Buy 1")
+      //   .setTooltip("@1,320.75 Limit Buy 1")
+      //   .setTextColor("rgba(0,255,0,0.5)")
+      //   .setArrowColor("#0F0")
+      //   .setDirection("sell")
+      //   .setTime(Date.now() / 1000 - 60 * 60 * 9) // 60 minutes ago
+      //   // .setTime(widget.activeChart().getVisibleRange().from)
+      //   .setPrice(3340);
 
       emit("initChart", { id: props.chartId, widget });
     });
