@@ -67,22 +67,26 @@ export const useSystem = defineStore("system", () => {
     if (systemInfo.value) {
       return;
     }
-    // 桌面应用拿操作系统信息
-    if (process.env.IF_ELECTRON) {
-      const info: any = await window.electronAPI.invoke("get-system-info");
-      if (info.error) {
-        console.error("获取系统信息失败:", JSON.stringify(info.error));
-      } else {
-        const { uuid, model, os, release, manufacturer } = info;
-        systemInfo.value = {
-          deviceId: uuid,
-          deviceBrand: manufacturer,
-          deviceModel: model,
-          platform: os,
-          deviceInfo: release,
-        };
-        return;
+    try {
+      // 桌面应用拿操作系统信息
+      if (process.env.IF_ELECTRON) {
+        const info: any = await window.electronAPI.invoke("get-system-info");
+        const { uuid, model, os, release, manufacturer, error } = info;
+        if (error) {
+          console.error("获取系统信息失败:", JSON.stringify(error));
+        } else {
+          systemInfo.value = {
+            deviceId: uuid,
+            deviceBrand: manufacturer,
+            deviceModel: model,
+            platform: os,
+            deviceInfo: release,
+          };
+          return;
+        }
       }
+    } catch (e) {
+      console.log("get pc info error", e);
     }
     // 浏览器拿浏览器信息
     const browerInfo = getBrowserInfo();
@@ -90,6 +94,7 @@ export const useSystem = defineStore("system", () => {
     const browerVersion = browerInfo.split("/")[1];
     const stoId = window.localStorage.getItem("uuid");
     let deviceId = stoId || generateUUID();
+    console.log("webuuid------>", deviceId);
 
     systemInfo.value = {
       deviceBrand: brower,

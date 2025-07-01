@@ -35,5 +35,6 @@ module.exports.default = {
     createDesktopShortcut: 'always',
     createStartMenuShortcut: true
   },
-  electronVersion: '34.0.2'
+  // 低版本适配 windows 7
+  electronVersion: '21.4.4'
 };
