@@ -205,7 +205,7 @@ const initonReady = () => {
       //   entryTime: new Date(),
       // });
 
-      // 表示挂单（尚未成交的订单）
+      // // 表示挂单（尚未成交的订单）
       // const orderLine = widget.chart().createOrderLine();
       // orderLine
       //   .setPrice(3340)

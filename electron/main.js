@@ -10,6 +10,9 @@ const WindowStateManager = require('./utils/windowStateManager');
 // 所有通过createWindow创建的窗口
 const windowsMap = {};
 
+// 启动画面
+let splashWindow = null;
+
 // 创建快捷键管理器实例
 const shortcutManager = new ShortcutManager();
 
@@ -28,8 +31,38 @@ const gotTheLock = app.requestSingleInstanceLock();
 // 主题文件缓存路径
 const systemCachePath = path.join(app.getPath('userData'), `systemCache.json`);
 
+// 创建启动画面
+function createSplashWindow() {
+  splashWindow = new BrowserWindow({
+    width: 400,
+    height: 250,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    resizable: false,
+    show: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true
+    }
+  });
+
+  // 居中显示启动画面
+  splashWindow.center();
+
+  // 加载启动画面 HTML 文件
+  splashWindow.loadFile(path.join(__dirname, 'splash.html'));
+
+  // splashWindow.once('ready-to-show', () => {
+  //   splashWindow.show();
+  // });
+
+  return splashWindow;
+}
+
 // 创建窗口
-function createWindow(name, hash, screenWidth) {
+function createWindow(name, hash, screenWidth, showOnReady = true) {
 
   // electron是否是本地环境（electron环境只有production和development，打包之后运行都是production，本地运行就是development）
   const ifDev = process.env.NODE_ENV === "development";
@@ -44,7 +77,6 @@ function createWindow(name, hash, screenWidth) {
   const windowStateManager = new WindowStateManager(name);
   windowStateManager.setDefaultSize(renderWidth, renderHight);
   const windowState = windowStateManager.getState();
-  const ifInitHide = windowState && windowState.isMaximized;
 
   // 初始化主题色
   let systemTheme = "dark";
@@ -66,7 +98,7 @@ function createWindow(name, hash, screenWidth) {
     y: windowState.y,
     minWidth: 1110,
     minHeight: 640,
-    show: !ifInitHide,  // 如果是最大化先隐藏窗口
+    show: false,  // 如果是最大化先隐藏窗口
     backgroundColor: bgOptions[systemTheme], // ready-to-show之前显示的背景
     webPreferences: {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
@@ -81,9 +113,11 @@ function createWindow(name, hash, screenWidth) {
   }
 
   // 显示窗口（避免从普通状态切到最大化时的闪烁）
-  windowsMap[name].once('ready-to-show', () => {
-    windowsMap[name].show();
-  });
+  if (showOnReady) {
+    windowsMap[name].once('ready-to-show', () => {
+      windowsMap[name].show();
+    });
+  }
 
   // 监听窗口大小变化
   windowStateManager.registerScreenSizeHandlers(windowsMap[name]);
@@ -138,6 +172,8 @@ function createWindow(name, hash, screenWidth) {
 
   // 设置窗口快捷键
   shortcutManager.setupWindowShortcuts(windowsMap[name]);
+
+  return windowsMap[name];
 }
 
 
@@ -146,6 +182,7 @@ ipcMain.handle('open-new-window', (event, params) => {
   const { name, hash } = params;
   // 已经存在窗口不在创建
   if (windowsMap[name]) {
+    windowsMap[name].focus();
     return;
   }
   createWindow(name, hash, 800);
@@ -180,8 +217,28 @@ if (!gotTheLock) {
 
   // 当 Electron 完成初始化 创建主窗口 下载器
   app.whenReady().then(() => {
-    createWindow("mainWindow");
-    downloader = new Downloader(app, windowsMap.mainWindow);
+    // 创建启动画面
+    createSplashWindow();
+
+    const mainWindow = createWindow("mainWindow", null, null, false);
+
+    // 监听主窗口加载完成事件
+    mainWindow.webContents.on('did-finish-load', () => {
+      setTimeout(() => {
+        // 关闭启动画面
+        if (splashWindow && !splashWindow.isDestroyed()) {
+          splashWindow.close();
+          splashWindow = null;
+        }
+        // 显示主窗口
+        mainWindow.show();
+        // 窗口加载完成后，聚焦主窗口
+        mainWindow.focus();
+      }, 1000);
+
+      // Initialize downloader after main window is ready
+      downloader = new Downloader(app, mainWindow);
+    });
   });
 
   app.on('activate', function () {

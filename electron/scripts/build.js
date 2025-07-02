@@ -9,7 +9,7 @@ function runCommand(command) {
 function main() {
   const mode = process.env.NODE_ENV;
   console.log("mode---->", mode);
-  runCommand(`vite build --mode ${mode}`);
+  runCommand(`vite build --mode ${mode} && npm run obfuscator`);
   if (isWindows) {
     console.log('\n', '/*********************** win7 ***********************/', '\n');
     runCommand('electron-builder --config electron/scripts/config/windows/x64-win7.js');
