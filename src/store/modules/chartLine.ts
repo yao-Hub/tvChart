@@ -25,20 +25,26 @@ type TAction = (symbol: string) => void;
 export const useChartLine = defineStore("chartLine", {
   state: (): IState => {
     return {
+      // 订阅的图表
       subscribed: {},
+      // 最新k线数据（实时跳动的蜡烛图数据）
       newbar: {},
       pageHidden: false,
+      // 冷却期映射 
       cooldownMap: {},
+      // 报价缓存 存储当前接收到的报价数据
       qouteCache: {},
     };
   },
   actions: {
+    // 更新k线图
     updateSubscribed(UID: string, data: Tbar) {
       if (this.subscribed[UID]) {
         this.subscribed[UID].onRealtimeCallback(data);
       }
     },
 
+    // 监听k线和报价
     initSubLineAndQuote() {
       const socketStore = useSocket();
       const quotesStore = useQuotes();
@@ -204,11 +210,13 @@ export const useChartLine = defineStore("chartLine", {
       });
     },
 
+    // 取消某个图表下某个品种的订阅
     unsubscribed(UID: string) {
       delete this.subscribed[UID];
       delete this.newbar[UID];
     },
 
+    // 移除某个图表的所有订阅
     removeChartSub(charId: string) {
       for (const UID in this.subscribed) {
         if (UID && UID.includes(charId)) {

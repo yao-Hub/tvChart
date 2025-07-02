@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import { generateUUID } from "@/utils/common";
+import { createSingletonAsyncFn } from "@/utils/Concurrency/singleAsyn";
 
 export const useSystem = defineStore("system", () => {
   interface ISystemInfo {
@@ -63,7 +64,7 @@ export const useSystem = defineStore("system", () => {
     return "unknown browser/unknown version";
   };
 
-  const getSystemInfo = async () => {
+  const getSystemInfo = createSingletonAsyncFn(async () => {
     if (systemInfo.value) {
       return;
     }
@@ -94,7 +95,6 @@ export const useSystem = defineStore("system", () => {
     const browerVersion = browerInfo.split("/")[1];
     const stoId = window.localStorage.getItem("uuid");
     let deviceId = stoId || generateUUID();
-    console.log("webuuid------>", deviceId);
 
     systemInfo.value = {
       deviceBrand: brower,
@@ -104,7 +104,7 @@ export const useSystem = defineStore("system", () => {
       deviceId,
     };
     window.localStorage.setItem("uuid", deviceId);
-  };
+  });
 
   function $reset() {}
 

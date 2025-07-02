@@ -16,14 +16,11 @@ import ElementPlus from "element-plus";
 import { initLogDB } from "@/utils/IndexedDB/logDatabase";
 import { initAdminHttpDB } from "@/utils/IndexedDB/adminHttpDatabase";
 import { changeElementPlusMessageIcon } from "./utils/ElementPlus";
-
 import plugins from "@/plugins";
-const bootstrap = () => {
-  // 初始化log数据库
-  initLogDB();
 
+const bootstrap = async () => {
   // 初始化adminhttp数据库
-  initAdminHttpDB();
+  await initAdminHttpDB();
 
   // 修改ElementPlus的Message组件图标
   changeElementPlusMessageIcon();
@@ -49,6 +46,9 @@ const bootstrap = () => {
   }
 
   app.mount("#app");
+
+  // 初始化log数据库
+  await initLogDB();
 };
 
 // 启动
