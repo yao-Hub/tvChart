@@ -155,12 +155,6 @@ service.interceptors.response.use(
     const resData = response.data;
     const config: resConfig = response.config;
 
-    // 解析请求数据
-    const configData = JSON.parse(config.data);
-    const ded = JSON.parse(decrypt(configData.d));
-    const { req_id, req_time, token, ...reqData } = ded;
-    const stoReqData = encrypt(JSON.stringify(reqData));
-
     if (resData.err === 0 || resData.code === 0) {
       if (resData.data) {
         resData.data = JSON.parse(decrypt(resData.data));
@@ -168,6 +162,11 @@ service.interceptors.response.use(
 
       // admin的接口返回存储到indexedDB中
       if (config.urlType === "admin" && !config.isNotSaveDB) {
+        // 解析请求数据
+        const configData = JSON.parse(config.data);
+        const ded = JSON.parse(decrypt(configData.d));
+        const { req_id, req_time, token, ...reqData } = ded;
+        const stoReqData = encrypt(JSON.stringify(reqData));
         (async () => {
           try {
             const obj = {

@@ -66,5 +66,6 @@ export const uploadFile = (params: { file: File; type: number }) => {
     },
     urlType: "admin",
     customData: true,
+    isNotSaveDB: true,
   });
 };
