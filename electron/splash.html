@@ -189,10 +189,13 @@
     </div>
   </div>
   
-  <!-- <div class="version">v1.0.2</div> -->
+  <div class="version" id="versionDisplay"></div>
   
   <script>
-    // Simulate progress bar animation
+    const urlParams = new URLSearchParams(window.location.search);
+    const version = urlParams.get('version') || "";
+    document.getElementById('versionDisplay').textContent = `v${version}`;
+
     document.addEventListener('DOMContentLoaded', () => {
       const dots = document.querySelectorAll('.dot');
       const text = document.querySelector('.loading-text');
@@ -206,13 +209,13 @@
       
       let currentIndex = 0;
       
-      // Change loading text periodically
+      // 文本轮播
       setInterval(() => {
         text.textContent = texts[currentIndex];
         currentIndex = (currentIndex + 1) % texts.length;
       }, 2000);
       
-      // Simulate progress (in a real app, you'd tie this to actual loading events)
+      // 模拟进度（在真实的应用程序中，您可以将其与实际的加载事件联系起来）
       let progress = 0;
       const interval = setInterval(() => {
         progress += 2;
