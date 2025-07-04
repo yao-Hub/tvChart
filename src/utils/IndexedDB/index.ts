@@ -172,7 +172,7 @@ class IndexedDBService {
   }
 
   // 数据库添加数据
-  async addData<T extends { id: number }>(data: T) {
+  async addData<T extends { id: number | string }>(data: T) {
     if (!this.db) {
       throw new Error("数据库未打开");
     }

@@ -15,6 +15,8 @@ import ElementPlus from "element-plus";
 
 import { initLogDB } from "@/utils/IndexedDB/logDatabase";
 import { initAdminHttpDB } from "@/utils/IndexedDB/adminHttpDatabase";
+import { initKlineDB } from "@/utils/IndexedDB/klineDatabase";
+
 import { changeElementPlusMessageIcon } from "./utils/ElementPlus";
 import plugins from "@/plugins";
 
@@ -45,10 +47,12 @@ const bootstrap = async () => {
     app.component(key, component);
   }
 
-  app.mount("#app");
-
   // 初始化log数据库
   await initLogDB();
+
+  await initKlineDB();
+
+  app.mount("#app");
 };
 
 // 启动

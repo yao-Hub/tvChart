@@ -6,6 +6,7 @@ const { getDeviceInfo } = require('./utils/systemInfo');
 const Downloader = require('./utils/downloader');
 const ShortcutManager = require('./utils/shortcutManager');
 const WindowStateManager = require('./utils/windowStateManager');
+const {sleep} = require('./utils/common');
 
 // 所有通过createWindow创建的窗口
 const windowsMap = {};
@@ -33,8 +34,8 @@ const systemCachePath = path.join(app.getPath('userData'), `systemCache.json`);
 // 创建启动画面
 function createSplashWindow() {
   splashWindow = new BrowserWindow({
-    width: 400,
-    height: 250,
+    width: 600,
+    height: 300,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -89,7 +90,7 @@ function createWindow(name, hash, screenWidth, showOnReady = true) {
 
   // 获取窗口状态
   const windowState = windowStateManager.getState();
-  
+
   // 提升窗口状态
   windowStateMap[name] = windowState;
 
@@ -152,7 +153,7 @@ function createWindow(name, hash, screenWidth, showOnReady = true) {
   windowsMap[name].on('close', async (event) => {
     // 主窗口关闭
     if (downloader && downloader.activeDownload && name === "mainWindow") {
-      const { shutdown,  cancel, exitTip, downLoading } = translationsMap;
+      const { shutdown, cancel, exitTip, downLoading } = translationsMap;
       const choice = dialog.showMessageBoxSync(windowsMap.mainWindow, {
         type: 'question',
         buttons: [shutdown, cancel],
@@ -198,11 +199,12 @@ if (!gotTheLock) {
   app.whenReady().then(() => {
     const mainWindow = createWindow("mainWindow", null, null, false);
 
-    // 下载控制器
     downloader = new Downloader(app, mainWindow);
 
     // 监听主窗口加载完成事件
-    mainWindow.webContents.on('ready-to-show', () => {
+    mainWindow.webContents.on('ready-to-show', async () => {
+      await sleep(1000);
+
       // 关闭启动画面
       if (splashWindow && !splashWindow.isDestroyed()) {
         splashWindow.close();
@@ -214,10 +216,8 @@ if (!gotTheLock) {
         mainWindow.maximize();
       }
 
-      setTimeout(() => {
-        // 显示主窗口
-        mainWindow.show();
-      })
+      // 显示主窗口
+      mainWindow.show();
     });
   });
 

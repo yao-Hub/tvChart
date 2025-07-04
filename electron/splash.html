@@ -1,231 +1,120 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Splash Screen</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
-    body {
-      background: linear-gradient(135deg, #17181A, #0d0e10);
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    html, body {
       height: 100vh;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      overflow: hidden;
-      position: relative;
     }
-    
+
     .splash-container {
-      text-align: center;
-      z-index: 10;
-    }
-    
-    .logo {
-      font-size: 42px;
-      font-weight: 800;
-      margin-bottom: 30px;
-      color: #fff;
-      text-transform: uppercase;
-      letter-spacing: 3px;
-      text-shadow: 0 0 10px rgba(244, 178, 1, 0.5);
-    }
-    
-    .logo span {
-      color: #f4b201;
-    }
-    
-    .loading-text {
-      color: #fff;
-      font-size: 18px;
-      margin-bottom: 30px;
-      letter-spacing: 1px;
-    }
-    
-    .dots-container {
       display: flex;
+      flex-direction: column;
+      height: 100%;
+      background-color: #ffffff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .logo {
+      flex: 6;
+      background-image: url('splash.png');
+      background-size: cover;
+      background-repeat: no-repeat;
+    }
+
+    .bottom {
+      flex: 4;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
       justify-content: center;
+      padding: 0 32px;
+    }
+    .word {
+      font-family: PingFangSC;
+      font-weight: 400;
+      font-size: 14px;
+      color: #63636A;
+      line-height: 20px;
+      font-style: normal;
+    }
+
+    .progress-bar-container {
+      display: flex;
+      gap: 18px;
+      justify-content: space-between;
       align-items: center;
-      height: 50px;
     }
-    
-    .dot {
-      width: 20px;
-      height: 20px;
-      background-color: #f4b201;
-      border-radius: 50%;
-      margin: 0 8px;
-      animation: bounce 1.5s infinite ease-in-out;
-      box-shadow: 0 0 10px rgba(244, 178, 1, 0.7);
-    }
-    
-    .dot:nth-child(1) {
-      animation-delay: 0s;
-    }
-    
-    .dot:nth-child(2) {
-      animation-delay: 0.2s;
-    }
-    
-    .dot:nth-child(3) {
-      animation-delay: 0.4s;
-    }
-    
-    @keyframes bounce {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-25px);
-      }
-    }
-    
-    .progress-container {
-      width: 300px;
-      height: 4px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 2px;
-      margin: 20px auto;
-      overflow: hidden;
-    }
-    
+
     .progress-bar {
-      height: 100%;
-      width: 0;
-      background: #f4b201;
+      flex: 1;
+      height: 16px;
+      background-color: #EDEFF1;
       border-radius: 2px;
-      animation: progress 2s infinite linear;
     }
-    
-    @keyframes progress {
-      0% {
-        width: 0;
-        transform: translateX(-100%);
-      }
-      50% {
-        width: 70%;
-      }
-      100% {
-        width: 100%;
-        transform: translateX(0);
-      }
-    }
-    
-    .version {
-      position: absolute;
-      bottom: 20px;
-      right: 10px;
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 12px;
-    }
-    
-    .pulse {
-      position: absolute;
-      width: 100%;
+
+    .progress-bar-fill {
       height: 100%;
-      top: 0;
-      left: 0;
-      pointer-events: none;
+      background: linear-gradient( 90deg, #F4B201 0%, #E28602 100%);
+      border-radius: 2px;
     }
-    
-    .pulse-circle {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 200px;
-      height: 200px;
-      border: 2px solid rgba(244, 178, 1, 0.1);
-      border-radius: 50%;
-      animation: pulse 3s infinite ease-out;
+
+    .progress-num {
+      font-family: SanFranciscoDisplay, SanFranciscoDisplay;
+      font-weight: 400;
+      font-size: 14px;
+      color: #000000;
+      line-height: 18px;
     }
-    
-    .pulse-circle:nth-child(2) {
-      animation-delay: 1s;
-      width: 300px;
-      height: 300px;
-    }
-    
-    .pulse-circle:nth-child(3) {
-      animation-delay: 2s;
-      width: 400px;
-      height: 400px;
-    }
-    
-    @keyframes pulse {
-      0% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(0.5);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -50%) scale(1.5);
-      }
-    }
+
   </style>
 </head>
 <body>
-  <div class="pulse">
-    <div class="pulse-circle"></div>
-    <div class="pulse-circle"></div>
-    <div class="pulse-circle"></div>
-  </div>
-  
   <div class="splash-container">
-    <div class="logo">CTOTrader</div>
-    <div class="loading-text">Initializing Application</div>
-    <div class="dots-container">
-      <div class="dot"></div>
-      <div class="dot"></div>
-      <div class="dot"></div>
-    </div>
-    <div class="progress-container">
-      <div class="progress-bar"></div>
+    <div class="logo"></div>
+
+    <div class="bottom">
+      <div class="word" id="word"></div>
+  
+      <div class="progress-bar-container">
+        <div class="progress-bar">
+          <div class="progress-bar-fill" id="progress-bar"></div>
+        </div>
+
+        <div class="progress-num" id="progress-num">0%</div>
+      </div>
     </div>
   </div>
-  
-  <div class="version" id="versionDisplay"></div>
-  
-  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const version = urlParams.get('version') || "";
-    document.getElementById('versionDisplay').textContent = `v${version}`;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const dots = document.querySelectorAll('.dot');
-      const text = document.querySelector('.loading-text');
-      const progressBar = document.querySelector('.progress-bar');
-      const texts = [
-        "Loading core modules",
-        "Preparing interface",
-        "Optimizing performance",
-        "Almost ready"
-      ];
-      
-      let currentIndex = 0;
-      
-      // 文本轮播
-      setInterval(() => {
-        text.textContent = texts[currentIndex];
-        currentIndex = (currentIndex + 1) % texts.length;
-      }, 2000);
-      
-      // 模拟进度（在真实的应用程序中，您可以将其与实际的加载事件联系起来）
-      let progress = 0;
-      const interval = setInterval(() => {
-        progress += 2;
-        if (progress > 100) {
-          progress = 100;
-          clearInterval(interval);
-        }
-        progressBar.style.width = `${progress}%`;
-      }, 100);
-    });
+  <script>
+    const word = document.getElementById('word');
+    const wordMap = {
+      "zh-CN": "正在初始化应用程序...",
+      "en": "Initializing...",
+      "zh-TW": "正在初始化應用程序..."
+    };
+    const locale = navigator.language || "zh-CN";
+    const result = wordMap[locale]
+    word.textContent = `${result}`;
+
+    const progressBar = document.getElementById('progress-bar');
+    const progressNum = document.getElementById('progress-num');
+    
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 1;
+      progressBar.style.width = `${progress}%`;
+      progressNum.textContent = `${progress}%`;
+      if (progress >= 100) {
+        clearInterval(interval);
+      }
+    }, 50);
   </script>
 </body>
 </html>

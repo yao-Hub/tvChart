@@ -9,6 +9,8 @@ import * as types from "@/types/chart";
 import { ResLineInfo, klineHistory } from "api/kline/index";
 import { cloneDeep, flattenDeep, groupBy, maxBy, orderBy } from "lodash";
 
+import SynchronizeTask from "@/utils/Concurrency/synchronizeTask";
+
 const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();
 const symbolsStore = useSymbols();
@@ -45,6 +47,52 @@ const formatTime = (time: number) => {
 
 // 商品切换还未初始化，但是数据已经先到达，存储最新的那个bar
 let temBar: Record<string, ResLineInfo> = {};
+
+/**
+ * 获取k线历史数据
+ * @param taskMap 并发任务调度器 品种和周期作为key
+ */
+const taskMap: Record<string, SynchronizeTask<any>> = {};
+interface ILineParams {
+  period_type: number | string; // 周期类型
+  symbol: string; // 商品
+  count: number; // 历史数据条数
+  limit_ctm: number; // 最新的时间戳
+  resolution: keyof typeof types.Periods; // 分辨率
+}
+function checkString(str: string) {
+  const regex = /[DWM]/;
+  return regex.test(str);
+}
+async function getLineHistory(id: string, params: ILineParams) {
+  console.log(id)
+  try {
+    const { resolution } = params;
+    const res = await klineHistory(params);
+    const data = res.data;
+    if (data.length === 0) {
+      return Promise.resolve([]);
+    }
+    const orderBy_data = orderBy(data, "ctm");
+    const bars = orderBy_data.map((item) => {
+      const time = checkString(resolution)
+        ? (item.ctm + 8 * 3600) * 1000
+        : item.ctm * 1000;
+      return {
+        ...item,
+        time,
+        // time: item.ctm * 1000,
+      };
+    });
+    const bar = maxBy(bars, "ctm");
+    if (bar) {
+      temBar[id] = cloneDeep(bar);
+    }
+    return Promise.resolve(bars);
+  } catch (error) {
+    return Promise.reject([]);
+  }
+}
 
 export const datafeed = (id: string) => {
   let UID = "";
@@ -146,11 +194,6 @@ export const datafeed = (id: string) => {
       onErrorCallback: Function
     ) => {
       try {
-        function checkString(str: string) {
-          const regex = /[DWM]/;
-          return regex.test(str);
-        }
-
         let count = periodParams.countBack;
         // periodParams.countBack 长度不够导致数据缺失
         const to = dayjs.unix(periodParams.to);
@@ -158,40 +201,26 @@ export const datafeed = (id: string) => {
         const diffType = countOptions[resolution];
         count = to.diff(from, diffType);
         const updata = {
+          resolution,
           period_type: types.Periods[resolution] || resolution,
           symbol: symbolInfo.name,
           count,
           limit_ctm: periodParams.to,
         };
-        klineHistory(updata)
-          .then((res: any) => {
-            const data = res.data;
-            if (data.length === 0) {
-              onHistoryCallback([], {
-                noData: true,
-              });
-              return;
-            }
-            const orderBy_data = orderBy(data, "ctm");
-            const bars = orderBy_data.map((item) => {
-              const time = checkString(resolution)
-                ? (item.ctm + 8 * 3600) * 1000
-                : item.ctm * 1000;
-              return {
-                ...item,
-                time,
-                // time: item.ctm * 1000,
-              };
-            });
-            const bar = maxBy(bars, "ctm");
-            if (bar) {
-              temBar[id] = cloneDeep(bar);
-            }
+        const taskKey = `${symbolInfo.name}@${resolution}`;
+        if (!taskMap.hasOwnProperty(taskKey)) {
+          taskMap[taskKey] = new SynchronizeTask(1);
+        }
+        taskMap[taskKey]
+          .add(() => getLineHistory(id, updata))
+          .then((data) => {
             setTimeout(() => {
-              onHistoryCallback(bars);
-            }, 0);
+              onHistoryCallback(data, {
+                noData: data.length === 0,
+              });
+            });
           })
-          .catch((error) => {
+          .catch(() => {
             onErrorCallback("error", {
               noData: true,
             });
