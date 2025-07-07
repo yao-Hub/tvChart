@@ -176,7 +176,7 @@ class IndexedDBService {
     if (!this.db) {
       throw new Error("数据库未打开");
     }
-    return new Promise<number>((resolve, reject) => {
+    return new Promise<number | void>((resolve, reject) => {
       const transaction = this.db!.transaction(
         [this.objectStoreName],
         "readwrite"
@@ -190,6 +190,11 @@ class IndexedDBService {
 
       request.onerror = async (event) => {
         const error = (event.target as IDBRequest).error;
+        // 存在相同的key
+        if (error?.name === "ConstraintError") {
+          await this.updateData(null, data);
+          resolve();
+        }
         // 存储空间已满
         if (error?.name === "QuotaExceededError") {
           try {
@@ -208,7 +213,7 @@ class IndexedDBService {
   }
 
   // 更新数据
-  updateData(condition: Record<string, string | number>, stoData: Object) {
+  updateData<T extends { id: number | string }>(condition: Record<string, string | number> | null, stoData: T) {
     if (!this.db) {
       throw new Error("数据库未打开");
     }
@@ -227,6 +232,9 @@ class IndexedDBService {
           let match = true;
 
           // 检查记录是否匹配条件
+          if (condition === null) {
+            condition = { id: stoData.id };
+          }
           for (const key in condition) {
             if (record[key] !== condition[key]) {
               match = false;
@@ -254,7 +262,7 @@ class IndexedDBService {
   }
 
   // 精确查找数据
-  async findByCondition(condition: Record<string, any>) {
+  async findByCondition(condition: Record<string, any>): Promise<any> {
     if (!this.db) throw new Error("数据库未打开");
 
     return new Promise((resolve) => {
@@ -285,7 +293,7 @@ class IndexedDBService {
           cursor.continue();
         } else {
           // 返回最后一条匹配记录（最近添加的）
-          resolve(results.length > 0 ? results[results.length - 1] : null);
+          resolve(results.length > 0 ? results : null);
         }
       };
 
@@ -293,7 +301,7 @@ class IndexedDBService {
     });
   }
 
-  // 删除当前数据库
+  // 删除一条数据
   async deleteData(id: number | string) {
     if (!this.db) {
       throw new Error("数据库未打开");

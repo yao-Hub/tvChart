@@ -221,8 +221,9 @@ service.interceptors.response.use(
       const { req_id, req_time, token, ...reqData } = ded;
       const stoReqData = encrypt(JSON.stringify(reqData));
       const searchData = { url: err.config.url!, reqData: stoReqData };
-      const stoData: any = await adminHttpIndexedDB.findByCondition(searchData);
-      if (stoData) {
+      const cacheData: any = await adminHttpIndexedDB.findByCondition(searchData);
+      if (cacheData) {
+        const stoData = cacheData.pop()
         const resData = JSON.parse(stoData.resData);
         const serverData = resData.data.data;
         const deData = JSON.parse(decrypt(serverData));

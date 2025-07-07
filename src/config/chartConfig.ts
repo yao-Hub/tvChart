@@ -1,15 +1,16 @@
+import dayjs from "dayjs";
+import { cloneDeep, flattenDeep, groupBy, maxBy, orderBy } from "lodash";
+
 import { RESOLUTES } from "@/constants/common";
+import * as types from "@/types/chart";
+import { ReqLineInfo, ResLineInfo, klineHistory } from "api/kline/index";
+import SynchronizeTask from "@/utils/Concurrency/synchronizeTask";
+import { klineIndexedDB } from "utils/IndexedDB/klineDatabase";
+
 import { useChartLine } from "@/store/modules/chartLine";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTime } from "@/store/modules/time";
-import dayjs from "dayjs";
-
-import * as types from "@/types/chart";
-import { ResLineInfo, klineHistory } from "api/kline/index";
-import { cloneDeep, flattenDeep, groupBy, maxBy, orderBy } from "lodash";
-
-import SynchronizeTask from "@/utils/Concurrency/synchronizeTask";
 
 const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();
@@ -53,41 +54,75 @@ let temBar: Record<string, ResLineInfo> = {};
  * @param taskMap 并发任务调度器 品种和周期作为key
  */
 const taskMap: Record<string, SynchronizeTask<any>> = {};
-interface ILineParams {
-  period_type: number | string; // 周期类型
-  symbol: string; // 商品
-  count: number; // 历史数据条数
-  limit_ctm: number; // 最新的时间戳
-  resolution: keyof typeof types.Periods; // 分辨率
-}
+
+type TLineParams = ReqLineInfo & { resolution: string; };
+
 function checkString(str: string) {
   const regex = /[DWM]/;
   return regex.test(str);
 }
-async function getLineHistory(id: string, params: ILineParams) {
-  console.log(id)
+
+async function getCacheData(
+  params: TLineParams
+): Promise<ResLineInfo[] | null> {
+  // const { symbol, resolution, limit_ctm, count } = params;
+  // const searchData = await klineIndexedDB.findByCondition({
+  //   symbol,
+  //   resolution,
+  // });
+  // console.log("searchData", searchData);
+  // if (searchData === null || !searchData.length) {
+  //   return null;
+  // }
+  return null;
+}
+async function saveCacheData(params: TLineParams & { data: ResLineInfo[]; }) {
+  const { symbol, data, resolution } = params;
+
+  const list = data.map((item) => {
+    return klineIndexedDB.addData({
+      id: `${symbol}_${item.ctm}`,
+      resolution,
+      symbol,
+      data: item,
+    });
+  });
+  await Promise.all(list)
+}
+
+async function getLineHistory(chartId: string, params: TLineParams) {
   try {
-    const { resolution } = params;
-    const res = await klineHistory(params);
-    const data = res.data;
-    if (data.length === 0) {
+    let data: ResLineInfo[] | null = null;
+    const { resolution, ...updata } = params;
+    // 拿缓存数据
+    const cacheData = await getCacheData(params);
+    if (cacheData) {
+      data = cacheData;
+    } else {
+      // 服务器请求数据
+      const res = await klineHistory(updata);
+      data = res.data;
+    }
+
+    if (!data || data.length === 0) {
       return Promise.resolve([]);
     }
     const orderBy_data = orderBy(data, "ctm");
     const bars = orderBy_data.map((item) => {
+      // 日/周/月 线数据+8小时
       const time = checkString(resolution)
         ? (item.ctm + 8 * 3600) * 1000
         : item.ctm * 1000;
       return {
         ...item,
         time,
-        // time: item.ctm * 1000,
       };
     });
     const bar = maxBy(bars, "ctm");
     if (bar) {
-      temBar[id] = cloneDeep(bar);
+      temBar[chartId] = cloneDeep(bar);
     }
+    await saveCacheData({ ...params, data });
     return Promise.resolve(bars);
   } catch (error) {
     return Promise.reject([]);

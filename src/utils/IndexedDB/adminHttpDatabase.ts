@@ -100,9 +100,10 @@ async function atomicUpsert(
   const release = await acquireLock(lockKey);
 
   try {
-    const stoData = await httpIndexedDBServiceInstance.findByCondition(
+    const cacheData = await httpIndexedDBServiceInstance.findByCondition(
       searchData
     );
+    const stoData = cacheData ? cacheData.pop() : null;
     if (stoData) {
       await httpIndexedDBServiceInstance.updateData(searchData, obj);
     } else {

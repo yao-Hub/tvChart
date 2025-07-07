@@ -9,6 +9,7 @@ export interface ReqLineInfo {
   symbol: string;
   count: number;
   limit_ctm: number;
+  limit_begin_ctm?: number;
 }
 
 export interface ResLineInfo {
