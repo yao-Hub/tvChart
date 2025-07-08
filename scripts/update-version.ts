@@ -224,6 +224,7 @@ async function main() {
     ]);
     const updateType = answers.versionType;
     if (updateType === "noUpdate") {
+      updateRemoteTag(localVersion);
       return;
     }
     updatePackageVersion(localVersion, updateType, remoteVersion);

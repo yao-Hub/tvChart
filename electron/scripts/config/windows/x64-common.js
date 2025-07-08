@@ -9,7 +9,7 @@ module.exports.default = {
     name: nameMap[process.env.NODE_ENV] // 缓存文件名称、安装名称、路径名称 （优先级 > productName）
   },
   directories: {
-    output: 'release_electron/${version}-${env.NODE_ENV}/windows/x64-common' // 安装包输出文件路径
+    output: 'release_electron/${version}-${env.NODE_ENV}/windows/x64' // 安装包输出文件路径
   },
   extraResources: {
     from: "public/charting_library",
@@ -23,7 +23,7 @@ module.exports.default = {
         arch: ['x64']
       }
     ],
-    artifactName: '${productName}-Windows-${version}-x64-common.${ext}',
+    artifactName: '${productName}-Windows-${version}-x64.${ext}',
     icon: 'build/icons/logo.png'
   },
   nsis: {
