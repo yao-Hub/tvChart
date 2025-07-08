@@ -19,9 +19,24 @@ class IndexedDBService {
     }
     this.dbVersion = version;
   }
-  private async tryOpen(isRetry = false) {
-    return new Promise(async (resolve, reject) => {
+
+  openDatabase(isRetry = false) {
+    return new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, this.dbVersion);
+
+      // 成功打开
+      request.onsuccess = async (event) => {
+        console.log("数据库成功打开", this.dbName, this.objectStoreName);
+        const target = event.target as IDBRequest;
+        this.db = target.result;
+
+        // 备份数据写入
+        if (this.backup.length) {
+          await this.restoreData();
+        }
+        await this.checkStorageQuota();
+        resolve(this.db);
+      };
 
       request.onerror = async (event) => {
         const error = (event.target as IDBRequest).error;
@@ -36,33 +51,17 @@ class IndexedDBService {
 
           // 3. 重新打开新数据库并恢复数据
           console.log("创建新数据库并恢复数据", this.dbName);
-          const newDb = await this.tryOpen(true);
+          const newDb = await this.openDatabase(true);
           resolve(newDb);
         } else {
-          reject(
-            new Error(
-              this.dbName +
-                "数据库打开失败: " +
-                (event.target as IDBRequest).error
-            )
-          );
+          console.error("数据库打开失败:", error);
+          reject();
         }
       };
 
-      // 成功打开
-      request.onsuccess = async (event) => {
-        console.log("数据库成功打开", this.dbName);
-        this.db = (event.target as IDBRequest).result;
-        // 备份数据写入
-        if (this.backup.length) {
-          await this.restoreData();
-        }
-        this.checkStorageQuota();
-        resolve(this.db as IDBDatabase);
-      };
-
-      // indexedDB版本更新
+      // indexedDB首次创建或者版本变化
       request.onupgradeneeded = (event) => {
+        console.log("版本更新", this.dbName);
         const target = event.target as IDBRequest;
         const db = target.result;
         const obName = this.objectStoreName;
@@ -81,17 +80,12 @@ class IndexedDBService {
             objectStore.createIndex(field, field, { unique: false });
           }
         });
-        resolve(db);
       };
     });
   }
 
-  async openDatabase() {
-    await this.tryOpen(); // 初始尝试打开
-  }
-
   // 获取备份
-  private async backupOldData(): Promise<any[]> {
+  private backupOldData(): Promise<any[]> {
     return new Promise((resolve, reject) => {
       const oldDbRequest = indexedDB.open(this.dbName);
 
@@ -110,21 +104,25 @@ class IndexedDBService {
         request.onerror = () => reject(request.error);
       };
 
-      oldDbRequest.onerror = (event) =>
-        reject(
-          new Error("旧数据库访问失败: " + (event.target as IDBRequest).error)
+      oldDbRequest.onerror = (event) => {
+        console.error(
+          "旧数据库访问失败: " + (event.target as IDBRequest).error
         );
+        reject();
+      };
     });
   }
 
   // 数据恢复
-  private async restoreData(): Promise<void> {
-    if (!this.db) throw new Error(this.dbName + "数据库未打开");
-
-    const tx = this.db.transaction(this.objectStoreName, "readwrite");
-    const store = tx.objectStore(this.objectStoreName);
-
+  private restoreData(): Promise<void> {
     return new Promise((resolve, reject) => {
+      if (!this.db) {
+        console.error("restoreData -> 数据库未打开", this.dbName);
+        reject();
+      }
+
+      const tx = this.db!.transaction(this.objectStoreName, "readwrite");
+      const store = tx.objectStore(this.objectStoreName);
       this.backup.forEach((item) => store.put(item));
 
       tx.oncomplete = () => {
@@ -138,7 +136,7 @@ class IndexedDBService {
   }
 
   // 删除旧数据库
-  private async deleteOldDatabase(): Promise<void> {
+  private deleteOldDatabase(): Promise<void> {
     return new Promise((resolve, reject) => {
       const deleteRequest = indexedDB.deleteDatabase(this.dbName);
 
@@ -146,15 +144,15 @@ class IndexedDBService {
         console.log("旧数据库已删除", this.dbName);
         resolve();
       };
-      deleteRequest.onerror = () =>
-        reject(
-          new Error(this.dbName + "数据库删除失败: " + deleteRequest.error)
-        );
+      deleteRequest.onerror = () => {
+        console.error(this.dbName + "数据库删除失败: " + deleteRequest.error);
+        reject();
+      };
     });
   }
 
   // 关闭当前数据库
-  async closeDatabase() {
+  closeDatabase() {
     return new Promise<void>((resolve, reject) => {
       if (this.db) {
         try {
@@ -163,7 +161,8 @@ class IndexedDBService {
           console.log("数据库已关闭", this.dbName);
           resolve();
         } catch (error) {
-          reject(new Error(this.dbName + "关闭数据库时出错: " + error));
+          console.error(this.dbName, "关闭数据库时出错: ", error);
+          reject();
         }
       } else {
         resolve();
@@ -172,11 +171,12 @@ class IndexedDBService {
   }
 
   // 数据库添加数据
-  async addData<T extends { id: number | string }>(data: T) {
-    if (!this.db) {
-      throw new Error("数据库未打开");
-    }
-    return new Promise<number | void>((resolve, reject) => {
+  addData<T extends { id: number | string }>(data: T) {
+    return new Promise<void>((resolve, reject) => {
+      if (!this.db) {
+        console.error("addData -> 数据库未打开", this.dbName);
+        reject();
+      }
       const transaction = this.db!.transaction(
         [this.objectStoreName],
         "readwrite"
@@ -184,9 +184,7 @@ class IndexedDBService {
       const objectStore = transaction.objectStore(this.objectStoreName);
       const request = objectStore.add(data);
 
-      request.onsuccess = (event) => {
-        resolve((event.target as IDBRequest).result as number);
-      };
+      request.onsuccess = () => resolve();
 
       request.onerror = async (event) => {
         const error = (event.target as IDBRequest).error;
@@ -200,24 +198,59 @@ class IndexedDBService {
           try {
             await this.deleteOldData();
             // 重试添加
-            const retryResult = await this.addData(data);
-            resolve(retryResult);
+            await this.addData(data);
+            resolve();
           } catch (deleteError) {
-            reject(deleteError);
+            reject();
           }
-        } else {
-          reject(new Error("数据添加失败: " + error));
         }
+        console.error("数据添加失败", error);
+        reject();
+      };
+    });
+  }
+
+  // 批量添加数据
+  addMultipleData<T extends { id: number | string }>(data: T[]) {
+    return new Promise<void>(async (resolve, reject) => {
+      if (!this.db) {
+        console.error("addData -> 数据库未打开", this.dbName);
+        reject();
+      }
+      const allData = await this.getAllData();
+      const transaction = this.db!.transaction(
+        [this.objectStoreName],
+        "readwrite"
+      );
+      const objectStore = transaction.objectStore(this.objectStoreName);
+      data.forEach((item) => {
+        const index = allData.findIndex((e) => e.id === item.id);
+        if (index === -1) {
+          objectStore.add(item);
+        }
+      });
+      transaction.oncomplete = () => {
+        resolve();
+        console.log("所有数据添加成功", this.dbName);
+      };
+
+      transaction.onerror = (event) => {
+        reject();
+        console.error("批量添加数据失败:", (event.target as IDBRequest).error);
       };
     });
   }
 
   // 更新数据
-  updateData<T extends { id: number | string }>(condition: Record<string, string | number> | null, stoData: T) {
-    if (!this.db) {
-      throw new Error("数据库未打开");
-    }
-    return new Promise<void>((resolve) => {
+  updateData<T extends { id: number | string }>(
+    condition: Record<string, string | number> | null,
+    stoData: T
+  ) {
+    return new Promise<void>((resolve, reject) => {
+      if (!this.db) {
+        console.error("updateData -> 数据库未打开:", this.dbName);
+        reject();
+      }
       const transaction = this.db!.transaction(
         [this.objectStoreName],
         "readwrite"
@@ -256,23 +289,25 @@ class IndexedDBService {
       };
 
       transaction.onerror = (event) => {
-        console.log("更新事务失败: " + (event.target as IDBRequest).error);
+        console.error("更新事务失败: " + (event.target as IDBRequest).error);
       };
     });
   }
 
   // 精确查找数据
-  async findByCondition(condition: Record<string, any>): Promise<any> {
-    if (!this.db) throw new Error("数据库未打开");
+  findByCondition(condition: Record<string, any>): Promise<any> {
+    return new Promise((resolve, reject) => {
+      if (!this.db) {
+        console.error("findByCondition -> 数据库未打开", this.dbName);
+        reject();
+      }
 
-    return new Promise((resolve) => {
       const transaction = this.db!.transaction(
         this.objectStoreName,
         "readonly"
       );
       const store = transaction.objectStore(this.objectStoreName);
       const request = store.openCursor();
-
       const results: any[] = [];
 
       request.onsuccess = (event) => {
@@ -292,21 +327,25 @@ class IndexedDBService {
           if (match) results.push(record);
           cursor.continue();
         } else {
-          // 返回最后一条匹配记录（最近添加的）
-          resolve(results.length > 0 ? results : null);
+          // 返回匹配记录
+          resolve(results.length ? results : null);
         }
       };
 
-      request.onerror = () => resolve(null);
+      request.onerror = (event) => {
+        console.error("查找数据失败: " + (event.target as IDBRequest).error);
+        resolve(null);
+      };
     });
   }
 
   // 删除一条数据
-  async deleteData(id: number | string) {
-    if (!this.db) {
-      throw new Error("数据库未打开");
-    }
+  deleteData(id: number | string) {
     return new Promise<void>((resolve, reject) => {
+      if (!this.db) {
+        console.error("deleteData -> 数据库未打开", this.dbName);
+        reject();
+      }
       const transaction = this.db!.transaction(
         [this.objectStoreName],
         "readwrite"
@@ -319,15 +358,14 @@ class IndexedDBService {
       };
 
       request.onerror = (event) => {
-        reject(
-          new Error("数据删除失败: " + (event.target as IDBRequest).error)
-        );
+        console.error("数据删除失败: " + (event.target as IDBRequest).error);
+        reject();
       };
     });
   }
 
   // 获取对象存储空间中的所有数据
-  async getAllData(): Promise<any[]> {
+  getAllData(): Promise<any[]> {
     return new Promise((resolve, reject) => {
       try {
         if (!this.db) {
@@ -364,12 +402,16 @@ class IndexedDBService {
   }
 
   // 查找（筛选过滤）数据
-  async optimizedFilter(conditions: Object): Promise<Object[]> {
+  optimizedFilter(conditions: Object): Promise<Object[]> {
     return new Promise((resolve, reject) => {
       if (!this.db) {
-        throw new Error("数据库未打开");
+        console.error("optimizedFilter -> 数据库未打开", this.dbName);
+        reject();
       }
-      const transaction = this.db.transaction(this.objectStoreName, "readonly");
+      const transaction = this.db!.transaction(
+        this.objectStoreName,
+        "readonly"
+      );
       const store = transaction.objectStore(this.objectStoreName);
 
       // 获取第一个有效条件和索引
@@ -402,7 +444,8 @@ class IndexedDBService {
   // 删除最早30天的数据
   private async deleteOldData(): Promise<void> {
     if (!this.db) {
-      throw new Error("数据库未打开");
+      console.error("deleteOldData -> 数据库未打开", this.dbName);
+      return;
     }
 
     const delDays = 30;
@@ -424,14 +467,16 @@ class IndexedDBService {
         if (cursor) {
           resolve(cursor.value.id);
         } else {
-          reject(new Error("没有数据可删除"));
+          console.warn("没有数据可删除");
+          reject();
         }
       };
 
       request.onerror = (event) => {
-        reject(
-          new Error("无法获取最早数据: " + (event.target as IDBRequest).error)
+        console.error(
+          "无法获取最早数据: " + (event.target as IDBRequest).error
         );
+        reject();
       };
     });
 
@@ -459,10 +504,10 @@ class IndexedDBService {
         console.log("过期数据已清理");
         resolve();
       };
-      request.onerror = (event) =>
-        reject(
-          new Error("删除旧数据失败: " + (event.target as IDBRequest).error)
-        );
+      request.onerror = (event) => {
+        console.log("删除旧数据失败: " + (event.target as IDBRequest).error);
+        reject();
+      };
     });
   }
 
@@ -475,9 +520,9 @@ class IndexedDBService {
           console.log(`已使用空间: ${usage} bytes`);
           console.log(`总可用空间: ${quota} bytes`);
           console.log(`使用比例: ${((usage / quota) * 100).toFixed(2)}%`);
-          if (usage / quota > 0.9) {
+          if (usage / quota > 0.6) {
             console.log("存储空间即将用尽，清理数据！");
-            this.deleteOldData();
+            await this.deleteOldData();
           }
         }
       } else {

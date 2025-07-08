@@ -90,8 +90,8 @@ export interface ISessionSymbolInfo {
 export interface PeriodParams {
   from: number;
   to: number;
-  countBack: number;
-  firstDataRequest: Boolean;
+  countBack?: number;
+  firstDataRequest?: Boolean;
 }
 
 export interface TimeUnit {

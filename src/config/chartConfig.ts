@@ -5,19 +5,27 @@ import { RESOLUTES } from "@/constants/common";
 import * as types from "@/types/chart";
 import { ReqLineInfo, ResLineInfo, klineHistory } from "api/kline/index";
 import SynchronizeTask from "@/utils/Concurrency/synchronizeTask";
-import { klineIndexedDB } from "utils/IndexedDB/klineDatabase";
+import KlineDB from "@/utils/IndexedDB/klineDatabase";
 
 import { useChartLine } from "@/store/modules/chartLine";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTime } from "@/store/modules/time";
+import IndexedDBService from "@/utils/IndexedDB";
 
 const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();
 const symbolsStore = useSymbols();
 
 type Tunit = "day" | "week" | "month" | "hour" | "minute";
-const countOptions: Record<string, Tunit> = {
+type TLineParams = ReqLineInfo & {
+  resolution: string;
+  from: number;
+  to: number;
+};
+
+// k线起始时间diff
+const timeDiff: Record<string, Tunit> = {
   "1D": "day",
   "1W": "week",
   "1M": "month",
@@ -29,7 +37,8 @@ const countOptions: Record<string, Tunit> = {
   "30": "minute",
 };
 
-const config = {
+// 图表配置
+const chartConfig = {
   supports_search: true,
   supports_group_request: false,
   supports_marks: true,
@@ -46,6 +55,20 @@ const formatTime = (time: number) => {
   return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
 };
 
+// 是否是月、日、周的周期
+function checkString(str: string) {
+  const regex = /[DWM]/;
+  return regex.test(str);
+}
+
+// 计算所需的k线条数
+function calcCount(params: types.PeriodParams & { resolution: string }) {
+  const to = dayjs.unix(params.to);
+  const from = dayjs.unix(params.from);
+  const diffType = timeDiff[params.resolution];
+  return to.diff(from, diffType);
+}
+
 // 商品切换还未初始化，但是数据已经先到达，存储最新的那个bar
 let temBar: Record<string, ResLineInfo> = {};
 
@@ -54,60 +77,149 @@ let temBar: Record<string, ResLineInfo> = {};
  * @param taskMap 并发任务调度器 品种和周期作为key
  */
 const taskMap: Record<string, SynchronizeTask<any>> = {};
-
-type TLineParams = ReqLineInfo & { resolution: string; };
-
-function checkString(str: string) {
-  const regex = /[DWM]/;
-  return regex.test(str);
+const serviceMap: Record<string, IndexedDBService> = {};
+interface ICacheDataItem {
+  id: number;
+  resolution: string;
+  data: ResLineInfo;
+}
+interface IMissingItem {
+  range: [number, number];
+  count: number;
+}
+interface ICacheSearch {
+  missingList: IMissingItem[];
+  searchData: ICacheDataItem[];
 }
 
-async function getCacheData(
-  params: TLineParams
-): Promise<ResLineInfo[] | null> {
-  // const { symbol, resolution, limit_ctm, count } = params;
-  // const searchData = await klineIndexedDB.findByCondition({
-  //   symbol,
-  //   resolution,
-  // });
-  // console.log("searchData", searchData);
-  // if (searchData === null || !searchData.length) {
-  //   return null;
-  // }
-  return null;
-}
-async function saveCacheData(params: TLineParams & { data: ResLineInfo[]; }) {
-  const { symbol, data, resolution } = params;
+// 获取缓存
+async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
+  const { symbol, resolution, from, count: countSum, to } = params;
+  try {
+    // 创建各个品种的db
+    if (!serviceMap[symbol]) {
+      serviceMap[symbol] = await new KlineDB(symbol).initKlineDB();
+    }
+    const searchData: ICacheDataItem[] =
+      (await serviceMap[symbol].findByCondition({
+        resolution,
+      })) || [];
 
-  const list = data.map((item) => {
-    return klineIndexedDB.addData({
-      id: `${symbol}_${item.ctm}`,
-      resolution,
-      symbol,
-      data: item,
+    // 缺失的范围
+    const missingList: IMissingItem[] = [];
+
+    if (!searchData.length) {
+      missingList.push({
+        range: [from, to],
+        count: countSum,
+      });
+      return {
+        missingList,
+        searchData,
+      };
+    }
+
+    // 检测数据是否齐全
+    let missingCount = 0;
+    // [ 以前, 缓存, 将来 ]
+    const idList = searchData.map((item) => item.id);
+    const minId = Math.min(...idList);
+    const maxId = Math.max(...idList);
+    // 以前
+    if (from < minId) {
+      const count = calcCount({ from: from, to: minId, resolution });
+      missingList.push({
+        range: [from, minId],
+        count,
+      });
+      missingCount += count;
+    }
+    // 将来
+    if (to > maxId) {
+      const count = calcCount({ from: maxId, to: to, resolution });
+      missingList.push({
+        range: [maxId, to],
+        count,
+      });
+      missingCount += count;
+    }
+
+    // 缓存的数据有缺失 清空数组
+    const needCount = countSum - missingCount;
+    if (needCount > searchData.length) {
+      missingList.length = 0;
+      searchData.length = 0;
+      missingList.push({
+        range: [from, to],
+        count: countSum,
+      });
+    }
+
+    return {
+      missingList,
+      searchData,
+    };
+  } catch {
+    return {
+      missingList: [
+        {
+          range: [from, to],
+          count: countSum,
+        },
+      ],
+      searchData: [],
+    };
+  }
+}
+async function saveCacheData(params: TLineParams & { data: ResLineInfo[] }) {
+  try {
+    const { symbol, data, resolution } = params;
+    const list = data.map((item) => {
+      return {
+        id: item.ctm,
+        resolution,
+        data: item,
+      };
     });
-  });
-  await Promise.all(list)
+    const sortList = orderBy(list, "id");
+    // 删除最新一根
+    sortList.shift();
+    await serviceMap[symbol].addMultipleData(list);
+  } catch {}
 }
 
 async function getLineHistory(chartId: string, params: TLineParams) {
   try {
-    let data: ResLineInfo[] | null = null;
     const { resolution, ...updata } = params;
     // 拿缓存数据
-    const cacheData = await getCacheData(params);
-    if (cacheData) {
-      data = cacheData;
-    } else {
-      // 服务器请求数据
-      const res = await klineHistory(updata);
-      data = res.data;
+    const cache = await getCacheData(params);
+    const hisList = cache.missingList.map((item) => {
+      return klineHistory({
+        limit_ctm: item.range[1],
+        count: item.count,
+        period_type: updata.period_type,
+        symbol: updata.symbol,
+      });
+    });
+    const httpHisList = await Promise.allSettled(hisList);
+    const dataList = cache.searchData.map((item) => item.data);
+    const needCacheData = [];
+    for (let i = 0; i < httpHisList.length; i++) {
+      const item = httpHisList[i];
+      if (item.status === "fulfilled") {
+        const data = item.value.data;
+        dataList.push(...data);
+        needCacheData.push(...data);
+      }
     }
-
-    if (!data || data.length === 0) {
+    // 缓存数据
+    if (needCacheData.length !== 0) {
+      await saveCacheData({ ...params, data: needCacheData });
+    }
+    if (dataList.length === 0) {
       return Promise.resolve([]);
     }
-    const orderBy_data = orderBy(data, "ctm");
+    const orderBy_data = orderBy(dataList, "ctm");
     const bars = orderBy_data.map((item) => {
       // 日/周/月 线数据+8小时
       const time = checkString(resolution)
@@ -122,7 +234,6 @@ async function getLineHistory(chartId: string, params: TLineParams) {
     if (bar) {
       temBar[chartId] = cloneDeep(bar);
     }
-    await saveCacheData({ ...params, data });
     return Promise.resolve(bars);
   } catch (error) {
     return Promise.reject([]);
@@ -134,7 +245,7 @@ export const datafeed = (id: string) => {
   return {
     onReady: (callback: Function) => {
       setTimeout(() => {
-        callback(config);
+        callback(chartConfig);
       });
     },
 
@@ -229,12 +340,8 @@ export const datafeed = (id: string) => {
       onErrorCallback: Function
     ) => {
       try {
-        let count = periodParams.countBack;
         // periodParams.countBack 长度不够导致数据缺失
-        const to = dayjs.unix(periodParams.to);
-        const from = dayjs.unix(periodParams.from);
-        const diffType = countOptions[resolution];
-        count = to.diff(from, diffType);
+        const count = calcCount({ ...periodParams, resolution });
         const updata = {
           resolution,
           period_type: types.Periods[resolution] || resolution,
@@ -247,7 +354,13 @@ export const datafeed = (id: string) => {
           taskMap[taskKey] = new SynchronizeTask(1);
         }
         taskMap[taskKey]
-          .add(() => getLineHistory(id, updata))
+          .add(() =>
+            getLineHistory(id, {
+              ...updata,
+              from: periodParams.from,
+              to: periodParams.to,
+            })
+          )
           .then((data) => {
             setTimeout(() => {
               onHistoryCallback(data, {
