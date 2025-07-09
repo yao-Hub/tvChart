@@ -6,7 +6,7 @@ const { getDeviceInfo } = require('./utils/systemInfo');
 const Downloader = require('./utils/downloader');
 const ShortcutManager = require('./utils/shortcutManager');
 const WindowStateManager = require('./utils/windowStateManager');
-const {sleep} = require('./utils/common');
+const { sleep } = require('./utils/common');
 
 // 所有通过createWindow创建的窗口
 const windowsMap = {};
@@ -197,12 +197,12 @@ if (!gotTheLock) {
 
   // 当 Electron 完成初始化 创建主窗口 下载器
   app.whenReady().then(() => {
-    const mainWindow = createWindow("mainWindow", null, null, false);
+    const wind = createWindow("mainWindow", null, null, false);
 
-    downloader = new Downloader(app, mainWindow);
+    downloader = new Downloader(app, wind);
 
     // 监听主窗口加载完成事件
-    mainWindow.webContents.on('ready-to-show', async () => {
+    wind.webContents.on('ready-to-show', async () => {
       await sleep(1000);
 
       // 关闭启动画面
@@ -211,13 +211,19 @@ if (!gotTheLock) {
         splashWindow = null;
       }
 
+      const screenState = windowStateMap.mainWindow;
+
       // 是否最大化
-      if (windowStateMap.mainWindow && windowStateMap.mainWindow.isMaximized) {
-        mainWindow.maximize();
+      if (screenState && screenState.isMaximized) {
+        wind.maximize();
+      }
+
+      if (screenState && (screenState.x < 0 || screenState.y < 0)) {
+        wind.center();
       }
 
       // 显示主窗口
-      mainWindow.show();
+      wind.show();
     });
   });
 

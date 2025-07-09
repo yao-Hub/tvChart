@@ -353,7 +353,7 @@ export const datafeed = (id: string) => {
         };
         const taskKey = `${symbolInfo.name}@${resolution}`;
         if (!taskMap.hasOwnProperty(taskKey)) {
-          taskMap[taskKey] = new SynchronizeTask(1);
+          taskMap[taskKey] = new SynchronizeTask(6);
         }
         taskMap[taskKey]
           .add(() =>
