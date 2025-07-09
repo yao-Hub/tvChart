@@ -95,6 +95,10 @@ interface ICacheSearch {
 // 获取缓存
 async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
   const { symbol, resolution, from, count: countSum, to } = params;
+  const initSize: IMissingItem = {
+    range: [from, to],
+    count: countSum,
+  };
   try {
     // 创建各个品种的db
     if (!serviceMap[symbol]) {
@@ -109,10 +113,7 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
     const missingList: IMissingItem[] = [];
 
     if (!searchData.length) {
-      missingList.push({
-        range: [from, to],
-        count: countSum,
-      });
+      missingList.push(initSize);
       return {
         missingList,
         searchData,
@@ -142,17 +143,23 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
         count,
       });
       missingCount += count;
+
+      // 将来的大于500条，间隔太久 直接重新拿服务器 并删除旧数据
+      if (count > 500) {
+        await serviceMap[symbol].deleteBoundData(minId, maxId);
+        return {
+          missingList: [initSize],
+          searchData: [],
+        };
+      }
     }
 
-    // 缓存的数据有缺失 清空数组
+    // 缓存 数据有缺失 不拿缓存 重新拿服务器
     const needCount = countSum - missingCount;
     if (needCount > searchData.length) {
       missingList.length = 0;
       searchData.length = 0;
-      missingList.push({
-        range: [from, to],
-        count: countSum,
-      });
+      missingList.push(initSize);
     }
 
     return {
@@ -161,12 +168,7 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
     };
   } catch {
     return {
-      missingList: [
-        {
-          range: [from, to],
-          count: countSum,
-        },
-      ],
+      missingList: [initSize],
       searchData: [],
     };
   }

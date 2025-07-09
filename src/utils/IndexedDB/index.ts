@@ -364,6 +364,32 @@ class IndexedDBService {
     });
   }
 
+  // 删除某个范围的数据
+  deleteBoundData(startOfDay: number, endOfDay: number) {
+    return new Promise<void>((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [this.objectStoreName],
+        "readwrite"
+      );
+      const objectStore = transaction.objectStore(this.objectStoreName);
+      // 创建一个 范围查询
+      const range = IDBKeyRange.bound(startOfDay, endOfDay);
+      const request = objectStore.delete(range);
+
+      request.onsuccess = () => {
+        console.log(`${this.db} 旧数据已清理: ${startOfDay} - ${endOfDay}`);
+        resolve();
+      };
+      request.onerror = (event) => {
+        console.error(
+          `${this.db} 删除旧数据失败:`,
+          (event.target as IDBRequest).error
+        );
+        reject();
+      };
+    });
+  }
+
   // 获取对象存储空间中的所有数据
   getAllData(): Promise<any[]> {
     return new Promise((resolve, reject) => {
@@ -490,25 +516,7 @@ class IndexedDBService {
     const endOfDay = startOfDay + 24 * delDays * 60 * 60 * 1000 - 1;
 
     // 删除该日期内的所有数据
-    await new Promise<void>((resolve, reject) => {
-      const transaction = this.db!.transaction(
-        [this.objectStoreName],
-        "readwrite"
-      );
-      const objectStore = transaction.objectStore(this.objectStoreName);
-      // 创建一个 范围查询
-      const range = IDBKeyRange.bound(startOfDay, endOfDay);
-      const request = objectStore.delete(range);
-
-      request.onsuccess = () => {
-        console.log("过期数据已清理");
-        resolve();
-      };
-      request.onerror = (event) => {
-        console.log("删除旧数据失败: " + (event.target as IDBRequest).error);
-        reject();
-      };
-    });
+    await this.deleteBoundData(startOfDay, endOfDay);
   }
 
   // 检查是否超出空间
