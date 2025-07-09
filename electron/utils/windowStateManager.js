@@ -32,12 +32,12 @@ class WindowStateManager {
 
   saveState(bounds, isMaximized = false) {
     try {
-      const saveState = bounds || this.getState();
+      const saveData = bounds || this.getState();
       const state = {
-        width: saveState.width,
-        height: saveState.height,
-        x: saveState.x,
-        y: saveState.y,
+        width: saveData.width,
+        height: saveData.height,
+        x: saveData.x,
+        y: saveData.y,
         isMaximized: isMaximized
       };
       fs.writeFileSync(this.stateFilePath, JSON.stringify(state));
