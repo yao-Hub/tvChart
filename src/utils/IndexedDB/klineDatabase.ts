@@ -25,7 +25,7 @@ class KlineDB {
         "resolution",
       ]);
       await instance.openDatabase();
-      this.cleanCache(instance);
+      await this.cleanCache(instance);
       // 代理
       proxiedInstance = new Proxy(instance, {
         get: (target, prop) => {
