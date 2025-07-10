@@ -123,3 +123,9 @@ export function findByProperties(
     }
   });
 }
+
+// 是否是月、日、周的周期
+export function checkDMW(resolution: string) {
+  const regex = /[DWM]/;
+  return regex.test(resolution);
+}

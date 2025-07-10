@@ -231,7 +231,7 @@ class IndexedDBService {
       });
       transaction.oncomplete = () => {
         resolve();
-        console.log("所有数据添加成功", this.dbName);
+        console.log("批量数据添加成功", this.dbName);
       };
 
       transaction.onerror = (event) => {
@@ -386,6 +386,28 @@ class IndexedDBService {
           (event.target as IDBRequest).error
         );
         reject();
+      };
+    });
+  }
+
+  deleteMultipleData<T extends { id: number | string }>(data: T[]) {
+    return new Promise<void>((resolve, reject) => {
+      const transaction = this.db!.transaction(
+        [this.objectStoreName],
+        "readwrite"
+      );
+      const objectStore = transaction.objectStore(this.objectStoreName);
+      data.forEach((item) => {
+        objectStore.delete(item.id);
+      });
+      transaction.oncomplete = () => {
+        resolve();
+        console.log("批量数据删除成功", this.dbName);
+      };
+
+      transaction.onerror = (event) => {
+        reject();
+        console.error("批量删除数据失败:", (event.target as IDBRequest).error);
       };
     });
   }

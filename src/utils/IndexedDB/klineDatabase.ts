@@ -1,4 +1,6 @@
 import IndexedDBService from "./index";
+import { RESOLUTES } from "@/constants/common";
+
 class KlineDB {
   private dbName: string; // 数据库名称
   private storeName: string; // 表名称
@@ -23,6 +25,7 @@ class KlineDB {
         "resolution",
       ]);
       await instance.openDatabase();
+      this.cleanCache(instance);
       // 代理
       proxiedInstance = new Proxy(instance, {
         get: (target, prop) => {
@@ -42,6 +45,28 @@ class KlineDB {
       this.proxiedInstanceMap[this.dbName] = proxiedInstance;
       resolve(this.proxiedInstanceMap[this.dbName]);
     });
+  }
+
+  // 清除缓存
+  async cleanCache(service: IndexedDBService) {
+    // 数据保质期
+    const dayInterval: Record<string, number> = {
+      "1": 15,
+      "5": 75,
+      "15": 150,
+      "30": 365,
+      "60": 730,
+    };
+    const data = await service.getAllData();
+    for (const i in RESOLUTES) {
+      if (dayInterval[i]) {
+        const list = data.filter((e) => e.resolution === i);
+        // 清除n天前的数据
+        const daysAgo = Date.now() - dayInterval[i] * 24 * 60 * 60 * 1000;
+        const result = list.filter((item) => item.id <= daysAgo);
+        await service.deleteMultipleData(result);
+      }
+    }
   }
 }
 export default KlineDB;

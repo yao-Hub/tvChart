@@ -1,17 +1,19 @@
 import dayjs from "dayjs";
 import { cloneDeep, flattenDeep, groupBy, maxBy, orderBy } from "lodash";
 
-import { RESOLUTES } from "@/constants/common";
 import * as types from "@/types/chart";
 import { ReqLineInfo, ResLineInfo, klineHistory } from "api/kline/index";
+
+import { RESOLUTES } from "@/constants/common";
+import { checkDMW } from "@/utils/common";
 import SynchronizeTask from "@/utils/Concurrency/synchronizeTask";
 import KlineDB from "@/utils/IndexedDB/klineDatabase";
+import IndexedDBService from "@/utils/IndexedDB";
 
 import { useChartLine } from "@/store/modules/chartLine";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTime } from "@/store/modules/time";
-import IndexedDBService from "@/utils/IndexedDB";
 
 const chartLineStore = useChartLine();
 const chartSubStore = useChartSub();
@@ -22,6 +24,7 @@ type TLineParams = ReqLineInfo & {
   resolution: string;
   from: number;
   to: number;
+  firstDataRequest?: Boolean;
 };
 
 // k线起始时间diff
@@ -55,13 +58,7 @@ const formatTime = (time: number) => {
   return `${hours < 9 ? "0" : ""}${hours}${second < 9 ? "0" : ""}${second}`;
 };
 
-// 是否是月、日、周的周期
-function checkString(str: string) {
-  const regex = /[DWM]/;
-  return regex.test(str);
-}
-
-// 计算所需的k线条数
+// 计算理想状态（无休市）所需的k线条数
 function calcCount(params: types.PeriodParams & { resolution: string }) {
   const to = dayjs.unix(params.to);
   const from = dayjs.unix(params.from);
@@ -94,7 +91,8 @@ interface ICacheSearch {
 
 // 获取缓存
 async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
-  const { symbol, resolution, from, count: countSum, to } = params;
+  const { symbol, resolution, from, to } = params;
+  const countSum = calcCount({ from, to, resolution });
   const initSize: IMissingItem = {
     range: [from, to],
     count: countSum,
@@ -104,64 +102,62 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
     if (!serviceMap[symbol]) {
       serviceMap[symbol] = await new KlineDB(symbol).initKlineDB();
     }
-    const searchData: ICacheDataItem[] =
+    const allSearchData: ICacheDataItem[] =
       (await serviceMap[symbol].findByCondition({
         resolution,
       })) || [];
 
-    // 缺失的范围
-    const missingList: IMissingItem[] = [];
+    const searchData = orderBy(
+      allSearchData.filter((e) => e.id >= from && e.id <= to),
+      "id"
+    );
 
     if (!searchData.length) {
-      missingList.push(initSize);
       return {
-        missingList,
+        missingList: [initSize],
         searchData,
       };
     }
 
-    // 检测数据是否齐全
-    let missingCount = 0;
-    // [ 以前, 缓存, 将来 ]
+    // 缺失的范围
+    const missingList: IMissingItem[] = [];
     const idList = searchData.map((item) => item.id);
-    const minId = Math.min(...idList);
-    const maxId = Math.max(...idList);
+    const minId = idList[0];
+    const maxId = idList[idList.length - 1];
+
+    // 认为缺失的数据
+    // [ 以前, 缓存, 将来 ]
     // 以前
     if (from < minId) {
       const count = calcCount({ from: from, to: minId, resolution });
-      missingList.push({
-        range: [from, minId],
-        count,
-      });
-      missingCount += count;
+      if (count > 0) {
+        missingList.push({
+          range: [from, minId],
+          count,
+        });
+      }
     }
     // 将来
     if (to > maxId) {
       const count = calcCount({ from: maxId, to: to, resolution });
-      missingList.push({
-        range: [maxId, to],
-        count,
-      });
-      missingCount += count;
-
-      // 将来的大于500条，间隔太久 直接重新拿服务器 并删除旧数据
-      if (count > 500) {
-        await serviceMap[symbol].deleteBoundData(minId, maxId);
-        return {
-          missingList: [initSize],
-          searchData: [],
-        };
+      if (count > 0) {
+        missingList.push({
+          range: [maxId, to],
+          count,
+        });
       }
     }
 
-    // 缓存 数据有缺失 不拿缓存 重新拿服务器
-    const needCount = countSum - missingCount;
-    if (needCount > searchData.length) {
-      missingList.length = 0;
-      searchData.length = 0;
-      missingList.push(initSize);
-    }
+    // 计算总缺失数量
+    const totalMissing = missingList.reduce((sum, item) => sum + item.count, 0);
 
+    // 缺失大于500条 直接重新拿服务器
+    if (totalMissing > 500) {
+      return {
+        missingList: [initSize],
+        searchData: [],
+      };
+    }
     return {
       missingList,
       searchData,
@@ -183,10 +179,11 @@ async function saveCacheData(params: TLineParams & { data: ResLineInfo[] }) {
         data: item,
       };
     });
-    const sortList = orderBy(list, "id");
     // 删除最新一根
-    sortList.shift();
-    await serviceMap[symbol].addMultipleData(list);
+    if (params.firstDataRequest) {
+      list.pop();
+    }
+    list.length > 0 && (await serviceMap[symbol].addMultipleData(list));
   } catch {}
 }
 
@@ -201,6 +198,7 @@ async function getLineHistory(chartId: string, params: TLineParams) {
         count: item.count,
         period_type: updata.period_type,
         symbol: updata.symbol,
+        limit_begin_ctm: item.range[0],
       });
     });
     const httpHisList = await Promise.allSettled(hisList);
@@ -215,16 +213,16 @@ async function getLineHistory(chartId: string, params: TLineParams) {
       }
     }
     // 缓存数据
-    if (needCacheData.length !== 0) {
+    if (needCacheData.length) {
       await saveCacheData({ ...params, data: needCacheData });
     }
     if (dataList.length === 0) {
       return Promise.resolve([]);
     }
-    const orderBy_data = orderBy(dataList, "ctm");
-    const bars = orderBy_data.map((item) => {
+    const sortData = orderBy(dataList, "ctm");
+    const bars = sortData.map((item) => {
       // 日/周/月 线数据+8小时
-      const time = checkString(resolution)
+      const time = checkDMW(resolution)
         ? (item.ctm + 8 * 3600) * 1000
         : item.ctm * 1000;
       return {
@@ -232,8 +230,9 @@ async function getLineHistory(chartId: string, params: TLineParams) {
         time,
       };
     });
+    // 暂存最新一根的k线数据
     const bar = maxBy(bars, "ctm");
-    if (bar) {
+    if (bar && updata.firstDataRequest) {
       temBar[chartId] = cloneDeep(bar);
     }
     return Promise.resolve(bars);
@@ -351,16 +350,15 @@ export const datafeed = (id: string) => {
           count,
           limit_ctm: periodParams.to,
         };
-        const taskKey = `${symbolInfo.name}@${resolution}`;
+        const taskKey = `${symbolInfo.name}`;
         if (!taskMap.hasOwnProperty(taskKey)) {
-          taskMap[taskKey] = new SynchronizeTask(6);
+          taskMap[taskKey] = new SynchronizeTask(1);
         }
         taskMap[taskKey]
           .add(() =>
             getLineHistory(id, {
               ...updata,
-              from: periodParams.from,
-              to: periodParams.to,
+              ...periodParams,
             })
           )
           .then((data) => {
@@ -396,6 +394,7 @@ export const datafeed = (id: string) => {
 
       const newBar = chartLineStore.newbar[UID];
 
+      // 初始化最新一根的数据同步到store
       if (endBar) {
         if (!newBar || (newBar && endBar.time >= newBar.time)) {
           chartLineStore.newbar[UID] = cloneDeep(endBar);

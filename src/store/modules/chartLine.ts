@@ -1,6 +1,8 @@
-import * as types from "@/types/chart";
-import { get, isNil, set, sortBy } from "lodash";
 import { defineStore } from "pinia";
+import { get, isNil, set, sortBy } from "lodash";
+
+import * as types from "@/types/chart";
+
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
 
@@ -30,7 +32,7 @@ export const useChartLine = defineStore("chartLine", {
       // 最新k线数据（实时跳动的蜡烛图数据）
       newbar: {},
       pageHidden: false,
-      // 冷却期映射 
+      // 冷却期映射
       cooldownMap: {},
       // 报价缓存 存储当前接收到的报价数据
       qouteCache: {},
