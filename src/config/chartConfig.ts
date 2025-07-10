@@ -180,10 +180,13 @@ async function saveCacheData(params: TLineParams & { data: ResLineInfo[] }) {
       };
     });
     // 删除最新一根
+    const orderList = orderBy(list, "id");
     if (params.firstDataRequest) {
-      list.pop();
+      orderList.pop();
     }
-    list.length > 0 && (await serviceMap[symbol].addMultipleData(list));
+    if (orderList.length > 0) {
+      await serviceMap[symbol].addMultipleData(orderList);
+    }
   } catch {}
 }
 
