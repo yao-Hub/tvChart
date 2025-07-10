@@ -1,120 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    html, body {
-      height: 100vh;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100vh;
+      }
 
-    .splash-container {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      background-color: #ffffff;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
+      .splash-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background-color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      }
 
-    .logo {
-      flex: 6;
-      background-image: url('splash.png');
-      background-size: cover;
-      background-repeat: no-repeat;
-    }
+      .logo {
+        flex: 7;
+        background-image: url("splash.png");
+        background-size: 100% 100%;
+        background-repeat: no-repeat;
+        position: relative;
+      }
 
-    .bottom {
-      flex: 4;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      justify-content: center;
-      padding: 0 32px;
-    }
-    .word {
-      font-family: PingFangSC;
-      font-weight: 400;
-      font-size: 14px;
-      color: #63636A;
-      line-height: 20px;
-      font-style: normal;
-    }
+      .version {
+        position: absolute;
+        bottom: 20px;
+        left: 33px;
+        font-family: PingFangSC, PingFang SC;
+        font-weight: 500;
+        font-size: 16px;
+        color: #000000;
+        line-height: 22px;
+        text-align: left;
+        font-style: normal;
+      }
 
-    .progress-bar-container {
-      display: flex;
-      gap: 18px;
-      justify-content: space-between;
-      align-items: center;
-    }
+      .bottom {
+        flex: 3;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        justify-content: center;
+        padding: 0 32px;
+      }
+      .word {
+        font-family: PingFangSC;
+        font-weight: 400;
+        font-size: 14px;
+        color: #63636a;
+        line-height: 20px;
+        font-style: normal;
+      }
 
-    .progress-bar {
-      flex: 1;
-      height: 16px;
-      background-color: #EDEFF1;
-      border-radius: 2px;
-    }
+      .progress-bar-container {
+        display: flex;
+        gap: 18px;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-    .progress-bar-fill {
-      height: 100%;
-      background: linear-gradient( 90deg, #F4B201 0%, #E28602 100%);
-      border-radius: 2px;
-    }
+      .progress-bar {
+        flex: 1;
+        height: 16px;
+        background-color: #edeff1;
+        border-radius: 2px;
+      }
 
-    .progress-num {
-      font-family: SanFranciscoDisplay, SanFranciscoDisplay;
-      font-weight: 400;
-      font-size: 14px;
-      color: #000000;
-      line-height: 18px;
-    }
+      .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #f4b201 0%, #e28602 100%);
+        border-radius: 2px;
+      }
 
-  </style>
-</head>
-<body>
-  <div class="splash-container">
-    <div class="logo"></div>
+      .progress-num {
+        font-family: SanFranciscoDisplay, SanFranciscoDisplay;
+        font-weight: 400;
+        font-size: 14px;
+        color: #000000;
+        line-height: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="splash-container">
+      <div class="logo">
+        <div class="version" id="version"></div>
+      </div>
 
-    <div class="bottom">
-      <div class="word" id="word"></div>
-  
-      <div class="progress-bar-container">
-        <div class="progress-bar">
-          <div class="progress-bar-fill" id="progress-bar"></div>
+      <div class="bottom">
+        <div class="word" id="word"></div>
+
+        <div class="progress-bar-container">
+          <div class="progress-bar">
+            <div class="progress-bar-fill" id="progress-bar"></div>
+          </div>
+
+          <div class="progress-num" id="progress-num">0%</div>
         </div>
-
-        <div class="progress-num" id="progress-num">0%</div>
       </div>
     </div>
-  </div>
 
-  <script>
-    const word = document.getElementById('word');
-    const wordMap = {
-      "zh-CN": "正在初始化应用程序...",
-      "en": "Initializing...",
-      "zh-TW": "正在初始化應用程序..."
-    };
-    const locale = navigator.language || "zh-CN";
-    const result = wordMap[locale]
-    word.textContent = `${result}`;
-
-    const progressBar = document.getElementById('progress-bar');
-    const progressNum = document.getElementById('progress-num');
-    
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 1;
-      progressBar.style.width = `${progress}%`;
-      progressNum.textContent = `${progress}%`;
-      if (progress >= 100) {
-        clearInterval(interval);
+    <script>
+      function getQueryParam(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
       }
-    }, 50);
-  </script>
-</body>
+
+      const appVersion = getQueryParam("version");
+      if (appVersion) {
+        const verDom = document.getElementById("version");
+        verDom.textContent = `v${appVersion}`;
+      }
+
+      const word = document.getElementById("word");
+      const wordMap = {
+        "zh-CN": "正在初始化应用程序...",
+        en: "Initializing...",
+        "zh-TW": "正在初始化應用程序...",
+      };
+      const locale = navigator.language || "zh-CN";
+      const result = wordMap[locale];
+      word.textContent = `${result}`;
+
+      const progressBar = document.getElementById("progress-bar");
+      const progressNum = document.getElementById("progress-num");
+
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 1;
+        progressBar.style.width = `${progress}%`;
+        progressNum.textContent = `${progress}%`;
+        if (progress >= 100) {
+          clearInterval(interval);
+        }
+      }, 50);
+    </script>
+  </body>
 </html>

@@ -34,8 +34,8 @@ const systemCachePath = path.join(app.getPath('userData'), `systemCache.json`);
 // 创建启动画面
 function createSplashWindow() {
   splashWindow = new BrowserWindow({
-    width: 600,
-    height: 300,
+    width: 720,
+    height: 480,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
