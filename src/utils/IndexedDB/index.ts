@@ -223,15 +223,19 @@ class IndexedDBService {
         "readwrite"
       );
       const objectStore = transaction.objectStore(this.objectStoreName);
+      let successAddList = [];
       data.forEach((item) => {
         const index = allData.findIndex((e) => e.id === item.id);
         if (index === -1) {
           objectStore.add(item);
+          successAddList.push(item);
         }
       });
       transaction.oncomplete = () => {
         resolve();
-        console.log("批量数据添加成功", this.dbName);
+        if (successAddList.length > 0) {
+          console.log(`${successAddList.length}条数据添加成功`, this.dbName);
+        }
       };
 
       transaction.onerror = (event) => {
@@ -390,6 +394,7 @@ class IndexedDBService {
     });
   }
 
+  // 批量删除数据
   deleteMultipleData<T extends { id: number | string }>(data: T[]) {
     return new Promise<void>((resolve, reject) => {
       const transaction = this.db!.transaction(

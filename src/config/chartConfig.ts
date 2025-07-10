@@ -81,7 +81,7 @@ interface ICacheDataItem {
   data: ResLineInfo;
 }
 interface IMissingItem {
-  range: [number, number];
+  limit_ctm: number;
   count: number;
 }
 interface ICacheSearch {
@@ -94,7 +94,7 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
   const { symbol, resolution, from, to } = params;
   const countSum = calcCount({ from, to, resolution });
   const initSize: IMissingItem = {
-    range: [from, to],
+    limit_ctm: to,
     count: countSum,
   };
   try {
@@ -122,8 +122,8 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
     // 缺失的范围
     const missingList: IMissingItem[] = [];
     const idList = searchData.map((item) => item.id);
-    const minId = idList[0];
-    const maxId = idList[idList.length - 1];
+    const minId = Math.min(...idList);
+    const maxId = Math.max(...idList);
 
     // 认为缺失的数据
     // [ 以前, 缓存, 将来 ]
@@ -132,7 +132,7 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
       const count = calcCount({ from: from, to: minId, resolution });
       if (count > 0) {
         missingList.push({
-          range: [from, minId],
+          limit_ctm: minId,
           count,
         });
       }
@@ -142,22 +142,12 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
       const count = calcCount({ from: maxId, to: to, resolution });
       if (count > 0) {
         missingList.push({
-          range: [maxId, to],
+          limit_ctm: to,
           count,
         });
       }
     }
 
-    // 计算总缺失数量
-    const totalMissing = missingList.reduce((sum, item) => sum + item.count, 0);
-
-    // 缺失大于500条 直接重新拿服务器
-    if (totalMissing > 500) {
-      return {
-        missingList: [initSize],
-        searchData: [],
-      };
-    }
     return {
       missingList,
       searchData,
@@ -197,11 +187,10 @@ async function getLineHistory(chartId: string, params: TLineParams) {
     const cache = await getCacheData(params);
     const hisList = cache.missingList.map((item) => {
       return klineHistory({
-        limit_ctm: item.range[1],
+        limit_ctm: item.limit_ctm,
         count: item.count,
         period_type: updata.period_type,
         symbol: updata.symbol,
-        limit_begin_ctm: item.range[0],
       });
     });
     const httpHisList = await Promise.allSettled(hisList);
