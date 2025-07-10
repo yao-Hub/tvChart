@@ -62,9 +62,12 @@ class KlineDB {
       if (dayInterval[i]) {
         const list = data.filter((e) => e.resolution === i);
         // 清除n天前的数据
-        const daysAgo = Date.now() - dayInterval[i] * 24 * 60 * 60 * 1000;
+        const currentecond = Math.floor(Date.now() / 1000);
+        const daysAgo = currentecond - dayInterval[i] * 24 * 60 * 60 * 1000;
         const result = list.filter((item) => item.id <= daysAgo);
-        await service.deleteMultipleData(result);
+        if (result.length) {
+          await service.deleteMultipleData(result);
+        }
       }
     }
   }
