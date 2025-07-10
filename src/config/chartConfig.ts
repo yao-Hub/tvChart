@@ -108,8 +108,8 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
       })) || [];
 
     const searchData = orderBy(
-      allSearchData.filter((e) => e.id >= from && e.id <= to),
-      "id"
+      allSearchData.filter((e) => e.data.ctm >= from && e.data.ctm <= to),
+      (item) => item.data.ctm
     );
 
     if (!searchData.length) {
@@ -121,30 +121,38 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
 
     // 缺失的范围
     const missingList: IMissingItem[] = [];
-    const idList = searchData.map((item) => item.id);
-    const minId = Math.min(...idList);
-    const maxId = Math.max(...idList);
+    const idList = searchData.map((item) => item.data.ctm);
+    const minCtm = Math.min(...idList);
+    const maxCtm = Math.max(...idList);
 
     // 认为缺失的数据
     // [ 以前, 缓存, 将来 ]
     // 以前
-    if (from < minId) {
-      const count = calcCount({ from: from, to: minId, resolution });
+    if (from < minCtm) {
+      const count = calcCount({ from: from, to: minCtm, resolution });
       if (count > 0) {
         missingList.push({
-          limit_ctm: minId,
+          limit_ctm: minCtm,
           count,
         });
       }
     }
     // 将来
-    if (to > maxId) {
-      const count = calcCount({ from: maxId, to: to, resolution });
+    if (to > maxCtm) {
+      const count = calcCount({ from: maxCtm, to: to, resolution });
       if (count > 0) {
         missingList.push({
           limit_ctm: to,
           count,
         });
+      }
+
+      // 未来差的太多
+      if (count > 500) {
+        return {
+          missingList: [initSize],
+          searchData,
+        };
       }
     }
 
@@ -164,13 +172,13 @@ async function saveCacheData(params: TLineParams & { data: ResLineInfo[] }) {
     const { symbol, data, resolution } = params;
     const list = data.map((item) => {
       return {
-        id: item.ctm,
+        id: `${item.ctm}_${resolution}`,
         resolution,
         data: item,
       };
     });
     // 删除最新一根
-    const orderList = orderBy(list, "id");
+    const orderList = orderBy(list, (item) => item.data.ctm);
     if (params.firstDataRequest) {
       orderList.pop();
     }
