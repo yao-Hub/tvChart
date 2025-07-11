@@ -1,10 +1,12 @@
-import { ITVSymbolInfo } from "@/types/chart";
 import { defineStore } from "pinia";
-import { IChartingLibraryWidget } from "public/charting_library";
+import {
+  IChartingLibraryWidget,
+  LibrarySymbolInfo,
+} from "public/charting_library";
 import { keydownList } from "utils/keydown";
 import { useSocket } from "./socket";
 
-type TcacheItem = ITVSymbolInfo & { resolution: string };
+type TcacheItem = LibrarySymbolInfo & { resolution: string };
 interface IState {
   barsCache: Map<string, TcacheItem>;
   chartsLoading: boolean;
@@ -12,7 +14,7 @@ interface IState {
 
 interface TurnSocket {
   subscriberUID: string;
-  symbolInfo: ITVSymbolInfo;
+  symbolInfo: LibrarySymbolInfo;
   resolution: string;
 }
 

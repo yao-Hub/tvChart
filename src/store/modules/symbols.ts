@@ -30,9 +30,6 @@ export const useSymbols = defineStore("symbols", () => {
   // 下单时选择的商品
   const selectSymbols = ref<string[]>([]);
 
-  // 图表的商品
-  const chartSymbols = ref<string[]>([]);
-
   const symbolPaths = ref<resSymbolAllPath[]>([]);
 
   // 可交易商品
@@ -109,7 +106,6 @@ export const useSymbols = defineStore("symbols", () => {
       ...orderSymbols.value,
       ...mySymbols.value.map((item) => item.symbol),
       ...selectSymbols.value,
-      ...chartSymbols.value,
     ];
     const result = uniq(compact(arr));
     return result;
@@ -140,7 +136,6 @@ export const useSymbols = defineStore("symbols", () => {
     symbols.value = [];
     mySymbols.value = [];
     selectSymbols.value = [];
-    chartSymbols.value = [];
     orderSymbols.value = [];
     symbolPaths.value = [];
   }
@@ -150,7 +145,6 @@ export const useSymbols = defineStore("symbols", () => {
     symbols,
     mySymbols,
     selectSymbols,
-    chartSymbols,
     getMySymbols,
     mySymbols_sort,
     symbolsTradeAllow,

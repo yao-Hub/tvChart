@@ -44,17 +44,6 @@ export interface IRate {
   update_time: number; //	最新更新时间
 }
 
-export enum Periods {
-  "1D" = 1440,
-  "1W" = 10080,
-  "1M" = 43200,
-}
-
-export interface ITVSymbolInfo {
-  name: string;
-  [value: string]: any;
-}
-
 export interface ISessionSymbolInfo {
   id: number; // 时间，毫秒级
   symbol: string; // 商品编码

@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { cloneDeep, flattenDeep, groupBy, maxBy, orderBy } from "lodash";
 
+import * as library from "public/charting_library";
 import * as types from "@/types/chart";
 import { ReqLineInfo, ResLineInfo, klineHistory } from "api/kline/index";
 
@@ -27,6 +28,12 @@ type TLineParams = ReqLineInfo & {
   firstDataRequest?: Boolean;
 };
 
+enum Periods {
+  "1D" = 1440,
+  "1W" = 10080,
+  "1M" = 43200,
+}
+
 // k线起始时间diff
 const timeDiff: Record<string, Tunit> = {
   "1D": "day",
@@ -41,15 +48,13 @@ const timeDiff: Record<string, Tunit> = {
 };
 
 // 图表配置
-const chartConfig = {
-  supports_search: true,
-  supports_group_request: false,
+const chartConfig: library.DatafeedConfiguration = {
   supports_marks: true,
   supports_timescale_marks: false,
   supports_time: true,
   exchanges: [],
   symbols_types: [],
-  supported_resolutions: Object.keys(RESOLUTES),
+  supported_resolutions: Object.keys(RESOLUTES) as library.ResolutionString[],
 };
 
 const formatTime = (time: number) => {
@@ -244,7 +249,7 @@ async function getLineHistory(chartId: string, params: TLineParams) {
 export const datafeed = (id: string) => {
   let UID = "";
   return {
-    onReady: (callback: Function) => {
+    onReady: (callback: library.OnReadyCallback) => {
       setTimeout(() => {
         callback(chartConfig);
       });
@@ -253,8 +258,8 @@ export const datafeed = (id: string) => {
     //商品配置
     resolveSymbol: (
       symbolName: string,
-      onSymbolResolvedCallback: Function,
-      onResolveErrorCallback: Function
+      onSymbolResolvedCallback: library.ResolveCallback,
+      onResolveErrorCallback: library.ErrorCallback
     ) => {
       UID = "";
       // 获取session
@@ -299,17 +304,17 @@ export const datafeed = (id: string) => {
 
       const symbol_stub = {
         name: symbolName,
+        full_name: symbolName,
         description: storeSymbolInfo?.description || "-",
-        visible_plots_set: "ohlcv",
         minmov: 1, // 纵坐标比例
         minmov2: 0,
         pricescale: Math.pow(10, storeSymbolInfo?.digits || 2), // 纵坐标小数位数
         session,
-        // session: "24x7",
-        // has_empty_bars: true,
         ticker: symbolName,
-        timezone: timeStore.settedTimezone,
+        timezone: timeStore.settedTimezone as library.Timezone,
         // type: "cfd",
+        type: "",
+        listed_exchange: "",
         has_intraday: true, // 是否支持分钟数据
         has_daily: true, // 是否支持日数据
         has_weekly_and_monthly: true, // 是否支持月，周数据
@@ -324,8 +329,9 @@ export const datafeed = (id: string) => {
           "5",
           "15",
           "30",
-        ],
-        exchange: storeSymbolInfo?.path,
+        ] as library.ResolutionString[],
+        exchange: storeSymbolInfo!.path,
+        format: "price" as library.SeriesFormat,
       };
       setTimeout(() => {
         onSymbolResolvedCallback(symbol_stub);
@@ -334,18 +340,19 @@ export const datafeed = (id: string) => {
 
     //渲染历史数据
     getBars: (
-      symbolInfo: types.ITVSymbolInfo,
-      resolution: keyof typeof types.Periods,
-      periodParams: types.PeriodParams,
-      onHistoryCallback: Function,
-      onErrorCallback: Function
+      symbolInfo: library.LibrarySymbolInfo,
+      resolution: library.ResolutionString,
+      periodParams: library.PeriodParams,
+      onHistoryCallback: library.HistoryCallback,
+      onErrorCallback: library.ErrorCallback
     ) => {
       try {
         // periodParams.countBack 长度不够导致数据缺失
         const count = calcCount({ ...periodParams, resolution });
         const updata = {
           resolution,
-          period_type: types.Periods[resolution] || resolution,
+          period_type:
+            Periods[resolution as keyof typeof Periods] || resolution,
           symbol: symbolInfo.name,
           count,
           limit_ctm: periodParams.to,
@@ -369,9 +376,7 @@ export const datafeed = (id: string) => {
             });
           })
           .catch(() => {
-            onErrorCallback("error", {
-              noData: true,
-            });
+            onErrorCallback("error");
           });
       } catch (error) {
         onHistoryCallback([], {
@@ -382,13 +387,13 @@ export const datafeed = (id: string) => {
 
     //实时更新
     subscribeBars: (
-      symbolInfo: types.ITVSymbolInfo,
-      resolution: string,
-      onRealtimeCallback: Function,
-      subscriberUID: string,
-      onResetCacheNeededCallback: Function
+      symbolInfo: library.LibrarySymbolInfo,
+      resolution: library.ResolutionString,
+      onTick: library.SubscribeBarsCallback,
+      listenerGuid: string,
+      onResetCacheNeededCallback: () => void
     ) => {
-      UID = `${id}@${subscriberUID}`;
+      UID = `${id}@${listenerGuid}`;
 
       const endBar = temBar[id];
 
@@ -403,16 +408,16 @@ export const datafeed = (id: string) => {
       delete temBar[id];
 
       chartLineStore.subscribed[UID] = {
-        onRealtimeCallback,
+        onRealtimeCallback: onTick,
         resolution,
         symbolInfo,
       };
+
       chartSubStore.subChartKlineQuote({
-        subscriberUID,
+        subscriberUID: listenerGuid,
         symbolInfo,
         resolution,
       });
-      symbolsStore.chartSymbols.push(symbolInfo.name);
     },
 
     //取消订阅
@@ -426,7 +431,7 @@ export const datafeed = (id: string) => {
       userInput: string,
       exchange: string,
       symbolType: string,
-      onResultReadyCallback: Function
+      onResult: library.SearchSymbolsCallback
     ) => {
       // 模糊匹配
       const regex = new RegExp(userInput.split("").join(".*"), "i");
@@ -446,7 +451,7 @@ export const datafeed = (id: string) => {
         (index) => symbolsStore.symbols[index]
       );
 
-      const targetList = sortedArr.map((item: types.ISessionSymbolInfo) => {
+      const targetList = sortedArr.map((item) => {
         return {
           symbol: item.symbol,
           full_name: item.symbol,
@@ -454,9 +459,10 @@ export const datafeed = (id: string) => {
           exchange: item.path,
           ticker: item.symbol,
           force_session_rebuild: true,
+          type: "",
         };
       });
-      onResultReadyCallback(targetList);
+      onResult(targetList);
     },
   };
 };

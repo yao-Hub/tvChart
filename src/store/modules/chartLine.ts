@@ -1,20 +1,19 @@
 import { defineStore } from "pinia";
 import { get, isNil, set, sortBy } from "lodash";
 
+import * as library from "public/charting_library";
 import * as types from "@/types/chart";
 
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
 
 interface ISubSCribed {
-  onRealtimeCallback: Function;
-  symbolInfo: types.ITVSymbolInfo;
+  onRealtimeCallback: library.SubscribeBarsCallback;
+  symbolInfo: library.LibrarySymbolInfo;
   resolution: string;
 }
 
-type Tbar = Partial<types.ISocketQuote> &
-  Partial<types.IQuote> & { time: number };
-
+type Tbar = library.Bar & { time: number };
 interface IState {
   subscribed: Record<string, ISubSCribed>;
   newbar: Record<string, Tbar>;
@@ -24,10 +23,24 @@ interface IState {
 }
 
 type TAction = (symbol: string) => void;
+
+// 1=1分钟，5=5分钟，15=15分钟 ，30=30分钟 ，60=1小时 ，240=4小时 ，1440=日线,10080=周线, 43200=月线
+const periodMap = {
+  "1": 1,
+  "5": 5,
+  "15": 15,
+  "30": 30,
+  "60": 60,
+  "240": 240,
+  "1D": 1440,
+  "1W": 10080,
+  "1M": 43200,
+};
+
 export const useChartLine = defineStore("chartLine", {
   state: (): IState => {
     return {
-      // 订阅的图表
+      // 图表品种监听对象
       subscribed: {},
       // 最新k线数据（实时跳动的蜡烛图数据）
       newbar: {},
@@ -178,11 +191,9 @@ export const useChartLine = defineStore("chartLine", {
           const item = this.subscribed[UID];
           const symbol = item.symbolInfo.name;
           const nowBar = this.newbar[UID];
-          if (
-            nowBar &&
-            d.symbol === symbol &&
-            +item.resolution == d.period_type
-          ) {
+          const period = periodMap[item.resolution as keyof typeof periodMap];
+          console.log("period", period, d.period_type, d);
+          if (nowBar && d.symbol === symbol && period == d.period_type) {
             const nowbarTime = nowBar.time;
             const lines = sortBy(d.klines, ["ctm"]);
             lines.forEach((line) => {
@@ -196,16 +207,24 @@ export const useChartLine = defineStore("chartLine", {
                 low,
                 time: nowbarTime,
               };
+              console.log(
+                "nowbarTime",
+                nowbarTime,
+                "dTime",
+                dTime,
+                nowbarTime < dTime
+              );
               if (!nowbarTime || nowbarTime < dTime) {
                 result.time = dTime;
+                this.newbar[UID] = { ...result };
+                console.log("this.newbar", this.newbar);
+                this.updateSubscribed(UID, result);
+                quotesStore.qoutes[d.symbol]["close"] = close;
+                quotesStore.qoutes[d.symbol]["open"] = open;
+                quotesStore.qoutes[d.symbol]["high"] = high;
+                quotesStore.qoutes[d.symbol]["low"] = low;
+                quotesStore.qoutes[d.symbol]["volume"] = volume;
               }
-              this.newbar[UID] = { ...result };
-              this.updateSubscribed(UID, result);
-              quotesStore.qoutes[d.symbol]["close"] = close;
-              quotesStore.qoutes[d.symbol]["open"] = open;
-              quotesStore.qoutes[d.symbol]["high"] = high;
-              quotesStore.qoutes[d.symbol]["low"] = low;
-              quotesStore.qoutes[d.symbol]["volume"] = volume;
             });
           }
         }
