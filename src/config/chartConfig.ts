@@ -151,7 +151,7 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
       if (count > 500) {
         return {
           missingList: [initSize],
-          searchData,
+          searchData: [],
         };
       }
     }
