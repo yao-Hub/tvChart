@@ -196,15 +196,6 @@ const initonReady = () => {
       //   { shape: "horizontal_line" }
       // );
 
-      // const lastBarTime = widget.chart().getVisibleRange().to;
-      // createPositionLabelShape(widget.chart(), {·
-      //   price: 2.74,
-      //   time: 1716199200,
-      //   direction: "多头",
-      //   pnl: 75.2,
-      //   entryTime: new Date(),
-      // });
-
       // // 表示挂单（尚未成交的订单）
       // const orderLine = widget.chart().createOrderLine();
       // orderLine
@@ -219,14 +210,22 @@ const initonReady = () => {
       //   .onMove("move", () => {})
       //   .onCancel("", () => {});
 
-      // // 表示持仓（已成交的头寸）
+      // 表示持仓（已成交的头寸）
       // const positionLine = widget.chart().createPositionLine();
       // positionLine
-      //   .setPrice(3360)
-      //   .setText(`positionLine 多头持仓\n盈亏：+$75.20`)
-      //   .setQuantity("1")
-      //   .setLineColor("#fff")
-      //   .onModify("onModify called", (T) => {
+      //   .setBodyBorderColor("#008000")
+      //   .setBodyBackgroundColor("#000")
+      //   .setBodyTextColor("#fff") // 左边按钮字体颜色
+      //   .setQuantityBorderColor("red") // 中间按钮的边框颜色
+      //   .setQuantityBackgroundColor("#000") // 中间按钮的背景色
+
+      //   .setExtendLeft(false)
+      //   .setLineLength(20) // 关闭按钮距离右边的距离
+      //   .setPrice(38.0)
+      //   .setText(`positionLine 多头持仓 盈亏：+$75.20`)
+      //   // .setQuantity("1")
+      //   // .setLineColor("#fff")
+      //   .onModify({ id: 111 }, (T) => {
       //     console.log(T);
       //   })
       //   .onClose("onModify onClose", (T) => {
@@ -255,7 +254,7 @@ const initonReady = () => {
       // // 交易历史
       // const executionLine = widget.activeChart().createExecutionShape();
       // executionLine
-      //   .setText("这是文字@1,320.75 Limit Buy 1")
+      //   .setText("是文字@1,320.75 Limit Buy 1")
       //   .setTooltip("@1,320.75 Limit Buy 1")
       //   .setTextColor("rgba(255,0,0,0.5)") // 文本颜色
       //   .setArrowColor("green") // 箭头颜色
@@ -266,15 +265,40 @@ const initonReady = () => {
 
       // const executionLine_1 = widget.activeChart().createExecutionShape();
       // executionLine_1
-      //   .setText("这是文字@1,320.75 Limit Buy 1")
+      //   // .setText("这是文字@1,320.75 Limit Buy 1")
       //   .setTooltip("@1,320.75 Limit Buy 1")
       //   .setTextColor("rgba(0,255,0,0.5)")
       //   .setArrowColor("#0F0")
       //   .setDirection("sell")
-      //   .setTime(Date.now() / 1000 - 60 * 60 * 9) // 60 minutes ago
+      //   .setTime(Date.now() / 1000 - 60 * 59) // 60 minutes ago
       //   // .setTime(widget.activeChart().getVisibleRange().from)
-      //   .setPrice(3340);
+      //   .setPrice(38.568);
 
+      // widget
+      //   .activeChart()
+      //   .createExecutionShape()
+      //   // .setText("这是文字@1,320.75 Limit Buy 1")
+      //   .setTooltip("@1,320.75 Limit Buy 1")
+      //   .setTextColor("rgba(0,255,0,0.5)")
+      //   .setArrowColor("#0F0")
+      //   .setDirection("sell")
+      //   .setTime(Date.now() / 1000 - 60 * 59) // 60 minutes ago
+      //   // .setTime(widget.activeChart().getVisibleRange().from)
+      //   .setPrice(38.564);
+      // widget.activeChart().createShape(
+      //   {
+      //     price: 38.94,
+      //     time: Date.now() / 1000 - 60 * 59,
+      //   },
+      //   {
+      //     shape: "arrow_up",
+      //     disableSave: true,
+      //     lock: true,
+      //     text: "text",
+      //     disableUndo: true,
+      //     disableSelection: true,
+      //   }
+      // );
       emit("initChart", { id: props.chartId, widget });
     });
   });
