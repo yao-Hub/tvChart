@@ -37,7 +37,7 @@ const periodMap = {
   "1M": 43200,
 };
 
-export const useChartLine = defineStore("chartLine", {
+export const useBarData = defineStore("barData", {
   state: (): IState => {
     return {
       // 图表品种监听对象
@@ -192,7 +192,6 @@ export const useChartLine = defineStore("chartLine", {
           const symbol = item.symbolInfo.name;
           const nowBar = this.newbar[UID];
           const period = periodMap[item.resolution as keyof typeof periodMap];
-          console.log("period", period, d.period_type, d);
           if (nowBar && d.symbol === symbol && period == d.period_type) {
             const nowbarTime = nowBar.time;
             const lines = sortBy(d.klines, ["ctm"]);
@@ -207,17 +206,9 @@ export const useChartLine = defineStore("chartLine", {
                 low,
                 time: nowbarTime,
               };
-              console.log(
-                "nowbarTime",
-                nowbarTime,
-                "dTime",
-                dTime,
-                nowbarTime < dTime
-              );
               if (!nowbarTime || nowbarTime < dTime) {
                 result.time = dTime;
                 this.newbar[UID] = { ...result };
-                console.log("this.newbar", this.newbar);
                 this.updateSubscribed(UID, result);
                 quotesStore.qoutes[d.symbol]["close"] = close;
                 quotesStore.qoutes[d.symbol]["open"] = open;

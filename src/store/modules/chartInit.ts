@@ -1,4 +1,4 @@
-import { useChartLine } from "@/store/modules/chartLine";
+import { useBarData } from "@/store/modules/barData";
 import { defineStore } from "pinia";
 import {
   IChartingLibraryWidget,
@@ -144,8 +144,8 @@ export const useChartInit = defineStore("chartInit", () => {
     const index = state.chartWidgetList.findIndex((e) => e.id === id);
 
     state.chartWidgetList.splice(index, 1);
-    const chartLineStore = useChartLine();
-    chartLineStore.removeChartSub(id);
+    const barDataStore = useBarData();
+    barDataStore.removeChartSub(id);
 
     const firstChart = state.chartWidgetList[0];
     if (id === state.activeChartId) {
@@ -155,11 +155,11 @@ export const useChartInit = defineStore("chartInit", () => {
     delete state.ifFinishLoad[id];
 
     // 移除渲染
-    const subscribed = chartLineStore.subscribed;
+    const subscribed = barDataStore.subscribed;
     for (const ID in subscribed) {
       const chartId = ID.split("@")[0];
       if (chartId === id) {
-        chartLineStore.unsubscribed(ID);
+        barDataStore.unsubscribed(ID);
       }
     }
     saveCharts();

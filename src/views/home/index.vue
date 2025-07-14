@@ -27,7 +27,7 @@ import { onBeforeRouteLeave, useRouter } from "vue-router";
 
 import { useInit } from "@/store/modules/init";
 import { useChartInit } from "@/store/modules/chartInit";
-import { useChartLine } from "@/store/modules/chartLine";
+import { useBarData } from "@/store/modules/barData";
 import { useLayout } from "@/store/modules/layout";
 import { useNetwork } from "@/store/modules/network";
 import { useOrder } from "@/store/modules/order";
@@ -58,7 +58,7 @@ const orderStore = useOrder();
 const networkStore = useNetwork();
 const socketStore = useSocket();
 const layoutStore = useLayout();
-const chartLineStore = useChartLine();
+const barDataStore = useBarData();
 const symbolsStore = useSymbols();
 const timeStore = useTime();
 const rateStore = useRate();
@@ -82,7 +82,7 @@ eventBus.on("go-login", () => {
 
 const initRender = () => {
   timeStore.initTime(); // 初始化时间语言和时区
-  chartLineStore.initSubLineAndQuote(); // 监听k线和报价
+  barDataStore.initSubLineAndQuote(); // 监听k线和报价
   socketStore.emitRate(); // 监听汇率
   rateStore.subRateAction(); // 监听汇率
   orderStore.getQuickTrans(); //  快捷交易

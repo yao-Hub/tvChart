@@ -11,12 +11,12 @@ import SynchronizeTask from "@/utils/Concurrency/synchronizeTask";
 import KlineDB from "@/utils/IndexedDB/klineDatabase";
 import IndexedDBService from "@/utils/IndexedDB";
 
-import { useChartLine } from "@/store/modules/chartLine";
+import { useBarData } from "@/store/modules/barData";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTime } from "@/store/modules/time";
 
-const chartLineStore = useChartLine();
+const barDataStore = useBarData();
 const chartSubStore = useChartSub();
 const symbolsStore = useSymbols();
 
@@ -397,17 +397,17 @@ export const datafeed = (id: string) => {
 
       const endBar = temBar[id];
 
-      const newBar = chartLineStore.newbar[UID];
+      const newBar = barDataStore.newbar[UID];
 
       // 初始化最新一根的数据同步到store
       if (endBar) {
         if (!newBar || (newBar && endBar.time >= newBar.time)) {
-          chartLineStore.newbar[UID] = cloneDeep(endBar);
+          barDataStore.newbar[UID] = cloneDeep(endBar);
         }
       }
       delete temBar[id];
 
-      chartLineStore.subscribed[UID] = {
+      barDataStore.subscribed[UID] = {
         onRealtimeCallback: onTick,
         resolution,
         symbolInfo,
@@ -423,7 +423,7 @@ export const datafeed = (id: string) => {
     //取消订阅
     unsubscribeBars: (subscriberUID: string) => {
       const oldUID = `${id}@${subscriberUID}`;
-      chartLineStore.unsubscribed(oldUID);
+      barDataStore.unsubscribed(oldUID);
     },
 
     // 查找商品（商品）
