@@ -68,7 +68,8 @@ function calcCount(params: types.PeriodParams & { resolution: string }) {
   const to = dayjs.unix(params.to);
   const from = dayjs.unix(params.from);
   const diffType = timeDiff[params.resolution];
-  return to.diff(from, diffType);
+  // 加三条防止漏
+  return to.diff(from, diffType) + 3;
 }
 
 // 商品切换还未初始化，但是数据已经先到达，存储最新的那个bar
@@ -107,13 +108,16 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
     if (!serviceMap[symbol]) {
       serviceMap[symbol] = await new KlineDB(symbol).initKlineDB();
     }
-    const allSearchData: ICacheDataItem[] =
-      (await serviceMap[symbol].findByCondition({
-        resolution,
-      })) || [];
+    const allSearchData: ICacheDataItem[] = await serviceMap[
+      symbol
+    ].findByCondition({
+      resolution,
+    });
 
     const searchData = orderBy(
-      allSearchData.filter((e) => e.data.ctm >= from && e.data.ctm <= to),
+      (allSearchData || []).filter(
+        (e) => e.data.ctm >= from && e.data.ctm <= to
+      ),
       (item) => item.data.ctm
     );
 
@@ -313,6 +317,7 @@ export const datafeed = (id: string) => {
         ticker: symbolName,
         timezone: timeStore.settedTimezone as library.Timezone,
         // type: "cfd",
+        // has_empty_bars: true,
         type: "",
         listed_exchange: "",
         has_intraday: true, // 是否支持分钟数据
@@ -418,6 +423,8 @@ export const datafeed = (id: string) => {
         symbolInfo,
         resolution,
       });
+
+      symbolsStore.chartSymbols.push(symbolInfo.name);
     },
 
     //取消订阅
