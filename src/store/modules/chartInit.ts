@@ -22,7 +22,7 @@ interface IState {
   chartLoading: Record<string, boolean>; // 各个图表的加载状态
   activeChartId: string; // 当前激活的chart
   globalRefresh: 0 | 1; // 是否全局刷新
-  ifFinishLoad: Record<string, boolean>; // 图表是否渲染完成
+  ifChartLoaded: Record<string, boolean>; // 图表是否渲染完成
   chartFreshKeys: Record<string, number>; // 图表刷新
 }
 
@@ -40,7 +40,7 @@ export const useChartInit = defineStore("chartInit", () => {
     chartLoading: {},
     activeChartId: "chart_1",
     globalRefresh: 0,
-    ifFinishLoad: {},
+    ifChartLoaded: {},
     chartFreshKeys: {},
   });
 
@@ -61,10 +61,12 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 等待图表初始化完毕才去初始化socket
   watch(
-    () => state.ifFinishLoad,
+    () => state.ifChartLoaded,
     () => {
-      const ifEnding = ifAllChartLoadingEnd();
-      if (ifEnding && socketStore.mainSocket === null) {
+      const values = Object.values(state.ifChartLoaded);
+      const ifNoDone = values.some((e) => !e);
+      const ifLoaded = values.length > 0 && !ifNoDone;
+      if (ifLoaded && socketStore.mainSocket === null) {
         socketStore.initMainSocket();
       }
     },
@@ -152,7 +154,7 @@ export const useChartInit = defineStore("chartInit", () => {
       state.activeChartId = firstChart.id;
     }
 
-    delete state.ifFinishLoad[id];
+    // delete state.ifChartLoaded[id];
 
     // 移除渲染
     const subscribed = barDataStore.subscribed;
@@ -332,14 +334,8 @@ export const useChartInit = defineStore("chartInit", () => {
     return null;
   }
 
-  // 全部图表是否都加载完毕
-  const ifAllChartLoadingEnd = () => {
-    const values = Object.values(state.ifFinishLoad);
-    const ifNoDone = values.some((e) => !e);
-    return values.length > 0 && !ifNoDone;
-  };
-  function setChartLoadingEndType(id: string, ifFinish: boolean) {
-    state.ifFinishLoad[id] = ifFinish;
+  function setChartLoadingType(id: string, ifLoaded: boolean) {
+    state.ifChartLoaded[id] = ifLoaded;
   }
 
   function $reset() {
@@ -347,7 +343,7 @@ export const useChartInit = defineStore("chartInit", () => {
     state.chartLayoutType = "single";
     state.chartLoading = {};
     state.activeChartId = "chart_1";
-    state.ifFinishLoad = {};
+    state.ifChartLoaded = {};
     state.chartFreshKeys = {};
   }
 
@@ -370,7 +366,7 @@ export const useChartInit = defineStore("chartInit", () => {
     loadChartList,
     getChartSavedData,
     getDefaultSymbol,
-    setChartLoadingEndType,
+    setChartLoadingType,
     $reset,
   };
 });

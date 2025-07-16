@@ -156,10 +156,6 @@ const initChart = ({ id }: { id: string }) => {
   // 捕获iframe
   const chartDom = chartRefs.value[id];
   chartActionStore.handleChartIframeMousedown(chartDom, id);
-
-  // 图表已经加载完毕
-  chartInitStore.setChartLoadingEndType(id, true);
-  // chartActionStore.createOrderLine(id);
 };
 
 onMounted(() => {

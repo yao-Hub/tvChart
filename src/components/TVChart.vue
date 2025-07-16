@@ -110,7 +110,7 @@ const initonReady = () => {
   );
 
   // 图表开始加载标志
-  chartInitStore.setChartLoadingEndType(props.chartId, false);
+  chartInitStore.setChartLoadingType(props.chartId, false);
 
   widget?.headerReady().then(() => {
     widget?.onChartReady(() => {
@@ -118,6 +118,15 @@ const initonReady = () => {
 
       // 快捷键监听
       chartSubStore.subscribeKeydown(widget);
+
+      widget
+        .activeChart()
+        .onDataLoaded()
+        .subscribe(
+          null,
+          () => chartInitStore.setChartLoadingType(props.chartId, true),
+          false
+        );
 
       // 监听商品变化 同步chartWidgetList
       widget
@@ -131,6 +140,8 @@ const initonReady = () => {
           if (target && target.symbol !== newSymbol) {
             target.symbol = newSymbol;
           }
+
+          chartInitStore.setChartLoadingType(props.chartId, false);
 
           widget.activeChart().executeActionById("timeScaleReset");
 
@@ -149,6 +160,8 @@ const initonReady = () => {
           if (target && target.interval !== interval) {
             target.interval = interval;
           }
+
+          chartInitStore.setChartLoadingType(props.chartId, false);
 
           chartInitStore.saveCharts();
         });
