@@ -23,7 +23,7 @@ interface IState {
   tpLines: Record<string, TOrderLine>;
 }
 
-export const useOrderLine = defineStore("orderLine", () => {
+export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const chartInitStore = useChartInit();
   const orderStore = useOrder();
   const themeStore = useTheme();
