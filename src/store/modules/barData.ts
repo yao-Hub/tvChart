@@ -209,11 +209,6 @@ export const useBarData = defineStore("barData", {
               };
               if (!nowbarTime || nowbarTime < dTime) {
                 result.time = dTime;
-                quotesStore.qoutes[d.symbol]["close"] = close;
-                quotesStore.qoutes[d.symbol]["open"] = open;
-                quotesStore.qoutes[d.symbol]["high"] = high;
-                quotesStore.qoutes[d.symbol]["low"] = low;
-                quotesStore.qoutes[d.symbol]["volume"] = volume;
                 this.newbar[UID] = { ...result };
                 this.updateSubscribed(UID, result);
               }

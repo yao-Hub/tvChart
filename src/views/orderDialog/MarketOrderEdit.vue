@@ -133,10 +133,7 @@
             type="primary"
             style="width: 100%"
             :loading="modifyLoading"
-            :disabled="
-              (!stopFormState.stopLoss && !stopFormState.stopProfit) ||
-              tradeDisabled
-            "
+            :disabled="tradeDisabled"
             @click="modify"
             >{{ t("dialog.confirmModify") }}</el-button
           >
@@ -443,18 +440,11 @@ const modifyLoading = ref(false);
 const modify = debounce(
   () => {
     const { stopLoss, stopProfit } = stopFormState;
-    if (!stopLoss && !stopProfit) {
-      return;
-    }
     modifyLoading.value = true;
     const { id, symbol } = orderStore.state.editOrderInfo!;
     const updata: reqEditOpeningOrders = { symbol, id };
-    if (stopProfit !== "") {
-      updata.tp = +stopProfit;
-    }
-    if (stopLoss !== "") {
-      updata.sl = +stopLoss;
-    }
+    updata.tp = +stopProfit;
+    updata.sl = +stopLoss;
     orderStore
       .modifyMarketOrder({ ...updata }, orderStore.state.editOrderInfo!)
       .then(() => handleCancel())

@@ -14,13 +14,16 @@ interface IMarketLineItem {
   orderInfo: resOrders;
 }
 
-type TOrderLine = Record<string | number, Library.IOrderLineAdapter>;
+interface IOrderItem {
+  line: Library.IOrderLineAdapter;
+  orderInfo: resOrders;
+}
 
 interface IState {
   marketLines: Record<string, IMarketLineItem[]>;
-  pendingLines: Record<string, TOrderLine>;
-  slLines: Record<string, TOrderLine>;
-  tpLines: Record<string, TOrderLine>;
+  pendingLines: Record<string, IOrderItem[]>;
+  slLines: Record<string, IOrderItem[]>;
+  tpLines: Record<string, IOrderItem[]>;
   actionMap: Map<string, boolean>;
 }
 
@@ -177,7 +180,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
               line
                 .setLineLength(2) // 距离右边长度
-                .setLineStyle(2) // Solid = 0; Dotted = 1 Dashed = 2
                 .setQuantity((order.volume / 100).toString())
                 .onReverse(order, () => {
                   console.log("onReverse", order);
@@ -226,11 +228,91 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   // 绘制挂单线
   const drawPendingOrderLine = () => {};
 
-  // 绘制止盈线
-  const drawTpLine = () => {};
+  // 合并后的止盈止损线绘制函数
+  const drawPriceLine = (lineType: "tp" | "sl") => {
+    chartList.value.forEach((chart) => {
+      const chartId = chart.id;
+      const chartSymbol = chart.symbol;
 
-  // 绘制止损线
-  const drawSlLine = () => {};
+      // 获取对应的状态存储
+      const stateKey = `${lineType}Lines` as const;
+      const chartLines =
+        state[stateKey][chartId] || (state[stateKey][chartId] = []);
+
+      const activeOrderIds = new Set<string>();
+      const existingLinesMap = new Map<string, IOrderItem>();
+
+      // 创建现有线映射
+      chartLines.forEach((lineItem) => {
+        existingLinesMap.set(lineItem.orderInfo.id.toString(), lineItem);
+      });
+
+      // 过滤当前图表品种且有对应价格的订单
+      const field = lineType === "tp" ? "tp_price" : "sl_price";
+      marketOrder.value
+        .filter((order) => order.symbol === chartSymbol && order[field])
+        .forEach((order) => {
+          const orderId = order.id.toString();
+          activeOrderIds.add(orderId);
+          // const orderType = order.type === 1 ? "sell" : "buy";
+          const price = order[field];
+
+          // 文本描述
+          const text = `${lineType.toUpperCase()}: ${price}`;
+
+          // 新增线
+          if (!existingLinesMap.has(orderId)) {
+            if (chart.widget) {
+              const line = chart.widget.chart().createOrderLine();
+              line
+                .setPrice(price)
+                .setText(text)
+                .setLineStyle(2) // 虚线样式
+                .setLineLength(2)
+                .setQuantity((order.volume / 100).toString())
+                .onModify(() => {})
+                .onCancel(() => {})
+                .onMove(() => {});
+
+              // setLineColor(lineType, orderType, line);
+              chartLines.push({ line, orderInfo: { ...order } });
+            }
+          }
+          // 更新已有线
+          else {
+            const target = chartLines.find(
+              (item) => item.orderInfo.id === order.id
+            );
+            if (target && target.orderInfo[field] !== price) {
+              target.line.setPrice(price).setText(text);
+              target.orderInfo = { ...order };
+            }
+          }
+        });
+
+      // 清理无效线
+      for (let i = chartLines.length - 1; i >= 0; i--) {
+        const lineItem = chartLines[i];
+        const orderId = lineItem.orderInfo.id.toString();
+
+        if (
+          !activeOrderIds.has(orderId) ||
+          !marketOrder.value.some(
+            (order) =>
+              order.id.toString() === orderId &&
+              order[field] &&
+              order[field] > 0
+          )
+        ) {
+          lineItem.line.remove();
+          chartLines.splice(i, 1);
+        }
+      }
+    });
+  };
+
+  const drawTpLine = () => drawPriceLine("tp");
+  const drawSlLine = () => drawPriceLine("sl");
 
   // 绘制交易标记
   const draoTradeFlag = () => {};
