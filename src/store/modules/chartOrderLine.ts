@@ -1,6 +1,5 @@
 import { computed, reactive, watch } from "vue";
 import { defineStore } from "pinia";
-import { throttle } from "lodash";
 
 import * as Library from "public/charting_library";
 import { resOrders } from "api/order/index";
@@ -138,7 +137,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   };
 
   // 绘制市价单线
-  const drawMarketOrderLine = throttle(() => {
+  const drawMarketOrderLine = () => {
     chartList.value.forEach((chart) => {
       const chartId = chart.id;
       const chartSymbol = chart.symbol;
@@ -222,7 +221,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         }
       }
     });
-  }, 300);
+  };
 
   // 绘制挂单线
   const drawPendingOrderLine = () => {};
