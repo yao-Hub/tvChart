@@ -13,7 +13,7 @@ interface ISubSCribed {
   resolution: string;
 }
 
-type Tbar = library.Bar & { time: number };
+type Tbar = library.Bar & { time: number; ask?: number; bid?: number };
 interface IState {
   subscribed: Record<string, ISubSCribed>;
   newbar: Record<string, Tbar>;
@@ -154,9 +154,9 @@ export const useBarData = defineStore("barData", {
               open: bar.open,
               ask: d.ask,
               bid: d.bid,
-              close: +d.bid,
-              high: +high,
-              low: +low,
+              close: d.bid,
+              high,
+              low,
               volume: volume + 1,
               time: bartime,
             };
@@ -195,7 +195,8 @@ export const useBarData = defineStore("barData", {
           if (nowBar && d.symbol === symbol && period == d.period_type) {
             const nowbarTime = nowBar.time;
             const lines = sortBy(d.klines, ["ctm"]);
-            lines.forEach((line) => {
+            const line = lines.pop();
+            if (line) {
               const { close, open, high, low, ctm, volume } = line;
               const dTime = ctm * 1000;
               const result = {
@@ -208,15 +209,15 @@ export const useBarData = defineStore("barData", {
               };
               if (!nowbarTime || nowbarTime < dTime) {
                 result.time = dTime;
-                this.newbar[UID] = { ...result };
-                this.updateSubscribed(UID, result);
                 quotesStore.qoutes[d.symbol]["close"] = close;
                 quotesStore.qoutes[d.symbol]["open"] = open;
                 quotesStore.qoutes[d.symbol]["high"] = high;
                 quotesStore.qoutes[d.symbol]["low"] = low;
                 quotesStore.qoutes[d.symbol]["volume"] = volume;
+                this.newbar[UID] = { ...result };
+                this.updateSubscribed(UID, result);
               }
-            });
+            }
           }
         }
       });

@@ -92,9 +92,7 @@ const initonReady = () => {
     disabled_features: props.disabledFeatures,
     custom_timezones: timezoneOptions as library.CustomAliasedTimezone[],
     autosize: true,
-    // overrides: {
-    //   "linetooltrendline.linecolor": "red",
-    // },
+    overrides: {},
   };
 
   // 图表刷新key
@@ -133,6 +131,9 @@ const initonReady = () => {
           if (target && target.symbol !== newSymbol) {
             target.symbol = newSymbol;
           }
+
+          widget.activeChart().executeActionById("timeScaleReset");
+
           // 保存图表
           chartInitStore.saveCharts();
         });

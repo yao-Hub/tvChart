@@ -70,13 +70,14 @@ export const useQuotes = defineStore("qoutes", () => {
       class: "",
       value: "-",
     };
-    const quote = qoutes.value[symbol];
-    if (quote) {
-      const close = quote.close;
-      const open = quote.open;
+    const qoute = qoutes.value[symbol];
+    if (qoute) {
+      const close = qoute.close;
+      const open = qoute.open;
       if (close && open) {
         const dec_close = new Decimal(close);
         const dec_open = new Decimal(open);
+        // [(收盘价 - 开盘价) / 开盘价] * 100%
         const variation = dec_close
           .sub(dec_open)
           .div(dec_open)

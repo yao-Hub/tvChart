@@ -20,10 +20,11 @@ const shortcutManager = new ShortcutManager();
 // 下载控制器
 let downloader;
 
+// 窗口状态管理器
+let windowStateManager = {};
+
 // 翻译
 let translationsMap = {};
-
-const windowStateMap = {};
 
 // 尝试获取单实例锁
 const gotTheLock = app.requestSingleInstanceLock();
@@ -82,17 +83,13 @@ function createWindow(name, hash, screenWidth, showOnReady = true) {
   const renderWidth = screenWidth || width;
   const renderHight = Math.floor(renderWidth / 16 * 9);
 
-  // 创建窗口状态管理器
-  const windowStateManager = new WindowStateManager(name);
+  windowStateManager[name] = new WindowStateManager(name);
 
   // 设置默认窗口大小
-  windowStateManager.setDefaultSize(renderWidth, renderHight);
+  windowStateManager[name].setDefaultSize(renderWidth, renderHight);
 
   // 获取窗口状态
-  const windowState = windowStateManager.getState();
-
-  // 提升窗口状态
-  windowStateMap[name] = windowState;
+  const windowState = windowStateManager[name].getState();
 
   // 创建浏览器窗口
   windowsMap[name] = new BrowserWindow({
@@ -112,7 +109,7 @@ function createWindow(name, hash, screenWidth, showOnReady = true) {
   });
 
   // 监听窗口大小变化
-  windowStateManager.registerScreenSizeHandlers(windowsMap[name]);
+  windowStateManager[name].registerScreenSizeHandlers(windowsMap[name]);
 
   // Windows Linux 设置菜单栏是否可见
   windowsMap[name].setMenuBarVisibility(false);
@@ -211,7 +208,7 @@ if (!gotTheLock) {
         splashWindow = null;
       }
 
-      const screenState = windowStateMap.mainWindow;
+      const screenState = windowStateManager.mainWindow.getState();
 
       // 是否最大化
       if (screenState && screenState.isMaximized) {
