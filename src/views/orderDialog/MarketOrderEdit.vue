@@ -2,10 +2,11 @@
   <div>
     <el-dialog
       class="order_dialog scrollList"
-      v-if="model"
+      v-if="dialogStore.visibles.MarketOrderEditVisible"
+      v-model="dialogStore.visibles.MarketOrderEditVisible"
+      destroy-on-close
       align-center
       width="464"
-      v-model="model"
       :show-close="false"
       :zIndex="dialogStore.zIndex"
       draggable
@@ -14,7 +15,7 @@
       <template #header="{ close, titleId, titleClass }">
         <div class="dialog_title">
           <span :id="titleId" :class="titleClass"
-            >ID: {{ props.orderInfo.id }}</span
+            >ID: {{ orderStore.state.editOrderInfo!.id }}</span
           >
           <el-icon class="closeBtn" @click="close"><Close /></el-icon>
         </div>
@@ -28,7 +29,10 @@
             :rules="closeRules"
           >
             <el-form-item prop="symbol" :label="t('table.symbol')">
-              <el-input disabled :value="props.orderInfo.symbol"></el-input>
+              <el-input
+                disabled
+                :value="orderStore.state.editOrderInfo!.symbol"
+              ></el-input>
             </el-form-item>
             <el-form-item prop="transactionType" :label="t('dialog.orderType')">
               <el-input
@@ -95,12 +99,12 @@
                 v-model:price="stopFormState.stopLoss"
                 :symbolInfo="symbolInfo"
                 :quote="quote"
-                :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
-                :orderPrice="props.orderInfo.open_price"
-                :volume="+props.orderInfo.volume / 100"
-                :fee="props.orderInfo.fee"
-                :storage="props.orderInfo.storage"
-                :preCurrency="props.orderInfo.pre_currency"
+                :orderType="`${orderStore.state.editOrderInfo!.type ? 'sell' : 'buy'}Price`"
+                :orderPrice="orderStore.state.editOrderInfo!.open_price"
+                :volume="+orderStore.state.editOrderInfo!.volume / 100"
+                :fee="orderStore.state.editOrderInfo!.fee"
+                :storage="orderStore.state.editOrderInfo!.storage"
+                :preCurrency="orderStore.state.editOrderInfo!.pre_currency"
               ></StopLossProfit>
             </el-col>
             <el-col :span="12">
@@ -109,12 +113,12 @@
                 v-model:price="stopFormState.stopProfit"
                 :symbolInfo="symbolInfo"
                 :quote="quote"
-                :orderType="`${props.orderInfo.type ? 'sell' : 'buy'}Price`"
-                :orderPrice="props.orderInfo.open_price"
-                :volume="+props.orderInfo.volume / 100"
-                :fee="props.orderInfo.fee"
-                :storage="props.orderInfo.storage"
-                :preCurrency="props.orderInfo.pre_currency"
+                :orderType="`${orderStore.state.editOrderInfo!.type ? 'sell' : 'buy'}Price`"
+                :orderPrice="orderStore.state.editOrderInfo!.open_price"
+                :volume="+orderStore.state.editOrderInfo!.volume / 100"
+                :fee="orderStore.state.editOrderInfo!.fee"
+                :storage="orderStore.state.editOrderInfo!.storage"
+                :preCurrency="orderStore.state.editOrderInfo!.pre_currency"
               ></StopLossProfit>
             </el-col>
           </el-row>
@@ -162,11 +166,11 @@
       <el-row style="margin-top: 24px">
         <el-col :span="12">
           <el-text type="info">{{ t("dialog.order") }}ID：</el-text>
-          <el-text>{{ props.orderInfo.id }}</el-text>
+          <el-text>{{ orderStore.state.editOrderInfo!.id }}</el-text>
         </el-col>
         <el-col :span="12">
           <el-text type="info">{{ t("table.symbol") }}：</el-text>
-          <el-text>{{ props.orderInfo.symbol }}</el-text>
+          <el-text>{{ orderStore.state.editOrderInfo!.symbol }}</el-text>
         </el-col>
       </el-row>
       <el-row style="margin: 16px 0 24px 0">
@@ -185,7 +189,9 @@
           <el-text v-if="confirmType === 'close'">{{
             closeFormState.volume
           }}</el-text>
-          <el-text v-else>{{ props.orderInfo.volume / 100 }}</el-text>
+          <el-text v-else>{{
+            orderStore.state.editOrderInfo!.volume / 100
+          }}</el-text>
         </el-col>
       </el-row>
 
@@ -207,8 +213,6 @@ import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
 
-import { resOrders } from "api/order/index";
-
 import Spread from "./components/spread.vue";
 
 const dialogStore = useDialog();
@@ -217,17 +221,11 @@ const quotesStore = useQuotes();
 
 const { t } = useI18n();
 
-interface Props {
-  orderInfo: resOrders;
-}
-const props = defineProps<Props>();
 const emit = defineEmits();
-
-const model = defineModel("visible", { type: Boolean, default: false });
 
 const quote = computed(() => {
   const quotes = quotesStore.qoutes;
-  const symbol = props.orderInfo.symbol;
+  const symbol = orderStore.state.editOrderInfo!.symbol;
   return quotes[symbol] || {};
 });
 
@@ -235,7 +233,9 @@ const quote = computed(() => {
 import { useSymbols } from "@/store/modules/symbols";
 const symbolsStore = useSymbols();
 const symbolInfo = computed(() => {
-  return symbolsStore.symbols.find((e) => e.symbol === props.orderInfo.symbol);
+  return symbolsStore.symbols.find(
+    (e) => e.symbol === orderStore.state.editOrderInfo!.symbol
+  );
 });
 
 // 平仓表单
@@ -252,9 +252,14 @@ const closeFormState = reactive<CloseFormState>({
 const validateVolume = (rule: any, value: any, callback: any) => {
   if (value === "") {
     return callback(new Error(t("tip.volumeRequired")));
-  } else if (+value > props.orderInfo.volume / 100 || +value <= 0) {
+  } else if (
+    +value > orderStore.state.editOrderInfo!.volume / 100 ||
+    +value <= 0
+  ) {
     return callback(
-      new Error(`${t("tip.need")} <= ${props.orderInfo.volume / 100}`)
+      new Error(
+        `${t("tip.need")} <= ${orderStore.state.editOrderInfo!.volume / 100}`
+      )
     );
   } else {
     callback();
@@ -272,7 +277,7 @@ const stopFormState = reactive({
 const stopFormRef = ref<FormInstance>();
 // buy or sell
 const transactionType = computed(() => {
-  return getTradingDirection(props.orderInfo.type);
+  return getTradingDirection(orderStore.state.editOrderInfo!.type);
 });
 const reverseType = computed(() => {
   return transactionType.value === "sell" ? "buy" : "sell";
@@ -284,10 +289,11 @@ const step = computed(() => {
 
 const tradeDisabled = ref(false);
 watch(
-  () => model.value,
+  () => dialogStore.visibles.MarketOrderEditVisible,
   async (val) => {
     if (val) {
-      const { volume, sl_price, tp_price, symbol } = props.orderInfo;
+      const { volume, sl_price, tp_price, symbol } =
+        orderStore.state.editOrderInfo!;
       closeFormState.volume = (volume / 100).toString();
       stopFormState.stopLoss = sl_price ? String(sl_price) : "";
       stopFormState.stopProfit = tp_price ? String(tp_price) : "";
@@ -325,7 +331,7 @@ const handleConfirm = debounce(
 // 平仓操作
 const closeOrder = debounce(
   async () => {
-    const { id, symbol, type } = props.orderInfo;
+    const { id, symbol, type } = orderStore.state.editOrderInfo!;
     const updata = {
       symbol,
       id,
@@ -351,7 +357,7 @@ const addMarket = async (state: "reverse" | "double") => {
   let errmsg = "";
   let logStr = "";
 
-  const { symbol, volume, type, id } = props.orderInfo;
+  const { symbol, volume, type, id } = orderStore.state.editOrderInfo!;
   const direction = {
     reverse: type ? "buy" : "sell",
     double: type ? "sell" : "buy",
@@ -441,7 +447,7 @@ const modify = debounce(
       return;
     }
     modifyLoading.value = true;
-    const { id, symbol } = props.orderInfo;
+    const { id, symbol } = orderStore.state.editOrderInfo!;
     const updata: reqEditOpeningOrders = { symbol, id };
     if (stopProfit !== "") {
       updata.tp = +stopProfit;
@@ -450,7 +456,7 @@ const modify = debounce(
       updata.sl = +stopLoss;
     }
     orderStore
-      .modifyMarketOrder({ ...updata }, props.orderInfo)
+      .modifyMarketOrder({ ...updata }, orderStore.state.editOrderInfo!)
       .then(() => handleCancel())
       .finally(() => (modifyLoading.value = false));
   },
@@ -467,7 +473,7 @@ const nowProfit = computed(() => {
       return "-";
     }
     const { storage, fee, open_price, type, symbol, pre_currency, profit } =
-      props.orderInfo;
+      orderStore.state.editOrderInfo!;
 
     const symbolInfo = useSymbols().symbols.find((e) => e.symbol === symbol);
     if (!symbolInfo) {
@@ -502,7 +508,7 @@ const nowProfit = computed(() => {
 const handleCancel = () => {
   closeFormRef.value?.resetFields();
   stopFormRef.value?.resetFields();
-  model.value = false;
+  dialogStore.closeDialog("MarketOrderEditVisible");
 };
 </script>
 

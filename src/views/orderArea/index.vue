@@ -440,17 +440,6 @@
         </template>
       </el-auto-resizer>
     </div>
-    <MarketOrderEdit
-      v-model:visible="state.marketDialogVisible"
-      :orderInfo="state.orderInfo"
-    >
-    </MarketOrderEdit>
-
-    <PendingOrderEdit
-      v-model:visible="state.pendingDialogVisible"
-      :orderInfo="state.orderInfo"
-    >
-    </PendingOrderEdit>
   </div>
 </template>
 
@@ -483,8 +472,6 @@ import { useTime } from "@/store/modules/time";
 import { useUser } from "@/store/modules/user";
 
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
-import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
-import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
 import DataPicker from "./components/DataPicker.vue";
 import TimeRange from "./components/TimeRange.vue";
 import Deposit from "./components/Deposit.vue";
@@ -524,9 +511,8 @@ const state = reactive({
     { label: t("table.log"), key: "log" },
   ],
   columns: cloneDeep(tableColumns()),
-  marketDialogVisible: false,
-  pendingDialogVisible: false,
-  orderInfo: {} as orders.resOrders & orders.resPendingOrders,
+  // marketDialogVisible: false,
+  // pendingDialogVisible: false,
 });
 
 const activeKey = ref<orderTypes.TableTabKey>("marketOrder");
@@ -937,9 +923,8 @@ const closeMarketOrder = debounce(
       dialogStore.openDialog("disclaimersVisible");
       return;
     }
-    state.orderInfo = record;
-    dialogStore.incrementZIndex();
-    state.marketDialogVisible = true;
+    orderStore.state.editOrderInfo = record;
+    dialogStore.openDialog("MarketOrderEditVisible");
   },
   200,
   { leading: true }
@@ -1017,14 +1002,12 @@ const delOrder = debounce(
 );
 
 const showOrderDialog = (rowData: any) => {
-  state.orderInfo = rowData;
+  orderStore.state.editOrderInfo = rowData;
   if (activeKey.value === "marketOrder") {
-    dialogStore.incrementZIndex();
-    state.marketDialogVisible = true;
+    dialogStore.openDialog("MarketOrderEditVisible");
   }
   if (activeKey.value === "pendingOrder") {
-    dialogStore.incrementZIndex();
-    state.pendingDialogVisible = true;
+    dialogStore.openDialog("PendingOrderEditVisible");
   }
 };
 

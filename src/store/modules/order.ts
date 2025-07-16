@@ -16,7 +16,6 @@ import { useSymbols } from "./symbols";
 import { useUser } from "./user";
 
 import * as orderTypes from "#/order";
-import * as types from "@/types/chart";
 import * as orders from "api/order/index";
 import { orderTypeOptions } from "@/constants/common";
 
@@ -42,7 +41,7 @@ type OrderStateWithDirectionRequired<T extends ModeType> = T extends "confirm"
 
 interface IState {
   initOrderState: OrderStateWithDirectionRequired<ModeType> | null;
-  currentKline: Record<string, types.ILine>;
+  editOrderInfo: orders.resOrders | null;
   orderData: orderTypes.TableData;
   dataLoading: Record<orderTypes.TableTabKey, boolean>;
   dataEnding: Record<orderTypes.TableTabKey, boolean>;
@@ -59,7 +58,7 @@ export const useOrder = defineStore("order", () => {
   const today = dayjs().endOf("day").format(dateFormat);
   const state = reactive<IState>({
     initOrderState: null,
-    currentKline: {},
+    editOrderInfo: null,
     orderData: {
       marketOrder: [],
       pendingOrder: [],
@@ -1085,7 +1084,6 @@ export const useOrder = defineStore("order", () => {
 
   function $reset() {
     state.initOrderState = null;
-    state.currentKline = {};
     state.orderData = {
       marketOrder: [],
       pendingOrder: [],

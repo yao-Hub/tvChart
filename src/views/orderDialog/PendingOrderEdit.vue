@@ -1,10 +1,10 @@
 <template>
   <el-dialog
     class="order_dialog scrollList"
-    v-if="model"
+    v-if="dialogStore.visibles.PendingOrderEditVisible"
+    v-model="dialogStore.visibles.PendingOrderEditVisible"
     align-center
     width="464"
-    v-model="model"
     @close="handleCancel"
     :show-close="false"
     :zIndex="dialogStore.zIndex"
@@ -12,7 +12,7 @@
     <template #header="{ close, titleId, titleClass }">
       <div class="dialog_title">
         <span :id="titleId" :class="titleClass"
-          >ID: {{ props.orderInfo.id }}</span
+          >ID: {{ orderStore.state.editOrderInfo!.id }}</span
         >
         <el-icon class="closeBtn" @click="close"><Close /></el-icon>
       </div>
@@ -25,7 +25,10 @@
             :label="t('table.symbol')"
             label-position="top"
           >
-            <el-input disabled :value="props.orderInfo.symbol"></el-input>
+            <el-input
+              disabled
+              :value="orderStore.state.editOrderInfo!.symbol"
+            ></el-input>
           </el-form-item>
         </el-col>
         <el-col :span="24">
@@ -36,7 +39,7 @@
           >
             <el-input
               disabled
-              :value="getOrderType(props.orderInfo.type)"
+              :value="getOrderType(orderStore.state.editOrderInfo!.type)"
             ></el-input>
           </el-form-item>
         </el-col>
@@ -97,7 +100,7 @@
             :orderPrice="formState.orderPrice"
             :orderType="formState.orderType"
             :limitedPrice="formState.limitedPrice"
-            :preCurrency="props.orderInfo.pre_currency"
+            :preCurrency="orderStore.state.editOrderInfo!.pre_currency"
           ></StopLossProfit>
         </el-col>
         <el-col :span="12">
@@ -110,7 +113,7 @@
             :orderPrice="formState.orderPrice"
             :orderType="formState.orderType"
             :limitedPrice="formState.limitedPrice"
-            :preCurrency="props.orderInfo.pre_currency"
+            :preCurrency="orderStore.state.editOrderInfo!.pre_currency"
           ></StopLossProfit>
         </el-col>
         <el-col
@@ -167,7 +170,6 @@ import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { orderTypeOptions } from "@/constants/common";
-import { resPendingOrders } from "api/order/index";
 import type { FormInstance } from "element-plus";
 
 import BreakLimit from "./components/BreakLimit.vue";
@@ -186,15 +188,12 @@ const { t } = useI18n();
 const dialogStore = useDialog();
 const timeStore = useTime();
 const orderStore = useOrder();
-interface Props {
-  orderInfo: resPendingOrders;
-}
-const props = defineProps<Props>();
+
 const emit = defineEmits();
-const model = defineModel("visible", { type: Boolean, default: false });
+
 const handleCancel = () => {
   orderFormRef.value?.resetFields();
-  model.value = false;
+  dialogStore.closeDialog("PendingOrderEditVisible");
 };
 
 /** 表单处理 */
@@ -243,14 +242,14 @@ import { useQuotes } from "@/store/modules/quotes";
 const quotesStore = useQuotes();
 const quote = computed(() => {
   const quotes = quotesStore.qoutes;
-  const symbol = props.orderInfo.symbol;
+  const symbol = orderStore.state.editOrderInfo!.symbol;
   return quotes[symbol] || {};
 });
 
 // 重置表单 自动填充
 const tradeDisabled = ref(false);
 watch(
-  () => model.value,
+  () => dialogStore.visibles.PendingOrderEditVisible,
   async (val) => {
     if (val) {
       const {
@@ -262,7 +261,7 @@ watch(
         time_expiration,
         trigger_price,
         order_price,
-      } = props.orderInfo;
+      } = orderStore.state.editOrderInfo!;
 
       const timezone = timeStore.settedTimezone;
       const target = orderTypeOptions.find((e) => e.type === type);
@@ -337,9 +336,9 @@ const confirmEdit = debounce(
         .modifyPendingOrder(
           {
             ...updata,
-            id: props.orderInfo.id,
+            id: orderStore.state.editOrderInfo!.id,
           },
-          props.orderInfo
+          orderStore.state.editOrderInfo!
         )
         .then(() => handleCancel())
         .finally(() => (editing.value = false));
@@ -357,7 +356,7 @@ const delOrder = debounce(
       () => {
         delLoading.value = true;
         orderStore
-          .delPendingOrder(props.orderInfo)
+          .delPendingOrder(orderStore.state.editOrderInfo!)
           .then(() => orderStore.getPendingOrderHistory())
           .finally(() => {
             delLoading.value = false;

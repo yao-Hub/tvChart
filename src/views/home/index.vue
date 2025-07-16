@@ -11,10 +11,16 @@
     <FooterInfo></FooterInfo>
   </div>
 
-  <FloatMenu></FloatMenu>
-  <OrderDialog></OrderDialog>
+  <!-- 反馈 -->
   <Feedback></Feedback>
+
+  <!-- 一键声明 -->
   <Disclaimers :type="locale"></Disclaimers>
+
+  <!-- 订单编辑 -->
+  <OrderDialog></OrderDialog>
+  <MarketOrderEdit></MarketOrderEdit>
+  <PendingOrderEdit></PendingOrderEdit>
 
   <!-- 用来冒泡 响应图表的点击 -->
   <div class="bodyBox"></div>
@@ -50,7 +56,8 @@ import dragArea from "../dragArea/index.vue";
 import FooterInfo from "../footerInfo/index.vue";
 import WPHeader from "../header/index.vue";
 import OrderDialog from "../orderDialog/index.vue";
-import FloatMenu from "./components/FloatMenu.vue";
+import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
+import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
 
 const chartInitStore = useChartInit();
 const userStore = useUser();

@@ -8,6 +8,7 @@ import { resOrders } from "api/order/index";
 import { useChartInit } from "./chartInit";
 import { useOrder } from "./order";
 import { useTheme } from "./theme";
+import { useDialog } from "./dialog";
 
 interface IMarketLineItem {
   line: Library.IPositionLineAdapter;
@@ -21,12 +22,14 @@ interface IState {
   pendingLines: Record<string, TOrderLine>;
   slLines: Record<string, TOrderLine>;
   tpLines: Record<string, TOrderLine>;
+  actionMap: Map<string, boolean>;
 }
 
 export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const chartInitStore = useChartInit();
   const orderStore = useOrder();
   const themeStore = useTheme();
+  const dialogStore = useDialog();
 
   const chartList = computed(() => chartInitStore.state.chartWidgetList || []);
   const marketOrder = computed(
@@ -89,6 +92,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     pendingLines: {},
     slLines: {},
     tpLines: {},
+    actionMap: new Map(),
   });
 
   const setLineColor = (
@@ -160,6 +164,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           const orderId = order.id.toString();
           activeOrderIds.add(orderId);
 
+          const orderType = order.type === 1 ? "sell" : "buy";
+
           // 获取订单类型显示文本
           const positionType = order.type === 1 ? "多头持仓" : "空头持仓";
           const text = `${orderId} ${positionType} 盈亏：${order.profit}`;
@@ -177,14 +183,14 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
                 .onReverse(order, () => {
                   console.log("onReverse", order);
                 })
-                .onClose(order, () => {
-                  console.log("close", order);
-                })
+                .onClose(order, () => handleMarketClose(chartId, order, line))
                 .onModify(order, () => {
-                  console.log("onModify", order);
+                  orderStore.state.editOrderInfo = order;
+                  dialogStore.openDialog("MarketOrderEditVisible");
                 });
+
               // 根据订单类型设置颜色
-              setLineColor("market", order.type === 1 ? "sell" : "buy", line);
+              setLineColor("market", orderType, line);
 
               chartLines.push({ line, orderInfo: { ...order } });
             }
@@ -194,8 +200,12 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             const target = chartLines.find(
               (item) => item.orderInfo.id === order.id
             );
-            if (target && +target.orderInfo.profit !== +order.profit) {
-              target.line.setText(text);
+            if (target) {
+              // 只要利润变化就更新文本
+              if (+target.orderInfo.profit !== +order.profit) {
+                target.line.setText(text);
+              }
+              // 总是更新存储的订单信息
               target.orderInfo = { ...order };
             }
           }
@@ -232,12 +242,56 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   // 点击订单线改变相关样式
   const clickLine = () => {};
 
+  // 市价单关闭
+  const handleMarketClose = (
+    chartId: string,
+    order: resOrders,
+    line: Library.IPositionLineAdapter
+  ) => {
+    const actionId = `${order.id}@MarketClose`;
+    const actioning = state.actionMap.get(actionId);
+    if (actioning) {
+      return;
+    }
+    state.actionMap.set(actionId, true);
+    if (orderStore.state.ifOne) {
+      line.setLineColor("rgba(128,128,128,0.5)");
+      const orderType = order.type === 1 ? "sell" : "buy";
+      orderStore
+        .delMarketOrder({
+          ...order,
+          volume: order.volume / 100,
+        })
+        .then(() => {
+          const chartLines = state.marketLines[chartId];
+          // 立即删除订单线
+          const index = chartLines.findIndex(
+            (item) => item.orderInfo.id === order.id
+          );
+          if (index !== -1) {
+            const lineItem = chartLines[index];
+            lineItem.line.remove();
+            chartLines.splice(index, 1);
+          }
+        })
+        .catch(() => setLineColor("market", orderType, line))
+        .finally(() => state.actionMap.delete(actionId));
+      return;
+    }
+    if (orderStore.state.ifOne === null) {
+      dialogStore.openDialog("disclaimersVisible");
+      return;
+    }
+    orderStore.state.editOrderInfo = order;
+    dialogStore.openDialog("MarketOrderEditVisible");
+  };
+
   const $reset = () => {
-    Object.values(state.marketLines).forEach((chartLines) => {
-      chartLines.forEach((item) => item.line.remove());
+    Object.entries(state.marketLines).forEach(([chartId, lines]) => {
+      lines.forEach((item) => item.line.remove());
+      state.marketLines[chartId] = [];
     });
 
-    // 重置状态
     state.marketLines = {};
     state.pendingLines = {};
     state.slLines = {};
