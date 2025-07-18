@@ -9,6 +9,7 @@ import { useI18n } from "vue-i18n";
 import * as library from "../../public/charting_library";
 
 import { timezoneOptions } from "@/constants/timezone";
+import eventBus from "utils/eventBus";
 
 import { useChartInit } from "@/store/modules/chartInit";
 import { useChartSub } from "@/store/modules/chartSub";
@@ -119,12 +120,20 @@ const initonReady = () => {
       // 快捷键监听
       chartSubStore.subscribeKeydown(widget);
 
+      widget.subscribe("mouse_up", () => {
+        eventBus.emit("chartMouseUp", props.chartId);
+      });
+
+      // 监听数据加载完毕
       widget
         .activeChart()
         .onDataLoaded()
         .subscribe(
           null,
-          () => chartInitStore.setChartLoadingType(props.chartId, true),
+          () => {
+            console.log("onDataLoaded");
+            chartInitStore.setChartLoadingType(props.chartId, true);
+          },
           false
         );
 
@@ -178,6 +187,7 @@ const initonReady = () => {
         .getTimezoneApi()
         .setTimezone(timeStore.settedTimezone as Ttime);
 
+      // 图表主题改变
       widget
         .activeChart()
         .onChartTypeChanged()
@@ -203,48 +213,6 @@ const initonReady = () => {
         "--tv-color-pane-background",
         sysTheme === "dark" ? "#17181A" : "#FFFFFF"
       );
-
-      // widget.activeChart().createShape(
-      //   // channel: "open" | "high" | "low" | "close";
-      //   { time: new Date().getTime() - 5000, price: 0.594 },
-      //   { shape: "horizontal_line" }
-      // );
-
-      // // 表示挂单（尚未成交的订单）
-      // const orderLine = widget.chart().createOrderLine();
-      // orderLine
-      //   .setPrice(3340)
-      //   .setText("orderLine 买入 STOP: 73.5 (5,64%)")
-      //   .setLineLength(30)
-      //   .setQuantityBackgroundColor("pink")
-      //   .setLineColor("pink")
-      //   .onModify("onModify called", () => {
-      //     console.log("onModify called");
-      //   })
-      //   .onMove("move", () => {})
-      //   .onCancel("", () => {});
-
-      // 表示持仓（已成交的头寸）
-      // const positionLine = widget.chart().createPositionLine();
-      // positionLine
-      //   .setBodyBorderColor("#008000")
-      //   .setBodyBackgroundColor("#000")
-      //   .setBodyTextColor("#fff") // 左边按钮字体颜色
-      //   .setQuantityBorderColor("red") // 中间按钮的边框颜色
-      //   .setQuantityBackgroundColor("#000") // 中间按钮的背景色
-
-      //   .setExtendLeft(false)
-      //   .setLineLength(20) // 关闭按钮距离右边的距离
-      //   .setPrice(38.0)
-      //   .setText(`positionLine 多头持仓 盈亏：+$75.20`)
-      //   // .setQuantity("1")
-      //   // .setLineColor("#fff")
-      //   .onModify({ id: 111 }, (T) => {
-      //     console.log(T);
-      //   })
-      //   .onClose("onModify onClose", (T) => {
-      //     console.log(T);
-      //   });
 
       // // 一条点到点的线
       // const from = Date.now() / 1000 - 3 * 24 * 3600; // 5 days ago
@@ -277,28 +245,6 @@ const initonReady = () => {
       //   // .setTime(widget.activeChart().getVisibleRange().from)
       //   .setPrice(3340);
 
-      // const executionLine_1 = widget.activeChart().createExecutionShape();
-      // executionLine_1
-      //   // .setText("这是文字@1,320.75 Limit Buy 1")
-      //   .setTooltip("@1,320.75 Limit Buy 1")
-      //   .setTextColor("rgba(0,255,0,0.5)")
-      //   .setArrowColor("#0F0")
-      //   .setDirection("sell")
-      //   .setTime(Date.now() / 1000 - 60 * 59) // 60 minutes ago
-      //   // .setTime(widget.activeChart().getVisibleRange().from)
-      //   .setPrice(38.568);
-
-      // widget
-      //   .activeChart()
-      //   .createExecutionShape()
-      //   // .setText("这是文字@1,320.75 Limit Buy 1")
-      //   .setTooltip("@1,320.75 Limit Buy 1")
-      //   .setTextColor("rgba(0,255,0,0.5)")
-      //   .setArrowColor("#0F0")
-      //   .setDirection("sell")
-      //   .setTime(Date.now() / 1000 - 60 * 59) // 60 minutes ago
-      //   // .setTime(widget.activeChart().getVisibleRange().from)
-      //   .setPrice(38.564);
       // widget.activeChart().createShape(
       //   {
       //     price: 38.94,

@@ -22,6 +22,8 @@
   <MarketOrderEdit></MarketOrderEdit>
   <PendingOrderEdit></PendingOrderEdit>
 
+  <MarketComfirm></MarketComfirm>
+
   <!-- 用来冒泡 响应图表的点击 -->
   <div class="bodyBox"></div>
 </template>
@@ -58,6 +60,7 @@ import WPHeader from "../header/index.vue";
 import OrderDialog from "../orderDialog/index.vue";
 import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
+import MarketComfirm from "../orderDialog/components/MarketComfirm.vue";
 
 const chartInitStore = useChartInit();
 const userStore = useUser();

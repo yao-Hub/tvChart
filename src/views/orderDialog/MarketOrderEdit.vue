@@ -2,8 +2,8 @@
   <div>
     <el-dialog
       class="order_dialog scrollList"
-      v-if="dialogStore.visibles.MarketOrderEditVisible"
-      v-model="dialogStore.visibles.MarketOrderEditVisible"
+      v-if="dialogStore.visibles.marketOrderEditVisible"
+      v-model="dialogStore.visibles.marketOrderEditVisible"
       destroy-on-close
       align-center
       width="464"
@@ -140,65 +140,6 @@
         </el-tooltip>
       </template>
     </el-dialog>
-
-    <el-dialog
-      v-if="confirmOpen"
-      :width="464"
-      v-model="confirmOpen"
-      align-center
-      :zIndex="dialogStore.zIndex"
-    >
-      <template #header>
-        <span v-if="confirmType === 'close'">{{
-          t("tip.confirm", { type: t("dialog.closePosition") })
-        }}</span>
-        <div v-if="confirmType === 'reverse'" class="reverseTitle">
-          <span>{{ t("dialog.reversePosition") }}</span>
-          <span class="reverseTitle_tip">{{ t("tip.reversePosition") }}</span>
-        </div>
-        <span v-if="confirmType === 'double'">{{
-          t("dialog.confirmDouble")
-        }}</span>
-      </template>
-      <el-row style="margin-top: 24px">
-        <el-col :span="12">
-          <el-text type="info">{{ t("dialog.order") }}ID：</el-text>
-          <el-text>{{ orderStore.state.editOrderInfo!.id }}</el-text>
-        </el-col>
-        <el-col :span="12">
-          <el-text type="info">{{ t("table.symbol") }}：</el-text>
-          <el-text>{{ orderStore.state.editOrderInfo!.symbol }}</el-text>
-        </el-col>
-      </el-row>
-      <el-row style="margin: 16px 0 24px 0">
-        <el-col :span="12">
-          <el-text type="info">{{ t("dialog.orderType") }}：</el-text>
-          <el-text>{{
-            t(
-              `order.${
-                confirmType === "reverse" ? reverseType : transactionType
-              }`
-            )
-          }}</el-text>
-        </el-col>
-        <el-col :span="12">
-          <el-text type="info">{{ t("dialog.tradingVolume") }}：</el-text>
-          <el-text v-if="confirmType === 'close'">{{
-            closeFormState.volume
-          }}</el-text>
-          <el-text v-else>{{
-            orderStore.state.editOrderInfo!.volume / 100
-          }}</el-text>
-        </el-col>
-      </el-row>
-
-      <template #footer>
-        <el-button @click="confirmCancel">{{ t("cancel") }}</el-button>
-        <el-button type="primary" @click="okCancel" :loading="confirmLoading">{{
-          t("ok")
-        }}</el-button>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -276,9 +217,6 @@ const stopFormRef = ref<FormInstance>();
 const transactionType = computed(() => {
   return getTradingDirection(orderStore.state.editOrderInfo!.type);
 });
-const reverseType = computed(() => {
-  return transactionType.value === "sell" ? "buy" : "sell";
-});
 
 const step = computed(() => {
   return symbolInfo.value ? symbolInfo.value.volume_step / 100 : 1;
@@ -286,7 +224,7 @@ const step = computed(() => {
 
 const tradeDisabled = ref(false);
 watch(
-  () => dialogStore.visibles.MarketOrderEditVisible,
+  () => dialogStore.visibles.marketOrderEditVisible,
   async (val) => {
     if (val) {
       const { volume, sl_price, tp_price, symbol } =
@@ -300,138 +238,20 @@ watch(
 );
 
 import { debounce, get, isNil } from "lodash";
-const confirmOpen = ref(false);
-const confirmLoading = ref(false);
-const confirmCancel = () => {
-  confirmOpen.value = false;
-};
-type ConfirmType = "close" | "reverse" | "double";
-const confirmType = ref<ConfirmType>("close");
-const handleConfirm = debounce(
-  (type: ConfirmType, formEl: FormInstance | undefined) => {
-    if (tradeDisabled.value) {
-      ElMessage.warning(t("tip.marketClosed"));
-      return;
-    }
-    if (!formEl) return;
-    formEl.validate((valid) => {
-      if (valid) {
-        dialogStore.incrementZIndex();
-        confirmType.value = type;
-        confirmOpen.value = true;
-      }
-    });
-  },
-  200
-);
-
-// 平仓操作
-const closeOrder = debounce(
-  async () => {
-    const { id, symbol, type } = orderStore.state.editOrderInfo!;
-    const updata = {
-      symbol,
-      id,
-      volume: +closeFormState.volume,
-      type,
-    };
-    await orderStore.delMarketOrder(updata);
-    orderStore.getData("order_closed");
-    handleCancel();
-    confirmCancel();
-  },
-  200,
-  { leading: true }
-);
-
-import { marketOrdersDouble, marketOrdersReverse } from "api/order/index";
-import { ElMessage, ElNotification } from "element-plus";
-import { logIndexedDB } from "utils/IndexedDB/logDatabase";
-import { useUser } from "@/store/modules/user";
-import dayjs from "dayjs";
-
-const addMarket = async (state: "reverse" | "double") => {
-  let errmsg = "";
-  let logStr = "";
-
-  const { symbol, volume, type, id } = orderStore.state.editOrderInfo!;
-  const direction = {
-    reverse: type ? "buy" : "sell",
-    double: type ? "sell" : "buy",
-  }[state];
-
-  logStr = `${direction} ${volume / 100} ${symbol} `;
-
-  let res;
-  const actionMap = {
-    reverse: marketOrdersReverse,
-    double: marketOrdersDouble,
-  };
-  if (actionMap[state]) {
-    try {
-      res = await actionMap[state]({ id });
-      if (res && res.data.action_success) {
-        ElNotification({
-          title: t("tip.succeed", { type: t("dialog.createOrder") }),
-          type: "success",
-          message: t("dialog.createOrderSucceed", {
-            type: t(`order.${direction}`),
-            volume: volume / 100,
-            symbol,
-          }),
-        });
-        orderStore.getData("order_opened");
-        handleCancel();
-        confirmCancel();
-      } else {
-        ElNotification.error({
-          message: t("tip.failed", { type: t("dialog.createOrder") }),
-        });
-      }
-    } catch (error: any) {
-      errmsg =
-        get(error, "errmsg") || get(error, "message") || JSON.stringify(error);
-    } finally {
-      const login = useUser().account.login;
-      const server = useUser().account.server;
-      const logErr = errmsg ? `error ${errmsg}` : "";
-      logStr = `${login}: #${id} ${state} market ${logErr} ${logStr}`;
-      const logData = {
-        logType: errmsg ? "error" : "info",
-        logName: `${state} market`,
-        detail: logStr,
-        id: new Date().getTime(),
-        origin: "trades",
-        time: dayjs().format("YYYY.MM.DD HH:mm:ss.SSS"),
-        login,
-        server,
-        day: dayjs().format("YYYY.MM.DD"),
-      };
-      await logIndexedDB.addData(logData);
-      orderStore.getData("log");
-    }
+import { ElMessage } from "element-plus";
+const handleConfirm = debounce((type, formEl: FormInstance | undefined) => {
+  if (tradeDisabled.value) {
+    ElMessage.warning(t("tip.marketClosed"));
+    return;
   }
-};
-
-const okCancel = debounce(async () => {
-  try {
-    confirmLoading.value = true;
-    switch (confirmType.value) {
-      case "close":
-        await closeOrder();
-        break;
-      case "reverse":
-        await addMarket("reverse");
-        break;
-      case "double":
-        await addMarket("double");
-        break;
-      default:
-        break;
+  if (!formEl) return;
+  formEl.validate((valid) => {
+    if (valid) {
+      orderStore.state.marketConfirmInfo.type = type;
+      orderStore.state.marketConfirmInfo.volume = closeFormState.volume;
+      dialogStore.openDialog("marketOrderComfirmVisible");
     }
-  } finally {
-    confirmLoading.value = false;
-  }
+  });
 }, 200);
 
 // 修改止盈止损
@@ -498,7 +318,7 @@ const nowProfit = computed(() => {
 const handleCancel = () => {
   closeFormRef.value?.resetFields();
   stopFormRef.value?.resetFields();
-  dialogStore.closeDialog("MarketOrderEditVisible");
+  dialogStore.closeDialog("marketOrderEditVisible");
 };
 </script>
 
@@ -538,14 +358,5 @@ const handleCancel = () => {
   padding: 5px 0;
   text-align: center;
   margin-top: 4px;
-}
-.reverseTitle {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  &_tip {
-    line-height: 18px;
-    @include font_color("word-gray");
-  }
 }
 </style>

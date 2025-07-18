@@ -1,7 +1,9 @@
-import i18n from "@/language/index";
-import { defineStore } from "pinia";
-import { ResolutionString } from "public/charting_library/charting_library";
 import { createApp } from "vue";
+import { defineStore } from "pinia";
+
+import i18n from "@/language/index";
+import { ResolutionString } from "public/charting_library/charting_library";
+import eventBus from "utils/eventBus";
 
 import { useChartInit } from "./chartInit";
 import { useOrder } from "./order";
@@ -131,7 +133,8 @@ export const useChartAction = defineStore("chartAction", {
           iframeDom.contentDocument || iframeDom.contentWindow!.document;
         iframeDoc.addEventListener("mousedown", () => {
           useChartInit().state.activeChartId = id;
-          // 若存在下拉框可以触发关闭
+          eventBus.emit("chartClick", id);
+          // 事件冒泡到外部
           const bodyBox = document.querySelector(".bodyBox") as HTMLElement;
           if (bodyBox) {
             bodyBox.click();

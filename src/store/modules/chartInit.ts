@@ -154,7 +154,7 @@ export const useChartInit = defineStore("chartInit", () => {
       state.activeChartId = firstChart.id;
     }
 
-    // delete state.ifChartLoaded[id];
+    delete state.ifChartLoaded[id];
 
     // 移除渲染
     const subscribed = barDataStore.subscribed;

@@ -924,7 +924,7 @@ const closeMarketOrder = debounce(
       return;
     }
     orderStore.state.editOrderInfo = record;
-    dialogStore.openDialog("MarketOrderEditVisible");
+    dialogStore.openDialog("marketOrderEditVisible");
   },
   200,
   { leading: true }
@@ -1004,7 +1004,7 @@ const delOrder = debounce(
 const showOrderDialog = (rowData: any) => {
   orderStore.state.editOrderInfo = rowData;
   if (activeKey.value === "marketOrder") {
-    dialogStore.openDialog("MarketOrderEditVisible");
+    dialogStore.openDialog("marketOrderEditVisible");
   }
   if (activeKey.value === "pendingOrder") {
     dialogStore.openDialog("PendingOrderEditVisible");

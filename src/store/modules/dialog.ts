@@ -16,7 +16,9 @@ type TVisible =
   // 订单弹窗
   | "orderDialogVisible"
   // 市价单编辑
-  | "MarketOrderEditVisible"
+  | "marketOrderEditVisible"
+  // 市价单二次确认弹窗
+  | "marketOrderComfirmVisible"
   // 挂单编辑
   | "PendingOrderEditVisible"
   // 快捷交易声明弹窗
@@ -35,7 +37,8 @@ export const useDialog = defineStore("dialog", {
     return {
       visibles: {
         disclaimersVisible: false,
-        MarketOrderEditVisible: false,
+        marketOrderEditVisible: false,
+        marketOrderComfirmVisible: false,
         PendingOrderEditVisible: false,
         orderDialogVisible: false,
         feedbackVisible: false,

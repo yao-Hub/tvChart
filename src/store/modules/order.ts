@@ -42,6 +42,10 @@ type OrderStateWithDirectionRequired<T extends ModeType> = T extends "confirm"
 interface IState {
   initOrderState: OrderStateWithDirectionRequired<ModeType> | null;
   editOrderInfo: orders.resOrders | null;
+  marketConfirmInfo: {
+    type?: "close" | "reverse" | "double";
+    volume?: string | number;
+  };
   orderData: orderTypes.TableData;
   dataLoading: Record<orderTypes.TableTabKey, boolean>;
   dataEnding: Record<orderTypes.TableTabKey, boolean>;
@@ -59,6 +63,7 @@ export const useOrder = defineStore("order", () => {
   const state = reactive<IState>({
     initOrderState: null,
     editOrderInfo: null,
+    marketConfirmInfo: {},
     orderData: {
       marketOrder: [],
       pendingOrder: [],
@@ -733,6 +738,69 @@ export const useOrder = defineStore("order", () => {
     });
   };
 
+  const addMarket = async (marketType: "reverse" | "double") => {
+    let errmsg = "";
+    let logStr = "";
+
+    const { symbol, volume, type, id } = state.editOrderInfo!;
+    const direction = {
+      reverse: type ? "buy" : "sell",
+      double: type ? "sell" : "buy",
+    }[marketType];
+
+    logStr = `${direction} ${volume / 100} ${symbol} `;
+
+    let res;
+    const actionMap = {
+      reverse: orders.marketOrdersReverse,
+      double: orders.marketOrdersDouble,
+    };
+    if (actionMap[marketType]) {
+      try {
+        res = await actionMap[marketType]({ id });
+        if (res && res.data.action_success) {
+          ElNotification({
+            title: t("tip.succeed", { type: t("dialog.createOrder") }),
+            type: "success",
+            message: t("dialog.createOrderSucceed", {
+              type: t(`order.${direction}`),
+              volume: volume / 100,
+              symbol,
+            }),
+          });
+          getData("order_opened");
+        } else {
+          ElNotification.error({
+            message: t("tip.failed", { type: t("dialog.createOrder") }),
+          });
+        }
+      } catch (error: any) {
+        errmsg =
+          get(error, "errmsg") ||
+          get(error, "message") ||
+          JSON.stringify(error);
+      } finally {
+        const login = useUser().account.login;
+        const server = useUser().account.server;
+        const logErr = errmsg ? `error ${errmsg}` : "";
+        logStr = `${login}: #${id} ${state} market ${logErr} ${logStr}`;
+        const logData = {
+          logType: errmsg ? "error" : "info",
+          logName: `${state} market`,
+          detail: logStr,
+          id: new Date().getTime(),
+          origin: "trades",
+          time: dayjs().format("YYYY.MM.DD HH:mm:ss.SSS"),
+          login,
+          server,
+          day: dayjs().format("YYYY.MM.DD"),
+        };
+        await logIndexedDB.addData(logData);
+        getData("log");
+      }
+    }
+  };
+
   // 编辑市价单
   const modifyMarketOrder = (
     updata: orders.reqEditOpeningOrders,
@@ -1160,6 +1228,7 @@ export const useOrder = defineStore("order", () => {
     getData,
     initTableData,
     getMarketOrders,
+    addMarket,
     getPendingOrders,
     getPendingOrderHistory,
     getMarketOrderHistory,
