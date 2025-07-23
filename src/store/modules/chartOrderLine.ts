@@ -30,11 +30,18 @@ interface IOrderItem {
   orderInfo: resOrders;
 }
 
+interface IHistoryItem {
+  shape: Library.IExecutionLineAdapter;
+  orderInfo: resOrders;
+  type: "open" | "close";
+}
+
 interface ILineState {
   marketLines: Record<string, IMarketLineItem[]>;
   pendingLines: Record<string, IOrderItem[]>;
   slLines: Record<string, IOrderItem[]>;
   tpLines: Record<string, IOrderItem[]>;
+  historyLines: Record<string, IHistoryItem[]>;
 }
 
 type LineType = "market" | "tp" | "sl" | "pending";
@@ -63,6 +70,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     pendingLines: {},
     slLines: {},
     tpLines: {},
+    historyLines: {},
   });
 
   // 行为集合
@@ -149,7 +157,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       for (const i in chartsLoaded.value) {
         if (chartsLoaded.value[i]) {
           drawTradeFlag(i);
-          drawTradeHistory(i);
         }
       }
     },
@@ -263,7 +270,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     };
     // 拿满足条件的线信息
     for (const i in lineState) {
-      const key = i as keyof ILineState;
+      if (i === "historyLines") continue; // 历史线不处理
+      const key = i as "marketLines" | "pendingLines" | "slLines" | "tpLines";
       const stateKey = key.replace("Lines", "") as LineType;
       if (chartId) {
         const list = lineState[key][chartId];
@@ -555,11 +563,78 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     );
   };
 
-  // 绘制交易标记
-  const drawTradeFlag = (chartId: string) => {};
+  const createNote = (chart: any, item: any, drawType: "open" | "close") => {
+    const { open_price, type, profit, open_time, close_time, close_price, id } =
+      item;
+    const volume = item.volume / 1000;
+    const colorList = [colors.value.upColor, colors.value.downColor];
+    const time = drawType === "open" ? open_time : close_time;
+    const price = drawType === "open" ? open_price : close_price;
+    const noteId = chart
+      .widget!.activeChart()
+      .createMultipointShape([{ time: time / 1000, price }], {
+        shape: "note", // 锚定注释
+        lock: true, // 禁止移动
+        disableSelection: false, // 禁止选中
+        disableSave: true, // 禁止保存
+        disableUndo: true, // 禁止撤销
+        zOrder: "top", // 置顶
+      });
+    const note = chart
+      .widget!.activeChart()
+      .getShapeById(noteId as Library.EntityId);
 
-  // 绘制交易历史
-  const drawTradeHistory = (chartId: string) => {};
+    const realType = drawType === "open" ? type : 1 - type; // 开仓时的类型和收盘时的类型相反
+
+    const dire = getTradingDirection(realType);
+
+    // 交易方向+手数+建仓价格；
+    const openText = `${id}: ${dire} ${volume} at ${open_price} profit: ${profit}`;
+
+    // 交易方向 + 手数 + 平仓价格 + 盈亏;
+    const closeText = `${id}: ${dire} ${volume} at ${close_price} profit: ${profit}`;
+    note.setProperties({
+      fixedSize: false,
+      markerColor: colorList[realType],
+      backgroundColor: "rgba(23, 24, 26, 0.5)",
+      borderColor: "rgba(255, 255, 255, 0.5)",
+      text: drawType === "open" ? openText : closeText,
+    });
+  };
+
+  // 绘制交易标记
+  const drawTradeFlag = (chartId: string) => {
+    const chart = chartList.value.find((e) => e.id === chartId);
+    if (!chart || !chart.widget) return;
+
+    const colorList = [colors.value.upColor, colors.value.downColor];
+
+    marketOrderHistory.value.forEach((item) => {
+      const { close_price, open_price, type, close_time, open_time } = item;
+
+      const lineId = chart.widget!.activeChart().createMultipointShape(
+        [
+          { time: open_time / 1000, price: open_price },
+          { time: close_time / 1000, price: close_price },
+        ],
+        {
+          shape: "trend_line", // 趋势线
+          lock: true, // 禁止移动
+          disableSelection: true, // 禁止选中
+          disableSave: true, // 禁止保存
+          disableUndo: true, // 禁止撤销
+          zOrder: "top", // 置顶
+        }
+      );
+
+      const line = chart
+        .widget!.activeChart()
+        .getShapeById(lineId as Library.EntityId);
+      line.setProperties({ linecolor: colorList[type], linestyle: 1 });
+      createNote(chart, item, "open");
+      createNote(chart, item, "close");
+    });
+  };
 
   // 获取挂单价格
   const getPendingPrice = (

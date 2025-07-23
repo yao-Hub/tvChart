@@ -70,6 +70,7 @@ export interface resOrders {
   comment: string; // 	备注评论
   now_price?: number; // 现价
   pre_currency?: string;
+  close_type?: number; // 平仓类型。
 }
 
 export interface reqMarketClose {
