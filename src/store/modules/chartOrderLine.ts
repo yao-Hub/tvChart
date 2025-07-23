@@ -161,13 +161,13 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   // 监听图表点击空白 清空选中状态
   const actionCount = ref(0);
   eventBus.on("chartMouseUp", () => {
-    // const oldActionCount = actionCount.value;
-    // setTimeout(() => {
-    //   if (oldActionCount === actionCount.value && cantEditLineId.value) {
-    //     changeEditType(null, null, false);
-    //     cantEditLineId.value = null;
-    //   }
-    // });
+    const oldActionCount = actionCount.value;
+    setTimeout(() => {
+      if (oldActionCount === actionCount.value && cantEditLineId.value) {
+        changeEditType(null, null, false);
+        cantEditLineId.value = null;
+      }
+    });
   });
 
   // 设置线颜色
@@ -337,7 +337,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       if (!lineItem) continue;
       const ifExist =
         targetOrders.findIndex((e) => e.id === lineItem.orderInfo.id) > -1;
-      // 如果订单不在当前图表的订单列表中;
+      // 订单线不在订单列表中
       if (!ifExist) {
         // line.remove()之后line不可用
         try {
