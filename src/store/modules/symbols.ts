@@ -62,7 +62,6 @@ export const useSymbols = defineStore("symbols", () => {
     if (loginInfo) {
       const res = await getAllSymbol({ group: loginInfo.group });
       symbols.value = res.data || [];
-      return;
     }
   };
 

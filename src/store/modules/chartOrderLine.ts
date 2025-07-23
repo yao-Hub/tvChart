@@ -8,7 +8,12 @@ import { hexToRGBA } from "utils/common";
 import { orderTypeOptions } from "@/constants/common";
 
 import * as Library from "public/charting_library";
-import { resOrders, reqEditOpeningOrders } from "api/order/index";
+import {
+  resOrders,
+  reqEditOpeningOrders,
+  resPendingOrders,
+  reqPendingOrdersAdd,
+} from "api/order/index";
 
 import { useChartInit } from "./chartInit";
 import { useOrder } from "./order";
@@ -112,8 +117,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       for (const i in chartsLoaded.value) {
         if (chartsLoaded.value[i]) {
           drawMarketOrderLine(i);
-          drawTpLine(i);
-          drawSlLine(i);
+          drawPriceLine("tp", i);
+          drawPriceLine("sl", i);
         }
       }
     },
@@ -127,6 +132,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       for (const i in chartsLoaded.value) {
         if (chartsLoaded.value[i]) {
           drawPendingOrderLine(i);
+          drawPriceLine("tp", i, "pending");
+          drawPriceLine("sl", i, "pending");
         }
       }
     },
@@ -154,18 +161,17 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   // 监听图表点击空白 清空选中状态
   const actionCount = ref(0);
   eventBus.on("chartMouseUp", () => {
-    const oldActionCount = actionCount.value;
-    setTimeout(() => {
-      if (oldActionCount === actionCount.value && cantEditLineId.value) {
-        changeEditType(null, null, false);
-        cantEditLineId.value = null;
-      }
-    }, 200);
+    // const oldActionCount = actionCount.value;
+    // setTimeout(() => {
+    //   if (oldActionCount === actionCount.value && cantEditLineId.value) {
+    //     changeEditType(null, null, false);
+    //     cantEditLineId.value = null;
+    //   }
+    // });
   });
 
   // 设置线颜色
   const setColor = (
-    lineType: LineType,
     orderType: number,
     line: LineAdapter,
     ifEdit: boolean = false
@@ -188,101 +194,19 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       .setQuantityBorderColor(transparent)
       .setBodyBorderColor(transparent);
 
-    if (lineType === "market") {
-      // 平仓反手
-      (line as Library.IPositionLineAdapter)
-        // 反向持仓按钮
+    if ("setReverseButtonBackgroundColor" in line) {
+      line
         .setReverseButtonBackgroundColor(color)
         .setReverseButtonBorderColor(transparent)
-        // 关闭按钮
         .setCloseButtonBorderColor(transparent)
         .setCloseButtonBackgroundColor(color)
         .setCloseButtonIconColor("#f53058");
-    } else {
-      (line as Library.IOrderLineAdapter)
-        // 关闭按钮
+    }
+    if ("setCancelButtonBackgroundColor" in line) {
+      line
         .setCancelButtonBackgroundColor(color)
         .setCancelButtonBorderColor(transparent)
         .setCancelButtonIconColor("#f53058");
-    }
-  };
-
-  // 通用绘制函数
-  const drawGenericLines = (
-    chartId: string,
-    orders: resOrders[],
-    stateLines: Record<string, { line: LineAdapter; orderInfo: resOrders }[]>,
-    config: LineDrawConfig
-  ) => {
-    const chart = chartList.value.find((e) => e.id === chartId);
-    if (!chart || !chart.widget) return;
-
-    // 初始化存储空间
-    if (!stateLines[chartId]) stateLines[chartId] = [];
-    const chartLines = stateLines[chartId];
-
-    // 处理订单集合
-    const activeOrderIds = new Set<string>();
-
-    // 创建现有线条映射
-    const existingLinesMap = new Map<string, (typeof chartLines)[0]>();
-    chartLines.forEach((lineItem) => {
-      existingLinesMap.set(lineItem.orderInfo.id.toString(), lineItem);
-    });
-
-    // 处理有效订单
-    orders.filter(config.shouldDraw).forEach((order) => {
-      const orderId = order.id.toString();
-      activeOrderIds.add(orderId);
-
-      if (!existingLinesMap.has(orderId)) {
-        // 创建新线条
-        const line = config.createLine(chart.widget!);
-        line
-          .setBodyTextColor("#fff")
-          .setPrice(config.getPrice(order))
-          .setText(config.getText(order))
-          .setLineLength(10);
-
-        // 线的其他点操作
-        config.setupLine(line, order);
-
-        // 设置买卖订单对应颜色
-        setColor(
-          config.lineType,
-          order.type,
-          line,
-          order.id === cantEditLineId.value
-        );
-
-        // 添加到对应的线集合
-        chartLines.push({ line, orderInfo: { ...order } });
-      } else {
-        // 更新现有线条
-        const target = chartLines.find(
-          (item) => item.orderInfo.id === order.id
-        );
-        if (target) {
-          if (config.shouldUpdate(target.orderInfo, order)) {
-            target.line.setText(config.getText(order));
-            if (config.updateLine) {
-              config.updateLine(target.line, order);
-            }
-          }
-          target.orderInfo = { ...order };
-        }
-      }
-    });
-
-    // 清理无效线条
-    for (let i = chartLines.length - 1; i >= 0; i--) {
-      const lineItem = chartLines[i];
-      const orderId = lineItem.orderInfo.id.toString();
-
-      if (!activeOrderIds.has(orderId)) {
-        lineItem.line.remove();
-        chartLines.splice(i, 1);
-      }
     }
   };
 
@@ -291,7 +215,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     chartId: string,
     lineType: LineType,
     orderId: number
-  ): resOrders | null => {
+  ): resOrders | resPendingOrders | null => {
     const stateKey = `${lineType}Lines` as keyof ILineState;
     const lines = lineState[stateKey][chartId];
     if (!lines) return null;
@@ -360,7 +284,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     allList.forEach((item) => {
       if (orderId) {
         setColor(
-          item.stateKey,
           item.orderInfo.type,
           item.line,
           orderId === item.orderInfo.id ? ifEdit : false
@@ -368,7 +291,91 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       }
       // 无线id代表则设置所有线
       else {
-        setColor(item.stateKey, item.orderInfo.type, item.line, ifEdit);
+        setColor(item.orderInfo.type, item.line, ifEdit);
+      }
+    });
+  };
+  // 线加载时的样式
+  const setLoadingStyle = (line: LineAdapter) => {
+    const loadingColor = "rgba(128,128,128,0.5)";
+    line
+      .setLineColor(loadingColor)
+      .setBodyBackgroundColor(loadingColor)
+      .setQuantityBackgroundColor(loadingColor)
+      .setQuantityBorderColor(loadingColor)
+      .setBodyBorderColor(loadingColor);
+    if ("setCloseButtonBackgroundColor" in line) {
+      line.setCloseButtonBackgroundColor(loadingColor);
+    }
+    if ("setReverseButtonBackgroundColor" in line) {
+      line.setReverseButtonBackgroundColor(loadingColor);
+    }
+    if ("setCancelButtonBackgroundColor" in line) {
+      line.setCancelButtonBackgroundColor(loadingColor);
+    }
+  };
+
+  // 通用绘制函数
+  const drawGenericLines = (
+    chartId: string,
+    orders: resOrders[],
+    stateLines: Record<string, { line: LineAdapter; orderInfo: resOrders }[]>,
+    config: LineDrawConfig
+  ) => {
+    const chart = chartList.value.find((e) => e.id === chartId);
+    if (!chart || !chart.widget) return;
+
+    // 初始化存储空间
+    if (!stateLines[chartId]) stateLines[chartId] = [];
+    const chartLines = stateLines[chartId];
+
+    const targetOrders = orders.filter(config.shouldDraw);
+
+    // 清理无效线条
+    for (let i = 0; i < chartLines.length; i++) {
+      const lineItem = chartLines[i];
+      if (!lineItem) continue;
+      const ifExist =
+        targetOrders.findIndex((e) => e.id === lineItem.orderInfo.id) > -1;
+      // 如果订单不在当前图表的订单列表中;
+      if (!ifExist) {
+        // line.remove()之后line不可用
+        try {
+          lineItem.line.remove();
+        } catch (error) {}
+        chartLines.splice(i, 1);
+      }
+    }
+
+    targetOrders.forEach((order) => {
+      const orderId = order.id;
+
+      const index = chartLines.findIndex((e) => e.orderInfo.id === orderId);
+      // 创建新线条
+      if (index === -1) {
+        const line = config.createLine(chart.widget!);
+        line
+          .setBodyTextColor("#fff")
+          .setPrice(config.getPrice(order))
+          .setText(config.getText(order))
+          .setLineLength(2);
+        // 线的其他点操作
+        config.setupLine(line, order);
+        // 设置买卖订单对应颜色
+        setColor(order.type, line, order.id === cantEditLineId.value);
+        // 添加到对应的线集合
+        chartLines.push({ line, orderInfo: { ...order } });
+      }
+
+      if (index > -1) {
+        const target = chartLines[index];
+        if (config.shouldUpdate(target.orderInfo, order)) {
+          target.line.setText(config.getText(order));
+          if (config.updateLine) {
+            config.updateLine(target.line, order);
+          }
+        }
+        target.orderInfo = { ...order };
       }
     });
   };
@@ -392,7 +399,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
               : i18n.global.t("order.sell");
           return `${order.id} ${positionType} ${i18n.global.t(
             "order.profit"
-          )}： ${order.profit} sl: ${order.sl_price} tp: ${order.tp_price}`;
+          )}： ${order.profit} SL: ${order.sl_price} TP: ${order.tp_price}`;
         },
         shouldDraw: () => true,
         createLine: (widget) => widget.chart().createPositionLine(),
@@ -406,30 +413,16 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             .setReverseButtonIconColor(revBtnIconColor) // 反向持仓按钮颜色
             .setQuantity((order.volume / 100).toString()) // 保护持仓内容
             // 点击反向持仓回调
-            .onReverse(order, () => {
-              actionCount.value++; // 正在操作线标志
-              if (checkAndSetEditState(chartId, order.id)) return; // 设置编辑状态
-              const currentOrder = getLatestOrder(chartId, "market", order.id); // 获取订单最新信息
-              if (!currentOrder) return;
-              handleMarketAction("reverse", null, order, marketLine);
+            .onReverse(() => {
+              handleMarketAction("reverse", chartId, order.id, marketLine);
             })
             //关闭按钮回调
-            .onClose(order, () => {
-              actionCount.value++;
-              if (checkAndSetEditState(chartId, order.id)) return;
-              const currentOrder = getLatestOrder(chartId, "market", order.id);
-              if (!currentOrder) return;
-              handleMarketAction("close", chartId, currentOrder, marketLine);
+            .onClose(() => {
+              handleMarketAction("close", chartId, order.id, marketLine);
             })
             // 保护持仓回调
-            .onModify(order, () => {
-              actionCount.value++;
-              if (checkAndSetEditState(chartId, order.id)) return;
-              const currentOrder = getLatestOrder(chartId, "market", order.id);
-              if (!currentOrder) return;
-              // 直接编辑弹窗
-              orderStore.state.editOrderInfo = currentOrder;
-              dialogStore.openDialog("marketOrderEditVisible");
+            .onModify(() => {
+              handleMarketAction("modify", chartId, order.id, marketLine);
             });
         },
         // 市价单盈利变化更新主体提示信息
@@ -440,108 +433,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     );
   };
 
-  // 止盈止损绘制
-  type TDrwaLineType = "tp" | "sl";
-  const drawPriceLine = (lineType: TDrwaLineType, chartId: string) => {
-    const chart = chartList.value.find((e) => e.id === chartId);
-    if (!chart) return;
-
-    const fieldMap: Record<TDrwaLineType, keyof resOrders> = {
-      tp: "tp_price",
-      sl: "sl_price",
-    };
-    const field = fieldMap[lineType];
-
-    const stateLinesMap = {
-      tp: lineState.tpLines,
-      sl: lineState.slLines,
-    };
-    const stateLines = stateLinesMap[lineType];
-
-    drawGenericLines(
-      chartId, // 图表id
-      marketOrder.value.filter(
-        (order) => order.symbol === chart.symbol && order[field]
-      ), // 处理的目标订单
-      stateLines, // 线类别集合
-      {
-        lineType, // 线
-        getPrice: (order) => +order[field]!, // 止盈止损字段确定价格线
-        getText: (order) => `${lineType.toUpperCase()}: ${order[field]}`,
-        shouldDraw: (order) => !!order[field], // 止盈止损有值才绘制
-        createLine: (widget) => widget.chart().createOrderLine(),
-        setupLine: (line, order) => {
-          const currentLine = line as Library.IOrderLineAdapter;
-          currentLine
-            .setQuantity((order.volume / 100).toString()) // 编辑按钮内容
-            // 编辑按钮点击回调
-            .onModify(() => {
-              actionCount.value++;
-              if (checkAndSetEditState(chartId, order.id)) return;
-              const currentOrder = getLatestOrder(chartId, "market", order.id);
-              if (!currentOrder) return;
-              orderStore.state.editOrderInfo = { ...currentOrder };
-              dialogStore.openDialog("marketOrderEditVisible");
-            })
-            // 关闭回调
-            .onCancel(async () => {
-              actionCount.value++;
-              if (checkAndSetEditState(chartId, order.id)) return;
-              const currentOrder = getLatestOrder(chartId, "market", order.id);
-              if (!currentOrder) return;
-              marketEditSlTp({
-                order: currentOrder,
-                updataKey: lineType,
-                updataValue: 0,
-                line: currentLine,
-              });
-            })
-            // 移动结束回调
-            .onMove(() => {
-              actionCount.value++;
-              checkAndSetEditState(chartId, order.id);
-              const currentOrder = getLatestOrder(chartId, "market", order.id);
-              if (!currentOrder) return;
-              marketEditSlTp({
-                order: currentOrder,
-                updataKey: lineType,
-                updataValue: line.getPrice(),
-                line: currentLine,
-              });
-            });
-        },
-        // 止盈止损变化更新
-        shouldUpdate: (oldOrder, newOrder) => {
-          return (
-            oldOrder.tp_price !== newOrder.tp_price ||
-            oldOrder.sl_price !== newOrder.sl_price
-          );
-        },
-        // 更新线位置
-        updateLine: (line, order) => {
-          line.setPrice(lineType === "tp" ? order.tp_price : order.sl_price);
-        },
-      }
-    );
-  };
-
-  // 绘制止盈线
-  const drawTpLine = (chartId: string) => drawPriceLine("tp", chartId);
-
-  // 绘制止损线
-  const drawSlLine = (chartId: string) => drawPriceLine("sl", chartId);
-
-  // 获取挂单价格
-  const getPendingPrice = (
-    order: resOrders & { order_price_time?: number }
-  ) => {
-    if ([6, 7].includes(order.type)) {
-      return order.order_price_time ? order.trigger_price : order.order_price;
-    }
-    return order.order_price;
-  };
-
-  // 绘制挂单线
+  // 挂单绘制
   const drawPendingOrderLine = (chartId: string) => {
     const chart = chartList.value.find((e) => e.id === chartId);
     if (!chart) return;
@@ -566,26 +458,15 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             .setQuantity((order.volume / 100).toString())
             // 编辑
             .onModify(() => {
-              actionCount.value++;
-              if (checkAndSetEditState(chartId, order.id)) return;
-              const currentOrder = getLatestOrder(chartId, "pending", order.id);
-              if (!currentOrder) return;
-              orderStore.state.editOrderInfo = { ...currentOrder };
-              dialogStore.openDialog("PendingOrderEditVisible");
+              handlePendingAction("modify", chartId, order.id, pendingLine);
             })
             // 关闭
             .onCancel(() => {
-              actionCount.value++;
-              if (checkAndSetEditState(chartId, order.id)) return;
-              const currentOrder = getLatestOrder(chartId, "pending", order.id);
-              if (!currentOrder) return;
+              handlePendingAction("cancel", chartId, order.id, pendingLine);
             })
             // 移动结束
             .onMove(() => {
-              actionCount.value++;
-              checkAndSetEditState(chartId, order.id);
-              const currentOrder = getLatestOrder(chartId, "pending", order.id);
-              if (!currentOrder) return;
+              handlePendingAction("move", chartId, order.id, pendingLine);
             });
         },
         shouldUpdate: (oldOrder, newOrder) => {
@@ -597,51 +478,181 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     );
   };
 
+  // 绘制止损止盈线
+  type TDrwaLineType = "tp" | "sl";
+  const drawPriceLine = (
+    lineType: TDrwaLineType,
+    chartId: string,
+    orderType: "market" | "pending" = "market"
+  ) => {
+    const chart = chartList.value.find((e) => e.id === chartId);
+    if (!chart) return;
+
+    const field = lineType === "tp" ? "tp_price" : "sl_price";
+
+    const stateLines =
+      lineType === "tp" ? lineState.tpLines : lineState.slLines;
+
+    const targetList =
+      orderType === "market" ? marketOrder.value : pendingOrder.value;
+
+    drawGenericLines(
+      chartId, // 图表id
+      targetList.filter((order) => order.symbol === chart.symbol), // 处理的目标订单
+      stateLines, // 线类别集合
+      {
+        lineType, // 线
+        getPrice: (order) => +order[field]!, // 止盈止损字段确定价格线
+        getText: (order) => `${lineType.toUpperCase()}: ${order[field]}`,
+        shouldDraw: (order) => !!order[field], // 止盈止损有值才绘制
+        createLine: (widget) => widget.chart().createOrderLine(),
+        setupLine: (line, order) => {
+          const orderLine = line as Library.IOrderLineAdapter;
+          orderLine
+            .setQuantity((order.volume / 100).toString()) // 编辑按钮内容
+            // 编辑按钮点击回调
+            .onModify(() => {
+              if (orderType === "market") {
+                handleMarketAction("modify", chartId, order.id, orderLine);
+              }
+              if (orderType === "pending") {
+                handlePendingAction("modify", chartId, order.id, orderLine);
+              }
+            })
+            // 关闭回调
+            .onCancel(() => {
+              const action = `${lineType}Cancel` as "slCancel" | "tpCancel";
+              if (orderType === "market") {
+                handleMarketAction(action, chartId, order.id, line);
+              }
+              if (orderType === "pending") {
+                handlePendingAction(action, chartId, order.id, orderLine);
+              }
+            })
+            // 移动结束回调
+            .onMove(() => {
+              const action = `${lineType}Modify` as "slModify" | "tpModify";
+              if (orderType === "market") {
+                handleMarketAction(action, chartId, order.id, orderLine);
+              }
+              if (orderType === "pending") {
+                handlePendingAction(action, chartId, order.id, orderLine);
+              }
+            });
+        },
+        // 止盈止损变化更新
+        shouldUpdate: (oldOrder, newOrder) => {
+          return (
+            oldOrder.tp_price !== newOrder.tp_price ||
+            oldOrder.sl_price !== newOrder.sl_price
+          );
+        },
+        // 更新线位置
+        updateLine: (line, order) => {
+          line.setPrice(lineType === "tp" ? order.tp_price : order.sl_price);
+        },
+      }
+    );
+  };
+
   // 绘制交易标记
   const drawTradeFlag = (chartId: string) => {};
 
   // 绘制交易历史
   const drawTradeHistory = (chartId: string) => {};
 
-  // 市价单反向持仓 /  市价单关闭
-  const handleMarketAction = async (
-    type: "reverse" | "close",
-    chartId: string | null,
-    order: resOrders,
-    line: Library.IPositionLineAdapter
+  // 获取挂单价格
+  const getPendingPrice = (
+    order: resOrders & { order_price_time?: number }
   ) => {
-    const actionId = `${order.id}@Market_${type}`;
+    if ([6, 7].includes(order.type)) {
+      return order.order_price_time ? order.trigger_price : order.order_price;
+    }
+    return order.order_price;
+  };
+
+  // 市价单反向持仓 /  市价单关闭 / 市价单修改 / 市价单止盈止损编辑及取消
+  const handleMarketAction = async (
+    type:
+      | "reverse"
+      | "close"
+      | "modify"
+      | "slCancel"
+      | "tpCancel"
+      | "slModify"
+      | "tpModify",
+    chartId: string,
+    orderId: number,
+    line: LineAdapter
+  ) => {
+    actionCount.value++; // 正在操作线标志
+    // 设置编辑状态
+    if (
+      checkAndSetEditState(chartId, orderId) &&
+      !["slModify", "tpModify"].includes(type)
+    ) {
+      return;
+    }
+    const currentOrder = getLatestOrder(chartId, "market", orderId); // 获取订单最新信息
+    if (!currentOrder) return;
+
+    const actionId = `${orderId}@Market_${type}`;
 
     // 防止重复操作
     if (actionMap.value.get(actionId)) return;
     actionMap.value.set(actionId, true);
 
-    const ifOne = orderStore.state.ifOne;
+    // 修改操作
+    if (type === "modify") {
+      orderStore.state.editOrderInfo = { ...currentOrder };
+      dialogStore.openDialog("marketOrderEditVisible");
+      actionMap.value.delete(actionId);
+      return;
+    }
+
+    // 是否止盈止损操作
+    const ifSLTP = ["slCancel", "tpCancel", "slModify", "tpModify"].includes(
+      type
+    );
+    const slTpField = type.includes("sl") ? "sl" : "tp";
+    const slTpValue = type.includes("Cancel") ? 0 : line.getPrice();
+
     try {
+      const ifOne = orderStore.state.ifOne;
       // 开启了快捷交易
       if (ifOne) {
         // 操作前视觉反馈
-        line.setLineColor("rgba(128,128,128,0.5)");
-
-        if (type === "reverse") {
-          await orderStore.addMarket("reverse");
-        } else if (type === "close") {
-          await orderStore.delMarketOrder({
-            ...order,
-            volume: order.volume / 100,
-          });
-
-          // 关闭后立即删除订单线
-          if (chartId) {
-            const chartLines = lineState.marketLines[chartId];
-            const index = chartLines?.findIndex(
-              (item) => item.orderInfo.id === order.id
-            );
-            if (index !== -1 && index !== undefined) {
-              const lineItem = chartLines[index];
-              lineItem.line.remove();
-              chartLines.splice(index, 1);
+        setLoadingStyle(line);
+        switch (type) {
+          // 反向持仓
+          case "reverse":
+            orderStore.state.editOrderInfo = { ...currentOrder };
+            orderStore.addMarket("reverse");
+            break;
+          // 关闭持仓
+          case "close":
+            orderStore.delMarketOrder({
+              ...currentOrder,
+              volume: currentOrder.volume / 100,
+            });
+            break;
+          // 止盈止损取消
+          case "slCancel":
+          case "tpCancel":
+          case "slModify":
+          case "tpModify": {
+            const { symbol, id } = currentOrder;
+            const updata: reqEditOpeningOrders = {
+              symbol,
+              id,
+            };
+            updata[slTpField] = slTpValue;
+            await orderStore.modifyMarketOrder(updata, currentOrder);
+            // 如果止盈止损值为0则删除线
+            if (updata[slTpField] === 0) {
+              line.remove();
             }
+            break;
           }
         }
       }
@@ -649,73 +660,141 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       else if (ifOne === null) {
         dialogStore.openDialog("disclaimersVisible");
       }
-      // 取消快捷交易
-      else {
-        orderStore.state.marketConfirmInfo.type = type;
-        orderStore.state.marketConfirmInfo.volume = order.volume / 100;
-        orderStore.state.editOrderInfo = { ...order };
+      // 不允许快捷交易
+      // 止盈止损操作
+      else if (ifSLTP) {
+        const field = type.includes("sl") ? "sl" : "tp";
+        orderStore.state.editOrderInfo = {
+          ...currentOrder,
+          [`${field}_price`]: slTpValue,
+        };
+        dialogStore.openDialog("marketOrderEditVisible");
+      } else {
+        orderStore.state.marketConfirmInfo.type = type as
+          | "reverse"
+          | "double"
+          | "close";
+        orderStore.state.marketConfirmInfo.volume = currentOrder.volume / 100;
+        orderStore.state.editOrderInfo = { ...currentOrder };
         dialogStore.openDialog("marketOrderComfirmVisible");
       }
-    } catch (error) {
-      // 操作失败恢复颜色
-      setColor("market", order.type, line);
-    } finally {
+
+      // 操作成功后删除行为标志
       actionMap.value.delete(actionId);
+      // 恢复颜色
+      if (["slModify", "tpModify"].includes(type)) {
+        setColor(currentOrder.type, line, true);
+      }
+    } catch (error) {
+      // 止盈止损失败线归位
+      if (ifSLTP) {
+        line.setPrice(currentOrder[`${slTpField}_price`]);
+      }
+      setColor(currentOrder.type, line, true);
     }
   };
 
-  // 市价单止盈止损
-  interface IMarketEditSlTpParmas {
-    order: resOrders;
-    updataKey: "sl" | "tp";
-    updataValue: number;
-    line: Library.IOrderLineAdapter;
-  }
-  const marketEditSlTp = async (params: IMarketEditSlTpParmas) => {
-    const { order, updataKey, updataValue, line } = params;
-    const actionId = `${order.id}@MarketModify_${updataKey}`;
+  type THandlePendingAction =
+    | "modify"
+    | "cancel"
+    | "move"
+    | "slCancel"
+    | "tpCancel"
+    | "slModify"
+    | "tpModify";
+  // 挂单编辑删除
+  const handlePendingAction = async (
+    handleType: THandlePendingAction,
+    chartId: string,
+    orderId: number,
+    line: LineAdapter
+  ) => {
+    actionCount.value++;
+    if (
+      checkAndSetEditState(chartId, orderId) &&
+      !["move", "slModify", "tpModify"].includes(handleType)
+    ) {
+      return;
+    }
+    const currentOrder = getLatestOrder(
+      chartId,
+      "pending",
+      orderId
+    ) as resPendingOrders;
+    if (!currentOrder) return;
+
+    const actionId = `${orderId}@Pending_${handleType}`;
+
     // 防止重复操作
     if (actionMap.value.get(actionId)) return;
     actionMap.value.set(actionId, true);
+
     try {
-      const ifOne = orderStore.state.ifOne;
-      // 开启了快捷交易
-      if (ifOne) {
-        const { symbol, id } = order;
-        const updata: reqEditOpeningOrders = {
-          symbol,
-          id,
-        };
-        updata[updataKey] = updataValue;
-        await orderStore.modifyMarketOrder(updata, order);
-        // 直接删除线和数据
-        if (updataValue === 0) {
-          const chartLines = lineState[`${updataKey}Lines`];
-          Object.keys(chartLines).forEach((key) => {
-            chartLines[key] = chartLines[key].filter(
-              (item) => item.orderInfo.id !== id
-            );
-          });
+      const {
+        type,
+        id,
+        symbol,
+        volume,
+        time_expiration,
+        trigger_price,
+        order_price,
+        sl_price,
+        tp_price,
+      } = currentOrder;
+      const now_price = line.getPrice();
+      setLoadingStyle(line);
+      switch (handleType) {
+        case "modify":
+          orderStore.state.editOrderInfo = { ...currentOrder };
+          dialogStore.openDialog("PendingOrderEditVisible");
+          break;
+        case "cancel":
+          await orderStore.delPendingOrder(currentOrder);
           line.remove();
-          return;
-        }
-        line.setText(`${updataKey}: ${updataValue}`);
+          break;
+        case "move":
+        case "slCancel":
+        case "tpCancel":
+        case "slModify":
+        case "tpModify":
+          const updata: reqPendingOrdersAdd = {
+            type,
+            symbol,
+            volume: volume / 100,
+            time_expiration,
+            order_price,
+            trigger_price,
+            sl: sl_price,
+            tp: tp_price,
+          };
+          if (handleType === "move") {
+            updata.order_price = now_price;
+          }
+          if (handleType === "slCancel") {
+            updata.sl = 0;
+          }
+          if (handleType === "tpCancel") {
+            updata.tp = 0;
+          }
+          if (handleType === "slModify") {
+            updata.sl = now_price;
+          }
+          if (handleType === "tpModify") {
+            updata.tp = now_price;
+          }
+          await orderStore.modifyPendingOrder({ ...updata, id }, currentOrder);
+          if (handleType === "slCancel" || handleType === "tpCancel") {
+            line.remove();
+          }
+          break;
       }
-      // 还没有提示过快捷交易
-      else if (ifOne === null) {
-        dialogStore.openDialog("disclaimersVisible");
-      }
-      // 取消快捷交易
-      else {
-        orderStore.state.editOrderInfo = {
-          ...order,
-          [`${updataKey}_price`]: updataValue,
-        };
-        dialogStore.openDialog("marketOrderEditVisible");
+      if (!handleType.toLowerCase().includes("cancel")) {
+        setColor(currentOrder.type, line, true);
       }
     } catch {
-      // 失败归位线
-      line.setPrice(order[`${updataKey}_price`]);
+      const originPrice = getPendingPrice(currentOrder);
+      line.setPrice(originPrice);
+      setColor(currentOrder.type, line, true);
     } finally {
       actionMap.value.delete(actionId);
     }

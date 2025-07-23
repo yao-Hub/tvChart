@@ -357,7 +357,6 @@ const delOrder = debounce(
         delLoading.value = true;
         orderStore
           .delPendingOrder(orderStore.state.editOrderInfo!)
-          .then(() => orderStore.getPendingOrderHistory())
           .finally(() => {
             delLoading.value = false;
             handleCancel();

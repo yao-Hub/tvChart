@@ -77,6 +77,7 @@ export interface UserInfo {
   openning_orders: Order[];
   symbols_limit: string | null;
   email: string | null;
+  pending_orders: Order[];
 }
 
 export interface reqLogin {

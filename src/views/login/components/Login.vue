@@ -314,12 +314,12 @@ const happyStart = async (actionObject: string) => {
     );
     formState.login = formState.login.trim();
     if (target) {
-      await protocolAgree({
+      protocolAgree({
         columnCodes: ["privacy-policy", "service-article"],
         brokerName: target.brokerName,
         lineName: target.lineName,
         login: formState.login,
-      }).catch(() => (loading.value = false));
+      });
     }
     userStore.login(formState, ({ ending, success, errmsg }) => {
       loading.value = !ending;

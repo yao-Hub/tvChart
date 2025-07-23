@@ -498,6 +498,7 @@ export default {
   "invalid sl": "Invalid SL",
   "invalid tp": "Invalid TP",
   "invalid trigger price": "Invalid Trigger Price",
+  "invalid trigger_price": "Invalid Trigger Price",
   "invalid order price": "Invalid Order Price",
   "invalid time_expiration": "Invalid time_expiration",
   "order price valid": "Order Price Valid",

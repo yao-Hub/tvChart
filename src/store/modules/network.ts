@@ -74,21 +74,28 @@ export const useNetwork = defineStore("network", {
 
     // 交易线路
     async getLines() {
-      const result: resQueryTradeLine[] = [];
       const accountList = useUser().state.accountList;
       const serverList = uniq(["", ...accountList.map((e) => e.server)]);
-      const httpList = serverList.map((lineName) => {
-        return queryTradeLine({ lineName });
-      });
-      const resList = await Promise.all(httpList);
-      resList.forEach((item) => {
-        result.push(...item.data);
-      });
-      this.queryTradeLines = uniqBy(result, "lineName");
+      for (let i = 0; i < serverList.length; i++) {
+        const lineName = serverList[i];
+        // 服务器设置了防抖 所以执行请求前等待1秒
+        // if (i > 0) {
+        //   await new Promise((resolve) => setTimeout(resolve, 3000));
+        // }
+        const res = await queryTradeLine({ lineName });
+        this.queryTradeLines = uniqBy(
+          [...res.data, ...this.queryTradeLines],
+          "lineName"
+        );
+      }
     },
 
     // 网络节点
     async getNodes(server: string) {
+      if (this.nodeList.length) {
+        // 如果已经有节点列表，直接返回
+        return this.nodeList;
+      }
       const lineCode = this.queryTradeLines.find(
         (e) => e.lineName === server
       )?.lineCode;

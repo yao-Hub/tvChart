@@ -240,19 +240,23 @@ export const useOrder = defineStore("order", () => {
     switch (type) {
       // 单个平仓
       case "single_marketOrder_close":
-        await Promise.all([getMarketOrderHistory(), userStore.getLoginInfo()]);
+        getMarketOrderHistory();
+        userStore.getLoginInfo();
+        // await Promise.all([getMarketOrderHistory(), userStore.getLoginInfo()]);
         break;
       // 监听订单已建仓
       case "order_opened":
-        await Promise.all([getMarketOrders(), userStore.getLoginInfo()]);
+        getMarketOrders();
+        userStore.getLoginInfo();
+        // await Promise.all([getMarketOrders(), userStore.getLoginInfo()]);
         break;
       // 监听订单已平仓
       case "order_closed":
-        await Promise.all([
-          getMarketOrders(),
-          getMarketOrderHistory(),
-          userStore.getLoginInfo(),
-        ]);
+        // await Promise.all([
+        getMarketOrders();
+        getMarketOrderHistory();
+        userStore.getLoginInfo();
+        // ]);
         break;
       // 监听订单已修改（止盈止损）
       case "order_modified":
@@ -268,19 +272,23 @@ export const useOrder = defineStore("order", () => {
         break;
       // 监听挂单已删除
       case "pending_order_deleted":
-        await Promise.all([getPendingOrders(), getPendingOrderHistory()]);
+        getPendingOrders();
+        getPendingOrderHistory();
+        // await Promise.all([getPendingOrders(), getPendingOrderHistory()]);
         break;
       // 监听挂单已成交
       case "pending_order_dealt":
-        await Promise.all([
-          getMarketOrders(),
-          getPendingOrders(),
-          userStore.getLoginInfo(),
-        ]);
+        // await Promise.all([
+        getMarketOrders();
+        getPendingOrders();
+        userStore.getLoginInfo();
+        // ]);
         break;
       // 监听出入金
       case "balance_order_added":
-        await Promise.all([getBlanceRecord(), userStore.getLoginInfo()]);
+        getBlanceRecord();
+        userStore.getLoginInfo();
+        // await Promise.all([getBlanceRecord(), userStore.getLoginInfo()]);
         break;
       case "marketOrder":
         await getMarketOrders();
@@ -306,14 +314,15 @@ export const useOrder = defineStore("order", () => {
   };
   const initTableData = async () => {
     const socketStore = useSocket();
-    await getMarketOrders();
     state.ifLoadedMap.marketOrder = true;
-    // await Promise.all([
-    //   getPendingOrders(),
-    //   getMarketOrderHistory(),
-    //   getPendingOrderHistory(),
-    //   getBlanceRecord(),
-    // ]);
+    // await getMarketOrders();
+    await Promise.all([
+      // getMarketOrders(),
+      // getPendingOrders(),
+      // getMarketOrderHistory(),
+      // getPendingOrderHistory(),
+      // getBlanceRecord(),
+    ]);
 
     socketStore.orderChanges((type: string) => {
       getData(type);
@@ -705,7 +714,7 @@ export const useOrder = defineStore("order", () => {
               symbol,
             }),
           });
-          await Promise.all([getMarketOrders(), useUser().getLoginInfo()]);
+          getData("order_opened");
           resolve(res);
         } else {
           errmsg = res.data.err_text || res.errmsg || "";
@@ -718,12 +727,6 @@ export const useOrder = defineStore("order", () => {
           JSON.stringify(error);
         reject(error);
       } finally {
-        if (errmsg) {
-          ElNotification.error({
-            title: t("tip.failed", { type: t("dialog.createOrder") }),
-            message: t(errmsg),
-          });
-        }
         const logErr = errmsg ? `error ${errmsg}` : "";
         logStr = `${currentLogin.value}: market order ${logErr} ${logStr}`;
         const logData = {
@@ -769,10 +772,6 @@ export const useOrder = defineStore("order", () => {
             }),
           });
           getData("order_opened");
-        } else {
-          ElNotification.error({
-            message: t("tip.failed", { type: t("dialog.createOrder") }),
-          });
         }
       } catch (error: any) {
         errmsg =
@@ -822,7 +821,7 @@ export const useOrder = defineStore("order", () => {
       try {
         const res = await orders.editopenningOrders(updata);
         if (res.data.action_success) {
-          getMarketOrders();
+          getData("order_modified");
           ElNotification.success({
             title: t("tip.succeed", { type: `#${id} ${t("modify")}` }),
           });
@@ -838,12 +837,6 @@ export const useOrder = defineStore("order", () => {
           JSON.stringify(error);
         reject(error);
       } finally {
-        if (errmsg) {
-          ElNotification.error({
-            title: t("tip.failed", { type: t("modify") }),
-            message: `#${id}: ${t(errmsg)}`,
-          });
-        }
         const logErr = errmsg ? `error ${errmsg}` : "";
         logStr = `${currentLogin.value}: modify market order ${logErr} ${logStr}`;
         const logData = {
@@ -891,11 +884,7 @@ export const useOrder = defineStore("order", () => {
           ElNotification.success({
             title: t("tip.succeed", { type: `#${id} ${t("close")}` }),
           });
-          Promise.all([
-            getMarketOrderHistory(),
-            getBlanceRecord(),
-            useUser().getLoginInfo(),
-          ]);
+          getData("order_closed");
           resolve(res);
         } else {
           errmsg = res.data.err_text || res.errmsg || "";
@@ -910,12 +899,6 @@ export const useOrder = defineStore("order", () => {
       } finally {
         if (!ifTrader) {
           return;
-        }
-        if (errmsg) {
-          ElNotification.error({
-            title: t("tip.failed", { type: t("dialog.createOrder") }),
-            message: `#${id}: ${t(errmsg)}`,
-          });
         }
         const logErr = errmsg ? `error ${errmsg}` : "";
         logStr = `${currentLogin.value}: close market order ${logErr} ${logStr})`;
@@ -958,7 +941,7 @@ export const useOrder = defineStore("order", () => {
         });
         logStr = `#${res.data.id} ${logStr} at ${res.data.order_price}`;
         if (res.data.action_success) {
-          getPendingOrders();
+          getData("pending_order_opened");
           ElNotification.success({
             title: t("tip.succeed", {
               type: `#${res.data.id} ${t("dialog.createOrder")}`,
@@ -976,12 +959,6 @@ export const useOrder = defineStore("order", () => {
           JSON.stringify(error);
         reject(error);
       } finally {
-        if (errmsg) {
-          ElNotification.error({
-            title: t("tip.failed", { type: t("dialog.createOrder") }),
-            message: t(errmsg),
-          });
-        }
         const logErr = errmsg ? `error ${errmsg}` : "";
         logStr = `${currentLogin.value}: order ${logErr} ${logStr}`;
         const logData = {
@@ -1039,7 +1016,7 @@ export const useOrder = defineStore("order", () => {
           volume: +volume * 100,
         });
         if (res.data.action_success) {
-          getPendingOrders();
+          getData("pending_order_modified");
           ElNotification.success({
             title: t("tip.succeed", {
               type: `#${id} ${t("modify")}`,
@@ -1057,12 +1034,6 @@ export const useOrder = defineStore("order", () => {
           JSON.stringify(error);
         reject(error);
       } finally {
-        if (errmsg) {
-          ElNotification.error({
-            title: t("tip.failed", { type: t("modify") }),
-            message: `#${id} ${t(errmsg)}`,
-          });
-        }
         const logErr = errmsg ? `error ${errmsg}` : "";
         logStr = `${currentLogin.value}: modify order ${logErr} ${logStr}`;
         const logData = {
@@ -1108,13 +1079,15 @@ export const useOrder = defineStore("order", () => {
         });
         if (res.data.action_success) {
           logStr += " completed";
-          const index = state.orderData.pendingOrder.findIndex(
-            (e) => e.id === record.id
-          );
-          state.orderData.pendingOrder.splice(index, 1);
+          // const index = state.orderData.pendingOrder.findIndex(
+          //   (e) => e.id === record.id
+          // );
+          // state.orderData.pendingOrder.splice(index, 1);
           ElNotification.success({
             title: t("tip.succeed", { type: `#${id} ${t("delete")}` }),
           });
+          // 获取更新
+          getData("pending_order_deleted");
           resolve(res);
         } else {
           errmsg = res.data.err_text || res.errmsg || "";
@@ -1129,12 +1102,6 @@ export const useOrder = defineStore("order", () => {
       } finally {
         if (!ifTrader) {
           return;
-        }
-        if (errmsg) {
-          ElNotification.error({
-            title: t("tip.failed", { type: t("delete") }),
-            message: `#${id} ${t(errmsg)}`,
-          });
         }
         const logErr = errmsg ? `error ${errmsg}` : "";
         logStr = `${currentLogin.value}: close order ${logErr} ${logStr}`;

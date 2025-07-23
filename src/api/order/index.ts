@@ -69,7 +69,7 @@ export interface resOrders {
   profit: number | string; // 	浮动盈亏
   comment: string; // 	备注评论
   now_price?: number; // 现价
-  pre_currency: string;
+  pre_currency?: string;
 }
 
 export interface reqMarketClose {

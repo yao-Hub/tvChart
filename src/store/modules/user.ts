@@ -189,6 +189,11 @@ export const useUser = defineStore("user", () => {
       login: account.value.login,
     });
     state.loginInfo = res.data;
+
+    // 持仓订单和挂单初始化
+    useOrder().state.orderData.marketOrder = res.data.openning_orders || [];
+    useOrder().state.orderData.pendingOrder = res.data.pending_orders || [];
+
     changeCurrentAccountOption({
       blance: res.data.balance ?? "-",
       currency: res.data.currency ?? "-",

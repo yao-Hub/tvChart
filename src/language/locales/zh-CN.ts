@@ -497,6 +497,7 @@ export default {
   "invalid sl": "无效的止损",
   "invalid tp": "无效的止盈",
   "invalid trigger price": "无效的限价",
+  "invalid trigger_price": "无效的限价",
   "invalid order price": "无效的挂单价",
   "invalid time_expiration": "无效的期限",
   "order price valid": "挂单价格已生效",
