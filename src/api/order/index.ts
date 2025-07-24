@@ -156,15 +156,15 @@ export interface resPendingOrders {
 
 export interface reqHistoryOrders {
   limit_id?: number; //	挂单ID < limit_id
-  open_begin_time?: string; //	建仓时间的最小值。。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
-  open_end_time?: string; //		建仓时间的最大值。。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
-  close_begin_time?: string; //	平仓时间的最小值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
-  close_end_time?: string; //	平仓时间的最大值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  open_begin_time?: string | number; //	建仓时间的最小值。。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  open_end_time?: string | number; //		建仓时间的最大值。。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  close_begin_time?: string | number; //	平仓时间的最小值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  close_end_time?: string | number; //	平仓时间的最大值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
   count?: number; //	默认200，最大1000
   symbol?: string; //	商品
   types?: number[]; // 类型筛选，默认 [0,1]
-  setup_begin_time?: string; // 创建时间的最小值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
-  setup_end_time?: string; // 创建时间的最大值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  setup_begin_time?: string | number; // 创建时间的最小值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  setup_end_time?: string | number; // 创建时间的最大值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
 }
 export interface resHistoryOrders {
   id: number; //	订单ID

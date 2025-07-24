@@ -1,9 +1,10 @@
 import dayjs from "dayjs";
-import { cloneDeep, flattenDeep, groupBy, maxBy, orderBy } from "lodash";
+import { cloneDeep, flattenDeep, groupBy, maxBy, minBy, orderBy } from "lodash";
 
 import * as library from "public/charting_library";
 import * as types from "@/types/chart";
 import { ReqLineInfo, ResLineInfo, klineHistory } from "api/kline/index";
+import { historyOrders } from "api/order/index";
 
 import { RESOLUTES } from "@/constants/common";
 import { checkDMW } from "@/utils/common";
@@ -15,6 +16,7 @@ import { useBarData } from "@/store/modules/barData";
 import { useChartSub } from "@/store/modules/chartSub";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTime } from "@/store/modules/time";
+import { useChartOrderLine } from "@/store/modules/chartOrderLine";
 
 const barDataStore = useBarData();
 const chartSubStore = useChartSub();
@@ -176,6 +178,8 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
     };
   }
 }
+
+// 保存缓存数据
 async function saveCacheData(params: TLineParams & { data: ResLineInfo[] }) {
   try {
     const { symbol, data, resolution } = params;
@@ -197,6 +201,7 @@ async function saveCacheData(params: TLineParams & { data: ResLineInfo[] }) {
   } catch {}
 }
 
+// 获取k线历史数据
 async function getLineHistory(chartId: string, params: TLineParams) {
   try {
     const { resolution, ...updata } = params;
@@ -250,6 +255,27 @@ async function getLineHistory(chartId: string, params: TLineParams) {
   }
 }
 
+// 获取订单历史数据
+async function getOrderHistory(
+  params: library.PeriodParams,
+  symbol: string,
+  limit_id?: number
+) {
+  const { from, to } = params;
+  const res = await historyOrders({
+    close_begin_time: from,
+    close_end_time: to,
+    count: 200,
+    limit_id,
+    symbol,
+  });
+  useChartOrderLine().setHistoryOrder(res.data);
+  if (res.data.length > 200) {
+    const minId = minBy(res.data, "id")!.id;
+    await getOrderHistory(params, symbol, minId);
+  }
+}
+
 export const datafeed = (id: string) => {
   let UID = "";
   return {
@@ -266,11 +292,15 @@ export const datafeed = (id: string) => {
       onResolveErrorCallback: library.ErrorCallback
     ) => {
       UID = "";
-      // 获取session
-      const storeSymbolInfo = symbolsStore.symbols.find(
+      const symbolInfo = symbolsStore.symbols.find(
         (e) => e.symbol === symbolName
       );
-      const ttimes = storeSymbolInfo ? storeSymbolInfo.ttimes : [];
+      if (!symbolInfo) {
+        onResolveErrorCallback(`Symbol ${symbolName} not found`);
+        return;
+      }
+      // 设置session
+      const ttimes = symbolInfo.ttimes || [];
       // 当时间为0 到 0时为关闭日
       const times = flattenDeep(Object.values(ttimes)).filter(
         (obj) => symbolName === obj.symbol && obj.btime !== obj.etime
@@ -309,10 +339,10 @@ export const datafeed = (id: string) => {
       const symbol_stub = {
         name: symbolName,
         full_name: symbolName,
-        description: storeSymbolInfo?.description || "-",
+        description: symbolInfo.description || "-",
         minmov: 1, // 纵坐标比例
         minmov2: 0,
-        pricescale: Math.pow(10, storeSymbolInfo?.digits || 2), // 纵坐标小数位数
+        pricescale: Math.pow(10, symbolInfo.digits || 2), // 纵坐标小数位数
         session,
         ticker: symbolName,
         timezone: timeStore.settedTimezone as library.Timezone,
@@ -335,7 +365,7 @@ export const datafeed = (id: string) => {
           "15",
           "30",
         ] as library.ResolutionString[],
-        exchange: storeSymbolInfo!.path,
+        exchange: symbolInfo.path,
         format: "price" as library.SeriesFormat,
       };
       setTimeout(() => {
@@ -352,8 +382,9 @@ export const datafeed = (id: string) => {
       onErrorCallback: library.ErrorCallback
     ) => {
       try {
-        // periodParams.countBack 长度不够导致数据缺失
         const count = calcCount({ ...periodParams, resolution });
+        getOrderHistory(periodParams, symbolInfo.name);
+        // periodParams.countBack 长度不够导致数据缺失
         const updata = {
           resolution,
           period_type:

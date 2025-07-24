@@ -131,7 +131,6 @@ const initonReady = () => {
         .subscribe(
           null,
           () => {
-            console.log("onDataLoaded");
             chartInitStore.setChartLoadingType(props.chartId, true);
           },
           false

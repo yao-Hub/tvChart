@@ -13,6 +13,7 @@ import {
   reqEditOpeningOrders,
   resPendingOrders,
   reqPendingOrdersAdd,
+  resHistoryOrders,
 } from "api/order/index";
 
 import { useChartInit } from "./chartInit";
@@ -87,10 +88,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const marketOrder = computed(() => orderStore.state.orderData.marketOrder);
   // 挂单列表
   const pendingOrder = computed(() => orderStore.state.orderData.pendingOrder);
-  // 交易历史列表
-  const marketOrderHistory = computed(
-    () => orderStore.state.orderData.marketOrderHistory
-  );
+
+  // 图表交易历史数据
+  const chartOrderHistory = ref<resHistoryOrders[]>([]);
+  const renderOrderHistoryList = ref<number[]>([]);
 
   // 颜色映射
   const colors = computed(() => {
@@ -152,8 +153,9 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
   // 监听交易历史和图表加载状态
   watch(
-    () => [marketOrderHistory, chartsLoaded.value],
+    () => [orderStore.state.orderData.marketOrderHistory, chartsLoaded.value],
     () => {
+      setHistoryOrder(orderStore.state.orderData.marketOrderHistory);
       for (const i in chartsLoaded.value) {
         if (chartsLoaded.value[i]) {
           drawTradeFlag(i);
@@ -599,6 +601,13 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     });
   };
 
+  // 设置交易历史
+  const setHistoryOrder = (orders: resHistoryOrders[]) => {
+    const idSet = new Set(chartOrderHistory.value.map((order) => order.id));
+    const uniqueOrders = orders.filter((order) => !idSet.has(order.id));
+    chartOrderHistory.value.push(...uniqueOrders);
+  };
+
   // 绘制交易标记
   const drawTradeFlag = (chartId: string) => {
     const chart = chartList.value.find((e) => e.id === chartId);
@@ -606,7 +615,17 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
     const colorList = [colors.value.upColor, colors.value.downColor];
 
-    marketOrderHistory.value.forEach((item) => {
+    const list = chartOrderHistory.value.filter(
+      (item) => item.symbol === chart.symbol
+    );
+
+    for (let index = 0; index < list.length; index++) {
+      const item = list[index];
+      // 已经渲染过的订单
+      if (renderOrderHistoryList.value.indexOf(item.id) > -1) {
+        continue;
+      }
+      renderOrderHistoryList.value.push(item.id);
       const { close_price, open_price, type, close_time, open_time } = item;
 
       const lineId = chart.widget!.activeChart().createMultipointShape(
@@ -630,7 +649,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       line.setProperties({ linecolor: colorList[type], linestyle: 1 });
       createNote(chart, item, "open");
       createNote(chart, item, "close");
-    });
+    }
   };
 
   // 获取挂单价格
@@ -880,19 +899,31 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   };
 
   const $reset = () => {
-    Object.entries(lineState.marketLines).forEach(([chartId, lines]) => {
-      lines.forEach((item) => item.line.remove());
-      lineState.marketLines[chartId] = [];
+    const lineTypes = [
+      "marketLines",
+      "pendingLines",
+      "slLines",
+      "tpLines",
+    ] as const;
+
+    lineTypes.forEach((type) => {
+      Object.entries(lineState[type]).forEach(([chartId, lines]) => {
+        lines.forEach((item: IMarketLineItem | IOrderItem) => {
+          try {
+            item.line.remove();
+          } catch {}
+        });
+      });
+      lineState[type] = {};
     });
 
-    lineState.marketLines = {};
-    lineState.pendingLines = {};
-    lineState.slLines = {};
-    lineState.tpLines = {};
+    chartOrderHistory.value = [];
+    renderOrderHistoryList.value = [];
   };
 
   return {
     lineState,
     $reset,
+    setHistoryOrder,
   };
 });

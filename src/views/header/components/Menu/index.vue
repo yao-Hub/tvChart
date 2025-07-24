@@ -5,11 +5,8 @@
     @visible-change="handleVisibleChange"
     placement="bottom-end"
   >
-    <div class="menuBox">
-      <BaseImg
-        :iconName="visible ? 'menuActive' : 'menuUnactive'"
-        @click="toggle(!visible)"
-      ></BaseImg>
+    <div class="menuBox" @click="toggle(!visible)">
+      <BaseImg :iconName="visible ? 'menuActive' : 'menuUnactive'"></BaseImg>
     </div>
     <template #dropdown>
       <div class="dropdownbox">
