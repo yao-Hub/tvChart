@@ -1,13 +1,11 @@
-import { DirectionType } from "#/order";
 import { ORDER_TYPE } from "@/constants/common";
-// import { findKey } from "lodash";
 
 type TOrderType = keyof typeof ORDER_TYPE; // 'price' | 'limit' | 'stop' | 'stopLimit'
 
 // 获取交易方向 buy or sell
 export const getTradingDirection = (e: string | number) => {
   let type: TOrderType;
-  let action: DirectionType;
+  let action: "buy" | "sell";
   for (type in ORDER_TYPE) {
     for (action in ORDER_TYPE[type]) {
       if (ORDER_TYPE[type][action] === +e) {

@@ -57,8 +57,6 @@ import { ElMessage } from "element-plus";
 import { computed, ref, watchEffect, CSSProperties } from "vue";
 import { debounce } from "lodash";
 
-import { DirectionType } from "#/order";
-
 import { ISessionSymbolInfo } from "@/types/chart";
 import { ReqOrderAdd } from "api/order/index";
 import { limitdigit } from "@/utils/common";
@@ -138,7 +136,7 @@ const wordDownColor = computed(() => {
 const wordUpColor = computed(() => {
   return themeStore.getUpDownColor("upHoverColor");
 });
-const wordStyle = (type: DirectionType) => {
+const wordStyle = (type: "buy" | "sell") => {
   return {
     ...styles.word,
     backgroundColor: type === "sell" ? wordDownColor.value : wordUpColor.value,
@@ -153,7 +151,7 @@ const btnUpColor = computed(() => {
   return themeStore.getUpDownColor("upColor");
 });
 
-const btnStyle = (type: DirectionType) => {
+const btnStyle = (type: "buy" | "sell") => {
   return {
     ...styles.btn,
     backgroundColor: type === "sell" ? btnDownColor.value : btnUpColor.value,

@@ -188,6 +188,9 @@ export const useBarData = defineStore("barData", {
 
       socketStore.subKline((d) => {
         for (const UID in this.subscribed) {
+          // 把之前的数据都先渲染
+          this.updateSubscribed(UID, { ...this.newbar[UID] });
+
           const item = this.subscribed[UID];
           const symbol = item.symbolInfo.name;
           const nowBar = this.newbar[UID];

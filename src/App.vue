@@ -60,7 +60,7 @@ const locale = computed(() => {
 
 // 刷新key
 const freshKey = computed(() => {
-  const result = `${locale.value.name}${useChartInit().state.globalRefresh}`;
+  const result = `${useChartInit().state.globalRefresh}`;
   return result;
 });
 

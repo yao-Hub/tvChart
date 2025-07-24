@@ -213,52 +213,6 @@ const initonReady = () => {
         "--tv-color-pane-background",
         sysTheme === "dark" ? "#17181A" : "#FFFFFF"
       );
-
-      // // 一条点到点的线
-      // const from = Date.now() / 1000 - 3 * 24 * 3600; // 5 days ago
-      // const to = Date.now() / 1000 - 1 * 24 * 3600;
-      // widget.activeChart().createMultipointShape(
-      //   [
-      //     { time: from, price: 3365 },
-      //     { time: to, price: 3320 },
-      //   ],
-      //   {
-      //     shape: "trend_line",
-      //     lock: true,
-      //     disableSelection: true,
-      //     disableSave: true,
-      //     disableUndo: true,
-      //     text: "这是价格",
-      //     icon: 5,
-      //   }
-      // );
-
-      // // 交易历史
-      // const executionLine = widget.activeChart().createExecutionShape();
-      // executionLine
-      //   .setText("是文字@1,320.75 Limit Buy 1")
-      //   .setTooltip("@1,320.75 Limit Buy 1")
-      //   .setTextColor("rgba(255,0,0,0.5)") // 文本颜色
-      //   .setArrowColor("green") // 箭头颜色
-      //   .setDirection("buy")
-      //   .setTime(Date.now() / 1000 - 60 * 60 * 9) // 60 minutes ago
-      //   // .setTime(widget.activeChart().getVisibleRange().from)
-      //   .setPrice(3340);
-
-      // widget.activeChart().createShape(
-      //   {
-      //     price: 38.94,
-      //     time: Date.now() / 1000 - 60 * 59,
-      //   },
-      //   {
-      //     shape: "arrow_up",
-      //     disableSave: true,
-      //     lock: true,
-      //     text: "text",
-      //     disableUndo: true,
-      //     disableSelection: true,
-      //   }
-      // );
       emit("initChart", { id: props.chartId, widget });
     });
   });

@@ -401,13 +401,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         lineType: "market",
         getPrice: (order) => order.open_price,
         getText: (order) => {
-          const positionType =
-            order.type === 1
-              ? i18n.global.t("order.buy")
-              : i18n.global.t("order.sell");
-          return `${order.id} ${positionType} ${i18n.global.t(
-            "order.profit"
-          )}： ${order.profit} SL: ${order.sl_price} TP: ${order.tp_price}`;
+          const { id, profit } = order;
+          return `${id} ${i18n.global.t("order.profit")}: ${profit}`;
         },
         shouldDraw: () => true,
         createLine: (widget) => widget.chart().createPositionLine(),
@@ -415,8 +410,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           const direction = getTradingDirection(order.type);
           const revBtnIconColor =
             direction === "buy" ? colors.value.downColor : colors.value.upColor;
-          const marketLine = line as Library.IPositionLineAdapter;
 
+          const marketLine = line as Library.IPositionLineAdapter;
           marketLine
             .setReverseButtonIconColor(revBtnIconColor) // 反向持仓按钮颜色
             .setQuantity((order.volume / 100).toString()) // 保护持仓内容
@@ -511,7 +506,9 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       {
         lineType, // 线
         getPrice: (order) => +order[field]!, // 止盈止损字段确定价格线
-        getText: (order) => `${lineType.toUpperCase()}: ${order[field]}`,
+        getText: (order) => {
+          return `${order.id} ${lineType.toUpperCase()}: ${order[field]}`;
+        },
         shouldDraw: (order) => !!order[field], // 止盈止损有值才绘制
         createLine: (widget) => widget.chart().createOrderLine(),
         setupLine: (line, order) => {
@@ -766,6 +763,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         line.setPrice(currentOrder[`${slTpField}_price`]);
       }
       setColor(currentOrder.type, line, true);
+      actionMap.value.delete(actionId);
     }
   };
 
@@ -867,7 +865,13 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         setColor(currentOrder.type, line, true);
       }
     } catch {
-      const originPrice = getPendingPrice(currentOrder);
+      let originPrice = getPendingPrice(currentOrder);
+      if (handleType.includes("sl")) {
+        originPrice = currentOrder.sl_price;
+      }
+      if (handleType.includes("tp")) {
+        originPrice = currentOrder.tp_price;
+      }
       line.setPrice(originPrice);
       setColor(currentOrder.type, line, true);
     } finally {

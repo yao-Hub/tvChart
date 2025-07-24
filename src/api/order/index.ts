@@ -156,11 +156,11 @@ export interface resPendingOrders {
 
 export interface reqHistoryOrders {
   limit_id?: number; //	挂单ID < limit_id
-  open_begin_time?: string; //	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
-  open_end_time?: string; //	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
-  close_begin_time?: string; //	挂单创建时间的最小值。YYYY-mm-dd HH:ii:ss
-  close_end_time?: string; //	挂单创建时间的最大值。YYYY-mm-dd HH:ii:ss
-  count?: number; //	最大2000
+  open_begin_time?: string; //	建仓时间的最小值。。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  open_end_time?: string; //		建仓时间的最大值。。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  close_begin_time?: string; //	平仓时间的最小值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  close_end_time?: string; //	平仓时间的最大值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳
+  count?: number; //	默认200，最大1000
   symbol?: string; //	商品
   types?: number[]; // 类型筛选，默认 [0,1]
   setup_begin_time?: string; // 创建时间的最小值。YYYY-mm-dd HH:ii:ss 或 秒级时间戳

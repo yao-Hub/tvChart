@@ -14,6 +14,7 @@ export const useLanguage = defineStore("language", () => {
     useChartInit().saveCharts();
     locale.value = value;
     localStorage.setItem("language", value);
+    useChartInit().systemRefresh();
   };
 
   const curentLocale = computed(() => locale.value);

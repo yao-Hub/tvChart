@@ -38,6 +38,13 @@ const handelChange = () => {
 };
 </script>
 
+<style lang="scss">
+@import "@/styles/_handle.scss";
+
+html.dark .timeSelect .el-input__wrapper {
+  background-color: #17181a;
+}
+</style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 .label {

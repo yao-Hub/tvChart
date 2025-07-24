@@ -242,21 +242,17 @@ export const useOrder = defineStore("order", () => {
       case "single_marketOrder_close":
         getMarketOrderHistory();
         userStore.getLoginInfo();
-        // await Promise.all([getMarketOrderHistory(), userStore.getLoginInfo()]);
         break;
       // 监听订单已建仓
       case "order_opened":
         getMarketOrders();
         userStore.getLoginInfo();
-        // await Promise.all([getMarketOrders(), userStore.getLoginInfo()]);
         break;
       // 监听订单已平仓
       case "order_closed":
-        // await Promise.all([
         getMarketOrders();
         getMarketOrderHistory();
         userStore.getLoginInfo();
-        // ]);
         break;
       // 监听订单已修改（止盈止损）
       case "order_modified":
@@ -274,21 +270,17 @@ export const useOrder = defineStore("order", () => {
       case "pending_order_deleted":
         getPendingOrders();
         getPendingOrderHistory();
-        // await Promise.all([getPendingOrders(), getPendingOrderHistory()]);
         break;
       // 监听挂单已成交
       case "pending_order_dealt":
-        // await Promise.all([
         getMarketOrders();
         getPendingOrders();
         userStore.getLoginInfo();
-        // ]);
         break;
       // 监听出入金
       case "balance_order_added":
         getBlanceRecord();
         userStore.getLoginInfo();
-        // await Promise.all([getBlanceRecord(), userStore.getLoginInfo()]);
         break;
       case "marketOrder":
         await getMarketOrders();
@@ -315,14 +307,6 @@ export const useOrder = defineStore("order", () => {
   const initTableData = async () => {
     const socketStore = useSocket();
     state.ifLoadedMap.marketOrder = true;
-    // await getMarketOrders();
-    await Promise.all([
-      // getMarketOrders(),
-      // getPendingOrders(),
-      // getMarketOrderHistory(),
-      // getPendingOrderHistory(),
-      // getBlanceRecord(),
-    ]);
 
     socketStore.orderChanges((type: string) => {
       getData(type);

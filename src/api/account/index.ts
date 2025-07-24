@@ -1,4 +1,5 @@
 import request from "utils/http";
+import { resPendingOrders } from "../order";
 
 enum Api {
   Login = "/login",
@@ -77,7 +78,7 @@ export interface UserInfo {
   openning_orders: Order[];
   symbols_limit: string | null;
   email: string | null;
-  pending_orders: Order[];
+  pending_orders: resPendingOrders[];
 }
 
 export interface reqLogin {

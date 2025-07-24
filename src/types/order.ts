@@ -1,4 +1,4 @@
-import { resOrders } from "api/order/index";
+import { resOrders, resHistoryOrders, resPendingOrders } from "api/order/index";
 
 export interface ILog {
   id: string;
@@ -17,8 +17,14 @@ export type TableTabKey =
   | "marketOrderHistory"
   | "blanceRecord"
   | "log";
+
 export type TableData = {
-  [K in TableTabKey]: K extends "log" ? ILog[] : resOrders[];
+  marketOrder: resOrders[];
+  pendingOrder: resPendingOrders[];
+  pendingOrderHistory: resPendingOrders[];
+  marketOrderHistory: resHistoryOrders[];
+  blanceRecord: resHistoryOrders[];
+  log: ILog[];
 };
 
 export type OrderType =
@@ -29,5 +35,3 @@ export type OrderType =
   | "sellStop"
   | "buyStopLimit"
   | "sellStopLimit";
-
-export type DirectionType = "buy" | "sell";
