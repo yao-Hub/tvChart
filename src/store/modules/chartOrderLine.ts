@@ -91,6 +91,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
   // 图表交易历史数据
   const chartOrderHistory = ref<resHistoryOrders[]>([]);
+  // 已经渲染的历史订单数据
   const renderOrderHistoryList = ref<number[]>([]);
 
   // 颜色映射
@@ -491,9 +492,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   };
 
   // 绘制止损止盈线
-  type TDrwaLineType = "tp" | "sl";
   const drawPriceLine = (
-    lineType: TDrwaLineType,
+    lineType: "tp" | "sl",
     chartId: string,
     orderType: "market" | "pending"
   ) => {
@@ -570,6 +570,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     );
   };
 
+  // 创建历史订单锚点
   const createNote = (chart: any, item: any, drawType: "open" | "close") => {
     const { open_price, type, profit, open_time, close_time, close_price, id } =
       item;
@@ -609,7 +610,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     });
   };
 
-  // 设置交易历史
+  // 设置交易历史列表
   const setHistoryOrder = (orders: resHistoryOrders[]) => {
     const idSet = new Set(chartOrderHistory.value.map((order) => order.id));
     const uniqueOrders = orders.filter((order) => !idSet.has(order.id));
