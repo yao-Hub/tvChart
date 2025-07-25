@@ -97,8 +97,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const colors = computed(() => {
     const downColor = themeStore.getUpDownColor("downHoverColor");
     const upColor = themeStore.getUpDownColor("upHoverColor");
-    const upHoverColor = hexToRGBA(upColor, 0.5);
-    const downHoverColor = hexToRGBA(downColor, 0.5);
+    const upHoverColor = hexToRGBA(upColor, 0.3);
+    const downHoverColor = hexToRGBA(downColor, 0.3);
     return {
       downColor,
       upColor,
@@ -126,8 +126,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       for (const i in chartsLoaded.value) {
         if (chartsLoaded.value[i]) {
           drawMarketOrderLine(i);
-          drawPriceLine("tp", i);
-          drawPriceLine("sl", i);
+          drawPriceLine("tp", i, "market");
+          drawPriceLine("sl", i, "market");
         }
       }
     },
@@ -335,6 +335,9 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     const chart = chartList.value.find((e) => e.id === chartId);
     if (!chart || !chart.widget) return;
 
+    // 获取所有订单列表
+    const allOrderList = [...marketOrder.value, ...pendingOrder.value];
+
     // 初始化存储空间
     if (!stateLines[chartId]) stateLines[chartId] = [];
     const chartLines = stateLines[chartId];
@@ -346,7 +349,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       const lineItem = chartLines[i];
       if (!lineItem) continue;
       const ifExist =
-        targetOrders.findIndex((e) => e.id === lineItem.orderInfo.id) > -1;
+        allOrderList.findIndex((e) => e.id === lineItem.orderInfo.id) > -1;
       // 订单线不在订单列表中
       if (!ifExist) {
         // line.remove()之后line不可用
@@ -368,7 +371,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           .setBodyTextColor("#fff")
           .setPrice(config.getPrice(order))
           .setText(config.getText(order))
-          .setLineLength(2);
+          .setLineLength(2)
+          .setLineWidth(1);
         // 线的其他点操作
         config.setupLine(line, order);
         // 设置买卖订单对应颜色
@@ -488,7 +492,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const drawPriceLine = (
     lineType: TDrwaLineType,
     chartId: string,
-    orderType: "market" | "pending" = "market"
+    orderType: "market" | "pending"
   ) => {
     const chart = chartList.value.find((e) => e.id === chartId);
     if (!chart) return;
@@ -511,12 +515,13 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         getText: (order) => {
           return `${order.id} ${lineType.toUpperCase()}: ${order[field]}`;
         },
-        shouldDraw: (order) => !!order[field], // 止盈止损有值才绘制
+        shouldDraw: (order) => +order[field] > 0, // 止盈止损有值才绘制
         createLine: (widget) => widget.chart().createOrderLine(),
         setupLine: (line, order) => {
           const orderLine = line as Library.IOrderLineAdapter;
           orderLine
             .setQuantity((order.volume / 100).toString()) // 编辑按钮内容
+            .setLineStyle(2)
             // 编辑按钮点击回调
             .onModify(() => {
               if (orderType === "market") {
@@ -538,7 +543,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             })
             // 移动结束回调
             .onMove(() => {
-              const action = `${lineType}Modify` as "slModify" | "tpModify";
+              const action = `${lineType}Move` as "slMove" | "tpMove";
               if (orderType === "market") {
                 handleMarketAction(action, chartId, order.id, orderLine);
               }
@@ -670,8 +675,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       | "modify"
       | "slCancel"
       | "tpCancel"
-      | "slModify"
-      | "tpModify",
+      | "slMove"
+      | "tpMove",
     chartId: string,
     orderId: number,
     line: LineAdapter
@@ -680,7 +685,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     // 设置编辑状态
     if (
       checkAndSetEditState(chartId, orderId) &&
-      !["slModify", "tpModify"].includes(type)
+      !["slMove", "tpMove"].includes(type)
     ) {
       return;
     }
@@ -702,9 +707,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     }
 
     // 是否止盈止损操作
-    const ifSLTP = ["slCancel", "tpCancel", "slModify", "tpModify"].includes(
-      type
-    );
+    const ifSLTP = ["slCancel", "tpCancel", "slMove", "tpMove"].includes(type);
     const slTpField = type.includes("sl") ? "sl" : "tp";
     const slTpValue = type.includes("Cancel") ? 0 : line.getPrice();
 
@@ -727,11 +730,11 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
               volume: currentOrder.volume / 100,
             });
             break;
-          // 止盈止损取消
+          // 止盈止损取消和移动
           case "slCancel":
           case "tpCancel":
-          case "slModify":
-          case "tpModify": {
+          case "slMove":
+          case "tpMove": {
             const { symbol, id } = currentOrder;
             const updata: reqEditOpeningOrders = {
               symbol,
@@ -773,7 +776,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       // 操作成功后删除行为标志
       actionMap.value.delete(actionId);
       // 恢复颜色
-      if (["slModify", "tpModify"].includes(type)) {
+      if (["slMove", "tpMove"].includes(type)) {
         setColor(currentOrder.type, line, true);
       }
     } catch (error) {
@@ -792,8 +795,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     | "move"
     | "slCancel"
     | "tpCancel"
-    | "slModify"
-    | "tpModify";
+    | "slMove"
+    | "tpMove";
   // 挂单编辑删除
   const handlePendingAction = async (
     handleType: THandlePendingAction,
@@ -804,7 +807,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     actionCount.value++;
     if (
       checkAndSetEditState(chartId, orderId) &&
-      !["move", "slModify", "tpModify"].includes(handleType)
+      !["move", "slMove", "tpMove"].includes(handleType)
     ) {
       return;
     }
@@ -836,19 +839,24 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       const now_price = line.getPrice();
       setLoadingStyle(line);
       switch (handleType) {
+        // 挂单线中间编辑按钮点击
         case "modify":
           orderStore.state.editOrderInfo = { ...currentOrder };
           dialogStore.openDialog("PendingOrderEditVisible");
           break;
+        // 挂单线取消按钮点击
         case "cancel":
           await orderStore.delPendingOrder(currentOrder);
           line.remove();
           break;
+        // 挂单线移动结束
         case "move":
+        // 挂单止盈止损线取消按钮点击
         case "slCancel":
         case "tpCancel":
-        case "slModify":
-        case "tpModify":
+        // 挂单止盈止损移动
+        case "slMove":
+        case "tpMove":
           const updata: reqPendingOrdersAdd = {
             type,
             symbol,
@@ -868,10 +876,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           if (handleType === "tpCancel") {
             updata.tp = 0;
           }
-          if (handleType === "slModify") {
+          if (handleType === "slMove") {
             updata.sl = now_price;
           }
-          if (handleType === "tpModify") {
+          if (handleType === "tpMove") {
             updata.tp = now_price;
           }
           await orderStore.modifyPendingOrder({ ...updata, id }, currentOrder);
