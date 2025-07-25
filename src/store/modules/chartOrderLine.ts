@@ -32,9 +32,8 @@ interface IOrderItem {
 }
 
 interface IHistoryItem {
-  shape: Library.IExecutionLineAdapter;
+  lineId: Library.EntityId | null;
   orderInfo: resOrders;
-  type: "open" | "close";
 }
 
 interface ILineState {
@@ -66,6 +65,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const themeStore = useTheme();
   const dialogStore = useDialog();
 
+  // 所有画线集合
   const lineState = reactive<ILineState>({
     marketLines: {},
     pendingLines: {},
@@ -91,8 +91,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
   // 图表交易历史数据
   const chartOrderHistory = ref<resHistoryOrders[]>([]);
-  // 已经渲染的历史订单数据
-  const renderOrderHistoryList = ref<number[]>([]);
 
   // 颜色映射
   const colors = computed(() => {
@@ -118,6 +116,52 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   watch(
     () => themeStore.upDownTheme,
     () => changeEditType(null, null, false)
+  );
+
+  // 监听图表加载状态 （拖拽图表导致图表重新加载）
+  watch(
+    () => chartsLoaded.value,
+    (val) => {
+      for (const i in val) {
+        if (!val[i]) {
+          const lineTypes = [
+            "marketLines",
+            "pendingLines",
+            "slLines",
+            "tpLines",
+            "historyLines",
+          ] as const;
+          lineTypes.forEach((type) => {
+            delete lineState[type][i];
+          });
+        }
+      }
+    },
+    { deep: true }
+  );
+
+  // 监听图表删除 删除对应图表的线记录
+  watch(
+    () => Object.keys(chartsLoaded.value).length,
+    (newLen, oldLen) => {
+      if (newLen < oldLen) {
+        const chartIds = Object.keys(chartsLoaded.value);
+        const lineTypes = [
+          "marketLines",
+          "pendingLines",
+          "slLines",
+          "tpLines",
+          "historyLines",
+        ] as const;
+        lineTypes.forEach((type) => {
+          for (const i in lineState[type]) {
+            if (chartIds.indexOf(i) === -1) {
+              delete lineState[type][i];
+            }
+          }
+        });
+      }
+    }
   );
 
   // 监听持仓单变化和图表加载状态
@@ -628,13 +672,19 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       (item) => item.symbol === chart.symbol
     );
 
+    if (!lineState.historyLines[chartId]) {
+      lineState.historyLines[chartId] = [];
+    }
+
     for (let index = 0; index < list.length; index++) {
       const item = list[index];
       // 已经渲染过的订单
-      if (renderOrderHistoryList.value.indexOf(item.id) > -1) {
+      const ifRender = lineState.historyLines[chartId].findIndex(
+        (e) => e.orderInfo.id === item.id
+      );
+      if (ifRender > -1) {
         continue;
       }
-      renderOrderHistoryList.value.push(item.id);
       const { close_price, open_price, type, close_time, open_time } = item;
 
       const lineId = chart.widget!.activeChart().createMultipointShape(
@@ -651,6 +701,11 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           zOrder: "top", // 置顶
         }
       );
+
+      lineState.historyLines[chartId].push({
+        lineId,
+        orderInfo: item,
+      });
 
       const line = chart
         .widget!.activeChart()
@@ -967,21 +1022,23 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       "pendingLines",
       "slLines",
       "tpLines",
+      "historyLines",
     ] as const;
 
     lineTypes.forEach((type) => {
-      Object.entries(lineState[type]).forEach(([chartId, lines]) => {
-        lines.forEach((item: IMarketLineItem | IOrderItem) => {
-          try {
-            item.line.remove();
-          } catch {}
+      if (type !== "historyLines") {
+        Object.entries(lineState[type]).forEach(([chartId, lines]) => {
+          lines.forEach((item: IMarketLineItem | IOrderItem) => {
+            try {
+              item.line.remove();
+            } catch {}
+          });
         });
-      });
+      }
       lineState[type] = {};
     });
 
     chartOrderHistory.value = [];
-    renderOrderHistoryList.value = [];
   };
 
   return {
