@@ -483,6 +483,9 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           const newPrice = getPendingPrice(newOrder);
           return oldPrice !== newPrice;
         },
+        updateLine: (line, order) => {
+          line.setPrice(order.order_price);
+        },
       }
     );
   };
@@ -698,7 +701,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     if (actionMap.value.get(actionId)) return;
     actionMap.value.set(actionId, true);
 
-    // 修改操作
+    // 中间按钮修改操作
     if (type === "modify") {
       orderStore.state.editOrderInfo = { ...currentOrder };
       dialogStore.openDialog("marketOrderEditVisible");
@@ -762,6 +765,11 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           ...currentOrder,
           [`${field}_price`]: slTpValue,
         };
+
+        // 止盈止损线归位
+        const originPrice = currentOrder[`${field}_price`];
+        line.setPrice(originPrice);
+
         dialogStore.openDialog("marketOrderEditVisible");
       } else {
         orderStore.state.marketConfirmInfo.type = type as
@@ -824,86 +832,132 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     if (actionMap.value.get(actionId)) return;
     actionMap.value.set(actionId, true);
 
+    const {
+      type,
+      id,
+      symbol,
+      volume,
+      time_expiration,
+      trigger_price,
+      order_price,
+      sl_price,
+      tp_price,
+    } = currentOrder;
     try {
-      const {
-        type,
-        id,
-        symbol,
-        volume,
-        time_expiration,
-        trigger_price,
-        order_price,
-        sl_price,
-        tp_price,
-      } = currentOrder;
       const now_price = line.getPrice();
-      setLoadingStyle(line);
-      switch (handleType) {
-        // 挂单线中间编辑按钮点击
-        case "modify":
-          orderStore.state.editOrderInfo = { ...currentOrder };
-          dialogStore.openDialog("PendingOrderEditVisible");
-          break;
-        // 挂单线取消按钮点击
-        case "cancel":
-          await orderStore.delPendingOrder(currentOrder);
-          line.remove();
-          break;
-        // 挂单线移动结束
-        case "move":
-        // 挂单止盈止损线取消按钮点击
-        case "slCancel":
-        case "tpCancel":
-        // 挂单止盈止损移动
-        case "slMove":
-        case "tpMove":
-          const updata: reqPendingOrdersAdd = {
-            type,
-            symbol,
-            volume: volume / 100,
-            time_expiration,
-            order_price,
-            trigger_price,
-            sl: sl_price,
-            tp: tp_price,
-          };
-          if (handleType === "move") {
-            updata.order_price = now_price;
-          }
-          if (handleType === "slCancel") {
-            updata.sl = 0;
-          }
-          if (handleType === "tpCancel") {
-            updata.tp = 0;
-          }
-          if (handleType === "slMove") {
-            updata.sl = now_price;
-          }
-          if (handleType === "tpMove") {
-            updata.tp = now_price;
-          }
-          await orderStore.modifyPendingOrder({ ...updata, id }, currentOrder);
-          if (handleType === "slCancel" || handleType === "tpCancel") {
-            line.remove();
-          }
-          break;
+
+      // 挂单线中间编辑按钮点击
+      if (handleType === "modify") {
+        orderStore.state.editOrderInfo = { ...currentOrder };
+        dialogStore.openDialog("PendingOrderEditVisible");
+        actionMap.value.delete(actionId);
+        return;
       }
-      if (!handleType.toLowerCase().includes("cancel")) {
-        setColor(currentOrder.type, line, true);
+
+      const ifOne = orderStore.state.ifOne;
+      if (ifOne) {
+        setLoadingStyle(line);
+        switch (handleType) {
+          // 挂单线取消按钮点击
+          case "cancel":
+            await orderStore.delPendingOrder(currentOrder);
+            line.remove();
+            break;
+          // 挂单线移动结束
+          case "move":
+          // 挂单止盈止损线取消按钮点击
+          case "slCancel":
+          case "tpCancel":
+          // 挂单止盈止损移动
+          case "slMove":
+          case "tpMove":
+            const updata: reqPendingOrdersAdd = {
+              type,
+              symbol,
+              volume: volume / 100,
+              time_expiration,
+              order_price,
+              trigger_price,
+              sl: sl_price,
+              tp: tp_price,
+            };
+            if (handleType === "move") {
+              updata.order_price = now_price;
+            }
+            if (handleType === "slCancel") {
+              updata.sl = 0;
+            }
+            if (handleType === "tpCancel") {
+              updata.tp = 0;
+            }
+            if (handleType === "slMove") {
+              updata.sl = now_price;
+            }
+            if (handleType === "tpMove") {
+              updata.tp = now_price;
+            }
+            await orderStore.modifyPendingOrder(
+              { ...updata, id },
+              currentOrder
+            );
+            if (handleType === "slCancel" || handleType === "tpCancel") {
+              line.remove();
+            }
+            break;
+        }
+        if (!handleType.toLowerCase().includes("cancel")) {
+          setColor(currentOrder.type, line, true);
+        }
+      }
+      // 还没有提示过快捷交易
+      else if (ifOne === null) {
+        dialogStore.openDialog("disclaimersVisible");
+      } else {
+        const editData = { ...currentOrder };
+        switch (handleType) {
+          case "move":
+            editData.order_price = now_price;
+            line.setPrice(order_price);
+            break;
+          case "slCancel":
+            editData.sl_price = 0;
+            line.setPrice(sl_price);
+            break;
+          case "tpCancel":
+            editData.tp_price = 0;
+            line.setPrice(tp_price);
+            break;
+          case "slMove":
+            editData.sl_price = now_price;
+            line.setPrice(sl_price);
+            break;
+          case "tpMove":
+            editData.tp_price = now_price;
+            line.setPrice(tp_price);
+            break;
+        }
+        orderStore.state.editOrderInfo = { ...editData };
+        dialogStore.openDialog("PendingOrderEditVisible");
       }
     } catch {
       let originPrice = getPendingPrice(currentOrder);
       if (handleType.includes("sl")) {
-        originPrice = currentOrder.sl_price;
+        originPrice = sl_price;
       }
       if (handleType.includes("tp")) {
-        originPrice = currentOrder.tp_price;
+        originPrice = tp_price;
       }
       line.setPrice(originPrice);
-      setColor(currentOrder.type, line, true);
+      setColor(type, line, true);
     } finally {
       actionMap.value.delete(actionId);
     }
+  };
+
+  // 聚焦到某个订单线
+  const focusLine = (orderId: number) => {
+    changeEditType(null, orderId, true);
+    cantEditLineId.value = orderId;
   };
 
   const $reset = () => {
@@ -933,5 +987,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     lineState,
     $reset,
     setHistoryOrder,
+    focusLine,
   };
 });

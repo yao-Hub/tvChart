@@ -231,7 +231,7 @@
                 ? 32
                 : 0
             "
-            :row-props="rowProps"
+            :row-event-handlers="rowEventHandlers"
             @end-reached="endReached"
             @scroll="tableScroll"
             fixed
@@ -470,6 +470,7 @@ import { useStorage } from "@/store/modules/storage";
 import { useNetwork } from "@/store/modules/network";
 import { useTime } from "@/store/modules/time";
 import { useUser } from "@/store/modules/user";
+import { useChartOrderLine } from "@/store/modules/chartOrderLine";
 
 import SelectSuffixIcon from "@/components/SelectSuffixIcon.vue";
 import DataPicker from "./components/DataPicker.vue";
@@ -511,8 +512,6 @@ const state = reactive({
     { label: t("table.log"), key: "log" },
   ],
   columns: cloneDeep(tableColumns()),
-  // marketDialogVisible: false,
-  // pendingDialogVisible: false,
 });
 
 const activeKey = ref<orderTypes.TableTabKey>("marketOrder");
@@ -1012,13 +1011,18 @@ const showOrderDialog = (rowData: any) => {
 };
 
 // 双击行
-const rowProps = ({ rowData }: any) => {
+const rowEventHandlers = (() => {
   return {
-    ondblclick: () => {
+    onClick: debounce(
+      ({ rowData }) => useChartOrderLine().focusLine(rowData.id),
+      200,
+      { leading: true, trailing: false }
+    ),
+    onDblclick: ({ rowData }: any) => {
       showOrderDialog(rowData);
     },
   };
-};
+})();
 
 // 到底触发(持仓历史，挂单历史，出入金分页)
 const pageLoading = ref(false);
