@@ -713,7 +713,7 @@ const formatOrderType = (type: number) => {
 };
 
 const formatPrice = (price: number, digits: number) => {
-  return price ? price.toFixed(digits) : "-";
+  return price ? new Decimal(price).toFixed(digits) : "-";
 };
 
 // 出入金记录底部合计
@@ -837,7 +837,7 @@ const getNowPrice = (e: orders.resOrders) => {
       result = direction === "buy" ? currentQuote.ask : currentQuote.bid;
     }
     if (e.digits) {
-      return result.toFixed(e.digits);
+      return new Decimal(result).toFixed(e.digits);
     }
     return result;
   } catch (error) {
@@ -888,7 +888,7 @@ const MOHProSum = computed(() => {
   const sum = data.reduce((pre, next) => {
     return pre + +next.profit;
   }, 0);
-  return sum.toFixed(2);
+  return new Decimal(sum).toFixed(2);
 });
 
 // 持仓天数

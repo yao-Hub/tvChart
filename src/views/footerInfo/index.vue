@@ -65,7 +65,7 @@ const profitTotal = computed(() => {
   const sum = profitList.reduce((pre, next) => {
     return pre.plus(next);
   }, new Decimal(0));
-  const result = sum.toNumber().toFixed(2);
+  const result = sum.toFixed(2);
   return isNaN(result) ? "-" : result;
 });
 </script>

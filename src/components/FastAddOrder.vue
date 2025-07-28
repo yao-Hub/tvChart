@@ -56,6 +56,7 @@
 import { ElMessage } from "element-plus";
 import { computed, ref, watchEffect, CSSProperties } from "vue";
 import { debounce } from "lodash";
+import Decimal from "decimal.js";
 
 import { ISessionSymbolInfo } from "@/types/chart";
 import { ReqOrderAdd } from "api/order/index";
@@ -198,9 +199,10 @@ const nowSymbol = computed(() => {
 
 const getQuotes = (type: "bid" | "ask") => {
   const symbol = nowSymbol.value;
-  const digits = symbolInfo.value?.digits;
-  if (symbol && quotesStore.qoutes[symbol]) {
-    return quotesStore.qoutes[symbol][type].toFixed(digits ?? 2);
+  if (symbol && symbolInfo.value && quotesStore.qoutes[symbol]) {
+    const digits = symbolInfo.value.digits;
+    const result = quotesStore.qoutes[symbol][type];
+    return new Decimal(result).toFixed(digits || 2);
   }
   return "-";
 };

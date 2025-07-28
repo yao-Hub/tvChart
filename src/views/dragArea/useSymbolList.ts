@@ -1,4 +1,5 @@
 import dayjs from "dayjs";
+import Decimal from "decimal.js";
 
 import { useTime } from "@/store/modules/time";
 import { useQuotes } from "@/store/modules/quotes";
@@ -37,7 +38,8 @@ export function useSymbolList() {
       const symbolInfo = symbolsStore.symbols.find((e) => e.symbol === symbol);
       const digits = symbolInfo?.digits;
       if (digits && target[type]) {
-        return target[type].toFixed(digits ?? 2);
+        const result = target[type];
+        return new Decimal(result).toFixed(digits);
       }
       return target[type] || "-";
     }

@@ -1,15 +1,11 @@
 <template>
   <div class="spread">
-    <span :class="[getClass('bid')]">{{
-      quote?.bid?.toFixed(props.digits ?? 2)
-    }}</span>
+    <span :class="[getClass('bid')]">{{ getQuote("bid") }}</span>
     <div class="spread_point">
       <span class="title">{{ t("order.spread") }} {{ spread }}</span>
       <BaseImg class="icon" iconName="icon_arrow"></BaseImg>
     </div>
-    <span :class="[getClass('ask')]">{{
-      quote?.ask?.toFixed(props.digits ?? 2)
-    }}</span>
+    <span :class="[getClass('ask')]">{{ getQuote("ask") }}</span>
   </div>
 </template>
 
@@ -51,6 +47,14 @@ const spread = computed(() => {
   }
   return "-";
 });
+
+const getQuote = (type: "bid" | "ask") => {
+  if (props.quote) {
+    const result = props.quote[type];
+    return new Decimal(result).toFixed(props.digits || 2);
+  }
+  return "-";
+};
 </script>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
