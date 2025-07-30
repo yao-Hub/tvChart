@@ -14,8 +14,6 @@ import { ref, watchEffect } from "vue";
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 
-import eventBus from "utils/eventBus";
-
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
@@ -29,8 +27,6 @@ watchEffect(() => {
 });
 
 const beforeChange = () => {
-  eventBus.emit("closeDropdown");
-
   if (!orderStore.state.ifOne) {
     dialogStore.openDialog("disclaimersVisible");
     return false;

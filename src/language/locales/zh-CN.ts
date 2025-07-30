@@ -445,6 +445,14 @@ export default {
     logging: "登录中",
   },
 
+  transactionRecord: {
+    title: "交易记录",
+    positions: "持仓",
+    pending: "挂单",
+    histories: "历史",
+    sltp: "止损/止盈",
+  },
+
   "network offline": "无网络",
   "refresh page": "刷新页面",
   "network error": "网络错误",

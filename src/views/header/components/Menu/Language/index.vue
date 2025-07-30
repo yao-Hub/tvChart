@@ -39,6 +39,7 @@ const nowLocale = computed(() => {
   line-height: normal;
   &_left {
     display: flex;
+    align-items: center;
     gap: 5px;
   }
   &_right {

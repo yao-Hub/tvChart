@@ -446,6 +446,14 @@ export default {
     logging: "登入中",
   },
 
+  transactionRecord: {
+    title: "交易記錄",
+    positions: "持倉",
+    pending: "掛單",
+    histories: "歷史",
+    sltp: "止損/止盈",
+  },
+
   "network offline": "無網絡",
   "refresh page": "刷新頁面",
   "network error": "網絡錯誤",

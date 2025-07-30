@@ -12,8 +12,6 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import eventBus from "utils/eventBus";
-
 import { useTheme } from "@/store/modules/theme";
 
 const { t } = useI18n();
@@ -22,7 +20,6 @@ const themeStore = useTheme();
 const checked = ref(false);
 checked.value = themeStore.systemTheme !== "dark";
 const handleChange = () => {
-  eventBus.emit("closeDropdown");
   themeStore.changeSystemTheme();
   themeStore.changeChartTheme();
   themeStore.setUpDownTheme();

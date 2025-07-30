@@ -1,31 +1,27 @@
 <template>
   <el-dropdown trigger="hover" placement="right-start">
-    <div class="Fontsize">
-      <div class="Fontsize_left">
-        <BaseImg class="logo" iconName="icon_13" />
-        <span>{{ t("font.fontSize") }}</span>
+    <div class="transactionRecord">
+      <div class="transactionRecord_left">
+        <BaseImg class="logo" iconName="icon_22" />
+        <span>{{ t("transactionRecord.title") }}</span>
       </div>
-      <div class="Fontsize_right">
-        <el-text type="info">{{ t(`font.${sizeStore.systemSize}`) }}</el-text>
+      <div class="transactionRecord_right">
         <BaseImg class="logo" iconName="turnRight" />
       </div>
     </div>
-    <template #dropdown>
-      <Sizes></Sizes>
-    </template>
+    <template #dropdown><Fields></Fields></template>
   </el-dropdown>
 </template>
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
-import { useSize } from "@/store/modules/size";
-import Sizes from "./Sizes.vue";
-const sizeStore = useSize();
+
+import Fields from "./Fields.vue";
 </script>
 
 <style lang="scss" scoped>
-.Fontsize {
+.transactionRecord {
   width: 200px;
   height: 100%;
   display: flex;
@@ -33,8 +29,8 @@ const sizeStore = useSize();
   align-items: center;
   &_left {
     display: flex;
-    align-items: center;
     gap: 5px;
+    align-items: center;
   }
   &_right {
     display: flex;

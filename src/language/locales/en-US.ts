@@ -447,6 +447,13 @@ export default {
     logging: "Logging",
   },
 
+  transactionRecord: {
+    title: "Transaction Record",
+    positions: "Positions",
+    pending: "Pending Order",
+    histories: "Histories",
+    sltp: "SL/TP",
+  },
   "network offline": "No network",
   "refresh page": "Reload",
   "network error": "network Error",

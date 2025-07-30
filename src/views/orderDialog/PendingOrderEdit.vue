@@ -322,15 +322,11 @@ const confirmEdit = debounce(
         volume: +formState.volume,
         order_price: +formState.orderPrice,
         time_expiration: +formState.dueDate,
+        sl: +formState.stopLoss,
+        tp: +formState.stopProfit,
       };
       if (["buyStopLimit", "sellStopLimit"].includes(formState.orderType)) {
         updata.trigger_price = +formState.limitedPrice;
-      }
-      if (formState.stopLoss !== "") {
-        updata.sl = +formState.stopLoss;
-      }
-      if (formState.stopProfit !== "") {
-        updata.tp = +formState.stopProfit;
       }
       orderStore
         .modifyPendingOrder(

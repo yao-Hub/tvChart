@@ -16,7 +16,6 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import eventBus from "utils/eventBus";
 import { useTheme, TupDownTheme } from "@/store/modules/theme";
 
 const { t } = useI18n();
@@ -50,7 +49,6 @@ const themeList: Array<{ label: string; value: TupDownTheme }> = [
 ];
 const changeColor = (theme: TupDownTheme) => {
   themeStore.setUpDownTheme({ type: theme });
-  eventBus.emit("closeDropdown");
 };
 </script>
 

@@ -15,7 +15,6 @@
 
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import eventBus from "utils/eventBus";
 import { useSize } from "@/store/modules/size";
 
 const { t } = useI18n();
@@ -23,7 +22,6 @@ const sizeStore = useSize();
 
 const sizeList: ["small", "default", "large"] = ["small", "default", "large"];
 const handleChange = (size: "small" | "default" | "large") => {
-  eventBus.emit("closeDropdown");
   sizeStore.changeSize(size);
 };
 </script>

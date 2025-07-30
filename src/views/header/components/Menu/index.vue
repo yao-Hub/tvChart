@@ -15,6 +15,9 @@
         </div>
         <el-divider />
         <div class="dropdownbox_item">
+          <TransactionRecord></TransactionRecord>
+        </div>
+        <div class="dropdownbox_item">
           <Theme></Theme>
         </div>
         <div class="dropdownbox_item">
@@ -59,6 +62,7 @@ import sendFeedback from "./sendFeedback.vue";
 import Theme from "./theme.vue";
 import ClearCache from "./clearCache.vue";
 import CheckUpdate from "./checkUpdate.vue";
+import TransactionRecord from "./TransactionRecord/index.vue";
 
 const ifElectron = process.env.IF_ELECTRON;
 
