@@ -120,7 +120,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const pendingOrder = computed(() => orderStore.state.orderData.pendingOrder);
 
   // 图表交易历史数据
-  const chartOrderHistory = ref<resHistoryOrders[]>([]);
+  const chartOrderHistory = ref<Record<string, resHistoryOrders[]>>({});
 
   // 颜色映射
   const colors = computed(() => {
@@ -758,7 +758,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
     const colorList = [colors.value.upColor, colors.value.downColor];
 
-    const list = chartOrderHistory.value.filter(
+    const list = (chartOrderHistory.value[chartId] || []).filter(
       (item) => item.symbol === chart.symbol
     );
 
@@ -829,20 +829,33 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   };
 
   // 不在k线范围的历史订单列表
-  const noInRangeHistoryList = ref<resHistoryOrders[]>([]);
+  interface INoInRange {
+    minTime: number;
+    list: resHistoryOrders[];
+  }
+  const noInRange = ref<Record<string, INoInRange>>({});
   // 设置交易历史列表
   const setHistoryOrder = (
+    chartId: string,
     orders: resHistoryOrders[],
     klineMinTime: number
   ) => {
     const minTime = klineMinTime * 1000;
-    for (let i = 0; i < noInRangeHistoryList.value.length; i++) {
-      const order = noInRangeHistoryList.value[i];
-      const target = chartOrderHistory.value.find((e) => e.id === order.id);
+    if (!noInRange.value[chartId]) {
+      noInRange.value[chartId] = {
+        minTime,
+        list: [],
+      };
+    }
+    for (let i = 0; i < noInRange.value[chartId].list.length; i++) {
+      const order = noInRange.value[chartId].list[i];
+      const target = chartOrderHistory.value[chartId].find(
+        (e) => e.id === order.id
+      );
       // 当k线范围包含了历史订单的起始时间
       if (order.open_time > minTime) {
         target && (target.open_time = order.open_time);
-        noInRangeHistoryList.value.splice(i, 1);
+        noInRange.value[chartId].list.splice(i, 1);
         i--;
       }
       // 将开始时间调整为最小时间
@@ -851,15 +864,20 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       }
     }
 
-    const idSet = new Set(chartOrderHistory.value.map((order) => order.id));
+    const idSet = new Set(
+      (chartOrderHistory.value[chartId] || []).map((order) => order.id)
+    );
     const uniqueOrders = orders.filter((order) => !idSet.has(order.id));
     uniqueOrders.forEach((item) => {
-      if (item.open_time < minTime) {
-        noInRangeHistoryList.value.push({ ...item });
+      if (item.open_time < noInRange.value[chartId].minTime) {
+        noInRange.value[chartId].list.push({ ...item });
         item.open_time = minTime;
       }
     });
-    chartOrderHistory.value.push(...uniqueOrders);
+    if (!chartOrderHistory.value[chartId]) {
+      chartOrderHistory.value[chartId] = [];
+    }
+    chartOrderHistory.value[chartId].push(...uniqueOrders);
   };
 
   // 获取挂单价格
@@ -1195,7 +1213,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const $reset = () => {
     clearLines(null);
 
-    chartOrderHistory.value = [];
+    chartOrderHistory.value = {};
   };
 
   return {

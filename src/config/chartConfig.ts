@@ -259,6 +259,7 @@ async function getLineHistory(chartId: string, params: TLineParams) {
 async function getOrderHistory(
   params: library.PeriodParams,
   symbol: string,
+  chartId: string,
   limit_id?: number
 ) {
   const { from, to } = params;
@@ -271,10 +272,10 @@ async function getOrderHistory(
     limit_id,
     symbol,
   });
-  useChartOrderLine().setHistoryOrder(res.data, from);
+  useChartOrderLine().setHistoryOrder(chartId, res.data, from);
   if (res.data.length > 200) {
     const minId = minBy(res.data, "id")!.id;
-    await getOrderHistory(params, symbol, minId);
+    await getOrderHistory(params, symbol, chartId, minId);
   }
 }
 
@@ -410,7 +411,8 @@ export const datafeed = (id: string) => {
             // 订单历史记录
             getOrderHistory(
               { ...periodParams, from: minTime },
-              symbolInfo.name
+              symbolInfo.name,
+              id
             );
             // 回显k线
             setTimeout(() => {
