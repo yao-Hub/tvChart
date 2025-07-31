@@ -62,6 +62,7 @@ type THandlePendingAction =
 
 // 通用配置接口
 interface LineDrawConfig {
+  lineType: LineType;
   getPrice: (order: resOrders & { order_price_time?: number }) => number; // 线价格位
   createLine: (chart: Library.IChartingLibraryWidget) => LineAdapter; // 创建何种线
   getText: (order: resOrders) => string; // 主体显示文字
@@ -405,6 +406,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     }
   };
 
+  // 修复激活点击的订单线(createOrderLine)删除时异常问题
+  const temLine: any = {};
   // 通用绘制函数
   const drawGenericLines = (
     chartId: string,
@@ -431,7 +434,15 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       if (!ifExist) {
         // line.remove()之后line不可用
         try {
-          chartLines[i].line.remove();
+          if (
+            temLine.chartId === chartId &&
+            temLine.orderInfo.id === lineItem.orderInfo.id &&
+            temLine.lineType === config.lineType
+          ) {
+            temLine.line.remove();
+          } else {
+            chartLines[i].line.remove();
+          }
         } catch (error) {
           console.log("error", error);
         }
@@ -489,6 +500,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       marketOrder.value.filter((order) => order.symbol === chart.symbol),
       lineState.marketLines,
       {
+        lineType: "market",
         getPrice: (order) => order.open_price,
         getText: (order) => {
           const { id, profit } = order;
@@ -536,6 +548,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       pendingOrder.value.filter((order) => order.symbol === chart.symbol),
       lineState.pendingLines,
       {
+        lineType: "pending",
         getPrice: (order) => getPendingPrice(order),
         getText: (order) => {
           // 订单id+类型
@@ -550,14 +563,26 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             .setQuantity((order.volume / 100).toString())
             // 编辑
             .onModify(() => {
+              temLine.lineType = "pending";
+              temLine.chartId = chartId;
+              temLine.line = line;
+              temLine.orderInfo = order;
               handlePendingAction("modify", chartId, order.id, pendingLine);
             })
             // 关闭
             .onCancel(() => {
+              temLine.lineType = "pending";
+              temLine.chartId = chartId;
+              temLine.line = line;
+              temLine.orderInfo = order;
               handlePendingAction("cancel", chartId, order.id, pendingLine);
             })
             // 移动结束
             .onMove(() => {
+              temLine.lineType = "pending";
+              temLine.chartId = chartId;
+              temLine.line = line;
+              temLine.orderInfo = order;
               handlePendingAction("move", chartId, order.id, pendingLine);
             });
         },
@@ -597,6 +622,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       targetList.filter((order) => order.symbol === chart.symbol), // 处理的目标订单
       stateLines, // 线类别集合
       {
+        lineType,
         colorType: lineType === "tp" ? "buy" : "sell",
         getPrice: (order) => +order[field]!, // 止盈止损字段确定价格线
         getText: (order) => {
@@ -611,6 +637,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             .setLineStyle(2)
             // 编辑按钮点击回调
             .onModify(() => {
+              temLine.lineType = lineType;
+              temLine.chartId = chartId;
+              temLine.line = line;
+              temLine.orderInfo = order;
               if (orderType === "market") {
                 handleMarketAction("modify", chartId, order.id, orderLine);
               }
@@ -620,6 +650,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             })
             // 关闭回调
             .onCancel(() => {
+              temLine.lineType = lineType;
+              temLine.chartId = chartId;
+              temLine.line = line;
+              temLine.orderInfo = order;
               const action = `${lineType}Cancel` as "slCancel" | "tpCancel";
               if (orderType === "market") {
                 handleMarketAction(action, chartId, order.id, line);
@@ -630,6 +664,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             })
             // 移动结束回调
             .onMove(() => {
+              temLine.lineType = lineType;
+              temLine.chartId = chartId;
+              temLine.line = line;
+              temLine.orderInfo = order;
               const action = `${lineType}Move` as "slMove" | "tpMove";
               if (orderType === "market") {
                 handleMarketAction(action, chartId, order.id, orderLine);
