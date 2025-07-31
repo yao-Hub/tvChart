@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown-menu>
+  <el-dropdown-menu :hide-on-click="false">
     <el-dropdown-item v-for="field in fieldList">
       <div class="fieldItem" @click="handleChange(field)">
         <span>{{ t(`transactionRecord.${field}`) }}</span>

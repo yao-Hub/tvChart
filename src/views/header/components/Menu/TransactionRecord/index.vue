@@ -1,5 +1,5 @@
 <template>
-  <el-dropdown trigger="hover" placement="right-start">
+  <el-dropdown trigger="hover" placement="right-start" :hide-on-click="false">
     <div class="transactionRecord">
       <div class="transactionRecord_left">
         <BaseImg class="logo" iconName="icon_22" />

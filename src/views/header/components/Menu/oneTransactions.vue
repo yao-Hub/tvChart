@@ -10,6 +10,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
+import eventBus from "utils/eventBus";
 
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
@@ -28,6 +29,7 @@ watchEffect(() => {
 
 const beforeChange = () => {
   if (!orderStore.state.ifOne) {
+    eventBus.emit("closeDropdown");
     dialogStore.openDialog("disclaimersVisible");
     return false;
   }

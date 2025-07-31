@@ -1,5 +1,6 @@
 <template>
   <el-dropdown
+    :hide-on-click="false"
     ref="dropdown"
     trigger="contextmenu"
     @visible-change="handleVisibleChange"
