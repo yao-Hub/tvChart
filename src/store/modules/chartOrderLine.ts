@@ -213,13 +213,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
   // 监听交易历史和图表加载状态
   watch(
-    () => [
-      orderStore.state.orderData.marketOrderHistory,
-      chartsLoaded.value,
-      recordShowState,
-    ],
+    () => [chartOrderHistory, chartsLoaded.value, recordShowState],
     () => {
-      setHistoryOrder(orderStore.state.orderData.marketOrderHistory);
       for (const i in chartsLoaded.value) {
         if (chartsLoaded.value[i]) {
           if (recordShowState.histories) {
@@ -660,13 +655,31 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   };
 
   // 创建历史订单锚点
-  const createNote = (chart: any, item: any, drawType: "open" | "close") => {
+  const createNote = (
+    chart: any,
+    item: any,
+    drawType: "open" | "close",
+    chartId?: string
+  ) => {
     const { open_price, type, profit, open_time, close_time, close_price, id } =
       item;
     const volume = item.volume / 100;
-    const colorList = [colors.value.upColor, colors.value.downColor];
     const time = drawType === "open" ? open_time : close_time;
     const price = drawType === "open" ? open_price : close_price;
+    // 更新锚点
+    if (chartId) {
+      const target = lineState.historyLines[chartId].find(
+        (e) => e.noteType === drawType && e.orderInfo.id === item.id
+      );
+      const node = chart.widget
+        .activeChart()
+        .getShapeById(target?.lineId as Library.EntityId);
+      node.setPoints([{ time: time / 1000, price }]);
+      return;
+    }
+
+    // 创建锚点
+    const colorList = [colors.value.upColor, colors.value.downColor];
     const noteId = chart
       .widget!.activeChart()
       .createMultipointShape([{ time: time / 1000, price }], {
@@ -686,10 +699,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     const dire = getTradingDirection(realType);
 
     // 交易方向+手数+建仓价格；
-    const openText = `${id}: ${dire} ${volume} at ${open_price} profit: ${profit}`;
+    const openText = `open ${id}: ${dire} ${volume} at ${open_price} profit: ${profit}`;
 
     // 交易方向 + 手数 + 平仓价格 + 盈亏;
-    const closeText = `${id}: ${dire} ${volume} at ${close_price} profit: ${profit}`;
+    const closeText = `close ${id}: ${dire} ${volume} at ${close_price} profit: ${profit}`;
     note.setProperties({
       fixedSize: false,
       markerColor: colorList[realType],
@@ -698,13 +711,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       text: drawType === "open" ? openText : closeText,
     });
     return noteId;
-  };
-
-  // 设置交易历史列表
-  const setHistoryOrder = (orders: resHistoryOrders[]) => {
-    const idSet = new Set(chartOrderHistory.value.map((order) => order.id));
-    const uniqueOrders = orders.filter((order) => !idSet.has(order.id));
-    chartOrderHistory.value.push(...uniqueOrders);
   };
 
   // 绘制交易标记
@@ -725,10 +731,21 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     for (let index = 0; index < list.length; index++) {
       const item = list[index];
       // 已经渲染过的订单
-      const ifRender = lineState.historyLines[chartId].findIndex(
+      const target = lineState.historyLines[chartId].find(
         (e) => e.orderInfo.id === item.id
       );
-      if (ifRender > -1) {
+      if (target) {
+        const entityId = target.lineId;
+        const line = chart.widget
+          .activeChart()
+          .getShapeById(entityId as Library.EntityId);
+        const info = target.orderInfo;
+        line.setPoints([
+          { time: info.open_time / 1000, price: info.open_price },
+          { time: info.close_time / 1000, price: info.close_price },
+        ]);
+        createNote(chart, item, "open", chartId);
+        createNote(chart, item, "close", chartId);
         continue;
       }
       const { close_price, open_price, type, close_time, open_time } = item;
@@ -758,7 +775,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         .widget!.activeChart()
         .getShapeById(lineId as Library.EntityId);
       line.setProperties({ linecolor: colorList[type], linestyle: 1 });
-
       const openId = createNote(chart, item, "open");
       const closeId = createNote(chart, item, "close");
       const ids = [openId, closeId];
@@ -772,6 +788,40 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       });
       lineState.historyLines[chartId].push(...saveList);
     }
+  };
+
+  // 不在k线范围的历史订单列表
+  const noInRangeHistoryList = ref<resHistoryOrders[]>([]);
+  // 设置交易历史列表
+  const setHistoryOrder = (
+    orders: resHistoryOrders[],
+    klineMinTime: number
+  ) => {
+    const minTime = klineMinTime * 1000;
+    for (let i = 0; i < noInRangeHistoryList.value.length; i++) {
+      const order = noInRangeHistoryList.value[i];
+      const target = chartOrderHistory.value.find((e) => e.id === order.id);
+      // 当k线范围包含了历史订单的起始时间
+      if (order.open_time > minTime) {
+        target && (target.open_time = order.open_time);
+        noInRangeHistoryList.value.splice(i, 1);
+        i--;
+      }
+      // 将开始时间调整为最小时间
+      else {
+        target && (target.open_time = minTime);
+      }
+    }
+
+    const idSet = new Set(chartOrderHistory.value.map((order) => order.id));
+    const uniqueOrders = orders.filter((order) => !idSet.has(order.id));
+    uniqueOrders.forEach((item) => {
+      if (item.open_time < minTime) {
+        noInRangeHistoryList.value.push({ ...item });
+        item.open_time = minTime;
+      }
+    });
+    chartOrderHistory.value.push(...uniqueOrders);
   };
 
   // 获取挂单价格
@@ -1117,5 +1167,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     focusLine,
     recordShowState,
     changeRecordShow,
+    clearLines,
   };
 });

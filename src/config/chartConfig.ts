@@ -263,13 +263,15 @@ async function getOrderHistory(
 ) {
   const { from, to } = params;
   const res = await historyOrders({
+    // open_begin_time: from,
+    // open_end_time: to,
     close_begin_time: from,
     close_end_time: to,
     count: 200,
     limit_id,
     symbol,
   });
-  useChartOrderLine().setHistoryOrder(res.data);
+  useChartOrderLine().setHistoryOrder(res.data, from);
   if (res.data.length > 200) {
     const minId = minBy(res.data, "id")!.id;
     await getOrderHistory(params, symbol, minId);
@@ -382,9 +384,8 @@ export const datafeed = (id: string) => {
       onErrorCallback: library.ErrorCallback
     ) => {
       try {
+        // periodParams.countBack 长度不够导致数据缺失 所以重新计算需要的长度
         const count = calcCount({ ...periodParams, resolution });
-        getOrderHistory(periodParams, symbolInfo.name);
-        // periodParams.countBack 长度不够导致数据缺失
         const updata = {
           resolution,
           period_type:
@@ -405,6 +406,13 @@ export const datafeed = (id: string) => {
             })
           )
           .then((data) => {
+            const minTime = Math.min(...data.map((item: any) => item.ctm));
+            // 订单历史记录
+            getOrderHistory(
+              { ...periodParams, from: minTime },
+              symbolInfo.name
+            );
+            // 回显k线
             setTimeout(() => {
               onHistoryCallback(data, {
                 noData: data.length === 0,

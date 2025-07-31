@@ -32,21 +32,25 @@ const trackSent = ref(false);
 // online socket初始化
 watch(
   () => [systemStore.systemInfo, useUser().account.server],
-  async () => {
+  () => {
     const info = systemStore.systemInfo;
-    const server = useUser().account.server;
     if (info && info.deviceId) {
       useSocket().onlineSocketInit();
     }
+    const server = useUser().account.server;
+    // 若server从无到有 需要重新链接一次online socket
     if (info && server && !trackSent.value) {
+      useSocket().onLineInstance.close();
+      useSocket().onlineSocketInit();
       trackSent.value = true;
-      await sendTrack({
+      // 启动打点
+      sendTrack({
         actionType: "open",
         actionObject: location.href,
       });
     }
   },
-  { deep: true }
+  { deep: true, immediate: true }
 );
 
 // 国际化
