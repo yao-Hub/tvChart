@@ -20,6 +20,7 @@ import { useChartInit } from "./chartInit";
 import { useOrder } from "./order";
 import { useTheme } from "./theme";
 import { useDialog } from "./dialog";
+import { cloneDeep } from "lodash";
 
 interface IMarketLineItem {
   line: Library.IPositionLineAdapter;
@@ -886,7 +887,9 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     const idSet = new Set(
       (chartOrderHistory.value[chartId] || []).map((order) => order.id)
     );
-    const uniqueOrders = orders.filter((order) => !idSet.has(order.id));
+    const uniqueOrders = cloneDeep(orders).filter(
+      (order) => !idSet.has(order.id)
+    );
     uniqueOrders.forEach((item) => {
       if (item.open_time < minTime) {
         noInRange.value[chartId].list.push({ ...item });
