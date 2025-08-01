@@ -70,7 +70,7 @@ export default {
   updownTheme: {
     menuLabel: "配色方案",
     upRedDownGreen: "紅漲綠跌",
-    upGreenDownRed: "綠跌紅漲",
+    upGreenDownRed: "綠漲紅跌",
     classicUpRedDownGreen: "經典紅漲綠跌",
     classicUpGreenDownRed: "經典綠跌紅漲",
     CVD1: "視覺障礙1 (CVD)",
@@ -269,6 +269,7 @@ export default {
     NodeDelayError: "連接節點失敗",
     loading: "加載中",
     noneData: "無數據",
+    someError: "出現了一些錯誤",
   },
 
   time: {

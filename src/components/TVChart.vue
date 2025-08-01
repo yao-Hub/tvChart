@@ -1,5 +1,13 @@
 <template>
-  <div v-show="!props.loading" ref="chartContainer"></div>
+  <div v-show="!props.loading" ref="chartContainer" class="TVChart">
+    <el-result
+      v-if="ifError"
+      icon="error"
+      :title="t('error')"
+      sub-title="someting went wrong"
+    >
+    </el-result>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -22,7 +30,7 @@ const chartSubStore = useChartSub();
 const timeStore = useTime();
 const themeStore = useTheme();
 
-const { locale } = useI18n();
+const { locale, t } = useI18n();
 
 interface IProps {
   interval: library.ResolutionString;
@@ -47,11 +55,15 @@ const chartContainer = ref();
 
 const emit = defineEmits(["initChart"]);
 
+const ifError = ref(false);
+
 onMounted(() => {
   try {
     initonReady();
+    ifError.value = false;
   } catch (error) {
     console.log(error);
+    ifError.value = true;
   }
 });
 
@@ -218,4 +230,10 @@ const initonReady = () => {
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.TVChart {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>

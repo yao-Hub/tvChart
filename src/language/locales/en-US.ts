@@ -267,6 +267,7 @@ export default {
     NodeDelayError: "Node connection failed",
     loading: "loading",
     noneData: "No Data",
+    someError: "Some error occurred",
   },
 
   time: {

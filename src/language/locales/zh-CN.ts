@@ -269,6 +269,7 @@ export default {
     NodeDelayError: "连接节点失败",
     loading: "加载中",
     noneData: "无数据",
+    someError: "出现了一些错误",
   },
 
   time: {
