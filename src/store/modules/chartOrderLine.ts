@@ -114,10 +114,14 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const chartsLoaded = computed(() => chartInitStore.state.ifChartLoaded);
   // 所有图表列表
   const chartList = computed(() => chartInitStore.state.chartWidgetList);
-  // 持仓列表
+  // 持仓订单列表
   const marketOrder = computed(() => orderStore.state.orderData.marketOrder);
-  // 挂单列表
+  // 挂单订单列表
   const pendingOrder = computed(() => orderStore.state.orderData.pendingOrder);
+  // 历史订单列表
+  const marketOrderHistory = computed(
+    () => orderStore.state.orderData.marketOrderHistory
+  );
 
   // 图表交易历史数据
   const chartOrderHistory = ref<Record<string, resHistoryOrders[]>>({});
@@ -212,6 +216,18 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     }
   );
 
+  // 监听市价单历史订单
+  watch(
+    () => marketOrderHistory.value,
+    (list) => {
+      chartList.value.forEach((item) => {
+        setHistoryOrder(item.id, list);
+      });
+    },
+    {
+      deep: true,
+    }
+  );
   // 监听交易历史和图表加载状态
   watch(
     () => [chartOrderHistory, chartsLoaded.value, recordShowState],
@@ -838,15 +854,16 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const setHistoryOrder = (
     chartId: string,
     orders: resHistoryOrders[],
-    klineMinTime: number
+    klineMinTime?: number
   ) => {
-    const minTime = klineMinTime * 1000;
     if (!noInRange.value[chartId]) {
       noInRange.value[chartId] = {
-        minTime,
+        minTime: klineMinTime ? klineMinTime * 1000 : Date.now(),
         list: [],
       };
     }
+    const minTime = noInRange.value[chartId].minTime;
+
     for (let i = 0; i < noInRange.value[chartId].list.length; i++) {
       const order = noInRange.value[chartId].list[i];
       const target = chartOrderHistory.value[chartId].find(
