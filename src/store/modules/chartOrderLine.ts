@@ -862,7 +862,9 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         list: [],
       };
     }
-    const minTime = noInRange.value[chartId].minTime;
+    let minTime = klineMinTime
+      ? klineMinTime * 1000
+      : noInRange.value[chartId].minTime;
 
     for (let i = 0; i < noInRange.value[chartId].list.length; i++) {
       const order = noInRange.value[chartId].list[i];
@@ -886,7 +888,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     );
     const uniqueOrders = orders.filter((order) => !idSet.has(order.id));
     uniqueOrders.forEach((item) => {
-      if (item.open_time < noInRange.value[chartId].minTime) {
+      if (item.open_time < minTime) {
         noInRange.value[chartId].list.push({ ...item });
         item.open_time = minTime;
       }
