@@ -74,6 +74,11 @@ interface LineDrawConfig {
   colorType?: "sell" | "buy";
 }
 
+interface INoInRange {
+  minTime: number;
+  histories: resHistoryOrders[];
+}
+
 export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const chartInitStore = useChartInit();
   const orderStore = useOrder();
@@ -110,6 +115,9 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
   // 可以编辑的线id
   const cantEditLineId = ref<number | null>(null);
+
+  // 不在k线范围的列表
+  const noInChartDataRange = ref<Record<string, INoInRange>>({});
 
   // 图表加载完毕状态集合
   const chartsLoaded = computed(() => chartInitStore.state.ifChartLoaded);
@@ -194,7 +202,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
   // 监听挂单变化和图表加载状态
   watch(
-    () => [pendingOrder, chartsLoaded.value, recordShowState],
+    () => [pendingOrder.value, chartsLoaded.value, recordShowState],
     () => {
       for (const i in chartsLoaded.value) {
         if (chartsLoaded.value[i]) {
@@ -231,12 +239,12 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   );
   // 监听交易历史和图表加载状态
   watch(
-    () => [chartOrderHistory, chartsLoaded.value, recordShowState],
+    () => [chartOrderHistory.value, chartsLoaded.value, recordShowState],
     () => {
       for (const i in chartsLoaded.value) {
         if (chartsLoaded.value[i]) {
           if (recordShowState.histories) {
-            drawTradeFlag(i);
+            drawTradeLine(i);
           } else {
             clearLines(i, ["historyLines"]);
           }
@@ -246,6 +254,28 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     {
       deep: true,
     }
+  );
+
+  // 监听市价单和k线范围绘制市价单建仓标记
+  watch(
+    () => [
+      chartsLoaded.value,
+      marketOrder.value,
+      recordShowState,
+      noInChartDataRange.value,
+    ],
+    () => {
+      for (const i in chartsLoaded.value) {
+        if (chartsLoaded.value[i]) {
+          if (recordShowState.positions) {
+            drawMarketOrderLinePoint(i);
+          } else {
+            // clearLines(i, ["historyLines"]);
+          }
+        }
+      }
+    },
+    { deep: true }
   );
 
   // 监听图表点击空白 清空选中状态
@@ -507,6 +537,30 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     }
   };
 
+  // 市价单交易点标记
+  const drawMarketOrderLinePoint = (chartId: string) => {
+    const chart = chartList.value.find((e) => e.id === chartId);
+    if (!chart) return;
+
+    const orders = marketOrder.value.filter(
+      (order) => order.symbol === chart.symbol
+    );
+    orders.forEach((order) => {
+      // const { open_price, open_time } = order;
+      // chart.widget?.activeChart().createShape(
+      //   { time: open_time / 1000, price: open_price },
+      //   {
+      //     shape: "arrow_up",
+      //     lock: true, // 禁止移动
+      //     disableSelection: true, // 禁止选中
+      //     disableSave: true, // 禁止保存
+      //     disableUndo: true, // 禁止撤销
+      //     zOrder: "top", // 置顶
+      //   }
+      // );
+    });
+  };
+
   // 市价单绘制
   const drawMarketOrderLine = (chartId: string) => {
     const chart = chartList.value.find((e) => e.id === chartId);
@@ -524,7 +578,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           return `${id} ${i18n.global.t("order.profit")}: ${profit}`;
         },
         shouldDraw: () => true,
-        createLine: (widget) => widget.chart().createPositionLine(),
+        createLine: (widget) =>
+          widget.chart().createPositionLine({ disableUndo: true }),
         setupLine: (line, order) => {
           const direction = getTradingDirection(order.type);
           const revBtnIconColor =
@@ -573,7 +628,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           return `${order.id} ${type?.label}`;
         },
         shouldDraw: () => true,
-        createLine: (widget) => widget.chart().createOrderLine(),
+        createLine: (widget) =>
+          widget.chart().createOrderLine({ disableUndo: true }),
         setupLine: (line, order) => {
           const pendingLine = line as Library.IOrderLineAdapter;
           pendingLine
@@ -646,7 +702,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           return `${order.id} ${lineType.toUpperCase()}: ${order[field]}`;
         },
         shouldDraw: (order) => +order[field] > 0, // 止盈止损有值才绘制
-        createLine: (widget) => widget.chart().createOrderLine(),
+        createLine: (widget) =>
+          widget.chart().createOrderLine({ disableUndo: true }),
         setupLine: (line, order) => {
           const orderLine = line as Library.IOrderLineAdapter;
           orderLine
@@ -710,7 +767,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   };
 
   // 创建历史订单锚点
-  const createNote = (
+  const createTraderNote = (
     chart: any,
     item: any,
     drawType: "open" | "close",
@@ -768,8 +825,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     return noteId;
   };
 
-  // 绘制交易标记
-  const drawTradeFlag = (chartId: string) => {
+  // 绘制交易历史连线
+  const drawTradeLine = (chartId: string) => {
     const chart = chartList.value.find((e) => e.id === chartId);
     if (!chart || !chart.widget) return;
 
@@ -799,8 +856,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           { time: info.open_time / 1000, price: info.open_price },
           { time: info.close_time / 1000, price: info.close_price },
         ]);
-        createNote(chart, item, "open", chartId);
-        createNote(chart, item, "close", chartId);
+        createTraderNote(chart, item, "open", chartId);
+        createTraderNote(chart, item, "close", chartId);
         continue;
       }
       const { close_price, open_price, type, close_time, open_time } = item;
@@ -830,8 +887,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         .widget!.activeChart()
         .getShapeById(lineId as Library.EntityId);
       line.setProperties({ linecolor: colorList[type], linestyle: 1 });
-      const openId = createNote(chart, item, "open");
-      const closeId = createNote(chart, item, "close");
+      const openId = createTraderNote(chart, item, "open");
+      const closeId = createTraderNote(chart, item, "close");
       const ids = [openId, closeId];
       const saveList = ids.map((id, index) => {
         return {
@@ -845,37 +902,37 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     }
   };
 
-  // 不在k线范围的历史订单列表
-  interface INoInRange {
-    minTime: number;
-    list: resHistoryOrders[];
-  }
-  const noInRange = ref<Record<string, INoInRange>>({});
   // 设置交易历史列表
   const setHistoryOrder = (
     chartId: string,
     orders: resHistoryOrders[],
     klineMinTime?: number
   ) => {
-    if (!noInRange.value[chartId]) {
-      noInRange.value[chartId] = {
+    if (!noInChartDataRange.value[chartId]) {
+      noInChartDataRange.value[chartId] = {
         minTime: klineMinTime ? klineMinTime * 1000 : Date.now(),
-        list: [],
+        histories: [],
       };
     }
     let minTime = klineMinTime
       ? klineMinTime * 1000
-      : noInRange.value[chartId].minTime;
+      : noInChartDataRange.value[chartId].minTime;
 
-    for (let i = 0; i < noInRange.value[chartId].list.length; i++) {
-      const order = noInRange.value[chartId].list[i];
+    noInChartDataRange.value[chartId].minTime = minTime;
+
+    for (
+      let i = 0;
+      i < noInChartDataRange.value[chartId].histories.length;
+      i++
+    ) {
+      const order = noInChartDataRange.value[chartId].histories[i];
       const target = chartOrderHistory.value[chartId].find(
         (e) => e.id === order.id
       );
       // 当k线范围包含了历史订单的起始时间
       if (order.open_time > minTime) {
         target && (target.open_time = order.open_time);
-        noInRange.value[chartId].list.splice(i, 1);
+        noInChartDataRange.value[chartId].histories.splice(i, 1);
         i--;
       }
       // 将开始时间调整为最小时间
@@ -892,7 +949,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     );
     uniqueOrders.forEach((item) => {
       if (item.open_time < minTime) {
-        noInRange.value[chartId].list.push({ ...item });
+        noInChartDataRange.value[chartId].histories.push({ ...item });
         item.open_time = minTime;
       }
     });
@@ -957,6 +1014,14 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     const slTpValue = type.toLowerCase().includes("cancel")
       ? 0
       : line.getPrice();
+
+    let colorType: number | "sell" | "buy" = currentOrder.type;
+    if (type.toLowerCase().includes("sl")) {
+      colorType = "sell";
+    }
+    if (type.toLowerCase().includes("tp")) {
+      colorType = "buy";
+    }
 
     try {
       const ifOne = orderStore.state.ifOne;
@@ -1029,14 +1094,14 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       actionMap.value.delete(actionId);
       // 恢复颜色
       if (["slMove", "tpMove"].includes(type)) {
-        setColor(currentOrder.type, line, true);
+        setColor(colorType, line, true);
       }
     } catch (error) {
       // 止盈止损失败线归位
       if (ifSLTP) {
         line.setPrice(currentOrder[`${slTpField}_price`]);
       }
-      setColor(currentOrder.type, line, true);
+      setColor(colorType, line, true);
       actionMap.value.delete(actionId);
     }
   };
@@ -1079,6 +1144,15 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       sl_price,
       tp_price,
     } = currentOrder;
+
+    let colorType: number | "sell" | "buy" = type;
+    if (handleType.toLowerCase().includes("sl")) {
+      colorType = "sell";
+    }
+    if (handleType.toLowerCase().includes("tp")) {
+      colorType = "buy";
+    }
+
     try {
       const now_price = line.getPrice();
 
@@ -1142,7 +1216,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             break;
         }
         if (!handleType.toLowerCase().includes("cancel")) {
-          setColor(currentOrder.type, line, true);
+          setColor(colorType, line, true);
         }
       }
       // 还没有提示过快捷交易
@@ -1174,15 +1248,12 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         dialogStore.openDialog("PendingOrderEditVisible");
       }
     } catch {
-      let colorType: number | "sell" | "buy" = type;
       let originPrice = getPendingPrice(currentOrder);
       if (handleType.toLowerCase().includes("sl")) {
         originPrice = sl_price;
-        colorType = "sell";
       }
       if (handleType.toLowerCase().includes("tp")) {
         originPrice = tp_price;
-        colorType = "buy";
       }
       line.setPrice(originPrice);
       setColor(colorType, line, true);
