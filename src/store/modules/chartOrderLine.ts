@@ -984,6 +984,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
     noInChartDataRange.value[chartId].minTime = minTime;
 
+    if (!chartOrderHistory.value[chartId]) {
+      chartOrderHistory.value[chartId] = [];
+    }
+
     for (
       let i = 0;
       i < noInChartDataRange.value[chartId].histories.length;
@@ -1006,7 +1010,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     }
 
     const idSet = new Set(
-      (chartOrderHistory.value[chartId] || []).map((order) => order.id)
+      chartOrderHistory.value[chartId].map((order) => order.id)
     );
     const uniqueOrders = cloneDeep(orders).filter(
       (order) => !idSet.has(order.id)
@@ -1017,9 +1021,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         item.open_time = minTime;
       }
     });
-    if (!chartOrderHistory.value[chartId]) {
-      chartOrderHistory.value[chartId] = [];
-    }
     chartOrderHistory.value[chartId].push(...uniqueOrders);
   };
 

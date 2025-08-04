@@ -308,6 +308,10 @@ export const useSocket = defineStore("socket", {
           console.log("pending_order_modified", JSON.stringify(d));
           callback("pending_order_modified");
         });
+        this.mainSocket.on("pending_order_valided", function (d: unknown) {
+          console.log("pending_order_valided", JSON.stringify(d));
+          callback("pending_order_valided");
+        });
         // 监听挂单已成交
         this.mainSocket.on("pending_order_dealt", function (d: unknown) {
           console.log("pending_order_dealt", JSON.stringify(d));

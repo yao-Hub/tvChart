@@ -750,34 +750,92 @@ function resizeSetItem() {
   });
 }
 
-// 根据当前比例进行缩放 demo
+// 根据当前比例进行缩放 demo实现按比例缩放并处理最小宽度限制
 function resizeSetDemo() {
   const dragItems = document.querySelectorAll(".dragArea_item");
   dragItems.forEach((item) => {
     const demos = item.querySelectorAll(".demo");
-    const itemW =
-      item.getBoundingClientRect().width -
-      dragAreaPadding * 2 -
-      lineWidth * (demos.length - 1);
-    const itemH = item.getBoundingClientRect().height;
-    const widths = Array.from(demos).map((demo) => {
+    if (demos.length === 0) return;
+
+    // 计算可用总宽度（减去内边距和分隔线宽度）
+    const itemWidth = item.getBoundingClientRect().width;
+    const availableWidth =
+      itemWidth - dragAreaPadding * 2 - lineWidth * (demos.length - 1);
+    const itemHeight = item.getBoundingClientRect().height;
+
+    // 收集每个demo的当前宽度和最小宽度
+    const demoInfo = Array.from(demos).map((demo) => {
       const ele = demo as HTMLElement;
-      const width = Math.floor(ele.getBoundingClientRect().width);
-      return width;
+      const currentWidth = ele.getBoundingClientRect().width;
+      const minW = demo.getAttribute("data-minWidth");
+      return {
+        element: ele,
+        currentWidth,
+        minWidth: minW ? Number(minW) : minWidth, // 默认为全局最小宽度300
+      };
     });
-    const totalWidth = widths.reduce((a, b) => a + b, 0);
-    const widthRatios = widths.map((width) => {
-      const r = (width / totalWidth).toFixed(2);
-      return parseFloat(r);
-    });
-    demos.forEach((demo, index) => {
-      const element = demo as HTMLElement;
-      element.style.width = `${widthRatios[index] * itemW}px`;
-      element.style.height = `${itemH}px`;
-      const left = index
-        ? demos[index - 1].getBoundingClientRect().right + lineWidth
-        : dragAreaPadding;
-      element.style.left = `${left}px`;
+
+    // 计算总宽度和宽度比例
+    const totalCurrentWidth = demoInfo.reduce(
+      (sum, info) => sum + info.currentWidth,
+      0
+    );
+    const widthRatios = demoInfo.map(
+      (info) => info.currentWidth / totalCurrentWidth
+    );
+
+    // 计算最小宽度总和
+    const totalMinWidth = demoInfo.reduce(
+      (sum, info) => sum + info.minWidth,
+      0
+    );
+
+    // 计算目标宽度
+    let targetWidths: number[];
+    if (totalMinWidth <= availableWidth) {
+      // 最小宽度总和不超过可用宽度时，按比例分配并限制最小宽度
+      targetWidths = widthRatios.map((ratio, i) => {
+        const proportionalWidth = ratio * availableWidth;
+        return Math.max(proportionalWidth, demoInfo[i].minWidth);
+      });
+
+      // 处理总宽度超出可用宽度的情况（重新分配超出部分）
+      const totalTarget = targetWidths.reduce((sum, w) => sum + w, 0);
+      if (totalTarget > availableWidth) {
+        const excess = totalTarget - availableWidth;
+        const adjustableWidths = targetWidths.map(
+          (w, i) => w - demoInfo[i].minWidth
+        );
+        const totalAdjustable = adjustableWidths.reduce((sum, w) => sum + w, 0);
+
+        if (totalAdjustable > 0) {
+          // 按可调整比例缩减超出部分
+          targetWidths = targetWidths.map((w, i) => {
+            const reduceRatio = adjustableWidths[i] / totalAdjustable;
+            return w - reduceRatio * excess;
+          });
+        }
+      }
+    } else {
+      // 最小宽度总和超过可用宽度时，不限制最小宽度，仅按比例分配
+      targetWidths = widthRatios.map((ratio) => ratio * availableWidth);
+    }
+
+    // 应用计算后的宽度和位置
+    demoInfo.forEach((info, index) => {
+      const { element } = info;
+      // 设置宽度
+      element.style.width = `${targetWidths[index]}px`;
+      // 设置高度
+      element.style.height = `${itemHeight}px`;
+      // 设置左侧位置（基于前一个元素的右侧位置）
+      if (index === 0) {
+        element.style.left = `${dragAreaPadding}px`;
+      } else {
+        const prevRight =
+          demoInfo[index - 1].element.getBoundingClientRect().right;
+        element.style.left = `${prevRight + lineWidth}px`;
+      }
     });
   });
 }

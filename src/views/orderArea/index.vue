@@ -523,7 +523,7 @@ onMounted(() => {
   adjustTable();
   // 拖拽时改变table的高
   observer = new ResizeObserver(() => {
-    adjustTable();
+    setTimeout(() => adjustTable())
   });
   observer.observe(container.value);
 });
