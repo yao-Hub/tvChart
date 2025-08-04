@@ -47,6 +47,7 @@ interface ILineState {
   pendingSlLines: Record<string, IOrderItem[]>;
   pendingTpLines: Record<string, IOrderItem[]>;
   historyLines: Record<string, IHistoryItem[]>;
+  marketNotes: Record<string, IHistoryItem[]>;
 }
 
 type LineType = "market" | "tp" | "sl" | "pending";
@@ -77,6 +78,7 @@ interface LineDrawConfig {
 interface INoInRange {
   minTime: number;
   histories: resHistoryOrders[];
+  markets: resOrders[];
 }
 
 export const useChartOrderLine = defineStore("chartOrderLine", () => {
@@ -94,6 +96,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     pendingSlLines: {},
     pendingTpLines: {},
     historyLines: {},
+    marketNotes: {},
   });
 
   const storageRecord = sessionStorage.getItem("recordShowState");
@@ -160,6 +163,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     () => themeStore.upDownTheme,
     () => {
       changeHistoryColor();
+      changeMarketNoteColor();
       changeOrderEditType(null, null, false);
     }
   );
@@ -270,7 +274,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           if (recordShowState.positions) {
             drawMarketOrderLinePoint(i);
           } else {
-            // clearLines(i, ["historyLines"]);
+            clearLines(i, ["marketNotes"]);
           }
         }
       }
@@ -313,6 +317,17 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       } else {
         node.setProperties({ linecolor: colorList[type] });
       }
+    });
+  };
+
+  const changeMarketNoteColor = () => {
+    const list = Object.values(lineState.marketNotes).flat();
+    list.forEach((item) => {
+      const colorList = [colors.value.upColor, colors.value.downColor];
+      const node = item
+        .widget!.activeChart()
+        .getShapeById(item.lineId as Library.EntityId);
+      node.setProperties({ arrowColor: colorList[item.orderInfo.type] });
     });
   };
 
@@ -421,15 +436,16 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         colorType = "sell";
       }
       if (orderId) {
-        setColor(
-          colorType,
-          item.line,
-          orderId === item.orderInfo.id ? ifEdit : false
-        );
+        item.line &&
+          setColor(
+            colorType,
+            item.line,
+            orderId === item.orderInfo.id ? ifEdit : false
+          );
       }
       // 无线id代表则设置所有线
       else {
-        setColor(colorType, item.line, ifEdit);
+        item.line && setColor(colorType, item.line, ifEdit);
       }
     });
   };
@@ -542,22 +558,69 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     const chart = chartList.value.find((e) => e.id === chartId);
     if (!chart) return;
 
+    if (!noInChartDataRange.value[chartId]) {
+      return;
+    }
+
+    const minTime = noInChartDataRange.value[chartId].minTime;
+
     const orders = marketOrder.value.filter(
       (order) => order.symbol === chart.symbol
     );
+
+    const colorList = [colors.value.upColor, colors.value.downColor];
+
     orders.forEach((order) => {
-      // const { open_price, open_time } = order;
-      // chart.widget?.activeChart().createShape(
-      //   { time: open_time / 1000, price: open_price },
-      //   {
-      //     shape: "arrow_up",
-      //     lock: true, // 禁止移动
-      //     disableSelection: true, // 禁止选中
-      //     disableSave: true, // 禁止保存
-      //     disableUndo: true, // 禁止撤销
-      //     zOrder: "top", // 置顶
-      //   }
-      // );
+      const index = noInChartDataRange.value[chartId].markets.findIndex(
+        (e) => e.id === order.id
+      );
+
+      let renderTime = order.open_time;
+      if (index === -1 && order.open_time < minTime) {
+        noInChartDataRange.value[chartId].markets.push({ ...order });
+        renderTime = minTime;
+      }
+      if (index > -1 && order.open_time > minTime) {
+        noInChartDataRange.value[chartId].markets.splice(index, 1);
+      }
+      if (!lineState.marketNotes[chartId]) {
+        lineState.marketNotes[chartId] = [];
+      }
+      const target = lineState.marketNotes[chartId].find(
+        (e) => e.orderInfo.id === order.id
+      );
+
+      if (!target) {
+        const noteId = chart.widget!.activeChart().createShape(
+          { time: renderTime / 1000, price: order.open_price },
+          {
+            shape: order.type ? "arrow_up" : "arrow_down",
+            lock: true, // 禁止移动
+            disableSelection: true, // 禁止选中
+            disableSave: true, // 禁止保存
+            disableUndo: true, // 禁止撤销
+            zOrder: "top", // 置顶
+          }
+        );
+        lineState.marketNotes[chartId].push({
+          lineId: noteId,
+          orderInfo: order,
+          widget: chart.widget,
+        });
+        chart
+          .widget!.activeChart()
+          .getShapeById(noteId as Library.EntityId)
+          .setProperties({
+            arrowColor: colorList[order.type],
+          });
+      }
+
+      if (target) {
+        const note = chart
+          .widget!.activeChart()
+          .getShapeById(target.lineId as Library.EntityId);
+        note.setPoints([{ time: renderTime / 1000, price: order.open_price }]);
+      }
     });
   };
 
@@ -912,6 +975,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       noInChartDataRange.value[chartId] = {
         minTime: klineMinTime ? klineMinTime * 1000 : Date.now(),
         histories: [],
+        markets: [],
       };
     }
     let minTime = klineMinTime
@@ -1279,6 +1343,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       "pendingSlLines",
       "pendingTpLines",
       "historyLines",
+      "marketNotes",
     ]
   ) => {
     lineTypes.forEach((type) => {
