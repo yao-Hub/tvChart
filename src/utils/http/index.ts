@@ -44,13 +44,11 @@ function handleTokenErr() {
   eventBus.emit("go-login");
 }
 
-const nowLocale = i18n.global.locale.value;
 const LOCALE_MAP: Record<string, string> = {
   zh: "zh-cn",
   en: "en-us",
   zhTw: "zh-hk",
 };
-const acceptLanguage = LOCALE_MAP[nowLocale];
 
 const service = axios.create({
   timeout: 30 * 1000,
@@ -60,7 +58,6 @@ const service = axios.create({
     "Content-Type": "application/json",
     "x-u-platform": "web",
     "x-u-app-version": _VERSION_,
-    "accept-language": acceptLanguage,
     "x-u-app-market": "official_website",
   },
 });
@@ -73,6 +70,9 @@ service.interceptors.request.use(
     if (!systemStore.systemInfo) {
       await systemStore.getSystemInfo();
     }
+    const acceptLanguage = LOCALE_MAP[i18n.global.locale.value];
+
+    config.headers["accept-language"] = acceptLanguage;
     config.headers["x-u-device-id"] = systemStore.systemInfo!.deviceId;
     config.headers["x-u-device-type"] = systemStore.systemInfo!.platform;
     config.headers["x-u-device-info"] = systemStore.systemInfo!.deviceInfo;

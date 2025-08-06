@@ -41,15 +41,11 @@ export default {
   modify: "修改",
   submit: "提交",
   close: "关闭",
+  accept: "接受",
 
   noAccount: "已有交易账户，可直接登录，如没有，可开设模拟账户",
   logAccount: "登录账户",
   manageAccount: "管理账户",
-  brokerName: "经纪商名称",
-  nodeName: "线路名称",
-  loginId: "登录id",
-  ip: "服务器",
-  connectedNode: "已连接节点",
   myFeedback: "我的反馈",
   retract: "收起",
   expandReply: "展开回复",
@@ -270,6 +266,7 @@ export default {
     loading: "加载中",
     noneData: "无数据",
     someError: "出现了一些错误",
+    otpRequired: "请输入OTP代码",
   },
 
   time: {
@@ -454,6 +451,24 @@ export default {
     sltp: "止损/止盈",
   },
 
+  otp: {
+    title: "验证 OTP",
+    accept: "我接受",
+  },
+
+  accountInfo: {
+    brokerName: "经纪商名称",
+    nodeName: "线路名称",
+    loginId: "登录id",
+    ip: "服务器",
+    connectedNode: "已连接节点",
+    OTP: "我的OTP",
+    alreadyBound: "已绑定",
+    unbound: "未绑定",
+    unbind: "解绑",
+    binding: "绑定",
+  },
+
   "network offline": "无网络",
   "refresh page": "刷新页面",
   "network error": "网络错误",
@@ -534,4 +549,6 @@ export default {
   "execute failed": "交易执行失败",
   "execute timeout": "交易执行超时",
   "invalid rate": "无效的汇率",
+  "invalid otp device": "OTP 设备无效",
+  "invalid otp password": "OTP 密码无效",
 };

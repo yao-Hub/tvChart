@@ -80,7 +80,7 @@
     <table>
       <tr>
         <td>
-          <el-text type="info">{{ t("brokerName") }}</el-text>
+          <el-text type="info">{{ t("accountInfo.brokerName") }}</el-text>
         </td>
         <td>
           <el-text type="primary" @click="showServerDialog">
@@ -90,7 +90,7 @@
       </tr>
       <tr>
         <td>
-          <el-text type="info">{{ t("nodeName") }}</el-text>
+          <el-text type="info">{{ t("accountInfo.nodeName") }}</el-text>
         </td>
         <td>
           <el-text>{{ networkStore.currentLine?.lineName }}</el-text>
@@ -98,7 +98,7 @@
       </tr>
       <tr>
         <td>
-          <el-text type="info">{{ t("loginId") }}</el-text>
+          <el-text type="info">{{ t("accountInfo.loginId") }}</el-text>
         </td>
         <td>
           <el-text>{{ userStore.state.loginInfo?.login }}</el-text>
@@ -106,7 +106,7 @@
       </tr>
       <tr>
         <td>
-          <el-text type="info">{{ t("ip") }}</el-text>
+          <el-text type="info">{{ t("accountInfo.ip") }}</el-text>
         </td>
         <td>
           <el-text>{{ networkStore.currentNode?.ip }}</el-text>
@@ -114,10 +114,31 @@
       </tr>
       <tr>
         <td>
-          <el-text type="info">{{ t("connectedNode") }}</el-text>
+          <el-text type="info">{{ t("accountInfo.connectedNode") }}</el-text>
         </td>
         <td>
           <el-text>{{ networkStore.currentNode?.nodeName }}</el-text>
+        </td>
+        <td :class="networkStore.getDelayClass()">
+          {{ networkStore.getDelay() }}ms
+        </td>
+      </tr>
+
+      <tr>
+        <td>
+          <el-text type="info">{{ t("accountInfo.OTP") }}</el-text>
+        </td>
+        <td>
+          <el-text>{{
+            userStore.state.loginInfo?.otp_status
+              ? t("accountInfo.alreadyBound")
+              : t("accountInfo.unbound")
+          }}</el-text>
+          <el-text type="primary" class="bindingStatus">{{
+            userStore.state.loginInfo?.otp_status
+              ? t("accountInfo.unbind")
+              : t("accountInfo.binding")
+          }}</el-text>
         </td>
       </tr>
     </table>
@@ -180,37 +201,6 @@ const changeLogin = (account: AccountListItem) => {
     path: PageEnum.LOGIN_HOME,
     query: { login, server },
   });
-
-  // if (!remember) {
-  //   router.push({
-  //     path: PageEnum.LOGIN_HOME,
-  //     query: { login, server },
-  //   });
-  //   return;
-  // }
-  // chartInitStore.saveCharts();
-  // toogleDropdown();
-  // chartInitStore.state.loading = true;
-  // userStore.login(
-  //   {
-  //     login,
-  //     password,
-  //     server,
-  //   },
-  //   ({ ending, success }) => {
-  //     if (ending) {
-  //       if (success) {
-  //         chartInitStore.systemRefresh();
-  //       } else {
-  //         chartInitStore.state.loading = false;
-  //         router.push({
-  //           path: PageEnum.LOGIN_HOME,
-  //           query: { login, server },
-  //         });
-  //       }
-  //     }
-  //   }
-  // );
 };
 
 const logout = async () => {
@@ -252,6 +242,16 @@ const showServerDialog = () => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+
+:deep(.el-dropdown-menu__item) {
+  margin: 0 8px;
+  border-radius: 4px;
+  padding: 0;
+}
+
+:deep(.el-text.el-text--info) {
+  display: inline-block;
+}
 
 .info {
   display: flex;
@@ -347,16 +347,6 @@ const showServerDialog = () => {
   }
 }
 
-:deep(.el-dropdown-menu__item) {
-  margin: 0 8px;
-  border-radius: 4px;
-  padding: 0;
-}
-
-:deep(.el-text.el-text--info) {
-  display: inline-block;
-}
-
 table {
   margin: 24px 0 12px 0;
 
@@ -373,5 +363,10 @@ table {
       vertical-align: middle;
     }
   }
+}
+
+.bindingStatus {
+  margin-left: 8px;
+  cursor: pointer;
 }
 </style>

@@ -1,13 +1,5 @@
 <template>
-  <div v-show="!props.loading" ref="chartContainer" class="TVChart">
-    <el-result
-      v-if="ifError"
-      icon="error"
-      :title="t('error')"
-      sub-title="someting went wrong"
-    >
-    </el-result>
-  </div>
+  <div v-show="!props.hidden" ref="chartContainer"></div>
 </template>
 
 <script setup lang="ts">
@@ -30,12 +22,12 @@ const chartSubStore = useChartSub();
 const timeStore = useTime();
 const themeStore = useTheme();
 
-const { locale, t } = useI18n();
+const { locale } = useI18n();
 
 interface IProps {
   interval: library.ResolutionString;
   chartId: string;
-  loading: boolean;
+  hidden: boolean;
   client_id: string;
   user_id: string;
   datafeed: library.IBasicDataFeed;
@@ -47,7 +39,7 @@ interface IProps {
 
 const props = withDefaults(defineProps<IProps>(), {
   timezone: "Asia/Shanghai",
-  loading: false,
+  hidden: false,
   interval: "60" as library.ResolutionString,
 });
 
@@ -55,16 +47,10 @@ const chartContainer = ref();
 
 const emit = defineEmits(["initChart"]);
 
-const ifError = ref(false);
-
 onMounted(() => {
   try {
     initonReady();
-    ifError.value = false;
-  } catch (error) {
-    console.log(error);
-    ifError.value = true;
-  }
+  } catch (error) {}
 });
 
 const localeMap: Record<string, library.LanguageCode> = {
@@ -230,10 +216,4 @@ const initonReady = () => {
 };
 </script>
 
-<style scoped lang="scss">
-.TVChart {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-</style>
+<style scoped lang="scss"></style>

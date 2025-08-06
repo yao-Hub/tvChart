@@ -157,6 +157,7 @@ import { debounce, uniqBy } from "lodash";
 
 import { PageEnum } from "@/constants/pageEnum";
 import { sendTrack } from "@/utils/track";
+import CryptoJS from "utils/AES";
 import plugins from "@/plugins/propsComponents";
 import {
   queryTradeLine,
@@ -305,38 +306,55 @@ const ifSimulatedServer = computed(() => {
 
 const happyStart = async (actionObject: string) => {
   try {
+    const { login, server, password } = formState;
     if (disabled.value || loading.value) {
       return;
     }
     loading.value = true;
     const target = networkStore.queryTradeLines.find(
-      (e) => e.lineName === formState.server
+      (e) => e.lineName === server
     );
-    formState.login = formState.login.trim();
+    formState.login = login.trim();
     if (target) {
       protocolAgree({
         columnCodes: ["privacy-policy", "service-article"],
         brokerName: target.brokerName,
         lineName: target.lineName,
-        login: formState.login,
+        login,
       });
     }
-    userStore.login(formState, ({ ending, success, errmsg }) => {
-      loading.value = !ending;
-      if (ending && success) {
-        sendTrack({
-          actionType: "signUp",
-          actionObject,
-        });
-        router.push({ path: "/" });
+    userStore.login(
+      { login, server, password },
+      ({ ending, success, errmsg }) => {
+        loading.value = !ending;
+        if (ending && success) {
+          sendTrack({
+            actionType: "signUp",
+            actionObject,
+          });
+          router.push({ path: "/" });
+          return;
+        }
+        if (
+          errmsg &&
+          ["invalid otp device", "invalid otp password"].includes(errmsg)
+        ) {
+          router.push({
+            path: PageEnum.LOGIN_OPT,
+            query: { login, server },
+          });
+          const enPwd = CryptoJS.encrypt(password); // 加密
+          localStorage.setItem("ctraderTemP", enPwd);
+          return;
+        }
+        if (ending && !success && errmsg) {
+          ElNotification({
+            message: errmsg,
+            type: "error",
+          });
+        }
       }
-      if (ending && !success && errmsg) {
-        ElNotification({
-          message: errmsg,
-          type: "error",
-        });
-      }
-    });
+    );
   } catch (e) {
     loading.value = false;
   }

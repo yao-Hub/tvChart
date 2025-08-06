@@ -55,7 +55,7 @@ homeComponentImport();
 
 // 显示底部协议
 const checkPath = (path: string) => {
-  const patterns = ["/login/home", "/login/accounts"];
+  const patterns = ["/login/home", "/login/accounts", "/login/otp"];
   return patterns.some((item) => path.includes(item));
 };
 const showArticle = computed(() => {

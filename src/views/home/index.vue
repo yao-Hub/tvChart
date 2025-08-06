@@ -15,14 +15,18 @@
   <Feedback></Feedback>
 
   <!-- 一键声明 -->
-  <Disclaimers :type="locale"></Disclaimers>
+  <Disclaimers></Disclaimers>
 
   <!-- 订单编辑 -->
   <OrderDialog></OrderDialog>
   <MarketOrderEdit></MarketOrderEdit>
   <PendingOrderEdit></PendingOrderEdit>
 
+  <!-- 市价单操作确认 -->
   <MarketComfirm></MarketComfirm>
+
+  <!-- OPT -->
+  <OTP></OTP>
 
   <!-- 用来冒泡 响应图表的点击 -->
   <div class="bodyBox"></div>
@@ -30,7 +34,6 @@
 
 <script setup lang="ts">
 import { nextTick, onMounted, onUnmounted } from "vue";
-import { useI18n } from "vue-i18n";
 import { onBeforeRouteLeave, useRouter } from "vue-router";
 
 import { useInit } from "@/store/modules/init";
@@ -61,6 +64,8 @@ import OrderDialog from "../orderDialog/index.vue";
 import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
 import MarketComfirm from "../orderDialog/components/MarketComfirm.vue";
+import OTP from "../OTP/index.vue";
+import Disclaimers from "../Disclaimers/index.vue";
 
 const chartInitStore = useChartInit();
 const userStore = useUser();
@@ -74,9 +79,6 @@ const timeStore = useTime();
 const rateStore = useRate();
 const quotesStore = useQuotes();
 const rootStore = useRoot();
-
-const I18n = useI18n();
-const { locale } = I18n;
 
 // 情求token无效时 兼容electron的路由跳转
 const router = useRouter();

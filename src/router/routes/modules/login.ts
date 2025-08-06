@@ -5,6 +5,7 @@ import { PageEnum } from "@/constants/pageEnum";
 import Accounts from "@/views/login/components/Accounts.vue";
 import ForgetPassword from "@/views/login/components/ForgetPassword.vue";
 import Login from "@/views/login/components/Login.vue";
+import Opt from "@/views/login/components/Opt.vue";
 import Register from "@/views/login/components/Register.vue";
 import Main from "@/views/login/index.vue";
 
@@ -24,6 +25,11 @@ const routes: RouteRecordRaw[] = [
         path: PageEnum.LOGIN_HOME,
         meta: { depth: 2 },
         component: Login,
+      },
+      {
+        path: PageEnum.LOGIN_OPT,
+        meta: { depth: 3 },
+        component: Opt,
       },
       {
         path: PageEnum.LOGIN_FORGETPASSWORD,

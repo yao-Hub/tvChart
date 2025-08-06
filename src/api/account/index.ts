@@ -79,6 +79,7 @@ export interface UserInfo {
   symbols_limit: string | null;
   email: string | null;
   pending_orders: resPendingOrders[];
+  otp_status: 0 | 1;
 }
 
 export interface reqLogin {

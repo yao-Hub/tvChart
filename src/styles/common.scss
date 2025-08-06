@@ -208,6 +208,16 @@ body {
   cursor: pointer;
 }
 
+.redWord {
+  color: var(--color-4);
+}
+.greenWord {
+  color: var(--color-7);
+}
+.yellowWord {
+  color: var(--color-2);
+}
+
 .sellWord {
   @include font_color("down");
 }

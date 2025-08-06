@@ -9,7 +9,7 @@ import { useSocket } from "./socket";
 type TcacheItem = LibrarySymbolInfo & { resolution: string };
 interface IState {
   barsCache: Map<string, TcacheItem>;
-  chartsLoading: boolean;
+  chartsHidden: boolean;
 }
 
 interface TurnSocket {
@@ -22,7 +22,7 @@ export const useChartSub = defineStore("chartSub", {
   state: (): IState => {
     return {
       barsCache: new Map(),
-      chartsLoading: false,
+      chartsHidden: false,
     };
   },
   actions: {

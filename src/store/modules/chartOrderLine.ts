@@ -360,15 +360,16 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       line
         .setReverseButtonBackgroundColor(color)
         .setReverseButtonBorderColor(transparent)
+        .setReverseButtonIconColor("#ffffff")
         .setCloseButtonBorderColor(transparent)
         .setCloseButtonBackgroundColor(color)
-        .setCloseButtonIconColor("#f53058");
+        .setCloseButtonIconColor("#ffffff");
     }
     if ("setCancelButtonBackgroundColor" in line) {
       line
         .setCancelButtonBackgroundColor(color)
         .setCancelButtonBorderColor(transparent)
-        .setCancelButtonIconColor("#f53058");
+        .setCancelButtonIconColor("#ffffff");
     }
   };
 
@@ -644,13 +645,13 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         createLine: (widget) =>
           widget.chart().createPositionLine({ disableUndo: true }),
         setupLine: (line, order) => {
-          const direction = getTradingDirection(order.type);
-          const revBtnIconColor =
-            direction === "buy" ? colors.value.downColor : colors.value.upColor;
+          // const direction = getTradingDirection(order.type);
+          // const revBtnIconColor =
+          //   direction === "buy" ? colors.value.downColor : colors.value.upColor;
 
           const marketLine = line as Library.IPositionLineAdapter;
           marketLine
-            .setReverseButtonIconColor(revBtnIconColor) // 反向持仓按钮颜色
+            // .setReverseButtonIconColor(revBtnIconColor) // 反向持仓按钮颜色
             .setQuantity((order.volume / 100).toString()) // 保护持仓内容
             // 点击反向持仓回调
             .onReverse(() => {
@@ -1036,7 +1037,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
   // 市价单反向持仓 /  市价单关闭 / 市价单修改 / 市价单止盈止损编辑及取消
   const handleMarketAction = async (
-    type:
+    handleType:
       | "reverse"
       | "close"
       | "modify"
@@ -1052,21 +1053,45 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     // 设置编辑状态
     if (
       checkAndSetEditState(chartId, orderId) &&
-      !["slMove", "tpMove"].includes(type)
+      !["slMove", "tpMove"].includes(handleType)
     ) {
       return;
     }
-    const currentOrder = getLatestOrder(chartId, "market", orderId); // 获取订单最新信息
+
+    let lineStateName = "market";
+    let colorType: number | "sell" | "buy" | null = null;
+    let ifSLTP = false;
+
+    if (handleType.includes("tp")) {
+      lineStateName += "Tp";
+      colorType = "buy";
+      ifSLTP = true;
+    }
+    if (handleType.includes("sl")) {
+      lineStateName += "Sl";
+      colorType = "sell";
+      ifSLTP = true;
+    }
+    // 获取订单最新信息
+    const currentOrder = getLatestOrder(
+      chartId,
+      lineStateName as LineType,
+      orderId
+    );
     if (!currentOrder) return;
 
-    const actionId = `${orderId}@Market_${type}`;
+    if (colorType === null) {
+      colorType = currentOrder.type;
+    }
+
+    const actionId = `${orderId}@Market_${handleType}`;
 
     // 防止重复操作
     if (actionMap.value.get(actionId)) return;
     actionMap.value.set(actionId, true);
 
     // 中间按钮修改操作
-    if (type === "modify") {
+    if (handleType === "modify") {
       orderStore.state.editOrderInfo = { ...currentOrder };
       dialogStore.openDialog("marketOrderEditVisible");
       actionMap.value.delete(actionId);
@@ -1074,19 +1099,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     }
 
     // 是否止盈止损操作
-    const ifSLTP = ["slCancel", "tpCancel", "slMove", "tpMove"].includes(type);
-    const slTpField = type.toLowerCase().includes("sl") ? "sl" : "tp";
-    const slTpValue = type.toLowerCase().includes("cancel")
+    const slTpField = handleType.toLowerCase().includes("sl") ? "sl" : "tp";
+    const slTpValue = handleType.toLowerCase().includes("cancel")
       ? 0
       : line.getPrice();
-
-    let colorType: number | "sell" | "buy" = currentOrder.type;
-    if (type.toLowerCase().includes("sl")) {
-      colorType = "sell";
-    }
-    if (type.toLowerCase().includes("tp")) {
-      colorType = "buy";
-    }
 
     try {
       const ifOne = orderStore.state.ifOne;
@@ -1094,7 +1110,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       if (ifOne) {
         // 操作前视觉反馈
         setLoadingStyle(line);
-        switch (type) {
+        switch (handleType) {
           // 反向持仓
           case "reverse":
             orderStore.state.editOrderInfo = { ...currentOrder };
@@ -1134,19 +1150,18 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       // 不允许快捷交易
       // 止盈止损操作
       else if (ifSLTP) {
-        const field = type.toLowerCase().includes("sl") ? "sl" : "tp";
         orderStore.state.editOrderInfo = {
           ...currentOrder,
-          [`${field}_price`]: slTpValue,
+          [`${slTpField}_price`]: slTpValue,
         };
 
         // 止盈止损线归位
-        const originPrice = currentOrder[`${field}_price`];
+        const originPrice = currentOrder[`${slTpField}_price`];
         line.setPrice(originPrice);
 
         dialogStore.openDialog("marketOrderEditVisible");
       } else {
-        orderStore.state.marketConfirmInfo.type = type as
+        orderStore.state.marketConfirmInfo.type = handleType as
           | "reverse"
           | "double"
           | "close";
@@ -1158,7 +1173,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       // 操作成功后删除行为标志
       actionMap.value.delete(actionId);
       // 恢复颜色
-      if (["slMove", "tpMove"].includes(type)) {
+      if (["slMove", "tpMove"].includes(handleType)) {
         setColor(colorType, line, true);
       }
     } catch (error) {
@@ -1185,12 +1200,29 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     ) {
       return;
     }
+
+    let lineStateName = "pending";
+
+    let colorType: number | "sell" | "buy" | null = null;
+
+    if (handleType.includes("tp")) {
+      colorType = "buy";
+      lineStateName += "Tp";
+    }
+    if (handleType.includes("sl")) {
+      colorType = "sell";
+      lineStateName += "Sl";
+    }
+
     const currentOrder = getLatestOrder(
       chartId,
-      "pending",
+      lineStateName as LineType,
       orderId
     ) as resPendingOrders;
     if (!currentOrder) return;
+    if (colorType === null) {
+      colorType = currentOrder.type;
+    }
 
     const actionId = `${orderId}@Pending_${handleType}`;
 
@@ -1209,14 +1241,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       sl_price,
       tp_price,
     } = currentOrder;
-
-    let colorType: number | "sell" | "buy" = type;
-    if (handleType.toLowerCase().includes("sl")) {
-      colorType = "sell";
-    }
-    if (handleType.toLowerCase().includes("tp")) {
-      colorType = "buy";
-    }
 
     try {
       const now_price = line.getPrice();
@@ -1358,8 +1382,13 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           try {
             if ("widget" in item && item.lineId) {
               item.widget?.activeChart().removeEntity(item.lineId);
-            }
-            if ("line" in item) {
+            } else if (
+              temLine.chartId === chartId &&
+              temLine.orderInfo.id === item.orderInfo.id &&
+              "line" in item
+            ) {
+              temLine.line.remove();
+            } else if ("line" in item) {
               item.line.remove();
             }
           } catch {}

@@ -252,7 +252,15 @@ export const useUser = defineStore("user", () => {
     errmsg?: string;
   }) => void;
 
-  const login = async (updata: any, callback: TCallback) => {
+  const login = async (
+    updata: {
+      login: string | number;
+      password: string;
+      server: string;
+      otp_code?: string;
+    },
+    callback: TCallback
+  ) => {
     const t = i18n.global.t;
     const networkStore = useNetwork();
     networkStore.server = updata.server;
@@ -313,7 +321,7 @@ export const useUser = defineStore("user", () => {
             logType = "error";
             // 账号密码错误等等的用户错误
             if (err === 205) {
-              callback({ ending: true, success: false });
+              callback({ ending: true, success: false, errmsg });
               return;
             }
             callback({ ending: false, success: false, errmsg });

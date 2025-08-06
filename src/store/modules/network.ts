@@ -158,5 +158,28 @@ export const useNetwork = defineStore("network", {
       console.log(name, href);
       window.electronAPI.invoke("open-new-window", { name, hash: href });
     },
+
+    getDelay(webApi?: string) {
+      const delay = this.nodeList.find(
+        (e) => e.webApi === webApi || this.currentNode.webApi
+      )?.webApiDelay;
+      return delay || "-";
+    },
+
+    getDelayClass(webApi?: string) {
+      const delay = this.getDelay(webApi);
+      if (delay === "-") {
+        return "redWord";
+      }
+      if (delay <= 200) {
+        return "greenWord";
+      }
+      if (delay <= 400) {
+        return "yellowWord";
+      }
+      if (delay > 400) {
+        return "redWord";
+      }
+    },
   },
 });

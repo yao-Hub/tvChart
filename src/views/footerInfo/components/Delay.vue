@@ -1,8 +1,12 @@
 <template>
   <el-dropdown trigger="click" placement="top-start" @command="changeNode">
-    <div :class="[+currentDelay > 500 ? 'redWord delay' : 'greenWord delay']">
+    <div
+      :class="[
+        +networkStore.getDelay() > 500 ? 'redWord delay' : 'greenWord delay',
+      ]"
+    >
       <i class="iconfont">&#xe602;</i>
-      <span>{{ currentDelay }}ms</span>
+      <span>{{ networkStore.getDelay() }}ms</span>
     </div>
     <template #dropdown>
       <el-dropdown-menu>
@@ -14,7 +18,7 @@
         <el-dropdown-item
           v-for="node in networkStore.nodeList"
           :key="node.nodeName"
-          :disabled="getDelay(node.webApi) === '-'"
+          :disabled="networkStore.getDelay(node.webApi) === '-'"
           :command="node.nodeName"
         >
           <div class="delayItem">
@@ -30,8 +34,8 @@
                 {{ node.nodeName }}
               </span>
             </div>
-            <span :class="getDelayClass(node.webApi)"
-              >{{ getDelay(node.webApi) }}ms</span
+            <span :class="networkStore.getDelayClass(node.webApi)"
+              >{{ networkStore.getDelay(node.webApi) }}ms</span
             >
           </div>
         </el-dropdown-item>
@@ -45,7 +49,7 @@ import { useChartInit } from "@/store/modules/chartInit";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 import { LoadingOutlined, ReloadOutlined } from "@ant-design/icons-vue";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
@@ -59,48 +63,14 @@ const changeNode = (name: string) => {
   if (name === currentNodeName) {
     return;
   }
-  const delay = networkStore.nodeList.find(
-    (e) => e.nodeName === name
-  )?.webApiDelay;
-  if (!delay) {
+  const delay = networkStore.getDelay(name);
+  if (!delay || delay === "-") {
     return;
   }
   userStore.changeCurrentAccountOption({
     queryNode: name,
   });
   chartInitStore.systemRefresh();
-};
-
-const currentDelay = computed(() => {
-  const webApi = networkStore.currentNode?.webApi;
-  if (webApi) {
-    const delay = networkStore.nodeList.find(
-      (e) => e.webApi === webApi
-    )?.webApiDelay;
-    return delay || "-";
-  }
-  return "-";
-});
-const getDelay = (webApi: string) => {
-  const delay = networkStore.nodeList.find(
-    (e) => e.webApi === webApi
-  )?.webApiDelay;
-  return delay || "-";
-};
-const getDelayClass = (webApi: string) => {
-  const delay = getDelay(webApi);
-  if (delay === "-") {
-    return "redWord";
-  }
-  if (delay <= 200) {
-    return "greenWord";
-  }
-  if (delay <= 400) {
-    return "yellowWord";
-  }
-  if (delay > 400) {
-    return "redWord";
-  }
 };
 
 const loading = ref(false);
@@ -154,14 +124,5 @@ const refreshDelay = async () => {
       margin-right: 8px;
     }
   }
-}
-.redWord {
-  color: var(--color-4);
-}
-.greenWord {
-  color: var(--color-7);
-}
-.yellowWord {
-  color: var(--color-2);
 }
 </style>

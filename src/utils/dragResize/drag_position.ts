@@ -384,7 +384,7 @@ function updateHoriLine() {
 
 // 水平线垂直拉伸
 const resizeVertical = (event: MouseEvent) => {
-  chartSubStore.chartsLoading = true;
+  chartSubStore.chartsHidden = true;
   let result: HTMLDivElement[] = [];
   const lineTarget = event.currentTarget as HTMLDivElement;
   const lineX = lineTarget.getBoundingClientRect().x;
@@ -456,7 +456,7 @@ const resizeVertical = (event: MouseEvent) => {
   }
 
   function stopResize() {
-    chartSubStore.chartsLoading = false;
+    chartSubStore.chartsHidden = false;
     updateVertLine();
     rememberAttr();
     document.removeEventListener("mousemove", resize);
@@ -642,7 +642,7 @@ function operaVertLine() {
 
 // 竖直线水平拉伸
 function resizeHorizontal(event: MouseEvent) {
-  chartSubStore.chartsLoading = true;
+  chartSubStore.chartsHidden = true;
   let result: HTMLDivElement[] = [];
   const demos = document.querySelectorAll(".demo");
   const lineTarget = event.currentTarget as HTMLDivElement;
@@ -698,7 +698,7 @@ function resizeHorizontal(event: MouseEvent) {
   }
 
   function stopResize() {
-    chartSubStore.chartsLoading = false;
+    chartSubStore.chartsHidden = false;
     document.removeEventListener("mousemove", resize);
     document.removeEventListener("mouseup", stopResize);
     rememberAttr();

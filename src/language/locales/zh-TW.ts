@@ -41,15 +41,11 @@ export default {
   modify: "修改",
   submit: "提交",
   close: "關閉",
+  accept: "接受",
 
   noAccount: "已有交易賬戶，可直接登錄，如沒有，可開設模擬賬戶",
   logAccount: "登錄賬戶",
   manageAccount: "管理賬戶",
-  brokerName: "經紀商名稱",
-  nodeName: "線路名稱",
-  loginId: "登入ID",
-  ip: "服務器",
-  connectedNode: "已連接節點",
   myFeedback: "我的反饋",
   retract: "收起",
   expandReply: "展開回復",
@@ -270,6 +266,7 @@ export default {
     loading: "加載中",
     noneData: "無數據",
     someError: "出現了一些錯誤",
+    otpRequired: "請輸入OTP程式碼",
   },
 
   time: {
@@ -455,6 +452,24 @@ export default {
     sltp: "止損/止盈",
   },
 
+  otp: {
+    title: "驗證OTP",
+    agree: "我接受",
+  },
+
+  accountInfo: {
+    brokerName: "經紀商名稱",
+    nodeName: "線路名稱",
+    loginId: "登入ID",
+    ip: "服務器",
+    connectedNode: "已連接節點",
+    OTP: "我的OTP",
+    alreadyBound: "已綁定",
+    unbound: "未綁定",
+    unbind: "解綁",
+    binding: "綁定",
+  },
+
   "network offline": "無網絡",
   "refresh page": "刷新頁面",
   "network error": "網絡錯誤",
@@ -535,4 +550,6 @@ export default {
   "execute failed": "交易執行失敗",
   "execute timeout": "交易執行超時",
   "invalid rate": "無效的匯率",
+  "invalid otp device": "OTP 設備無效",
+  "invalid otp password": "OTP 密碼無效",
 };

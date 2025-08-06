@@ -55,9 +55,7 @@
           :interval="interval"
           :chartId="id"
           :key="chartInitStore.state.chartFreshKeys[id]"
-          :loading="
-            chartSubStore.chartsLoading || chartInitStore.state.chartLoading[id]
-          "
+          :hidden="chartSubStore.chartsHidden"
           :client_id="`${id}_client_id`"
           :user_id="`${id}_user_id`"
           :datafeed="datafeed(id)"

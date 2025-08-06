@@ -35,16 +35,12 @@ export default {
     "If you have a account, log in directly. Otherwise, open a demo account.",
   logAccount: "Log in account",
   manageAccount: "Manage Account",
-  brokerName: "brokerName",
-  nodeName: "nodeName",
-  loginId: "loginId",
-  ip: "ip",
-  connectedNode: "connected node",
   done: "Done",
   delete: "Delete",
   myFeedback: "My Feedback",
   submit: "Submit",
-  close: "close",
+  close: "Close",
+  accept: "Accept",
 
   retract: "Retract",
   expandReply: "Expand Reply",
@@ -268,6 +264,7 @@ export default {
     loading: "loading",
     noneData: "No Data",
     someError: "Some error occurred",
+    otpRequired: "Plearse enter OTP code",
   },
 
   time: {
@@ -455,6 +452,25 @@ export default {
     histories: "Histories",
     sltp: "SL/TP",
   },
+
+  otp: {
+    title: "Verify OTP",
+    accept: "I Accept",
+  },
+
+  accountInfo: {
+    brokerName: "brokerName",
+    nodeName: "nodeName",
+    loginId: "loginId",
+    ip: "ip",
+    connectedNode: "connected node",
+    OTP: "OTP",
+    alreadyBound: "Already bound",
+    unbound: "Unbound",
+    unbind: "Unbind",
+    binding: "Binding",
+  },
+
   "network offline": "No network",
   "refresh page": "Reload",
   "network error": "network Error",
@@ -535,4 +551,6 @@ export default {
   "execute failed": "Execute Failed",
   "execute timeout": "Execute Timeout",
   "invalid rate": "Invalid Rate",
+  "invalid otp device": "Invalid OTP device",
+  "invalid otp password": "Invalid OTP Password",
 };

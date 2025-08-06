@@ -19,7 +19,6 @@ interface IState {
   chartWidgetList: IChart[];
   chartLayoutType: "single" | "multiple" | "row" | "column";
   loading: Boolean; // 整个图表区域的加载
-  chartLoading: Record<string, boolean>; // 各个图表的加载状态
   activeChartId: string; // 当前激活的chart
   globalRefresh: 0 | 1; // 是否全局刷新
   ifChartLoaded: Record<string, boolean>; // 图表是否渲染完成
@@ -37,7 +36,6 @@ export const useChartInit = defineStore("chartInit", () => {
     chartWidgetList: [],
     loading: true,
     chartLayoutType: "single",
-    chartLoading: {},
     activeChartId: "chart_1",
     globalRefresh: 0,
     ifChartLoaded: {},
@@ -341,7 +339,6 @@ export const useChartInit = defineStore("chartInit", () => {
   function $reset() {
     state.chartWidgetList = [];
     state.chartLayoutType = "single";
-    state.chartLoading = {};
     state.activeChartId = "chart_1";
     state.ifChartLoaded = {};
     state.chartFreshKeys = {};
