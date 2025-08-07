@@ -22,6 +22,7 @@ import { useTheme } from "@/store/modules/theme";
 
 import i18n from "@/language/index";
 import { cloneDeep } from "lodash";
+import { useDialog } from "@/store/modules/dialog";
 const t = i18n.global.t;
 
 interface IOption {
@@ -201,6 +202,7 @@ service.interceptors.response.use(
     ElNotification({
       message: t(resData.errmsg || "error"),
       type: "error",
+      zIndex: useDialog().getMaxZIndex(),
     });
     return Promise.reject(resData);
   },
@@ -210,6 +212,7 @@ service.interceptors.response.use(
       ElNotification({
         message: t("invalid token"),
         type: "error",
+        zIndex: useDialog().getMaxZIndex(),
       });
       handleTokenErr();
       return Promise.reject(err);
@@ -256,6 +259,7 @@ service.interceptors.response.use(
           res.data.errmsg || res.data.msg || res.data.error || "server error"
         ),
         type: "error",
+        zIndex: useDialog().getMaxZIndex(),
       });
       return Promise.reject(err);
     }
@@ -263,6 +267,7 @@ service.interceptors.response.use(
       ElNotification({
         message: `statusCode: ${res.status || res.code}`,
         type: "error",
+        zIndex: useDialog().getMaxZIndex(),
       });
       return Promise.reject(err);
     }

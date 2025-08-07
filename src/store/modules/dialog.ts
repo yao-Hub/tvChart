@@ -30,7 +30,9 @@ type TVisible =
   // 下载进度弹窗
   | "updateProgressVisible"
   // 交易服务器详情弹窗
-  | "serverVisible";
+  | "serverVisible"
+  // OTP弹窗
+  | "OTPVisible";
 
 export const useDialog = defineStore("dialog", {
   state: (): IState => {
@@ -45,6 +47,7 @@ export const useDialog = defineStore("dialog", {
         updateVersionVisible: false,
         updateProgressVisible: false,
         serverVisible: false,
+        OTPVisible: false,
       },
       floatMenuParams: {
         visible: false,

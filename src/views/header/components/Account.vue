@@ -134,7 +134,7 @@
               ? t("accountInfo.alreadyBound")
               : t("accountInfo.unbound")
           }}</el-text>
-          <el-text type="primary" class="bindingStatus">{{
+          <el-text type="primary" class="bindingStatus" @click="openOTP">{{
             userStore.state.loginInfo?.otp_status
               ? t("accountInfo.unbind")
               : t("accountInfo.binding")
@@ -237,6 +237,11 @@ const showServerDialog = () => {
     server: networkStore.currentLine?.brokerName,
   });
   dialogStore.openDialog("serverVisible");
+};
+
+const openOTP = () => {
+  modalOpen.value = false;
+  dialogStore.openDialog("OTPVisible");
 };
 </script>
 

@@ -17,6 +17,9 @@ enum Api {
   RefreshToken = "/login/refresh_token",
   BalanceAdd = "/admin-api/my/balance_add",
   QueryBroker = "/admin-api/server/queryBroker",
+  QueryOTPQRCode = "/otp/code",
+  BindOTP = "/otp/bind",
+  UnbindOTP = "/otp/unbind",
 }
 export interface Order {
   id: number; //	订单ID
@@ -330,5 +333,41 @@ export const queryBroker = (data: IReqQueryBroker) => {
     urlType: "admin",
     noNeedServer: true,
     noNeedToken: true,
+  });
+};
+
+// 获取OTP需要展示的二维码内容
+export const queryOTPQRCode = (data: { password: string }) => {
+  return request<{ code_content: string }>({
+    url: Api.QueryOTPQRCode,
+    method: "post",
+    data,
+    needLogin: true,
+  });
+};
+
+interface IReqOTP {
+  password: string;
+  otp_code: string;
+  device_id: string;
+}
+
+// otp绑定秘钥
+export const bindOTP = (data: IReqOTP) => {
+  return request({
+    url: Api.BindOTP,
+    method: "post",
+    data,
+    needLogin: true,
+  });
+};
+
+// 解绑OTP秘钥
+export const unbindOTP = (data: IReqOTP) => {
+  return request({
+    url: Api.UnbindOTP,
+    method: "post",
+    data,
+    needLogin: true,
   });
 };

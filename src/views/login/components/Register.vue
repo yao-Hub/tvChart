@@ -354,14 +354,6 @@ onUnmounted(() => {
   margin-top: 24px;
 }
 
-.link {
-  @include font_color("word-gray");
-  cursor: pointer;
-  &:hover {
-    @include font_color("primary");
-  }
-}
-
 .protocol {
   display: flex;
   flex-wrap: wrap;

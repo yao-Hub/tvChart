@@ -259,13 +259,4 @@ onUnmounted(() => {
     font-size: 16px;
   }
 }
-
-.link {
-  @include font_color("word-gray");
-  font-size: var(--font-size);
-  cursor: pointer;
-  &:hover {
-    @include font_color("primary");
-  }
-}
 </style>

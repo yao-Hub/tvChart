@@ -265,6 +265,7 @@ export default {
     noneData: "No Data",
     someError: "Some error occurred",
     otpRequired: "Plearse enter OTP code",
+    enterVeriCode: "Please enter the dynamic verification code",
   },
 
   time: {
@@ -454,8 +455,40 @@ export default {
   },
 
   otp: {
+    name: "OTP",
     title: "Verify OTP",
     accept: "I Accept",
+    unbindOTP: "Unbind OTP",
+    bindOTP: "Bind OTP",
+    auth: "Identity Authentication ",
+    needAuth:
+      "To ensure that it is your own operation, please complete the identity verification",
+    verifyNow: "Verify Now",
+    stepTitle:
+      "Please follow the steps below to complete the binding operation",
+    step_1:
+      "Please download and install the CTOTrader app/Google on your mobile device Authenticator (Authenticator)",
+    step_2:
+      "IPhone: Search for CTOTrader App/Google Authenticator on the Appstore",
+    step_3:
+      "Android: Search for CTOTrader app/Google Authenticator in the app market (Authenticator)",
+    step_4:
+      "After installation, click Next to enter the binding page (if already installed, go directly to the next step)",
+    nextStep: "Next Step",
+    codeLabel:
+      "Scan the QR code with CTOTrader app/Google Authenticator to obtain a 6-digit verification code:",
+    scanError: "scanError?",
+    tipInput:
+      "Please manually enter the following information in the CTOTrader app/Google Authenticator:",
+    accountName: "Account Name",
+    secretKey: "Secret Key",
+    bindSuccess: "Binding Successful",
+    bindSuccess_tip_1:
+      "You have successfully bound the security device. OTP verification is required for the next account login and password change.",
+    bindSuccess_tip_2:
+      "Please do not delete or uninstall the app at will, otherwise it may cause the account to be unable to log in. If you need to uninstall the app or replace your phone, please unbind the OTP first.",
+    unbindTip:
+      "To unbind OTP, please enter your account password and account OTP",
   },
 
   accountInfo: {

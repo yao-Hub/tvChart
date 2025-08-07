@@ -267,6 +267,7 @@ export default {
     noneData: "無數據",
     someError: "出現了一些錯誤",
     otpRequired: "請輸入OTP程式碼",
+    enterVeriCode: "請輸入動態驗證碼",
   },
 
   time: {
@@ -453,8 +454,36 @@ export default {
   },
 
   otp: {
+    name: "OTP",
     title: "驗證OTP",
     agree: "我接受",
+    unbindOTP: "解綁OTP",
+    bindOTP: "綁定OTP",
+    auth: "身份認證",
+    needAuth: "為確保是您本人操作，請完成身份驗證",
+    verifyNow: "立即驗證",
+    stepTitle: "請按照以下步驟完成綁定操作",
+    step_1:
+      "請在手機端下載井安裝CTOTrader APP/Google Authenticator（身份驗證器）",
+    step_2:
+      "iphone：在Appstore蒐索CTOTrader APP/Google Authenticator（身份驗證器）",
+    step_3:
+      "Android：在應用市場搜素CTOTrader APP/Google Authenticator（身份驗證器）",
+    step_4: "安裝完成後點擊下一步進入綁定頁面（如已安裝，直接進入下一步）",
+    nextStep: "下一步",
+    codeLabel:
+      "使用CTOTrader APP/Google Authenticator（身份驗證器）掃描二維碼，獲取6比特驗證碼：",
+    scanError: "掃描失敗？",
+    tipInput:
+      "請在CTOTrader APP/Google Authenticator（身份驗證器）中手動輸入以下資訊：",
+    accountName: "账户名",
+    secretKey: "金鑰",
+    bindSuccess: "綁定成功",
+    bindSuccess_tip_1:
+      "您已成功綁定安全設備，下次帳號登入、修改帳戶密碼需要OTP驗證。",
+    bindSuccess_tip_2:
+      "請勿隨意删除卸載APP，否則會導致帳號無法登入。 如需要卸裁APP或更換手機，請先解綁OTP。",
+    unbindTip: "要解綁OTP，請輸入帳戶密碼與帳戶OTP",
   },
 
   accountInfo: {
