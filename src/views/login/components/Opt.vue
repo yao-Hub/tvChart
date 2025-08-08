@@ -45,6 +45,7 @@ import CryptoJS from "utils/AES";
 
 import ScanCode from "./ScanCode.vue";
 import { useUser } from "@/store/modules/user";
+import { ElNotification } from "element-plus";
 
 const router = useRouter();
 const route = useRoute();
@@ -86,10 +87,16 @@ const happyStart = () => {
     const password = CryptoJS.decrypt(enPwd);
     useUser().login(
       { login, server, password, otp_code },
-      ({ ending, success }) => {
+      ({ ending, success, errmsg }) => {
         loading.value = !ending;
         if (ending && success) {
           router.push({ path: "/" });
+        }
+        if (ending && !success && errmsg) {
+          ElNotification({
+            message: t(errmsg),
+            type: "error",
+          });
         }
       }
     );
