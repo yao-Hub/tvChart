@@ -738,7 +738,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           return oldPrice !== newPrice;
         },
         updateLine: (line, order) => {
-          line.setPrice(order.order_price);
+          const price = getPendingPrice(order);
+          line.setPrice(price);
         },
       }
     );

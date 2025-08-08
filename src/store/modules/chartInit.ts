@@ -8,6 +8,7 @@ import { CSSProperties, computed, reactive, watch } from "vue";
 import { useSocket } from "./socket";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
+import { useTheme } from "./theme";
 
 interface IChart {
   widget?: IChartingLibraryWidget;
@@ -186,6 +187,7 @@ export const useChartInit = defineStore("chartInit", () => {
       symbol: symbol || activeSymbol,
     });
     state.activeChartId = id;
+    useTheme().saveChartTheme(id, useTheme().systemTheme);
   }
 
   // 获取chart的symbol
