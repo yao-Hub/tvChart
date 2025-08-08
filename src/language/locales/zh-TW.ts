@@ -266,7 +266,6 @@ export default {
     loading: "加載中",
     noneData: "無數據",
     someError: "出現了一些錯誤",
-    otpRequired: "請輸入OTP程式碼",
     enterVeriCode: "請輸入動態驗證碼",
   },
 

@@ -20,7 +20,7 @@
         <el-form-item prop="server" label="OTP">
           <el-input
             v-model="formState.otp_code"
-            :placeholder="t('tip.otpRequired')"
+            :placeholder="t('tip.enterVeriCode')"
           />
         </el-form-item>
         <el-button
@@ -60,7 +60,7 @@ const rules = reactive({
     {
       required: true,
       trigger: "change",
-      message: t("tip.OTPRequired"),
+      message: t("tip.enterVeriCode"),
     },
   ],
 });

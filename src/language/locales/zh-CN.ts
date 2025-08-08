@@ -266,7 +266,6 @@ export default {
     loading: "加载中",
     noneData: "无数据",
     someError: "出现了一些错误",
-    otpRequired: "请输入OTP代码",
     enterVeriCode: "请输入动态验证码",
   },
 

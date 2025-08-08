@@ -264,7 +264,6 @@ export default {
     loading: "loading",
     noneData: "No Data",
     someError: "Some error occurred",
-    otpRequired: "Plearse enter OTP code",
     enterVeriCode: "Please enter the dynamic verification code",
   },
 
