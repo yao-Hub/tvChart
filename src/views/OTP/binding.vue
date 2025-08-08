@@ -257,7 +257,7 @@ const handleDone = () => {
 
 .binding {
   padding-top: 24px;
-  height: 290px;
+  min-height: 290px;
   overflow: hidden;
 }
 .text {

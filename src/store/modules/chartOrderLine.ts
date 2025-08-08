@@ -306,16 +306,16 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     list.forEach((item) => {
       const colorList = [colors.value.upColor, colors.value.downColor];
       const { type } = item.orderInfo;
-      const node = item
-        .widget!.activeChart()
-        .getShapeById(item.lineId as Library.EntityId);
-      if (item.noteType) {
-        const realType = item.noteType === "open" ? type : 1 - type; // 开仓时的类型和收盘时的类型相反
-        node.setProperties({
-          markerColor: colorList[realType],
-        });
-      } else {
-        node.setProperties({ linecolor: colorList[type] });
+      if (item.lineId) {
+        const node = item.widget!.activeChart().getShapeById(item.lineId);
+        if (item.noteType) {
+          const realType = item.noteType === "open" ? type : 1 - type; // 开仓时的类型和收盘时的类型相反
+          node.setProperties({
+            markerColor: colorList[realType],
+          });
+        } else {
+          node.setProperties({ linecolor: colorList[type] });
+        }
       }
     });
   };
@@ -324,10 +324,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     const list = Object.values(lineState.marketNotes).flat();
     list.forEach((item) => {
       const colorList = [colors.value.upColor, colors.value.downColor];
-      const node = item
-        .widget!.activeChart()
-        .getShapeById(item.lineId as Library.EntityId);
-      node.setProperties({ arrowColor: colorList[item.orderInfo.type] });
+      if (item.lineId) {
+        const node = item.widget!.activeChart().getShapeById(item.lineId);
+        node.setProperties({ arrowColor: colorList[item.orderInfo.type] });
+      }
     });
   };
 
@@ -571,6 +571,20 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
     const colorList = [colors.value.upColor, colors.value.downColor];
 
+    if (!lineState.marketNotes[chartId]) {
+      lineState.marketNotes[chartId] = [];
+    }
+
+    lineState.marketNotes[chartId].forEach((item) => {
+      const target = orders.find((order) => order.id === item.orderInfo.id);
+      if (!target && item.lineId) {
+        try {
+          const ifExist = item.widget?.activeChart().getShapeById(item.lineId);
+          ifExist && item.widget?.activeChart().removeEntity(item.lineId);
+        } catch (error) {}
+      }
+    });
+
     orders.forEach((order) => {
       const index = noInChartDataRange.value[chartId].markets.findIndex(
         (e) => e.id === order.id
@@ -584,9 +598,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       if (index > -1 && order.open_time > minTime) {
         noInChartDataRange.value[chartId].markets.splice(index, 1);
       }
-      if (!lineState.marketNotes[chartId]) {
-        lineState.marketNotes[chartId] = [];
-      }
+
       const target = lineState.marketNotes[chartId].find(
         (e) => e.orderInfo.id === order.id
       );
@@ -595,7 +607,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         const noteId = chart.widget!.activeChart().createShape(
           { time: renderTime / 1000, price: order.open_price },
           {
-            shape: order.type ? "arrow_up" : "arrow_down",
+            shape: order.type ? "arrow_down" : "arrow_up",
             lock: true, // 禁止移动
             disableSelection: true, // 禁止选中
             disableSave: true, // 禁止保存
@@ -608,18 +620,15 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           orderInfo: order,
           widget: chart.widget,
         });
-        chart
-          .widget!.activeChart()
-          .getShapeById(noteId as Library.EntityId)
-          .setProperties({
+        if (noteId) {
+          chart.widget!.activeChart().getShapeById(noteId).setProperties({
             arrowColor: colorList[order.type],
           });
+        }
       }
 
-      if (target) {
-        const note = chart
-          .widget!.activeChart()
-          .getShapeById(target.lineId as Library.EntityId);
+      if (target && target.lineId) {
+        const note = chart.widget!.activeChart().getShapeById(target.lineId);
         note.setPoints([{ time: renderTime / 1000, price: order.open_price }]);
       }
     });
@@ -847,10 +856,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       const target = lineState.historyLines[chartId].find(
         (e) => e.noteType === drawType && e.orderInfo.id === item.id
       );
-      const node = chart.widget
-        .activeChart()
-        .getShapeById(target?.lineId as Library.EntityId);
-      node.setPoints([{ time: time / 1000, price }]);
+      if (target && target.lineId) {
+        const node = chart.widget.activeChart().getShapeById(target.lineId);
+        node.setPoints([{ time: time / 1000, price }]);
+      }
       return;
     }
 
@@ -866,26 +875,26 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         disableUndo: true, // 禁止撤销
         zOrder: "top", // 置顶
       });
-    const note = chart
-      .widget!.activeChart()
-      .getShapeById(noteId as Library.EntityId);
+    if (noteId) {
+      const note = chart.widget!.activeChart().getShapeById(noteId);
 
-    const realType = drawType === "open" ? type : 1 - type; // 开仓时的类型和收盘时的类型相反
+      const realType = drawType === "open" ? type : 1 - type; // 开仓时的类型和收盘时的类型相反
 
-    const dire = getTradingDirection(realType);
+      const dire = getTradingDirection(realType);
 
-    // 交易方向+手数+建仓价格；
-    const openText = `open ${id}: ${dire} ${volume} at ${open_price} profit: ${profit}`;
+      // 交易方向+手数+建仓价格；
+      const openText = `open ${id}: ${dire} ${volume} at ${open_price} profit: ${profit}`;
 
-    // 交易方向 + 手数 + 平仓价格 + 盈亏;
-    const closeText = `close ${id}: ${dire} ${volume} at ${close_price} profit: ${profit}`;
-    note.setProperties({
-      fixedSize: false,
-      markerColor: colorList[realType],
-      backgroundColor: "rgba(23, 24, 26, 0.5)",
-      borderColor: "rgba(255, 255, 255, 0.5)",
-      text: drawType === "open" ? openText : closeText,
-    });
+      // 交易方向 + 手数 + 平仓价格 + 盈亏;
+      const closeText = `close ${id}: ${dire} ${volume} at ${close_price} profit: ${profit}`;
+      note.setProperties({
+        fixedSize: false,
+        markerColor: colorList[realType],
+        backgroundColor: "rgba(23, 24, 26, 0.5)",
+        borderColor: "rgba(255, 255, 255, 0.5)",
+        text: drawType === "open" ? openText : closeText,
+      });
+    }
     return noteId;
   };
 
@@ -910,11 +919,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       const target = lineState.historyLines[chartId].find(
         (e) => e.orderInfo.id === item.id
       );
-      if (target) {
-        const entityId = target.lineId;
-        const line = chart.widget
-          .activeChart()
-          .getShapeById(entityId as Library.EntityId);
+      if (target && target.lineId) {
+        const line = chart.widget.activeChart().getShapeById(target.lineId);
         const info = target.orderInfo;
         line.setPoints([
           { time: info.open_time / 1000, price: info.open_price },
@@ -947,10 +953,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         widget: chart.widget,
       });
 
-      const line = chart
-        .widget!.activeChart()
-        .getShapeById(lineId as Library.EntityId);
-      line.setProperties({ linecolor: colorList[type], linestyle: 1 });
+      if (lineId) {
+        const line = chart.widget!.activeChart().getShapeById(lineId);
+        line.setProperties({ linecolor: colorList[type], linestyle: 1 });
+      }
       const openId = createTraderNote(chart, item, "open");
       const closeId = createTraderNote(chart, item, "close");
       const ids = [openId, closeId];
@@ -1135,10 +1141,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             };
             updata[slTpField] = slTpValue;
             await orderStore.modifyMarketOrder(updata, currentOrder);
-            // 如果止盈止损值为0则删除线
-            if (updata[slTpField] === 0) {
-              line.remove();
-            }
             break;
           }
         }
@@ -1260,7 +1262,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           // 挂单线取消按钮点击
           case "cancel":
             await orderStore.delPendingOrder(currentOrder);
-            line.remove();
             break;
           // 挂单线移动结束
           case "move":
@@ -1299,9 +1300,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
               { ...updata, id },
               currentOrder
             );
-            if (handleType === "slCancel" || handleType === "tpCancel") {
-              line.remove();
-            }
             break;
         }
         if (!handleType.toLowerCase().includes("cancel")) {
