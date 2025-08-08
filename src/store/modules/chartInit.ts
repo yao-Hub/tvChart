@@ -256,8 +256,6 @@ export const useChartInit = defineStore("chartInit", () => {
   function intLayoutType() {
     const type = storageStore.getItem("chartLayoutType");
     state.chartLayoutType = type || "single";
-    const storageId = storageStore.getItem("activeChartId") || "chart_1";
-    state.activeChartId = storageId;
   }
   // 设置图表布局
   function setLayoutType(type: IState["chartLayoutType"]) {
@@ -322,6 +320,13 @@ export const useChartInit = defineStore("chartInit", () => {
       });
       result = wList;
     }
+    // 获取当前激活的图表
+    const storageId = storageStore.getItem("activeChartId");
+    if (storageId) {
+      state.activeChartId = storageId;
+    } else {
+      state.activeChartId = result[0].id;
+    }
     state.chartWidgetList = result;
   }
   function getChartSavedData(id: string) {
@@ -339,7 +344,6 @@ export const useChartInit = defineStore("chartInit", () => {
   function $reset() {
     state.chartWidgetList = [];
     state.chartLayoutType = "single";
-    state.activeChartId = "chart_1";
     state.ifChartLoaded = {};
     state.chartFreshKeys = {};
   }
