@@ -7,7 +7,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
-// import { addCancelTokenSource, cancelAllRequests } from "./axiosCancel";
+import { addCancelTokenSource } from "./axiosCancel";
 
 import eventBus from "utils/eventBus";
 
@@ -107,7 +107,9 @@ service.interceptors.request.use(
     } else {
       baseURL = webApi;
     }
-
+    if (baseURL === undefined) {
+      return Promise.reject();
+    }
     // action
     let action = config.url?.replace("/admin-api/", "");
     if (config.action) {
@@ -121,11 +123,11 @@ service.interceptors.request.use(
     config.url = baseURL + config.url;
 
     // 请求cancel
-    // if (!config.noBeCancel) {
-    //   const source = axios.CancelToken.source();
-    //   addCancelTokenSource(source);
-    //   config.cancelToken = source.token;
-    // }
+    if (!config.noBeCancel) {
+      const source = axios.CancelToken.source();
+      addCancelTokenSource(source);
+      config.cancelToken = source.token;
+    }
 
     // 请求数据处理
     if (!config.customData) {
@@ -225,10 +227,11 @@ service.interceptors.response.use(
   },
   // 状态码!===200
   async (err) => {
-    const config: resConfig = err.config;
-
+    if (!err) {
+      return Promise.reject();
+    }
     if (err.status === 401) {
-      !config.noNeedTip &&
+      !err.config.noNeedTip &&
         ElNotification({
           message: t("invalid token"),
           type: "error",
@@ -274,7 +277,7 @@ service.interceptors.response.use(
       if (res.data.errmsg && errorTokenList.includes(res.data.errmsg)) {
         handleTokenErr();
       }
-      !config.noNeedTip &&
+      !err.config.noNeedTip &&
         ElNotification({
           message: t(
             res.data.errmsg || res.data.msg || res.data.error || "server error"
@@ -285,7 +288,7 @@ service.interceptors.response.use(
       return Promise.reject(err);
     }
     if (res && (res.status || res.code)) {
-      !config.noNeedTip &&
+      !err.config.noNeedTip &&
         ElNotification({
           message: `statusCode: ${res.status || res.code}`,
           type: "error",
