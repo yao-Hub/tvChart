@@ -102,6 +102,7 @@ export const Login = (data: reqLogin) => {
     method: "post",
     data,
     noNeedToken: true,
+    noNeedTip: true,
   });
 };
 

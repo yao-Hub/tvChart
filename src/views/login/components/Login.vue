@@ -349,7 +349,7 @@ const happyStart = async (actionObject: string) => {
         }
         if (ending && !success && errmsg) {
           ElNotification({
-            message: errmsg,
+            message: t(errmsg),
             type: "error",
           });
         }

@@ -10,7 +10,6 @@ declare module 'vue' {
     BaseImg: typeof import('./src/components/BaseImg/index.vue')['default']
     BaseTabs: typeof import('./src/components/BaseTabs/index.vue')['default']
     CheckVersion: typeof import('./src/components/CheckVersion/index.vue')['default']
-    Disclaimers: typeof import('./src/components/Disclaimers/index.vue')['default']
     ElAutocomplete: typeof import('element-plus/es')['ElAutocomplete']
     ElAutoResizer: typeof import('element-plus/es')['ElAutoResizer']
     ElButton: typeof import('element-plus/es')['ElButton']
@@ -46,7 +45,6 @@ declare module 'vue' {
     ElText: typeof import('element-plus/es')['ElText']
     ElTooltip: typeof import('element-plus/es')['ElTooltip']
     ElUpload: typeof import('element-plus/es')['ElUpload']
-    En: typeof import('./src/components/Disclaimers/En.vue')['default']
     FastAddOrder: typeof import('./src/components/FastAddOrder.vue')['default']
     Feedback: typeof import('./src/components/Feedback/index.vue')['default']
     Force: typeof import('./src/components/CheckVersion/force.vue')['default']
@@ -66,8 +64,6 @@ declare module 'vue' {
     TVChart: typeof import('./src/components/TVChart.vue')['default']
     UpdateNotice: typeof import('./src/components/updateNotice.vue')['default']
     VerificationCode: typeof import('./src/components/VerificationCode.vue')['default']
-    ZhCn: typeof import('./src/components/Disclaimers/Zh-Cn.vue')['default']
-    ZhTw: typeof import('./src/components/Disclaimers/Zh-Tw.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

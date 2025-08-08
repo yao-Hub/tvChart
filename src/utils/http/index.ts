@@ -26,18 +26,32 @@ import { useDialog } from "@/store/modules/dialog";
 const t = i18n.global.t;
 
 interface IOption {
+  // 不需要token字段
   noNeedToken?: boolean;
+  // 不需要服务器字段
   noNeedServer?: boolean;
+  // 请求地址
   action?: string;
+  // 请求类型
   urlType?: string;
+  // 是否需要账户字段
   needLogin?: boolean;
+  // 不可取消
   noBeCancel?: boolean;
+  // 自定义数据
   customData?: boolean;
+  // 不保存数据库
   isNotSaveDB?: boolean;
+  // 不需要提示
+  noNeedTip?: boolean;
 }
 
 type reqConfig = InternalAxiosRequestConfig<any> & IOption;
 type resConfig = AxiosRequestConfig<any> & IOption;
+
+// 是否是生产环境
+const ifProd =
+  process.env.NODE_ENV === "production" && !process.env.IF_ELECTRON;
 
 const errorTokenList = ["invalid token", "disable login", "disable group"];
 function handleTokenErr() {
@@ -134,10 +148,11 @@ service.interceptors.request.use(
         action,
         d: encrypt(JSON.stringify(config.data)),
       };
-      console.log("request----", {
-        url: config.url,
-        data: config.data,
-      });
+      !ifProd &&
+        console.log("request----", {
+          url: config.url,
+          data: config.data,
+        });
       config.data = JSON.stringify(p);
     }
     return config;
@@ -186,7 +201,8 @@ service.interceptors.response.use(
           }
         })();
       }
-      console.log("response....", { url: config.url, data: resData });
+      !ifProd &&
+        console.log("response....", { url: config.url, data: resData });
       return response;
     }
 
@@ -199,21 +215,25 @@ service.interceptors.response.use(
       handleTokenErr();
     }
 
-    ElNotification({
-      message: t(resData.errmsg || "error"),
-      type: "error",
-      zIndex: useDialog().getMaxZIndex(),
-    });
+    !config.noNeedTip &&
+      ElNotification({
+        message: t(resData.errmsg || "error"),
+        type: "error",
+        zIndex: useDialog().getMaxZIndex(),
+      });
     return Promise.reject(resData);
   },
   // 状态码!===200
   async (err) => {
+    const config: resConfig = err.config;
+
     if (err.status === 401) {
-      ElNotification({
-        message: t("invalid token"),
-        type: "error",
-        zIndex: useDialog().getMaxZIndex(),
-      });
+      !config.noNeedTip &&
+        ElNotification({
+          message: t("invalid token"),
+          type: "error",
+          zIndex: useDialog().getMaxZIndex(),
+        });
       handleTokenErr();
       return Promise.reject(err);
     }
@@ -254,21 +274,23 @@ service.interceptors.response.use(
       if (res.data.errmsg && errorTokenList.includes(res.data.errmsg)) {
         handleTokenErr();
       }
-      ElNotification({
-        message: t(
-          res.data.errmsg || res.data.msg || res.data.error || "server error"
-        ),
-        type: "error",
-        zIndex: useDialog().getMaxZIndex(),
-      });
+      !config.noNeedTip &&
+        ElNotification({
+          message: t(
+            res.data.errmsg || res.data.msg || res.data.error || "server error"
+          ),
+          type: "error",
+          zIndex: useDialog().getMaxZIndex(),
+        });
       return Promise.reject(err);
     }
     if (res && (res.status || res.code)) {
-      ElNotification({
-        message: `statusCode: ${res.status || res.code}`,
-        type: "error",
-        zIndex: useDialog().getMaxZIndex(),
-      });
+      !config.noNeedTip &&
+        ElNotification({
+          message: `statusCode: ${res.status || res.code}`,
+          type: "error",
+          zIndex: useDialog().getMaxZIndex(),
+        });
       return Promise.reject(err);
     }
     ElMessage.error(err);
