@@ -25,11 +25,13 @@ import { cloneDeep } from "lodash";
 interface IMarketLineItem {
   line: Library.IPositionLineAdapter;
   orderInfo: resOrders;
+  lineType: "market";
 }
 
 interface IOrderItem {
   line: Library.IOrderLineAdapter;
   orderInfo: resOrders;
+  lineType: "pending";
 }
 
 interface IHistoryItem {
@@ -79,6 +81,13 @@ interface INoInRange {
   minTime: number;
   histories: resHistoryOrders[];
   markets: resOrders[];
+}
+
+interface ITemLine {
+  chartId: string | null;
+  orderInfo: resOrders | null;
+  lineType: LineType | null;
+  line: LineAdapter | null;
 }
 
 export const useChartOrderLine = defineStore("chartOrderLine", () => {
@@ -471,12 +480,20 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   };
 
   // 修复激活点击的订单线(createOrderLine)删除时异常问题
-  const temLine: any = {};
+  const temLine: ITemLine = {
+    chartId: null,
+    orderInfo: null,
+    lineType: null,
+    line: null,
+  };
   // 通用绘制函数
   const drawGenericLines = (
     chartId: string,
     orders: resOrders[],
-    stateLines: Record<string, { line: LineAdapter; orderInfo: resOrders }[]>,
+    stateLines: Record<
+      string,
+      { line: LineAdapter; orderInfo: resOrders; lineType: string }[]
+    >,
     config: LineDrawConfig
   ) => {
     const chart = chartList.value.find((e) => e.id === chartId);
@@ -500,10 +517,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         try {
           if (
             temLine.chartId === chartId &&
-            temLine.orderInfo.id === lineItem.orderInfo.id &&
+            temLine.orderInfo?.id === lineItem.orderInfo.id &&
             temLine.lineType === config.lineType
           ) {
-            temLine.line.remove();
+            temLine.line?.remove();
           } else {
             chartLines[i].line.remove();
           }
@@ -538,7 +555,11 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           order.id === cantEditLineId.value
         );
         // 添加到对应的线集合
-        chartLines.push({ line, orderInfo: { ...order } });
+        chartLines.push({
+          line,
+          orderInfo: { ...order },
+          lineType: config.lineType,
+        });
       }
 
       if (index > -1) {
@@ -1383,10 +1404,12 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
               item.widget?.activeChart().removeEntity(item.lineId);
             } else if (
               temLine.chartId === chartId &&
-              temLine.orderInfo.id === item.orderInfo.id &&
+              temLine.orderInfo?.id === item.orderInfo.id &&
+              "lineType" in item &&
+              temLine.lineType === item.lineType &&
               "line" in item
             ) {
-              temLine.line.remove();
+              temLine.line?.remove();
             } else if ("line" in item) {
               item.line.remove();
             }
