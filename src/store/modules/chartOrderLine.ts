@@ -488,6 +488,12 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     lineType: null,
     line: null,
   };
+
+  const clearTemLine = () => {
+    for (const key in temLine) {
+      temLine[key as keyof ITemLine] = null;
+    }
+  };
   // 通用绘制函数
   const drawGenericLines = (
     chartId: string,
@@ -523,6 +529,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             temLine.lineType === config.lineType
           ) {
             temLine.line?.remove();
+            clearTemLine();
           } else {
             chartLines[i].line.remove();
           }
@@ -1412,6 +1419,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
               "line" in item
             ) {
               temLine.line?.remove();
+              clearTemLine();
             } else if ("line" in item) {
               item.line.remove();
             }
