@@ -480,8 +480,7 @@ export default {
     accountName: "账户名",
     secretKey: "密钥",
     bindSuccess: "绑定成功",
-    bindSuccess_tip_1:
-      "您已成功绑定安全设备，下次账号登录、修改账户密码需要OTP验证。",
+    bindSuccess_tip_1: "您已成功绑定安全设备，下次账号登录需要OTP验证。",
     bindSuccess_tip_2:
       "请勿随意删除卸载APP，否则会导致账号无法登录。如需要卸裁APP或更换手机，请先解绑OTP。",
     unbindTip: "要解绑OTP，请输入账户密码与账户OTP",

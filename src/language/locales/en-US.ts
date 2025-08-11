@@ -486,7 +486,7 @@ export default {
     secretKey: "Secret Key",
     bindSuccess: "Binding Successful",
     bindSuccess_tip_1:
-      "You have successfully bound the security device. OTP verification is required for the next account login and password change.",
+      "You have successfully bound the security device. OTP verification is required for the next account login.",
     bindSuccess_tip_2:
       "Please do not delete or uninstall the app at will, otherwise it may cause the account to be unable to log in. If you need to uninstall the app or replace your phone, please unbind the OTP first.",
     unbindTip:

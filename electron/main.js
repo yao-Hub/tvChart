@@ -128,12 +128,15 @@ function createWindow(name, hash, screenWidth, showOnReady = true) {
   }
   // 主窗口加载地址
   if (ifDev && name === "mainWindow") {
-    // 打开开发者工具
-    windowsMap[name].webContents.openDevTools();
-
     // 开发环境：加载本地服务器地址（npm run dev/prd/staging）
     windowsMap[name].loadURL("http://localhost:8080");
   }
+
+  // 打开开发者工具
+  if (process.env.NODE_ENV === "development" && name === "mainWindow") {
+    windowsMap[name].webContents.openDevTools();
+  }
+
   if (!ifDev && name === "mainWindow") {
     // 生产环境：加载打包后的文件
     windowsMap[name].loadFile(path.join(__dirname, "../dist/index.html"));

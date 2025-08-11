@@ -179,7 +179,7 @@ service.interceptors.response.use(
       }
 
       // admin的接口返回存储到indexedDB中
-      if (config.urlType === "admin" && !config.isNotSaveDB) {
+      if (config.urlType && config.urlType === "admin" && !config.isNotSaveDB) {
         // 解析请求数据
         const configData = JSON.parse(config.data);
         const ded = JSON.parse(decrypt(configData.d));
@@ -241,7 +241,11 @@ service.interceptors.response.use(
       return Promise.reject(err);
     }
 
-    if (err.config.urlType === "admin" && !err.config.isNotSaveDB) {
+    if (
+      err.config.urlType &&
+      err.config.urlType === "admin" &&
+      !err.config.isNotSaveDB
+    ) {
       const configData = JSON.parse(err.config.data);
       const ded = JSON.parse(decrypt(configData.d));
       const { req_id, req_time, token, ...reqData } = ded;

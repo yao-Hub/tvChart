@@ -199,7 +199,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           if (recordShowState.positions) {
             drawMarketOrderLine(i);
           } else {
-            clearLines(i, ["marketLines"]);
+            clearLines(i, ["marketLines", "marketSlLines", "marketTpLines"]);
+            return;
           }
           if (recordShowState.sltp) {
             drawPriceLine("tp", i, "market");
@@ -222,7 +223,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           if (recordShowState.pending) {
             drawPendingOrderLine(i);
           } else {
-            clearLines(i, ["pendingLines"]);
+            clearLines(i, ["pendingLines", "pendingSlLines", "pendingTpLines"]);
+            return;
           }
           if (recordShowState.sltp) {
             drawPriceLine("tp", i, "pending");

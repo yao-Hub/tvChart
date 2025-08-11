@@ -286,7 +286,7 @@ export const useSocket = defineStore("socket", {
         // 监听订单已平仓
         this.mainSocket.on("order_closed", function (d: unknown) {
           console.log("order_closed", JSON.stringify(d));
-          callback("order_opened");
+          callback("order_closed");
         });
         // 监听订单已修改（止盈止损）
         this.mainSocket.on("order_modified", function (d: unknown) {
