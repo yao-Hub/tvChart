@@ -1,5 +1,5 @@
 <template>
-  <div class="Register scrollList">
+  <div class="VerifyEmail scrollList">
     <div class="goback">
       <div @click="back">
         <el-icon>
@@ -8,10 +8,10 @@
         <span>{{ t("back") }}</span>
       </div>
     </div>
-    <div class="Register_main" v-if="!ifSuccess">
-      <div class="Register_main_title">
+    <div class="VerifyEmail_main" v-if="!ifSuccess">
+      <div class="VerifyEmail_main_title">
         <img :src="lineInfo.lineLogo" />
-        <div class="Register_main_title_right">
+        <div class="VerifyEmail_main_title_right">
           <span class="up">{{ lineInfo.lineName }}</span>
           <span class="down">{{ lineInfo.brokerName }}</span>
         </div>
@@ -34,13 +34,13 @@
 
         <el-form-item :label="t('account.verificationCode')" prop="code">
           <VerificationCode
-            type="register"
+            :type="routerName"
             v-model:value="formState.code"
             :email="formState.email"
           ></VerificationCode>
         </el-form-item>
 
-        <el-checkbox v-model="formState.agree">
+        <el-checkbox v-model="formState.agree" v-if="routerName === 'register'">
           <div class="protocol">
             <el-text type="info">{{ t("article.readAgree") }}&nbsp;</el-text>
             <el-text
@@ -63,13 +63,20 @@
           type="primary"
           class="submit-button"
           :disabled="!btnDisabled"
+          :loading="loading"
           @click="submit(formRef)"
-          >{{ t("account.createAccount") }}</el-button
         >
+          <span v-if="routerName === 'register'">{{
+            t("account.createAccount")
+          }}</span>
+          <span v-if="routerName === 'forgetAccount'">{{
+            t("account.retrieveAccount")
+          }}</span>
+        </el-button>
       </el-form>
     </div>
 
-    <div class="success-card" v-else>
+    <div class="success-card" v-else-if="routerName === 'register'">
       <BaseImg class="typeIcon" iconName="icon_success" />
       <span class="tipSuc">{{ t("account.registerSucceed") }}</span>
       <span class="tipSav">{{ t("tip.keepPasswordSave") }}</span>
@@ -84,9 +91,24 @@
         </div>
         <span class="copyBtn" @click="copy">{{ t("account.copy") }}</span>
       </div>
-      <el-button class="startUseBtn" type="primary" @click="start">{{
-        t("account.startUse")
-      }}</el-button>
+      <el-button class="startUseBtn" type="primary" @click="startUse">
+        <span>{{ t("account.startUse") }}</span>
+      </el-button>
+    </div>
+
+    <div class="success-card" v-else-if="routerName === 'forgetAccount'">
+      <BaseImg class="typeIcon" iconName="icon_success" />
+      <span class="tipSuc">{{ t("account.retrieveSuccessfully") }}</span>
+      <div class="copyBox">
+        <div class="item">
+          <el-text type="info">{{ t("account.accountNum") }}： </el-text>
+          <el-text>{{ account.name }}</el-text>
+        </div>
+        <span class="copyBtn" @click="copy">{{ t("account.copy") }}</span>
+      </div>
+      <el-button class="startUseBtn" type="primary" @click="startUse">
+        <span>{{ t("account.logIn") }}</span>
+      </el-button>
     </div>
   </div>
 </template>
@@ -98,7 +120,7 @@ import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import { protocolAgree, register } from "api/account/index";
+import { protocolAgree, register, retrieveAccount } from "api/account/index";
 
 import { useNetwork } from "@/store/modules/network";
 
@@ -108,6 +130,13 @@ const router = useRouter();
 const route = useRoute();
 
 const networkStore = useNetwork();
+const routerName = computed(() => {
+  const name = route.name;
+  if (!name) {
+    throw new Error("route name is null");
+  }
+  return name;
+});
 
 const lineInfo = computed(() => {
   const server = route.params.server;
@@ -132,7 +161,7 @@ interface FormState {
 const formState = reactive<FormState>({
   code: "",
   email: "",
-  agree: false,
+  agree: routerName.value === "forgetAccount",
 });
 const formRef = ref<FormInstance>();
 const rules = reactive<FormRules<typeof formState>>({
@@ -186,6 +215,7 @@ const account = reactive({
   name: "",
   pass: "",
 });
+const loading = ref(false);
 const submit = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
   if (!btnDisabled.value) {
@@ -195,43 +225,60 @@ const submit = (formEl: FormInstance | undefined) => {
   formEl.validate(async (valid) => {
     if (valid) {
       const { code, email } = formState;
-      const target = networkStore.queryTradeLines.find(
-        (e) => e.lineName === lineInfo.value.lineName
-      );
-      if (target) {
-        await protocolAgree({
-          columnCodes: ["privacy-policy", "service-article"],
-          brokerName: lineInfo.value.brokerName,
-          lineName: lineInfo.value.lineName,
-          login: email,
-        });
-      }
-      const res = await register({
+      const updata = {
         server: lineInfo.value.lineName,
         email,
         verify_code: code,
-      });
-      account.name = res.data.login;
-      account.pass = res.data.password;
-      ifSuccess.value = true;
+      };
+      try {
+        loading.value = true;
+        if (routerName.value === "register") {
+          await protocolAgree({
+            columnCodes: ["privacy-policy", "service-article"],
+            brokerName: lineInfo.value.brokerName,
+            lineName: lineInfo.value.lineName,
+            login: email,
+          });
+          const res = await register(updata);
+          account.name = res.data.login;
+          account.pass = res.data.password;
+        }
+        if (routerName.value === "forgetAccount") {
+          const res = await retrieveAccount(updata);
+          account.name = res.data.login;
+        }
+        loading.value = false;
+        ifSuccess.value = true;
+      } catch (error) {
+        loading.value = false;
+      }
     }
   });
 };
 
-const start = () => {
+const startUse = () => {
   ifSuccess.value = false;
-  back();
+  router.push({
+    path: PageEnum.LOGIN_HOME,
+    query: {
+      login: account.name,
+      server: lineInfo.value.lineName,
+    },
+  });
 };
 
 import useClipboard from "vue-clipboard3";
 const { toClipboard } = useClipboard();
 const copy = async () => {
   try {
-    await toClipboard(
-      `${t("account.accountnum")}：${account.name};${t("account.password")}：${
-        account.pass
-      }`
-    );
+    let copytext = "";
+    if (account.name) {
+      copytext += `${t("account.accountNum")}：${account.name};`;
+    }
+    if (account.pass) {
+      copytext += `${t("account.password")}：${account.pass};`;
+    }
+    await toClipboard(copytext);
     ElMessage.success(t("tip.copySucceed"));
   } catch (e) {
     ElMessage.error(t("tip.copyFail"));
@@ -243,6 +290,7 @@ const back = () => {
 };
 
 import { onMounted, onUnmounted } from "vue";
+import { PageEnum } from "@/constants/pageEnum";
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === "Enter") {
     submit(formRef.value);
@@ -259,7 +307,7 @@ onUnmounted(() => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
-.Register {
+.VerifyEmail {
   padding: 0 32px 0 32px;
   position: relative;
   box-sizing: border-box;
@@ -308,10 +356,6 @@ onUnmounted(() => {
     width: 100%;
     padding: 48px 32px;
     box-sizing: border-box;
-    .typeIcon {
-      width: 64px;
-      height: 64px;
-    }
     .tipSuc {
       font-weight: 500;
       font-size: 18px;
@@ -322,6 +366,10 @@ onUnmounted(() => {
       margin-top: 8px;
       @include font_color("word-gray");
       font-size: 14px;
+    }
+    .typeIcon {
+      width: 64px;
+      height: 64px;
     }
     .copyBox {
       height: 56px;

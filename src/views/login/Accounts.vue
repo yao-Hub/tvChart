@@ -62,7 +62,7 @@ import { useI18n } from "vue-i18n";
 
 import { PageEnum } from "@/constants/pageEnum";
 
-import ScanCode from "./ScanCode.vue";
+import ScanCode from "./components/ScanCode.vue";
 
 import { useUser } from "@/store/modules/user";
 import { useNetwork } from "@/store/modules/network";

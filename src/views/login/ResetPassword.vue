@@ -192,7 +192,7 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-@import "../form.scss";
+@import "./css/form.scss";
 
 .Reset {
   padding: 32px 0;

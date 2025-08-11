@@ -98,6 +98,7 @@ export default {
   },
 
   account: {
+    name: "账户",
     accountNum: "账户",
     password: "密码",
     copy: "复制",
@@ -105,8 +106,10 @@ export default {
     login: "登录",
     logout: "登出",
     submit: "提交",
-    forgetPassword: "忘记密码？",
+    forget: "忘记{type}",
     noAccount: "没有账户？",
+    retrieveAccount: "找回账户",
+    retrieveSuccessfully: "找回成功",
     createAccount: "创建模拟账户",
     registerAccount: "注册账户",
     register: "创建模拟账户",

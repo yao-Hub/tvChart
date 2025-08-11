@@ -85,19 +85,6 @@ const handleChange = (value: TTime) => {
   model.value = value || [];
   emit("timeChange");
 };
-
-// watch(
-//   () => nowTZ.value,
-//   () => {
-//     const [st, et] = model.value;
-//     if (st && et) {
-//       const startDate = dayjs(st).tz(nowTZ.value).format(dateFormat);
-//       const endDate = dayjs(et).tz(nowTZ.value).format(dateFormat);
-//       model.value = [startDate, endDate];
-//       console.log(et, endDate);
-//     }
-//   }
-// );
 </script>
 
 <style lang="scss" scoped>

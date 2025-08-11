@@ -20,6 +20,7 @@ enum Api {
   QueryOTPQRCode = "/otp/code",
   BindOTP = "/otp/bind",
   UnbindOTP = "/otp/unbind",
+  RetrieveAccount = "/admin-api/my/retrieve_account",
 }
 export interface Order {
   id: number; //	订单ID
@@ -370,5 +371,16 @@ export const unbindOTP = (data: IReqOTP) => {
     method: "post",
     data,
     needLogin: true,
+  });
+};
+
+// 找回账户
+export const retrieveAccount = (data: reqRegister) => {
+  return request<{ login: string }>({
+    url: Api.RetrieveAccount,
+    method: "post",
+    data,
+    noNeedToken: true,
+    urlType: "admin",
   });
 };

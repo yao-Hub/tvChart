@@ -84,8 +84,8 @@ watch(
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-@import "./form.scss";
-@import "./media.scss";
+@import "./css/form.scss";
+@import "./css/media.scss";
 
 .loginBg {
   position: fixed;

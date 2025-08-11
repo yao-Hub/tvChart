@@ -160,7 +160,7 @@ import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { AccountListItem, useUser } from "@/store/modules/user";
 
-import ResetPassword from "@/views/login/components/ResetPassword.vue";
+import ResetPassword from "@/views/login/ResetPassword.vue";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();

@@ -98,6 +98,7 @@ export default {
   },
 
   account: {
+    name: "賬戶",
     accountNum: "賬戶",
     password: "密碼",
     copy: "複製",
@@ -105,8 +106,10 @@ export default {
     login: "登入",
     logout: "登出",
     submit: "提交",
-    forgetPassword: "忘記密碼？",
+    forget: "忘記{type}",
     noAccount: "沒有賬戶？",
+    retrieveAccount: "找回帳戶",
+    retrieveSuccessfully: "找回成功",
     createAccount: "創建類比賬戶",
     registerAccount: "註冊賬戶",
     register: "創建類比賬戶",

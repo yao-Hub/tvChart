@@ -43,7 +43,7 @@ import { useI18n } from "vue-i18n";
 import { PageEnum } from "@/constants/pageEnum";
 import CryptoJS from "utils/AES";
 
-import ScanCode from "./ScanCode.vue";
+import ScanCode from "./components/ScanCode.vue";
 import { useUser } from "@/store/modules/user";
 import { ElNotification } from "element-plus";
 

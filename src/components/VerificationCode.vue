@@ -32,6 +32,7 @@ const typeMap: Record<string, number> = {
   forgetPwd: 2,
   register: 4,
   deposit: 3,
+  forgetAccount: 7,
 };
 
 const props = defineProps<Props>();

@@ -102,20 +102,29 @@
               />
             </el-form-item>
 
-            <el-form-item>
-              <div class="login-form-remember">
-                <!-- <el-checkbox
-                  class="link"
-                  v-model="formState.remember"
-                  :label="t('account.rememberMe')"
-                /> -->
-                <span
-                  class="link"
-                  style="margin-left: auto"
-                  v-if="ifSimulatedServer"
-                  @click="goForgetPassword"
-                  >{{ t("account.forgetPassword") }}</span
-                >
+            <el-form-item v-if="ifSimulatedServer">
+              <div class="login-form-forget">
+                <el-dropdown placement="top-start" @command="handleCommand">
+                  <span class="link">
+                    {{
+                      t("account.forget", {
+                        type: `${t("account.password")}/${t("account.name")}`,
+                      })
+                    }}
+                  </span>
+                  <template #dropdown>
+                    <el-dropdown-menu>
+                      <el-dropdown-item command="password">{{
+                        t("account.forget", {
+                          type: `${t("account.password")}`,
+                        })
+                      }}</el-dropdown-item>
+                      <el-dropdown-item command="account">{{
+                        t("account.forget", { type: `${t("account.name")}` })
+                      }}</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </template>
+                </el-dropdown>
               </div>
             </el-form-item>
 
@@ -169,7 +178,7 @@ import { useDialog } from "@/store/modules/dialog";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 
-import ScanCode from "./ScanCode.vue";
+import ScanCode from "./components/ScanCode.vue";
 
 const { t } = useI18n();
 
@@ -367,13 +376,27 @@ const goRegister = () => {
   const target = networkStore.queryTradeLines.find((e) => e.isOfficial === "1");
   if (target) {
     const server = target.lineName;
-    router.push({ name: "Register", params: { server } });
+    router.push({ name: "register", params: { server } });
   } else {
     ElMessage.warning(t("tip.noSimuServer"));
   }
 };
-const goForgetPassword = () => {
-  router.push({ name: "ForgetPassword", params: { server: formState.server } });
+
+const handleCommand = (command: string) => {
+  switch (command) {
+    case "password":
+      router.push({
+        name: "ForgetPassword",
+        params: { server: formState.server },
+      });
+      break;
+    case "account":
+      router.push({
+        name: "forgetAccount",
+        params: { server: formState.server },
+      });
+      break;
+  }
 };
 
 const pwd = ref();
@@ -487,10 +510,10 @@ onUnmounted(() => {
   flex-direction: column;
   position: relative;
 
-  &-remember {
+  &-forget {
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: center;
   }
 

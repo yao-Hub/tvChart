@@ -92,14 +92,17 @@ export default {
   },
 
   account: {
+    name: "Account",
     accountNum: "Account Number",
     rememberMe: "Remember me",
     login: "Login",
     logout: "Logout",
     copy: "Copy",
     submit: "Submit",
-    forgetPassword: "Forget password?",
+    forget: "Forget {type}",
     noAccount: "No Account?",
+    retrieveAccount: "Retrieve Account",
+    retrieveSuccessfully: "Retrieve Successfully",
     createAccount: "Create a CTOTrader Account",
     registerAccount: "Register Account",
     register: "Register",
