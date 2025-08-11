@@ -1,10 +1,10 @@
-const { appIdMap } = require("../options");
+const { appIdMap, nameMap, getFormattedTime } = require("../options");
 
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
   asar: false,
   appId: appIdMap[process.env.NODE_ENV],
-  productName: appIdMap[process.env.NODE_ENV],
+  productName: nameMap[process.env.NODE_ENV],
   extraMetadata: {
     name: appIdMap[process.env.NODE_ENV] // 缓存文件名字
   },
@@ -19,9 +19,16 @@ module.exports.default = {
   mac: {
     target: [
       { target: "dmg", arch: ["x64"] },
-      { target: 'mas', arch: ['arm64'] },
+      { target: 'mas', arch: ['x64'] },
     ],
-    artifactName: '${productName}-Mac-${version}-${arch}.${ext}',
+    // .dmg .pkg 安装包名字
+    artifactName: (() => {
+      if (process.env.NODE_ENV === "development") {
+        const time = getFormattedTime();
+        return '${productName}-Mac-${version}-${arch}-' + time + '.${ext}';
+      }
+      return '${productName}-Mac-${version}-${arch}.${ext}';
+    })(),
     icon: "build/icons/logo_512.png",
 
     // 生产环境

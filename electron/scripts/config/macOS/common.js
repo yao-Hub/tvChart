@@ -1,4 +1,4 @@
-const { appIdMap, nameMap } = require("../options");
+const { appIdMap, nameMap, getFormattedTime } = require("../options");
 
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
@@ -24,8 +24,13 @@ module.exports.default = {
       { target: 'mas', arch: ['universal'] }
     ],
     hardenedRuntime: true, // 必须为MAS启用硬编码运行时
-
-    artifactName: '${productName}-Mac-${version}-${arch}.${ext}', // .dmg .pkg 安装包名字
+    artifactName: (() => {
+      if (process.env.NODE_ENV === "development") {
+        const time = getFormattedTime();
+        return '${productName}-Mac-${version}-${arch}-' + time + '.${ext}';
+      }
+      return '${productName}-Mac-${version}-${arch}.${ext}';
+    })(),
     icon: "build/icons/logo_1024.png", // 图标 1024 x 1024
 
     identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // install cer 钥匙串证书名字

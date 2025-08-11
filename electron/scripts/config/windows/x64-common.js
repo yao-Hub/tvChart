@@ -1,4 +1,4 @@
-const { appIdMap, nameMap } = require("../options");
+const { appIdMap, nameMap, getFormattedTime } = require("../options");
 
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
@@ -23,7 +23,13 @@ module.exports.default = {
         arch: ['x64']
       }
     ],
-    artifactName: '${productName}-Windows-${version}-x64.${ext}',
+    artifactName: (() => {
+      if (process.env.NODE_ENV === "development") {
+        const time = getFormattedTime();
+        return '${productName}-Windows-${version}-x64-' + time + '.${ext}';
+      }
+      return '${productName}-Windows-${version}-x64.${ext}';
+    })(),
     icon: 'build/icons/logo.png'
   },
   nsis: {

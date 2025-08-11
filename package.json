@@ -21,7 +21,7 @@
     "http-server": "cd dist && http-server -c-1 -p 5000 -P http://localhost:8080 -o",
     "ts:check": "vue-tsc",
     "prepare": "husky",
-    "electron:dev": "cross-env IF_ELECTRON=true vite --mode development",
+    "electron:dev": "cross-env IF_ELECTRON=true NODE_ENV=development vite --mode development",
     "electron:staging": "cross-env IF_ELECTRON=true NODE_ENV=staging vite --mode staging",
     "electron:prod": "cross-env IF_ELECTRON=true NODE_ENV=production vite --mode production",
     "electron-build:dev": "npm run prepackage && cross-env NODE_ENV=development IF_ELECTRON=true node ./electron/scripts/build.js",
