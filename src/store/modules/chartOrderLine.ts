@@ -554,7 +554,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           .setPrice(config.getPrice(order))
           .setText(config.getText(order))
           .setLineLength(2)
-          .setLineWidth(1);
+          .setLineWidth(1)
+          .setQuantity(i18n.global.t("modify"));
         // 线的其他点操作
         config.setupLine(line, order);
         // 设置买卖订单对应颜色
@@ -691,7 +692,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           const marketLine = line as Library.IPositionLineAdapter;
           marketLine
             // .setReverseButtonIconColor(revBtnIconColor) // 反向持仓按钮颜色
-            .setQuantity((order.volume / 100).toString()) // 保护持仓内容
+            // .setQuantity((order.volume / 100).toString()) // 保护持仓内容
             // 点击反向持仓回调
             .onReverse(() => {
               handleMarketAction("reverse", chartId, order.id, marketLine);
@@ -728,7 +729,9 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         getText: (order) => {
           // 订单id+类型
           const type = orderTypeOptions.find((e) => e.type === order.type);
-          return `${order.id} ${type?.label}`;
+          return `${order.id} ${type?.label} ${
+            order.volume / 100
+          }${i18n.global.t("table.lot")}`;
         },
         shouldDraw: () => true,
         createLine: (widget) =>
@@ -736,7 +739,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         setupLine: (line, order) => {
           const pendingLine = line as Library.IOrderLineAdapter;
           pendingLine
-            .setQuantity((order.volume / 100).toString())
+            // .setQuantity((order.volume / 100).toString())
             // 编辑
             .onModify(() => {
               temLine.lineType = "pending";
@@ -811,7 +814,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         setupLine: (line, order) => {
           const orderLine = line as Library.IOrderLineAdapter;
           orderLine
-            .setQuantity((order.volume / 100).toString()) // 编辑按钮内容
+            // .setQuantity((order.volume / 100).toString()) // 编辑按钮内容
             .setLineStyle(2)
             // 编辑按钮点击回调
             .onModify(() => {

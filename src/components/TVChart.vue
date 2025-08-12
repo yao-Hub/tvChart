@@ -1,5 +1,5 @@
 <template>
-  <div v-show="!props.hidden" ref="chartContainer"></div>
+  <div v-show="!props.hidden" ref="chartContainer" class="TVChart"></div>
 </template>
 
 <script setup lang="ts">
@@ -210,10 +210,50 @@ const initonReady = () => {
         "--tv-color-pane-background",
         sysTheme === "dark" ? "#17181A" : "#FFFFFF"
       );
+
+      // 清除骨架屏效果
+      if (chartContainer.value) {
+        const chartEl = chartContainer.value;
+        chartEl.classList.remove("TVChart");
+      }
       emit("initChart", { id: props.chartId, widget });
     });
   });
 };
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+@import "@/styles/_handle.scss";
+
+.TVChart {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+}
+
+/* 闪光动画效果 */
+.TVChart::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--chart-skeleton-color),
+    transparent
+  );
+  animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+</style>

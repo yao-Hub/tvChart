@@ -349,7 +349,7 @@ export default {
     totalDeposit: "Total Deposit",
     totalWithdrawal: "Total Withdrawal",
     Total: "Total",
-    lot: "Lot",
+    lot: "Lots",
     transactions: "Transactions",
     transactions_deposit: "Deposit",
     transactions_withdrawal: "Withdrawal",

@@ -66,6 +66,8 @@
 }
 
 [data-theme="light"] {
+  --chart-skeleton-color: var(--light-5);
+
   --upRedDownGreen-upLight: var(--color-11);
   --upRedDownGreen-downLight: var(--color-10);
 
@@ -86,6 +88,8 @@
 }
 
 [data-theme="dark"] {
+  --chart-skeleton-color: var(--dark-5);
+
   --upRedDownGreen-upLight: #73273e;
   --upRedDownGreen-downLight: #23524a;
 
