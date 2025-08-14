@@ -144,3 +144,41 @@ export function hexToRGBA(hex: string, alpha: number) {
   const b = parseInt(hex.substring(4, 6), 16);
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
+
+// 地址分类
+export function classifyUrl(url: string) {
+  // 常见的下载文件扩展名列表
+  const downloadExtensions = [
+    // 文档类
+    'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt', 'rtf', 'csv',
+    // 压缩包类
+    'zip', 'rar', '7z', 'tar', 'gz', 'bz2',
+    // 音频类
+    'mp3', 'wav', 'flac', 'aac', 'ogg',
+    // 视频类
+    'mp4', 'avi', 'mkv', 'mov', 'flv', 'wmv',
+    // 图片类（有时也作为下载）
+    'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg',
+    // 安装包和程序类
+    'exe', 'dmg', 'pkg', 'msi', 'apk',
+    // 其他常见下载格式
+    'iso', 'torrent', 'epub', 'mobi'
+  ];
+
+  // 构建正则表达式，匹配URL末尾的文件扩展名
+  const pattern = new RegExp(`\\.(${downloadExtensions.join('|')})$`, 'i');
+
+  // 检查是否是有效的URL格式
+  try {
+    new URL(url); // 尝试解析URL，无效会抛出异常
+
+    // 检查是否包含下载文件后缀
+    if (pattern.test(url)) {
+      return 'download'; // 带有后缀的下载地址
+    } else {
+      return 'normal'; // 普通网址
+    }
+  } catch (e) {
+    return 'invalid'; // 无效的URL格式
+  }
+}

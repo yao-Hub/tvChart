@@ -1,4 +1,4 @@
-const { app, BrowserWindow, screen, Menu, ipcMain, dialog, nativeTheme } = require('electron');
+const { app, BrowserWindow, screen, Menu, ipcMain, dialog, nativeTheme, shell } = require('electron');
 const path = require('path');
 const fs = require('fs');
 
@@ -268,4 +268,8 @@ ipcMain.handle('dark-mode:toggle', (event, theme) => {
 // 翻译
 ipcMain.on('set-translations', (event, translations) => {
   translationsMap = translations;
+});
+
+ipcMain.handle('openExternal', (event, url) => {
+  shell.openExternal(url);
 });

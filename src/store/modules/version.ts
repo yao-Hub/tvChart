@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ElMessageBox } from "element-plus";
 
+import { classifyUrl } from "utils/common/index";
 import { versionQuery, IReqVersion } from "api/other";
 import { useDialog } from "./dialog";
 
@@ -69,23 +70,27 @@ export const useVersion = defineStore("version", {
         this.versionInfo = res.data;
         type = res.data.updateType;
         const url = res.data.downloadUrl;
-        const state: any = await window.electronAPI.invoke(
-          "check-download-status",
-          url
-        );
-        /* -----有缓存---- */
-        if (state) {
-          if (state.completed) {
-            window.electronAPI.invoke("start-install", url);
-            return;
-          }
-          if (!state.completed) {
-            useDialog().openDialog("updateProgressVisible");
-            window.electronAPI.invoke("start-download", url);
-            return;
+
+        const urlType = classifyUrl(url);
+        if (urlType === "download") {
+          const state: any = await window.electronAPI.invoke(
+            "check-download-status",
+            url
+          );
+          // 存在下载缓存
+          if (state) {
+            if (state.completed) {
+              window.electronAPI.invoke("start-install", url);
+              return;
+            }
+            if (!state.completed) {
+              useDialog().openDialog("updateProgressVisible");
+              window.electronAPI.invoke("start-download", url);
+              return;
+            }
           }
         }
-        /* ----无缓存--- */
+        // 检测更新频率
         if (
           res.data.updateType === 1 &&
           ifCheckFrequency &&

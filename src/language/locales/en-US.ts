@@ -178,6 +178,7 @@ export default {
     spread: "Spread",
     expectedGrossProfit: "Est. Profit",
     term: "Expiration Time",
+    longTerm: "Long Term"
   },
 
   symbolDetail: {
@@ -506,6 +507,13 @@ export default {
     binding: "Binding",
   },
 
+  mobileTerminal: {
+    title: "Mobile Terminal",
+    tip_1: "Trade more flexibly on mobile and seize market opportunities anytime, anywhere.",
+    tip_2: "Scan the QR code or click the button below to download the UTrader app now.",
+  },
+
+
   "network offline": "No network",
   "refresh page": "Reload",
   "network error": "network Error",
@@ -588,4 +596,5 @@ export default {
   "invalid rate": "Invalid Rate",
   "invalid otp device": "Invalid OTP device",
   "invalid otp password": "Invalid OTP Password",
+  "invalid download url": "Invalid Download URL"
 };

@@ -523,7 +523,7 @@ onMounted(() => {
   adjustTable();
   // 拖拽时改变table的高
   observer = new ResizeObserver(() => {
-    setTimeout(() => adjustTable())
+    setTimeout(() => adjustTable());
   });
   observer.observe(container.value);
 });
@@ -817,7 +817,13 @@ const getCloseType = (e: orders.resHistoryOrders) => {
 };
 
 // 格式化表格时间字段
-const formatTime = (timestamp: string, format = "YYYY.MM.DD HH:mm:ss") => {
+const formatTime = (
+  timestamp: string | number,
+  format = "YYYY.MM.DD HH:mm:ss"
+) => {
+  if (+timestamp === 0) {
+    return t("order.longTerm");
+  }
   const timezone = timeStore.settedTimezone;
   const result = dayjs.tz(timestamp, timezone).format(format);
   return result;

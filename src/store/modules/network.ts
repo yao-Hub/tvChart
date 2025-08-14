@@ -17,7 +17,7 @@ import { orderBy, uniq, uniqBy } from "lodash";
 interface IState {
   server: string;
   nodeName: string;
-  nodeList: Array<resQueryNode & { webApiDelay?: number | null }>;
+  nodeList: Array<resQueryNode & { webApiDelay?: number | null; }>;
   queryTradeLines: resQueryTradeLine[];
 }
 interface RequestResult {
@@ -152,7 +152,7 @@ export const useNetwork = defineStore("network", {
       const webReg =
         /^(((ht|f)tps?):\/\/)?([^!@#$%^&*?.\s-]([^!@#$%^&*?.\s]{0,63}[^!@#$%^&*?.\s])?\.)+[a-z]{2,6}\/?/;
       if (webReg.test(href)) {
-        window.electronAPI.openExternal(href);
+        window.electronAPI.invoke("openExternal", href);
         return;
       }
       console.log(name, href);
@@ -161,7 +161,7 @@ export const useNetwork = defineStore("network", {
 
     getDelay(webApi?: string) {
       const delay = this.nodeList.find(
-        (e) => e.webApi === webApi || this.currentNode.webApi
+        (e) => e.webApi === (webApi || this.currentNode.webApi)
       )?.webApiDelay;
       return delay || "-";
     },

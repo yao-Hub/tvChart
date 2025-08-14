@@ -32,6 +32,9 @@
         </div>
         <el-divider />
         <div class="dropdownbox_item">
+          <Mobile></Mobile>
+        </div>
+        <div class="dropdownbox_item">
           <sendFeedback></sendFeedback>
         </div>
         <div class="dropdownbox_item">
@@ -64,6 +67,7 @@ import Theme from "./theme.vue";
 import ClearCache from "./clearCache.vue";
 import CheckUpdate from "./checkUpdate.vue";
 import TransactionRecord from "./TransactionRecord/index.vue";
+import Mobile from "./mobile.vue";
 
 const ifElectron = process.env.IF_ELECTRON;
 

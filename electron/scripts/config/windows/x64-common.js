@@ -24,11 +24,8 @@ module.exports.default = {
       }
     ],
     artifactName: (() => {
-      if (process.env.NODE_ENV === "development") {
-        const time = getFormattedTime();
-        return '${productName}-Windows-${version}-x64-' + time + '.${ext}';
-      }
-      return '${productName}-Windows-${version}-x64.${ext}';
+      const time = getFormattedTime();
+      return '${productName}-Windows-${version}-x64-' + time + '.${ext}';
     })(),
     icon: 'build/icons/logo.png'
   },

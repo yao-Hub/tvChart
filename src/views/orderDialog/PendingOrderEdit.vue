@@ -272,7 +272,11 @@ watch(
       formState.volume = volume / 100;
       formState.stopLoss = sl_price ? String(sl_price) : "";
       formState.stopProfit = tp_price ? String(tp_price) : "";
-      formState.dueDate = dayjs(time_expiration).tz(timezone).unix();
+      if (time_expiration) {
+        formState.dueDate = dayjs(time_expiration).tz(timezone).unix();
+      } else {
+        formState.dueDate = "";
+      }
       formState.limitedPrice = trigger_price;
       formState.orderPrice = String(order_price);
       tradeDisabled.value = await orderStore.getTradAble(symbol);

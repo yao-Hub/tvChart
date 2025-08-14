@@ -184,6 +184,7 @@ export default {
     spread: "點差",
     expectedGrossProfit: "預計毛利",
     term: "期限",
+    longTerm: "長期有效"
   },
 
   symbolDetail: {
@@ -500,6 +501,12 @@ export default {
     binding: "綁定",
   },
 
+  mobileTerminal: {
+    title: "移動端",
+    tip_1: "手機端交易更靈活，隨時隨地把握行情",
+    tip_2: "掃描二維碼或點擊下方按鈕，立即下載CTOTraer APP",
+  },
+
   "network offline": "無網絡",
   "refresh page": "刷新頁面",
   "network error": "網絡錯誤",
@@ -582,4 +589,5 @@ export default {
   "invalid rate": "無效的匯率",
   "invalid otp device": "OTP 設備無效",
   "invalid otp password": "OTP 密碼無效",
+  "invalid download url": "下載網址無效"
 };

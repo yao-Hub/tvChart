@@ -139,7 +139,7 @@ async function init() {
       await userStore.executeLogic({ emitSocket: true }); // 个人信息
       await symbolsStore.getSymbols();
       userStore.refreshToken(); // 倒计时刷新token
-      Promise.all([
+      Promise.allSettled([
         quotesStore.getAllSymbolQuotes(),
         rateStore.getAllRates(),
         orderStore.initTableData(),

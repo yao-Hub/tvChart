@@ -66,7 +66,7 @@ const formatTime = (time: number) => {
 };
 
 // 计算理想状态（无休市）所需的k线条数
-function calcCount(params: types.PeriodParams & { resolution: string }) {
+function calcCount(params: types.PeriodParams & { resolution: string; }) {
   const to = dayjs.unix(params.to);
   const from = dayjs.unix(params.from);
   const diffType = timeDiff[params.resolution];
@@ -180,7 +180,7 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
 }
 
 // 保存缓存数据
-async function saveCacheData(params: TLineParams & { data: ResLineInfo[] }) {
+async function saveCacheData(params: TLineParams & { data: ResLineInfo[]; }) {
   try {
     const { symbol, data, resolution } = params;
     const list = data.map((item) => {
@@ -198,7 +198,7 @@ async function saveCacheData(params: TLineParams & { data: ResLineInfo[] }) {
     if (orderList.length > 0) {
       await serviceMap[symbol].addMultipleData(orderList);
     }
-  } catch {}
+  } catch { }
 }
 
 // 获取k线历史数据
@@ -263,15 +263,22 @@ async function getOrderHistory(
   limit_id?: number
 ) {
   const { from, to } = params;
-  const res = await historyOrders({
-    // open_begin_time: from,
-    // open_end_time: to,
+  const updata: {
+    close_begin_time: number;
+    close_end_time: number;
+    count: number;
+    symbol: string;
+    limit_id?: number;
+  } = {
     close_begin_time: from,
     close_end_time: to,
     count: 200,
-    limit_id,
     symbol,
-  });
+  };
+  if (limit_id) {
+    updata.limit_id = limit_id;
+  }
+  const res = await historyOrders(updata);
   useChartOrderLine().setHistoryOrder(chartId, res.data, from);
   if (res.data.length > 200) {
     const minId = minBy(res.data, "id")!.id;
@@ -331,8 +338,7 @@ export const datafeed = (id: string) => {
         );
         const resultTs =
           fTime.session ||
-          `${formatTime(fTime.btime)}-${formatTime(fTime.etime)}:${
-            Number(weekDay) + 1
+          `${formatTime(fTime.btime)}-${formatTime(fTime.etime)}:${Number(weekDay) + 1
           }`;
         timeArr.push(resultTs);
       }

@@ -337,3 +337,7 @@ body {
     color: #e28602;
   }
 }
+
+.el-button + .el-button {
+  margin-left: 0 !important;
+}

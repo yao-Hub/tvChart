@@ -6,7 +6,7 @@
     :label="t('order.term')"
     :rules="[
       {
-        required: true,
+        required: false,
         trigger: ['change', 'blur'],
         validator: validDate,
       },
@@ -17,7 +17,7 @@
       v-model="model"
       value-format="X"
       type="datetime"
-      placeholder="Select Time"
+      :placeholder="t('tip.termRequired')"
       style="width: 100%"
     />
   </el-form-item>
@@ -38,10 +38,7 @@ const dateFormat = "YYYY-MM-DD HH:mm:ss";
 const model = defineModel<string | number>("term");
 
 const validDate = (rule: any, value: number, callback: any) => {
-  if (!value) {
-    return callback(new Error(t("tip.termRequired")));
-  }
-  if (value < new Date().getTime() / 1000) {
+  if (value && value < new Date().getTime() / 1000) {
     return callback(new Error(t("tip.noLessNowTime")));
   }
   callback();
@@ -59,5 +56,6 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 :deep(.el-form-item__error) {
+  margin-top: 5px;
 }
 </style>

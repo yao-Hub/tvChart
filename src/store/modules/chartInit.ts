@@ -58,6 +58,13 @@ export const useChartInit = defineStore("chartInit", () => {
     }
   });
 
+  watch(
+    () => state.activeChartId,
+    (val) => {
+      storageStore.setItem("activeChartId", val);
+    }
+  );
+
   // 等待图表初始化完毕才去初始化socket
   watch(
     () => state.ifChartLoaded,
@@ -224,7 +231,7 @@ export const useChartInit = defineStore("chartInit", () => {
   }
 
   // 设置图表显示商品
-  function changeChartSymbol(params: { id: string; symbol: string }) {
+  function changeChartSymbol(params: { id: string; symbol: string; }) {
     const { id, symbol } = params;
     const target = state.chartWidgetList.find((e) => e.id === id);
     if (target) {
@@ -289,7 +296,6 @@ export const useChartInit = defineStore("chartInit", () => {
       if (Object.keys(saveMap).length) {
         storageStore.setItem("chartInfoMap", saveMap);
       }
-      storageStore.setItem("activeChartId", state.activeChartId);
     } catch (error) {
       console.log(error);
     }
@@ -297,22 +303,20 @@ export const useChartInit = defineStore("chartInit", () => {
 
   // 加载图表个数
   function loadChartList() {
-    const activeSymbol = getDefaultSymbol();
-    let result = [
-      {
-        id: "chart_1",
-        symbol: activeSymbol,
-        interval: "60" as ResolutionString,
-      },
-    ];
-    const wList = storageStore.getItem("chartList");
-    if (wList && wList.length) {
-      wList.forEach((item: IChart) => {
+    // 获取当前激活的图表
+    const storageId = storageStore.getItem("activeChartId");
+    if (storageId) {
+      state.activeChartId = storageId;
+    }
+    const defaultSymbol = getDefaultSymbol();
+    const sList = storageStore.getItem("chartList");
+    if (sList && sList.length) {
+      sList.forEach((item: IChart) => {
         const index = symbolStore.symbols.findIndex(
           (e) => e.symbol === item.symbol
         );
         if (index === -1) {
-          item.symbol = activeSymbol;
+          item.symbol = defaultSymbol;
           const infoMap = storageStore.getItem("chartInfoMap");
           if (infoMap && infoMap[item.id]) {
             delete infoMap[item.id];
@@ -320,16 +324,25 @@ export const useChartInit = defineStore("chartInit", () => {
           storageStore.setItem("chartInfoMap", infoMap);
         }
       });
-      result = wList;
+      state.chartWidgetList = sList;
+
+      // 防止id保存错误
+      const activeId = state.activeChartId;
+      const index = state.chartWidgetList.findIndex(
+        (item) => item.id === activeId
+      );
+      if (index === -1) {
+        state.activeChartId = state.chartWidgetList[0].id;
+      }
+      return;
     }
-    // 获取当前激活的图表
-    const storageId = storageStore.getItem("activeChartId");
-    if (storageId) {
-      state.activeChartId = storageId;
-    } else {
-      state.activeChartId = result[0].id;
-    }
-    state.chartWidgetList = result;
+    state.chartWidgetList = [
+      {
+        id: "chart_1",
+        symbol: defaultSymbol,
+        interval: "60" as ResolutionString,
+      },
+    ];
   }
   function getChartSavedData(id: string) {
     const sMap = storageStore.getItem("chartInfoMap");

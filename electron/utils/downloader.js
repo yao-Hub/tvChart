@@ -27,9 +27,9 @@ class Downloader {
     const { exec } = require("child_process");
 
     const commandObj = {
-      win32: `${exePath} /SILENT`,
-      darwin: `open ${exePath}`,
-      linux: `xdg-open ${exePath}`
+      win32: `"${exePath}" /SILENT`,
+      darwin: `open "${exePath}"`,
+      linux: `xdg-open "${exePath}"`
     };
 
     const command = commandObj[process.platform];

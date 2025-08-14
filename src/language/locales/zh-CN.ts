@@ -270,6 +270,7 @@ export default {
     noneData: "无数据",
     someError: "出现了一些错误",
     enterVeriCode: "请输入动态验证码",
+    longTerm: "长期有效"
   },
 
   time: {
@@ -499,6 +500,12 @@ export default {
     binding: "绑定",
   },
 
+  mobileTerminal: {
+    title: "移动端",
+    tip_1: "手机端交易更灵活，随时随地把握行情",
+    tip_2: "扫描二维码或点击下方按钮，立即下载CTOTraer APP",
+  },
+
   "network offline": "无网络",
   "refresh page": "刷新页面",
   "network error": "网络错误",
@@ -581,4 +588,5 @@ export default {
   "invalid rate": "无效的汇率",
   "invalid otp device": "OTP 设备无效",
   "invalid otp password": "OTP 密码无效",
+  "invalid download url": "下载地址无效"
 };
