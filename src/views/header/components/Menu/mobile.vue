@@ -10,6 +10,7 @@
     width="760"
     :zIndex="dialogStore.zIndex"
     append-to-body
+    align-center
     :show-close="false"
   >
     <template #header="{ close }">
@@ -112,6 +113,7 @@ const getApp = (platform: "IOS" | "Android") => {
     width: 306px;
     display: flex;
     flex-direction: column;
+    padding-bottom: 40px;
     .text_1 {
       font-weight: 500;
       font-size: 18px;
@@ -124,6 +126,7 @@ const getApp = (platform: "IOS" | "Android") => {
       line-height: 20px;
       margin-top: 16px;
       margin-bottom: 23px;
+      white-space: break-spaces;
       @include font_color("word");
     }
 
