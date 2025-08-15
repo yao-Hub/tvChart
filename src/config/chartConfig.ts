@@ -147,8 +147,8 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
         limit_ctm: minCacheCtm,
         count: leftCount,
       }, {
-        limit_begin_ctm: to,
-        limit_ctm: maxCacheCtm,
+        limit_begin_ctm: maxCacheCtm,
+        limit_ctm: to,
         count: rightCount,
       });
       return {

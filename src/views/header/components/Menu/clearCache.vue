@@ -59,6 +59,9 @@ const deleteDatabase = (dbName: string, retry = 3) => {
 };
 
 const handleClearCache = async () => {
+  if (loading.value) {
+    return;
+  }
   const login = useUser().account.login;
   const server = useUser().account.server;
   const logData = {
