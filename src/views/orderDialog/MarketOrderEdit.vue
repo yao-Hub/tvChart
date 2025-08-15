@@ -41,20 +41,18 @@
               ></el-input>
             </el-form-item>
             <el-form-item prop="volume" :label="t('table.volume')">
-              <div style="display: flex; width: 100%; gap: 16px">
+              <div class="volumeBox">
                 <StepNumInput
                   :step="step"
                   v-model:value="closeFormState.volume"
                 ></StepNumInput>
                 <BaseImg
-                  class="opearBtn"
-                  iconName="icon_18"
+                  iconName="icon_revoke"
                   :title="t('dialog.reversePosition')"
                   @click="handleConfirm('reverse', closeFormRef)"
                 />
                 <BaseImg
-                  class="opearBtn"
-                  iconName="icon_19"
+                  iconName="icon_double"
                   :title="t('dialog.doublePosition')"
                   @click="handleConfirm('double', closeFormRef)"
                 />
@@ -349,10 +347,23 @@ const handleCancel = () => {
     margin-top: 24px;
   }
 }
-.opearBtn {
+.volumeBox {
+  display: flex;
+  width: 100%;
+  gap: 16px;
+  align-items: center;
+}
+.icon_revoke,
+.icon_double {
+  flex-shrink: 0;
   cursor: pointer;
-  width: var(--component-size);
-  height: var(--component-size);
+  width: var(--base-height);
+  height: var(--base-height);
+  border: 1px solid;
+  padding: 10px;
+  border-radius: 4px;
+  box-sizing: border-box;
+  @include border_color("border");
 }
 .profitBox {
   padding: 5px 0;

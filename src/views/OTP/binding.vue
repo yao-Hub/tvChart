@@ -243,11 +243,19 @@ const handleDone = () => {
 .otpTooltip {
   padding: 0;
   z-index: 9999 !important;
+  border: none !important;
 }
 </style>
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
-
+[data-theme="light"] .tipBox {
+  box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05),
+    0px 6px 16px 0px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
+}
+[data-theme="dark"] .tipBox {
+  box-shadow: 0px 9px 28px 8px rgba(0, 0, 0, 0.05),
+    0px 6px 16px 0px rgba(0, 0, 0, 0.08), 0px 3px 6px -4px rgba(0, 0, 0, 0.12);
+}
 :deep(.el-input__wrapper) {
   height: var(--base-height);
 }
@@ -295,6 +303,7 @@ const handleDone = () => {
   flex-direction: column;
   align-items: center;
   line-height: 20px;
+  text-align: center;
   .icon_success {
     width: 64px;
     height: 64px;
@@ -316,6 +325,7 @@ const handleDone = () => {
   width: 100%;
   display: flex;
   margin-top: auto;
+  gap: 16px;
   .btn {
     flex: 1;
   }
@@ -330,7 +340,7 @@ const handleDone = () => {
   padding: 16px;
   border-radius: 4px;
   border: 1px solid;
-  @include background_color("background");
+  @include background_color("background-container");
   @include border_color("border");
   &_info {
     margin-top: 16px;

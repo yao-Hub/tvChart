@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="18px" height="18px" viewBox="0 0 18 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon_ revoke_dark</title>
+    <g id="icon_-revoke_dark" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="square">
+        <g id="编组" stroke="#B0B1B3" stroke-width="1.4">
+            <g id="编组" transform="translate(9.000000, 8.500000) scale(1, -1) translate(-9.000000, -8.500000) translate(2.000000, 3.000000)">
+                <polyline id="路径" points="3 5 0 8 3 11"></polyline>
+                <polyline id="路径" points="1 0 14 0 14 8 1 8"></polyline>
+            </g>
+        </g>
+    </g>
+</svg>

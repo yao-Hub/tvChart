@@ -178,7 +178,11 @@ export default {
     spread: "Spread",
     expectedGrossProfit: "Est. Profit",
     term: "Expiration Time",
-    longTerm: "Long Term"
+    longTerm: "Long Term",
+    close: "Close",
+    open: "Open",
+    cancelTakeProfit: "Cancel Take Profit",
+    cancelStopLoss: "Cancel Stop Loss",
   },
 
   symbolDetail: {
@@ -596,5 +600,6 @@ export default {
   "invalid rate": "Invalid Rate",
   "invalid otp device": "Invalid OTP device",
   "invalid otp password": "Invalid OTP Password",
-  "invalid download url": "Invalid Download URL"
+  "invalid download url": "Invalid Download URL",
+  "network busy": "Network Busy",
 };

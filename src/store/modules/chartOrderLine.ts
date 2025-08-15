@@ -67,7 +67,7 @@ type THandlePendingAction =
 // 通用配置接口
 interface LineDrawConfig {
   lineType: LineType;
-  getPrice: (order: resOrders & { order_price_time?: number }) => number; // 线价格位
+  getPrice: (order: resOrders & { order_price_time?: number; }) => number; // 线价格位
   createLine: (chart: Library.IChartingLibraryWidget) => LineAdapter; // 创建何种线
   getText: (order: resOrders) => string; // 主体显示文字
   shouldDraw: (order: resOrders) => boolean; // 绘制条件
@@ -500,7 +500,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     orders: resOrders[],
     stateLines: Record<
       string,
-      { line: LineAdapter; orderInfo: resOrders; lineType: string }[]
+      { line: LineAdapter; orderInfo: resOrders; lineType: string; }[]
     >,
     config: LineDrawConfig
   ) => {
@@ -612,7 +612,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         try {
           const ifExist = item.widget?.activeChart().getShapeById(item.lineId);
           ifExist && item.widget?.activeChart().removeEntity(item.lineId);
-        } catch (error) {}
+        } catch (error) { }
       }
     });
 
@@ -729,9 +729,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         getText: (order) => {
           // 订单id+类型
           const type = orderTypeOptions.find((e) => e.type === order.type);
-          return `${order.id} ${type?.label} ${
-            order.volume / 100
-          }${i18n.global.t("table.lot")}`;
+          return `${order.id} ${type?.label} ${order.volume / 100
+            }${i18n.global.t("table.lot")}`;
         },
         shouldDraw: () => true,
         createLine: (widget) =>
@@ -815,6 +814,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           const orderLine = line as Library.IOrderLineAdapter;
           orderLine
             // .setQuantity((order.volume / 100).toString()) // 编辑按钮内容
+            .setCancelTooltip(i18n.global.t(`order.${lineType === "tp" ? "cancelTakeProfit" : "cancelStopLoss"}`))
             .setLineStyle(2)
             // 编辑按钮点击回调
             .onModify(() => {
@@ -917,10 +917,10 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
       const dire = getTradingDirection(realType);
 
       // 交易方向+手数+建仓价格；
-      const openText = `open ${id}: ${dire} ${volume} at ${open_price} profit: ${profit}`;
+      const openText = `${i18n.global.t("order.open")} ${id}: ${i18n.global.t(`order.${dire}`)} ${volume} at ${open_price} ${i18n.global.t("order.profit")}: ${profit}`;
 
       // 交易方向 + 手数 + 平仓价格 + 盈亏;
-      const closeText = `close ${id}: ${dire} ${volume} at ${close_price} profit: ${profit}`;
+      const closeText = `${i18n.global.t("order.close")} ${id}: ${i18n.global.t(`order.${dire}`)} ${volume} at ${close_price} ${i18n.global.t("order.profit")}: ${profit}`;
       note.setProperties({
         fixedSize: false,
         markerColor: colorList[realType],
@@ -1067,7 +1067,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
 
   // 获取挂单价格
   const getPendingPrice = (
-    order: resOrders & { order_price_time?: number }
+    order: resOrders & { order_price_time?: number; }
   ) => {
     if ([6, 7].includes(order.type)) {
       return order.order_price_time ? order.trigger_price : order.order_price;
@@ -1426,7 +1426,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
             } else if ("line" in item) {
               item.line.remove();
             }
-          } catch {}
+          } catch { }
         });
         lineState[type][cid] = [];
       }

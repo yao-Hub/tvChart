@@ -22,6 +22,16 @@ class IndexedDBService {
 
   openDatabase(isRetry = false) {
     return new Promise((resolve, reject) => {
+
+      let nameList = [];
+      const storageDbList = localStorage.getItem("storageDbList");
+      if (storageDbList) {
+        nameList = JSON.parse(storageDbList);
+      }
+      nameList.push(this.dbName);
+      const uniqNameList = [...new Set(nameList)];
+      localStorage.setItem("storageDbList", JSON.stringify(uniqNameList));
+
       const request = indexedDB.open(this.dbName, this.dbVersion);
 
       // 成功打开
@@ -136,7 +146,7 @@ class IndexedDBService {
   }
 
   // 删除旧数据库
-  private deleteOldDatabase(): Promise<void> {
+  deleteOldDatabase(retry = 3): Promise<void> {
     return new Promise((resolve, reject) => {
       const deleteRequest = indexedDB.deleteDatabase(this.dbName);
 
@@ -147,6 +157,10 @@ class IndexedDBService {
       deleteRequest.onerror = () => {
         console.error(this.dbName + "数据库删除失败: " + deleteRequest.error);
         reject();
+      };
+      deleteRequest.onblocked = (event) => {
+        this.db?.close();
+        console.log(`旧数据库${this.dbName}删除被阻止`);
       };
     });
   }
@@ -171,7 +185,7 @@ class IndexedDBService {
   }
 
   // 数据库添加数据
-  addData<T extends { id: number | string }>(data: T) {
+  addData<T extends { id: number | string; }>(data: T) {
     return new Promise<void>((resolve, reject) => {
       if (!this.db) {
         console.error("addData -> 数据库未打开", this.dbName);
@@ -211,7 +225,7 @@ class IndexedDBService {
   }
 
   // 批量添加数据
-  addMultipleData<T extends { id: number | string }>(data: T[]) {
+  addMultipleData<T extends { id: number | string; }>(data: T[]) {
     return new Promise<void>(async (resolve, reject) => {
       if (!this.db) {
         console.error("addData -> 数据库未打开", this.dbName);
@@ -246,7 +260,7 @@ class IndexedDBService {
   }
 
   // 更新数据
-  updateData<T extends { id: number | string }>(
+  updateData<T extends { id: number | string; }>(
     condition: Record<string, string | number> | null,
     stoData: T
   ) {
@@ -395,7 +409,7 @@ class IndexedDBService {
   }
 
   // 批量删除数据
-  deleteMultipleData<T extends { id: number | string }>(data: T[]) {
+  deleteMultipleData<T extends { id: number | string; }>(data: T[]) {
     return new Promise<void>((resolve, reject) => {
       const transaction = this.db!.transaction(
         [this.objectStoreName],

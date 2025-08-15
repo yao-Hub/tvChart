@@ -184,6 +184,10 @@ export default {
     spread: "点差",
     expectedGrossProfit: "预计毛利",
     term: "期限",
+    close: "平仓",
+    open: "建仓",
+    cancelTakeProfit: "取消止盈",
+    cancelStopLoss: "取消止损",
   },
 
   symbolDetail: {
@@ -588,5 +592,6 @@ export default {
   "invalid rate": "无效的汇率",
   "invalid otp device": "OTP 设备无效",
   "invalid otp password": "OTP 密码无效",
-  "invalid download url": "下载地址无效"
+  "invalid download url": "下载地址无效",
+  "network busy": "网络繁忙",
 };

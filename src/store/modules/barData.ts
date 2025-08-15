@@ -13,13 +13,14 @@ interface ISubSCribed {
   resolution: string;
 }
 
-type Tbar = library.Bar & { time: number; ask?: number; bid?: number };
+type Tbar = library.Bar & { time: number; ask?: number; bid?: number; };
 interface IState {
   subscribed: Record<string, ISubSCribed>;
   newbar: Record<string, Tbar>;
   pageHidden: boolean;
   cooldownMap: Record<string, boolean>;
   qouteCache: Record<string, types.ISocketQuote>;
+  cooldownTimerIds: Record<string, NodeJS.Timeout>;
 }
 
 type TAction = (symbol: string) => void;
@@ -49,6 +50,8 @@ export const useBarData = defineStore("barData", {
       cooldownMap: {},
       // 报价缓存 存储当前接收到的报价数据
       qouteCache: {},
+      // 冷却期定时器
+      cooldownTimerIds: {},
     };
   },
   actions: {
@@ -99,8 +102,8 @@ export const useBarData = defineStore("barData", {
         // 进入冷却期
         this.cooldownMap[symbol] = true;
         // 设置x秒后解除冷却
-        let timerId = setTimeout(() => {
-          clearTimeout(timerId);
+        this.cooldownTimerIds[symbol] = setTimeout(() => {
+          clearTimeout(this.cooldownTimerIds[symbol]);
           this.cooldownMap[symbol] = false;
           const oldQuote = quotesStore.qoutes[symbol];
           const cache = this.qouteCache[symbol];
@@ -189,6 +192,8 @@ export const useBarData = defineStore("barData", {
       socketStore.subKline((d) => {
         for (const UID in this.subscribed) {
           // 把之前的数据都先渲染
+          this.cooldownMap[d.symbol] = false;
+          clearTimeout(this.cooldownTimerIds[d.symbol]);
           this.updateSubscribed(UID, { ...this.newbar[UID] });
 
           const item = this.subscribed[UID];

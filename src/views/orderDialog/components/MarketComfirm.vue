@@ -47,10 +47,16 @@
     </el-row>
 
     <template #footer>
-      <el-button @click="confirmCancel">{{ t("cancel") }}</el-button>
-      <el-button type="primary" @click="okCancel" :loading="confirmLoading">{{
-        t("ok")
+      <el-button @click="confirmCancel" class="btn">{{
+        t("cancel")
       }}</el-button>
+      <el-button
+        type="primary"
+        class="btn"
+        @click="okCancel"
+        :loading="confirmLoading"
+        >{{ t("ok") }}</el-button
+      >
     </template>
   </el-dialog>
 </template>
@@ -129,6 +135,9 @@ const confirmCancel = () => {
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
 
+.btn {
+  height: var(--base-height);
+}
 .reverseTitle {
   display: flex;
   flex-direction: column;

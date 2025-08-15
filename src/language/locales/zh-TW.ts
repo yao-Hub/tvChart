@@ -184,7 +184,11 @@ export default {
     spread: "點差",
     expectedGrossProfit: "預計毛利",
     term: "期限",
-    longTerm: "長期有效"
+    longTerm: "長期有效",
+    close: "平倉",
+    open: "建倉",
+    cancelTakeProfit: "取消止盈",
+    cancelStopLoss: "取消止損",
   },
 
   symbolDetail: {
@@ -589,5 +593,6 @@ export default {
   "invalid rate": "無效的匯率",
   "invalid otp device": "OTP 設備無效",
   "invalid otp password": "OTP 密碼無效",
-  "invalid download url": "下載網址無效"
+  "invalid download url": "下載網址無效",
+  "network busy": "網絡繁忙",
 };

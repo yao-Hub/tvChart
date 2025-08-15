@@ -82,13 +82,14 @@ let temBar: Record<string, ResLineInfo> = {};
  * @param taskMap 并发任务调度器 品种和周期作为key
  */
 const taskMap: Record<string, SynchronizeTask<any>> = {};
-const serviceMap: Record<string, IndexedDBService> = {};
+export const serviceMap: Record<string, IndexedDBService> = {};
 interface ICacheDataItem {
   id: number;
   resolution: string;
   data: ResLineInfo;
 }
 interface IMissingItem {
+  limit_begin_ctm: number;
   limit_ctm: number;
   count: number;
 }
@@ -102,6 +103,7 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
   const { symbol, resolution, from, to } = params;
   const countSum = calcCount({ from, to, resolution });
   const initSize: IMissingItem = {
+    limit_begin_ctm: from,
     limit_ctm: to,
     count: countSum,
   };
@@ -133,38 +135,44 @@ async function getCacheData(params: TLineParams): Promise<ICacheSearch> {
     // 缺失的范围
     const missingList: IMissingItem[] = [];
     const idList = searchData.map((item) => item.data.ctm);
-    const minCtm = Math.min(...idList);
-    const maxCtm = Math.max(...idList);
+    const minCacheCtm = Math.min(...idList);
+    const maxCacheCtm = Math.max(...idList);
 
-    // 认为缺失的数据
-    // [ 以前, 缓存, 将来 ]
-    // 以前
-    if (from < minCtm) {
-      const count = calcCount({ from: from, to: minCtm, resolution });
-      if (count > 0) {
-        missingList.push({
-          limit_ctm: minCtm,
-          count,
-        });
-      }
+    // 请求的跨度函阔并大于整个缓存范围
+    if (from < minCacheCtm && maxCacheCtm < to) {
+      const leftCount = calcCount({ from: from, to: minCacheCtm, resolution });
+      const rightCount = calcCount({ from: maxCacheCtm, to: to, resolution });
+      missingList.push({
+        limit_begin_ctm: from,
+        limit_ctm: minCacheCtm,
+        count: leftCount,
+      }, {
+        limit_begin_ctm: to,
+        limit_ctm: maxCacheCtm,
+        count: rightCount,
+      });
+      return {
+        missingList,
+        searchData,
+      };
     }
-    // 将来
-    if (to > maxCtm) {
-      const count = calcCount({ from: maxCtm, to: to, resolution });
-      if (count > 0) {
-        missingList.push({
-          limit_ctm: to,
-          count,
-        });
-      }
-
-      // 未来差的太多
-      if (count > 500) {
-        return {
-          missingList: [initSize],
-          searchData: [],
-        };
-      }
+    // 大于缓存最大时间和最小时间，右侧数据
+    if (maxCacheCtm < to && minCacheCtm < from) {
+      const count = calcCount({ from: maxCacheCtm, to: to, resolution });
+      missingList.push({
+        limit_begin_ctm: maxCacheCtm,
+        limit_ctm: to,
+        count,
+      });
+    }
+    // 小于缓存最大时间和最小时间，左侧数据
+    if (to <= maxCacheCtm && from < minCacheCtm) {
+      const count = calcCount({ from: from, to: minCacheCtm, resolution });
+      missingList.push({
+        limit_begin_ctm: from,
+        limit_ctm: minCacheCtm,
+        count,
+      });
     }
 
     return {
@@ -207,8 +215,10 @@ async function getLineHistory(chartId: string, params: TLineParams) {
     const { resolution, ...updata } = params;
     // 拿缓存数据
     const cache = await getCacheData(params);
+    console.log("cache", cache);
     const hisList = cache.missingList.map((item) => {
       return klineHistory({
+        limit_begin_ctm: item.limit_begin_ctm,
         limit_ctm: item.limit_ctm,
         count: item.count,
         period_type: updata.period_type,

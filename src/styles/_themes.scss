@@ -139,7 +139,7 @@ $systemThemes: (
     listsNormal: var(--light-13),
     listsNormalHover: var(--light-5),
     noScanCode: var(--light-15),
-    loginBg: #fff,
+    loginBg: var(--light-1),
   ),
   dark: (
     background-container: var(--dark-17),

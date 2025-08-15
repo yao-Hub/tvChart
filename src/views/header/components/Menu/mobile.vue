@@ -86,6 +86,9 @@ const getApp = (platform: "IOS" | "Android") => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+:deep(.el-button + .el-button) {
+  margin-left: 0 !important;
+}
 
 :deep(.el-button--primary) {
   height: 48px;
