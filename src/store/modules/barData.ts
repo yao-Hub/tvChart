@@ -67,6 +67,36 @@ export const useBarData = defineStore("barData", {
       const socketStore = useSocket();
       const quotesStore = useQuotes();
 
+      // 报价更新
+      const updateQuote = (symbol: string) => {
+        clearTimeout(this.cooldownTimerIds[symbol]);
+        this.cooldownMap[symbol] = false;
+        const oldQuote = quotesStore.qoutes[symbol];
+        const cache = this.qouteCache[symbol];
+        if (!cache) {
+          return;
+        }
+        // 涨跌颜色
+        quotesStore.setClass(cache);
+        // 发送报价全局
+        quotesStore.qoutes[symbol] = {
+          ...oldQuote,
+          ...cache,
+          close: cache.bid,
+          high: setHigh(cache.bid, get(oldQuote, "high")),
+          low: setHigh(cache.bid, get(oldQuote, "low")),
+        };
+        // 更新图表k线
+        for (const UID in this.subscribed) {
+          const item = this.subscribed[UID];
+          const itemSymbol = item.symbolInfo.name;
+          const bar = this.newbar[UID];
+          if (bar && itemSymbol === symbol) {
+            this.updateSubscribed(UID, { ...this.newbar[UID] });
+          }
+        }
+      };
+
       const setHigh = (bid: number, high?: number) => {
         if (isNil(high)) {
           return bid;
@@ -94,41 +124,15 @@ export const useBarData = defineStore("barData", {
 
       // 商品更新订阅集合
       const actionMap: Record<string, TAction> = {};
-
       // 订阅接收处理
-      const updateQoute: TAction = (symbol) => {
+      const handleQuote: TAction = (symbol) => {
         // 处于冷却期
         if (this.cooldownMap[symbol]) return;
         // 进入冷却期
         this.cooldownMap[symbol] = true;
         // 设置x秒后解除冷却
         this.cooldownTimerIds[symbol] = setTimeout(() => {
-          clearTimeout(this.cooldownTimerIds[symbol]);
-          this.cooldownMap[symbol] = false;
-          const oldQuote = quotesStore.qoutes[symbol];
-          const cache = this.qouteCache[symbol];
-          if (!cache) {
-            return;
-          }
-          // 涨跌颜色
-          quotesStore.setClass(cache);
-          // 发送报价全局
-          quotesStore.qoutes[symbol] = {
-            ...oldQuote,
-            ...cache,
-            close: cache.bid,
-            high: setHigh(cache.bid, get(oldQuote, "high")),
-            low: setHigh(cache.bid, get(oldQuote, "low")),
-          };
-          // 更新k线
-          for (const UID in this.subscribed) {
-            const item = this.subscribed[UID];
-            const itemSymbol = item.symbolInfo.name;
-            const bar = this.newbar[UID];
-            if (bar && itemSymbol === symbol) {
-              this.updateSubscribed(UID, { ...this.newbar[UID] });
-            }
-          }
+          updateQuote(symbol);
         }, 300);
       };
 
@@ -140,7 +144,7 @@ export const useBarData = defineStore("barData", {
 
         // 订阅
         if (!actionMap[dSymbol]) {
-          set(actionMap, [dSymbol], updateQoute);
+          set(actionMap, [dSymbol], handleQuote);
         }
 
         // 图表最新k柱的信息处理
@@ -173,12 +177,10 @@ export const useBarData = defineStore("barData", {
       });
 
       socketStore.subKline((d) => {
-        for (const UID in this.subscribed) {
-          // 把之前的数据都先渲染
-          this.cooldownMap[d.symbol] = false;
-          clearTimeout(this.cooldownTimerIds[d.symbol]);
-          this.updateSubscribed(UID, { ...this.newbar[UID] });
+        // 把之前的数据都先渲染
+        requestAnimationFrame(() => updateQuote(d.symbol));
 
+        for (const UID in this.subscribed) {
           const item = this.subscribed[UID];
           const symbol = item.symbolInfo.name;
           const nowBar = this.newbar[UID];

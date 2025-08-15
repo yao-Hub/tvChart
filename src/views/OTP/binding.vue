@@ -266,6 +266,9 @@ const handleDone = () => {
 :deep(.el-button) {
   height: var(--base-height);
 }
+:deep(.el-button + .el-button) {
+  margin-left: 0;
+}
 
 .binding {
   padding-top: 24px;
@@ -323,7 +326,7 @@ const handleDone = () => {
 }
 .first_form {
   margin-top: 16px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 .btnGroup {
   width: 100%;
