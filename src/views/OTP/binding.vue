@@ -45,7 +45,7 @@
       <el-text type="info">{{ t("otp.step_3") }}</el-text>
       <el-text>{{ t("otp.step_4") }}</el-text>
 
-      <div class="btnGroup">
+      <div class="btnGroup" style="margin-top: auto">
         <el-button class="btn" @click="changeStep('prev')">{{
           t("back")
         }}</el-button>
@@ -97,13 +97,17 @@
           </template>
         </el-tooltip>
 
-        <div class="btnGroup">
+        <div class="btnGroup" style="margin-top: auto">
           <el-button class="btn" @click="changeStep('prev')">{{
             t("back")
           }}</el-button>
-          <el-button type="primary" class="btn" @click="binding">{{
-            t("otp.nextStep")
-          }}</el-button>
+          <el-button
+            type="primary"
+            class="btn"
+            :disabled="!codeFormState.code"
+            @click="binding"
+            >{{ t("otp.nextStep") }}</el-button
+          >
         </div>
       </div>
     </div>
@@ -265,8 +269,7 @@ const handleDone = () => {
 
 .binding {
   padding-top: 24px;
-  min-height: 290px;
-  overflow: hidden;
+  height: 290px;
 }
 .text {
   align-self: flex-start;
@@ -320,11 +323,11 @@ const handleDone = () => {
 }
 .first_form {
   margin-top: 16px;
+  margin-bottom: 6px;
 }
 .btnGroup {
   width: 100%;
   display: flex;
-  margin-top: auto;
   gap: 16px;
   .btn {
     flex: 1;

@@ -67,6 +67,9 @@ html.dark {
     background-color: var(--dark-17);
   }
 
+  .el-input.is-disabled .el-input__wrapper {
+    background-color: #24272d;
+  }
   .el-input__wrapper {
     background-color: var(--dark-1);
   }

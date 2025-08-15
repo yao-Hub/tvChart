@@ -167,26 +167,9 @@ export const useBarData = defineStore("barData", {
           }
         }
 
-        // 订阅 接收发布 方式一
-        if (!document.hidden) {
-          // 优化页面渲染
-          requestAnimationFrame(() => actionMap[dSymbol](dSymbol));
-        } else {
-          actionMap[dSymbol](dSymbol);
-        }
-
-        // 方式二 不是当前标签页不渲染数据节省内存
-        // const rafId = requestAnimationFrame(async () => {
-        //   if (this.pageHidden && !document.hidden) {
-        //     this.pageHidden = false;
-        //     await quotesStore.getAllSymbolQuotes();
-        //   }
-        //   actionMap[dSymbol](dSymbol, d);
-        // });
-        // if (document.hidden) {
-        //   this.pageHidden = true;
-        //   cancelAnimationFrame(rafId);
-        // }
+        // 订阅 接收发布
+        // 优化数据渲染
+        requestAnimationFrame(() => actionMap[dSymbol](dSymbol));
       });
 
       socketStore.subKline((d) => {
