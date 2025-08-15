@@ -170,15 +170,18 @@ export const useBarData = defineStore("barData", {
             this.newbar[UID] = { ...result };
           }
         }
-
-        // 订阅 接收发布
-        // 优化数据渲染
-        requestAnimationFrame(() => actionMap[dSymbol](dSymbol));
+        // 订阅 接收发布 方式一
+        if (!document.hidden) {
+          // 优化页面渲染
+          requestAnimationFrame(() => actionMap[dSymbol](dSymbol));
+        } else {
+          actionMap[dSymbol](dSymbol);
+        }
       });
 
       socketStore.subKline((d) => {
         // 把之前的数据都先渲染
-        requestAnimationFrame(() => updateQuote(d.symbol));
+        updateQuote(d.symbol);
 
         for (const UID in this.subscribed) {
           const item = this.subscribed[UID];
@@ -188,8 +191,8 @@ export const useBarData = defineStore("barData", {
           if (nowBar && d.symbol === symbol && period == d.period_type) {
             const nowbarTime = nowBar.time;
             const lines = sortBy(d.klines, ["ctm"]);
-            const line = lines.pop();
-            if (line) {
+            for (let index = 0; index < lines.length; index++) {
+              const line = lines[index];
               const { close, open, high, low, ctm, volume } = line;
               const dTime = ctm * 1000;
               const result = {
@@ -203,8 +206,8 @@ export const useBarData = defineStore("barData", {
               if (!nowbarTime || nowbarTime < dTime) {
                 result.time = dTime;
                 this.newbar[UID] = { ...result };
-                this.updateSubscribed(UID, result);
               }
+              this.updateSubscribed(UID, result);
             }
           }
         }
