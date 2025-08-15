@@ -32,8 +32,8 @@
             </el-button>
             <el-button type="primary" @click="getApp('Android')">
               <div class="btn">
-                <BaseImg class="btn_icon" iconName="icon_andrord" noTheme />
-                <span class="btn_word">Andrord</span>
+                <BaseImg class="btn_icon" iconName="icon_android" noTheme />
+                <span class="btn_word">Android</span>
               </div>
             </el-button>
           </div>
@@ -140,7 +140,7 @@ const getApp = (platform: "IOS" | "Android") => {
       display: flex;
       box-sizing: border-box;
       justify-content: space-between;
-      @include background_color("background");
+      @include background_color("background-container");
     }
   }
   &_right {

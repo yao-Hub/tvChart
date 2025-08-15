@@ -151,8 +151,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
   const colors = computed(() => {
     const downColor = themeStore.getUpDownColor("downHoverColor");
     const upColor = themeStore.getUpDownColor("upHoverColor");
-    const upHoverColor = hexToRGBA(upColor, 0.3);
-    const downHoverColor = hexToRGBA(downColor, 0.3);
+    const upHoverColor = hexToRGBA(upColor, 0.5);
+    const downHoverColor = hexToRGBA(downColor, 0.5);
     return {
       downColor,
       upColor,
@@ -555,7 +555,7 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           .setText(config.getText(order))
           .setLineLength(2)
           .setLineWidth(1)
-          .setQuantity(i18n.global.t("modify"));
+          .setQuantity("🖊"); // 中间编辑按钮内容
         // 线的其他点操作
         config.setupLine(line, order);
         // 设置买卖订单对应颜色
@@ -685,14 +685,8 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         createLine: (widget) =>
           widget.chart().createPositionLine({ disableUndo: true }),
         setupLine: (line, order) => {
-          // const direction = getTradingDirection(order.type);
-          // const revBtnIconColor =
-          //   direction === "buy" ? colors.value.downColor : colors.value.upColor;
-
           const marketLine = line as Library.IPositionLineAdapter;
           marketLine
-            // .setReverseButtonIconColor(revBtnIconColor) // 反向持仓按钮颜色
-            // .setQuantity((order.volume / 100).toString()) // 保护持仓内容
             // 点击反向持仓回调
             .onReverse(() => {
               handleMarketAction("reverse", chartId, order.id, marketLine);
@@ -738,7 +732,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         setupLine: (line, order) => {
           const pendingLine = line as Library.IOrderLineAdapter;
           pendingLine
-            // .setQuantity((order.volume / 100).toString())
             // 编辑
             .onModify(() => {
               temLine.lineType = "pending";
@@ -813,7 +806,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
         setupLine: (line, order) => {
           const orderLine = line as Library.IOrderLineAdapter;
           orderLine
-            // .setQuantity((order.volume / 100).toString()) // 编辑按钮内容
             .setCancelTooltip(i18n.global.t(`order.${lineType === "tp" ? "cancelTakeProfit" : "cancelStopLoss"}`))
             .setLineStyle(2)
             // 编辑按钮点击回调

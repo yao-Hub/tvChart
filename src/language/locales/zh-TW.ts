@@ -508,7 +508,7 @@ export default {
   mobileTerminal: {
     title: "移動端",
     tip_1: "手機端交易更靈活，隨時隨地把握行情",
-    tip_2: "掃描二維碼或點擊下方按鈕，立即下載 CTOTraer APP",
+    tip_2: "掃描二維碼或點擊下方按鈕，立即下載 CTOTrader APP",
   },
 
   "network offline": "無網絡",

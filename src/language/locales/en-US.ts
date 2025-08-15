@@ -514,7 +514,7 @@ export default {
   mobileTerminal: {
     title: "Mobile Terminal",
     tip_1: "Trade more flexibly on mobile and seize market opportunities anytime, anywhere.",
-    tip_2: "Scan the QR code or click the button below to download the UTrader app now.",
+    tip_2: "Scan the QR code or click the button below to download the CTOTrader app now.",
   },
 
 
