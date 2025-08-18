@@ -2,8 +2,7 @@ const { appIdMap, nameMap, getFormattedTime } = require("../options");
 
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
-  asar: false,
-  appId: appIdMap[process.env.NODE_ENV],
+  appId: "com.electron.CTOTrader",
   productName: nameMap[process.env.NODE_ENV],
   extraMetadata: {
     name: appIdMap[process.env.NODE_ENV] // 缓存文件名字
@@ -23,21 +22,13 @@ module.exports.default = {
     ],
     // .dmg .pkg 安装包名字
     artifactName: (() => {
-      if (process.env.NODE_ENV === "development") {
-        const time = getFormattedTime();
-        return '${productName}-Mac-${version}-${arch}-' + time + '.${ext}';
-      }
-      return '${productName}-Mac-${version}-${arch}.${ext}';
+      const time = getFormattedTime();
+      return '${productName}-Mac-${version}-${arch}-' + time + '.${ext}';
     })(),
     icon: "build/icons/logo_512.png",
 
-    // 生产环境
-    identity: "Apple Distribution: Furong Uptech Solution Co., Limited (D322KZZJ5C)",
-    provisioningProfile: "build/CTOTrader_Mac_Prod.provisionprofile",
-
-    // 开发环境
-    // identity: "Apple Development: luolin Tan (N3W2W6CHZ7)",
-    // provisioningProfile: "build/CTOTrader_Mac_Dev.provisionprofile'",
+    // identity: "Apple Distribution: Furong Uptech Solution Co., Limited (D322KZZJ5C)",
+    // provisioningProfile: "build/CTOTrader_Mac_Prod.provisionprofile",
 
     entitlements: "build/entitlements.plist",
     entitlementsInherit: "build/entitlements.inherit.plist",

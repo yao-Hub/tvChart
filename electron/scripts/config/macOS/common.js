@@ -1,8 +1,8 @@
-const { appIdMap, nameMap, getFormattedTime } = require("../options");
+const { appIdMap, nameMap } = require("../options");
 
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
-  appId: appIdMap[process.env.NODE_ENV],
+  appId: "com.electron.CTOTrader",
   productName: nameMap[process.env.NODE_ENV], // .app名字
   // 元信息：更改或者增加已有的设定
   extraMetadata: {
@@ -24,17 +24,13 @@ module.exports.default = {
       { target: 'mas', arch: ['universal'] }
     ],
     hardenedRuntime: true, // 必须为MAS启用硬编码运行时
-    artifactName: (() => {
-      if (process.env.NODE_ENV === "development") {
-        const time = getFormattedTime();
-        return '${productName}-Mac-${version}-${arch}-' + time + '.${ext}';
-      }
-      return '${productName}-Mac-${version}-${arch}.${ext}';
-    })(),
+    artifactName: '${productName}-Mac-${version}-${arch}.${ext}',
     icon: "build/icons/logo_1024.png", // 图标 1024 x 1024
 
-    identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // install cer 钥匙串证书名字
-    provisioningProfile: "build/CTOTrader_Mac_Prod.provisionprofile", // masOS App Store Connect(profile)
+    // 签名
+    identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // TYPE: Distribution; PLATFORM: All
+    // 证书
+    provisioningProfile: "build/ctotrader_mac_distribution.provisionprofile", // TYPE: App Store; PLATFORM: macOS
 
     // 三个权限文件
     entitlements: "build/entitlements.plist",

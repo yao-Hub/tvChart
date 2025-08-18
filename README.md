@@ -7,30 +7,27 @@ vue3 + vite + electron
 - 需要使用electron时，只能使用npm
 
 ## 打包注意事项
-
+- 打包Mac的appId配置需要与平台的id一致，Windows可随意
+- 上架Mac商店目前只支持pkg，dmg包只适合不上架的方式
+- 由于mac的芯片不同，需要的包(x86_64/arm64)版本和格式不同，通过 electron/config/macOS 配置生成不同的包
+- 若只要打包arm64的包，则需要配置最低版本号（12.0.0）
+- 通用的包要打通用二进制包（arch: universal）
 - 当打包生成mac的dmg包时，不在本机安装应用时，需要运行dmg包完成安装后，打开term终端输入指令
-
 ```bash
 sudo xattr -rd com.apple.quarantine /Applications/CTOTrader.app
 ```
 
-- 由于mac的芯片不同，所支持的dmg包不同，通过 electron/config/macOS 配置生成不同的包
-
-## 上传 App Store的踩坑：
-- [参考文章](https://juejin.cn/post/7412836534238085161)
+## 上架 MacOS 踩坑：
 - 在[苹果开发者平台](https://developer.apple.com/account)获取证书
-- 将Certificates（cer）证书下载到本地并双击打开植入钥匙串，在钥匙串双击证书查看详情
-- 将profile下载到本地并复制到项目
-- 需要的证书：
-    - pkg: Installer(cer)  masOS App Store Connect(profile) 
-- profile 与 cer需要匹配
-    - 同样名字的cer的sha1是不一样的
-    - profile在访达可以查看cer的sha1，需要与cer的sha1一样
-- 配置证书有两种方式：
-    - 通过打包配置文件直接配置identity（cer的主题名称的常用名称）和provisioningProfile（证书profile所在的本地文件地址）
-    - 打完包在通过osx-sign添加证书
-    - 当前是第一种方案
+- ！！！上传到test fight/App Store需要的证书：
+    - 不用考虑开发证书（TYPE包含development的所有证书）
+    - Certificates(TYPE: Distribution; PLATFORM: ALL)
+    - Profiles(TYPE: App Store; PLATFORM: macOS)
+    - 将 Certificates 证书下载到本地并双击打开植入钥匙串
+    - 将 Profiles 下载到本地并复制到项目
+    - 有新的 Profiles 需要更新证书：打开 Xcode 在setting->Accounts->点击当前登录账户->Download Manual Profiles
+- 配置证书：
+    - identity：双击钥匙串证书获取Certificates的常用名称
+    - provisioningProfile：profile本地路径
 - 权限配置
-    - 配置entitlements属性，值为权限文件地址
-    - 配置沙箱权限
-- 目前electron桌面端应用只支持上传.pkg
+    - entitlements.plis 配置com.apple.security.application-groups为(团队id).(包id)
