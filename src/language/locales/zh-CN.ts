@@ -127,6 +127,7 @@ export default {
     logIn: "去登录",
     prohibitTrading: "当前账户禁止交易",
     noAuthority: "无权限",
+    loginIs: "你的账户是"
   },
 
   axios: {
@@ -188,6 +189,7 @@ export default {
     open: "建仓",
     cancelTakeProfit: "取消止盈",
     cancelStopLoss: "取消止损",
+    longTerm: "长期有效"
   },
 
   symbolDetail: {
@@ -274,7 +276,6 @@ export default {
     noneData: "无数据",
     someError: "出现了一些错误",
     enterVeriCode: "请输入动态验证码",
-    longTerm: "长期有效"
   },
 
   time: {

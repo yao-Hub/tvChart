@@ -121,6 +121,7 @@ export default {
     logIn: "Log in",
     prohibitTrading: "The current account is prohibited from trading",
     noAuthority: "No authority",
+    loginIs: "Your login is",
   },
 
   axios: {

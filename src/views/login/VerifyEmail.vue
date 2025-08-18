@@ -101,7 +101,7 @@
       <span class="tipSuc">{{ t("account.retrieveSuccessfully") }}</span>
       <div class="copyBox">
         <div class="item">
-          <el-text type="info">{{ t("account.accountNum") }}： </el-text>
+          <el-text type="info">{{ t("account.loginIs") }}： </el-text>
           <el-text>{{ account.name }}</el-text>
         </div>
         <span class="copyBtn" @click="copy">{{ t("account.copy") }}</span>

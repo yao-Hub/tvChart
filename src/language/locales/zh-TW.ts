@@ -127,6 +127,7 @@ export default {
     logIn: "去登入",
     prohibitTrading: "當前帳戶禁止交易",
     noAuthority: "無許可權",
+    loginIs: "你的賬戶是",
   },
 
   axios: {
