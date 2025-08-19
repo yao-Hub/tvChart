@@ -9,7 +9,7 @@
     "dev": "vite --host 0.0.0.0 --open",
     "staging": "vite --mode staging --open",
     "prod": "vite --mode production --open",
-    "prepackage": "npx tsc scripts/update-version.ts && node scripts/update-version.js && git add package.json",
+    "prepackage": "npx tsc cli/update-version.ts && node cli/update-version.js && git add package.json",
     "obfuscator": "javascript-obfuscator ./dist/assets/ --output ./",
     "build": "vite build && npm run obfuscator",
     "build:dev": "vite build --mode development",
@@ -26,8 +26,7 @@
     "electron:prod": "cross-env IF_ELECTRON=true NODE_ENV=production vite --mode production",
     "electron-build:dev": "npm run prepackage && cross-env NODE_ENV=development IF_ELECTRON=true node ./electron/scripts/build.js",
     "electron-build:staging": "npm run prepackage && cross-env NODE_ENV=staging IF_ELECTRON=true node ./electron/scripts/build.js",
-    "electron-build:prod": "npm run prepackage && cross-env NODE_ENV=production IF_ELECTRON=true node ./electron/scripts/build.js",
-    "sign": "node scripts/sign.js"
+    "electron-build:prod": "npm run prepackage && cross-env NODE_ENV=production IF_ELECTRON=true node ./electron/scripts/build.js"
   },
   "dependencies": {
     "@ant-design/icons-vue": "7.0.1",

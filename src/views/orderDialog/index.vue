@@ -160,7 +160,10 @@
             :span="24"
             v-if="domVisableOption.dueDate.includes(formState.orderType)"
           >
-            <Term v-model:term="formState.dueDate"></Term>
+            <Term
+              v-model:term="formState.dueDate"
+              :default-date="termDefaultDate"
+            ></Term>
           </el-col>
           <el-col :span="24">
             <Spread
@@ -265,6 +268,7 @@ import { cloneDeep, debounce } from "lodash";
 import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import type { FormInstance } from "element-plus";
+import dayjs from "dayjs";
 
 import { OrderType } from "#/order";
 import { orderTypeOptions } from "@/constants/common";
@@ -334,6 +338,9 @@ const domVisableOption = {
     "sellStopLimit",
   ],
 } as Record<string, string[]>;
+
+// 默认期限到期时间
+const termDefaultDate = dayjs().day(6).hour(23).minute(59).second(59).unix();
 
 // 重置表单 自动填充
 const initForm = () => {

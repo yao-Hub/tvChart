@@ -37,6 +37,12 @@ const dateFormat = "YYYY-MM-DD HH:mm:ss";
 
 const model = defineModel<string | number>("term");
 
+interface IProps {
+  defaultDate?: string | number;
+}
+
+const props = defineProps<IProps>();
+
 const validDate = (rule: any, value: number, callback: any) => {
   if (value && value < new Date().getTime() / 1000) {
     return callback(new Error(t("tip.noLessNowTime")));
@@ -45,8 +51,8 @@ const validDate = (rule: any, value: number, callback: any) => {
 };
 
 onMounted(() => {
-  if (!model.value) {
-    model.value = dayjs().day(6).hour(23).minute(59).second(59).unix();
+  if (!model.value && props.defaultDate) {
+    model.value = props.defaultDate;
   }
 });
 onUnmounted(() => {
