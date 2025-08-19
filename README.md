@@ -21,7 +21,7 @@ sudo xattr -rd com.apple.quarantine /Applications/CTOTrader.app
 - 在[苹果开发者平台](https://developer.apple.com/account)获取证书
 - ！！！上传到test fight/App Store需要的证书：
     - 不用考虑开发证书（TYPE包含development的所有证书）
-    - Certificates(TYPE: Distribution; PLATFORM: ALL)
+    - Certificates(TYPE: Mac Installer Distribution; PLATFORM: macOS)
     - Profiles(TYPE: App Store; PLATFORM: macOS)
     - 将 Certificates 证书下载到本地并双击打开植入钥匙串
     - 将 Profiles 下载到本地并复制到项目

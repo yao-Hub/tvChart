@@ -34,7 +34,7 @@ module.exports.default = {
     // 签名
     identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // TYPE: Distribution; PLATFORM: All
     // 证书
-    provisioningProfile: "build/ctotrader_mac_distribution.provisionprofile", // TYPE: App Store; PLATFORM: macOS
+    provisioningProfile: "build/ctotrader_electron_mac.provisionprofile", // TYPE: App Store; PLATFORM: macOS
 
     // 三个权限文件
     entitlements: "build/entitlements.plist",

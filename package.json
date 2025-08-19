@@ -55,7 +55,6 @@
     "vue-router": "4.3.2"
   },
   "devDependencies": {
-    "@electron/osx-sign": "^2.0.0",
     "@eslint/js": "9.2.0",
     "@rollup/plugin-strip": "3.0.4",
     "@types/crypto-js": "4.2.2",
@@ -65,7 +64,7 @@
     "@vitejs/plugin-vue": "5.0.4",
     "@vue/cli-plugin-eslint": "5.0.8",
     "cross-env": "7.0.3",
-    "electron": "28.0.0",
+    "electron": "34.1.0",
     "electron-builder": "25.1.8",
     "eslint": "9.2.0",
     "eslint-plugin-vue": "9.25.0",

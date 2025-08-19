@@ -27,4 +27,4 @@ dist-ssr
 
 stats.html
 
-scripts/update-version.js
+cli/update-version.js
