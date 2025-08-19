@@ -512,7 +512,6 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
     const chartLines = stateLines[chartId];
 
     const targetOrders = orders.filter(config.shouldDraw);
-
     // 清理无效线条
     for (let i = 0; i < chartLines.length; i++) {
       const lineItem = chartLines[i];
@@ -533,10 +532,11 @@ export const useChartOrderLine = defineStore("chartOrderLine", () => {
           } else {
             chartLines[i].line.remove();
           }
+          chartLines.splice(i, 1);
+          i--;
         } catch (error) {
           console.log("error", error);
         }
-        chartLines.splice(i, 1);
       }
     }
 
