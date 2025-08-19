@@ -314,9 +314,9 @@ import { reqPendingOrdersAdd } from "api/order/index";
 const editing = ref(false);
 const confirmEdit = debounce(
   async () => {
-    editing.value = true;
     const values = await valids();
     if (values) {
+      editing.value = true;
       const target = orderTypeOptions.find(
         (e) => e.value === formState.orderType
       );
