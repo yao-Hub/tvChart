@@ -231,7 +231,7 @@ export const useChartInit = defineStore("chartInit", () => {
   }
 
   // 设置图表显示商品
-  function changeChartSymbol(params: { id: string; symbol: string; }) {
+  function changeChartSymbol(params: { id: string; symbol: string }) {
     const { id, symbol } = params;
     const target = state.chartWidgetList.find((e) => e.id === id);
     if (target) {
@@ -343,6 +343,7 @@ export const useChartInit = defineStore("chartInit", () => {
         interval: "60" as ResolutionString,
       },
     ];
+    state.activeChartId = "chart_1";
   }
   function getChartSavedData(id: string) {
     const sMap = storageStore.getItem("chartInfoMap");

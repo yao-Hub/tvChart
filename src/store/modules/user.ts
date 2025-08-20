@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 
 import i18n from "@/language/index";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { assign, get, sortBy } from "lodash";
 import CryptoJS from "utils/AES";
 import dayjs from "dayjs";
@@ -15,6 +15,8 @@ import { useNetwork } from "./network";
 import { useOrder } from "./order";
 import { useSocket } from "./socket";
 import { useStorage } from "./storage";
+import { PageEnum } from "@/constants/pageEnum";
+import router from "@/router";
 
 interface IAccount {
   login: string;
@@ -34,6 +36,7 @@ interface IState {
   accountList: Array<AccountListItem>;
   loginInfo: UserInfo | null;
   timer: ReturnType<typeof setInterval> | null;
+  ifGuest: boolean;
 }
 
 export const useUser = defineStore("user", () => {
@@ -41,6 +44,7 @@ export const useUser = defineStore("user", () => {
     accountList: [],
     loginInfo: null,
     timer: null,
+    ifGuest: false,
   });
 
   const account = computed(() => {
@@ -100,6 +104,20 @@ export const useUser = defineStore("user", () => {
     }
     return "-";
   });
+
+  const checkIfLogin = () => {
+    if (!account.value.token) {
+      ElMessageBox.confirm(i18n.global.t("account.notLoggedIn"), "", {
+        confirmButtonText: i18n.global.t("account.logIn"),
+        cancelButtonText: i18n.global.t("cancel"),
+        type: "warning",
+      }).then(() => {
+        router.replace({ path: PageEnum.LOGIN });
+      });
+      return false;
+    }
+    return true;
+  };
 
   const initAccount = () => {
     const stoStr = localStorage.getItem("accountList");
@@ -242,6 +260,18 @@ export const useUser = defineStore("user", () => {
     state.timer = setInterval(() => refresh_token(), 60 * 60 * 1000);
   };
 
+  const goRegister = () => {
+    const target = useNetwork().queryTradeLines.find(
+      (e) => e.isOfficial === "1"
+    );
+    if (target) {
+      const server = target.lineName;
+      router.push({ name: "register", params: { server } });
+    } else {
+      ElMessage.warning(i18n.global.t("tip.noSimuServer"));
+    }
+  };
+
   type TCallback = ({
     ending,
     success,
@@ -262,8 +292,10 @@ export const useUser = defineStore("user", () => {
     callback: TCallback
   ) => {
     const t = i18n.global.t;
+
     const networkStore = useNetwork();
     networkStore.server = updata.server;
+
     const nodeList = await networkStore.getNodes(updata.server);
     if (nodeList.length === 0) {
       ElMessage.info(t("tip.networkNodeNotFound"));
@@ -301,6 +333,8 @@ export const useUser = defineStore("user", () => {
         socketStore.initMainSocket();
         Login(updata)
           .then((res) => {
+            localStorage.setItem("guestLogin", "0");
+            state.ifGuest = false;
             const token = res.data.token;
             // 缓存登录信息
             addAccount({
@@ -375,13 +409,28 @@ export const useUser = defineStore("user", () => {
         detail,
         id: endTime,
         login: account.value.login,
-        server: account.value.server,
+        server: useNetwork().server,
         time: dayjs().format("HH:mm:ss.SSS"),
         day: dayjs().format("YYYY.MM.DD"),
       };
       logIndexedDB.addData(logData);
       changeCurrentAccountOption({ token: "" });
     }
+  };
+
+  // 检查是否为游客登录
+  const checkIfGuest = () => {
+    const ifGuest = localStorage.getItem("guestLogin");
+    state.ifGuest = ifGuest === "1";
+    return state.ifGuest;
+  };
+  // 游客登录
+  const guestLogin = () => {
+    state.accountList.forEach((item) => (item.ifLogin = false));
+    localStorage.setItem("guestLogin", "1");
+    storageAccount();
+    state.ifGuest = true;
+    router.push(PageEnum.CHART);
   };
 
   function $reset() {
@@ -409,8 +458,12 @@ export const useUser = defineStore("user", () => {
     executeLogic,
     addAccount,
     removeAccount,
+    goRegister,
     login,
     refreshToken,
+    guestLogin,
+    checkIfGuest,
+    checkIfLogin,
     $reset,
   };
 });

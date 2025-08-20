@@ -1,6 +1,7 @@
 // 行为打点
 import { useUser } from "@/store/modules/user";
 import { useSystem } from "@/store/modules/system";
+import { useNetwork } from "@/store/modules/network";
 import { generateUUID } from "@/utils/common";
 import { TAction, trackAction } from "api/track/index";
 
@@ -34,7 +35,7 @@ export async function sendTrack(params: ITrackAgre) {
       deviceInfo: systemStore.systemInfo!.deviceInfo,
       deviceBrand: systemStore.systemInfo!.deviceBrand,
       platform: systemStore.systemInfo!.platform,
-      server: userStore.account.server,
+      server: useNetwork().server,
     },
   };
   await trackAction(updata);

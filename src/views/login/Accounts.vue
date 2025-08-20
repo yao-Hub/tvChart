@@ -3,13 +3,13 @@
     <ScanCode></ScanCode>
 
     <div class="accountsList-container">
-      <el-scrollbar always view-style="height:100%">
+      <el-scrollbar>
         <div class="accounts">
           <span class="plogin">{{ t("logAccount") }}</span>
           <span class="padd">{{ t("noAccount") }}</span>
 
           <div class="list">
-            <el-scrollbar always :height="Math.min(list.length, 5) * 48">
+            <el-scrollbar always :height="Math.min(list.length, 4) * 48">
               <div
                 class="item"
                 v-for="(account, index) in list"
@@ -32,16 +32,23 @@
             </el-scrollbar>
           </div>
 
-          <el-button
-            class="btn"
-            type="primary"
-            :loading="loading"
-            @click="happyStart"
-          >
-            <span class="btnText">{{
-              ifOpera ? t("done") : t("account.login")
-            }}</span></el-button
-          >
+          <div class="btns">
+            <el-button
+              class="btn"
+              type="primary"
+              :loading="loading"
+              @click="happyStart"
+            >
+              <span class="btnText">{{
+                ifOpera ? t("done") : t("account.login")
+              }}</span></el-button
+            >
+            <el-button class="btn" @click="userStore.guestLogin">
+              <span class="btnText">{{
+                t("account.enterAsTourist")
+              }}</span></el-button
+            >
+          </div>
 
           <div class="footer">
             <span @click="goLogin()">{{ t("addAccount") }}</span>
@@ -157,6 +164,9 @@ onUnmounted(() => {
 
 <style lang="scss" scoped>
 @import "@/styles/_handle.scss";
+:deep(.el-button + .el-button) {
+  margin-left: 0;
+}
 .accountsList {
   display: flex;
   height: calc(100% - 56px);
@@ -164,6 +174,7 @@ onUnmounted(() => {
 .accountsList-container {
   margin: 32px 0;
   width: 560px;
+  height: inherit;
 }
 .accounts {
   height: 100%;
@@ -173,6 +184,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow: auto;
 
   .plogin {
     font-size: 24px;
@@ -231,13 +243,18 @@ onUnmounted(() => {
       @include background_color("background-hover");
     }
   }
-  .btn {
+  .btns {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
     margin-top: 48px;
-    height: 48px;
     width: 100%;
-    .btnText {
-      font-size: 16px;
-      font-weight: 400;
+    .btn {
+      height: 48px;
+      .btnText {
+        font-size: 16px;
+        font-weight: 400;
+      }
     }
   }
 

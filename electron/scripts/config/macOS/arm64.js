@@ -1,4 +1,4 @@
-const { appIdMap, nameMap, getFormattedTime } = require("../options");
+const { appIdMap, nameMap } = require("../options");
 
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
@@ -24,10 +24,8 @@ module.exports.default = {
       { target: 'mas', arch: ['arm64'] },
     ],
     // .dmg .pkg 安装包名字
-    artifactName: (() => {
-      const time = getFormattedTime();
-      return '${productName}-Mac-${version}-${arch}-' + time + '.${ext}';
-    })(),
+    artifactName: '${productName}-Mac-${version}-${arch}.${ext}',
+
     minimumSystemVersion: '12.0', // 支持的mac最小系统版本
     icon: "build/icons/logo_1024.png", // 图标 1024 x 1024
 

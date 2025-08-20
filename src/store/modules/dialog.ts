@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { useUser } from "./user";
 
 interface FloatMenuParams {
   visible: boolean;
@@ -72,6 +73,13 @@ export const useDialog = defineStore("dialog", {
     },
 
     openDialog(type: TVisible) {
+      // 快捷交易弹窗且未登录，则提示登录
+      if (type === "disclaimersVisible") {
+        if (!useUser().checkIfLogin()) {
+          return;
+        }
+      }
+
       this.incrementZIndex();
       this.visibles[type] = true;
     },

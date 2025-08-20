@@ -83,7 +83,7 @@
               startPlaceholder: t('table.createStartTime'),
               endPlaceholder: t('table.createEndTime'),
             }"
-            @timeChange="getTableData('pendingOrderHistory')"
+            @timeChange="orderStore.getData('pendingOrderHistory')"
             >{{ t("table.createTime") }}：</TimeRange
           >
           <TimeRange
@@ -94,7 +94,7 @@
               startPlaceholder: t('table.positionOpeningStartTime'),
               endPlaceholder: t('table.positionOpeningEndTime'),
             }"
-            @timeChange="getTableData('marketOrderHistory')"
+            @timeChange="orderStore.getData('marketOrderHistory')"
             >{{ t("table.positionOpeningTime") }}：</TimeRange
           >
           <TimeRange
@@ -105,7 +105,7 @@
               startPlaceholder: t('table.positionClosingStartTime'),
               endPlaceholder: t('table.positionClosingEndTime'),
             }"
-            @timeChange="getTableData('marketOrderHistory')"
+            @timeChange="orderStore.getData('marketOrderHistory')"
             >{{ t("table.positionClosingTime") }}：</TimeRange
           >
           <el-select
@@ -127,13 +127,13 @@
               startPlaceholder: t('table.startTime'),
               endPlaceholder: t('table.endTime'),
             }"
-            @timeChange="getTableData('blanceRecord')"
+            @timeChange="orderStore.getData('blanceRecord')"
             >{{ t("table.time") }}：</TimeRange
           >
           <DataPicker
             v-if="activeKey === 'log'"
             v-model:value="orderStore.state.dataFilter.log.day"
-            @timeChange="getTableData('log')"
+            @timeChange="orderStore.getData('log')"
           >
             <span>{{ t("table.date") }}：</span>
           </DataPicker>
@@ -142,7 +142,7 @@
             v-model="orderStore.state.dataFilter.log.logType"
             clearable
             :placeholder="t('table.logType')"
-            @change="getTableData('log')"
+            @change="orderStore.getData('log')"
             style="width: 200px"
           >
             <el-option value="error" label="Error"></el-option>
@@ -153,7 +153,7 @@
             v-model="orderStore.state.dataFilter.log.origin"
             clearable
             :placeholder="t('table.origin')"
-            @change="getTableData('log')"
+            @change="orderStore.getData('log')"
             style="width: 230px"
           >
             <el-option value="network" label="Network"></el-option>
@@ -967,7 +967,7 @@ const closeMarketOrders = async (command: number) => {
         typeList[command]
       } ${errmsg ? `error ${errmsg}` : ""} ${logStr}`,
       login: useUser().account.login,
-      server: useUser().account.server,
+      server: useNetwork().server,
       time: dayjs().format("HH:mm:ss.SSS"),
       id: new Date().getTime(),
       day: dayjs().format("YYYY.MM.DD"),
@@ -1062,31 +1062,6 @@ const endReached = async () => {
     pageLoading.value = false;
   } catch (e) {
     pageLoading.value = false;
-  }
-};
-
-const getTableData = (type: string) => {
-  switch (type) {
-    case "marketOrder":
-      orderStore.getMarketOrders();
-      break;
-    case "pendingOrder":
-      orderStore.getPendingOrders();
-      break;
-    case "pendingOrderHistory":
-      orderStore.getPendingOrderHistory();
-      break;
-    case "marketOrderHistory":
-      orderStore.getMarketOrderHistory();
-      break;
-    case "blanceRecord":
-      orderStore.getBlanceRecord();
-      break;
-    case "log":
-      orderStore.getLog();
-      break;
-    default:
-      break;
   }
 };
 </script>

@@ -92,7 +92,7 @@ export const useSocket = defineStore("socket", {
       if (!useSystem().systemInfo) {
         await useSystem().getSystemInfo();
       }
-      const server = useUser().account.server || useNetwork().server;
+      const server = useNetwork().server;
       const searchMap: Record<string, string> = {
         "x-u-platform": "web",
         "x-u-device-id": useSystem().systemInfo!.deviceId,
@@ -132,9 +132,8 @@ export const useSocket = defineStore("socket", {
     // 订阅k线和报价
     emitKlineQuote({ resolution, symbol }: ChartProps) {
       if (this.mainSocket) {
-        const userStore = useUser();
         const klineData = {
-          server: userStore.account.server,
+          server: useNetwork().server,
           symbol_period_type: [
             {
               symbol: symbol,
@@ -150,7 +149,7 @@ export const useSocket = defineStore("socket", {
           }),
         });
         const quoteData = {
-          server: userStore.account.server,
+          server: useNetwork().server,
           symbols: [symbol],
         };
         this.mainSocket.emit("subscribe_quote", {
@@ -206,11 +205,9 @@ export const useSocket = defineStore("socket", {
 
     // 取消订阅k线和报价
     unsubKlineQuote({ resolution, symbol }: ChartProps) {
-      const userStore = useUser();
-
       if (this.mainSocket) {
         const klineData = {
-          server: userStore.account.server,
+          server: useNetwork().server,
           symbol_period_type: [
             {
               symbol,
@@ -226,7 +223,7 @@ export const useSocket = defineStore("socket", {
           }),
         });
         const quoteData = {
-          server: userStore.account.server,
+          server: useNetwork().server,
           symbols: [symbol],
         };
         this.mainSocket.emit("unsubscribe_qoute", {
@@ -256,11 +253,10 @@ export const useSocket = defineStore("socket", {
 
     // 验证登录信息绑定交易账户
     sendToken({ login, token }: { login: string | number; token: string }) {
-      const userStore = useUser();
       if (this.mainSocket) {
         const d = this.enData({
           ...this.reqData(),
-          server: userStore.account.server,
+          server: useNetwork().server,
           login,
           token,
         });
@@ -332,10 +328,9 @@ export const useSocket = defineStore("socket", {
 
     // 发送市场深度监听
     emitQuoteDepth(symbols: string[]) {
-      const userStore = useUser();
       if (this.mainSocket) {
         const depthData = {
-          server: userStore.account.server,
+          server: useNetwork().server,
           symbols,
         };
         this.mainSocket.emit("subscribe_quote_depth", {
@@ -374,9 +369,8 @@ export const useSocket = defineStore("socket", {
     //取消订阅市场深度
     unSubQuoteDepth(symbols: string[]) {
       if (this.mainSocket) {
-        const userStore = useUser();
         const depthData = {
-          server: userStore.account.server,
+          server: useNetwork().server,
           symbols,
         };
         this.mainSocket.emit("unsubscribe_quote_depth", {
@@ -400,12 +394,11 @@ export const useSocket = defineStore("socket", {
     // 订阅汇率
     emitRate() {
       if (this.mainSocket) {
-        const userStore = useUser();
         this.mainSocket.emit("subscribe_rate", {
           action: "subscribe_rate",
           d: this.enData({
             ...this.reqData(),
-            server: userStore.account.server,
+            server: useNetwork().server,
           }),
         });
       } else {
@@ -431,12 +424,11 @@ export const useSocket = defineStore("socket", {
     //取消订阅汇率
     unSubRate() {
       if (this.mainSocket) {
-        const userStore = useUser();
         this.mainSocket.emit("unsubscribe_rate", {
           action: "unsubscribe_rate",
           d: this.enData({
             ...this.reqData(),
-            server: userStore.account.server,
+            server: useNetwork().server,
           }),
         });
       } else {
@@ -495,7 +487,7 @@ export const useSocket = defineStore("socket", {
         const userStore = useUser();
         const d = this.enData({
           ...this.reqData(),
-          server: userStore.account.server,
+          server: useNetwork().server,
           login: userStore.account.login,
           token: userStore.account.token,
           device_id: useSystem().systemInfo!.deviceId,

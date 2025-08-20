@@ -58,11 +58,8 @@ export const useSymbols = defineStore("symbols", () => {
 
   // 全部商品
   const getSymbols = async () => {
-    const loginInfo = useUser().state.loginInfo;
-    if (loginInfo) {
-      const res = await getAllSymbol({ group: loginInfo.group });
-      symbols.value = res.data || [];
-    }
+    const res = await getAllSymbol();
+    symbols.value = res.data || [];
   };
 
   // 自选商品

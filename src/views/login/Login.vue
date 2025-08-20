@@ -140,9 +140,14 @@
             </el-form-item>
 
             <div class="login-form-account">
-              <span> {{ t("account.noAccount") }}&nbsp;</span>
-              <el-text type="primary" @click="goRegister">
-                {{ t("account.createAccount") }}
+              <div>
+                <span> {{ t("account.noAccount") }}</span>
+                <el-text type="primary" @click="userStore.goRegister">
+                  {{ t("account.createAccount") }}
+                </el-text>
+              </div>
+              <el-text type="primary" @click="userStore.guestLogin">
+                {{ t("account.enterAsTourist") }}
               </el-text>
             </div>
           </el-form>
@@ -157,7 +162,6 @@ import { computed, onMounted, onUnmounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import {
-  ElMessage,
   ElNotification,
   type FormInstance,
   type FormRules,
@@ -372,15 +376,6 @@ const happyStart = async (actionObject: string) => {
 const goAccount = () => {
   router.push({ path: PageEnum.LOGIN_ACCOUNTS });
 };
-const goRegister = () => {
-  const target = networkStore.queryTradeLines.find((e) => e.isOfficial === "1");
-  if (target) {
-    const server = target.lineName;
-    router.push({ name: "register", params: { server } });
-  } else {
-    ElMessage.warning(t("tip.noSimuServer"));
-  }
-};
 
 const handleCommand = (command: string) => {
   switch (command) {
@@ -519,9 +514,10 @@ onUnmounted(() => {
 
   &-account {
     width: 100%;
-    text-align: center;
-    margin-top: auto;
     height: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   &-button {

@@ -20,7 +20,7 @@ export interface TimeInfo {
   btime: number;
   etime: number;
 }
-export const getAllSymbol = (data: { group: string }) => {
+export const getAllSymbol = (data: { group?: string; } = {}) => {
   return request<ISessionSymbolInfo[]>({
     url: Api.Symbols,
     data,
@@ -55,7 +55,7 @@ export const alllRates = () => {
 // 根据商品编码查询商品信息;
 interface IOneSymbol {
   symbol: string;
-  group: string;
+  group?: string;
 }
 export const getSymbolDetail = (data: IOneSymbol) => {
   return request<ISessionSymbolInfo>({
@@ -92,7 +92,7 @@ export const optionalQuery = () => {
 };
 
 // 删除自选
-export const delOptionalQuery = (data: { symbols: string[] }) => {
+export const delOptionalQuery = (data: { symbols: string[]; }) => {
   return request({
     url: Api.DelMySymbols,
     method: "post",

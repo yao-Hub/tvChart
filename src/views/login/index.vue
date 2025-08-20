@@ -37,6 +37,8 @@ import LoginArticle from "./components/LoginArticle.vue";
 
 import { useI18n } from "vue-i18n";
 import { useNetwork } from "@/store/modules/network";
+import { useUser } from "@/store/modules/user";
+import { PageEnum } from "@/constants/pageEnum";
 const { t } = useI18n();
 
 const router = useRouter();
@@ -45,8 +47,17 @@ const route = useRoute();
 const localeKey = ref("");
 
 (async function foo() {
+  localStorage.setItem("guestLogin", "0");
   await useInit().init();
   await useNetwork().getLines(); //  交易线路
+  // 账户列表为空则跳转登录页
+  const list = useUser().state.accountList;
+  if (
+    router.currentRoute.value.path.includes(PageEnum.LOGIN_ACCOUNTS) &&
+    list.length === 0
+  ) {
+    router.replace({ path: PageEnum.LOGIN_HOME });
+  }
 })();
 
 // 预加载home路由

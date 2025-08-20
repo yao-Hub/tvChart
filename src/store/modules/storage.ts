@@ -50,10 +50,8 @@ export const useStorage = defineStore("storage", {
       }
     },
     removeItem(key: string) {
-      const networkStore = useNetwork();
-      const userStore = useUser();
-      const login = userStore.account.login;
-      const server = networkStore.server;
+      const login = useUser().account.login;
+      const server = useNetwork().server;
       const storageMap = this.getUtrader();
       if (login && server) {
         delete storageMap[`${login}_${server}`][key];

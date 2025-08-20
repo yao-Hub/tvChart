@@ -27,7 +27,15 @@
     </div>
 
     <div class="right">
-      <Account></Account>
+      <Account v-if="!useUser().state.ifGuest"></Account>
+      <div v-else>
+        <el-button @click="useUser().goRegister()">{{
+          t("account.register")
+        }}</el-button>
+        <el-button type="primary" @click="goLogin">{{
+          t("account.login")
+        }}</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -40,14 +48,22 @@ import FastTransation from "./components/FastTransation.vue";
 import LayoutVisibled from "./components/LayoutVisibled.vue";
 import Menu from "./components/Menu/index.vue";
 
+import { useUser } from "@/store/modules/user";
 import { useOrder } from "@/store/modules/order";
 
 import { useI18n } from "vue-i18n";
-const { t } = useI18n();
+import { PageEnum } from "@/constants/pageEnum";
+import { useRouter } from "vue-router";
 
+const { t } = useI18n();
+const router = useRouter();
 const systemReload = () => window.location.reload();
 
 const ifElectron = process.env.IF_ELECTRON;
+
+const goLogin = () => {
+  router.push({ path: PageEnum.LOGIN_ACCOUNTS });
+};
 </script>
 
 <style lang="scss">
@@ -117,9 +133,7 @@ const ifElectron = process.env.IF_ELECTRON;
   }
 
   .right {
-    display: flex;
-    gap: 8px;
-    align-items: center;
+    margin-right: 8px;
   }
 }
 </style>

@@ -112,7 +112,7 @@ export default {
     retrieveSuccessfully: "找回成功",
     createAccount: "創建類比賬戶",
     registerAccount: "註冊賬戶",
-    register: "創建類比賬戶",
+    register: "註冊",
     verificationCode: "驗證碼",
     getCode: "獲取驗證碼",
     resetPassword: "重置密碼",
@@ -128,6 +128,7 @@ export default {
     prohibitTrading: "當前帳戶禁止交易",
     noAuthority: "無許可權",
     loginIs: "你的賬戶是",
+    enterAsTourist: "以游客身份進入",
   },
 
   axios: {

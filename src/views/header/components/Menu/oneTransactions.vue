@@ -10,12 +10,13 @@
 
 <script setup lang="ts">
 import { ref, watchEffect } from "vue";
+import { useI18n } from "vue-i18n";
+
 import eventBus from "utils/eventBus";
 
 import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 
-import { useI18n } from "vue-i18n";
 const { t } = useI18n();
 
 const orderStore = useOrder();

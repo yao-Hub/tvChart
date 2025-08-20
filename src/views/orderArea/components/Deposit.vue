@@ -246,7 +246,7 @@ const goOn = (formEl: FormInstance | undefined) => {
         loading.value = false;
 
         const login = useUser().account.login;
-        const server = useUser().account.server;
+        const server = useNetwork().server;
         const logErr = errmsg ? `error ${errmsg}` : "";
         const detail = `${login}: deposit ${amountForm.amount} ${loginInfo.value?.currency} ${logErr}`;
         const logData = {

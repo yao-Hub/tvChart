@@ -86,7 +86,6 @@ import { ISymbolListDataSource } from "@/types/common";
 import { useChartInit } from "@/store/modules/chartInit";
 import { useOrder } from "@/store/modules/order";
 import { useSymbols } from "@/store/modules/symbols";
-import { useUser } from "@/store/modules/user";
 
 const { t } = useI18n();
 const chartInitStore = useChartInit();
@@ -176,7 +175,6 @@ const getDetail = async () => {
     loading.value = true;
     const res = await getSymbolDetail({
       symbol: props.rowData.symbol,
-      group: useUser().state.loginInfo!.group,
     });
     symbolInfo.value = res.data;
     ifError.value = false;

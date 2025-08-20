@@ -17,7 +17,7 @@ import { orderBy, uniq, uniqBy } from "lodash";
 interface IState {
   server: string;
   nodeName: string;
-  nodeList: Array<resQueryNode & { webApiDelay?: number | null; }>;
+  nodeList: Array<resQueryNode & { webApiDelay?: number | null }>;
   queryTradeLines: resQueryTradeLine[];
 }
 interface RequestResult {
@@ -58,18 +58,25 @@ export const useNetwork = defineStore("network", {
       }
       return "";
     },
+    // 官方线路
+    officialLine: (state) => {
+      const target = state.queryTradeLines.find((e) => e.isOfficial === "1");
+      return target;
+    },
   },
 
   actions: {
     async initNode() {
       const userStore = useUser();
       if (userStore.account) {
-        const queryNode = userStore.account.queryNode;
-        const server = userStore.account.server;
-        this.server = server;
-        this.nodeName = queryNode;
-        await this.getNodes(server);
+        this.server = userStore.account.server;
+        this.nodeName = userStore.account.queryNode;
       }
+      // 如果没有设置服务器，则使用官方线路
+      if (!this.server) {
+        this.server = this.officialLine?.lineName || "";
+      }
+      await this.getNodes(this.server);
     },
 
     // 交易线路

@@ -30,6 +30,7 @@
           class="btn"
           type="primary"
           :loading="loading"
+          :disabled="!agree"
           @click="handleOk"
           >{{ t("accept") }}</el-button
         >
@@ -104,15 +105,20 @@ const handleOk = async (e: MouseEvent) => {
   const account = useUser().account;
   if (agree.value && currentLine) {
     loading.value = true;
-    await protocolAgree({
+    protocolAgree({
       columnCodes: ["quick_transactions"],
       brokerName: currentLine.brokerName,
       lineName: currentLine.lineName,
       login: account.login,
-    });
-    loading.value = false;
-    dialogStore.closeDialog("disclaimersVisible");
-    orderStore.setOneTrans(true);
+    })
+      .then(() => {
+        loading.value = false;
+        dialogStore.closeDialog("disclaimersVisible");
+        orderStore.setOneTrans(true);
+      })
+      .catch(() => {
+        loading.value = false;
+      });
     return;
   }
   ElMessage({

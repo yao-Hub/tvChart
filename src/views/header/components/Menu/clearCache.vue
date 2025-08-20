@@ -63,7 +63,7 @@ const handleClearCache = async () => {
     return;
   }
   const login = useUser().account.login;
-  const server = useUser().account.server;
+  const server = useNetwork().server;
   const logData = {
     id: new Date().getTime(),
     time: dayjs().format("HH:mm:ss.SSS"),

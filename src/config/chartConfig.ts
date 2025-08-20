@@ -17,6 +17,7 @@ import { useChartSub } from "@/store/modules/chartSub";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTime } from "@/store/modules/time";
 import { useChartOrderLine } from "@/store/modules/chartOrderLine";
+import { useUser } from "@/store/modules/user";
 
 const barDataStore = useBarData();
 const chartSubStore = useChartSub();
@@ -424,12 +425,15 @@ export const datafeed = (id: string) => {
           )
           .then((data) => {
             const minTime = Math.min(...data.map((item: any) => item.ctm));
-            // 订单历史记录
-            getOrderHistory(
-              { ...periodParams, from: minTime },
-              symbolInfo.name,
-              id
-            );
+
+            // 不是游客登录拿历史订单
+            if (!useUser().state.ifGuest) {
+              getOrderHistory(
+                { ...periodParams, from: minTime },
+                symbolInfo.name,
+                id
+              );
+            }
             // 回显k线
             setTimeout(() => {
               onHistoryCallback(data, {

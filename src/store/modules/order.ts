@@ -1,12 +1,13 @@
-import i18n from "@/language/index";
+import { computed, reactive, watch } from "vue";
 import dayjs from "dayjs";
 import Decimal from "decimal.js";
 import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 import { defineStore } from "pinia";
-import { computed, reactive, watch } from "vue";
-import { useRouter } from "vue-router";
+import { debounce, get, isNil } from "lodash";
 
-import { useChartAction } from "./chartAction";
+import i18n from "@/language/index";
+
+// import { useChartAction } from "./chartAction";
 import { useDialog } from "./dialog";
 import { useQuotes } from "./quotes";
 import { useRate } from "./rate";
@@ -14,12 +15,12 @@ import { useSocket } from "./socket";
 import { useStorage } from "./storage";
 import { useSymbols } from "./symbols";
 import { useUser } from "./user";
+import { useNetwork } from "./network";
 
 import * as orderTypes from "#/order";
 import * as orders from "api/order/index";
-import { orderTypeOptions } from "@/constants/common";
 
-import { debounce, get, isNil } from "lodash";
+import { orderTypeOptions } from "@/constants/common";
 import { getTradingDirection } from "utils/order/index";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 import { getSymbolDetail } from "api/symbols";
@@ -182,17 +183,7 @@ export const useOrder = defineStore("order", () => {
   ) => {
     const dialogStore = useDialog();
     const userStore = useUser();
-    if (!userStore.account.token) {
-      ElMessageBox.confirm("", t("account.notLoggedIn"), {
-        confirmButtonText: t("account.logIn"),
-        cancelButtonText: t("cancel"),
-        type: "warning",
-      }).then(() => {
-        const router = useRouter();
-        const chartActionStore = useChartAction();
-        chartActionStore.setCacheAction("createOrder");
-        router.replace({ name: "login" });
-      });
+    if (!userStore.checkIfLogin()) {
       return;
     }
     if (userStore.state.loginInfo?.trade_rights !== 1) {
@@ -237,6 +228,10 @@ export const useOrder = defineStore("order", () => {
 
   const getData = async (type: string) => {
     const userStore = useUser();
+    // 如果是游客登录，则不进行数据查询
+    if (userStore.state.ifGuest) {
+      return;
+    }
     switch (type) {
       // 单个平仓
       case "single_marketOrder_close":
@@ -642,7 +637,7 @@ export const useOrder = defineStore("order", () => {
       time: dayjs().format("YYYY.MM.DD HH:mm:ss.SSS"),
       login: currentLogin.value,
       day: dayjs().format("YYYY.MM.DD"),
-      server: useUser().account.server,
+      server: useNetwork().server,
     };
   };
 
@@ -764,7 +759,7 @@ export const useOrder = defineStore("order", () => {
           JSON.stringify(error);
       } finally {
         const login = useUser().account.login;
-        const server = useUser().account.server;
+        const server = useNetwork().server;
         const logErr = errmsg ? `error ${errmsg}` : "";
         logStr = `${login}: #${id} ${state} market ${logErr} ${logStr}`;
         const logData = {

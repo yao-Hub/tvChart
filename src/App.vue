@@ -15,10 +15,10 @@ import eventBus from "utils/eventBus";
 import { useSize } from "@/store/modules/size";
 import { useTheme } from "@/store/modules/theme";
 import { useVersion } from "@/store/modules/version";
-import { useUser } from "./store/modules/user";
 import { useChartInit } from "./store/modules/chartInit";
 import { useSocket } from "./store/modules/socket";
 import { useSystem } from "./store/modules/system";
+import { useNetwork } from "./store/modules/network";
 
 const sizeStore = useSize();
 const systemStore = useSystem();
@@ -31,13 +31,13 @@ const trackSent = ref(false);
 
 // online socket初始化
 watch(
-  () => [systemStore.systemInfo, useUser().account.server],
+  () => [systemStore.systemInfo, useNetwork().server],
   () => {
     const info = systemStore.systemInfo;
     if (info && info.deviceId) {
       useSocket().onlineSocketInit();
     }
-    const server = useUser().account.server;
+    const server = useNetwork().server;
     // 若server从无到有 需要重新链接一次online socket
     if (info && server && !trackSent.value) {
       useSocket().onLineInstance.close();

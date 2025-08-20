@@ -84,7 +84,7 @@ const rootStore = useRoot();
 const router = useRouter();
 eventBus.on("go-login", () => {
   const login = userStore.account.login;
-  const server = userStore.account.server;
+  const server = useNetwork().server;
   userStore.changeCurrentAccountOption({ token: "" }); // 清除token
   router.replace({
     path: PageEnum.LOGIN_HOME,
@@ -136,13 +136,16 @@ async function init() {
 
     const list = await networkStore.getNodesDelay();
     if (list.length) {
-      await userStore.executeLogic({ emitSocket: true }); // 个人信息
-      await symbolsStore.getSymbols();
-      userStore.refreshToken(); // 倒计时刷新token
-      Promise.allSettled([
+      // 不是游客
+      if (!useUser().state.ifGuest) {
+        await userStore.executeLogic({ emitSocket: true }); // 个人信息
+        orderStore.initTableData();
+        userStore.refreshToken(); // 倒计时刷新token
+      }
+      await Promise.allSettled([
+        symbolsStore.getSymbols(),
         quotesStore.getAllSymbolQuotes(),
         rateStore.getAllRates(),
-        orderStore.initTableData(),
       ]);
     }
   } finally {

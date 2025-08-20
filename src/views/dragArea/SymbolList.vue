@@ -153,6 +153,7 @@ import Lists from "./components/Lists.vue";
 import { useSymbolList } from "./useSymbolList";
 
 import { useQuotes } from "@/store/modules/quotes";
+import { useStorage } from "@/store/modules/storage";
 const quotesStore = useQuotes();
 
 const { t } = useI18n();
@@ -365,11 +366,11 @@ const toogleTopUp = (e: ISymbolListDataSource) => {
 };
 
 type IMode = "table" | "lists";
-const storageMode = localStorage.getItem("symbolListMode") as IMode;
+const storageMode = useStorage().getItem("symbolListMode") as IMode;
 const mode = ref<IMode>(storageMode || "table");
 const changeMode = () => {
   mode.value = mode.value === "table" ? "lists" : "table";
-  localStorage.setItem("symbolListMode", mode.value);
+  useStorage().setItem("symbolListMode", mode.value);
 };
 </script>
 

@@ -138,7 +138,7 @@ service.interceptors.request.use(
       };
       const userStore = useUser();
       if (!config.data.server && !config.noNeedServer) {
-        config.data.server = userStore.account.server;
+        config.data.server = useNetwork().server;
       }
       if (!config.data.token && !config.noNeedToken) {
         config.data.token = userStore.account.token;

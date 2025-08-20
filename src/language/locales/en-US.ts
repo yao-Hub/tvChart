@@ -122,6 +122,7 @@ export default {
     prohibitTrading: "The current account is prohibited from trading",
     noAuthority: "No authority",
     loginIs: "Your login is",
+    enterAsTourist: "Enter as a tourist",
   },
 
   axios: {

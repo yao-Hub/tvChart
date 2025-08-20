@@ -112,7 +112,7 @@ export default {
     retrieveSuccessfully: "找回成功",
     createAccount: "创建模拟账户",
     registerAccount: "注册账户",
-    register: "创建模拟账户",
+    register: "注册",
     verificationCode: "验证码",
     getCode: "获取验证码",
     resetPassword: "重置密码",
@@ -127,7 +127,8 @@ export default {
     logIn: "去登录",
     prohibitTrading: "当前账户禁止交易",
     noAuthority: "无权限",
-    loginIs: "你的账户是"
+    loginIs: "你的账户是",
+    enterAsTourist: "以游客身份进入",
   },
 
   axios: {
