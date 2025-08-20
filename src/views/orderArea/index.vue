@@ -10,7 +10,7 @@
           >
           </TabItem>
         </baseTabs>
-        <div class="header_right">
+        <div class="header_right" v-if="!useUser().state.ifGuest">
           <div
             class="feedback textEllipsis"
             @click="dialogStore.openDialog('feedbackVisible')"
@@ -164,7 +164,7 @@
             <el-option value="application" label="Application"></el-option> -->
           </el-select>
 
-          <div class="rightOpera">
+          <div class="rightOpera" v-if="!useUser().state.ifGuest">
             <el-dropdown
               trigger="click"
               v-if="['marketOrder'].includes(activeKey)"

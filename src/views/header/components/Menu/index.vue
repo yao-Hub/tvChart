@@ -34,7 +34,7 @@
         <div class="dropdownbox_item">
           <Mobile></Mobile>
         </div>
-        <div class="dropdownbox_item">
+        <div class="dropdownbox_item" v-if="!useUser().state.ifGuest">
           <sendFeedback></sendFeedback>
         </div>
         <div class="dropdownbox_item">
@@ -56,6 +56,8 @@ import { ref } from "vue";
 import type { DropdownInstance } from "element-plus";
 
 import eventBus from "utils/eventBus";
+
+import { useUser } from "@/store/modules/user";
 
 import FontSize from "./FontSize/index.vue";
 import Language from "./Language/index.vue";

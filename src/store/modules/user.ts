@@ -55,9 +55,16 @@ export const useUser = defineStore("user", () => {
       token: "",
       queryNode: "",
     };
-    const found = state.accountList.find((e) => e.ifLogin);
-    if (found) {
-      result = found;
+    if (state.ifGuest) {
+      const storageLogin = localStorage.getItem("guestLogin");
+      if (storageLogin) {
+        result.login = storageLogin;
+      } else {
+        localStorage.setItem("guestLogin", "9999999");
+      }
+    } else {
+      const found = state.accountList.find((e) => e.ifLogin);
+      result = found || result;
     }
     return result;
   });

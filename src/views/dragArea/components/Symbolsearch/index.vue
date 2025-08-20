@@ -152,7 +152,6 @@ const getSymbolsDetail = (type: string) => {
 
 // 输入查找商品
 import { selectMatchItem } from "utils/common/index";
-import { useUser } from "@/store/modules/user";
 const filterSymbols = ref<SymbolListItem[]>([]);
 watch(
   () => props.input,
@@ -164,9 +163,6 @@ watch(
 // 新增删除自选商品
 const btnClick = debounce(async (type: string, listItem: SymbolListItem) => {
   try {
-    if (!useUser().checkIfLogin()) {
-      return;
-    }
     listItem.loading = true;
     switch (type) {
       case "cancel":
