@@ -230,7 +230,7 @@ if (!gotTheLock) {
   // 只有macOS会触发事件 当应用被激活时发出
   app.on('activate', () => {
     // 在 macOS 上，当点击 Dock 图标并且没有其他窗口打开时，重新创建一个窗口
-    if (BrowserWindow.getAllWindows().length === 0) createWindow("mainWindow", null, null, false);
+    if (BrowserWindow.getAllWindows().length === 0) createWindow("mainWindow", null, null, true);
   });
 
   // 在非 macOS 系统上，退出应用
