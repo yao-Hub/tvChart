@@ -1,7 +1,7 @@
 {
   "name": "ctotrader",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "electron/main.js",
   "description": "CTOTrader",
   "author": "Furong Uptech Solution Co., Ltd",
