@@ -210,7 +210,7 @@ service.interceptors.response.use(
       return response;
     }
 
-    if (!config.noHandleError) {
+    if (config.noHandleError) {
       return response;
     }
     if (
@@ -232,7 +232,7 @@ service.interceptors.response.use(
   },
   // 状态码!===200
   async (err) => {
-    if (!err.config.noHandleError) {
+    if (err.config.noHandleError) {
       return Promise.resolve(err);
     }
     if (err.status === 401) {
