@@ -436,9 +436,7 @@ export const datafeed = (id: string) => {
             }
             // 回显k线
             setTimeout(() => {
-              onHistoryCallback(data, {
-                noData: data.length === 0,
-              });
+              onHistoryCallback(data);
             });
           })
           .catch(() => {
