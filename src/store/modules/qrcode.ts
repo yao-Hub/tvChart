@@ -98,6 +98,7 @@ export const useQrcode = defineStore("qrcode", () => {
           actionType: "signUp",
           actionObject: "scanCode",
         });
+        localStorage.setItem("Guest", "0");
         router.push({ path: "/" });
         return;
       }
