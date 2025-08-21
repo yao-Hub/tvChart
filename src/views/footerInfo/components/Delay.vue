@@ -63,8 +63,10 @@ const changeNode = (name: string) => {
   if (name === currentNodeName) {
     return;
   }
-  const delay = networkStore.getDelay(name);
-  if (!delay || delay === "-") {
+  const delay = networkStore.nodeList.find(
+    (e) => e.nodeName === name
+  )?.webApiDelay;
+  if (!delay) {
     return;
   }
   userStore.changeCurrentAccountOption({
