@@ -180,7 +180,7 @@ export default {
     spread: "Spread",
     expectedGrossProfit: "Est. Profit",
     term: "Expiration Time",
-    longTerm: "Long Term",
+    longTerm: "No Expiration",
     close: "Close",
     open: "Open",
     cancelTakeProfit: "Cancel Take Profit",

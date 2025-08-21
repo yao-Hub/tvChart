@@ -58,7 +58,6 @@ import { computed, ref, watchEffect, CSSProperties, onMounted } from "vue";
 import { debounce } from "lodash";
 import Decimal from "decimal.js";
 
-import { ISessionSymbolInfo } from "@/types/chart";
 import { ReqOrderAdd } from "api/order/index";
 import { limitdigit } from "@/utils/common";
 
@@ -216,13 +215,16 @@ const minVolume = ref<number>(0);
 const maxVolume = ref<number>(0);
 
 // 当前商品
-const symbolInfo = ref<ISessionSymbolInfo>();
-watchEffect(() => {
+const symbolInfo = computed(() => {
   const info = symbolsStore.symbols.find((e) => e.symbol === nowSymbol.value);
-  if (info) {
-    symbolInfo.value = info;
-    minVolume.value = info.volume_step / 100;
-    maxVolume.value = info.volume_max / 100;
+  return info;
+});
+watchEffect(() => {
+  if (symbolInfo.value) {
+    minVolume.value = symbolInfo.value.volume_step / 100;
+    maxVolume.value = symbolInfo.value.volume_max / 100;
+  }
+  if (!volume.value) {
     volume.value = String(minVolume.value);
   }
 });
