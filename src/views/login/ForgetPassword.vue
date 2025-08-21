@@ -47,6 +47,7 @@
           :placeholder="t('tip.enterNewPwd')"
           show-password
           autocomplete="new-password"
+          @keydown.enter="resetPwd"
         />
       </el-form-item>
 
@@ -56,6 +57,7 @@
           type="password"
           :placeholder="t('tip.confirmNewPwd')"
           show-password
+          @keydown.enter="resetPwd"
         />
       </el-form-item>
 
@@ -202,19 +204,6 @@ const resetPwd = async () => {
 const back = () => {
   router.back();
 };
-
-import { onMounted, onUnmounted } from "vue";
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === "Enter") {
-    resetPwd();
-  }
-}
-onMounted(() => {
-  document.addEventListener("keydown", handleKeydown);
-});
-onUnmounted(() => {
-  document.removeEventListener("keydown", handleKeydown);
-});
 </script>
 
 <style lang="scss" scoped>

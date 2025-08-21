@@ -53,6 +53,7 @@
             autocomplete="off"
             show-password
             :placeholder="t('tip.enterNewPwd')"
+            @keydown.enter="submit(formRef)"
           />
         </el-form-item>
 
@@ -63,6 +64,7 @@
             autocomplete="off"
             show-password
             :placeholder="t('tip.confirm', { type: t('account.password') })"
+            @keydown.enter="submit(formRef)"
           />
         </el-form-item>
 
@@ -175,19 +177,6 @@ const submit = (formEl: FormInstance | undefined) => {
     }
   });
 };
-
-import { onMounted, onUnmounted } from "vue";
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === "Enter") {
-    submit(formRef.value);
-  }
-}
-onMounted(() => {
-  document.addEventListener("keydown", handleKeydown);
-});
-onUnmounted(() => {
-  document.removeEventListener("keydown", handleKeydown);
-});
 </script>
 
 <style lang="scss" scoped>

@@ -160,7 +160,7 @@ span,
 p {
   font-size: var(--font-size);
   font-feature-settings: "tnum";
-  counter-reset: num;
+  font-variant-numeric: tabular-nums;
   font-family: var(--font-family);
 }
 

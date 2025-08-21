@@ -456,7 +456,7 @@ import * as orders from "api/order/index";
 
 import * as orderTypes from "#/order";
 import { CLOSE_TYPE, orderTypeOptions } from "@/constants/common";
-import { ifNumber } from "utils/common/index";
+import { ifNumber, sleep } from "utils/common/index";
 import { getTradingDirection } from "utils/order/index";
 import { logIndexedDB } from "utils/IndexedDB/logDatabase";
 import { accAdd } from "utils/arithmetic";
@@ -519,8 +519,9 @@ const activeKey = ref<orderTypes.TableTabKey>("marketOrder");
 // 表格宽高的系列操作
 const container = ref();
 let observer: ResizeObserver | null = null;
-onMounted(() => {
+onMounted(async () => {
   adjustTable();
+  await sleep(500);
   // 拖拽时改变table的高
   observer = new ResizeObserver(() => {
     setTimeout(() => adjustTable());

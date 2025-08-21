@@ -182,3 +182,7 @@ export function classifyUrl(url: string) {
     return 'invalid'; // 无效的URL格式
   }
 }
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

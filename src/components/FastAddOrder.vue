@@ -127,7 +127,7 @@ const styles: Record<string, CSSProperties> = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    width: "51px",
+    minWidth: "51px",
     color: "#fff",
   },
 };

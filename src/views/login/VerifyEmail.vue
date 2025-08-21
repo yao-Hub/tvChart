@@ -37,6 +37,7 @@
             :type="routerName"
             v-model:value="formState.code"
             :email="formState.email"
+            @keydownEnter="submit(formRef)"
           ></VerificationCode>
         </el-form-item>
 
@@ -121,6 +122,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { protocolAgree, register, retrieveAccount } from "api/account/index";
+import { PageEnum } from "@/constants/pageEnum";
 
 import { useNetwork } from "@/store/modules/network";
 
@@ -288,20 +290,6 @@ const copy = async () => {
 const back = () => {
   router.back();
 };
-
-import { onMounted, onUnmounted } from "vue";
-import { PageEnum } from "@/constants/pageEnum";
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === "Enter") {
-    submit(formRef.value);
-  }
-}
-onMounted(() => {
-  document.addEventListener("keydown", handleKeydown);
-});
-onUnmounted(() => {
-  document.removeEventListener("keydown", handleKeydown);
-});
 </script>
 
 <style lang="scss" scoped>

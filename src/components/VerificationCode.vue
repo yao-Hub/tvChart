@@ -1,5 +1,9 @@
 <template>
-  <el-input v-model="model" :placeholder="t('tip.codeRequired')">
+  <el-input
+    v-model="model"
+    :placeholder="t('tip.codeRequired')"
+    @keydown.enter="emit('keydownEnter')"
+  >
     <template #suffix>
       <el-button
         link
@@ -59,6 +63,7 @@ const currentTimer = computed(() => {
   );
 });
 
+const emit = defineEmits(["keydownEnter"]);
 const model = defineModel<string>("value", { required: true });
 const loading = ref(false);
 

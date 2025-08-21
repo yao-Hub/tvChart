@@ -21,6 +21,7 @@
           <el-input
             v-model="formState.otp_code"
             :placeholder="t('tip.enterVeriCode')"
+            @keyup.enter="checkOtp"
           />
         </el-form-item>
         <el-button
@@ -28,7 +29,7 @@
           type="primary"
           :disabled="!formState.otp_code"
           :loading="loading"
-          @click="happyStart"
+          @click="checkOtp"
           >{{ t("account.login") }}</el-button
         >
       </el-form>
@@ -74,7 +75,7 @@ const back = () => {
   router.replace({ path: PageEnum.LOGIN_HOME, query: { ...route.query } });
 };
 
-const happyStart = () => {
+const checkOtp = () => {
   const { otp_code } = formState;
   if (!otp_code || loading.value) {
     return;

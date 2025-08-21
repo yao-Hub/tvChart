@@ -99,6 +99,7 @@
                 show-password
                 ref="pwd"
                 autocomplete="new-password"
+                @keyup.enter="checkLogin"
               />
             </el-form-item>
 
@@ -133,7 +134,7 @@
                 class="login-form-button"
                 type="primary"
                 :disabled="disabled"
-                @click="happyStart('loginBtn')"
+                @click="checkLogin('loginBtn')"
                 :loading="loading"
                 >{{ t("account.login") }}</el-button
               >
@@ -317,7 +318,7 @@ const ifSimulatedServer = computed(() => {
   return false;
 });
 
-const happyStart = async (actionObject: string) => {
+const checkLogin = async (actionObject: string) => {
   try {
     const { login, server, password } = formState;
     if (disabled.value || loading.value) {
@@ -410,17 +411,10 @@ onMounted(() => {
     formState.server = String(query.server);
     inputLine.value = String(query.server);
   }
-  document.addEventListener("keydown", handleKeydown);
 });
 
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === "Enter") {
-    happyStart("keydown");
-  }
-}
 onUnmounted(() => {
   clearTimeout(timer);
-  document.removeEventListener("keydown", handleKeydown);
 });
 </script>
 

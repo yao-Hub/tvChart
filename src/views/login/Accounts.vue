@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
 import { orderBy } from "lodash";
 import { useI18n } from "vue-i18n";
@@ -147,19 +147,6 @@ const happyStart = async () => {
     loading.value = false;
   }
 };
-
-function handleKeydown(event: KeyboardEvent) {
-  if (event.key === "Enter") {
-    happyStart();
-  }
-}
-
-onMounted(() => {
-  document.addEventListener("keydown", handleKeydown);
-});
-onUnmounted(() => {
-  document.removeEventListener("keydown", handleKeydown);
-});
 </script>
 
 <style lang="scss" scoped>
