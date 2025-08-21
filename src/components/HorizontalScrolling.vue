@@ -21,7 +21,6 @@
 <script setup lang="ts">
 import { ArrowLeft, ArrowRight } from "@element-plus/icons-vue";
 import { onMounted, onUnmounted, onUpdated, ref } from "vue";
-import { sleep } from "utils/common/index";
 
 const container = ref();
 const updateScrollButtons = () => {
@@ -61,11 +60,10 @@ function tabsMouseWheel(event: WheelEvent) {
     scrollRight();
   }
 }
-onMounted(async () => {
+onMounted(() => {
   updateScrollButtons();
   window.addEventListener("resize", updateScrollButtons);
   container.value.addEventListener("wheel", tabsMouseWheel);
-  await sleep(500);
   const resizeObserver = new ResizeObserver(() => updateScrollButtons());
   resizeObserver.observe(container.value);
 });
