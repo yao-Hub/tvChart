@@ -311,7 +311,7 @@ const addOrder = debounce(
       }
       // 记忆手数
       const storageChartVolumes = useStorage().getItem("chartVolumes") || {};
-      storageChartVolumes[props.id] = volume;
+      storageChartVolumes[props.id] = volume.value;
       useStorage().setItem("chartVolumes", storageChartVolumes);
 
       if (!orderStore.state.ifOne) {
