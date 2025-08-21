@@ -465,7 +465,7 @@ export default {
   otp: {
     name: "OTP",
     title: "驗證OTP",
-    agree: "我接受",
+    accept: "我接受",
     unbindOTP: "解綁OTP",
     bindOTP: "綁定OTP",
     auth: "身份認證",
