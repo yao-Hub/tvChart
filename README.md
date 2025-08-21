@@ -18,6 +18,8 @@ sudo xattr -rd com.apple.quarantine /Applications/CTOTrader.app
 ```
 
 ## 上架 MacOS 踩坑：
+- 打包之后若想在打包的本机上安装test fight的app，需要删除打包生成的.app包
+- 通过设置bundleVersion就可以升级包的小版本（build），不用修改package.json的版本号
 - 在[苹果开发者平台](https://developer.apple.com/account)获取证书
 - ！！！上传到test fight/App Store需要的证书：
     - 不用考虑开发证书（TYPE包含development的所有证书）
