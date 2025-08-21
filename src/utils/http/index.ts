@@ -44,6 +44,8 @@ interface IOption {
   isNotSaveDB?: boolean;
   // 不需要提示
   noNeedTip?: boolean;
+  // 不需要处理错误
+  noHandleError?: boolean;
 }
 
 type reqConfig = InternalAxiosRequestConfig<any> & IOption;
@@ -208,6 +210,9 @@ service.interceptors.response.use(
       return response;
     }
 
+    if (!config.noHandleError) {
+      return response;
+    }
     if (
       resData.err !== 0 &&
       resData.errmsg &&
@@ -227,8 +232,8 @@ service.interceptors.response.use(
   },
   // 状态码!===200
   async (err) => {
-    if (!err) {
-      return Promise.reject();
+    if (!err.config.noHandleError) {
+      return Promise.resolve(err);
     }
     if (err.status === 401) {
       !err.config.noNeedTip &&

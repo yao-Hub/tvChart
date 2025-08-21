@@ -38,5 +38,5 @@ export async function sendTrack(params: ITrackAgre) {
       server: useNetwork().server,
     },
   };
-  await trackAction(updata);
+  trackAction(updata);
 }

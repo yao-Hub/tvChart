@@ -49,5 +49,6 @@ export const trackAction = (data: ITrackAction) => {
     noNeedToken: true,
     noBeCancel: true,
     isNotSaveDB: true,
+    noHandleError: true, // 不需要错误提示
   });
 };
