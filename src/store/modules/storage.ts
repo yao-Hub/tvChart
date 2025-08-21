@@ -25,6 +25,19 @@ export const useStorage = defineStore("storage", {
       }
       return result;
     },
+
+    // 保存utrader数据
+    saveUtrader(value: any) {
+      localStorage.setItem("utrader", JSON.stringify(value));
+    },
+    delUtraderKey(key: string) {
+      const storageMap = this.getUtrader();
+      const target = get(storageMap, key);
+      if (target) {
+        delete storageMap[key];
+      }
+      this.saveUtrader(storageMap);
+    },
     getItem(key: string) {
       const networkStore = useNetwork();
       const userStore = useUser();
@@ -46,7 +59,7 @@ export const useStorage = defineStore("storage", {
       const storageMap = this.getUtrader();
       if (login && server) {
         set(storageMap, [`${login}_${server}`, key], value);
-        this.saveMap(storageMap);
+        this.saveUtrader(storageMap);
       }
     },
     removeItem(key: string) {
@@ -55,29 +68,19 @@ export const useStorage = defineStore("storage", {
       const storageMap = this.getUtrader();
       if (login && server) {
         delete storageMap[`${login}_${server}`][key];
-        this.saveMap(storageMap);
+        this.saveUtrader(storageMap);
       }
     },
     clear() {
       localStorage.removeItem("utrader");
     },
-    saveMap(value: any) {
-      localStorage.setItem("utrader", JSON.stringify(value));
-    },
+    // 保存表格列宽
     saveOrderTableColumn(tableKey: TableTabKey, field: string, width: number) {
       if (Object.keys(this.columnsMap).length === 0) {
         this.columnsMap = this.getItem("tableColumns") || {};
       }
       set(this.columnsMap, [tableKey, field], +width.toFixed(0));
       this.setItem("tableColumns", this.columnsMap);
-    },
-    delUtraderKey(key: string) {
-      const storageMap = this.getUtrader();
-      const target = get(storageMap, key);
-      if (target) {
-        delete storageMap[key];
-      }
-      this.saveMap(storageMap);
     },
     removeNowUserStorage() {
       const login = useUser().account.login;

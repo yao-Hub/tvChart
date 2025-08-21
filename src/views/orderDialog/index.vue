@@ -287,6 +287,7 @@ import { useDialog } from "@/store/modules/dialog";
 import { useOrder } from "@/store/modules/order";
 import { useQuotes } from "@/store/modules/quotes";
 import { useSymbols } from "@/store/modules/symbols";
+import { useStorage } from "@/store/modules/storage";
 
 const { t } = useI18n();
 
@@ -355,6 +356,10 @@ const initForm = () => {
       priceConfirm.value = true;
     }
     return;
+  }
+  const storageOrderVolume = useStorage().getItem("orderVolume");
+  if (storageOrderVolume) {
+    formState.volume = storageOrderVolume;
   }
   formState.symbol = chartInitStore.getDefaultSymbol();
 };

@@ -47,7 +47,6 @@ const route = useRoute();
 const localeKey = ref("");
 
 (async function foo() {
-  localStorage.setItem("guestLogin", "0");
   await useInit().init();
   await useNetwork().getLines(); //  交易线路
   // 账户列表为空则跳转登录页

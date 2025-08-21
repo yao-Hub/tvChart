@@ -18,6 +18,9 @@ class SingletonSocket {
         reconnection: true, // 开启重连功能
         // reconnectionAttempts: 5, //  重连次数
         // reconnectionDelay: 3000, // 重连间隔
+        extraHeaders: {
+          Connection: "Upgrade",
+        },
       });
     }
     this.setupSocketEvents();

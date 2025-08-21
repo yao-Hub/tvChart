@@ -54,7 +54,7 @@
 
 <script lang="ts" setup>
 import { ElMessage } from "element-plus";
-import { computed, ref, watchEffect, CSSProperties } from "vue";
+import { computed, ref, watchEffect, CSSProperties, onMounted } from "vue";
 import { debounce } from "lodash";
 import Decimal from "decimal.js";
 
@@ -70,6 +70,7 @@ import { useSymbols } from "@/store/modules/symbols";
 import { useTheme } from "@/store/modules/theme";
 
 import { useI18n } from "vue-i18n";
+import { useStorage } from "@/store/modules/storage";
 const { t } = useI18n();
 
 const chartInitStore = useChartInit();
@@ -230,6 +231,13 @@ const step = computed(() => {
   return symbolInfo.value ? symbolInfo.value.volume_step / 100 : 1;
 });
 
+onMounted(() => {
+  const chartVolumes = useStorage().getItem("chartVolumes");
+  if (chartVolumes && chartVolumes[props.id]) {
+    volume.value = chartVolumes[props.id];
+  }
+});
+
 const addNum = () => {
   const result = orderStore.volumeAdd(volume.value, step.value);
   volume.value = String(result);
@@ -301,6 +309,11 @@ const addOrder = debounce(
       if (!v) {
         return;
       }
+      // 记忆手数
+      const storageChartVolumes = useStorage().getItem("chartVolumes") || {};
+      storageChartVolumes[props.id] = volume;
+      useStorage().setItem("chartVolumes", storageChartVolumes);
+
       if (!orderStore.state.ifOne) {
         orderStore.createOrder({
           symbol: nowSymbol.value,

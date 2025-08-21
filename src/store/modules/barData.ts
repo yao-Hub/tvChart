@@ -3,6 +3,7 @@ import { get, isNil, set, sortBy } from "lodash";
 
 import * as library from "public/charting_library";
 import * as types from "@/types/chart";
+import { periodMap } from "@/constants/common";
 
 import { useQuotes } from "./quotes";
 import { useSocket } from "./socket";
@@ -13,7 +14,7 @@ interface ISubSCribed {
   resolution: string;
 }
 
-type Tbar = library.Bar & { time: number; ask?: number; bid?: number; };
+type Tbar = library.Bar & { time: number; ask?: number; bid?: number };
 interface IState {
   subscribed: Record<string, ISubSCribed>;
   newbar: Record<string, Tbar>;
@@ -24,19 +25,6 @@ interface IState {
 }
 
 type TAction = (symbol: string) => void;
-
-// 1=1分钟，5=5分钟，15=15分钟 ，30=30分钟 ，60=1小时 ，240=4小时 ，1440=日线,10080=周线, 43200=月线
-const periodMap = {
-  "1": 1,
-  "5": 5,
-  "15": 15,
-  "30": 30,
-  "60": 60,
-  "240": 240,
-  "1D": 1440,
-  "1W": 10080,
-  "1M": 43200,
-};
 
 export const useBarData = defineStore("barData", {
   state: (): IState => {

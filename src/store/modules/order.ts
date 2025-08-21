@@ -685,6 +685,8 @@ export const useOrder = defineStore("order", () => {
         });
         logStr += `#${res.data.id} at ${res.data.open_price}`;
         if (res.data.action_success) {
+          // 保存下单手数
+          useStorage().setItem("orderVolume", updata.volume);
           ElNotification.success({
             title: t("tip.succeed", { type: t("dialog.createOrder") }),
             message: t("dialog.createOrderSucceed", {
@@ -926,6 +928,9 @@ export const useOrder = defineStore("order", () => {
               type: `#${res.data.id} ${t("dialog.createOrder")}`,
             }),
           });
+
+          // 保存下单手数
+          useStorage().setItem("orderVolume", updata.volume);
           resolve(res);
         } else {
           errmsg = res.data.err_text || res.errmsg || "";

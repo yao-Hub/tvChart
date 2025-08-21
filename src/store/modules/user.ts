@@ -39,6 +39,16 @@ interface IState {
   ifGuest: boolean;
 }
 
+type TLoginCallback = ({
+  ending,
+  success,
+  errmsg,
+}: {
+  ending?: boolean;
+  success?: boolean;
+  errmsg?: string;
+}) => void;
+
 export const useUser = defineStore("user", () => {
   const state = reactive<IState>({
     accountList: [],
@@ -56,12 +66,8 @@ export const useUser = defineStore("user", () => {
       queryNode: "",
     };
     if (state.ifGuest) {
-      const storageLogin = localStorage.getItem("guestLogin");
-      if (storageLogin) {
-        result.login = storageLogin;
-      } else {
-        localStorage.setItem("guestLogin", "9999999");
-      }
+      const guestLogin = createGuestLogin();
+      result.login = guestLogin; // 默认游客登录账号
     } else {
       const found = state.accountList.find((e) => e.ifLogin);
       result = found || result;
@@ -111,6 +117,19 @@ export const useUser = defineStore("user", () => {
     }
     return "-";
   });
+
+  // 创建游客登录账号
+  const createGuestLogin = () => {
+    const storageLogin = localStorage.getItem("guestLoginNumber");
+    if (storageLogin) {
+      return storageLogin;
+    }
+    const time = new Date().getTime();
+    // 取时间戳后8位作为游客账号
+    const result = time.toString().slice(-8);
+    localStorage.setItem("guestLoginNumber", result);
+    return result;
+  };
 
   const checkIfLogin = () => {
     if (!account.value.token) {
@@ -279,16 +298,6 @@ export const useUser = defineStore("user", () => {
     }
   };
 
-  type TCallback = ({
-    ending,
-    success,
-    errmsg,
-  }: {
-    ending?: boolean;
-    success?: boolean;
-    errmsg?: string;
-  }) => void;
-
   const login = async (
     updata: {
       login: string | number;
@@ -296,7 +305,7 @@ export const useUser = defineStore("user", () => {
       server: string;
       otp_code?: string;
     },
-    callback: TCallback
+    callback: TLoginCallback
   ) => {
     const t = i18n.global.t;
 
@@ -340,7 +349,7 @@ export const useUser = defineStore("user", () => {
         socketStore.initMainSocket();
         Login(updata)
           .then((res) => {
-            localStorage.setItem("guestLogin", "0");
+            localStorage.setItem("Guest", "0");
             state.ifGuest = false;
             const token = res.data.token;
             // 缓存登录信息
@@ -427,14 +436,14 @@ export const useUser = defineStore("user", () => {
 
   // 检查是否为游客登录
   const checkIfGuest = () => {
-    const ifGuest = localStorage.getItem("guestLogin");
+    const ifGuest = localStorage.getItem("Guest");
     state.ifGuest = ifGuest === "1";
     return state.ifGuest;
   };
   // 游客登录
   const guestLogin = () => {
     state.accountList.forEach((item) => (item.ifLogin = false));
-    localStorage.setItem("guestLogin", "1");
+    localStorage.setItem("Guest", "1");
     storageAccount();
     state.ifGuest = true;
     router.push(PageEnum.CHART);

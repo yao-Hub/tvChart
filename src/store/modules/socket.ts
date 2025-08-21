@@ -10,7 +10,7 @@ import { useSystem } from "./system";
 import { IRate, ISocketKlineNew, ISocketQuote } from "@/types/chart";
 import { encrypt } from "utils/DES/JS";
 import { generateUUID } from "@/utils/common";
-
+import { periodMap } from "@/constants/common";
 interface IQuote {
   ask: number;
   ask_size: number;
@@ -137,7 +137,8 @@ export const useSocket = defineStore("socket", {
           symbol_period_type: [
             {
               symbol: symbol,
-              period_type: resolution,
+              period_type:
+                periodMap[resolution as keyof typeof periodMap] || resolution,
             },
           ],
         };
