@@ -24,9 +24,13 @@
         </el-text>
       </div>
       <div class="footer_btnGroup">
-        <el-button class="btn" v-if="props.showCancel" @click="handleCancle">{{
-          t("cancel")
-        }}</el-button>
+        <el-button
+          class="btn"
+          v-if="props.showCancel"
+          :disabled="loading"
+          @click="handleCancle"
+          >{{ t("cancel") }}</el-button
+        >
         <el-button
           class="btn"
           type="primary"
