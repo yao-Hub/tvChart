@@ -105,6 +105,7 @@ function createWindow(name, hash, screenWidth, showOnReady = true) {
       preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
       nodeIntegration: false, // 禁用 Node.js 集成（推荐false）
+      devTools: false, // 禁用开发者工具
     },
   });
 
