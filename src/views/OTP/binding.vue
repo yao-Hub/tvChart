@@ -160,7 +160,13 @@ const codeFormState = reactive<CodeFormState>({
   code: "",
 });
 const codeFormrules = reactive<FormRules<typeof codeFormState>>({
-  code: [{ required: true, trigger: "blur", message: t("tip.codeRequired") }],
+  code: [
+    {
+      required: true,
+      trigger: ["blur", "change"],
+      message: t("tip.codeRequired"),
+    },
+  ],
 });
 
 const scanCodeImage = new URL(

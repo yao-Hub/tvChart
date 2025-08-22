@@ -21,6 +21,7 @@ enum Api {
   BindOTP = "/otp/bind",
   UnbindOTP = "/otp/unbind",
   RetrieveAccount = "/admin-api/my/retrieve_account",
+  SignOut = "/admin-api/my/sign_out"
 }
 export interface Order {
   id: number; //	订单ID
@@ -98,7 +99,7 @@ interface reqLoginInfo {
  * 登录
  */
 export const Login = (data: reqLogin) => {
-  return request<{ token: string }>({
+  return request<{ token: string; }>({
     url: Api.Login,
     method: "post",
     data,
@@ -227,7 +228,7 @@ export interface resQueryNode {
   managerWebsocket: string; //	manager_websocket
 }
 // 查询交易节点
-export const queryNode = (data: { lineCode: string; lineName: string }) => {
+export const queryNode = (data: { lineCode: string; lineName: string; }) => {
   return request<resQueryNode[]>({
     url: Api.QueryNode,
     method: "post",
@@ -259,7 +260,7 @@ interface IReqArticle {
   articleCode?: string; // 文章编码
 }
 export const articleDetails = (data: IReqArticle) => {
-  return request<{ url: string }>({
+  return request<{ url: string; }>({
     url: Api.ArticleDetails,
     method: "post",
     data,
@@ -339,8 +340,8 @@ export const queryBroker = (data: IReqQueryBroker) => {
 };
 
 // 获取OTP需要展示的二维码内容
-export const queryOTPQRCode = (data: { password: string }) => {
-  return request<{ code_content: string }>({
+export const queryOTPQRCode = (data: { password: string; }) => {
+  return request<{ code_content: string; }>({
     url: Api.QueryOTPQRCode,
     method: "post",
     data,
@@ -376,8 +377,25 @@ export const unbindOTP = (data: IReqOTP) => {
 
 // 找回账户
 export const retrieveAccount = (data: reqRegister) => {
-  return request<{ login: string }>({
+  return request<{ login: string; }>({
     url: Api.RetrieveAccount,
+    method: "post",
+    data,
+    noNeedToken: true,
+    urlType: "admin",
+  });
+};
+
+// 虚拟用户注销
+interface IreqCancelVirtualAccount {
+  login: number | string; //	模拟账户
+  lineName: string; //	交易线路名称
+  email: string;	//邮箱
+  verify_code: string;	//验证码;
+}
+export const cancelVirtualAccount = (data: IreqCancelVirtualAccount) => {
+  return request({
+    url: Api.SignOut,
     method: "post",
     data,
     noNeedToken: true,

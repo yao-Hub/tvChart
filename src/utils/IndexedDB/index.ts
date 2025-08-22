@@ -22,16 +22,6 @@ class IndexedDBService {
 
   openDatabase(isRetry = false) {
     return new Promise((resolve, reject) => {
-
-      let nameList = [];
-      const storageDbList = localStorage.getItem("storageDbList");
-      if (storageDbList) {
-        nameList = JSON.parse(storageDbList);
-      }
-      nameList.push(this.dbName);
-      const uniqNameList = [...new Set(nameList)];
-      localStorage.setItem("storageDbList", JSON.stringify(uniqNameList));
-
       const request = indexedDB.open(this.dbName, this.dbVersion);
 
       // 成功打开

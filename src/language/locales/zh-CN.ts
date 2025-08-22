@@ -88,6 +88,7 @@ export default {
     loginsee: "登录视为您已阅读并同意",
     userAgreement: "用户协议",
     privacyPolicy: "隐私政策",
+    cancellationAgreement: "注销协议",
   },
 
   layout: {
@@ -98,6 +99,7 @@ export default {
   },
 
   account: {
+    myAccount: "我的账户",
     name: "账户",
     accountNum: "账户",
     password: "密码",
@@ -129,6 +131,7 @@ export default {
     noAuthority: "无权限",
     loginIs: "你的账户是",
     enterAsTourist: "以游客身份进入",
+    deleteAccount: "注销账户",
   },
 
   axios: {
@@ -277,6 +280,7 @@ export default {
     noneData: "无数据",
     someError: "出现了一些错误",
     enterVeriCode: "请输入动态验证码",
+    allorderNoClose: "请先结束所有未完结的交易",
   },
 
   time: {
@@ -510,6 +514,14 @@ export default {
     title: "移动端",
     tip_1: "手机端交易更灵活，随时随地把握行情",
     tip_2: "扫描二维码或点击下方按钮，立即下载 CTOTrader APP",
+  },
+
+  signOut: {
+    cancellationNotice: "注销通知",
+    loggedOut: "您已注销",
+    understood: "知道了",
+    submitApplication: "申请注销",
+    iAccept: "我已阅读并同意签署",
   },
 
   "network offline": "无网络",

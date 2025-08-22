@@ -129,28 +129,63 @@
           <el-text type="info">{{ t("accountInfo.OTP") }}</el-text>
         </td>
         <td>
-          <el-text>{{
-            userStore.state.loginInfo?.otp_status
-              ? t("accountInfo.alreadyBound")
-              : t("accountInfo.unbound")
-          }}</el-text>
-          <el-text type="primary" class="bindingStatus" @click="openOTP">{{
-            userStore.state.loginInfo?.otp_status
-              ? t("accountInfo.unbind")
-              : t("accountInfo.binding")
-          }}</el-text>
+          <el-text>
+            {{
+              userStore.state.loginInfo?.otp_status
+                ? t("accountInfo.alreadyBound")
+                : t("accountInfo.unbound")
+            }}
+          </el-text>
+          <el-text type="primary" style="cursor: pointer" @click="openOTP">
+            {{
+              userStore.state.loginInfo?.otp_status
+                ? t("accountInfo.unbind")
+                : t("accountInfo.binding")
+            }}
+          </el-text>
+        </td>
+      </tr>
+
+      <tr v-if="isOfficial">
+        <td>
+          <el-text type="info">{{ t("account.myAccount") }}</el-text>
+        </td>
+        <td>
+          <el-text>{{ userStore.account.login }}</el-text>
+          <el-text
+            type="danger"
+            style="cursor: pointer"
+            @click="handleCancelAccount"
+          >
+            {{ t("account.deleteAccount") }}
+          </el-text>
         </td>
       </tr>
     </table>
   </el-dialog>
 
   <ResetPassword v-model:open="resetPasswordOpen"></ResetPassword>
+
+  <Article
+    v-model:visible="deleteAccountVisible"
+    columnCode="agreement_cancel_desc"
+    :preAccetpText="t('signOut.iAccept')"
+    :agreeBtnText="t('signOut.submitApplication')"
+    :protocol="{
+      title: t('article.cancellationAgreement'),
+      columnCode: 'agreement_cancel_account',
+    }"
+    :beforeAgree="beforeCancelAccountAgree"
+    @handleAgree="handleCancelAccountAgreed"
+  ></Article>
+
+  <CancelAccount v-model:visible="cancelAccountVisible"></CancelAccount>
 </template>
 
 <script setup lang="ts">
 import { computed, reactive, ref } from "vue";
 import { useRouter } from "vue-router";
-import type { DropdownInstance } from "element-plus";
+import { ElMessage, type DropdownInstance } from "element-plus";
 
 import plugins from "@/plugins/propsComponents";
 
@@ -161,6 +196,7 @@ import { useNetwork } from "@/store/modules/network";
 import { AccountListItem, useUser } from "@/store/modules/user";
 
 import ResetPassword from "@/views/login/ResetPassword.vue";
+import CancelAccount from "./CancelAccount.vue";
 
 import { useI18n } from "vue-i18n";
 const { t } = useI18n();
@@ -168,11 +204,12 @@ const { t } = useI18n();
 const dropdown = ref<DropdownInstance>();
 const visible = ref(false);
 const resetPasswordOpen = ref(false);
+const deleteAccountVisible = ref(false);
 
 const networkStore = useNetwork();
 const userStore = useUser();
-const router = useRouter();
 const dialogStore = useDialog();
+const router = useRouter();
 
 const accounts = computed(() => userStore.state.accountList);
 const hoverMap = reactive<{
@@ -242,6 +279,31 @@ const showServerDialog = () => {
 const openOTP = () => {
   modalOpen.value = false;
   dialogStore.openDialog("OTPVisible");
+};
+
+const isOfficial = computed(() => {
+  return useNetwork().currentLine?.isOfficial === "1";
+});
+const handleCancelAccount = () => {
+  modalOpen.value = false;
+  deleteAccountVisible.value = true;
+};
+
+// 注销账户同意前的处理
+const beforeCancelAccountAgree = () => {
+  const loginInfo = userStore.state.loginInfo;
+  const { openning_orders = [], pending_orders = [] } = loginInfo || {};
+  if (openning_orders.length > 0 || pending_orders.length > 0) {
+    ElMessage.warning(t("tip.allorderNoClose"));
+    return false;
+  }
+  return true;
+};
+
+// 注销账户同意
+const cancelAccountVisible = ref(false);
+const handleCancelAccountAgreed = () => {
+  cancelAccountVisible.value = true;
 };
 </script>
 
@@ -366,12 +428,10 @@ table {
     td {
       padding-right: 8px;
       vertical-align: middle;
+      span + span {
+        margin-left: 8px;
+      }
     }
   }
-}
-
-.bindingStatus {
-  margin-left: 8px;
-  cursor: pointer;
 }
 </style>

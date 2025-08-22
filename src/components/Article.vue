@@ -1,7 +1,7 @@
 <template>
   <el-dialog
-    v-if="dialogStore.visibles.disclaimersVisible"
-    v-model="dialogStore.visibles.disclaimersVisible"
+    v-if="model"
+    v-model="model"
     width="900"
     :zIndex="dialogStore.zIndex"
     destroy-on-close
@@ -13,17 +13,18 @@
     <template #header>
       <span class="header">{{ title }}</span>
     </template>
-    <div
-      class="disclaimers"
-      v-loading="!htmlContent"
-      v-html="htmlContent"
-    ></div>
+    <div class="article" v-loading="!htmlContent" v-html="htmlContent"></div>
     <div class="footer" slot="footer">
-      <el-checkbox v-model="agree">
-        <span>{{ t("otp.accept") }}</span>
-      </el-checkbox>
+      <div class="checkbox">
+        <el-checkbox v-model="agree">
+          <span>{{ props.preAccetpText || t("otp.accept") }}</span>
+        </el-checkbox>
+        <el-text type="primary" v-if="props.protocol" @click="goProtocol">
+          {{ t("leftBook") }}{{ props.protocol.title }}{{ t("rightBook") }}
+        </el-text>
+      </div>
       <div class="footer_btnGroup">
-        <el-button class="btn" @click="handleCancle">{{
+        <el-button class="btn" v-if="props.showCancel" @click="handleCancle">{{
           t("cancel")
         }}</el-button>
         <el-button
@@ -31,8 +32,8 @@
           type="primary"
           :loading="loading"
           :disabled="!agree"
-          @click="handleOk"
-          >{{ t("accept") }}</el-button
+          @click="handleAgree"
+          >{{ props.agreeBtnText || t("accept") }}</el-button
         >
       </div>
     </div>
@@ -45,21 +46,42 @@ import { useI18n } from "vue-i18n";
 import { ElMessage } from "element-plus";
 import axios from "axios";
 
+import { useRouter } from "vue-router";
 import { useDialog } from "@/store/modules/dialog";
-import { useOrder } from "@/store/modules/order";
 
 import { articleDetails, protocolAgree } from "api/account/index";
 import { useNetwork } from "@/store/modules/network";
 import { useUser } from "@/store/modules/user";
 
 const dialogStore = useDialog();
-const orderStore = useOrder();
 const { t } = useI18n();
+const router = useRouter();
+
+interface IProps {
+  preAccetpText?: string;
+  agreeBtnText?: string;
+  showCancel?: boolean;
+  columnCode: string;
+  protocol?: { title: string; columnCode: string };
+  beforeAgree?: () => boolean | Promise<boolean>;
+  afterAgree?: () => boolean | Promise<boolean>;
+}
 
 const agree = ref<boolean>(false);
 const htmlContent = ref("");
 const title = ref("");
 const loading = ref(false);
+
+const model = defineModel<boolean>("visible", {
+  required: true,
+  default: false,
+});
+
+const props = withDefaults(defineProps<IProps>(), {
+  showCancel: true,
+});
+const emit = defineEmits(["handleAgree", "handleCancle"]);
+
 // 清除HTML中的所有<style>标签及内容
 const removeAllStyles = (html: string) => {
   if (!html) return "";
@@ -83,11 +105,11 @@ const getTitle = (html: string) => {
   return "";
 };
 watch(
-  () => dialogStore.visibles.disclaimersVisible,
+  () => model.value,
   async (value) => {
     if (value) {
       const res = await articleDetails({
-        columnCode: "quick_transactions",
+        columnCode: props.columnCode,
         articleCode: "",
       });
       const url = res.data.url;
@@ -100,25 +122,28 @@ watch(
   }
 );
 
-const handleOk = async (e: MouseEvent) => {
+const handleAgree = async (e: MouseEvent) => {
+  loading.value = true;
+  if (props.beforeAgree) {
+    const res = await props.beforeAgree();
+    if (!res) {
+      loading.value = false;
+      return;
+    }
+  }
   const currentLine = useNetwork().currentLine;
   const account = useUser().account;
   if (agree.value && currentLine) {
-    loading.value = true;
     protocolAgree({
-      columnCodes: ["quick_transactions"],
+      columnCodes: [props.columnCode],
       brokerName: currentLine.brokerName,
       lineName: currentLine.lineName,
       login: account.login,
-    })
-      .then(() => {
-        loading.value = false;
-        dialogStore.closeDialog("disclaimersVisible");
-        orderStore.setOneTrans(true);
-      })
-      .catch(() => {
-        loading.value = false;
-      });
+    });
+    loading.value = false;
+    model.value = false;
+    agree.value = false;
+    emit("handleAgree");
     return;
   }
   ElMessage({
@@ -129,8 +154,18 @@ const handleOk = async (e: MouseEvent) => {
 
 const handleCancle = () => {
   agree.value = false;
-  orderStore.setOneTrans(false);
-  dialogStore.closeDialog("disclaimersVisible");
+  model.value = false;
+  emit("handleCancle");
+};
+
+const goProtocol = () => {
+  const { href } = router.resolve({
+    name: "protocol",
+    query: {
+      columnCode: props.protocol?.columnCode,
+    },
+  });
+  useNetwork().openWebsite(href, props.protocol?.columnCode);
 };
 </script>
 
@@ -144,7 +179,7 @@ const handleCancle = () => {
   font-size: var(--icon-size);
   @include border_color("border");
 }
-.disclaimers {
+.article {
   border-radius: 5px;
   box-sizing: border-box;
   padding: 10px;
@@ -160,6 +195,10 @@ const handleCancle = () => {
   justify-content: space-between;
   align-items: center;
 
+  .checkbox {
+    display: flex;
+    align-items: center;
+  }
   &_btnGroup {
     display: flex;
     gap: 5px;

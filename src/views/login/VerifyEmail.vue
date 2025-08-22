@@ -183,7 +183,7 @@ const rules = reactive<FormRules<typeof formState>>({
     {
       required: true,
       message: t("tip.codeRequired"),
-      trigger: "blur",
+      trigger: ["blur", "change"],
     },
   ],
 });

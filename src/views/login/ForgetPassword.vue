@@ -167,7 +167,13 @@ const rules = reactive<FormRules<typeof formState>>({
       trigger: ["blur", "change"],
     },
   ],
-  code: [{ required: true, message: t("tip.codeRequired"), trigger: "blur" }],
+  code: [
+    {
+      required: true,
+      message: t("tip.codeRequired"),
+      trigger: ["blur", "change"],
+    },
+  ],
   pass: [{ required: true, validator: validatePass, trigger: "blur" }],
   checkPass: [{ required: true, validator: validatePass2, trigger: "blur" }],
 });

@@ -15,7 +15,12 @@
   <Feedback></Feedback>
 
   <!-- 一键声明 -->
-  <Disclaimers></Disclaimers>
+  <Article
+    v-model:visible="dialogStore.visibles.disclaimersVisible"
+    columnCode="quick_transactions"
+    @handleAgree="orderStore.setOneTrans(true)"
+    @handleCancle="orderStore.setOneTrans(false)"
+  ></Article>
 
   <!-- 订单编辑 -->
   <OrderDialog></OrderDialog>
@@ -48,6 +53,7 @@ import { useSocket } from "@/store/modules/socket";
 import { useSymbols } from "@/store/modules/symbols";
 import { useTime } from "@/store/modules/time";
 import { useUser } from "@/store/modules/user";
+import { useDialog } from "@/store/modules/dialog";
 import { useRoot } from "@/store/store";
 
 import {
@@ -65,7 +71,6 @@ import MarketOrderEdit from "../orderDialog/MarketOrderEdit.vue";
 import PendingOrderEdit from "../orderDialog/PendingOrderEdit.vue";
 import MarketComfirm from "../orderDialog/components/MarketComfirm.vue";
 import OTP from "../OTP/index.vue";
-import Disclaimers from "../Disclaimers/index.vue";
 
 const chartInitStore = useChartInit();
 const userStore = useUser();
@@ -78,6 +83,7 @@ const symbolsStore = useSymbols();
 const timeStore = useTime();
 const rateStore = useRate();
 const quotesStore = useQuotes();
+const dialogStore = useDialog();
 const rootStore = useRoot();
 
 // 情求token无效时 兼容electron的路由跳转

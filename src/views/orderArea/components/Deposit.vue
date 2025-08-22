@@ -186,7 +186,7 @@ const emailRules = reactive<FormRules<typeof emailForm>>({
     {
       required: true,
       message: t("tip.codeRequired"),
-      trigger: "blur",
+      trigger: ["blur", "change"],
     },
   ],
 });

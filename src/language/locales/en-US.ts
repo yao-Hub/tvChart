@@ -89,9 +89,11 @@ export default {
     loginsee: "Login is considered as you have read and agreed to the",
     userAgreement: "User Agreement",
     privacyPolicy: "Privacy Policy",
+    cancellationAgreement: "Cancellation Agreement",
   },
 
   account: {
+    myAccount: "My Account",
     name: "Account",
     accountNum: "Account Number",
     rememberMe: "Remember me",
@@ -123,6 +125,7 @@ export default {
     noAuthority: "No authority",
     loginIs: "Your login is",
     enterAsTourist: "Enter as a tourist",
+    deleteAccount: "Cancel Account",
   },
 
   axios: {
@@ -275,6 +278,7 @@ export default {
     noneData: "No Data",
     someError: "Some error occurred",
     enterVeriCode: "Please enter the dynamic verification code",
+    allorderNoClose: "Please close all open transactions first",
   },
 
   time: {
@@ -519,6 +523,13 @@ export default {
     tip_2: "Scan the QR code or click the button below to download the CTOTrader app now.",
   },
 
+  signOut: {
+    cancellationNotice: "cancellation notice",
+    loggedOut: "You have logged out",
+    understood: "Understood",
+    submitApplication: "Submit Application",
+    iAccept: "Agree to the",
+  },
 
   "network offline": "No network",
   "refresh page": "Reload",
