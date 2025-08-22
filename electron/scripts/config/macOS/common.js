@@ -1,13 +1,7 @@
-const { appIdMap, nameMap } = require("../options");
-
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
   appId: "com.electron.CTOTrader",
-  productName: nameMap[process.env.NODE_ENV], // .app名字
-  // 元信息：更改或者增加已有的设定
-  extraMetadata: {
-    name: appIdMap[process.env.NODE_ENV], // 缓存文件名字
-  },
+  productName: "CTOTrader", // .app名字
   // 打包文件输出路径
   directories: {
     output: 'release_electron/${version}-${env.NODE_ENV}/macOS/common'
@@ -19,16 +13,18 @@ module.exports.default = {
   },
   files: ["dist/**/*", "electron/**/*"],
   mac: {
+    bundleVersion: "2",
+    bundleShortVersion: process.env.npm_package_version,
     target: [
       // 生成通用二进制包
       { target: 'mas', arch: ['universal'] }
     ],
-    hardenedRuntime: true, // 必须为MAS启用硬编码运行时
+    // hardenedRuntime: true, // 必须为MAS启用硬编码运行时
     artifactName: '${productName}-Mac-${version}-${arch}.${ext}',
     icon: "build/icons/logo_1024.png", // 图标 1024 x 1024
 
     // 签名
-    identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // TYPE: Distribution; PLATFORM: All
+    identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // TYPE: Mac Installer Distribution; PLATFORM: All
     // 证书
     provisioningProfile: "build/ctotrader_electron_mac.provisionprofile", // TYPE: App Store; PLATFORM: macOS
 

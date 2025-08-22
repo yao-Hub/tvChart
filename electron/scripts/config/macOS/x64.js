@@ -1,12 +1,7 @@
-const { appIdMap, nameMap } = require("../options");
-
 module.exports.default = {
   $schema: 'https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json',
   appId: "com.electron.CTOTrader",
-  productName: nameMap[process.env.NODE_ENV],
-  extraMetadata: {
-    name: appIdMap[process.env.NODE_ENV] // 缓存文件名字
-  },
+  productName: "CTOTrader", // .app名字
   directories: {
     output: "release_electron/${version}-${env.NODE_ENV}/macOS/x64",
   },
@@ -16,8 +11,10 @@ module.exports.default = {
   },
   files: ["dist/**/*", "electron/**/*"],
   mac: {
+    bundleVersion: "2",
+    bundleShortVersion: process.env.npm_package_version,
     target: [
-      { target: "dmg", arch: ["x64"] },
+      // { target: "dmg", arch: ["x64"] },
       { target: 'mas', arch: ['x64'] },
     ],
     // .dmg .pkg 安装包名字
@@ -26,16 +23,13 @@ module.exports.default = {
     icon: "build/icons/logo_512.png",
 
     // 签名
-    identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // TYPE: Distribution; PLATFORM: All
+    identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // TYPE: Mac Installer Distribution; PLATFORM: All
     // 证书
     provisioningProfile: "build/ctotrader_electron_mac.provisionprofile", // TYPE: App Store; PLATFORM: macOS
 
     entitlements: "build/entitlements.plist",
     entitlementsInherit: "build/entitlements.inherit.plist",
     entitlementsLoginHelper: "build/entitlements.loginhelper.plist",
-  },
-  pkg: {
-    identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)",
   },
   electronVersion: "34.0.2",
 };
