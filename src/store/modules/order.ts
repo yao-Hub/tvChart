@@ -28,17 +28,17 @@ import { getSymbolDetail } from "api/symbols";
 type ModeType = "create" | "confirm";
 type OrderStateWithDirectionRequired<T extends ModeType> = T extends "confirm"
   ? {
-      symbol: string;
-      volume: string;
-      type: 0 | 1;
-      mode: T;
-    }
+    symbol: string;
+    volume: string;
+    type: 0 | 1;
+    mode: T;
+  }
   : {
-      symbol: string;
-      volume?: string;
-      type?: 0 | 1;
-      mode?: T;
-    };
+    symbol: string;
+    volume?: string;
+    type?: 0 | 1;
+    mode?: T;
+  };
 
 interface IState {
   initOrderState: OrderStateWithDirectionRequired<ModeType> | null;
@@ -236,18 +236,15 @@ export const useOrder = defineStore("order", () => {
       // 单个平仓
       case "single_marketOrder_close":
         getMarketOrderHistory();
-        userStore.getLoginInfo();
         break;
       // 监听订单已建仓
       case "order_opened":
         getMarketOrders();
-        userStore.getLoginInfo();
         break;
       // 监听订单已平仓
       case "order_closed":
         getMarketOrders();
         getMarketOrderHistory();
-        userStore.getLoginInfo();
         break;
       // 监听订单已修改（止盈止损）
       case "order_modified":
@@ -270,12 +267,10 @@ export const useOrder = defineStore("order", () => {
       case "pending_order_dealt":
         getMarketOrders();
         getPendingOrders();
-        userStore.getLoginInfo();
         break;
       // 监听出入金
       case "balance_order_added":
         getBlanceRecord();
-        userStore.getLoginInfo();
         break;
       case "marketOrder":
         await getMarketOrders();
@@ -298,6 +293,7 @@ export const useOrder = defineStore("order", () => {
       default:
         break;
     }
+    userStore.getLoginInfo();
   };
   const initTableData = async () => {
     const socketStore = useSocket();
@@ -543,8 +539,8 @@ export const useOrder = defineStore("order", () => {
         currency === userCur
           ? "last_user"
           : preCurrency === userCur
-          ? "pre_user"
-          : "normal";
+            ? "pre_user"
+            : "normal";
 
       const result = stateMachine[type][direction];
       const finalResult = result.add(feeDec).add(storageDec).toFixed(2);
@@ -833,7 +829,7 @@ export const useOrder = defineStore("order", () => {
   };
 
   // 删除市价单
-  const delMarketOrder = (updata: orders.reqMarketClose & { type: number }) => {
+  const delMarketOrder = (updata: orders.reqMarketClose & { type: number; }) => {
     let errmsg = "";
     let logStr = "";
     let ifTrader = true;
@@ -959,7 +955,7 @@ export const useOrder = defineStore("order", () => {
 
   // 编辑挂单
   const modifyPendingOrder = (
-    updata: orders.reqPendingOrdersAdd & { id: string | number },
+    updata: orders.reqPendingOrdersAdd & { id: string | number; },
     originData: orders.resOrders
   ) => {
     let errmsg = "";
@@ -975,9 +971,8 @@ export const useOrder = defineStore("order", () => {
     } = originData;
     const { volume } = updata;
     const orderType = getOrderType(type);
-    logStr = `#${id}, ${orderType} ${
-      originVolume / 100
-    } ${symbol} at ${order_price}, sl:${sl_price} tp:${tp_price} -> `;
+    logStr = `#${id}, ${orderType} ${originVolume / 100
+      } ${symbol} at ${order_price}, sl:${sl_price} tp:${tp_price} -> `;
     if (updata.volume) {
       logStr += `volume:${updata.volume} `;
     }
@@ -1039,9 +1034,8 @@ export const useOrder = defineStore("order", () => {
     let logStr = "";
     let errmsg = "";
     let ifTrader = true;
-    logStr = `#${id} (${orderType} ${
-      volume / 100
-    } ${symbol} at ${order_price})`;
+    logStr = `#${id} (${orderType} ${volume / 100
+      } ${symbol} at ${order_price})`;
 
     return new Promise(async (resolve, reject) => {
       try {

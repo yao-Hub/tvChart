@@ -172,7 +172,7 @@ export const useUser = defineStore("user", () => {
     const storageList = state.accountList.map((item) => {
       return {
         ...item,
-        // password: CryptoJS.encrypt(item.password), // 加密
+        password: CryptoJS.encrypt(item.password), // 加密
         token: CryptoJS.encrypt(item.token),
       };
     });
@@ -266,7 +266,7 @@ export const useUser = defineStore("user", () => {
     storageAccount();
   };
 
-  const removeAccount = (info: AccountListItem) => {
+  const removeAccount = (info: { server: string; login: string; }) => {
     const { server, login } = info;
     const index = state.accountList.findIndex(
       (e) => e.server === server && e.login === login
@@ -380,11 +380,9 @@ export const useUser = defineStore("user", () => {
           .finally(() => {
             const endTime = new Date().getTime();
             const ping = endTime - beginTime;
-            const detail = `${updata.login}: ${
-              logType === "error" ? `login ${errmsg}` : "login"
-            } (dc:${
-              networkStore.nodeName || "none"
-            },ping:${ping}ms,port: ${getPort(webApi || "")})`;
+            const detail = `${updata.login}: ${logType === "error" ? `login ${errmsg}` : "login"
+              } (dc:${networkStore.nodeName || "none"
+              },ping:${ping}ms,port: ${getPort(webApi || "")})`;
             const logData = {
               id: endTime,
               logType,
@@ -413,11 +411,9 @@ export const useUser = defineStore("user", () => {
     } finally {
       const endTime = new Date().getTime();
       const ping = endTime - beginTime;
-      const detail = `${account.value.login}: ${
-        logType === "error" ? "logoutFail" : "logout"
-      } (dc:${useNetwork().nodeName},ping:${ping}ms,port: ${
-        useNetwork().port
-      })`;
+      const detail = `${account.value.login}: ${logType === "error" ? "logoutFail" : "logout"
+        } (dc:${useNetwork().nodeName},ping:${ping}ms,port: ${useNetwork().port
+        })`;
       const logData = {
         logType,
         origin: "network",

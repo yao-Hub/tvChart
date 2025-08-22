@@ -20,7 +20,7 @@ module.exports.default = {
     // .dmg .pkg 安装包名字
     artifactName: '${productName}-Mac-${version}-${arch}.${ext}',
 
-    icon: "build/icons/logo_512.png",
+    icon: "build/icons/logo_1024_mac.png",
 
     // 签名
     identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // TYPE: Mac Installer Distribution; PLATFORM: All

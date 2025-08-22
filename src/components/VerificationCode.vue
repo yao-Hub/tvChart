@@ -37,6 +37,7 @@ const typeMap: Record<string, number> = {
   register: 4,
   deposit: 3,
   forgetAccount: 7,
+  cancelAccount: 1,
 };
 
 const props = defineProps<Props>();
@@ -69,6 +70,9 @@ const loading = ref(false);
 
 const handleClick = async () => {
   try {
+    if (!props.email) {
+      return;
+    }
     loading.value = true;
     const type = typeMap[props.type];
     const updata: IReqSendEmail = {

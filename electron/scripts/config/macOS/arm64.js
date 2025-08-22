@@ -23,7 +23,7 @@ module.exports.default = {
     artifactName: '${productName}-Mac-${version}-${arch}.${ext}',
 
     minimumSystemVersion: '12.0', // 支持的mac最小系统版本
-    icon: "build/icons/logo_1024.png", // 图标 1024 x 1024
+    icon: "build/icons/logo_1024_mac.png", // 图标 1024 x 1024
 
     // 签名
     identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // TYPE: Mac Installer Distribution; PLATFORM: All
