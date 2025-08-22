@@ -292,7 +292,8 @@ const handleCancelAccount = () => {
 // 注销账户同意前的处理
 const beforeCancelAccountAgree = () => {
   const loginInfo = userStore.state.loginInfo;
-  const { openning_orders = [], pending_orders = [] } = loginInfo || {};
+  const openning_orders = loginInfo?.openning_orders || [];
+  const pending_orders = loginInfo?.pending_orders || [];
   if (openning_orders.length > 0 || pending_orders.length > 0) {
     ElMessage.warning(t("tip.allorderNoClose"));
     return false;
