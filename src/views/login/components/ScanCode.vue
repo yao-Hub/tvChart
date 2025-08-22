@@ -107,7 +107,7 @@ onMounted(() => {
 
 .scanCodeScrollbarView {
   height: 100%;
-  min-height: 430px;
+  min-height: 380px;
   display: flex;
   flex-direction: column;
   align-items: center;
