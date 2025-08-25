@@ -6,6 +6,9 @@ module.exports.default = {
   directories: {
     output: 'release_electron/${version}-${env.NODE_ENV}/macOS/arm64'
   },
+  extraMetadata: {
+    name: "CTOTrader",
+  },
   // 资源放置路径
   extraResources: {
     from: "public/charting_library",
@@ -13,7 +16,7 @@ module.exports.default = {
   },
   files: ["dist/**/*", "electron/**/*"],
   mac: {
-    bundleVersion: "2",
+    bundleVersion: "8",
     bundleShortVersion: process.env.npm_package_version,
     target: [
       // { target: 'dmg', arch: ['arm64'] },
@@ -23,7 +26,7 @@ module.exports.default = {
     artifactName: '${productName}-Mac-${version}-${arch}.${ext}',
 
     minimumSystemVersion: '12.0', // 支持的mac最小系统版本
-    icon: "build/icons/logo_1024_mac.png", // 图标 1024 x 1024
+    icon: "build/icons/logo_1024px.icns", // 图标 1024 x 1024
 
     // 签名
     identity: "Furong Uptech Solution Co., Limited (D322KZZJ5C)", // TYPE: Mac Installer Distribution; PLATFORM: All

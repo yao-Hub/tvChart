@@ -316,7 +316,7 @@ export const useUser = defineStore("user", () => {
     if (nodeList.length === 0) {
       ElMessage.info(t("tip.networkNodeNotFound"));
       callback && callback({ ending: true, success: false });
-      return Promise.reject();
+      return;
     }
     // 选择连接延迟最低的网络节点
     const delayList = await networkStore.getNodesDelay();
@@ -328,7 +328,7 @@ export const useUser = defineStore("user", () => {
           success: false,
           errmsg: t("tip.NodeDelayError"),
         });
-      return Promise.reject();
+      return;
     }
     // 延迟排序
     const orderList = sortBy(delayList, ["delay"]);

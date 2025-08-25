@@ -79,11 +79,12 @@ eventBus.on("socket-connect", () => {
 eventBus.on("socket-error", () => {
   socketState.value = "error";
 });
-const handleVisibilityChange = async () => {
+const handleVisibilityChange = () => {
   const state = document.visibilityState;
   if (state === "visible" && socketState.value === "disconnect") {
     socketState.value = "";
-    useChartInit().systemRefresh();
+    // useChartInit().systemRefresh();
+    location.reload();
   }
 };
 
@@ -92,7 +93,8 @@ const ifOnline = ref(true);
 const handleOnline = () => {
   if (!ifOnline.value) {
     ifOnline.value = true;
-    useChartInit().systemRefresh();
+    location.reload();
+    // useChartInit().systemRefresh();
   }
 };
 const handleOffline = () => {
@@ -107,20 +109,23 @@ onMounted(() => {
   window.addEventListener("online", handleOnline);
   window.addEventListener("offline", handleOffline);
   document.addEventListener("visibilitychange", handleVisibilityChange);
-  // 获取更新
-  useVersion().getUpdate({
-    status: [1, 2],
-    ifCheckFrequency: true,
-  });
 
-  // electron 多语言传递
-  window.electronAPI?.send("set-translations", {
-    shutdown: I18n.t("update.shutdown"),
-    cancel: I18n.t("cancel"),
-    exitTip: I18n.t("update.exitTip"),
-    downLoading: I18n.t("update.downloading"),
-  });
-  useVersion().subUpdate();
+  if(OS_PLATFORM !== "darwin") {
+    // 获取更新
+    useVersion().getUpdate({
+      status: [1, 2],
+      ifCheckFrequency: true,
+    });
+  
+    // electron 多语言传递
+    window.electronAPI?.send("set-translations", {
+      shutdown: I18n.t("update.shutdown"),
+      cancel: I18n.t("cancel"),
+      exitTip: I18n.t("update.exitTip"),
+      downLoading: I18n.t("update.downloading"),
+    });
+    useVersion().subUpdate();
+  }
 });
 onUnmounted(() => {
   window.removeEventListener("online", handleOnline);

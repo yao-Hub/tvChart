@@ -85,13 +85,13 @@ export const useNetwork = defineStore("network", {
       const serverList = uniq(["", ...accountList.map((e) => e.server)]);
       for (let i = 0; i < serverList.length; i++) {
         const lineName = serverList[i];
-        // 服务器设置了防抖 所以执行请求前等待1秒
-        // if (i > 0) {
-        //   await new Promise((resolve) => setTimeout(resolve, 3000));
-        // }
-        const res = await queryTradeLine({ lineName });
+        const data = [];
+        try {
+          const res = await queryTradeLine({ lineName });
+          data.push(...res.data);
+        } catch { }
         this.queryTradeLines = uniqBy(
-          [...res.data, ...this.queryTradeLines],
+          [...data, ...this.queryTradeLines],
           "lineName"
         );
       }
@@ -107,12 +107,16 @@ export const useNetwork = defineStore("network", {
         (e) => e.lineName === server
       )?.lineCode;
       if (lineCode) {
-        const res = await queryNode({
-          lineCode,
-          lineName: server,
-        });
-        this.nodeList = res.data;
-        return this.nodeList;
+        try {
+          const res = await queryNode({
+            lineCode,
+            lineName: server,
+          });
+          this.nodeList = res.data;
+          return this.nodeList;
+        } catch (error) {
+          return [];
+        }
       }
       return [];
     },

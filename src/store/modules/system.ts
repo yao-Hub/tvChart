@@ -99,14 +99,14 @@ export const useSystem = defineStore("system", () => {
     systemInfo.value = {
       deviceBrand: brower,
       deviceModel: browerVersion,
-      platform: WEB_PLATFORM,
+      platform: OS_PLATFORM,
       deviceInfo: `${OS_TYPE} ${OS_MACH}`,
       deviceId,
     };
     window.localStorage.setItem("uuid", deviceId);
   });
 
-  function $reset() {}
+  function $reset() { }
 
   return { getSystemInfo, systemInfo, $reset };
 });

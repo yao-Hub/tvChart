@@ -82,9 +82,9 @@ export default defineConfig((mode: ConfigEnv) => {
         ...process.env,
       },
       _VERSION_: JSON.stringify(require("./package.json").version),
-      WEB_PLATFORM: JSON.stringify(os.platform()), // 系统平台
-      WEB_RELEASE: JSON.stringify(os.release()), // 系统版本号
-      WEB_HOSTNAME: JSON.stringify(os.hostname()), // 主机名
+      OS_PLATFORM: JSON.stringify(os.platform()), // 系统平台
+      OS_RELEASE: JSON.stringify(os.release()), // 系统版本号
+      OS_HOSTNAME: JSON.stringify(os.hostname()), // 主机名
       OS_TYPE: JSON.stringify(os.type()), // Windows_NT
       OS_MACH: JSON.stringify(os.machine()), // x86_64
     },

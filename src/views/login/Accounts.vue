@@ -130,18 +130,7 @@ const happyStart = async () => {
     const account = list.value[activeIndex.value];
     if (account) {
       const { login, server } = account;
-      // if (remember) {
-      //   await userStore.login(account, ({ ending, success }) => {
-      //     loading.value = !ending;
-      //     if (ending) {
-      //       success
-      //         ? router.push({ path: PageEnum.CHART })
-      //         : goLogin({ login, server });
-      //     }
-      //   });
-      // } else {
       goLogin({ login, server });
-      // }
     }
   } catch (e) {
     loading.value = false;

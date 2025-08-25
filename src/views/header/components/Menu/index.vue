@@ -43,7 +43,7 @@
         <div class="dropdownbox_item">
           <ClearCache></ClearCache>
         </div>
-        <div class="dropdownbox_item" v-if="ifElectron">
+        <div class="dropdownbox_item" v-if="ifElectron && platform !== 'darwin'">
           <CheckUpdate></CheckUpdate>
         </div>
       </div>
@@ -72,6 +72,7 @@ import TransactionRecord from "./TransactionRecord/index.vue";
 import Mobile from "./mobile.vue";
 
 const ifElectron = process.env.IF_ELECTRON;
+const platform = OS_PLATFORM;
 
 const visible = ref(false);
 

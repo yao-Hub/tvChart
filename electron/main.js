@@ -236,9 +236,7 @@ if (!gotTheLock) {
 
   // 在非 macOS 系统上，退出应用
   app.on('window-all-closed', (event) => {
-    if (process.platform !== 'darwin') {
-      app.quit();
-    }
+    app.quit();
   });
 }
 
