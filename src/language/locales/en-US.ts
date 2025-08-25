@@ -460,7 +460,7 @@ export default {
   },
 
   transactionRecord: {
-    title: "Transaction Record",
+    title: "Trading Records",
     positions: "Positions",
     pending: "Pending Order",
     histories: "Histories",

@@ -16,7 +16,7 @@ module.exports.default = {
   },
   files: ["dist/**/*", "electron/**/*"],
   mac: {
-    bundleVersion: "9",
+    bundleVersion: "11",
     bundleShortVersion: process.env.npm_package_version,
     target: [
       // { target: 'dmg', arch: ['arm64'] },
