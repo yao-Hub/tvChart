@@ -24,7 +24,7 @@
     "electron:dev": "cross-env IF_ELECTRON=true NODE_ENV=development vite --mode development",
     "electron:staging": "cross-env IF_ELECTRON=true NODE_ENV=staging vite --mode staging",
     "electron:prod": "cross-env IF_ELECTRON=true NODE_ENV=production vite --mode production",
-    "electron-build:dev": "npm run prepackage && cross-env NODE_ENV=development IF_ELECTRON=true node ./electron/scripts/build.js",
+    "electron-build:dev": "cross-env NODE_ENV=development IF_ELECTRON=true node ./electron/scripts/build.js",
     "electron-build:staging": "npm run prepackage && cross-env NODE_ENV=staging IF_ELECTRON=true node ./electron/scripts/build.js",
     "electron-build:prod": "npm run prepackage && cross-env NODE_ENV=production IF_ELECTRON=true node ./electron/scripts/build.js"
   },

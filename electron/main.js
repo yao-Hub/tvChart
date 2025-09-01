@@ -43,10 +43,10 @@ function createSplashWindow() {
     resizable: false,
     show: true,
     webPreferences: {
+      preload: path.join(__dirname, "preload.js"), // 预加载脚本
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: true,
-      devTools: false, // 禁用开发者工具
+      devTools: process.platform !== 'darwin', // 禁用开发者工具
     }
   });
 
@@ -102,10 +102,9 @@ function createWindow(name, hash, screenWidth, showOnReady = true) {
     show: false,  // 先隐藏窗口
     backgroundColor: bgOptions[systemTheme], // ready-to-show之前显示的背景
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"), // 预加载脚本
       contextIsolation: true, // 启用上下文隔离
       nodeIntegration: false, // 禁用 Node.js 集成（推荐false）
-      devTools: false, // 禁用开发者工具
+      devTools: process.platform !== 'darwin', // mac 禁用开发者工具
     },
   });
 
@@ -115,13 +114,11 @@ function createWindow(name, hash, screenWidth, showOnReady = true) {
   // Windows Linux 设置菜单栏是否可见
   windowsMap[name].setMenuBarVisibility(false);
 
+  // 在 macOS 系统中全局去除菜单栏
+  Menu.setApplicationMenu(null);
+
   // 设置窗口快捷键
   shortcutManager.setupWindowShortcuts(windowsMap[name]);
-
-  // 在 macOS 系统中全局去除菜单栏
-  if (process.platform === 'darwin') {
-    Menu.setApplicationMenu(null);
-  }
 
   // 窗口加载地址
   if (hash) {
@@ -182,13 +179,26 @@ if (!gotTheLock) {
   // 如果没有获取到锁，说明已经有一个实例在运行，直接退出当前实例
   app.quit();
 } else {
-  // 如果获取到锁，说明这是第一个实例
+  // 尝试启动应用程序的第二个实例
   app.on('second-instance', (event, commandLine, workingDirectory) => {
     // 当第二个实例启动时，聚焦到主窗口
     if (windowsMap.mainWindow) {
       if (windowsMap.mainWindow.isMinimized()) windowsMap.mainWindow.restore();
       windowsMap.mainWindow.focus();
     }
+  });
+
+  // 只有macOS会触发事件 点击 Dock 栏中的应用图标
+  app.on('activate', () => {
+    // 在 macOS 上，当点击 Dock 图标并且没有其他窗口打开时，重新创建一个窗口
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow("mainWindow", null, null, true);
+      return;
+    }
+    if (windowsMap.mainWindow) {
+      if (windowsMap.mainWindow.isMinimized()) windowsMap.mainWindow.restore();
+    }
+    windowsMap.mainWindow.focus();
   });
 
   app.on('ready', () => {
@@ -225,16 +235,11 @@ if (!gotTheLock) {
 
       // 显示主窗口
       wind.show();
+      wind.focus();
     });
   });
 
-  // 只有macOS会触发事件 当应用被激活时发出
-  app.on('activate', () => {
-    // 在 macOS 上，当点击 Dock 图标并且没有其他窗口打开时，重新创建一个窗口
-    if (BrowserWindow.getAllWindows().length === 0) createWindow("mainWindow", null, null, true);
-  });
-
-  // 在非 macOS 系统上，退出应用
+  // 窗口全部关闭退出应用
   app.on('window-all-closed', (event) => {
     app.quit();
   });
