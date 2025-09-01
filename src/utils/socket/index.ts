@@ -13,15 +13,15 @@ class SingletonSocket {
   private queryGenerator: (() => Promise<string>) | null = null;
   constructor() { }
 
-  getInstance(mainUri: string, queryGenerator: () => Promise<string>): Socket {
+  async getInstance(mainUri: string, queryGenerator: () => Promise<string>): Promise<Socket> {
     this.mainUri = mainUri;
     this.queryGenerator = queryGenerator;
 
     if (!this.instance) {
-      this.createInstance();
+      await this.createInstance();
     }
     this.setupSocketEvents();
-    return this.instance as Socket;
+    return Promise.resolve(this.instance as Socket);
   }
   private async createInstance() {
     if (this.queryGenerator && this.mainUri) {

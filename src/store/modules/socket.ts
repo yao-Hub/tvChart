@@ -118,7 +118,7 @@ export const useSocket = defineStore("socket", {
       const networkStore = useNetwork();
       const mainUri = networkStore.currentNode?.webWebsocket;
       if (mainUri) {
-        this.mainSocket = this.mainInstance.getInstance(mainUri, () => this.getUriQuery("connect"));
+        this.mainSocket = await this.mainInstance.getInstance(mainUri, () => this.getUriQuery("connect"));
         while (this.mainSocketNoExecuteList.length) {
           const item = this.mainSocketNoExecuteList.shift();
           if (item) {
@@ -471,7 +471,7 @@ export const useSocket = defineStore("socket", {
     // online socket连接
     async onlineSocketInit() {
       const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
-      this.onLineSocket = this.onLineInstance.getInstance(uri, () => this.getUriQuery("online"));
+      this.onLineSocket = await this.onLineInstance.getInstance(uri, () => this.getUriQuery("online"));
       while (this.onLineSocketNoExecuteList.length) {
         const item = this.onLineSocketNoExecuteList.shift();
         if (item) {

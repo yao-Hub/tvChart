@@ -17,7 +17,7 @@ import { orderBy, uniq, uniqBy } from "lodash";
 interface IState {
   server: string;
   nodeName: string;
-  nodeList: Array<resQueryNode & { webApiDelay?: number | null }>;
+  nodeList: Array<resQueryNode & { webApiDelay?: number | null; }>;
   queryTradeLines: resQueryTradeLine[];
 }
 interface RequestResult {
@@ -81,6 +81,9 @@ export const useNetwork = defineStore("network", {
 
     // 交易线路
     async getLines() {
+      if (this.queryTradeLines.length) {
+        return this.queryTradeLines;
+      }
       const accountList = useUser().state.accountList;
       const serverList = uniq(["", ...accountList.map((e) => e.server)]);
       for (let i = 0; i < serverList.length; i++) {
