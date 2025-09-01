@@ -170,9 +170,10 @@ export const useUser = defineStore("user", () => {
 
   const storageAccount = () => {
     const storageList = state.accountList.map((item) => {
+      const { token, password, ...params } = item;
       return {
-        ...item,
-        password: CryptoJS.encrypt(item.password), // 加密
+        ...params,
+        // password: CryptoJS.encrypt(item.password), // 加密
         token: CryptoJS.encrypt(item.token),
       };
     });
