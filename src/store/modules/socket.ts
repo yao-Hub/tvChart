@@ -86,7 +86,7 @@ export const useSocket = defineStore("socket", {
     },
 
     async getUriQuery(
-      action: string = "connect",
+      action: string,
       dData: Record<string, string> = {}
     ) {
       if (!useSystem().systemInfo) {
@@ -118,8 +118,7 @@ export const useSocket = defineStore("socket", {
       const networkStore = useNetwork();
       const mainUri = networkStore.currentNode?.webWebsocket;
       if (mainUri) {
-        const query = await this.getUriQuery();
-        this.mainSocket = this.mainInstance.getInstance(mainUri, query);
+        this.mainSocket = this.mainInstance.getInstance(mainUri, () => this.getUriQuery("connect"));
         while (this.mainSocketNoExecuteList.length) {
           const item = this.mainSocketNoExecuteList.shift();
           if (item) {
@@ -253,7 +252,7 @@ export const useSocket = defineStore("socket", {
     },
 
     // 验证登录信息绑定交易账户
-    sendToken({ login, token }: { login: string | number; token: string }) {
+    sendToken({ login, token }: { login: string | number; token: string; }) {
       if (this.mainSocket) {
         const d = this.enData({
           ...this.reqData(),
@@ -472,8 +471,7 @@ export const useSocket = defineStore("socket", {
     // online socket连接
     async onlineSocketInit() {
       const uri = import.meta.env.VITE_ONLINE_STATISTICS_SOCKET;
-      const query = await this.getUriQuery("online", {});
-      this.onLineSocket = this.onLineInstance.getInstance(uri, query);
+      this.onLineSocket = this.onLineInstance.getInstance(uri, () => this.getUriQuery("online"));
       while (this.onLineSocketNoExecuteList.length) {
         const item = this.onLineSocketNoExecuteList.shift();
         if (item) {

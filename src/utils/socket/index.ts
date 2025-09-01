@@ -9,22 +9,31 @@ class SingletonSocket {
 
   private errReason: string = "";
 
-  constructor() {}
+  private mainUri: string = "";
+  private queryGenerator: (() => Promise<string>) | null = null;
+  constructor() { }
 
-  getInstance(mainUri: string, query: string = ""): Socket {
+  getInstance(mainUri: string, queryGenerator: () => Promise<string>): Socket {
+    this.mainUri = mainUri;
+    this.queryGenerator = queryGenerator;
+
     if (!this.instance) {
-      this.instance = io(`${mainUri}${query}`, {
+      this.createInstance();
+    }
+    this.setupSocketEvents();
+    return this.instance as Socket;
+  }
+  private async createInstance() {
+    if (this.queryGenerator && this.mainUri) {
+      const query = await this.queryGenerator();
+      this.instance = io(`${this.mainUri}${query}`, {
         transports: ["websocket"],
-        reconnection: true, // 开启重连功能
-        // reconnectionAttempts: 5, //  重连次数
-        // reconnectionDelay: 3000, // 重连间隔
+        reconnection: true,
         extraHeaders: {
           Connection: "Upgrade",
         },
       });
     }
-    this.setupSocketEvents();
-    return this.instance;
   }
 
   setupSocketEvents(): void {
@@ -33,6 +42,16 @@ class SingletonSocket {
       this.instance.off("connect");
       this.instance.off("disconnect");
       this.instance.off("connect_error");
+      this.instance.off("reconnect_attempt"); // 重连尝试事件监听
+
+      this.instance.on("reconnect_attempt", async () => {
+        console.log("准备重连，更新连接参数...");
+        if (this.instance) {
+          this.instance.disconnect();
+        }
+        await this.createInstance();
+        this.setupSocketEvents(); // 重新绑定事件
+      });
 
       this.instance.on("connect", () => {
         if (this.errReason === "transport close") {
