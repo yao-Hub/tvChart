@@ -16,10 +16,10 @@ class SingletonSocket {
   async getInstance(mainUri: string, queryGenerator: () => Promise<string>): Promise<Socket> {
     this.mainUri = mainUri;
     this.queryGenerator = queryGenerator;
-
-    if (!this.instance) {
-      await this.createInstance();
+    if (this.instance) {
+      this.close();
     }
+    await this.createInstance();
     this.setupSocketEvents();
     return Promise.resolve(this.instance as Socket);
   }

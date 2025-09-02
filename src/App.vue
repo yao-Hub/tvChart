@@ -26,31 +26,41 @@ const systemStore = useSystem();
 sizeStore.initSize(); // 初始化字体大小
 useTheme().initTheme(); // 系统主题
 
-// 标志位：打点函数是否已执行
-const trackSent = ref(false);
-
 // online socket初始化
 watch(
-  () => [systemStore.systemInfo, useNetwork().server],
-  () => {
-    const info = systemStore.systemInfo;
+  () => systemStore.systemInfo,
+  (info) => {
     if (info && info.deviceId) {
       useSocket().onlineSocketInit();
     }
+  },
+  {
+    deep: true,
+    once: true,
+  }
+);
+
+// 标志位：打点函数是否已执行
+const trackSent = ref(false);
+watch(
+  () => [useNetwork().server, systemStore.systemInfo],
+  () => {
+    const info = systemStore.systemInfo;
     const server = useNetwork().server;
-    // 若server从无到有 需要重新链接一次online socket
-    if (info && server && !trackSent.value) {
-      useSocket().onLineInstance.close();
+    if (trackSent.value) {
+      return;
+    }
+    if (info && server) {
       useSocket().onlineSocketInit();
-      trackSent.value = true;
       // 启动打点
       sendTrack({
         actionType: "open",
         actionObject: location.href,
       });
+      trackSent.value = true;
     }
   },
-  { deep: true, immediate: true }
+  { deep: true }
 );
 
 // 国际化
@@ -110,13 +120,13 @@ onMounted(() => {
   window.addEventListener("offline", handleOffline);
   document.addEventListener("visibilitychange", handleVisibilityChange);
 
-  if(OS_PLATFORM !== "darwin") {
+  if (OS_PLATFORM !== "darwin") {
     // 获取更新
     useVersion().getUpdate({
       status: [1, 2],
       ifCheckFrequency: true,
     });
-  
+
     // electron 多语言传递
     window.electronAPI?.send("set-translations", {
       shutdown: I18n.t("update.shutdown"),
